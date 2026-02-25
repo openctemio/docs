@@ -440,7 +440,7 @@ app.add_middleware(
 
 **Vercel:**
 ```bash
-# Go to Project → Settings → Environment Variables
+# Go to Project > Settings > Environment Variables
 # Add all NEXT_PUBLIC_* variables
 ```
 

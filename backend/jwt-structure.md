@@ -31,26 +31,30 @@ OpenCTEM uses JWT (JSON Web Tokens) for authentication with a **hybrid approach*
 
 ```json
 {
-  "sub": "66666666-6666-6666-6666-666666666666",
+  "id": "66666666-6666-6666-6666-666666666666",
   "email": "user@example.com",
-  "tenant_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+  "tenant": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
   "role": "admin",
-  "is_admin": true,
+  "admin": true,
+  "sub": "66666666-6666-6666-6666-666666666666",
   "exp": 1737589200,
   "iat": 1737588300,
   "iss": "openctem-api"
 }
 ```
 
+> **Note:** Both `"id"` (custom claim) and `"sub"` (standard JWT `RegisteredClaims.Subject`) contain the user ID. The `"id"` field is the custom claim defined on the `Claims` struct, while `"sub"` comes from the embedded `jwt.RegisteredClaims` and is set to the same value. Most application code uses `claims.UserID` (mapped from `"id"`), but `"sub"` is included for JWT standards compliance.
+
 ### Claims Description
 
 | Claim | Type | Description |
 |-------|------|-------------|
-| `sub` | string | User ID (UUID) |
+| `id` | string | User ID (UUID) - custom claim |
+| `sub` | string | User ID (UUID) - standard JWT subject claim (same value as `id`) |
 | `email` | string | User email address |
-| `tenant_id` | string | Active tenant ID (UUID) |
+| `tenant` | string | Active tenant ID (UUID) |
 | `role` | string | User's role name (e.g., "admin", "member") |
-| `is_admin` | boolean | Whether user is a tenant administrator |
+| `admin` | boolean | Whether user is a tenant administrator |
 | `exp` | int64 | Token expiration time (Unix timestamp) |
 | `iat` | int64 | Token issued at time (Unix timestamp) |
 | `iss` | string | Token issuer ("openctem-api") |
@@ -60,42 +64,6 @@ OpenCTEM uses JWT (JSON Web Tokens) for authentication with a **hybrid approach*
 ---
 
 ## Token Lifecycle
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant UI as Frontend
-    participant API as Backend API
-    participant Redis as Redis Cache
-    participant DB as PostgreSQL
-
-    U->>UI: Login
-    UI->>API: POST /auth/login
-    API->>DB: Verify credentials
-    API->>API: Generate JWT (no permissions)
-    API->>Redis: Cache user permissions (TTL 15min)
-    API-->>UI: Access Token + Refresh Token (cookie)
-    
-    Note over UI,API: Later: Making authenticated request
-    UI->>API: GET /api/v1/assets (with JWT)
-    API->>API: Decode JWT → Extract userID, tenantID
-    API->>Redis: Get permissions (cache key: perms:{userID}:{tenantID})
-    alt Cache Hit
-        Redis-->>API: permissions[]
-    else Cache Miss
-        API->>DB: Load permissions from DB
-        DB-->>API: permissions[]
-        API->>Redis: Cache permissions (TTL 15min)
-    end
-    API->>API: Check permission required
-    API-->>UI: 200 OK or 403 Forbidden
-```
-
----
-
-## Token Lifecycle
-
-### Architecture Flow
 
 ```mermaid
 sequenceDiagram
@@ -233,12 +201,12 @@ func PermissionVersion(permSvc *app.PermissionService) func(http.Handler) http.H
 // File: api/pkg/jwt/jwt.go
 
 type Claims struct {
-    Sub      string `json:"sub"`       // User ID
+    UserID   string `json:"id"`        // User ID (custom claim)
     Email    string `json:"email"`
-    TenantID string `json:"tenant_id"`
+    TenantID string `json:"tenant"`    // Tenant ID
     Role     string `json:"role"`
-    IsAdmin  bool   `json:"is_admin"`
-    jwt.RegisteredClaims
+    IsAdmin  bool   `json:"admin"`     // Admin flag
+    jwt.RegisteredClaims               // Includes "sub" (set to UserID)
 }
 
 func (c *Client) GenerateTenantScopedAccessToken(
@@ -247,12 +215,13 @@ func (c *Client) GenerateTenantScopedAccessToken(
 ) (string, error) {
     now := time.Now()
     claims := Claims{
-        Sub:      userID,
+        UserID:   userID,
         Email:    email,
         TenantID: tenantID,
         Role:     role,
         IsAdmin:  isAdmin,
         RegisteredClaims: jwt.RegisteredClaims{
+            Subject:   userID,  // Standard "sub" claim (same as UserID)
             ExpiresAt: jwt.NewNumericDate(now.Add(c.accessTokenDuration)),
             IssuedAt:  jwt.NewNumericDate(now),
             Issuer:    "openctem-api",

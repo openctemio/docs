@@ -251,7 +251,7 @@ import {
 | Code | Label |
 |------|-------|
 | en | English |
-| vi | Tiếng Việt |
+| vi | Vietnamese |
 | ja | 日本語 |
 | ko | 한국어 |
 | zh | 中文 |

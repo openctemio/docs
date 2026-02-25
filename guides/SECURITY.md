@@ -83,7 +83,7 @@ Expire Passwords: 90 days
 export JWT_SECRET="mysecret123"
 
 # ✅ CORRECT - Use secret management
-export JWT_SECRET=$(kubectl get secret.openctem-secrets -o jsonpath='{.data.jwt-secret}' | base64 -d)
+export JWT_SECRET=$(kubectl get secret openctem-secrets -o jsonpath='{.data.jwt-secret}' | base64 -d)
 ```
 
 ### Kubernetes Secrets
@@ -92,18 +92,18 @@ export JWT_SECRET=$(kubectl get secret.openctem-secrets -o jsonpath='{.data.jwt-
 
 ```bash
 # Create secret
-kubectl create secret generic.openctem-secrets \
+kubectl create secret generic openctem-secrets \
   --from-literal=jwt-secret=$(openssl rand -base64 64) \
   --from-literal=csrf-secret=$(openssl rand -base64 32) \
   --from-literal=db-password=$(openssl rand -base64 32) \
-  --namespace.openctem
+  --namespace openctem
 
 # Reference in deployment
 env:
   - name: JWT_SECRET
     valueFrom:
       secretKeyRef:
-        name:.openctem-secrets
+        name: openctem-secrets
         key: jwt-secret
 ```
 
@@ -198,7 +198,7 @@ spec:
   - from:
     - podSelector:
         matchLabels:
-          app:.openctem-ui
+          app: openctem-ui
     ports:
     - protocol: TCP
       port: 8080
@@ -215,12 +215,12 @@ spec:
 ```sql
 -- Create read-only user for replicas
 CREATE ROLE readonly WITH LOGIN PASSWORD 'strong_password';
-GRANT CONNECT ON DATABASE.openctem TO readonly;
+GRANT CONNECT ON DATABASE openctem TO readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO readonly;
 
 -- Revoke public schema permissions
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-GRANT ALL ON SCHEMA public TO.openctem_admin;
+GRANT ALL ON SCHEMA public TO openctem_admin;
 
 -- Enable SSL connections only
 ALTER SYSTEM SET ssl = on;
@@ -413,25 +413,25 @@ See: [Group-Based Access Control Guide](./group-based-access-control.md)
 **All API requests must be authenticated:**
 
 ```go
-// API middleware
-func AuthMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        token := c.GetHeader("Authorization")
+// API middleware (chi router)
+func AuthMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        token := r.Header.Get("Authorization")
         if token == "" {
-            c.AbortWithStatus(401)
+            http.Error(w, "Unauthorized", http.StatusUnauthorized)
             return
         }
-        
+
         // Validate JWT
         claims, err := jwt.VerifyToken(token)
         if err != nil {
-            c.AbortWithStatus(401)
+            http.Error(w, "Unauthorized", http.StatusUnauthorized)
             return
         }
-        
-        c.Set("user_id", claims.Sub)
-        c.Next()
-    }
+
+        ctx := context.WithValue(r.Context(), "user_id", claims.Sub)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
 }
 ```
 

@@ -434,7 +434,7 @@ Key Points:
      │<─────────────────│<───────────────────────────────────────│
 ```
 
-**Details:** See [Authentication Guide](./authentication-guide.md)
+**Details:** See [Authentication Guide](../guides/authentication.md)
 
 ## Data Flow
 

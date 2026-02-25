@@ -34,8 +34,8 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 
 ```bash
 # Clone the meta-repository
-git clone https://github.com/openctemio.openctem-platform.git.openctemio
-cd.openctemio
+git clone https://github.com/openctemio/openctem-platform.git
+cd openctemio
 
 # Initialize all sub-repositories (api, agent, ui, sdk)
 make setup
@@ -83,7 +83,7 @@ Open your browser:
 #### 4a. Create an Agent
 
 1. Login to the UI
-2. Navigate to **Settings → Agents**
+2. Navigate to **Settings > Agents**
 3. Click **"Create Agent"**
 4. Choose type: **Runner** (for CI/CD one-shot scans)
 5. Copy the **API Key**
@@ -212,7 +212,7 @@ Expected response: `{"status":"ok"}`
 
 - 📚 **Documentation:** [docs.openctem.io](https://docs.openctem.io)
 - 💬 **Discord:** [discord.gg/openctemio](https://discord.gg/openctemio)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/openctemio.openctem-platform/issues)
+- 🐛 **Issues:** [GitHub Issues](https://github.com/openctemio/openctem-platform/issues)
 
 ---
 

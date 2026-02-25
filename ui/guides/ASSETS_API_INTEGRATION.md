@@ -695,7 +695,7 @@ if (assets.length === 0) return <EmptyState />;
 
 **See Also:**
 - [API Integration Guide](./API_INTEGRATION.md)
-- [Architecture Documentation](./ARCHITECTURE.md)
+- [Architecture Documentation](../architecture.md)
 - [Patterns Guide](../.claude/patterns.md)
 
 ---

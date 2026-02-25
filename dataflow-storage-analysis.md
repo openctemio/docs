@@ -140,10 +140,10 @@ type FindingFlowLocation struct {
 
 | CTIS DataFlow Field | Database Column | Status |
 |--------------------|-----------------|--------|
-| `Sources[]` | `location_type='source'` | ✅ Có thể lưu |
-| `Intermediates[]` | `location_type='intermediate'` | ✅ Có thể lưu |
-| `Sinks[]` | `location_type='sink'` | ✅ Có thể lưu |
-| `Sanitizers[]` | `location_type='sanitizer'` | ✅ Có thể lưu |
+| `Sources[]` | `location_type='source'` | ✅ Can be stored |
+| `Intermediates[]` | `location_type='intermediate'` | ✅ Can be stored |
+| `Sinks[]` | `location_type='sink'` | ✅ Can be stored |
+| `Sanitizers[]` | `location_type='sanitizer'` | ✅ Can be stored |
 | `Tainted` | ❌ **MISSING** | ⚠️ Need to add |
 | `TaintType` | ❌ **MISSING** | ⚠️ Need to add |
 | `VulnerabilityType` | ❌ **MISSING** | ⚠️ Need to add |
@@ -213,10 +213,10 @@ CREATE INDEX IF NOT EXISTS idx_flow_locations_taint_state ON finding_flow_locati
 
 ---
 
-### Phương Án B: Hybrid (JSONB Fallback)
+### Solution B: Hybrid (JSONB Fallback)
 
-**Ưu điểm**: No migration, flexible
-**Nhược điểm**: Less queryable, duplicated data
+**Pros**: No migration, flexible
+**Cons**: Less queryable, duplicated data
 
 ```sql
 -- Add JSONB column for extended metadata
@@ -239,10 +239,10 @@ Store new fields in JSONB:
 
 ---
 
-### Phương Án C: Keep Current (Minimal)
+### Solution C: Keep Current (Minimal)
 
-**Ưu điểm**: No changes
-**Nhược điểm**: Information loss, limited analysis
+**Pros**: No changes
+**Cons**: Information loss, limited analysis
 
 Only store existing fields, ignore extended fields. Not recommended.
 

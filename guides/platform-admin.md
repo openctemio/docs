@@ -665,7 +665,7 @@ For dynamic scaling where each pod registers independently:
 openctem-admin create token --max-uses=10 --expires=24h
 
 # 2. Create secret with the bootstrap token
-kubectl create secret generic.openctem-bootstrap-token \
+kubectl create secret generic openctem-bootstrap-token \
   --from-literal=token=abc123.xxxxxxxxxxxxxxxx \
   -n openctem
 ```
@@ -697,7 +697,7 @@ spec:
             - name: BOOTSTRAP_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name:.openctem-bootstrap-token
+                  name: openctem-bootstrap-token
                   key: token
             - name: REGION
               value: "us-east-1"
@@ -735,7 +735,7 @@ Helm chart simplifies deployment with sensible defaults and easy configuration.
 **Add Repository:**
 
 ```bash
-helm repo add.openctem https://charts.openctem.io
+helm repo add openctem https://charts.openctem.io
 helm repo update
 ```
 
@@ -749,7 +749,7 @@ openctem-admin create token --max-uses=10 --expires=24h
 
 # 2. Install with bootstrap token
 helm install platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --create-namespace \
   --set apiUrl=https://api.openctem.io \
   --set bootstrapToken=abc123.xxxxxxxxxxxxxxxx \
@@ -768,7 +768,7 @@ openctem-admin create agent --name=k8s-pool --region=us-east-1 --capabilities=sa
 
 # 2. Install with API key (uses Deployment instead of StatefulSet)
 helm install platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --create-namespace \
   --set apiUrl=https://api.openctem.io \
   --set apiKey=ragent_xxxxx \
@@ -788,7 +788,7 @@ kubectl create secret generic openctem-agent-creds \
 
 # 2. Install using existing secret
 helm install platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --set apiUrl=https://api.openctem.io \
   --set existingSecret.enabled=true \
   --set existingSecret.name=openctem-agent-creds \
@@ -815,13 +815,13 @@ helm install platform-agent openctem/platform-agent \
 ```bash
 # Scale up
 helm upgrade platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --reuse-values \
   --set replicaCount=5
 
 # Upgrade chart version
 helm upgrade platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --reuse-values
 
 # Uninstall
@@ -1076,7 +1076,7 @@ go build -o ./bin/bootstrap-admin ./cmd/bootstrap-admin
 
 # Run with database connection
 ./bin/bootstrap-admin \
-  -db "postgres:/.openctem.openctem@localhost:5432/openctem?sslmode=disable" \
+  -db "postgres://openctem:openctem@localhost:5432/openctem?sslmode=disable" \
   -email "admin@localhost" \
   -name "Dev Admin" \
   -role "super_admin"
@@ -1136,13 +1136,13 @@ If the bootstrap-admin tool is unavailable, you can insert directly via SQL:
 # Use this Go snippet or an online bcrypt generator:
 # echo -n "oc-admin-your-secret-key-here" | htpasswd -bnBC 12 "" - | tr -d ':\n'
 
-# Or generate in Go:
-go run -e 'import "golang.org/x/crypto/bcrypt"; hash, _ := bcrypt.GenerateFromPassword([]byte("oc-admin-testsecretkey123456789012345678901234567890123456"), 12); print(string(hash))'
+# Or generate a secure random key:
+openssl rand -base64 48
 ```
 
 ```sql
 -- Connect to database
-psql -h localhost -U.openctem -d.openctem
+psql -h localhost -U openctem -d openctem
 
 -- Insert admin user
 INSERT INTO admin_users (
@@ -1298,7 +1298,7 @@ Create a `scripts/dev-setup-admin.sh` for convenience:
 
 set -e
 
-DB_URL="${DB_URL:-postgres:/.openctem.openctem@localhost:5432/openctem?sslmode=disable}"
+DB_URL="${DB_URL:-postgres://openctem:openctem@localhost:5432/openctem?sslmode=disable}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@localhost}"
 ADMIN_ROLE="${ADMIN_ROLE:-super_admin}"
 

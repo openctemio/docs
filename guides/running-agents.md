@@ -90,7 +90,7 @@ go build -o agent ./cmd/agent
 
 ### Option C: Docker
 ```bash
-docker pull openctem/agent:latest
+docker pull openctemio/agent:latest
 ```
 
 ---
@@ -213,7 +213,7 @@ docker run -d \
   -v /opt/code:/code:ro \
   -v ./agent.yaml:/app/agent.yaml \
   -e API_KEY=rda_xxx \
-  openctem/agent:latest \
+  openctemio/agent:latest \
   -daemon -config /app/agent.yaml
 ```
 
@@ -227,9 +227,9 @@ After=network.target
 
 [Service]
 Type=simple
-User.openctem
-Group.openctem
-WorkingDirectory=/opt.openctem
+User=openctem
+Group=openctem
+WorkingDirectory=/opt/openctem
 ExecStart=/opt/openctem/agent -daemon -config /opt/openctem/agent.yaml
 Restart=always
 RestartSec=10
@@ -343,7 +343,7 @@ server:
 
 ## Triggering Scans
 
-### From the UI (Coming Soon)
+### From the UI
 1. Go to **Discovery > Scan Management**
 2. Select targets and scanner
 3. Click **Start Scan**
@@ -620,12 +620,12 @@ For Kubernetes deployments, use the Helm chart:
 
 ```bash
 # Add OpenCTEM Helm repo
-helm repo add.openctem https://charts.openctem.io
+helm repo add openctem https://charts.openctem.io
 helm repo update
 
 # Install with bootstrap token (auto-registration)
 helm install platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --create-namespace \
   --set apiUrl=https://api.openctem.io \
   --set bootstrapToken=abc123.xxxxxxxxxxxxxxxx \
@@ -634,7 +634,7 @@ helm install platform-agent openctem/platform-agent \
 
 # Or install with pre-assigned API key
 helm install platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --set apiUrl=https://api.openctem.io \
   --set apiKey=ragent_xxxxx \
   --set useStatefulSet=false

@@ -806,7 +806,7 @@ stages:
 variables:
   FAIL_ON: "high"
 
-# Jobs.openctem-sast,.openctem-secrets,.openctem-sca run automatically in parallel
+# Jobs .openctem-sast, .openctem-secrets, .openctem-sca run automatically in parallel
 ```
 
 **GitHub Actions - Parallel (Custom):**
@@ -1026,9 +1026,9 @@ After=network.target
 
 [Service]
 Type=simple
-User.openctem
-Group.openctem
-WorkingDirectory=/opt.openctem
+User=openctem
+Group=openctem
+WorkingDirectory=/opt/openctem
 ExecStart=/opt/openctem/agent -daemon -config /opt/openctem/agent.yaml
 Restart=always
 RestartSec=10
