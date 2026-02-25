@@ -407,7 +407,7 @@ The Access Control feature has a solid foundation with proper structure, type sa
 
 - [Authentication](../features/auth/README.md) - Auth system overview
 - [API Integration](../guides/API_INTEGRATION.md) - API client patterns
-- [Architecture](../ARCHITECTURE.md) - System architecture
+- [Architecture](../architecture.md) - System architecture
 
 ---
 

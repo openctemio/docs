@@ -21,9 +21,9 @@ The database schema is organized into logical domains, supporting the clean arch
 
 | Environment | Host | Port | Database | User |
 |-------------|------|------|----------|------|
-| Development | `localhost` | `5432` | .openctem` | `postgres` |
-| Docker | `postgres` | `5432` | .openctem` | `postgres` |
-| Production | `<managed-db-host>` | `5432` | .openctem` | `<app-user>` |
+| Development | `localhost` | `5432` | `openctem` | `postgres` |
+| Docker | `postgres` | `5432` | `openctem` | `postgres` |
+| Production | `<managed-db-host>` | `5432` | `openctem` | `<app-user>` |
 
 ## Key Concepts
 

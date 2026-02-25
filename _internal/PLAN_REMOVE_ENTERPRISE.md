@@ -1,56 +1,56 @@
-# Plan: Loại bỏ tính năng Enterprise cho OpenCTEM OSS Edition
+# Plan: Remove Enterprise Features for OpenCTEM OSS Edition
 
-## Mục tiêu
+## Objective
 
-Tạo OSS edition sạch:
-- Giữ lại module system (để UI biết có features nào)
-- Xóa licensing/subscription/billing
-- Tất cả modules enabled mặc định, không gating
-- Không có dấu vết về enterprise edition
+Create a clean OSS edition:
+- Keep the module system (so the UI knows which features exist)
+- Remove licensing/subscription/billing
+- All modules enabled by default, no gating
+- No traces of the enterprise edition
 
 ---
 
-## Phân loại: GIỮ vs XÓA
+## Classification: KEEP vs REMOVE
 
-### GIỮ LẠI
+### KEEP
 
-| File/Component | Lý do |
-|----------------|-------|
-| `/pkg/domain/licensing/module.go` | Định nghĩa modules cho UI sidebar |
-| `/pkg/domain/licensing/event_type.go` | Event types cho notifications |
-| `/internal/app/module_cache_service.go` | Cache modules (sẽ simplify) |
-| Bootstrap handler | Return modules cho UI |
+| File/Component | Reason |
+|----------------|--------|
+| `/pkg/domain/licensing/module.go` | Defines modules for the UI sidebar |
+| `/pkg/domain/licensing/event_type.go` | Event types for notifications |
+| `/internal/app/module_cache_service.go` | Cache modules (will be simplified) |
+| Bootstrap handler | Returns modules to the UI |
 | RBAC/Permissions | Core security |
 | Audit Logging | Compliance |
 | Tenant Isolation | Multi-tenant |
 | Groups/Roles | Access control |
 
-### XÓA HOÀN TOÀN
+### REMOVE COMPLETELY
 
-| File/Component | Lý do |
+| File/Component | Reason |
 |----------------|-------|
 | `/pkg/domain/licensing/plan.go` | Plans/Pricing - enterprise |
 | `/pkg/domain/licensing/subscription.go` | Subscriptions - enterprise |
-| `/pkg/domain/licensing/repository.go` | Plan/Subscription queries (giữ module queries) |
-| `/pkg/domain/sla/` (cả folder) | SLA - enterprise feature |
+| `/pkg/domain/licensing/repository.go` | Plan/Subscription queries (keep module queries) |
+| `/pkg/domain/sla/` (entire folder) | SLA - enterprise feature |
 | `/internal/app/licensing_service.go` | Plan checking, subscription logic |
 | `/internal/app/sla_service.go` | SLA business logic |
 | `/internal/infra/http/handler/licensing_handler.go` | Billing/subscription endpoints |
 | `/internal/infra/http/handler/sla_handler.go` | SLA endpoints |
 | `/internal/infra/http/middleware/module.go` | Module gating middleware |
-| `/internal/infra/postgres/licensing_repository.go` | Plan/subscription DB (giữ phần module) |
+| `/internal/infra/postgres/licensing_repository.go` | Plan/subscription DB (keep the module part) |
 | `/internal/infra/postgres/sla_repository.go` | SLA DB queries |
 
 ---
 
-## Chi tiết Implementation
+## Implementation Details
 
 ### Phase 1: Restructure Module Domain
 
-**Mục tiêu:** Tách module khỏi licensing, giữ lại như standalone feature list
+**Objective:** Separate modules from licensing, keep as a standalone feature list
 
-#### 1.1 Tạo `/pkg/domain/module/` (mới)
-Di chuyển và simplify từ licensing:
+#### 1.1 Create `/pkg/domain/module/` (new)
+Move and simplify from licensing:
 
 ```go
 // /pkg/domain/module/module.go
@@ -126,8 +126,8 @@ func GetAllModuleIDs() []string {
 }
 ```
 
-#### 1.2 Tạo `/pkg/domain/module/event_type.go`
-Di chuyển event types:
+#### 1.2 Create `/pkg/domain/module/event_type.go`
+Move event types:
 
 ```go
 // /pkg/domain/module/event_type.go
@@ -156,26 +156,26 @@ func GetAllEventTypes() []string {
 
 ---
 
-### Phase 2: Xóa Licensing Domain
+### Phase 2: Remove Licensing Domain
 
 ```bash
-# Xóa files
+# Delete files
 rm /pkg/domain/licensing/plan.go
 rm /pkg/domain/licensing/subscription.go
 rm /pkg/domain/licensing/repository.go
 rm /pkg/domain/licensing/errors.go
 
-# Giữ lại và migrate sau:
+# Keep and migrate later:
 # - module.go -> move to /pkg/domain/module/
 # - event_type.go -> move to /pkg/domain/module/
 
-# Sau khi migrate, xóa folder
+# After migration, delete the folder
 rm -rf /pkg/domain/licensing/
 ```
 
 ---
 
-### Phase 3: Xóa SLA Domain
+### Phase 3: Remove SLA Domain
 
 ```bash
 rm -rf /pkg/domain/sla/
@@ -187,7 +187,7 @@ rm -rf /pkg/domain/sla/
 
 **File:** `/internal/app/module_cache_service.go`
 
-Simplify để chỉ return static modules:
+Simplify to only return static modules:
 
 ```go
 package app
@@ -226,7 +226,7 @@ func (s *ModuleCacheService) GetEventTypes(ctx context.Context) []string {
 
 ---
 
-### Phase 5: Xóa Services
+### Phase 5: Remove Services
 
 ```bash
 rm /internal/app/licensing_service.go
@@ -235,7 +235,7 @@ rm /internal/app/sla_service.go
 
 ---
 
-### Phase 6: Xóa Handlers
+### Phase 6: Remove Handlers
 
 ```bash
 rm /internal/infra/http/handler/licensing_handler.go
@@ -244,7 +244,7 @@ rm /internal/infra/http/handler/sla_handler.go
 
 ---
 
-### Phase 7: Xóa Middleware
+### Phase 7: Remove Middleware
 
 ```bash
 rm /internal/infra/http/middleware/module.go
@@ -252,7 +252,7 @@ rm /internal/infra/http/middleware/module.go
 
 ---
 
-### Phase 8: Xóa Repositories
+### Phase 8: Remove Repositories
 
 ```bash
 rm /internal/infra/postgres/licensing_repository.go
@@ -261,48 +261,48 @@ rm /internal/infra/postgres/sla_repository.go
 
 ---
 
-### Phase 9: Sửa Routes
+### Phase 9: Fix Routes
 
 **File:** `/internal/infra/http/routes/routes.go`
-- Xóa `registerLicensingRoutes()`
-- Xóa `registerSLARoutes()`
-- Xóa parameter `licensingService` từ các functions
+- Remove `registerLicensingRoutes()`
+- Remove `registerSLARoutes()`
+- Remove parameter `licensingService` from functions
 
 **File:** `/internal/infra/http/routes/misc.go`
-- Xóa `registerLicensingRoutes()` function
-- Xóa `registerSLARoutes()` function
-- Xóa `middleware.RequireModule` calls
-- Xóa `middleware.RequireSubModule` calls
-- Xóa import licensing package
+- Remove `registerLicensingRoutes()` function
+- Remove `registerSLARoutes()` function
+- Remove `middleware.RequireModule` calls
+- Remove `middleware.RequireSubModule` calls
+- Remove licensing package import
 
 **File:** `/internal/infra/http/routes/scanning.go`
-- Xóa parameter `licensingService`
-- Xóa `middleware.RequireModule()` calls
-- Xóa `middleware.RequireModuleForAgent()` calls
+- Remove parameter `licensingService`
+- Remove `middleware.RequireModule()` calls
+- Remove `middleware.RequireModuleForAgent()` calls
 
 **File:** `/internal/infra/http/routes/assets.go`
-- Xóa parameter `licensingService`
-- Xóa module check middleware
+- Remove parameter `licensingService`
+- Remove module check middleware
 
 ---
 
-### Phase 10: Sửa DI (Dependency Injection)
+### Phase 10: Fix DI (Dependency Injection)
 
 **File:** `/cmd/server/repositories.go`
-- Xóa `Licensing` repository
+- Remove `Licensing` repository
 
 **File:** `/cmd/server/services.go`
-- Xóa `Licensing` service
-- Xóa `SLA` service
-- Simplify `ModuleCache` service (không cần Redis)
+- Remove `Licensing` service
+- Remove `SLA` service
+- Simplify `ModuleCache` service (Redis no longer needed)
 
 **File:** `/cmd/server/handlers.go`
-- Xóa `Licensing` handler
-- Xóa `SLA` handler
+- Remove `Licensing` handler
+- Remove `SLA` handler
 
 ---
 
-### Phase 11: Sửa Bootstrap Handler
+### Phase 11: Fix Bootstrap Handler
 
 **File:** `/internal/infra/http/handler/bootstrap_handler.go`
 
@@ -384,18 +384,18 @@ func (h *BootstrapHandler) GetModules(w http.ResponseWriter, r *http.Request) {
 
 ---
 
-### Phase 12: Sửa Other Services (nếu có references)
+### Phase 12: Fix Other Services (if there are references)
 
 **File:** `/internal/app/tenant_service.go`
-- Xóa code tạo default SLA policy
-- Xóa references đến licensing
+- Remove code that creates default SLA policy
+- Remove references to licensing
 
 **File:** `/internal/app/ai_triage_service.go`
-- Xóa licensing token limit checks
-- Set unlimited hoặc xóa check
+- Remove licensing token limit checks
+- Set to unlimited or remove the check
 
 **File:** `/internal/app/agent_selector.go`
-- Xóa platform agent tier checks
+- Remove platform agent tier checks
 - Simplify selection logic
 
 ---
@@ -455,12 +455,12 @@ grep -r "RequireModule" --include="*.go"
 
 | Action | Items |
 |--------|-------|
-| **Tạo mới** | `/pkg/domain/module/` (tách từ licensing) |
-| **Xóa** | ~10 files + 2 folders |
-| **Sửa** | ~12 files |
+| **Create new** | `/pkg/domain/module/` (separated from licensing) |
+| **Remove** | ~10 files + 2 folders |
+| **Modify** | ~12 files |
 
-**Kết quả:**
-- Module system vẫn hoạt động (UI sidebar)
-- Không có licensing/subscription/billing
-- Tất cả modules enabled mặc định
-- Clean codebase, không có enterprise traces
+**Result:**
+- Module system still works (UI sidebar)
+- No licensing/subscription/billing
+- All modules enabled by default
+- Clean codebase, no enterprise traces

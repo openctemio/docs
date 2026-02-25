@@ -9,20 +9,20 @@
 
 ## 0. Repository Naming & Structure
 
-### Quyết định: Phương án B - Multi-Repo với 2 Organizations
+### Decision: Option B - Multi-Repo with 2 Organizations
 
-**Lý do chọn Phương án B:**
-- URL ngắn gọn, professional
-- Tách biệt rõ ràng OSS vs Commercial
-- Community-friendly cho OSS
-- Pattern phổ biến (HashiCorp, Grafana)
+**Reasons for choosing Option B:**
+- Short, professional URLs
+- Clear separation between OSS and Commercial
+- Community-friendly for OSS
+- Common pattern (HashiCorp, Grafana)
 
 ### Repository Structure
 
 #### OSS Repositories (org: `openctemio`)
 
-| Repository | Mô tả | License | Go Module |
-|------------|-------|---------|-----------|
+| Repository | Description | License | Go Module |
+|------------|-------------|---------|-----------|
 | `openctemio/api` | Backend API service | Apache 2.0 | `github.com/openctemio/api` |
 | `openctemio/ui` | Frontend application | Apache 2.0 | - |
 | `openctemio/agent` | Agent service | Apache 2.0 | `github.com/openctemio/agent` |
@@ -32,7 +32,7 @@
 
 #### Enterprise Repositories (org: `exploop`)
 
-| Repository | Mô tả | License | Go Module |
+| Repository | Description | License | Go Module |
 |------------|-------|---------|-----------|
 | `exploop/api` | Enterprise API extensions | Proprietary | `github.com/exploop/api` |
 | `exploop/ui` | Enterprise UI features | Proprietary | - |
@@ -94,25 +94,25 @@ replace (
     └── cloud/              # github.com/exploop/cloud
 ```
 
-### Ưu điểm của Phương án B
+### Advantages of Option B
 
-| # | Ưu điểm | Giải thích |
-|---|---------|------------|
-| 1 | **URL ngắn gọn** | `openctemio/api` thay vì `openctemio/openctemio-api` |
+| # | Advantage | Explanation |
+|---|-----------|-------------|
+| 1 | **Short URLs** | `openctemio/api` instead of `openctemio/openctemio-api` |
 | 2 | **Brand separation** | OSS = openctemio, Commercial = exploop |
-| 3 | **Community-friendly** | Org riêng cho OSS, dễ contribute |
-| 4 | **License rõ ràng** | Org nào license đó |
-| 5 | **Flexibility** | Mỗi component có thể versioned độc lập |
+| 3 | **Community-friendly** | Dedicated org for OSS, easy to contribute |
+| 4 | **Clear licensing** | Each org has its own license |
+| 5 | **Flexibility** | Each component can be independently versioned |
 
-### Nhược điểm & Giải pháp
+### Disadvantages & Solutions
 
-| # | Nhược điểm | Giải pháp |
-|---|------------|-----------|
-| 1 | **Cross-org import** | Dùng Go modules với semantic versioning |
+| # | Disadvantage | Solution |
+|---|--------------|----------|
+| 1 | **Cross-org import** | Use Go modules with semantic versioning |
 | 2 | **Version sync** | Release automation, compatibility matrix |
-| 3 | **Local dev phức tạp** | Go workspace / replace directive |
-| 4 | **2 orgs quản lý** | Cùng team admin |
-| 5 | **CI/CD phân tán** | Shared workflows, reusable GitHub Actions |
+| 3 | **Complex local dev** | Go workspace / replace directive |
+| 4 | **2 orgs to manage** | Same team admin |
+| 5 | **Distributed CI/CD** | Shared workflows, reusable GitHub Actions |
 
 ### npm Package Naming (Frontend)
 
@@ -123,7 +123,7 @@ replace (
   "version": "1.0.0"
 }
 
-// openctemio/sdk (nếu có JS SDK)
+// openctemio/sdk (if JS SDK exists)
 {
   "name": "@openctemio/sdk",
   "version": "1.0.0"
@@ -142,7 +142,7 @@ replace (
 
 ### 0.1 Architecture Patterns: Clean Architecture + Domain-Driven Design (DDD)
 
-Project tuân theo **Clean Architecture** kết hợp **Domain-Driven Design (DDD)** để đảm bảo code maintainable, testable và dễ mở rộng.
+The project follows **Clean Architecture** combined with **Domain-Driven Design (DDD)** to ensure the code is maintainable, testable, and easy to extend.
 
 #### Layered Architecture
 
@@ -2685,7 +2685,7 @@ COORDINATED:
 
 | Task | Description | Status |
 |------|-------------|--------|
-| 1.1 | Tạo GitHub org `openctemio` | ✅ Done |
+| 1.1 | Create GitHub org `openctemio` | ✅ Done |
 | 1.2 | Verify/configure org `exploop` | ✅ Done |
 | 1.3 | Setup team structure (Admins, Maintainers, Contributors) | ⬜ Pending |
 | 1.4 | Configure org-level settings (branch protection, security policies) | ⬜ Pending |

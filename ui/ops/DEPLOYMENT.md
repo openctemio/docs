@@ -162,7 +162,7 @@ vercel env add CSRF_SECRET
 # Option B: Via Vercel Dashboard
 # 1. Go to https://vercel.com/dashboard
 # 2. Select your project
-# 3. Go to Settings → Environment Variables
+# 3. Go to Settings > Environment Variables
 # 4. Add all variables from .env.example
 ```
 

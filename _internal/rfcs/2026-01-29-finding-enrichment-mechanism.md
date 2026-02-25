@@ -8,12 +8,12 @@
 
 ## 1. Problem Statement
 
-Hiện tại khi một finding đã tồn tại (matched by fingerprint), hệ thống chỉ update:
-- `scan_id` - ID của scan mới nhất
-- `last_seen_at` - Thời điểm nhìn thấy lần cuối
-- `updated_at` - Thời điểm update
+Currently when a finding already exists (matched by fingerprint), the system only updates:
+- `scan_id` - ID of the latest scan
+- `last_seen_at` - Timestamp of when it was last seen
+- `updated_at` - Timestamp of the update
 
-**Vấn đề:** Nếu tool A scan trước và gửi 5 fields, sau đó tool B scan và gửi 3 fields khác, các fields từ tool B sẽ bị **bỏ qua** vì finding đã tồn tại.
+**Problem:** If tool A scans first and sends 5 fields, then tool B scans and sends 3 different fields, the fields from tool B will be **ignored** because the finding already exists.
 
 ---
 
@@ -25,7 +25,7 @@ Tool A (Slither) → chain, contract_address, swc_id
 Tool B (Mythril) → bytecode_offset, function_selector, vulnerability_class
 Tool C (Manual Review) → estimated_impact_usd, attack_vector
 ```
-**Expected:** Finding có đầy đủ data từ cả 3 tools.
+**Expected:** Finding has complete data from all 3 tools.
 
 ### UC2: Progressive Data Collection
 ```
@@ -33,14 +33,14 @@ Scan 1 → Basic detection: title, severity, location
 Scan 2 → Verified: secret_valid = true, verified_at = now
 Scan 3 → Revoked: secret_revoked = true, revoked_at = now
 ```
-**Expected:** Finding được enriched qua từng scan.
+**Expected:** Finding is enriched progressively through each scan.
 
 ### UC3: CVSS/EPSS Update
 ```
 Day 1 → CVE detected: cvss_score = 7.5
 Day 30 → NVD update: cvss_score = 9.8, epss_score = 0.95
 ```
-**Expected:** Finding được update với data mới từ vulnerability database.
+**Expected:** Finding is updated with new data from the vulnerability database.
 
 ---
 

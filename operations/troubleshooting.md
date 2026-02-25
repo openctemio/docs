@@ -20,7 +20,7 @@ docker compose logs -f [service_name]
 curl http://localhost:8080/health
 
 # Database connection
-docker compose exec postgres pg_isready -U.openctem
+docker compose exec postgres pg_isready -U openctem
 
 # Redis connection
 docker compose exec redis redis-cli ping
@@ -117,14 +117,14 @@ failed to connect to database: dial tcp 127.0.0.1:5432: connect: connection refu
    # In .env file
    DB_HOST=localhost      # Use 'postgres' if running in Docker network
    DB_PORT=5432
-   DB_USER.openctem
+   DB_USER=openctem
    DB_PASSWORD=secret
-   DB_NAME.openctem
+   DB_NAME=openctem
    ```
 
 3. **Test connection manually:**
    ```bash
-   docker compose exec postgres psql -U.openctem -d.openctem -c "SELECT 1"
+   docker compose exec postgres psql -U openctem -d openctem -c "SELECT 1"
    ```
 
 4. **Restart PostgreSQL:**
@@ -180,7 +180,7 @@ migration failed: error executing migration
 
 3. **Drop and recreate (development only):**
    ```bash
-   docker compose exec postgres psql -U.openctem -c "DROP DATABASE.openctem; CREATE DATABASE.openctem;"
+   docker compose exec postgres psql -U openctem -c "DROP DATABASE openctem; CREATE DATABASE openctem;"
    make migrate-up
    ```
 
@@ -253,7 +253,7 @@ Access to fetch at 'http://localhost:8080' from origin 'http://localhost:3000' h
 2. **Check environment variable:**
    ```bash
    # In ui/.env.local
-   NEXT_PUBLIC_API_URL=http://localhost:8080
+   BACKEND_API_URL=http://localhost:8080
    ```
 
 3. **Restart frontend after env changes:**
@@ -585,7 +585,7 @@ DEBUG=* npm run dev
 
 ```bash
 # Connect to database
-docker compose exec postgres psql -U.openctem -d.openctem
+docker compose exec postgres psql -U openctem -d openctem
 
 # View active connections
 SELECT * FROM pg_stat_activity;

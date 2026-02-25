@@ -343,7 +343,7 @@ const can = (permission: string): boolean => {
 
 **Why no bypass?**
 
-1. **Database is source of truth**: Owner has 215 permissions, Admin has 213 - already seeded in migration
+1. **Database is source of truth**: Owner has 68 permissions, Admin has 66 - already seeded in migration
 2. **API returns correct permissions**: `/api/v1/me/permissions/sync` returns permissions from database
 3. **Custom roles work correctly**: If you assign a role with fewer permissions, user only has those
 4. **Frontend and Backend are consistent**: Both use the same RBAC logic

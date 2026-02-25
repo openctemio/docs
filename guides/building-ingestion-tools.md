@@ -420,7 +420,7 @@ OpenCTEM supports direct SARIF 2.1.0 ingestion - no conversion needed:
 
 ```bash
 # Push SARIF directly to OpenCTEM
-curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
+curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -505,7 +505,7 @@ Standard SARIF 2.1.0 format supported:
 semgrep --config auto --sarif -o results.sarif .
 
 # Push to OpenCTEM
-curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
+curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"sarif\": $(cat results.sarif)}"
@@ -517,7 +517,7 @@ curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
 codeql database analyze /path/to/db --format=sarif-latest --output=results.sarif
 
 # Push to OpenCTEM
-curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
+curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"sarif\": $(cat results.sarif)}"
@@ -529,7 +529,7 @@ curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
 trivy fs --format sarif --output results.sarif .
 
 # Push to OpenCTEM
-curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
+curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"sarif\": $(cat results.sarif)}"
@@ -541,7 +541,7 @@ curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
 gitleaks detect --report-format sarif --report-path results.sarif
 
 # Push to OpenCTEM
-curl -X POST https://api.openctem.io/api/v1/ingest/sarif \
+curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d "{\"sarif\": $(cat results.sarif)}"
@@ -592,7 +592,7 @@ ctisReport := ctis.FromSARIF(sarifLog, &ctis.SARIFConvertOptions{
 })
 
 // Send to OpenCTEM
-// ... POST to /api/v1/ingest/findings
+// ... POST to /api/v1/agent/ingest
 ```
 
 ---
@@ -713,10 +713,10 @@ def create_ctis_report(findings):
         "findings": findings
     }
 
-def push_to.openctem(report, api_key):
+def push_to_openctem(report, api_key):
     """Push CTIS report to OpenCTEM."""
     response = requests.post(
-        "https://api.openctem.io/api/v1/ingest/findings",
+        "https://api.openctem.io/api/v1/agent/ingest",
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -742,7 +742,7 @@ finding = {
 }
 
 report = create_ctis_report([finding])
-result = push_to.openctem(report, "oc_live_xxxx")
+result = push_to_openctem(report, "oc_live_xxxx")
 print(result)
 ```
 
@@ -976,7 +976,7 @@ import threading
 def heartbeat_loop(api_key, interval=60):
     while True:
         requests.post(
-            "https://api.openctem.io/api/v1/ingest/heartbeat",
+            "https://api.openctem.io/api/v1/agent/heartbeat",
             headers={"Authorization": f"Bearer {api_key}"},
             json={"status": "active"}
         )
@@ -1074,7 +1074,7 @@ func pushToOpenCTEM(report *ctis.Report, apiKey string) error {
     data, _ := json.Marshal(report)
 
     req, _ := http.NewRequest("POST",
-        "https://api.openctem.io/api/v1/ingest/findings",
+        "https://api.openctem.io/api/v1/agent/ingest",
         bytes.NewBuffer(data))
     req.Header.Set("Authorization", "Bearer "+apiKey)
     req.Header.Set("Content-Type", "application/json")

@@ -311,7 +311,7 @@ func (r *ExecutorRouter) Capabilities() []string {
 ```go
 // api/internal/infra/http/handler/ingest_handler.go
 
-// POST /api/v1/ingest/ctis
+// POST /api/v1/agent/ingest/ctis
 func (h *IngestHandler) IngestCTIS(w http.ResponseWriter, r *http.Request) {
     ctx := r.Context()
 

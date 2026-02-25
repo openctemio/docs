@@ -219,10 +219,10 @@ Create `src/app/login/page.tsx`:
 ```tsx
 'use client'
 
-import { useEffect } from 'use client'
+import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useIsAuthenticated } from '@/stores/auth-store'
-import { redirectToLogin } from '@/lib/keycloak'
+import { redirectToLogin, redirectToRegister } from '@/lib/keycloak'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 
@@ -416,7 +416,7 @@ export default function DashboardLayout({
 
 ### Server Component Check (Middleware)
 
-Better approach - check in middleware (coming in Task 5):
+Authentication can also be enforced at the middleware level:
 
 ```tsx
 // middleware.ts

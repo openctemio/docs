@@ -8,18 +8,18 @@
 
 ## 1. Executive Summary
 
-Bảng `findings` hiện có **69 cột** - quá nhiều và có một số vấn đề:
-- Cột trùng lặp/không cần thiết
-- Bug: `resolved_by` không được set khi resolve
-- Thiếu nhất quán giữa các cột actor tracking
+The `findings` table currently has **69 columns** - too many and with several issues:
+- Duplicate/unnecessary columns
+- Bug: `resolved_by` is not set when resolving
+- Inconsistency across actor tracking columns
 
-**Đề xuất**: Loại bỏ 8 cột, sửa bug, chuẩn hóa schema.
+**Proposal**: Remove 8 columns, fix bugs, standardize the schema.
 
 ---
 
 ## 2. Schema Analysis
 
-### 2.1. CORE IDENTIFIERS ✅ (Giữ nguyên)
+### 2.1. CORE IDENTIFIERS ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -27,7 +27,7 @@ Bảng `findings` hiện có **69 cột** - quá nhiều và có một số vấ
 | `tenant_id` | uuid | Multi-tenancy | ✅ Keep |
 | `fingerprint` | varchar(512) | Deduplication key | ✅ Keep |
 
-### 2.2. RELATIONSHIPS ✅ (Giữ nguyên)
+### 2.2. RELATIONSHIPS ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -49,17 +49,17 @@ Bảng `findings` hiện có **69 cột** - quá nhiều và có một số vấ
 | `rule_name` | varchar(500) | Human-readable rule name | ⚠️ **Review** |
 | `scan_id` | varchar(100) | Link to scan run | ✅ Keep |
 
-**Về `tool_version`:**
-- **Có ích khi**: Debug, track regression khi upgrade tool
-- **Ít dùng khi**: Day-to-day operations
-- **Verdict**: ✅ Keep - nhẹ, có giá trị trong edge cases
+**Regarding `tool_version`:**
+- **Useful for**: Debug, track regression when upgrading tools
+- **Rarely used for**: Day-to-day operations
+- **Verdict**: ✅ Keep - lightweight, valuable in edge cases
 
-**Về `rule_name`:**
+**Regarding `rule_name`:**
 - `rule_id`: "go.grpc.security.grpc-server-insecure-connection"
 - `rule_name`: "Insecure gRPC server connection"
-- **Verdict**: ✅ Keep - UI cần hiển thị human-readable
+- **Verdict**: ✅ Keep - UI needs to display human-readable names
 
-### 2.4. LOCATION INFO ✅ (Giữ nguyên)
+### 2.4. LOCATION INFO ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -70,7 +70,7 @@ Bảng `findings` hiện có **69 cột** - quá nhiều và có một số vấ
 | `end_column` | int | Column | ✅ Keep |
 | `snippet` | text | Code snippet | ✅ Keep |
 
-### 2.5. CONTENT - ⚠️ CẦN REVIEW
+### 2.5. CONTENT - ⚠️ NEEDS REVIEW
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -103,7 +103,7 @@ description (optional): "This code directly concatenates user input into SQL que
 
 **Verdict**: ✅ Keep both - different purposes
 
-### 2.6. CLASSIFICATION ✅ (Giữ nguyên)
+### 2.6. CLASSIFICATION ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -115,7 +115,7 @@ description (optional): "This code directly concatenates user input into SQL que
 | `owasp_ids` | text[] | A1, A3 | ✅ Keep |
 | `tags` | text[] | Custom tags | ✅ Keep |
 
-### 2.7. WORKFLOW STATUS - ⚠️ CÓ BUG
+### 2.7. WORKFLOW STATUS - ⚠️ HAS BUG
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -124,11 +124,11 @@ description (optional): "This code directly concatenates user input into SQL que
 | `resolved_at` | timestamp | When resolved | ✅ Keep |
 | `resolved_by` | varchar(255) | Who resolved | 🐛 **BUG** |
 
-**BUG**: `resolved_by` là `varchar(255)` nhưng nên là `uuid` FK to `users(id)`!
+**BUG**: `resolved_by` is `varchar(255)` but should be `uuid` FK to `users(id)`!
 
-Hiện tại code đang pass string (có thể là user ID hoặc name) nhưng không có FK constraint.
+Currently the code is passing a string (could be user ID or name) but there is no FK constraint.
 
-**Fix cần thiết:**
+**Required fix:**
 ```sql
 -- Change to UUID with FK
 ALTER TABLE findings
@@ -137,7 +137,7 @@ ALTER TABLE findings
         FOREIGN KEY (resolved_by) REFERENCES users(id) ON DELETE SET NULL;
 ```
 
-### 2.8. ASSIGNMENT ✅ (Giữ nguyên)
+### 2.8. ASSIGNMENT ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -147,21 +147,21 @@ ALTER TABLE findings
 | `assigned_group_id` | uuid | Team assignment | ✅ Keep |
 | `assignment_rule_id` | uuid | Auto-assignment rule | ✅ Keep |
 
-### 2.9. VERIFICATION ✅ (Giữ nguyên)
+### 2.9. VERIFICATION ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
 | `verified_at` | timestamp | When fix verified | ✅ Keep |
 | `verified_by` | uuid | Who verified | ✅ Keep |
 
-### 2.10. SLA ✅ (Giữ nguyên)
+### 2.10. SLA ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
 | `sla_deadline` | timestamp | Due date | ✅ Keep |
 | `sla_status` | varchar(20) | on_track/warning/overdue | ✅ Keep |
 
-### 2.11. DETECTION TRACKING ✅ (Giữ nguyên)
+### 2.11. DETECTION TRACKING ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -172,7 +172,7 @@ ALTER TABLE findings
 | `last_seen_branch` | varchar | Branch last found | ✅ Keep |
 | `last_seen_commit` | varchar | Commit last found | ✅ Keep |
 
-### 2.12. INTEGRATION ✅ (Giữ nguyên)
+### 2.12. INTEGRATION ✅ (Keep as-is)
 
 | Column | Type | Purpose | Verdict |
 |--------|------|---------|---------|
@@ -186,20 +186,20 @@ ALTER TABLE findings
 | `duplicate_count` | int | Number of duplicates | ✅ Keep |
 | `comments_count` | int | Number of comments | ✅ Keep (counter cache) |
 
-**Về `comments_count`:**
+**Regarding `comments_count`:**
 
-Đây là **Counter Cache Pattern** - một optimization phổ biến:
+This is the **Counter Cache Pattern** - a common optimization:
 
 ```
 Without counter cache:
 SELECT *, (SELECT COUNT(*) FROM finding_comments WHERE finding_id = f.id)
 FROM findings f
 WHERE tenant_id = ?
--- Chậm với hàng triệu findings!
+-- Slow with millions of findings!
 
 With counter cache:
 SELECT * FROM findings WHERE tenant_id = ?
--- Nhanh, comments_count đã có sẵn
+-- Fast, comments_count is already available
 ```
 
 **Verdict**: ✅ Keep - performance optimization
@@ -220,7 +220,7 @@ SELECT * FROM findings WHERE tenant_id = ?
 | `reputational_impact` | bool | Reputation risk | ⚠️ Keep (enterprise) |
 | `compliance_impact` | text[] | PCI-DSS, HIPAA, etc | ⚠️ Keep (enterprise) |
 
-**Nhận xét**: CTEM columns là enterprise features cho risk prioritization. Có thể move to separate table nhưng không urgent.
+**Note**: CTEM columns are enterprise features for risk prioritization. Could be moved to a separate table but not urgent.
 
 ### 2.15. TIMESTAMPS ✅
 
@@ -240,11 +240,11 @@ SELECT * FROM findings WHERE tenant_id = ?
 
 ## 3. Issues Found
 
-### 3.1. 🐛 BUG: `resolved_by` không được set
+### 3.1. 🐛 BUG: `resolved_by` is not being set
 
-**Problem**: Khi user click "Resolved", `resolved_by` không được lưu.
+**Problem**: When a user clicks "Resolved", `resolved_by` is not saved.
 
-**Root cause**: Trong `UpdateFindingStatusInput`, `ResolvedBy` được pass nhưng có thể là empty string.
+**Root cause**: In `UpdateFindingStatusInput`, `ResolvedBy` is passed but may be an empty string.
 
 **Fix needed in handler:**
 ```go
@@ -263,9 +263,9 @@ func (h *VulnerabilityHandler) UpdateFindingStatus(...) {
 
 ### 3.2. 🐛 BUG: `resolved_by` type mismatch
 
-**Problem**: Column là `varchar(255)` nhưng nên là `uuid` với FK.
+**Problem**: Column is `varchar(255)` but should be `uuid` with FK.
 
-**Fix**: Migration để change type.
+**Fix**: Migration to change the type.
 
 ### 3.3. ⚠️ Inconsistent actor tracking
 
@@ -275,15 +275,15 @@ func (h *VulnerabilityHandler) UpdateFindingStatus(...) {
 | Verify | `verified_by` | uuid | ✅ Yes |
 | Resolve | `resolved_by` | varchar | ❌ No |
 
-**Fix**: Chuẩn hóa `resolved_by` thành uuid với FK.
+**Fix**: Standardize `resolved_by` to uuid with FK.
 
 ---
 
 ## 4. Recommendations
 
-### 4.1. KHÔNG XÓA (Keep all columns)
+### 4.1. DO NOT DELETE (Keep all columns)
 
-Sau khi review, tất cả các cột đều có purpose:
+After review, all columns serve a purpose:
 
 - `tool_version`: Debug, regression tracking
 - `rule_name`: Human-readable display
@@ -293,8 +293,8 @@ Sau khi review, tất cả các cột đều có purpose:
 
 ### 4.2. FIX BUGS
 
-1. **Fix `resolved_by` type**: varchar → uuid với FK
-2. **Fix handler**: Always set `resolved_by` từ `actorID`
+1. **Fix `resolved_by` type**: varchar → uuid with FK
+2. **Fix handler**: Always set `resolved_by` from `actorID`
 
 ---
 
@@ -382,4 +382,4 @@ Ensure consistent pattern across all actions:
 | Fix bug | 1 (`resolved_by`) | Change type + fix handler |
 | Remove | 0 | None needed |
 
-**Key insight**: Bảng findings có nhiều cột nhưng đều có purpose. Vấn đề chính là bug `resolved_by` không được set và type không đúng.
+**Key insight**: The findings table has many columns but all serve a purpose. The main issue is the bug where `resolved_by` is not being set and the type is incorrect.

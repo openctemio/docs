@@ -265,10 +265,10 @@ func (h *LicensingHandler) GetTenantModules(w http.ResponseWriter, r *http.Reque
 
 | Role | Total Permissions | Key Differences |
 |------|:-----------------:|-----------------|
-| **Owner** | 215 | All permissions |
-| **Admin** | 213 | All except `team:delete`, `settings:billing:write` |
-| **Member** | 86 | Read + Write, no admin features |
-| **Viewer** | 66 | Read-only access |
+| **Owner** | 68 | All permissions |
+| **Admin** | 66 | All except `team:delete`, `settings:billing:write` |
+| **Member** | 50 | Read + Write, no admin features |
+| **Viewer** | 41 | Read-only access |
 
 ### 6.2 Migration
 

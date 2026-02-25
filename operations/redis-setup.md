@@ -32,9 +32,9 @@ This guide covers Redis setup, configuration, and monitoring for the permission 
 
 ```bash
 docker run -d \
-  --name.openctem-redis \
+  --name openctem-redis \
   -p 6379:6379 \
-  -v.openctem-redis-data:/data \
+  -v openctem-redis-data:/data \
   redis:7-alpine \
   redis-server --appendonly yes
 ```
@@ -301,7 +301,7 @@ permissionService.InvalidateUserPermissionsCache(ctx, userID, tenantID)
 permissionService.InvalidateAllUserPermissionsCache(ctx, userID)
 ```
 
-**TODO:** Wire these calls in `TenantService` and `RoleService` methods.
+> **Note:** These cache invalidation calls should be wired into `TenantService.UpdateMemberRole()` and `RoleService.AssignPermissions()` to ensure permission cache stays in sync with the database.
 
 ---
 

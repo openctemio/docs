@@ -36,8 +36,8 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 
 ```bash
 # Clone the meta-repository
-git clone https://github.com/openctemio.openctem-platform.git.openctemio
-cd.openctemio
+git clone https://github.com/openctemio/openctem-platform.git
+cd openctemio
 
 # Initialize all sub-repositories
 make setup

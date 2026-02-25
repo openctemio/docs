@@ -64,7 +64,7 @@ docker compose version
 ```bash
 # 1. Clone repository
 git clone <your-repo-url>
-cd.openctemio
+cd openctemio
 
 # 2. Create environment file
 cp .env.staging.example .env.staging
@@ -93,7 +93,7 @@ open http://localhost:3000
 ```bash
 # Clone the project
 git clone <your-repo-url>
-cd.openctemio
+cd openctemio
 
 # Verify structure
 ls -la
@@ -188,9 +188,9 @@ make docker-seed-vnsecurity
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `DB_USER` | Yes |.openctem | Database username |
+| `DB_USER` | Yes | openctem | Database username |
 | `DB_PASSWORD` | Yes | - | Database password |
-| `DB_NAME` | Yes |.openctem | Database name |
+| `DB_NAME` | Yes | openctem | Database name |
 | `AUTH_JWT_SECRET` | Yes | - | JWT signing secret (min 64 chars) |
 | `CSRF_SECRET` | Yes | - | CSRF token secret (min 32 chars) |
 | `NEXT_PUBLIC_APP_URL` | Yes | http://localhost:3000 | Public URL |
@@ -262,7 +262,7 @@ cd api
 make docker-seed-vnsecurity
 
 # Verify
-docker compose exec postgres psql -U.openctem -d.openctem -c \
+docker compose exec postgres psql -U openctem -d openctem -c \
   "SELECT asset_type, COUNT(*) FROM assets GROUP BY asset_type ORDER BY asset_type;"
 ```
 
@@ -485,7 +485,7 @@ docker compose version
 ```bash
 # Option 1: Git clone
 git clone <your-repo-url>
-cd.openctemio
+cd openctemio
 
 # Option 2: rsync from local
 rsync -avz --exclude 'node_modules' --exclude '.git' \
@@ -536,7 +536,7 @@ sudo ufw enable
 sudo apt install nginx
 
 # Create config
-sudo nano /etc/nginx/sites-available.openctem
+sudo nano /etc/nginx/sites-available/openctem
 
 # Add:
 server {
@@ -557,7 +557,7 @@ server {
 }
 
 # Enable site
-sudo ln -s /etc/nginx/sites-available.openctem /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/openctem /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -607,7 +607,7 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
-            cd ~.openctemio
+            cd ~/openctemio
             git pull origin develop
             make staging-rebuild
 ```

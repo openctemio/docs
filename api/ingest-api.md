@@ -6,32 +6,32 @@ nav_order: 10
 
 # Ingest API Reference
 
-API endpoints để nhập dữ liệu security (assets, findings) vào hệ thống OpenCTEM.
+API endpoints for ingesting security data (assets, findings) into the OpenCTEM system.
 
 **Base URL**: `/api/v1`
 
-**Authentication**: Tất cả endpoints yêu cầu API Key qua header:
-- `Authorization: Bearer <api_key>` (khuyên dùng)
-- `X-API-Key: <api_key>` (thay thế)
+**Authentication**: All endpoints require an API Key via header:
+- `Authorization: Bearer <api_key>` (recommended)
+- `X-API-Key: <api_key>` (alternative)
 
 ---
 
-## Tổng quan Endpoints
+## Endpoints Overview
 
-| Endpoint | Method | Mô tả |
-|----------|--------|-------|
-| [`/agent/ingest/ctis`](#1-ingest-ctis) | POST | Nhập báo cáo CTIS (định dạng chuẩn) |
-| [`/agent/ingest/sarif`](#2-ingest-sarif) | POST | Nhập kết quả SARIF 2.1.0 |
-| [`/agent/ingest/recon`](#3-ingest-recon) | POST | Nhập kết quả reconnaissance |
-| [`/agent/ingest/chunk`](#4-ingest-chunk) | POST | Nhập báo cáo lớn theo từng chunk |
-| [`/ingest/check`](#5-check-fingerprints) | POST | Kiểm tra fingerprint đã tồn tại |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| [`/agent/ingest/ctis`](#1-ingest-ctis) | POST | Ingest CTIS report (standard format) |
+| [`/agent/ingest/sarif`](#2-ingest-sarif) | POST | Ingest SARIF 2.1.0 results |
+| [`/agent/ingest/recon`](#3-ingest-recon) | POST | Ingest reconnaissance results |
+| [`/agent/ingest/chunk`](#4-ingest-chunk) | POST | Ingest large reports in chunks |
+| [`/ingest/check`](#5-check-fingerprints) | POST | Check if fingerprints already exist |
 | [`/agent/heartbeat`](#6-heartbeat) | POST | Agent heartbeat |
 
 ---
 
 ## 1. Ingest CTIS
 
-Nhập báo cáo theo định dạng CTIS (CTEM Ingest Schema).
+Ingest reports in CTIS (CTEM Ingest Schema) format.
 
 ```
 POST /api/v1/agent/ingest/ctis
@@ -42,67 +42,67 @@ POST /api/v1/agent/ingest/ctis
 ```http
 Authorization: Bearer <api_key>
 Content-Type: application/json
-Content-Encoding: gzip  # Tùy chọn, hỗ trợ gzip/zstd
+Content-Encoding: gzip  # Optional, supports gzip/zstd
 ```
 
 ### Input Fields
 
-| Field | Type | Required | Mô tả |
-|-------|------|----------|-------|
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
 | `version` | string | **Yes** | Schema version (`"1.0"`) |
 | `metadata.timestamp` | string | **Yes** | ISO 8601 timestamp |
-| `metadata.id` | string | No | Report ID (auto-generated nếu trống) |
+| `metadata.id` | string | No | Report ID (auto-generated if empty) |
 | `metadata.source_type` | string | No | `scanner`, `manual`, `api` |
 | `metadata.coverage_type` | string | No | `full`, `incremental`, `partial` |
 | `metadata.branch` | object | No | Git branch info |
-| `tool.name` | string | No | Tên scanner |
-| `tool.version` | string | No | Version scanner |
+| `tool.name` | string | No | Scanner name |
+| `tool.version` | string | No | Scanner version |
 | `tool.capabilities[]` | array | No | Scanner capabilities |
-| `assets[]` | array | No | Danh sách assets |
-| `findings[]` | array | No | Danh sách findings |
+| `assets[]` | array | No | List of assets |
+| `findings[]` | array | No | List of findings |
 | `dependencies[]` | array | No | SBOM dependencies |
 
 ### Response Fields
 
-| Field | Type | Mô tả |
-|-------|------|-------|
-| `scan_id` | string | ID của scan (từ metadata.id hoặc auto-generated) |
-| `assets_created` | int | Số assets mới tạo |
-| `assets_updated` | int | Số assets đã cập nhật |
-| `findings_created` | int | Số findings mới tạo |
-| `findings_updated` | int | Số findings đã cập nhật (enriched) |
-| `findings_skipped` | int | Số findings bị skip (duplicate) |
-| `errors[]` | array | Danh sách lỗi (nếu có) |
+| Field | Type | Description |
+|-------|------|-------------|
+| `scan_id` | string | Scan ID (from metadata.id or auto-generated) |
+| `assets_created` | int | Number of newly created assets |
+| `assets_updated` | int | Number of updated assets |
+| `findings_created` | int | Number of newly created findings |
+| `findings_updated` | int | Number of updated findings (enriched) |
+| `findings_skipped` | int | Number of skipped findings (duplicate) |
+| `errors[]` | array | List of errors (if any) |
 
 ---
 
 ### Asset Auto-Creation
 
-Khi request có findings nhưng **không có assets**, hệ thống sẽ tự động tạo asset theo thứ tự ưu tiên sau:
+When a request has findings but **no assets**, the system will automatically create an asset based on the following priority order:
 
-| # | Nguồn | Điều kiện | Asset Type | Ví dụ |
-|---|-------|-----------|------------|-------|
-| 1 | `metadata.branch.repository_url` | URL hợp lệ | `repository` | `github.com/org/repo` |
-| 2 | `findings[].asset_value` | Tất cả findings cùng 1 giá trị | Từ `asset_type` hoặc `repository` | `github.com/myorg/api` |
-| 3 | `metadata.scope.name` | Scope được định nghĩa | Từ `scope.type` | `production-cluster` |
-| 4 | File path inference | Paths chứa git host pattern | `repository` | `https://github.com/org/repo` |
-| 5 | Tool+ScanID fallback | Tool name có sẵn | `other` | `scan:semgrep:scan-123` |
+| # | Source | Condition | Asset Type | Example |
+|---|--------|-----------|------------|---------|
+| 1 | `metadata.branch.repository_url` | Valid URL | `repository` | `github.com/org/repo` |
+| 2 | `findings[].asset_value` | All findings share the same value | From `asset_type` or `repository` | `github.com/myorg/api` |
+| 3 | `metadata.scope.name` | Scope is defined | From `scope.type` | `production-cluster` |
+| 4 | File path inference | Paths contain git host pattern | `repository` | `https://github.com/org/repo` |
+| 5 | Tool+ScanID fallback | Tool name is available | `other` | `scan:semgrep:scan-123` |
 
-**Lưu ý quan trọng:**
+**Important Notes:**
 
-1. **Priority 1 (Branch Info)**: Đây là nguồn đáng tin cậy nhất cho CI/CD scans. Luôn cung cấp `metadata.branch.repository_url` khi có thể.
+1. **Priority 1 (Branch Info)**: This is the most reliable source for CI/CD scans. Always provide `metadata.branch.repository_url` when possible.
 
-2. **Priority 2 (Finding Values)**: Chỉ tạo asset nếu TẤT CẢ findings có cùng `asset_value`. Nếu findings có nhiều giá trị khác nhau, hệ thống sẽ bỏ qua priority này.
+2. **Priority 2 (Finding Values)**: Only creates an asset if ALL findings share the same `asset_value`. If findings have different values, the system will skip this priority.
 
-3. **Priority 4 (Path Inference)**: Hỗ trợ các patterns:
+3. **Priority 4 (Path Inference)**: Supports the following patterns:
    - `github.com/org/repo/...`
    - `gitlab.com/org/repo/...`
    - `bitbucket.org/org/repo/...`
-   - Common path prefix detection cho local scans
+   - Common path prefix detection for local scans
 
-4. **Priority 5 (Fallback)**: Đảm bảo findings không bao giờ bị orphan. Asset được tạo với format `scan:<tool_name>:<scan_id>`.
+4. **Priority 5 (Fallback)**: Ensures findings are never orphaned. Asset is created with the format `scan:<tool_name>:<scan_id>`.
 
-**Auto-created assets có properties:**
+**Auto-created assets have properties:**
 ```json
 {
   "auto_created": true,
@@ -112,7 +112,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 1: Minimal Report (Chỉ metadata bắt buộc)
+### Example 1: Minimal Report (Required metadata only)
 
 **Request:**
 ```json
@@ -139,7 +139,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 2: SAST Finding với DataFlow (SQL Injection)
+### Example 2: SAST Finding with DataFlow (SQL Injection)
 
 **Request:**
 ```json
@@ -259,7 +259,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 3: Cross-File DataFlow (Interprocedural Analysis)
+### Example 3: Cross-File DataFlow (Interprocedural Analysis)
 
 **Request:**
 ```json
@@ -358,7 +358,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 4: Secret Detection
+### Example 4: Secret Detection
 
 **Request:**
 ```json
@@ -460,7 +460,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 5: SCA (Software Composition Analysis) với Dependencies
+### Example 5: SCA (Software Composition Analysis) with Dependencies
 
 **Request:**
 ```json
@@ -569,7 +569,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 6: IaC Misconfiguration (Terraform)
+### Example 6: IaC Misconfiguration (Terraform)
 
 **Request:**
 ```json
@@ -655,7 +655,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 7: Compliance Finding
+### Example 7: Compliance Finding
 
 **Request:**
 ```json
@@ -722,7 +722,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 8: Web3/Smart Contract Finding
+### Example 8: Web3/Smart Contract Finding
 
 **Request:**
 ```json
@@ -808,7 +808,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 9: Multiple Assets với Technical Details
+### Example 9: Multiple Assets with Technical Details
 
 **Request:**
 ```json
@@ -959,7 +959,7 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 
 ---
 
-### Ví dụ 10: Incremental Scan (Diff-based)
+### Example 10: Incremental Scan (Diff-based)
 
 **Request:**
 ```json
@@ -1024,13 +1024,13 @@ Khi request có findings nhưng **không có assets**, hệ thống sẽ tự đ
 }
 ```
 
-> **Note**: Vì `coverage_type=incremental` và `is_default_branch=false`, auto-resolve KHÔNG được kích hoạt.
+> **Note**: Because `coverage_type=incremental` and `is_default_branch=false`, auto-resolve is NOT triggered.
 
 ---
 
-### Ví dụ 11: Wrapped Format (Alternative)
+### Example 11: Wrapped Format (Alternative)
 
-API hỗ trợ 2 format: flat (ví dụ trên) và wrapped.
+The API supports 2 formats: flat (examples above) and wrapped.
 
 **Request (Wrapped):**
 ```json
@@ -1057,7 +1057,7 @@ API hỗ trợ 2 format: flat (ví dụ trên) và wrapped.
 
 ---
 
-### Ví dụ 12: Error Responses
+### Example 12: Error Responses
 
 **401 Unauthorized - Missing API Key:**
 ```json
@@ -1103,7 +1103,7 @@ API hỗ trợ 2 format: flat (ví dụ trên) và wrapped.
 }
 ```
 
-**Response với Partial Errors:**
+**Response with Partial Errors:**
 ```json
 {
   "scan_id": "scan-001",
@@ -1124,7 +1124,7 @@ API hỗ trợ 2 format: flat (ví dụ trên) và wrapped.
 
 ## 2. Ingest SARIF
 
-Nhập kết quả scan ở định dạng SARIF 2.1.0 (Static Analysis Results Interchange Format).
+Ingest scan results in SARIF 2.1.0 (Static Analysis Results Interchange Format) format.
 
 ```
 POST /api/v1/agent/ingest/sarif
@@ -1139,7 +1139,7 @@ Content-Type: application/json
 
 ---
 
-### Ví dụ 1: Basic SARIF từ CodeQL
+### Example 1: Basic SARIF from CodeQL
 
 **Request:**
 ```json
@@ -1348,7 +1348,7 @@ Content-Type: application/json
 
 ---
 
-### Ví dụ 2: SARIF từ Semgrep
+### Example 2: SARIF from Semgrep
 
 **Request:**
 ```json
@@ -1413,7 +1413,7 @@ Content-Type: application/json
 
 ---
 
-### Ví dụ 3: Multiple Runs (Multi-tool SARIF)
+### Example 3: Multiple Runs (Multi-tool SARIF)
 
 **Request:**
 ```json
@@ -1500,7 +1500,7 @@ Content-Type: application/json
 
 ## 3. Ingest Recon
 
-Nhập kết quả reconnaissance (subdomain, DNS, port scan, HTTP probe).
+Ingest reconnaissance results (subdomain, DNS, port scan, HTTP probe).
 
 ```
 POST /api/v1/agent/ingest/recon
@@ -1508,7 +1508,7 @@ POST /api/v1/agent/ingest/recon
 
 ---
 
-### Ví dụ 1: Subdomain Enumeration
+### Example 1: Subdomain Enumeration
 
 **Request:**
 ```json
@@ -1559,7 +1559,7 @@ POST /api/v1/agent/ingest/recon
 
 ---
 
-### Ví dụ 2: DNS Records
+### Example 2: DNS Records
 
 **Request:**
 ```json
@@ -1622,7 +1622,7 @@ POST /api/v1/agent/ingest/recon
 
 ---
 
-### Ví dụ 3: Port Scan
+### Example 3: Port Scan
 
 **Request:**
 ```json
@@ -1687,7 +1687,7 @@ POST /api/v1/agent/ingest/recon
 
 ---
 
-### Ví dụ 4: HTTP Probe (Live Hosts)
+### Example 4: HTTP Probe (Live Hosts)
 
 **Request:**
 ```json
@@ -1756,7 +1756,7 @@ POST /api/v1/agent/ingest/recon
 
 ---
 
-### Ví dụ 5: URL Discovery (Crawling)
+### Example 5: URL Discovery (Crawling)
 
 **Request:**
 ```json
@@ -1841,7 +1841,7 @@ POST /api/v1/agent/ingest/recon
 
 ---
 
-### Ví dụ 6: Combined Recon (All Types)
+### Example 6: Combined Recon (All Types)
 
 **Request:**
 ```json
@@ -1885,7 +1885,7 @@ POST /api/v1/agent/ingest/recon
 
 ## 4. Ingest Chunk
 
-Nhập báo cáo lớn theo từng phần (chunked upload).
+Ingest large reports in parts (chunked upload).
 
 ```
 POST /api/v1/agent/ingest/chunk
@@ -1893,7 +1893,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 1: First Chunk (với Metadata)
+### Example 1: First Chunk (with Metadata)
 
 **Request:**
 ```json
@@ -1907,7 +1907,7 @@ POST /api/v1/agent/ingest/chunk
 }
 ```
 
-**Decoded Data (sau decompress):**
+**Decoded Data (after decompression):**
 ```json
 {
   "metadata": {
@@ -1947,7 +1947,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 2: Middle Chunk
+### Example 2: Middle Chunk
 
 **Request:**
 ```json
@@ -1976,7 +1976,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 3: Final Chunk
+### Example 3: Final Chunk
 
 **Request:**
 ```json
@@ -2007,7 +2007,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 4: Gzip Compression
+### Example 4: Gzip Compression
 
 **Request:**
 ```json
@@ -2023,7 +2023,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 5: No Compression
+### Example 5: No Compression
 
 **Request:**
 ```json
@@ -2044,7 +2044,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 6: Error - Invalid Report ID
+### Example 6: Error - Invalid Report ID
 
 **Request:**
 ```json
@@ -2070,7 +2070,7 @@ POST /api/v1/agent/ingest/chunk
 
 ---
 
-### Ví dụ 7: Error - Chunk Index Out of Range
+### Example 7: Error - Chunk Index Out of Range
 
 **Request:**
 ```json
@@ -2098,15 +2098,15 @@ POST /api/v1/agent/ingest/chunk
 
 ## 5. Check Fingerprints
 
-Kiểm tra fingerprints đã tồn tại (deduplication).
+Check if fingerprints already exist (deduplication).
 
 ```
-POST /api/v1/ingest/check
+POST /api/v1/agent/ingest/check
 ```
 
 ---
 
-### Ví dụ 1: Basic Check
+### Example 1: Basic Check
 
 **Request:**
 ```json
@@ -2134,7 +2134,7 @@ POST /api/v1/ingest/check
 
 ---
 
-### Ví dụ 2: All New (None Existing)
+### Example 2: All New (None Existing)
 
 **Request:**
 ```json
@@ -2159,7 +2159,7 @@ POST /api/v1/ingest/check
 
 ---
 
-### Ví dụ 3: All Existing (Duplicates)
+### Example 3: All Existing (Duplicates)
 
 **Request:**
 ```json
@@ -2186,7 +2186,7 @@ POST /api/v1/ingest/check
 
 ---
 
-### Ví dụ 4: Empty Input
+### Example 4: Empty Input
 
 **Request:**
 ```json
@@ -2208,18 +2208,18 @@ POST /api/v1/ingest/check
 ### Use Case: SDK Deduplication Flow
 
 ```
-1. Scanner tạo findings với fingerprints
-2. SDK gọi /ingest/check với danh sách fingerprints
-3. SDK loại bỏ findings có fingerprint trong "existing"
-4. SDK gọi /ingest/ctis với findings còn lại (chỉ "missing")
-5. Giảm payload size và processing time
+1. Scanner creates findings with fingerprints
+2. SDK calls /ingest/check with the list of fingerprints
+3. SDK removes findings whose fingerprints are in "existing"
+4. SDK calls /ingest/ctis with remaining findings (only "missing")
+5. Reduces payload size and processing time
 ```
 
 ---
 
 ## 6. Heartbeat
 
-Agent gửi heartbeat định kỳ.
+Agent sends periodic heartbeat.
 
 ```
 POST /api/v1/agent/heartbeat
@@ -2227,7 +2227,7 @@ POST /api/v1/agent/heartbeat
 
 ---
 
-### Ví dụ 1: Full Heartbeat
+### Example 1: Full Heartbeat
 
 **Request:**
 ```json
@@ -2260,7 +2260,7 @@ POST /api/v1/agent/heartbeat
 
 ---
 
-### Ví dụ 2: Minimal Heartbeat (Empty Body)
+### Example 2: Minimal Heartbeat (Empty Body)
 
 **Request:**
 ```http
@@ -2281,7 +2281,7 @@ Content-Length: 0
 
 ---
 
-### Ví dụ 3: Agent in Error State
+### Example 3: Agent in Error State
 
 **Request:**
 ```json
@@ -2295,7 +2295,7 @@ Content-Length: 0
 
 ---
 
-### Ví dụ 4: Agent Stopping
+### Example 4: Agent Stopping
 
 **Request:**
 ```json
@@ -2337,23 +2337,23 @@ Content-Length: 0
 |-----------|------------------|------------------------|
 | gzip | `Content-Encoding: gzip` | `"compression": "gzip"` |
 | zstd | `Content-Encoding: zstd` | `"compression": "zstd"` |
-| none | (không có) | `"compression": "none"` |
+| none | (none) | `"compression": "none"` |
 
 ### Coverage Types & Auto-Resolve
 
-| Coverage Type | Auto-Resolve | Điều kiện |
+| Coverage Type | Auto-Resolve | Condition |
 |---------------|--------------|-----------|
-| `full` | **Có** | `is_default_branch=true` |
-| `full` | Không | `is_default_branch=false` |
-| `incremental` | Không | Luôn luôn |
-| `partial` | Không | Luôn luôn |
-| (không set) | Không | Mặc định an toàn |
+| `full` | **Yes** | `is_default_branch=true` |
+| `full` | No | `is_default_branch=false` |
+| `incremental` | No | Always |
+| `partial` | No | Always |
+| (not set) | No | Safe default |
 
 ---
 
 ## Error Reference
 
-| HTTP Status | Code | Mô tả | Nguyên nhân |
+| HTTP Status | Code | Description | Cause |
 |-------------|------|-------|-------------|
 | 400 | BAD_REQUEST | Invalid request | JSON syntax error, missing fields, validation |
 | 401 | UNAUTHORIZED | Auth failed | Missing/invalid API key |
@@ -2442,7 +2442,7 @@ func main() {
 }
 ```
 
-#### Example 2: SAST Finding với DataFlow
+#### Example 2: SAST Finding with DataFlow
 
 ```go
 package main
@@ -2644,7 +2644,7 @@ func main() {
 }
 ```
 
-#### Example 4: SCA với Dependencies (SBOM)
+#### Example 4: SCA with Dependencies (SBOM)
 
 ```go
 package main
@@ -3691,7 +3691,7 @@ curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
 #### Check Fingerprints
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/ingest/check \
+curl -X POST https://api.openctem.io/api/v1/agent/ingest/check \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"fingerprints": ["fp1", "fp2", "fp3"]}'

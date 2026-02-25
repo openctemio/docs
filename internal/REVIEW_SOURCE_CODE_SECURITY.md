@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-Implementation Plan cho Source Code Security feature được đánh giá **SOLID (7.5/10)** với một số vấn đề bảo mật cần khắc phục ngay.
+The Implementation Plan for the Source Code Security feature is assessed as **SOLID (7.5/10)** with several security issues that need immediate resolution.
 
 ### Quick Assessment
 

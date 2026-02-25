@@ -122,7 +122,7 @@ openctem_findings_total{status="open"}
 openctem_scan_queue_depth
 
 # Agent heartbeats
-rate.openctem_agent_heartbeats_total[5m])
+rate(openctem_agent_heartbeats_total[5m])
 
 # Database connections
 openctem_db_connections{state="active"}
@@ -154,15 +154,15 @@ scrape_configs:
     kubernetes_sd_configs:
       - role: pod
         namespaces:
-          names: .openctem]
+          names: ['openctem']
     relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_app]
         regex: openctem-api
         action: keep
 
-  - job_name: .openctem-ui'
+  - job_name: 'openctem-ui'
     static_configs:
-      - targets: [.openctem-ui:3000']
+      - targets: ['openctem-ui:3000']
 
   - job_name: 'postgres'
     static_configs:
@@ -337,7 +337,7 @@ spec:
 ```yaml
 # alerts.yaml
 groups:
-  - name:.openctem_api
+  - name: openctem_api
     interval: 30s
     rules:
       # High error rate
@@ -375,8 +375,8 @@ groups:
       # Database connection pool exhausted
       - alert: DBConnectionPoolExhausted
         expr: |
-         .openctem_db_connections{state="in_use"} 
-          /.openctem_db_connections_max > 0.9
+          openctem_db_connections{state="in_use"}
+          / openctem_db_connections_max > 0.9
         for: 5m
         labels:
           severity: warning
@@ -508,10 +508,10 @@ histogram_quantile(0.95,
 
 ```promql
 # Total findings by severity
-sum by (severity) .openctem_findings_total{status="open"})
+sum by (severity) (openctem_findings_total{status="open"})
 
 # Scan completion rate
-rate.openctem_scans_total{status="completed"}[1h])
+rate(openctem_scans_total{status="completed"}[1h])
 ```
 
 ---

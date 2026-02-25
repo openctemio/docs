@@ -793,7 +793,7 @@ export interface User {
 ---
 
 **See Also:**
-- [Architecture Documentation](../ARCHITECTURE.md)
+- [Architecture Documentation](../architecture.md)
 - [Auth Usage Guide](../features/auth/AUTH_USAGE.md)
 - [Troubleshooting](../features/auth/TROUBLESHOOTING.md)
 

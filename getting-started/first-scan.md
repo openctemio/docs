@@ -27,7 +27,7 @@ This tutorial walks you through:
 ### 1.1 Navigate to Agents
 
 1. Login to the UI at [http://localhost:3000](http://localhost:3000)
-2. Go to **Settings → Agents**
+2. Go to **Settings > Agents**
 3. Click **"Add Agent"**
 
 ### 1.2 Configure the Agent
@@ -103,7 +103,7 @@ chmod +x agent-linux-amd64
 
 ### 3.1 Check Agent Status
 
-Go to **Settings → Agents** and verify:
+Go to **Settings > Agents** and verify:
 - Status shows **Online** (green badge)
 - Last heartbeat is recent
 

@@ -21,7 +21,7 @@ Complete reference for all environment variables across OpenCTEM services.
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `APP_NAME` | No | .openctem` | Application name for logging |
+| `APP_NAME` | No | `openctem` | Application name for logging |
 | `APP_ENV` | No | `development` | Environment: `development`, `staging`, `production` |
 | `APP_DEBUG` | No | `true` | Enable debug mode |
 
@@ -83,7 +83,7 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `AUTH_JWT_SECRET` | Yes | - | JWT signing secret (min 32 chars) |
+| `AUTH_JWT_SECRET` | Yes | - | JWT signing secret (min 64 chars) |
 | `AUTH_JWT_ISSUER` | No | `api` | JWT issuer claim |
 | `AUTH_ACCESS_TOKEN_DURATION` | No | `15m` | Access token TTL |
 | `AUTH_REFRESH_TOKEN_DURATION` | No | `168h` | Refresh token TTL (7 days) |
@@ -169,7 +169,7 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `NEXT_PUBLIC_API_URL` | Yes | - | Backend API URL |
+| `BACKEND_API_URL` | Yes | `http://localhost:8080` | Backend API URL (server-side only, used by Next.js server components/actions to reach the Go backend) |
 | `API_TIMEOUT` | No | `30000` | API request timeout (ms) |
 
 ### Authentication
@@ -268,7 +268,7 @@ ui/.env.production.local  # Frontend production secrets
 openssl rand -base64 48
 
 # Using Go
-go run -e 'fmt.Println(base64.StdEncoding.EncodeToString(make([]byte, 48)))'
+openssl rand -base64 48
 ```
 
 ### CSRF Secret (Frontend)

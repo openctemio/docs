@@ -69,7 +69,7 @@ ui/docs/
 
 ### 🏗️ Architecture & Setup
 
-**[ARCHITECTURE.md](./ARCHITECTURE.md)**
+**[Architecture](./architecture.md)**
 - System architecture overview
 - Frontend + Backend interaction
 - State management
@@ -128,7 +128,7 @@ ui/docs/
 | Task | Documentation |
 |------|---------------|
 | **Setup project** | [README.md](../../README.md) |
-| **Understand system** | [ARCHITECTURE.md](./ARCHITECTURE.md) |
+| **Understand system** | [Architecture](./architecture.md) |
 | **Configure env vars** | [ops/ENVIRONMENT_VARIABLES.md](./ops/ENVIRONMENT_VARIABLES.md) |
 | **Add login/logout** | [features/auth/AUTH_USAGE.md](./features/auth/AUTH_USAGE.md) |
 | **Call backend API** | [guides/API_INTEGRATION.md](./guides/API_INTEGRATION.md) |

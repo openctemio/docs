@@ -1,4 +1,4 @@
-# Ingest Handler Consolidation Plan (Phương án A)
+# Ingest Handler Consolidation Plan (Option A)
 
 **Created:** 2026-01-27
 **Updated:** 2026-01-28
@@ -10,34 +10,34 @@
 
 ## Executive Summary
 
-~~Hiện tại hệ thống có **3 format ingestion khác nhau** với 2 handler riêng biệt, gây ra code duplication và maintenance burden.~~
+~~The system currently has **3 different ingestion formats** with 2 separate handlers, causing code duplication and maintenance burden.~~
 
-**IMPLEMENTED:** Hệ thống đã được consolidate thành công:
-- ✅ Unified `ingest.Service` thay thế `IngestService` và `CTISIngestService`
-- ✅ Unified `IngestHandler` thay thế `IngestHandler` và `CTISIngestHandler`
-- ✅ Legacy endpoint đã bị xóa hoàn toàn (không còn backward compatibility)
-- ✅ 3 format được support: CTIS (native), SARIF, Recon
+**IMPLEMENTED:** The system has been successfully consolidated:
+- ✅ Unified `ingest.Service` replaces `IngestService` and `CTISIngestService`
+- ✅ Unified `IngestHandler` replaces `IngestHandler` and `CTISIngestHandler`
+- ✅ Legacy endpoint has been completely removed (no backward compatibility)
+- ✅ 3 formats supported: CTIS (native), SARIF, Recon
 - ✅ Package structure: `api/internal/app/ingest/`
 
 ---
 
 ## Current State Analysis
 
-### Handlers Hiện Tại
+### Current Handlers
 
 | Handler | File | Methods | Format |
 |---------|------|---------|--------|
 | `IngestHandler` | `ingest_handler.go` | `Ingest()`, `IngestSARIF()`, `CheckFingerprints()`, `Heartbeat()` | Legacy custom |
 | `CTISIngestHandler` | `ctis_ingest_handler.go` | `IngestCTIS()`, `IngestReconReport()` | CTIS (CTEM Ingest Schema) |
 
-### Services Hiện Tại
+### Current Services
 
 | Service | File | Purpose |
 |---------|------|---------|
 | `IngestService` | `ingest_service.go` | Legacy format processing |
 | `CTISIngestService` | `ctis_ingest_service.go` | CTIS format processing |
 
-### Endpoints Hiện Tại (After Implementation)
+### Current Endpoints (After Implementation)
 
 ```
 /api/v1/agent/ingest/ctis    → IngestHandler.IngestCTIS()      [PRIMARY]
@@ -50,16 +50,16 @@
 # /api/v1/agent/ingest       → DELETED (legacy format no longer supported)
 ```
 
-### Vấn Đề
+### Problems
 
-1. **Code Duplication**: 2 services làm cùng công việc với logic tương tự
-2. **Inconsistent API**: 3 format khác nhau cho cùng mục đích
-3. **Maintenance Burden**: Phải cập nhật cả 2 nơi khi thêm feature
-4. **Confused SDK Integration**: SDK phải support nhiều format
+1. **Code Duplication**: 2 services doing the same work with similar logic
+2. **Inconsistent API**: 3 different formats for the same purpose
+3. **Maintenance Burden**: Must update both places when adding a feature
+4. **Confused SDK Integration**: SDK must support multiple formats
 
 ---
 
-## Target State (Phương án A)
+## Target State (Option A)
 
 ### Unified Architecture
 

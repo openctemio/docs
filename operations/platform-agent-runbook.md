@@ -10,7 +10,10 @@ nav_order: 14
 
 Complete operations guide for deploying, monitoring, and troubleshooting OpenCTEM Platform Agents.
 
-**Last Updated:** 2026-01-26
+**Last Updated:** 2026-02-25
+
+{: .warning }
+> **Note:** The `openctem-admin` CLI referenced throughout this document is **not yet implemented** (Phase 7 — Pending). CLI commands shown below represent the planned interface. Until the CLI is available, use the Admin API directly via `curl` or the Admin UI at `http://localhost:3001`. See the [Admin UI User Guide](../admin-ui/user-guide.md) for the web-based alternative.
 
 ---
 
@@ -88,7 +91,7 @@ docker ps | grep platform-agent
 docker logs --tail 100 openctem-platform-agent
 
 # Check agent metrics
-curl -s http://localhost:9100/metrics | grep.openctem_agent
+curl -s http://localhost:9100/metrics | grep openctem_agent
 
 # Check API connectivity
 curl -s https://api.openctem.io/health
@@ -189,7 +192,7 @@ See [Platform Admin Guide - Kubernetes Deployment](../guides/platform-admin.md#k
 
 ```bash
 helm install platform-agent openctem/platform-agent \
-  --namespace.openctem \
+  --namespace openctem \
   --create-namespace \
   --set apiUrl=https://api.openctem.io \
   --set bootstrapToken=<token> \
@@ -251,12 +254,12 @@ After deployment, verify:
 
 | Metric | Type | Alert Threshold |
 |--------|------|-----------------|
-| .openctem_agent_status` | Gauge | != 1 (online) |
-| .openctem_agent_jobs_running` | Gauge | > max_jobs * 0.9 |
-| .openctem_agent_jobs_completed_total` | Counter | Rate = 0 for 10m |
-| .openctem_agent_jobs_failed_total` | Counter | Rate > 5/min |
-| .openctem_agent_heartbeat_latency_seconds` | Histogram | p99 > 5s |
-| .openctem_agent_lease_ttl_seconds` | Gauge | < 30s |
+| `openctem_agent_status` | Gauge | != 1 (online) |
+| `openctem_agent_jobs_running` | Gauge | > max_jobs * 0.9 |
+| `openctem_agent_jobs_completed_total` | Counter | Rate = 0 for 10m |
+| `openctem_agent_jobs_failed_total` | Counter | Rate > 5/min |
+| `openctem_agent_heartbeat_latency_seconds` | Histogram | p99 > 5s |
+| `openctem_agent_lease_ttl_seconds` | Gauge | < 30s |
 
 ### Prometheus Alerts
 
@@ -265,7 +268,7 @@ groups:
   - name: platform-agents
     rules:
       - alert: PlatformAgentOffline
-        expr:.openctem_agent_status != 1
+        expr: openctem_agent_status != 1
         for: 2m
         labels:
           severity: critical
@@ -273,7 +276,7 @@ groups:
           summary: "Platform agent {{ $labels.agent_name }} is offline"
 
       - alert: PlatformAgentHighLoad
-        expr:.openctem_agent_jobs_running /.openctem_agent_max_jobs > 0.9
+        expr: openctem_agent_jobs_running / openctem_agent_max_jobs > 0.9
         for: 5m
         labels:
           severity: warning
@@ -281,7 +284,7 @@ groups:
           summary: "Agent {{ $labels.agent_name }} at 90%+ capacity"
 
       - alert: PlatformAgentHighFailureRate
-        expr: rate.openctem_agent_jobs_failed_total[5m]) > 0.1
+        expr: rate(openctem_agent_jobs_failed_total[5m]) > 0.1
         for: 5m
         labels:
           severity: warning
@@ -289,7 +292,7 @@ groups:
           summary: "Agent {{ $labels.agent_name }} failure rate elevated"
 
       - alert: PlatformAgentLeaseExpiring
-        expr:.openctem_agent_lease_ttl_seconds < 30
+        expr: openctem_agent_lease_ttl_seconds < 30
         for: 1m
         labels:
           severity: critical
@@ -437,7 +440,7 @@ docker logs --since 1h openctem-platform-agent | grep -i error
 docker stats openctem-platform-agent
 
 # Check system resources
-top -p $(pgrep -f .openctem.*agent")
+top -p $(pgrep -f "openctem.*agent")
 ```
 
 **Solutions:**
@@ -588,7 +591,7 @@ spec:
     - type: Pods
       pods:
         metric:
-          name:.openctem_agent_jobs_running
+          name: openctem_agent_jobs_running
         target:
           type: AverageValue
           averageValue: 4  # Scale when avg > 4 jobs

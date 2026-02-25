@@ -240,8 +240,8 @@ INSERT INTO permissions (id, module_id, name, description) VALUES
     ('settings:write', 'settings', 'Update Settings', 'Modify settings'),
 
     -- Billing
-    ('billing:read', 'billing', 'View Billing', 'See billing info'),
-    ('billing:write', 'billing', 'Manage Billing', 'Update payment methods'),
+    ('settings:billing:read', 'billing', 'View Billing', 'See billing info'),
+    ('settings:billing:write', 'billing', 'Manage Billing', 'Update payment methods'),
 
     -- Reports
     ('reports:read', 'reports', 'View Reports', 'View reports and analytics'),
@@ -334,12 +334,12 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT '00000000-0000-0000-0000-000000000001', id FROM permissions;
 
 -- =====================================================
--- 8. SEED ROLE PERMISSIONS (Admin - all except billing:write, team:delete, roles:delete)
+-- 8. SEED ROLE PERMISSIONS (Admin - all except settings:billing:write, team:delete, roles:delete)
 -- =====================================================
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT '00000000-0000-0000-0000-000000000002', id
 FROM permissions
-WHERE id NOT IN ('billing:write', 'team:delete', 'roles:delete');
+WHERE id NOT IN ('settings:billing:write', 'team:delete', 'roles:delete');
 
 -- =====================================================
 -- 9. SEED ROLE PERMISSIONS (Member - read/write, no delete, no admin features)

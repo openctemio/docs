@@ -66,7 +66,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 ### 2.1 Navigate to Agents
 
-1. Go to **Settings → Agents**
+1. Go to **Settings > Agents**
 2. Click **"Create Agent"**
 
 ### 2.2 Configure Agent
@@ -250,7 +250,7 @@ agent -tools semgrep,gitleaks,trivy -target . -push
 ┌──────────────────────────────────────────────────────────────┐
 │ 3. API Ingestion (HTTP POST)                                  │
 ├──────────────────────────────────────────────────────────────┤
-│ POST /api/v1/ingest/findings                                  │
+│ POST /api/v1/agent/ingest                                     │
 │   Headers:                                                    │
 │     Authorization: Bearer {api_key}                           │
 │   Body:                                                       │

@@ -73,10 +73,10 @@ Deploy the OpenCTEM platform to production environments using Kubernetes, Docker
 
 ```bash
 # Create namespace
-kubectl create namespace.openctem
+kubectl create namespace openctem
 
 # Set as default
-kubectl config set-context --current --namespace.openctem
+kubectl config set-context --current --namespace openctem
 ```
 
 ---
@@ -91,12 +91,12 @@ export DB_PASSWORD=$(openssl rand -base64 32)
 export REDIS_PASSWORD=$(openssl rand -base64 32)
 
 # Create Kubernetes secrets
-kubectl create secret generic.openctem-secrets \
+kubectl create secret generic openctem-secrets \
   --from-literal=jwt-secret=$JWT_SECRET \
   --from-literal=csrf-secret=$CSRF_SECRET \
   --from-literal=db-password=$DB_PASSWORD \
   --from-literal=redis-password=$REDIS_PASSWORD \
-  --namespace.openctem
+  --namespace openctem
 ```
 
 ---
@@ -144,7 +144,7 @@ ui:
 postgresql:
   enabled: true
   auth:
-    existingSecret:.openctem-secrets
+    existingSecret: openctem-secrets
     secretKeys:
       adminPasswordKey: db-password
   primary:
@@ -156,7 +156,7 @@ postgresql:
 redis:
   enabled: true
   auth:
-    existingSecret:.openctem-secrets
+    existingSecret: openctem-secrets
     existingSecretPasswordKey: redis-password
   master:
     persistence:
@@ -173,7 +173,7 @@ ingress:
         - path: /
           pathType: Prefix
   tls:
-    - secretName:.openctem-tls
+    - secretName: openctem-tls
       hosts:
         - app.openctem.io
 ```
@@ -184,17 +184,17 @@ ingress:
 
 ```bash
 # Add OpenCTEM Helm repository
-helm repo add.openctemio https://charts.openctem.io
+helm repo add openctemio https://charts.openctem.io
 helm repo update
 
 # Install
-helm install.openctem openctemio.openctem \
-  --namespace.openctem \
+helm install openctem openctemio/openctem \
+  --namespace openctem \
   --values values.yaml \
   --wait --timeout 10m
 
 # Check status
-helm status.openctem --namespace.openctem
+helm status openctem --namespace openctem
 ```
 
 ---
@@ -203,23 +203,23 @@ helm status.openctem --namespace.openctem
 
 ```bash
 # Check all pods are running
-kubectl get pods --namespace.openctem
+kubectl get pods --namespace openctem
 
 # Expected output:
 # NAME                          READY   STATUS    RESTARTS   AGE
 # openctem-api-xxx               1/1     Running   0          2m
 # openctem-api-yyy               1/1     Running   0          2m
 # openctem-api-zzz               1/1     Running   0          2m
-#.openctem-ui-xxx                1/1     Running   0          2m
-#.openctem-ui-yyy                1/1     Running   0          2m
-#.openctem-postgresql-0          1/1     Running   0          2m
-#.openctem-redis-master-0        1/1     Running   0          2m
+# openctem-ui-xxx                1/1     Running   0          2m
+# openctem-ui-yyy                1/1     Running   0          2m
+# openctem-postgresql-0          1/1     Running   0          2m
+# openctem-redis-master-0        1/1     Running   0          2m
 
 # Check services
-kubectl get svc --namespace.openctem
+kubectl get svc --namespace openctem
 
 # Check ingress
-kubectl get ingress --namespace.openctem
+kubectl get ingress --namespace openctem
 ```
 
 ---
@@ -232,7 +232,7 @@ kubectl apply -f - <<EOF
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name:.openctem-migrate
+  name: openctem-migrate
   namespace: openctem
 spec:
   template:
@@ -243,17 +243,17 @@ spec:
         command: ["migrate", "-path", "/app/migrations", "-database", "\$(DATABASE_URL)", "up"]
         env:
         - name: DATABASE_URL
-          value: "postgres:/.openctem:\$(DB_PASSWORD).openctem-postgresql:5432/openctem?sslmode=disable"
+          value: "postgres://openctem:\$(DB_PASSWORD)@openctem-postgresql:5432/openctem?sslmode=disable"
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name:.openctem-secrets
+              name: openctem-secrets
               key: db-password
       restartPolicy: OnFailure
 EOF
 
 # Wait for completion
-kubectl wait --for=condition=complete job.openctem-migrate --namespace.openctem --timeout=5m
+kubectl wait --for=condition=complete job/openctem-migrate --namespace openctem --timeout=5m
 ```
 
 ---
@@ -262,7 +262,7 @@ kubectl wait --for=condition=complete job.openctem-migrate --namespace.openctem 
 
 ```bash
 # Seed test data for staging
-kubectl exec -it deployment/openctem-api --namespace.openctem -- \
+kubectl exec -it deployment/openctem-api --namespace openctem -- \
   psql \$DATABASE_URL -f /app/seeds/seed_required.sql
 ```
 
@@ -272,7 +272,7 @@ kubectl exec -it deployment/openctem-api --namespace.openctem -- \
 
 1. Update your DNS to point to the Ingress IP:
    ```bash
-   kubectl get ingress.openctem-ingress --namespace.openctem
+   kubectl get ingress openctem-ingress --namespace openctem
    ```
 
 2. Navigate to your domain: `https://app.openctem.io`
@@ -306,13 +306,13 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB:.openctem
-      POSTGRES_USER:.openctem
+      POSTGRES_DB: openctem
+      POSTGRES_USER: openctem
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U.openctem"]
+      test: ["CMD-SHELL", "pg_isready -U openctem"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -338,9 +338,9 @@ services:
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_USER:.openctem
+      DB_USER: openctem
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME:.openctem
+      DB_NAME: openctem
       REDIS_ADDR: redis:6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       AUTH_JWT_SECRET: ${JWT_SECRET}
@@ -360,7 +360,7 @@ services:
     depends_on:
       - api
     environment:
-      NEXT_PUBLIC_BACKEND_API_URL: http://api:8080
+      BACKEND_API_URL: http://api:8080
       NEXT_PUBLIC_APP_URL: https://app.openctem.io
       CSRF_SECRET: ${CSRF_SECRET}
     healthcheck:
@@ -614,10 +614,10 @@ spec:
 
 ```bash
 # Daily automated backups
-kubectl create cronjob.openctem-backup \
+kubectl create cronjob openctem-backup \
   --image=postgres:17 \
   --schedule="0 2 * * *" \
-  -- pg_dump -h postgres -U.openctem.openctem | gzip > /backups/backup-$(date +%Y%m%d).sql.gz
+  -- pg_dump -h postgres -U openctem openctem | gzip > /backups/backup-$(date +%Y%m%d).sql.gz
 ```
 
 ### Retention Policy
@@ -651,7 +651,7 @@ kubectl create cronjob.openctem-backup \
 
 ```bash
 # Check logs
-kubectl logs -l app=openctem-api --namespace.openctem --tail=100
+kubectl logs -l app=openctem-api --namespace openctem --tail=100
 
 # Common causes:
 # - Database not ready
@@ -663,15 +663,15 @@ kubectl logs -l app=openctem-api --namespace.openctem --tail=100
 
 ```bash
 # Test connection from API pod
-kubectl exec -it deployment/openctem-api --namespace.openctem -- sh
-pg_isready -h postgres -U.openctem
+kubectl exec -it deployment/openctem-api --namespace openctem -- sh
+pg_isready -h postgres -U openctem
 ```
 
 ### UI Not Loading
 
 ```bash
 # Check API is reachable from UI
-kubectl exec -it deployment.openctem-ui --namespace.openctem -- curl http://openctem-api:8080/health
+kubectl exec -it deployment/openctem-ui --namespace openctem -- curl http://openctem-api:8080/health
 ```
 
 ---

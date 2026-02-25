@@ -2,22 +2,22 @@
 
 **Created:** 2025-02-03
 **Status:** In Progress
-**Goal:** Tạo openctemio repos hoàn chỉnh, có thể build và chạy độc lập
+**Goal:** Create complete openctemio repos that can build and run independently
 
 ---
 
 ## Overview
 
-Hiện tại openctemio repos chỉ có cấu trúc cơ bản, thiếu nhiều code quan trọng:
+Currently the openctemio repos only have a basic structure, missing much important code:
 - `internal/app/` - 0/66 services
 - `internal/infra/` - 0/236 handlers
 - `cmd/` - 0/19 entry points
 
-**Phương án:** Copy ALL code → Remove Enterprise/Cloud modules
+**Approach:** Copy ALL code → Remove Enterprise/Cloud modules
 
 ---
 
-## Phase A: Full Copy (Ưu tiên cao)
+## Phase A: Full Copy (High priority)
 
 ### A.1 Copy openctemio/api
 
@@ -27,13 +27,13 @@ Hiện tại openctemio repos chỉ có cấu trúc cơ bản, thiếu nhiều c
 # Source: /home/ubuntu/projects/openctemio/api
 # Target: /home/ubuntu/projects/openctemio/api
 
-# Copy toàn bộ:
+# Copy everything:
 - cmd/                    # Entry points (server, migrate, etc.)
 - internal/app/           # 66 service files
 - internal/infra/         # 236 handler/middleware/route files
-- internal/server/        # DI và server setup
-- pkg/                    # Đã có, verify completeness
-- migrations/             # Đã có 300 files
+- internal/server/        # DI and server setup
+- pkg/                    # Already present, verify completeness
+- migrations/             # Already has 300 files
 - Dockerfile, Makefile, etc.
 ```
 
@@ -52,7 +52,7 @@ Hiện tại openctemio repos chỉ có cấu trúc cơ bản, thiếu nhiều c
 
 ### A.2 Verify openctemio/ui
 
-UI đã được copy khá đầy đủ (438 TSX files). Verify:
+UI has been copied fairly completely (438 TSX files). Verify:
 - [ ] `src/app/` - Next.js pages
 - [ ] `src/components/` - UI components
 - [ ] `src/lib/` - Utilities
@@ -62,7 +62,7 @@ UI đã được copy khá đầy đủ (438 TSX files). Verify:
 
 ### A.3 Verify openctemio/agent
 
-Agent đã có 16 Go files. Verify:
+Agent already has 16 Go files. Verify:
 - [ ] `main.go`
 - [ ] `internal/executor/` - All executors
 - [ ] `internal/config/`
@@ -72,7 +72,7 @@ Agent đã có 16 Go files. Verify:
 
 ### A.4 Verify openctemio/sdk
 
-SDK đã có 117 Go files, 26 packages. Should be complete.
+SDK already has 117 Go files, 26 packages. Should be complete.
 
 ---
 
@@ -198,7 +198,7 @@ Search and remove imports of enterprise packages:
 
 ### C.2 Update DI/Wire
 
-File: `internal/server/wire.go` hoặc `cmd/server/services.go`
+File: `internal/server/wire.go` or `cmd/server/services.go`
 
 - Remove enterprise service injections
 - Remove enterprise handler registrations
@@ -213,7 +213,7 @@ File: `internal/infra/http/routes/routes.go`
 
 ### C.4 Feature Flags (Optional)
 
-Có thể dùng feature flags để disable thay vì xóa code:
+Can use feature flags to disable instead of deleting code:
 ```go
 if config.EnableAITriage {
     // Register AI triage routes
@@ -255,12 +255,12 @@ docker build -t openctemio/api:test .
 
 ## Phase E: Update openctem repos
 
-Sau khi openctemio hoàn thiện, openctem repos sẽ:
+After openctemio is complete, the openctem repos will:
 
 ### E.1 openctem/api
 - Import `github.com/openctemio/api` as dependency
 - Add enterprise packages on top
-- Override/extend services với RBAC wrappers
+- Override/extend services with RBAC wrappers
 
 ### E.2 openctem/ui
 - Import `@openctemio/ui` as dependency
@@ -268,7 +268,7 @@ Sau khi openctemio hoàn thiện, openctem repos sẽ:
 - Add ModuleGate wrappers
 
 ### E.3 openctem/cloud
-- Import both `openctemio/api` và `openctem/api`
+- Import both `openctemio/api` and `openctem/api`
 - Add SaaS-specific features
 - Platform management
 
@@ -330,10 +330,10 @@ scripts/fullcopy/
 
 ## Notes
 
-1. **Backup first:** Trước khi remove, backup openctemio repos hiện tại
-2. **Gradual removal:** Remove từng category, verify build sau mỗi step
-3. **Git commits:** Commit sau mỗi phase để dễ rollback
-4. **Import graph:** Cần analyze import graph trước khi remove
+1. **Backup first:** Before removing, backup the current openctemio repos
+2. **Gradual removal:** Remove each category, verify build after each step
+3. **Git commits:** Commit after each phase for easy rollback
+4. **Import graph:** Need to analyze the import graph before removing
 
 ---
 
@@ -350,4 +350,4 @@ scripts/fullcopy/
 
 ---
 
-**Next Action:** Bắt đầu Phase A - Full Copy
+**Next Action:** Begin Phase A - Full Copy
