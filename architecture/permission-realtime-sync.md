@@ -74,9 +74,9 @@ When an admin revokes a user's permission:
 ```
 Timeline (Current):
 ───────────────────────────────────────────────────────────────────
-00:00  User login, JWT contains: [assets:read, assets:write, billing:read]
-00:05  Admin revokes billing:read
-00:05  User JWT still has billing:read ← STALE
+00:00  User login, JWT contains: [assets:read, assets:write, settings:billing:read]
+00:05  Admin revokes settings:billing:read
+00:05  User JWT still has settings:billing:read ← STALE
 00:10  User clicks Billing → 403 Forbidden (confusing!)
 00:15  Token expires, user refreshes
 00:15  New JWT has: [assets:read, assets:write] ← Finally updated

@@ -355,9 +355,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 }
 ```
 
-### Option 3: Middleware (Best - Coming in Task 5)
+### Option 3: Middleware (Best)
 
-Will add authentication check in `middleware.ts`.
+Authentication middleware in `middleware.ts` enforces route protection at the server level before components render.
 
 ---
 
@@ -599,11 +599,9 @@ git checkout HEAD -- src/stores/auth-store.ts
 
 After successful migration:
 
-1. Complete Task 5: Add authentication middleware
-2. Complete Task 6: Fix open redirect vulnerability
-3. Test in staging environment
-4. Update production Keycloak configuration
-5. Deploy to production
+1. Test in staging environment
+2. Update production Keycloak configuration
+3. Deploy to production
 
 ---
 

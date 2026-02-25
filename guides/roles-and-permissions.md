@@ -27,10 +27,10 @@ OpenCTEM uses a **role-based access control** system where:
 
 | Role | Priority | Permissions | Description |
 |------|:--------:|:-----------:|-------------|
-| **Owner** | 4 | 216 | Full control including billing and team deletion |
-| **Admin** | 3 | 214 | Full resource access + member management |
-| **Member** | 2 | 86 | Create and edit resources, no delete/admin access |
-| **Viewer** | 1 | 66 | Read-only access |
+| **Owner** | 4 | 68 | Full control including billing and team deletion |
+| **Admin** | 3 | 66 | Full resource access + member management |
+| **Member** | 2 | 50 | Create and edit resources, no delete/admin access |
+| **Viewer** | 1 | 41 | Read-only access |
 
 ```
        ┌───────────┐
@@ -101,12 +101,11 @@ The sidebar navigation is filtered based on user permissions. Each module requir
 | `assets:read` | ✅ | ✅ | ✅ | ✅ |
 | `assets:write` | ✅ | ✅ | ✅ | ❌ |
 | `assets:delete` | ✅ | ✅ | ❌ | ❌ |
-| `repositories:read` | ✅ | ✅ | ✅ | ✅ |
-| `repositories:write` | ✅ | ✅ | ✅ | ❌ |
-| `repositories:delete` | ✅ | ✅ | ❌ | ❌ |
-| `components:read` | ✅ | ✅ | ✅ | ✅ |
-| `components:write` | ✅ | ✅ | ✅ | ❌ |
-| `components:delete` | ✅ | ✅ | ❌ | ❌ |
+| `assets:groups:read` | ✅ | ✅ | ✅ | ✅ |
+| `assets:groups:write` | ✅ | ✅ | ✅ | ❌ |
+| `assets:groups:delete` | ✅ | ✅ | ❌ | ❌ |
+| `assets:components:read` | ✅ | ✅ | ✅ | ✅ |
+| `assets:components:write` | ✅ | ✅ | ✅ | ❌ |
 
 ### Findings & Vulnerabilities
 
@@ -124,12 +123,9 @@ The sidebar navigation is filtered based on user permissions. Each module requir
 | `scans:read` | ✅ | ✅ | ✅ | ✅ |
 | `scans:write` | ✅ | ✅ | ✅ | ❌ |
 | `scans:delete` | ✅ | ✅ | ❌ | ❌ |
-| `tools:read` | ✅ | ✅ | ✅ | ✅ |
-| `tools:write` | ✅ | ✅ | ✅ | ❌ |
-| `tools:delete` | ✅ | ✅ | ❌ | ❌ |
-| `workers:read` | ✅ | ✅ | ✅ | ✅ |
-| `workers:write` | ✅ | ✅ | ✅ | ❌ |
-| `workers:delete` | ✅ | ✅ | ❌ | ❌ |
+| `scans:tools:read` | ✅ | ✅ | ✅ | ✅ |
+| `scans:tools:write` | ✅ | ✅ | ✅ | ❌ |
+| `scans:tools:delete` | ✅ | ✅ | ❌ | ❌ |
 | `pipelines:read` | ✅ | ✅ | ✅ | ✅ |
 | `pipelines:write` | ✅ | ✅ | ❌ | ❌ |
 
@@ -141,8 +137,8 @@ The sidebar navigation is filtered based on user permissions. Each module requir
 | `workflows:write` | ✅ | ✅ | ❌ | ❌ |
 | `remediation:read` | ✅ | ✅ | ✅ | ✅ |
 | `remediation:write` | ✅ | ✅ | ✅ | ❌ |
-| `pentest:read` | ✅ | ✅ | ✅ | ✅ |
-| `pentest:write` | ✅ | ✅ | ✅ | ❌ |
+| `validation:read` | ✅ | ✅ | ✅ | ✅ |
+| `validation:write` | ✅ | ✅ | ✅ | ❌ |
 
 ### Reports & Dashboard
 
@@ -157,9 +153,9 @@ The sidebar navigation is filtered based on user permissions. Each module requir
 
 | Permission | Owner | Admin | Member | Viewer |
 |------------|:-----:|:-----:|:------:|:------:|
-| `members:read` | ✅ | ✅ | ✅ | ✅ |
-| `members:invite` | ✅ | ✅ | ❌ | ❌ |
-| `members:manage` | ✅ | ✅ | ❌ | ❌ |
+| `team:members:read` | ✅ | ✅ | ✅ | ✅ |
+| `team:members:invite` | ✅ | ✅ | ❌ | ❌ |
+| `team:members:write` | ✅ | ✅ | ❌ | ❌ |
 | `team:read` | ✅ | ✅ | ✅ | ✅ |
 | `team:update` | ✅ | ✅ | ❌ | ❌ |
 | `team:delete` | ✅ | ❌ | ❌ | ❌ |
@@ -168,12 +164,12 @@ The sidebar navigation is filtered based on user permissions. Each module requir
 
 | Permission | Owner | Admin | Member | Viewer |
 |------------|:-----:|:-----:|:------:|:------:|
-| `billing:read` | ✅ | ✅ | ❌ | ❌ |
-| `billing:manage` | ✅ | ❌ | ❌ | ❌ |
+| `settings:billing:read` | ✅ | ✅ | ❌ | ❌ |
+| `settings:billing:write` | ✅ | ❌ | ❌ | ❌ |
 | `integrations:read` | ✅ | ✅ | ✅ | ✅ |
 | `integrations:manage` | ✅ | ✅ | ❌ | ❌ |
-| `credentials:read` | ✅ | ✅ | ✅ | ✅ |
-| `credentials:write` | ✅ | ✅ | ❌ | ❌ |
+| `findings:credentials:read` | ✅ | ✅ | ✅ | ✅ |
+| `findings:credentials:write` | ✅ | ✅ | ❌ | ❌ |
 
 ---
 

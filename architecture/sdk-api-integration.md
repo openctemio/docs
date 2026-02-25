@@ -56,9 +56,9 @@ This document describes how the OpenCTEM SDK integrates with the Backend API for
 │   ┌───────────────────────────┼─────────────────────────────────────┐  │
 │   │                    Ingest Service                                │  │
 │   │                                                                  │  │
-│   │  POST /api/v1/ingest/findings                                   │  │
-│   │  POST /api/v1/ingest/assets                                     │  │
-│   │  POST /api/v1/ingest/heartbeat                                  │  │
+│   │  POST /api/v1/agent/ingest                                      │  │
+│   │  POST /api/v1/agent/ingest/ctis                                 │  │
+│   │  POST /api/v1/agent/heartbeat                                   │  │
 │   │                                                                  │  │
 │   │  - Validate CTIS schema                                          │  │
 │   │  - Deduplicate findings (fingerprint)                           │  │
@@ -103,7 +103,7 @@ This document describes how the OpenCTEM SDK integrates with the Backend API for
 ### 2. Request Headers
 
 ```http
-POST /api/v1/ingest/findings HTTP/1.1
+POST /api/v1/agent/ingest HTTP/1.1
 Host: api.openctem.io
 Content-Type: application/json
 Authorization: Bearer rs_src_xxxxxxxxxxxxxxxxxxxxxxxx
@@ -204,7 +204,7 @@ targets:
 
 ## Ingest Endpoints
 
-### POST /api/v1/ingest/findings
+### POST /api/v1/agent/ingest
 
 **Request:**
 ```json
@@ -261,7 +261,7 @@ targets:
 }
 ```
 
-### POST /api/v1/ingest/heartbeat
+### POST /api/v1/agent/heartbeat
 
 **Request:**
 ```json
@@ -361,9 +361,9 @@ ELSE:
 
 | Endpoint | Limit | Window |
 |----------|-------|--------|
-| `/ingest/findings` | 100 req/min | Per source |
-| `/ingest/assets` | 100 req/min | Per source |
-| `/ingest/heartbeat` | 10 req/min | Per source |
+| `/agent/ingest` | 100 req/min | Per source |
+| `/agent/ingest/ctis` | 100 req/min | Per source |
+| `/agent/heartbeat` | 10 req/min | Per source |
 
 Rate limit headers:
 ```http
@@ -425,9 +425,9 @@ Keep sources "alive" by sending regular heartbeats.
 ### Backend API Tasks
 
 - [ ] Create `POST /api/v1/sources` - Source registration
-- [ ] Create `POST /api/v1/ingest/findings` - Finding ingestion
-- [ ] Create `POST /api/v1/ingest/assets` - Asset ingestion
-- [ ] Create `POST /api/v1/ingest/heartbeat` - Heartbeat
+- [ ] Create `POST /api/v1/agent/ingest` - Finding ingestion
+- [ ] Create `POST /api/v1/agent/ingest/ctis` - Explicit CTIS ingestion
+- [ ] Create `POST /api/v1/agent/heartbeat` - Heartbeat
 - [ ] Add API key authentication middleware
 - [ ] Add source validation middleware
 - [ ] Add rate limiting middleware

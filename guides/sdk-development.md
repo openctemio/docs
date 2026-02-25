@@ -1115,7 +1115,7 @@ client := client.New(&client.Config{
 ### Headers Sent
 
 ```http
-POST /api/v1/ingest/findings HTTP/1.1
+POST /api/v1/agent/ingest HTTP/1.1
 Host: api.openctem.io
 Content-Type: application/json
 Authorization: Bearer rs_src_xxxxxxxxxxxxxxxxxxxxxxxx
@@ -2092,7 +2092,7 @@ import "github.com/openctemio/sdk-go/pkg/metrics"
 
 // Create Prometheus collector with default metrics
 collector := metrics.NewPrometheusCollector(&metrics.PrometheusConfig{
-    Namespace:              .openctemio",
+    Namespace:              "openctemio",
     RegisterDefaultMetrics: true,
 })
 
@@ -2100,16 +2100,16 @@ collector := metrics.NewPrometheusCollector(&metrics.PrometheusConfig{
 metrics.SetDefaultCollector(collector)
 
 // Use metrics
-metrics.GetDefaultCollector().CounterInc(.openctemio_scanner_scans_total", "scanner", "semgrep", "status", "success")
-metrics.GetDefaultCollector().HistogramObserve(.openctemio_scanner_scan_duration_seconds", 45.5, "scanner", "semgrep")
-metrics.GetDefaultCollector().GaugeSet(.openctemio_agent_active_jobs", 3)
+metrics.GetDefaultCollector().CounterInc("openctemio_scanner_scans_total", "scanner", "semgrep", "status", "success")
+metrics.GetDefaultCollector().HistogramObserve("openctemio_scanner_scan_duration_seconds", 45.5, "scanner", "semgrep")
+metrics.GetDefaultCollector().GaugeSet("openctemio_agent_active_jobs", 3)
 ```
 
 ### Timer Helper
 
 ```go
 // Measure operation duration
-timer := metrics.NewTimer(collector, .openctemio_http_request_duration_seconds", "method", "GET", "host", "api.openctemio.com")
+timer := metrics.NewTimer(collector, "openctemio_http_request_duration_seconds", "method", "GET", "host", "api.openctemio.com")
 // ... do operation ...
 duration := timer.ObserveDuration() // Records to histogram and returns duration
 ```

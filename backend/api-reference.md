@@ -185,14 +185,13 @@ Authorization: Bearer <access_token>
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|------------|-------------|
-| GET | `/` | `components:read` | List components |
-| GET | `/{id}` | `components:read` | Get component |
-| POST | `/` | `components:write` | Create component |
-| PUT | `/{id}` | `components:write` | Update component |
-| DELETE | `/{id}` | `components:delete` | Delete component |
+| GET | `/` | `assets:components:read` | List components |
+| GET | `/{id}` | `assets:components:read` | Get component |
+| POST | `/` | `assets:components:write` | Create component |
+| PUT | `/{id}` | `assets:components:write` | Update component |
 
 Asset-scoped:
-| GET | `/api/v1/assets/{id}/components` | `components:read` | List asset components |
+| GET | `/api/v1/assets/{id}/components` | `assets:components:read` | List asset components |
 
 ---
 
@@ -517,7 +516,7 @@ Pre-compiled bundles for worker download. Bundles contain merged rules from all 
 
 ## Data Ingestion Endpoints
 
-**Prefix:** `/api/v1/ingest`
+**Prefix:** `/api/v1/agent/ingest`
 
 Endpoints for pushing scan results and findings into OpenCTEM.
 
@@ -575,11 +574,11 @@ Endpoints for pushing scan results and findings into OpenCTEM.
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|------------|-------------|
-| GET | `/` | `tools:read` | List available tools |
-| GET | `/{id}` | `tools:read` | Get tool details |
-| POST | `/` | `tools:write` | Register tool |
-| PUT | `/{id}` | `tools:write` | Update tool |
-| DELETE | `/{id}` | `tools:delete` | Delete tool |
+| GET | `/` | `scans:tools:read` | List available tools |
+| GET | `/{id}` | `scans:tools:read` | Get tool details |
+| POST | `/` | `scans:tools:write` | Register tool |
+| PUT | `/{id}` | `scans:tools:write` | Update tool |
+| DELETE | `/{id}` | `scans:tools:delete` | Delete tool |
 
 ---
 
@@ -593,11 +592,11 @@ Capabilities represent what security tools can do (e.g., `sast`, `sca`, `dast`, 
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|------------|-------------|
-| GET | `/` | `tools:read` | List capabilities with pagination |
-| GET | `/all` | `tools:read` | List all capabilities (no pagination, for dropdowns) |
-| GET | `/categories` | `tools:read` | List unique capability categories |
-| GET | `/by-category/{category}` | `tools:read` | List capabilities by category |
-| GET | `/{id}` | `tools:read` | Get single capability |
+| GET | `/` | `scans:tools:read` | List capabilities with pagination |
+| GET | `/all` | `scans:tools:read` | List all capabilities (no pagination, for dropdowns) |
+| GET | `/categories` | `scans:tools:read` | List unique capability categories |
+| GET | `/by-category/{category}` | `scans:tools:read` | List capabilities by category |
+| GET | `/{id}` | `scans:tools:read` | Get single capability |
 
 ### Custom Capability Endpoints
 
@@ -605,9 +604,9 @@ Capabilities represent what security tools can do (e.g., `sast`, `sca`, `dast`, 
 
 | Method | Endpoint | Permission | Description |
 |--------|----------|------------|-------------|
-| POST | `/` | `tools:write` | Create custom capability for tenant |
-| PUT | `/{id}` | `tools:write` | Update custom capability |
-| DELETE | `/{id}` | `tools:delete` | Delete custom capability |
+| POST | `/` | `scans:tools:write` | Create custom capability for tenant |
+| PUT | `/{id}` | `scans:tools:write` | Update custom capability |
+| DELETE | `/{id}` | `scans:tools:delete` | Delete custom capability |
 
 ### Capability Object
 
