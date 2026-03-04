@@ -289,9 +289,107 @@ Request:
 2. Check `last_seen_at`: Must be older than retention period
 3. Check scheduler: `FindingLifecycleScheduler` must be running
 
+## Activity Logging (Audit Trail)
+
+Every auto-resolve and auto-reopen event creates an immutable activity record for compliance and debugging.
+
+### Activity Types
+
+| Type | Trigger | Actor | Source |
+|------|---------|-------|--------|
+| `auto_resolved` | Finding not in full scan | `system` | `auto` |
+| `auto_reopened` | Resolved finding reappears | `system` | `auto` |
+| `status_changed` | Manual status change | `user` | `api` |
+
+### How It Works
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                    INGEST PIPELINE                              │
+│                                                                │
+│  For each asset:                                               │
+│    AutoResolveStale() ──► collect resolved IDs                 │
+│                                                                │
+│  After all assets processed:                                   │
+│    RecordBatchAutoResolved(allResolvedIDs) ──► single batch    │
+│                                                INSERT          │
+│                                                                │
+│  For each new finding:                                         │
+│    AutoReopenByFingerprint() ──► collect reopened IDs          │
+│    RecordBatchAutoReopened(reopenedIDs)                        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Activity Record Structure
+
+```json
+{
+  "id": "act-abc123",
+  "finding_id": "fnd-xyz789",
+  "activity_type": "auto_resolved",
+  "actor_type": "system",
+  "actor_id": null,
+  "source": "auto",
+  "changes": {
+    "scanner": "nuclei",
+    "scan_id": "scan-456",
+    "reason": "not_found_in_full_scan"
+  },
+  "created_at": "2026-03-04T10:00:00Z"
+}
+```
+
+### Performance: Batched INSERT
+
+Activity records are written in batches to avoid N+1 query issues:
+
+- **Collection phase**: All resolved/reopened finding IDs are collected across assets
+- **Write phase**: Single `CreateBatch()` call with chunked INSERTs (100 per chunk)
+- **Result**: ~200 findings resolved = 2-3 INSERT queries (not 200)
+
+### API Reference
+
+```
+GET /api/v1/findings/{id}/activities?limit=20
+```
+
+Response:
+
+```json
+{
+  "data": [
+    {
+      "id": "act-abc123",
+      "activity_type": "auto_resolved",
+      "actor_type": "system",
+      "changes": {"scanner": "nuclei", "reason": "not_found_in_full_scan"},
+      "created_at": "2026-03-04T10:00:00Z"
+    },
+    {
+      "id": "act-def456",
+      "activity_type": "auto_reopened",
+      "actor_type": "system",
+      "changes": {"reason": "finding_detected_again"},
+      "created_at": "2026-03-05T10:00:00Z"
+    }
+  ],
+  "total": 2
+}
+```
+
+### Key Files
+
+| File | Description |
+|------|-------------|
+| `api/internal/app/finding_activity_service.go` | `RecordBatchAutoResolved()`, `RecordBatchAutoReopened()` |
+| `api/internal/infra/postgres/finding_activity_repository.go` | `CreateBatch()` with chunked INSERT |
+| `api/internal/app/ingest/service.go` | Activity service wiring in ingest pipeline |
+| `api/tests/unit/finding_lifecycle_activity_test.go` | 12 unit tests |
+| `api/scripts/tests/test_e2e_finding_activities.sh` | E2E test script |
+
 ## Related Documentation
 
 - [Finding Types & Fingerprinting](finding-types.md) - Type-aware deduplication and specialized fields
-- [RFC: Finding Lifecycle & Auto-Resolve](/docs/_internal/rfcs/2026-01-28-finding-lifecycle-auto-resolve.md)
-- [Scan Profiles](scan-profiles.md)
+- [CTIS Domain Mapping](../architecture/ctis-domain-mapping.md) - How CTIS fields map to domain entities
+- [Scan Configurations](scan-configs.md) - Scan setup and scheduling
 - [Agent Configuration](../guides/agent-configuration.md)

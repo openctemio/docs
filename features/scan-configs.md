@@ -292,6 +292,96 @@ Permission IDs:
 - `scans:delete` - Delete scan configs
 - `scans:execute` - Trigger scans manually
 
+## UI Components
+
+### Scan Management Page
+
+The scan management page (`/scans`) provides two tabs:
+
+- **Configurations** — List, create, edit, delete, trigger scan configs
+- **Runs** — View scan execution history and status
+
+### New Scan Dialog
+
+Multi-step wizard for creating scan configurations:
+
+```
+┌───────────────────────────────────────────────────────────┐
+│  Step 1: Basic Info    ──►  Step 2: Targets               │
+│  (name, mode, type)        (asset groups, custom targets) │
+│                                                           │
+│  Step 3: Options       ──►  Step 4: Schedule              │
+│  (scanner options)          (frequency, time)             │
+└───────────────────────────────────────────────────────────┘
+```
+
+Steps:
+
+1. **Basic Info** — Scan name, mode (single/workflow), agent preference
+2. **Targets** — Select asset groups, individual assets, or enter custom targets
+3. **Options** — Toggle scanner features (port scanning, SSL analysis, brute force, etc.)
+4. **Schedule** — Run immediately or schedule (daily/weekly/monthly)
+
+### Edit Scan Dialog
+
+Reuses the same 4-step wizard with pre-populated data from the existing config.
+
+**Key behaviors:**
+- Pre-populates form via `scanConfigToFormData()` conversion
+- Sends all scanner options explicitly (including `false`) to allow disabling features
+- Targets step is read-only (API doesn't support target updates after creation)
+- Preserves existing description field
+
+**Permission:** Requires `scans:write`
+
+### Quick Scan Dialog
+
+Simple single-page dialog for ad-hoc scans without saving a configuration.
+
+```
+┌─────────────────────────────────────┐
+│  Quick Scan                         │
+│                                     │
+│  Targets:                  3 targets│
+│  ┌─────────────────────────────┐   │
+│  │ example.com                  │   │
+│  │ 192.168.1.1                  │   │
+│  │ https://api.example.com      │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  Scanner: [Nuclei ▾]               │
+│                                     │
+│  [Cancel]              [Start Scan] │
+└─────────────────────────────────────┘
+```
+
+**Features:**
+- Supports newline, comma, and semicolon separators
+- Live target count display
+- Scanner selection (Nuclei, Nmap, Subfinder, HTTPx)
+- Uses `useQuickScan()` API hook
+
+### Action Menu
+
+Each scan config row has a dropdown menu with:
+
+| Action | Permission | Description |
+|--------|-----------|-------------|
+| Edit | `scans:write` | Open EditScanDialog |
+| Trigger | `scans:execute` | Run scan immediately |
+| Pause/Activate | `scans:write` | Toggle scan status |
+| Delete | `scans:delete` | Delete with confirmation |
+
+### Key Frontend Files
+
+| File | Description |
+|------|-------------|
+| `ui/src/app/(dashboard)/(discovery)/scans/page.tsx` | Main scan page with tabs |
+| `ui/src/features/scans/components/new-scan/new-scan-dialog.tsx` | Create wizard |
+| `ui/src/features/scans/components/edit-scan-dialog.tsx` | Edit wizard |
+| `ui/src/features/scans/components/quick-scan-dialog.tsx` | Quick scan dialog |
+| `ui/src/features/scans/__tests__/scan-utils.test.ts` | 40 utility tests |
+
 ## Best Practices
 
 ### Scheduling
