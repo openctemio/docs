@@ -32,6 +32,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [Capabilities Registry](capabilities-registry.md) | Normalized tool capability management | ✅ Implemented |
 | [Asset Sub-Modules](asset-sub-modules.md) | Hierarchical module system for asset types | ✅ Implemented |
 | [AI Triage](ai-triage.md) | AI-powered vulnerability analysis and prioritization | ✅ Implemented |
+| [Approval Workflow](approval-workflow.md) | Governed finding status changes with review and audit trail | ✅ Implemented |
 
 ---
 
@@ -64,6 +65,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | **Finding Sources** | Dynamic source configuration (SAST, DAST, Pentest, etc.) |
 | **Finding Deduplication** | Type-aware fingerprinting with security controls |
 | **Data Flow Tracking** | SARIF codeFlows for attack path visualization |
+| **[Approval Workflow](approval-workflow.md)** | Governed status changes with review and audit trail |
 
 ### CTEM Framework
 
