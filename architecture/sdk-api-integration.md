@@ -1,9 +1,5 @@
 ---
 layout: default
-parent: Architecture
----
----
-layout: default
 title: SDK & API Integration
 parent: Architecture
 nav_order: 3
@@ -202,9 +198,31 @@ targets:
 
 ---
 
+## Unified Ingest Pipeline
+
+The ingest system uses a unified handler that accepts 3 formats, all converted to CTIS internally:
+
+```
+┌──────────────┐     ┌──────────────────────────────────┐
+│   SDK Agent   │────▶│        Unified IngestHandler      │
+└──────────────┘     │                                    │
+                     │  /ingest/ctis  → CTIS (native)    │
+                     │  /ingest/sarif → SARIF converter  │──▶ ingest.Service
+                     │  /ingest/recon → Recon converter  │
+                     └──────────────────────────────────┘
+```
+
+### Format Converters
+
+| Format | Endpoint | Converter | Use Case |
+|--------|----------|-----------|----------|
+| **CTIS** | `/agent/ingest/ctis` | None (native) | Primary format, SDK default |
+| **SARIF** | `/agent/ingest/sarif` | SARIFToCTISConverter | IDE tools, GitHub CodeQL |
+| **Recon** | `/agent/ingest/recon` | ReconToCTISConverter | Reconnaissance results |
+
 ## Ingest Endpoints
 
-### POST /api/v1/agent/ingest
+### POST /api/v1/agent/ingest/ctis (Primary)
 
 **Request:**
 ```json
@@ -248,7 +266,7 @@ targets:
 }
 ```
 
-**Response:**
+**Response (201 Created):**
 ```json
 {
   "success": true,
@@ -261,6 +279,23 @@ targets:
 }
 ```
 
+### POST /api/v1/agent/ingest/sarif
+
+Accepts SARIF (Static Analysis Results Interchange Format) reports. Automatically converts to CTIS internally.
+
+**Severity Mapping:**
+
+| SARIF Level | CTIS Severity |
+|-------------|---------------|
+| `error` | `high` |
+| `warning` | `medium` |
+| `note` | `low` |
+| default | `info` |
+
+### POST /api/v1/agent/ingest/check
+
+Fingerprint deduplication check. Returns which findings already exist.
+
 ### POST /api/v1/agent/heartbeat
 
 **Request:**
@@ -270,11 +305,13 @@ targets:
   "status": "running",
   "version": "1.0.0",
   "hostname": "scanner-01.example.com",
+  "cpu_percent": 45.2,
+  "memory_percent": 62.1,
+  "active_jobs": 3,
+  "region": "us-east-1",
   "scanners": ["semgrep", "gitleaks"],
-  "collectors": [],
   "uptime_seconds": 3600,
-  "total_scans": 100,
-  "errors": 0
+  "total_scans": 100
 }
 ```
 
@@ -285,6 +322,16 @@ targets:
   "server_time": "2024-01-16T10:00:00Z"
 }
 ```
+
+### Ingest Key Files
+
+| File | Description |
+|------|-------------|
+| `api/internal/app/ingest/service.go` | Unified ingest service |
+| `api/internal/app/ingest/processor_findings.go` | CTIS to domain mapping |
+| `api/internal/app/ingest/ingest_converter.go` | Legacy to CTIS converter |
+| `api/internal/app/ingest/sarif_converter.go` | SARIF to CTIS converter |
+| `api/internal/infra/http/handler/ingest_handler.go` | Unified HTTP handler |
 
 ---
 

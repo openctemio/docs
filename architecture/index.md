@@ -35,6 +35,7 @@ Core scanning and pipeline architecture:
 | [Scan Pipeline Design](scan-pipeline-design.md) | Pipeline execution engine |
 | [Scan Orchestration](scan-orchestration.md) | Automated scheduling and progression |
 | [Scan Trigger Edge Cases](scan-trigger-edge-cases.md) | Race conditions, validation, recovery |
+| [Scan Security Hardening](scan-security-hardening.md) | SecurityValidator, rate limiting, audit logging |
 | [Workflow Executor](workflow-executor.md) | Automation with 14-layer security |
 
 ---
@@ -85,6 +86,8 @@ External integrations and SDK:
 | Document | Description |
 |----------|-------------|
 | [SDK-API Integration](sdk-api-integration.md) | SDK and API design |
+| [CTIS Domain Mapping](ctis-domain-mapping.md) | CTIS to domain entity field mapping |
+| [Bootstrap API](bootstrap-api.md) | Single-endpoint login optimization |
 | [gRPC Design](grpc-design.md) | gRPC protocol (future) |
 | [Storage Service Design](storage-service-design.md) | Multi-tenant storage with BYOB |
 
