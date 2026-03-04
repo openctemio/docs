@@ -1,9 +1,9 @@
 # Scan UI Completion Plan
 
 **Created:** 2026-01-30
-**Status:** PARTIALLY COMPLETE (Phases 1 & 3 done)
+**Status:** MOSTLY COMPLETE (Phases 1, 2, 3, 5 done; Phases 4, 6 pending)
 **Priority:** P0 (Critical)
-**Last Updated:** 2026-01-30
+**Last Updated:** 2026-03-04
 
 ---
 
@@ -87,33 +87,27 @@ The Scan system backend is complete, but the frontend UI has several gaps that p
 }
 ```
 
-### Phase 2: Create ScanConfig Edit Dialog (P0)
+### Phase 2: Create ScanConfig Edit Dialog (P0) ✅ COMPLETE
 
 **Goal:** Allow editing existing scan configurations
 
-**Files to Create:**
+**Status:** ✅ Implemented on 2026-03-04
+
+**Files Created:**
 - `ui/src/features/scans/components/edit-scan-dialog.tsx`
 
-**Files to Modify:**
-- `ui/src/app/(dashboard)/(discovery)/scans/page.tsx`
-- `ui/src/features/scans/index.ts`
+**Files Modified:**
+- `ui/src/app/(dashboard)/(discovery)/scans/page.tsx` — Added Edit action with `<Can permission={ScansWrite}>` guard
+- `ui/src/features/scans/components/index.ts` — Added export
 
-**Component Structure:**
-```tsx
-interface EditScanDialogProps {
-  scanConfig: ScanConfig
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess?: () => void
-}
-```
-
-**Features:**
-- Pre-populate form with existing config data
-- Show diff indicator for changed fields
-- Use `useUpdateScanConfig()` hook
-- Validate before submission
-- Handle optimistic updates
+**Implementation Details:**
+- Multi-step wizard reusing `BasicInfoStep`, `TargetsStep`, `OptionsStep`, `ScheduleStep`
+- Pre-populates form via `scanConfigToFormData()` helper
+- Uses `useUpdateScanConfig(configId)` hook
+- Sends all `scanner_config` values explicitly (including `false`) to allow disabling options
+- Preserves existing `description` field (no overwrite)
+- Targets step shows read-only notice (API doesn't support target updates)
+- `invalidateScanConfigsCache()` on success
 
 ### Phase 3: Connect Action Handlers (P0) ✅ COMPLETE
 
@@ -163,31 +157,27 @@ interface EditScanDialogProps {
 - Link to findings filtered by this scan session
 - Real-time status updates (polling or SSE)
 
-### Phase 5: Quick Scan UI (P1)
+### Phase 5: Quick Scan UI (P1) ✅ COMPLETE
 
 **Goal:** Allow users to run ad-hoc scans on targets
 
-**Files to Create:**
+**Status:** ✅ Implemented on 2026-03-04
+
+**Files Created:**
 - `ui/src/features/scans/components/quick-scan-dialog.tsx`
 
-**Features:**
-- Target input (URLs, IPs, domains - comma/newline separated)
-- Scanner selection dropdown
-- OR Pipeline/workflow selection
-- Agent preference toggle
-- Immediate execution (no scheduling)
-- Navigate to run status after trigger
+**Files Modified:**
+- `ui/src/app/(dashboard)/(discovery)/scans/page.tsx` — Added "Quick Scan" button in header
+- `ui/src/features/scans/components/index.ts` — Added export
 
-**API Integration:**
-```tsx
-const { trigger: quickScan } = useQuickScan()
-
-const handleQuickScan = async (targets: string[], scannerId: string) => {
-  const result = await quickScan({ targets, scanner_name: scannerId })
-  // Navigate to pipeline run or scan session
-  router.push(`/scans?tab=runs&run=${result.pipeline_run_id}`)
-}
-```
+**Implementation Details:**
+- Simple single-page dialog (not multi-step wizard)
+- Target textarea with `parseTargets()` utility supporting newline, comma, semicolon separators
+- Live target count badge
+- Scanner dropdown (Nuclei, Nmap, Subfinder, HTTPx)
+- Uses `useQuickScan()` hook
+- Submit disabled when 0 targets
+- `invalidateScanSessionsCache()` on success
 
 ### Phase 6: Pipeline UI Enhancements (P2)
 
@@ -295,13 +285,13 @@ ui/src/features/scans/
 ## Success Criteria
 
 1. ✅ Users can create scan configurations via wizard - **DONE**
-2. ⏳ Users can edit existing scan configurations - Pending (Phase 2)
+2. ✅ Users can edit existing scan configurations - **DONE** (Phase 2, 2026-03-04)
 3. ✅ Users can trigger, pause, activate, disable scans - **DONE**
 4. ✅ Users can delete scan configurations - **DONE**
 5. ⏳ Users can clone scan configurations - Pending
 6. ✅ Users can view scan session list (RunsTab) - **DONE**
 7. ✅ Users can view scan session details - **DONE** (SessionDetailSheet)
-8. ⏳ Users can run quick ad-hoc scans - Pending (Phase 5)
+8. ✅ Users can run quick ad-hoc scans - **DONE** (Phase 5, 2026-03-04)
 9. ⚠️ Most actions connected to real API (ConfigDetailSheet ✅, RunsTab ✅, Bulk actions still mock)
 
 ---
@@ -347,9 +337,9 @@ ui/src/features/scans/
 
 **Remaining Work:**
 
-- Phase 2: Edit Scan Dialog
+- ~~Phase 2: Edit Scan Dialog~~ ✅ Done (2026-03-04)
 - Phase 3 (partial): Clone Scan, Bulk Actions
-- Phase 5: Quick Scan UI
+- ~~Phase 5: Quick Scan UI~~ ✅ Done (2026-03-04)
 - Phase 6: Pipeline Enhancements
 
 ### 2026-01-30 - RunsTab API Integration
@@ -384,3 +374,45 @@ ui/src/features/scans/
    - Removed unused `displayName` in `RunActionsCell`
    - Removed unused `isLoading` in `RunsTab`
    - Removed unused `Cloud`, `Server` icon imports
+
+### 2026-03-04 - Phase 2 & 5 Implementation
+
+**Changes Made:**
+
+1. **EditScanDialog** (`edit-scan-dialog.tsx`) — NEW
+   - Multi-step wizard reusing `BasicInfoStep`, `TargetsStep`, `OptionsStep`, `ScheduleStep`
+   - `scanConfigToFormData()` converts API `ScanConfig` to form data
+   - `mapScheduleTypeToFrequency()` / `mapScheduleFrequencyToType()` for bidirectional schedule conversion
+   - Sends all `scanner_config` booleans explicitly (including `false`) to allow disabling options
+   - Preserves existing `description` field
+   - Targets step shows read-only informational banner
+
+2. **QuickScanDialog** (`quick-scan-dialog.tsx`) — NEW
+   - Simple single-page dialog with target textarea
+   - `parseTargets()` utility: newline, comma, semicolon separators
+   - Live target count badge
+   - Scanner dropdown (Nuclei, Nmap, Subfinder, HTTPx)
+   - Uses `useQuickScan()` hook
+   - Submit disabled when 0 targets
+
+3. **Scans Page Integration** (`scans/page.tsx`)
+   - Added "Quick Scan" button (Zap icon) next to "New Scan" in header
+   - Added "Edit" action in config row dropdown with `<Can permission={ScansWrite}>` guard
+   - Added state: `editDialogOpen`, `configToEdit`, `quickScanOpen`
+   - Rendered both dialogs at bottom of component tree
+
+4. **Barrel Exports** (`index.ts`)
+   - Added `EditScanDialog` and `QuickScanDialog` exports
+
+5. **Frontend Tests** (`__tests__/scan-utils.test.ts`) — NEW (40 tests)
+   - `parseTargets`: 13 tests (separators, whitespace, empty, CIDR, ports, URLs)
+   - `mapScheduleTypeToFrequency`: 6 tests
+   - `mapScheduleFrequencyToType`: 5 tests
+   - `getCompatibilityStatus`: 7 tests
+   - `scanConfigToFormData`: 9 tests (basic, workflow, all-false, missing config, asset groups)
+
+**Remaining Work:**
+
+- Phase 3 (partial): Clone Scan, Bulk Actions
+- Phase 4: ScanSession Detail View
+- Phase 6: Pipeline Enhancements

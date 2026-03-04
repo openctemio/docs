@@ -1,7 +1,7 @@
 # RFC: Finding Lifecycle & Auto-Resolve
 
 **Date:** 2026-01-28
-**Status:** Draft
+**Status:** Complete (Phases 1-3), Pending (Phases 4-5)
 **Author:** Security Engineering Team
 
 ---
@@ -470,6 +470,13 @@ func (a *Agent) runSecurityGate(reports []*ctis.Report, failOn string) int {
 2. ✅ Implement auto-resolve logic in ingest service
 3. ✅ Implement auto-reopen logic for recurring findings
 4. ✅ Add activity logging for auto_resolved/auto_reopened
+   - `FindingActivityRepository.CreateBatch()` with chunked INSERT (100/chunk)
+   - `FindingActivityService.RecordBatchAutoResolved()` and `RecordBatchAutoReopened()`
+   - Wired into ingest pipeline via `SetActivityService()` setter in DI (`services.go`)
+   - Activity recording moved outside per-asset loop to eliminate N+1 queries
+   - Uses `ActorTypeSystem`, `SourceAuto` for system-generated activities
+5. ✅ Unit tests: `tests/unit/finding_lifecycle_activity_test.go` (12 tests)
+6. ✅ E2E test: `scripts/tests/test_e2e_finding_activities.sh`
 
 ### Phase 2: Branch-Aware Lifecycle (Complete ✅)
 
@@ -494,14 +501,14 @@ func (a *Agent) runSecurityGate(reports []*ctis.Report, failOn string) int {
 4. ✅ Add metrics: `findings_expired_total`, `findings_auto_resolved_total`
 5. ✅ Unit tests for branch-aware lifecycle (`api/tests/unit/branch_lifecycle_test.go`)
 
-### Phase 4: Suppression Rules API
+### Phase 4: Suppression Rules API (Pending)
 
 1. Create `suppression_rules` table
 2. Implement CRUD API endpoints
 3. Add approval workflow for permanent rules
 4. Integrate with agent security gate
 
-### Phase 5: UI & Management
+### Phase 5: UI & Management (Pending)
 
 1. Suppression rules management page
 2. Approval queue for security admins
