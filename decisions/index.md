@@ -23,6 +23,7 @@ This section contains Architecture Decision Records documenting significant tech
 | [RFC-005](005-source-based-workflow-triggers.md) | Source-Based Workflow Triggers | Proposed | 2025-01-30 |
 | [RFC-006](006-scan-targets-flexibility.md) | Flexible Scan Target Selection | Proposed | 2025-01-31 |
 | [RFC-007](007-ai-integration.md) | AI Integration - Triage & Analysis System | Proposed | 2025-02-01 |
+| [RFC-008](008-scope-configuration-hardening.md) | Scope Configuration Hardening & Completion | Proposed | 2026-03-03 |
 
 ---
 
