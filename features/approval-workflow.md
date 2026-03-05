@@ -280,12 +280,14 @@ curl -X POST /api/v1/approvals/{approval_id}/cancel \
 | Control | Description |
 |---------|-------------|
 | **Tenant isolation** | All approval queries are scoped to the current tenant via JWT token |
+| **Dedicated permission** | Approve/reject requires `findings:approve` permission (Owner/Admin only). Members can request but not approve |
 | **Self-approval prevention** | API rejects attempts to approve your own request (403) |
 | **Status validation** | Only `pending` approvals can be approved, rejected, or canceled |
 | **Requester-only cancel** | Only the original requester can cancel their own request |
 | **Immutable audit trail** | Activity records cannot be modified or deleted |
 | **Input validation** | Justification max 2000 chars, reason required for rejection |
 | **Optimistic locking** | Concurrent modification detection prevents data conflicts |
+| **Frontend permission gates** | Approve/Reject buttons hidden for users without `findings:approve` permission |
 
 ## Frontend Integration
 
