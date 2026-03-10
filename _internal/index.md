@@ -25,7 +25,7 @@ Implementation planning documents for new features:
 | [Scan System](./rfcs/2026-01-26-scan-system-implementation.md) | 2026-01-26 | Implemented | Scan orchestration |
 | [Platform Admin System](./rfcs/2026-01-25-platform-admin-system.md) | 2026-01-25 | Implemented | Admin console |
 | [ITSM Integration](./rfcs/2026-03-10-itsm-integration-implementation.md) | 2026-03-10 | Planned | ITSM ticketing integration (Jira, ServiceNow) |
-| [Configurable Risk Scoring Engine](./rfcs/2026-03-10-configurable-risk-scoring-engine.md) | 2026-03-10 | Planned | Per-tenant configurable risk scoring formula |
+| [Configurable Risk Scoring Engine](./rfcs/2026-03-10-configurable-risk-scoring-engine.md) | 2026-03-10 | Implemented | Per-tenant configurable risk scoring formula → [Feature Doc](../features/configurable-risk-scoring.md) |
 | [Platform Agents v3.2](./rfcs/2026-01-24-platform-agents-v3.2.md) | 2026-01-24 | Implemented | Platform agent model |
 | [Dynamic Roles](./rfcs/2026-01-22-dynamic-roles.md) | 2026-01-22 | In Progress | Custom role creation |
 | [Group Access Control](./rfcs/2026-01-21-group-access-control.md) | 2026-01-21 | In Progress | Group-based permissions |

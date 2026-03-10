@@ -34,6 +34,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [AI Triage](ai-triage.md) | AI-powered vulnerability analysis and prioritization | ✅ Implemented |
 | [Approval Workflow](approval-workflow.md) | Governed finding status changes with review and audit trail | ✅ Implemented |
 | [Asset Page Template](asset-page-template.md) | Config-driven template consolidating 14 asset pages (65% LOC reduction) | ✅ Implemented |
+| [Configurable Risk Scoring](configurable-risk-scoring.md) | Tenant-configurable risk scoring engine with industry presets and live preview | ✅ Implemented |
 
 ---
 
@@ -73,7 +74,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | Feature | Description |
 |---------|-------------|
 | **CTEM Finding Fields** | Exposure vector, remediation context, business impact fields |
-| **Risk Calculation** | CTEM-aware risk scoring with multipliers |
+| **[Configurable Risk Scoring](configurable-risk-scoring.md)** | Tenant-configurable risk engine with 6 industry presets |
 | **Prioritization** | High-priority detection based on exposure and compliance |
 
 ### Automation
