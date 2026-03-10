@@ -424,6 +424,5 @@ RiskScoringProvider (dashboard-providers.tsx)
 
 ## Related Documentation
 
-- [RFC: Configurable Risk Scoring Engine](../_internal/rfcs/2026-03-10-configurable-risk-scoring-engine.md) — Original design document
 - [CTEM Finding Fields](ctem-fields.md) — CTEM factor fields used in scoring
 - [Component Interactions](component-interactions.md) — How scoring fits into the asset lifecycle
