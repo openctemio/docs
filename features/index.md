@@ -33,6 +33,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [Asset Sub-Modules](asset-sub-modules.md) | Hierarchical module system for asset types | ✅ Implemented |
 | [AI Triage](ai-triage.md) | AI-powered vulnerability analysis and prioritization | ✅ Implemented |
 | [Approval Workflow](approval-workflow.md) | Governed finding status changes with review and audit trail | ✅ Implemented |
+| [Asset Page Template](asset-page-template.md) | Config-driven template consolidating 14 asset pages (65% LOC reduction) | ✅ Implemented |
 
 ---
 
@@ -88,6 +89,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | Feature | Description |
 |---------|-------------|
 | **Asset Sub-Modules** | Dynamic control over asset type visibility |
+| **[Asset Page Template](asset-page-template.md)** | Config-driven template for all standard asset pages |
 | **Asset Groups** | Organize assets into logical groups |
 
 ### Access Control
