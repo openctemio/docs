@@ -35,6 +35,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [Approval Workflow](approval-workflow.md) | Governed finding status changes with review and audit trail | ✅ Implemented |
 | [Asset Page Template](asset-page-template.md) | Config-driven template consolidating 14 asset pages (65% LOC reduction) | ✅ Implemented |
 | [Configurable Risk Scoring](configurable-risk-scoring.md) | Tenant-configurable risk scoring engine with industry presets and live preview | ✅ Implemented |
+| [Tenant Module Management](tenant-module-management.md) | Per-tenant module enable/disable with 3-layer visibility enforcement | ✅ Implemented |
 
 ---
 
@@ -97,6 +98,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 
 | Feature | Description |
 |---------|-------------|
+| **[Tenant Module Management](tenant-module-management.md)** | Per-tenant module enable/disable with 3-layer visibility |
 | **Module Access Control** | Subscription-based feature gating |
 | **Group-Based Access** | Fine-grained resource permissions |
 
