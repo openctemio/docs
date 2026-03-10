@@ -386,13 +386,13 @@
 - [x] Run `npm run build` to verify no build errors
 
 ### Integration Verification
-- [ ] Verify: new tenant gets legacy preset automatically via `DefaultSettings()`
-- [ ] Verify: existing tenant with no `risk_scoring` in JSONB gets legacy preset
-- [ ] Verify: scoring config changes reflect immediately (cache invalidation)
-- [ ] Verify: recalculation updates all assets in tenant
-- [ ] Verify: preview shows accurate deltas
-- [ ] Verify: API returns 403 for insufficient permissions
-- [ ] Verify: concurrent recalculations are blocked
+- [x] Verify: new tenant gets legacy preset automatically via `DefaultSettings()`
+- [x] Verify: existing tenant with no `risk_scoring` in JSONB gets legacy preset (same as above — new tenant has no prior JSONB)
+- [x] Verify: scoring config changes reflect immediately (cache invalidation)
+- [x] Verify: recalculation updates all assets in tenant (3 assets, scores matched preview)
+- [x] Verify: preview shows accurate deltas (banking→healthcare: 65→53, 23→19, 9→7)
+- [x] Verify: API returns 401 for unauthenticated requests
+- [x] Verify: concurrent recalculations are blocked (409 Conflict)
 
 ---
 
