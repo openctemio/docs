@@ -24,6 +24,7 @@ Implementation planning documents for new features:
 | [Tiered Platform Agents](./rfcs/2026-01-26-tiered-platform-agents.md) | 2026-01-26 | In Progress | Agent tier system |
 | [Scan System](./rfcs/2026-01-26-scan-system-implementation.md) | 2026-01-26 | Implemented | Scan orchestration |
 | [Platform Admin System](./rfcs/2026-01-25-platform-admin-system.md) | 2026-01-25 | Implemented | Admin console |
+| [ITSM Integration](./rfcs/2026-03-10-itsm-integration-implementation.md) | 2026-03-10 | Planned | ITSM ticketing integration (Jira, ServiceNow) |
 | [Platform Agents v3.2](./rfcs/2026-01-24-platform-agents-v3.2.md) | 2026-01-24 | Implemented | Platform agent model |
 | [Dynamic Roles](./rfcs/2026-01-22-dynamic-roles.md) | 2026-01-22 | In Progress | Custom role creation |
 | [Group Access Control](./rfcs/2026-01-21-group-access-control.md) | 2026-01-21 | In Progress | Group-based permissions |
