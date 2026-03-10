@@ -661,7 +661,7 @@ FindingsTicketRead   = "findings:tickets:read"
 ## Related Documents
 
 - [CTEM Framework Enhancement RFC](./2026-01-27-ctem-framework-enhancement.md)
-- [Asset Page Template Consolidation](./2026-03-09-asset-page-template-consolidation.md)
+- [Asset Page Template](../../features/asset-page-template.md)
 - [Notification System](../../features/notifications.md) — pattern reference for extension tables
 - Integration Entity: `api/pkg/domain/integration/entity.go`
 - Workflow Actions: `api/internal/app/workflow_action_handlers.go:472-565`
