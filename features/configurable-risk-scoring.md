@@ -273,7 +273,7 @@ Returns all available industry presets with their full configuration:
 
 ### Settings Page
 
-The scoring settings page at **Settings > Scoring** provides:
+The scoring settings page at **Settings > Organization > Risk Scoring** (`/settings/scoring`) provides:
 
 - **Preset selector** — One-click industry preset buttons
 - **Weight sliders** — Visual weight adjustment with sum=100 constraint
