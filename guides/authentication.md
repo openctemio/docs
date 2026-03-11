@@ -226,6 +226,101 @@ import { PermissionGate } from '@/features/auth'
 
 ---
 
+## Password Recovery Flow
+
+### Overview
+
+OpenCTEM provides a secure forgot password / reset password flow for local authentication users. The flow follows security best practices including email enumeration prevention and token expiry.
+
+### User Flow
+
+```
+1. User clicks "Forgot password" on login page
+2. User enters their email address
+3. API always returns success (prevents email enumeration)
+4. If the email exists, a password reset email is sent with a unique token
+5. User clicks the reset link (valid for 24 hours)
+6. User enters and confirms a new password
+7. Password is updated and all existing sessions are revoked
+8. User is redirected to login with their new password
+```
+
+### API Endpoints
+
+#### Request Password Reset
+
+```http
+POST /api/v1/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "user@example.com"
+}
+
+Response (always 200, regardless of whether email exists):
+{
+  "message": "If the email exists, a password reset link has been sent"
+}
+```
+
+#### Reset Password with Token
+
+```http
+POST /api/v1/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "reset-token-from-email",
+  "new_password": "NewSecureP@ss1"
+}
+
+Response (200):
+{
+  "message": "Password reset successfully"
+}
+
+Error (400 - invalid/expired token):
+{
+  "error": "Invalid or expired reset token"
+}
+```
+
+### Password Requirements
+
+The new password must meet the following criteria:
+- Minimum 8 characters, maximum 128 characters
+- At least one uppercase letter
+- At least one lowercase letter
+- At least one number
+- At least one special character
+
+### Security Considerations
+
+- **Email enumeration prevention:** The forgot password endpoint always returns a generic success message, whether or not the email exists in the system
+- **Rate limiting:** 3 requests per minute per IP on the forgot password endpoint
+- **Token expiry:** Reset tokens expire after 24 hours (`PasswordResetDuration` config)
+- **Single use:** Each reset token can only be used once
+- **Session revocation:** All existing sessions are revoked when a password is successfully reset
+- **IP logging:** The requesting IP address is included in the reset email for user awareness
+
+### Frontend Pages
+
+- **Forgot password:** `/forgot-password` - Email input form with confirmation screen
+- **Reset password:** `/reset-password?token=...` - New password form with validation
+- Both pages handle invalid/expired tokens gracefully with a link to request a new reset
+
+---
+
+## SSO Authentication
+
+OpenCTEM supports Single Sign-On (SSO) via OIDC/Keycloak for enterprise deployments. SSO allows users to authenticate using external identity providers (Google, Microsoft, Okta, etc.) with automatic user provisioning and token validation via JWKS.
+
+The authentication provider is configured via the `AUTH_PROVIDER` environment variable (`local`, `oidc`, or `hybrid`). In hybrid mode, both local and SSO authentication are available simultaneously.
+
+The SSO callback is handled at `/auth/sso/callback` on the frontend.
+
+---
+
 ## Cache Invalidation
 
 ### When to Invalidate

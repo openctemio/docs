@@ -36,6 +36,8 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [Asset Page Template](asset-page-template.md) | Config-driven template consolidating 14 asset pages (65% LOC reduction) | ✅ Implemented |
 | [Configurable Risk Scoring](configurable-risk-scoring.md) | Tenant-configurable risk scoring engine with industry presets and live preview | ✅ Implemented |
 | [Tenant Module Management](tenant-module-management.md) | Per-tenant module enable/disable with 3-layer visibility enforcement | ✅ Implemented |
+| [SSO Authentication](sso-authentication.md) | SAML and OIDC single sign-on with automatic provisioning | ✅ Implemented |
+| [Backup & Disaster Recovery](backup-disaster-recovery.md) | Automated backups with tiered retention, off-site storage, and PITR | ✅ Implemented |
 
 ---
 
@@ -47,6 +49,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 |---------|-------------|
 | **Platform Agents** | Shared, multi-tenant scanning agents |
 | **Storage Service** | Multi-tenant storage with BYOB support |
+| **[Backup & Disaster Recovery](backup-disaster-recovery.md)** | Automated pg_dump backups with tiered retention and cloud off-site storage |
 
 ### Scanning
 
@@ -101,6 +104,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | **[Tenant Module Management](tenant-module-management.md)** | Per-tenant module enable/disable with 3-layer visibility |
 | **Module Access Control** | Subscription-based feature gating |
 | **Group-Based Access** | Fine-grained resource permissions |
+| **[SSO Authentication](sso-authentication.md)** | SAML and OIDC single sign-on with automatic provisioning |
 
 ### AI & Intelligence
 
