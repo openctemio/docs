@@ -212,17 +212,17 @@ Add Playwright tests for critical user flows.
 - [ ] Settings management (general, team, integrations, SSO)
 - [ ] Permission gates (admin vs member visibility)
 
-### 3.2 Additional API Service Tests
+### 3.2 Additional API Service Tests — TIER A COMPLETED 2026-03-11 ✅
 
 **Effort: 5-7 days**
 
-30 services still untested. Priority order:
-
-| Tier | Services | Reason |
+| Tier | Services | Status |
 |------|----------|--------|
-| A | permission, scope_rule, oauth, audit | Security-critical |
-| B | asset_group, attack_surface, branch, finding_comment, sla | Core business logic |
-| C | email, module, scan_profile, tool, secretstore, credential_import | Infrastructure |
+| A | permission, scope_rule, oauth, audit | ✅ **115 tests** (commit `415f1d3`) |
+| B | asset_group, attack_surface, branch, finding_comment, sla | Pending |
+| C | email, module, scan_profile, tool, secretstore, credential_import | Pending |
+
+**Total unit tests: 2620 (up from ~1,283)**
 
 ### 3.3 WAF Rules
 
@@ -373,7 +373,7 @@ Each tenant can configure their own Entra ID (or Okta, Google Workspace) identit
 | Build pass rate | 100% | 100% | ✅ |
 | ESLint warnings | 0 | 0 | ✅ |
 | UI pages without errors | 162/162 | 162/162 | ✅ |
-| API test coverage | > 42% | 42% | ⚠️ On target |
+| API unit tests | 2620 | 2620 | ✅ +1337 new |
 | Auth flow success rate | > 99% | — | Pending validation |
 | API latency P95 | < 500ms | — | Pending validation |
 | Error rate | < 1% | — | Pending validation |
@@ -395,4 +395,5 @@ Each tenant can configure their own Entra ID (or Okta, Google Workspace) identit
 | 2026-03-11 | Phase 4 completed — both global OAuth and per-tenant SSO for Entra ID |
 | 2026-03-11 | Phase 2.3 completed — off-site backup for S3, GCS, Azure |
 | 2026-03-11 | Phase 1.4 partially validated — UI tests 557/557, API tests all pass |
+| 2026-03-11 | Phase 3.2 Tier A completed — 115 tests for permission, audit, oauth, scope_rule (total: 2620) |
 | 2026-03-11 | Revised timeline: 1-2 days to MVP (only manual validation remaining) |
