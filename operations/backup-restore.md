@@ -89,6 +89,83 @@ docker compose cp postgres:/tmp/backup.dump ./backups/
 
 Follow the printed instructions to complete PITR.
 
+## Off-site Backup (Cloud Storage)
+
+The backup script supports uploading to S3, GCS, or Azure Blob Storage for disaster recovery.
+
+### Configuration
+
+Add to `/etc/openctem/backup.env`:
+
+```bash
+# --- Off-site backup ---
+OFFSITE_ENABLED=true
+OFFSITE_PROVIDER=s3          # s3 | gcs | azure
+OFFSITE_BUCKET=my-backup-bucket
+OFFSITE_PREFIX=openctem/backups   # object key prefix
+OFFSITE_RETENTION_DAYS=90         # cloud retention (default: 90)
+```
+
+### Provider Setup
+
+**AWS S3:**
+```bash
+# Install AWS CLI
+apt-get install -y awscli
+
+# Set credentials
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=...
+AWS_DEFAULT_REGION=us-east-1
+
+# For S3-compatible storage (MinIO, etc.)
+S3_ENDPOINT=https://minio.example.com
+```
+
+**Google Cloud Storage:**
+```bash
+# Install gsutil
+apt-get install -y google-cloud-cli
+
+# Set credentials
+GOOGLE_APPLICATION_CREDENTIALS=/etc/openctem/gcs-service-account.json
+```
+
+**Azure Blob Storage:**
+```bash
+# Install Azure CLI
+apt-get install -y azure-cli
+
+# Set credentials
+AZURE_STORAGE_ACCOUNT=mystorageaccount
+AZURE_STORAGE_KEY=...
+```
+
+### Verify Off-site Backup
+
+```bash
+# S3: list uploaded backups
+aws s3 ls s3://my-backup-bucket/openctem/backups/daily/ --human-readable
+
+# GCS: list uploaded backups
+gsutil ls -l gs://my-backup-bucket/openctem/backups/daily/
+
+# Azure: list uploaded backups
+az storage blob list --container-name my-backup-bucket --prefix openctem/backups/daily/ --output table
+```
+
+### Restore from Cloud
+
+```bash
+# S3: download and restore
+aws s3 cp s3://my-backup-bucket/openctem/backups/daily/openctem_full_20260311.dump /tmp/
+./setup/backup/restore.sh /tmp/openctem_full_20260311.dump
+
+# GCS: download and restore
+gsutil cp gs://my-backup-bucket/openctem/backups/daily/openctem_full_20260311.dump /tmp/
+./setup/backup/restore.sh /tmp/openctem_full_20260311.dump
+```
+
 ## Monitoring
 
 Check backup freshness:
