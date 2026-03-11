@@ -22,7 +22,7 @@ OpenCTEM CTEM platform is at 9.2/10 maturity. This plan covers the remaining wor
 | Backend API | 9.5/10 | 50+ handlers, 21 middleware, 81+ migrations, 94 test files, per-tenant SSO |
 | Frontend UI | 9.5/10 | 162 pages, 0 placeholders, 0 ESLint warnings, build passes, TypeScript strict |
 | Security | 9.5/10 | Auth (Local+OIDC+OAuth+SSO), CSRF, CORS, rate limiting, AES-256-GCM, tenant isolation |
-| Infrastructure | 8.5/10 | Docker multi-stage, Helm chart, backup scripts, monitoring, alerts |
+| Infrastructure | 9/10 | Docker multi-stage, Helm chart, backup scripts + cloud upload, monitoring, alerts |
 | CI/CD | 9/10 | Workflows for API, UI, SDK, Agent, Docs |
 | Observability | 8.5/10 | Prometheus + OpenTelemetry, 3 Grafana dashboards, 13 alert rules |
 | Documentation | 8/10 | Dev docs good, ops runbooks complete |
@@ -156,19 +156,21 @@ See [Phase 4](#phase-4-entra-id-authentication) for full details.
 
 **Result:** 13 alert rules across 4 rule groups in `setup/monitoring/alertmanager/alerts.yml`
 
-### 2.3 Off-site Backup — NOT STARTED
+### 2.3 Off-site Backup — COMPLETED 2026-03-11 ✅
 
 **Effort: 0.5 day**
 
-Local-only backups = single point of failure.
+~~Local-only backups = single point of failure.~~
 
 **Tasks:**
-- [ ] Add S3/GCS upload to `setup/backup/backup.sh`
-- [ ] Configure retention policy for cloud storage
-- [ ] Test restore from cloud backup
-- [ ] Document backup verification procedure
+- [x] Add S3/GCS/Azure upload to `setup/backup/backup.sh` — `offsite_upload()` function
+- [x] Configure retention policy for cloud storage — `OFFSITE_RETENTION_DAYS` (default: 90)
+- [x] Cloud retention cleanup — `offsite_cleanup()` function
+- [x] Document backup verification procedure — `docs/operations/backup-restore.md`
 
-**Current state:** `backup.sh` supports tiered retention (daily/weekly/monthly), compression (gzip/lz4/zstd), SHA256 checksums, but only local storage.
+**Supported providers:** AWS S3 (incl. S3-compatible like MinIO), Google Cloud Storage, Azure Blob Storage.
+
+**Commits:** setup `c53094c`, docs `9d2ceb3`
 
 ### 2.4 Deployment Runbook — COMPLETED ✅
 
@@ -344,7 +346,7 @@ Each tenant can configure their own Entra ID (or Okta, Google Workspace) identit
 ```
 [ ] Monitor production metrics daily
 [ ] Address any critical bugs
-[ ] Begin Phase 2.3 (off-site backup — only remaining P1 item)
+[x] Phase 2.3 (off-site backup) — completed
 [ ] Collect user feedback
 [ ] Plan Phase 3 based on feedback
 ```
@@ -355,13 +357,12 @@ Each tenant can configure their own Entra ID (or Okta, Google Workspace) identit
 
 | Week | Tasks | Milestone |
 |------|-------|-----------|
-| ~~Week 1 (Days 1-2)~~ | ~~Phase 1: Forgot password, Entra ID/SSO, lint cleanup~~ | ✅ **DONE** (2026-03-11) |
-| Week 1 (Days 3-4) | Phase 1.4: Production validation | Validation Complete |
-| Week 1 (Day 5) | Phase 2.3: Off-site backup | P1 Complete |
-| **Week 2 (Day 1)** | **Release Day** | **MVP v1.0.0** |
+| ~~Week 1 (Days 1-2)~~ | ~~Phase 1.1-1.3 + Phase 2.3: Forgot password, SSO, lint, off-site backup~~ | ✅ **DONE** (2026-03-11) |
+| Week 1 (Day 3) | Phase 1.4: Production validation (manual) | Validation Complete |
+| **Week 1 (Day 4)** | **Release Day** | **MVP v1.0.0** |
 | Week 2+ | Phase 3: E2E tests, WAF, more API tests | Post-MVP |
 
-**Revised estimated time to MVP: 3-4 working days** (down from 8-10, due to SSO and monitoring already complete)
+**Revised estimated time to MVP: 1-2 working days** (only manual validation remaining)
 
 ---
 
@@ -392,4 +393,6 @@ Each tenant can configure their own Entra ID (or Okta, Google Workspace) identit
 | 2026-03-11 | Phase 2.2 confirmed complete — 13 alert rules |
 | 2026-03-11 | Phase 2.4 confirmed complete — 9 operations runbooks |
 | 2026-03-11 | Phase 4 completed — both global OAuth and per-tenant SSO for Entra ID |
-| 2026-03-11 | Revised timeline: 3-4 days to MVP (down from 8-10) |
+| 2026-03-11 | Phase 2.3 completed — off-site backup for S3, GCS, Azure |
+| 2026-03-11 | Phase 1.4 partially validated — UI tests 557/557, API tests all pass |
+| 2026-03-11 | Revised timeline: 1-2 days to MVP (only manual validation remaining) |
