@@ -1,6 +1,6 @@
 ---
 title: MVP Release Plan
-status: in-progress
+status: near-complete
 author: Platform Team
 date: 2026-03-10
 updated: 2026-03-11
@@ -396,4 +396,6 @@ Each tenant can configure their own Entra ID (or Okta, Google Workspace) identit
 | 2026-03-11 | Phase 2.3 completed — off-site backup for S3, GCS, Azure |
 | 2026-03-11 | Phase 1.4 partially validated — UI tests 557/557, API tests all pass |
 | 2026-03-11 | Phase 3.2 Tier A completed — 115 tests for permission, audit, oauth, scope_rule (total: 2620) |
+| 2026-03-11 | Feature docs created: SSO, Backup, Auth guide, Release validation checklist |
+| 2026-03-11 | Implementation plan converted to feature docs (5 new files, 1078 lines) |
 | 2026-03-11 | Revised timeline: 1-2 days to MVP (only manual validation remaining) |
