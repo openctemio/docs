@@ -38,6 +38,10 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [Tenant Module Management](tenant-module-management.md) | Per-tenant module enable/disable with 3-layer visibility enforcement | ✅ Implemented |
 | [SSO Authentication](sso-authentication.md) | SAML and OIDC single sign-on with automatic provisioning | ✅ Implemented |
 | [Backup & Disaster Recovery](backup-disaster-recovery.md) | Automated backups with tiered retention, off-site storage, and PITR | ✅ Implemented |
+| [Observability & Monitoring](observability.md) | OpenTelemetry tracing, Grafana dashboards, AlertManager, structured logging | ✅ Implemented |
+| [SDK Scanner Adapters](sdk-scanner-adapters.md) | Pre-built adapters for Trivy, Semgrep, Nuclei, Gitleaks, SARIF | ✅ Implemented |
+| [Real-Time WebSocket](real-time-websocket.md) | WebSocket-based live updates for scans, findings, triage, notifications | ✅ Implemented |
+| [Kubernetes & Helm](kubernetes-helm.md) | Production-ready Helm chart with HPA, Ingress, TLS, StatefulSet | ✅ Implemented |
 
 ---
 
@@ -48,6 +52,10 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | Feature | Description |
 |---------|-------------|
 | **Platform Agents** | Shared, multi-tenant scanning agents |
+| **[Kubernetes & Helm](kubernetes-helm.md)** | Production-ready Helm chart with HPA, Ingress, TLS |
+| **[Observability & Monitoring](observability.md)** | OpenTelemetry, Grafana dashboards, AlertManager |
+| **[Real-Time WebSocket](real-time-websocket.md)** | WebSocket-based live updates with cookie auth |
+| **[SDK Scanner Adapters](sdk-scanner-adapters.md)** | Trivy, Semgrep, Nuclei, Gitleaks, SARIF adapters |
 | **Storage Service** | Multi-tenant storage with BYOB support |
 | **[Backup & Disaster Recovery](backup-disaster-recovery.md)** | Automated pg_dump backups with tiered retention and cloud off-site storage |
 
