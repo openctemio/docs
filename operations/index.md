@@ -27,6 +27,12 @@ Guides for developers and operators.
 - **[Monitoring Guide](./MONITORING.md)** - Observability setup
 - **[Troubleshooting](./troubleshooting.md)** - Common issues and fixes
 
+## Maintenance
+
+- **[Upgrade Guide](./upgrade-guide.md)** - Version upgrades, rollbacks, zero-downtime deployments
+- **[Backup & Restore](./backup-restore.md)** - Backup strategy, off-site storage, restore procedures
+- **[Release Validation](./RELEASE_VALIDATION.md)** - Pre-release checklist
+
 ## Configuration
 
 - **[Redis Setup](./redis-setup.md)** - Redis configuration

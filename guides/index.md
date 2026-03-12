@@ -78,7 +78,10 @@ Container and production deployment.
 | Guide | Description |
 |-------|-------------|
 | [Docker Deployment](docker-deployment.md) | Container deployment |
+| [Kubernetes Deployment](kubernetes-deployment.md) | Helm chart deployment, scaling, and operations |
 | [WebSocket Setup](websocket-setup.md) | Real-time communication configuration (nginx, CSP) |
+| [Monitoring Setup](monitoring-setup.md) | Prometheus, Grafana, AlertManager installation |
+| [SSO Setup](sso-setup.md) | Configure Entra ID, Okta, Google Workspace SSO |
 
 ---
 
