@@ -6,9 +6,9 @@ nav_order: 100
 
 # Feature Roadmap
 
-**Last Updated:** 2026-01-27 (UI Status + Implementation Plans)
+**Last Updated:** 2026-03-12
 
-This document lists all planned features that are not yet implemented. These features have been temporarily hidden from the UI navigation but are planned for future development.
+Platform status and planned features. See [Features](features/index.md) for documentation on implemented features.
 
 ---
 
@@ -698,105 +698,81 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 
 ---
 
-## UI Implementation Status
+## Platform Maturity (2026-03-12)
 
-### Current State (2026-01-27)
+| Area | Status | Details |
+|------|--------|---------|
+| Codebase | 511K+ LOC | Go API + Next.js UI + Go SDK |
+| Domain Entities | 44 | Full CTEM coverage |
+| Route Groups | 54 | All API endpoints wired |
+| UI Pages | 161 | 0 placeholder pages remaining |
+| Tests | 14,000+ | 1,283 API test functions, 20+ UI test files |
+| Migrations | 83 | Full schema with indexes and constraints |
 
-| Status | Count | Percentage |
-|--------|-------|------------|
-| **Implemented** | 93 | 62% |
-| **Placeholder** | 58 | 38% |
-| **Total** | 151 | 100% |
+### Completed Infrastructure
 
-### Placeholder Pages by CTEM Phase
+| Component | Status | Documentation |
+|-----------|--------|---------------|
+| OpenTelemetry Tracing | Done | [Observability](features/observability.md) |
+| Grafana Dashboards (3) | Done | [Observability](features/observability.md) |
+| AlertManager Rules | Done | [Observability](features/observability.md) |
+| Structured Logging | Done | [Observability](features/observability.md) |
+| Kubernetes Helm Chart | Done | [Kubernetes & Helm](features/kubernetes-helm.md) |
+| Database Backup Automation | Done | [Backup & DR](features/backup-disaster-recovery.md) |
+| SDK Scanner Adapters (5) | Done | [SDK Adapters](features/sdk-scanner-adapters.md) |
+| Real-Time WebSocket | Done | [WebSocket](features/real-time-websocket.md) |
+| Configurable Risk Scoring | Done | [Risk Scoring](features/configurable-risk-scoring.md) |
+| SSO (SAML + OIDC) | Done | [SSO](features/sso-authentication.md) |
 
-| Phase | Implemented | Placeholder | Key Missing Features |
-|-------|-------------|-------------|----------------------|
-| **Scoping** | 14 | 1 | Scope settings |
-| **Discovery** | 36 | 9 | Exposures, Identity, Attack Paths |
-| **Prioritization** | 3 | 7 | Risk scoring, Threat intel |
-| **Validation** | 15 | 9 | Controls, Simulation, Response |
-| **Mobilization** | 9 | 15 | Remediation, Collaboration, Exceptions |
-| **Insights** | 6 | 10 | Analytics, Reports |
-| **Settings** | 10 | 7 | Integrations (SIEM, Ticketing) |
+### In Progress
 
-### Implementation Plan (22 weeks total)
+| Area | Current | Target |
+|------|---------|--------|
+| API Service Tests | 22/52 (42%) | 40+ (80%) |
+| UI Test Files | 20 | 35+ |
+| SDK Adapter Tests | 4/5 | 5/5 (SARIF missing) |
 
-| Phase | Focus | Pages | Duration | Priority |
-|-------|-------|-------|----------|----------|
-| **1** | Mobilization | 15 | 4 weeks | HIGH |
-| **2** | Discovery (Exposures) | 9 | 4 weeks | HIGH |
-| **3** | Prioritization | 7 | 4 weeks | MEDIUM |
-| **4** | Validation | 9 | 4 weeks | MEDIUM |
-| **5** | Insights | 10 | 4 weeks | LOWER |
-| **6** | Settings | 8 | 2 weeks | LOWER |
+### Remaining Work
 
-**Quick Wins (Backend exists, UI only):**
-- Remediation tasks pages
-- Workflow monitoring pages
-- Exposures (filtered Findings views)
-- API Keys management
-
-**Requires Backend Work:**
-- Identity/Shadow IT detection
-- Threat Intelligence feeds
-- Attack Path visualization
-- Simulation engine
-- Control effectiveness testing
-
-See `docs/_internal/rfcs/2026-01-27-placeholder-pages-implementation.md` for full implementation plan.
-
----
-
-## In-Progress Features
-
-### Group Access Control Phases 7-10 (85% → 100%)
-
-| Phase | Feature | Status | Effort |
-|-------|---------|--------|--------|
-| **7** | Auto-Assignment Rules | Not Started | 2 weeks |
-| **8** | Group Notifications | Not Started | 2 weeks |
-| **9** | External Sync (GitHub/GitLab/Azure AD) | Not Started | 3 weeks |
-| **10** | Permission Set Version Tracking | Not Started | 1 week |
-
-**Key Deliverables:**
-- Automatic finding assignment based on file path patterns
-- CODEOWNERS file parsing for team mapping
-- Group notification channels (Slack, Email, Webhook)
-- External team sync from GitHub Teams, GitLab Groups
-
-See `docs/_internal/rfcs/2026-01-27-group-access-control-phase-7-10.md` for full implementation plan.
+| Item | Priority | Effort |
+|------|----------|--------|
+| API tests: Tier A (permission, scope_rule, oauth, audit) | P0 | 4 test files |
+| API tests: Tier B (asset_group, attack_surface, branch, sla) | P0 | 6 test files |
+| UI component integration tests | P1 | 8-10 test files |
+| SARIF adapter tests | P1 | 1 test file |
+| Incremental access refresh (stored procedure) | P2 | 1 migration |
+| Platform Agent admin CLI | P2 | New binary |
+| Swagger auto-generation | P2 | swaggo/swag setup |
+| API tests: Tier C (16 utility services) | P3 | 16 test files |
+| Developer onboarding docs (CONTRIBUTING.md) | P3 | Documentation |
 
 ---
 
 ## Recent Updates
 
+### 2026-03-12
+- WebSocket: removed `/api/ws-token`, switched to cookie-based auth
+- Bootstrap: added risk_levels to avoid extra API call on page load
+- Fixed Next.js HMR page reload loop (allowedDevOrigins removal)
+- Asset ownership feature (endpoints + UI tab)
+- Tier A security service tests (permission, scope_rule, assignment_rule)
+
+### 2026-03-10
+- Configurable Risk Scoring Engine with 6 industry presets and live preview
+- Rate limiting and audit logging for scoring operations
+
+### 2026-03-09
+- All 63 placeholder pages implemented (0 remaining)
+- Observability stack completed (OTel, Grafana, AlertManager, structured logging)
+- Kubernetes Helm chart (12 templates)
+- Database backup automation (3 scripts + crontab)
+- SDK scanner adapters (Trivy, Semgrep, Nuclei, Gitleaks, SARIF)
+
 ### 2026-01-27
-- **Implementation Planning** - Created detailed implementation plans
-  - Group Access Control Phases 7-10 implementation plan
-  - 58 placeholder pages implementation plan (22-week roadmap)
-  - Added UI implementation status section to ROADMAP
-- **Documentation Updates** - Major documentation improvements
-  - Added [Workflow Automation](./features/workflows.md) documentation
-  - Added [Quality Gates](./features/quality-gates.md) documentation
-  - Added [CTEM Finding Fields](./features/ctem-fields.md) documentation
-  - Added Platform Agents v3.2 Architecture
-  - Added [Admin System Architecture](./architecture/admin-system.md)
-  - Fixed Jekyll rendering issues (code block spacing, Liquid syntax)
-
-### 2026-01-23
-- **Plan-based Module Control** - Implemented granular module access per plan tier
-  - New modules: `pentest`, `remediation`, `threat_intel`, `components`, `credentials`
-  - Sidebar now filters based on tenant's plan modules
-  - Release status support: `coming_soon` (disabled with "Soon" badge), `beta` (enabled with "Beta" badge)
-  - Documentation: Plans & Licensing Guide
-
-### 2026-01-22
-- **Notification Integrations** - Implemented full notification channel management
-  - Added Slack, Microsoft Teams, Telegram, Custom Webhook providers
-  - Severity-based filtering (Critical, High, Medium, Low)
-  - Auto-test on create/update
-  - Documentation: [Notification Integrations Guide](./guides/notification-integrations.md)
+- Workflow Automation, Quality Gates, CTEM Finding Fields
+- Platform Agents v3.2 with lease-based heartbeat
+- Admin System (super_admin, ops_admin, viewer)
+- Notification Integrations (Slack, Teams, Telegram, Webhook)
 
 ---
 
@@ -834,4 +810,4 @@ When implementing a new feature:
 
 ---
 
-**Last Updated:** 2026-01-27
+**Last Updated:** 2026-03-12
