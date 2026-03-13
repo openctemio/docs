@@ -10,6 +10,8 @@ permalink: /features/
 
 Documentation for major features in the OpenCTEM CTEM Platform.
 
+> **[Platform Overview](platform-overview.md)** — Architecture summary, capabilities matrix, and infrastructure details.
+
 ---
 
 ## Core Features
