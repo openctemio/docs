@@ -1,7 +1,7 @@
 # Asset Ownership — Wiring the Missing Layer
 
 **Created:** 2026-03-12
-**Status:** TODO
+**Status:** DONE (Layer 3 deferred)
 **Priority:** P0
 **Last Updated:** 2026-03-12
 
@@ -58,26 +58,56 @@ Asset inventory has no way to identify who is responsible for an asset. When a v
 - `Update()` updates `owner_id` (line 233)
 - `reconstructAsset()` maps `ownerIDStr` parameter (line 1018)
 
-### What's MISSING (API + Frontend — zero implementation)
+### What's IMPLEMENTED (as of 2026-03-12)
 
 **API Handler** (`internal/infra/http/handler/asset_handler.go`):
-- `AssetResponse` (lines 44-64): NO owner fields
-- `CreateAssetRequest` (lines 69-77): NO owner fields
-- `UpdateAssetRequest` (lines 80-87): NO owner fields
-- `toAssetResponse()` (lines 90-117): does NOT map owner
-- No endpoints for `asset_owners` table CRUD
+- ✅ `AssetResponse` includes `PrimaryOwner *OwnerBriefResponse` field
+- ✅ `OwnerBriefResponse` struct (id, type, name, email)
+- ✅ `toAssetResponse()` + `toOwnerBriefResponse()` + `batchFetchPrimaryOwners()`
+- ✅ `List()` batch-fetches primary owners via `GetPrimaryOwnersByAssetIDs()` (single query per page)
+- ✅ `Get()` fetches primary owner via `GetPrimaryOwnerBrief()`
+- ✅ `SetAccessControlRepo()` wired in `handlers.go`
+- ✅ Dedicated owner CRUD endpoints via `asset_owner_handler.go`
 
-**Frontend** (`ui/src/features/assets/types/asset.types.ts`):
-- `Asset` interface (lines 695-717): NO owner fields
-- `CreateAssetInput` (lines 723-733): NO owner fields
-- `UpdateAssetInput` (lines 738-747): NO owner fields
-- Asset table: NO owner column
-- Asset detail sheet: NO owner section
-- Asset form: NO owner selector
+**API Handler** (`internal/infra/http/handler/asset_owner_handler.go`):
+- ✅ `ListOwners` (GET `/api/v1/assets/{id}/owners`)
+- ✅ `AddOwner` (POST `/api/v1/assets/{id}/owners`)
+- ✅ `UpdateOwner` (PUT `/api/v1/assets/{id}/owners/{ownerID}`)
+- ✅ `RemoveOwner` (DELETE `/api/v1/assets/{id}/owners/{ownerID}`)
+- ✅ Routes wired in `routes/assets.go` with proper permissions
 
-**Notification** (`internal/app/integration_service.go`):
-- `BroadcastNotification()` resolves recipients by tenant + integration config only
-- Does NOT query `asset_owners` to find asset-specific recipients
+**Repository** (`internal/infra/postgres/access_control_repository.go`):
+- ✅ `ListAssetOwnersWithNames()` — with user/group name resolution
+- ✅ `GetPrimaryOwnerBrief()` — single asset primary owner
+- ✅ `GetPrimaryOwnersByAssetIDs()` — batch query with `DISTINCT ON` + `ANY($1)`
+- ✅ `RefreshAccessForDirectOwnerAdd()` / `RefreshAccessForDirectOwnerRemove()`
+
+**Repository Interface** (`pkg/domain/accesscontrol/repository.go`):
+- ✅ `GetPrimaryOwnerBrief`, `GetPrimaryOwnersByAssetIDs`
+- ✅ `ListAssetOwnersWithNames`, `GetAssetOwnerByID`, `GetAssetOwnerByUser`
+- ✅ `DeleteAssetOwnerByID`, `DeleteAssetOwnerByUser`
+- ✅ `RefreshAccessForDirectOwnerAdd`, `RefreshAccessForDirectOwnerRemove`
+
+**Migration** (`api/migrations/000083_asset_ownership_wiring.up.sql`):
+- ✅ Added 'regulatory' to ownership_type CHECK constraint
+- ✅ Fixed `refresh_user_accessible_assets()` to include direct user ownership (Path B)
+- ✅ New incremental functions: `refresh_access_for_direct_owner_add/remove()`
+
+**Frontend** (`ui/src/features/assets/`):
+- ✅ `Asset` interface includes `primaryOwner?: OwnerBrief`
+- ✅ `OwnershipType`, `AssetOwner`, `OwnerBrief`, `AddAssetOwnerInput`, `UpdateAssetOwnerInput` types
+- ✅ `OWNERSHIP_TYPE_LABELS`, `OWNERSHIP_TYPE_COLORS` constants
+- ✅ `BackendAsset` includes `primary_owner`, `transformAsset()` maps it
+- ✅ `useAssetOwners()` SWR hook with `addAssetOwner`, `updateAssetOwner`, `removeAssetOwner`
+- ✅ `AssetOwnersTab` component with full CRUD UI (add/edit/remove dialogs)
+- ✅ Asset table: Owner column (User/Users icon + truncated name) — enabled by default
+- ✅ API endpoints: `listOwners`, `addOwner`, `updateOwner`, `removeOwner`
+
+### What's REMAINING
+
+- ⏭ `CreateAssetInput` / `UpdateAssetInput`: NO owner fields (Phase 5c — skipped, owners managed via dedicated tab)
+- ⏭ Asset form: NO owner selector (Phase 5c — skipped, owners managed via dedicated tab)
+- 🔮 **Layer 3: Object-Level Permission**: Deferred — implement after ownership is fully validated in production
 
 ### Duplication Analysis — Design Decision
 
@@ -211,7 +241,7 @@ Also fix the 4 incremental refresh functions in migration 000071:
 | Member + NOT owner + NOT in group | assets:read,write ✅ | no path ❌ | Cannot see asset |
 | Admin/Owner (any) | all permissions ✅ | bypass ✅ | Full access always |
 
-### Phase 1: Database Migration
+### Phase 1: Database Migration ✅ DONE
 
 **Migration (next available number): ownership type + access control fix**
 
@@ -279,7 +309,7 @@ $$ LANGUAGE plpgsql;
 SELECT refresh_user_accessible_assets();
 ```
 
-### Phase 2: Backend — Domain & Repository
+### Phase 2: Backend — Domain & Repository ✅ DONE
 
 **2a. New entity: `pkg/domain/asset/owner.go`**
 
@@ -328,7 +358,7 @@ JOIN assets a ON a.id = ao.asset_id AND a.tenant_id = $1
 ```
 (`asset_owners` has no `tenant_id` column — must JOIN through `assets`)
 
-### Phase 3: Backend — API Handler
+### Phase 3: Backend — API Handler ✅ DONE
 
 **3a. Update `AssetResponse`** (asset_handler.go):
 
@@ -383,7 +413,7 @@ type AssetOwnerResponse struct {
 - `assets:read` for GET
 - `assets:write` for POST/PUT/DELETE
 
-### Phase 4: Frontend — Types & API Hooks
+### Phase 4: Frontend — Types & API Hooks ✅ DONE
 
 **4a. Update `Asset` interface** (asset.types.ts):
 
@@ -412,7 +442,7 @@ export function useAddAssetOwner(assetId: string) { ... }
 export function useRemoveAssetOwner(assetId: string) { ... }
 ```
 
-### Phase 5: Frontend — UI Components
+### Phase 5: Frontend — UI Components ✅ DONE (5a, 5b) / ⏭ SKIPPED (5c)
 
 **5a. Asset table — Add owner column:**
 
@@ -447,7 +477,7 @@ New tab in `asset-detail-sheet.tsx` showing all owners with add/remove functiona
 
 Add optional owner selector to create/edit forms using existing `useMembers()` hook.
 
-### Phase 6: Notification Integration
+### Phase 6: Notification Integration ✅ DONE (metadata enrichment)
 
 **6a. Add owner-aware notification routing:**
 
@@ -480,19 +510,21 @@ func (s *NotificationService) notifyAssetOwners(ctx context.Context, tenantID, a
 
 ## Implementation Order
 
-| Step | Scope | Effort | Dependencies |
-|------|-------|--------|--------------|
-| 1. Migration | DB | Small | None |
-| 2. Domain entity + repository | Backend | Medium | Step 1 |
-| 3. API endpoints | Backend | Medium | Step 2 |
-| 4. Update AssetResponse + list query | Backend | Small | Step 2 |
-| 5. Frontend types + hooks | Frontend | Small | Step 3 |
-| 6. Owner column in asset table | Frontend | Small | Step 5 |
-| 7. Owners tab in detail sheet | Frontend | Medium | Step 5 |
-| 8. Owner field in create/edit form | Frontend | Small | Step 5 |
-| 9. Notification integration | Backend | Medium | Step 2 |
+| Step | Scope | Effort | Dependencies | Status |
+|------|-------|--------|--------------|--------|
+| 1. Migration (000083) | DB | Small | None | ✅ DONE |
+| 2. Domain entity + repository interface | Backend | Medium | Step 1 | ✅ DONE |
+| 3. API CRUD endpoints (asset_owner_handler) | Backend | Medium | Step 2 | ✅ DONE |
+| 4. Update AssetResponse + batch query | Backend | Small | Step 2 | ✅ DONE |
+| 5. Frontend types + hooks | Frontend | Small | Step 3 | ✅ DONE |
+| 6. Owner column in asset table | Frontend | Small | Step 5 | ✅ DONE |
+| 7. Owners tab in detail sheet | Frontend | Medium | Step 5 | ✅ DONE |
+| 8. Owner field in create/edit form | Frontend | Small | Step 5 | ⏭ SKIPPED (owners managed via tab) |
+| 9. Notification integration | Backend | Medium | Step 2 | ✅ DONE |
 
-**Steps 5-8 can be parallelized** (independent frontend work after API is ready).
+**Implementation notes:**
+- Step 4 uses batch-fetch pattern (like repository extensions) instead of LEFT JOIN in selectQuery, avoiding changes to the 40+ column scan chain
+- Step 8 skipped — owners are managed via the dedicated Owners tab, not inline in create/edit forms. Can be added later if needed.
 
 ---
 
