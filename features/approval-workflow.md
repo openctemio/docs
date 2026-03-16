@@ -332,6 +332,36 @@ The following notification events are triggered by approval actions:
 
 These events integrate with the existing notification system (Slack, Teams, Email, etc.) via workflow automation.
 
+## Risk Acceptance Expiration
+
+When an `accepted` finding's approval has an `expires_at` date, the system automatically reopens the finding after the acceptance period ends.
+
+### How It Works
+
+The `ApprovalExpirationController` runs every hour as a background reconciliation loop:
+
+1. **Query**: Finds all approvals with `status='approved'`, `expires_at IS NOT NULL`, and `expires_at < NOW()`
+2. **Mark expired**: Sets the approval status to `expired` (with optimistic locking to handle concurrency)
+3. **Reopen finding**: Transitions the finding from `accepted` back to `confirmed` via `UpdateStatusBatch`
+4. **Log**: Records the auto-reopen action for audit trail
+
+### Approval Statuses
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Awaiting review |
+| `approved` | Status change applied |
+| `rejected` | Request denied with reason |
+| `canceled` | Withdrawn by requester |
+| `expired` | Approved acceptance period has ended, finding auto-reopened |
+
+### Configuration
+
+The controller is registered in the background worker manager with:
+- **Interval**: 1 hour (configurable)
+- **Batch size**: 100 per cycle (prevents long-running transactions)
+- **Idempotent**: Safe to run multiple times; optimistic locking prevents double-processing
+
 ## Related Documentation
 
 - [Finding Lifecycle](finding-lifecycle.md) -- Branch-aware auto-resolve and status transitions
