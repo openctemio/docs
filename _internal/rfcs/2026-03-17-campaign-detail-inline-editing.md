@@ -1,7 +1,7 @@
 # RFC: Campaign Detail Sheet — Inline Editing
 
 **Created:** 2026-03-17
-**Status:** PLANNED
+**Status:** IMPLEMENTED (2026-03-17)
 **Priority:** P1 (UX)
 **Scope:** Replace Edit dialog with inline editing in Campaign Detail Sheet
 
@@ -102,55 +102,57 @@ Each section in the detail sheet becomes directly editable. Click an "Edit" icon
 
 ## Implementation Plan
 
-### Phase 1: Infrastructure (shared components)
+### Phase 1: Infrastructure (shared components) — DONE
 
-| # | Task | Estimate |
-|---|------|----------|
-| 1.1 | `EditableCard` wrapper component — handles view/edit toggle, save/cancel buttons, loading state | S |
-| 1.2 | `TagInput` component — type text + Enter to add, X to remove, badge display | S |
-| 1.3 | `DynamicListInput` component — add/remove text inputs (for objectives, scope items) | S |
-| 1.4 | Campaign update hook — `useUpdateCampaignField(id)` that PATCHes and revalidates SWR | S |
+| # | Task | Status |
+|---|------|--------|
+| 1.1 | `EditableCard` wrapper — `src/components/ui/editable-card.tsx` | Done |
+| 1.2 | `TagInput` component — `src/components/ui/tag-input.tsx` (pre-existing) | Done |
+| 1.3 | `DynamicListInput` component — `src/components/ui/dynamic-list-input.tsx` | Done |
+| 1.4 | Campaign update hook — `useAdaptedUpdateCampaign(id)` (pre-existing) | Done |
 
-### Phase 2: Overview Tab Inline Edit
+### Phase 2: Overview Tab Inline Edit — DONE
 
-| # | Task | Estimate |
-|---|------|----------|
-| 2.1 | Description — EditableCard + Textarea | S |
-| 2.2 | Timeline — EditableCard + 2x date inputs | S |
-| 2.3 | Methodology — EditableCard + CreatableSelect | S |
-| 2.4 | Tags — EditableCard + TagInput | S |
-| 2.5 | Objectives — EditableCard + DynamicListInput | S |
+| # | Task | Status |
+|---|------|--------|
+| 2.1 | Description — EditableCard + Textarea | Done |
+| 2.2 | Timeline — EditableCard + 2x date inputs | Done |
+| 2.3 | Methodology — EditableCard + CreatableSelect | Done |
+| 2.4 | Tags — EditableCard + TagInput | Done |
+| 2.5 | Objectives — EditableCard + DynamicListInput (numbered) | Done |
 
-### Phase 3: Scope Tab Inline Edit
+### Phase 3: Scope Tab Inline Edit — DONE
 
-| # | Task | Estimate |
-|---|------|----------|
-| 3.1 | Scope items — add/remove/edit scope entries with type/value/notes/inScope fields | M |
-| 3.2 | Empty state → add first scope item inline | S |
+| # | Task | Status |
+|---|------|--------|
+| 3.1 | ScopeEditor — per-row type select, value input, notes, in-scope checkbox, add/remove | Done |
+| 3.2 | Empty state → add first scope item inline | Done |
 
-### Phase 4: Team Tab Inline Edit
+### Phase 4: Team Tab Inline Edit — DEFERRED
 
-| # | Task | Estimate |
-|---|------|----------|
-| 4.1 | User search combobox (search tenant members API) | M |
-| 4.2 | Role select per member | S |
-| 4.3 | Add/remove team members | S |
+| # | Task | Status |
+|---|------|--------|
+| 4.1 | User search combobox (search tenant members API) | Deferred — needs separate user search component |
+| 4.2 | Role select per member | Deferred |
+| 4.3 | Add/remove team members | Deferred |
 
-### Phase 5: Rules of Engagement Tab Inline Edit
+> Team tab kept read-only. Requires user search combobox (covered by campaign-team-roles-rbac RFC).
 
-| # | Task | Estimate |
-|---|------|----------|
-| 5.1 | Testing Hours + Emergency Contact + Communication Channel — simple text EditableCards | S |
-| 5.2 | Allowed/Restricted Methods — TagInput-style | S |
-| 5.3 | Empty state → create RoE inline | S |
+### Phase 5: Rules of Engagement Tab Inline Edit — DONE
 
-### Phase 6: Remove Edit Dialog
+| # | Task | Status |
+|---|------|--------|
+| 5.1 | Testing Hours + Emergency Contact + Communication Channel — Input EditableCards | Done |
+| 5.2 | Allowed/Restricted Methods — TagInput-style | Done |
+| 5.3 | Empty state → create RoE inline (defaultRoE object) | Done |
 
-| # | Task | Estimate |
-|---|------|----------|
-| 6.1 | Remove Edit Campaign dialog from campaigns page | S |
-| 6.2 | Remove "Edit" button from table dropdown (keep "View Details" which opens sheet) | S |
-| 6.3 | Update footer buttons: remove "Edit", keep status + export + findings | S |
+### Phase 6: Remove Edit Dialog — DONE
+
+| # | Task | Status |
+|---|------|--------|
+| 6.1 | Remove Edit Campaign dialog from campaigns page | Done |
+| 6.2 | Dropdown "Edit" now opens detail sheet (inline edit there) | Done |
+| 6.3 | Footer: removed Edit button, kept status + export + findings | Done |
 
 ---
 
@@ -241,14 +243,14 @@ The only exception: **Team Members** — currently `team_user_ids` is just an ar
 
 ---
 
-## Estimates
+## Completion Summary
 
-| Phase | Tasks | Estimate |
-|-------|-------|----------|
-| Phase 1: Infrastructure | 4 | 2h |
-| Phase 2: Overview | 5 | 2h |
-| Phase 3: Scope | 2 | 1.5h |
-| Phase 4: Team | 3 | 2h |
-| Phase 5: Rules | 3 | 1h |
-| Phase 6: Cleanup | 3 | 0.5h |
-| **Total** | **20** | **~9h** |
+| Phase | Tasks | Status |
+|-------|-------|--------|
+| Phase 1: Infrastructure | 4 | Done (2 new components, 2 pre-existing) |
+| Phase 2: Overview | 5 | Done (5 editable sections) |
+| Phase 3: Scope | 2 | Done (ScopeEditor + empty state) |
+| Phase 4: Team | 3 | Deferred (needs user search combobox) |
+| Phase 5: Rules | 3 | Done (5 RoE sections + null handling) |
+| Phase 6: Cleanup | 3 | Done (dialog removed, ~130 LOC deleted) |
+| **Total** | **17/20** | **Implemented 2026-03-17** |
