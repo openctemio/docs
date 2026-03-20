@@ -442,3 +442,40 @@ if !IsValidLocationType(locationType) {
 - [Finding Lifecycle](finding-lifecycle.md) - Auto-resolve and branch awareness
 - [CTEM Finding Fields](ctem-fields.md) - Exposure and impact fields
 - [Database Schema](../database/schema.md) - Full schema reference
+
+## Source-Aware Detail UI
+
+> **Status**: ✅ Implemented (2026-03-20)
+
+The finding detail page renders source-specific context panels and tab ordering based on `findingType` and `source`.
+
+### Architecture
+
+```
+findingType / source → SourceLayoutConfig → { sourcePanel, tabOrder, hiddenTabs }
+```
+
+Config-driven registry in `ui/src/features/findings/config/`:
+- `source-layout.ts` — registry with `getSourceLayout()` lookup
+- `register-layouts.ts` — wires panels to types/sources
+
+### Source Panels
+
+| Finding Type/Source | Panel | Key Info Displayed |
+|--------------------|---------|--------------------|
+| `secret` | SecretPanel | Secret type, service, validity, entropy, masked value, expiration |
+| `misconfiguration` | MisconfigPanel | Policy, resource, expected vs actual, cause |
+| `compliance` | CompliancePanel | Framework, control ID, result, section |
+| `web3` | Web3Panel | Chain, contract address, SWC ID, function signature, tx hash |
+| `dast` | DastPanel | HTTP method, endpoint, parameter, request/response |
+| `sca` | DependencyPanel | Package name, version, ecosystem, fixed version, PURL |
+| `pentest/bug_bounty/red_team` | PentestDetailsTab | Steps to reproduce, PoC, business/technical impact (rendered as tab) |
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `ui/src/features/findings/config/source-layout.ts` | Layout registry |
+| `ui/src/features/findings/config/register-layouts.ts` | Panel registration |
+| `ui/src/features/findings/components/detail/source-panels/` | 6 source panels + metadata viewer |
+| `ui/src/features/findings/components/detail/pentest-details-tab.tsx` | Pentest tab |
