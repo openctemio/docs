@@ -1,7 +1,7 @@
 # ITSM Integration — Implementation Plan
 
 **Created:** 2026-03-10
-**Status:** Planned
+**Status:** Planned (foundation only)
 **Priority:** P1
 **Last Updated:** 2026-03-10
 **Author:** Claude (AI Assistant)

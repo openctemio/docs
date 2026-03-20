@@ -1,7 +1,7 @@
 # RFC: Stabilize & Harden — Production Readiness
 
 **Created:** 2026-03-16
-**Status:** PLANNED
+**Status:** PLANNED (not started)
 **Priority:** P0
 **Timeline:** 6 weeks
 **Scope:** Testing, bug fixes, performance tuning, CI/CD hardening
