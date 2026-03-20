@@ -1,7 +1,7 @@
 # RFC: Dynamic Template Categories
 
 **Created:** 2026-03-18
-**Status:** PLANNED
+**Status:** PLANNED (not started)
 **Priority:** P2 (Enhancement)
 **Scope:** Allow tenants to customize pentest template categories via settings
 
