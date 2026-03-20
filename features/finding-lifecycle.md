@@ -387,6 +387,128 @@ Response:
 | `api/tests/unit/finding_lifecycle_activity_test.go` | 12 unit tests |
 | `api/scripts/tests/test_e2e_finding_activities.sh` | E2E test script |
 
+---
+
+## v2.0: Closed-Loop Remediation Lifecycle
+
+> **Status**: ✅ Implemented
+> **Version**: v2.0
+> **Released**: 2026-03-20
+
+### Overview
+
+Extends v1.0 with a **closed-loop workflow** where developers mark findings as fixed, then scanners or security team verify before closing. Prevents premature resolution and provides trusted progress tracking.
+
+### Status Flow
+
+```
+new → confirmed → in_progress → fix_applied → resolved
+                                     ↑              ↑
+                                  Dev/Owner      Scanner verify
+                                  (fix_apply)    OR Security approve
+                                     │
+                               fix_applied → in_progress (reject)
+                               resolved → confirmed (regression)
+```
+
+**Key rule:** `in_progress → resolved` is **blocked**. Developers cannot self-close findings — they must go through `fix_applied` → scanner/security verification.
+
+### New Status: `fix_applied`
+
+| Field | Value |
+|-------|-------|
+| Status | `fix_applied` |
+| Category | `in_progress` (active, not closed) |
+| Who can set | Assignee, group member, or asset owner (`findings:fix_apply` permission) |
+| Requires | Note describing what was done (mandatory) |
+| Next steps | Scanner verify → `resolved` OR Security reject → `in_progress` |
+
+### Resolution Method Tracking
+
+When a finding is resolved, `resolution_method` records how:
+
+| Method | Description |
+|--------|-------------|
+| `legacy` | Resolved before v2.0 (backward compat) |
+| `scan_verified` | Scanner confirmed vulnerability is gone |
+| `security_reviewed` | Security team manually approved |
+| `admin_direct` | Admin/Owner direct resolve (escape hatch) |
+
+### Permissions
+
+| Permission | Who | Purpose |
+|-----------|-----|---------|
+| `findings:fix_apply` | Owner, Admin, Member | Mark findings as fix applied |
+| `findings:verify` | Owner, Admin only | Verify/reject fix-applied findings, direct resolve |
+
+### Multi-Dimension Group View
+
+Group findings by 7 dimensions to handle any remediation scenario:
+
+| Dimension | Use Case |
+|-----------|----------|
+| `cve_id` | "CVE-2021-44228 affects 1000 hosts" |
+| `asset_id` | "Host C has 4 vulnerabilities" |
+| `owner_id` | "Alice responsible for 7 findings" |
+| `component_id` | "log4j-core@2.14.0 has 3 CVEs" |
+| `severity` | "500 critical, 300 high" |
+| `source` | "SCA: 400, SAST: 200" |
+| `finding_type` | "800 vulns, 100 secrets" |
+
+### Multi-Owner Authorization
+
+Multiple people can mark fix_applied on the same finding:
+
+1. **Direct assignee** — user assigned to the finding
+2. **Group member** — any member of the group assigned to the finding
+3. **Asset owner** — owner of the asset where the finding exists
+
+### Related CVEs
+
+When marking a CVE as fixed, the system suggests related CVEs on the same component that would also be fixed by the same upgrade. Example: upgrading log4j-core also fixes CVE-2021-45046 and CVE-2021-45105.
+
+### Auto-Assign to Owners
+
+Bulk-assign unassigned findings to their asset owners with one click. Skips findings already assigned.
+
+### API Reference
+
+```
+GET  /api/v1/findings/groups?group_by=cve_id&severities=critical,high
+GET  /api/v1/findings/related-cves/{cveId}
+POST /api/v1/findings/actions/fix-applied
+POST /api/v1/findings/actions/verify
+POST /api/v1/findings/actions/reject-fix
+POST /api/v1/findings/actions/assign-to-owners
+```
+
+### Dashboard Progress
+
+4-column progress bar per group:
+
+```
+🔴 Open | 🔵 Fixing | 🟡 Fix Applied | ✅ Resolved
+  400      100           300              200
+```
+
+Progress % = Resolved / Total (only scanner-verified counts).
+
+### Key Files
+
+| File | Description |
+|------|-------------|
+| `api/internal/app/finding_lifecycle_service.go` | Business logic (6 methods) |
+| `api/internal/infra/postgres/finding_group_repository.go` | 7 GROUP BY queries + bulk ops |
+| `api/internal/infra/http/handler/finding_lifecycle_handler.go` | 6 REST endpoints |
+| `api/internal/infra/http/routes/finding_lifecycle.go` | Route registration |
+| `api/pkg/domain/vulnerability/finding_lifecycle_test.go` | 38 unit tests |
+| `api/migrations/000096_fix_applied_status.up.sql` | Migration (column + 3 indexes + permissions) |
+| `ui/src/features/findings/components/finding-groups-tab.tsx` | Groups tab UI |
+| `ui/src/features/findings/components/mark-fixed-dialog.tsx` | Mark Fixed dialog |
+| `ui/src/features/findings/components/pending-review-tab.tsx` | Pending Review tab |
+
+---
+
 ## Related Documentation
 
 - [Finding Types & Fingerprinting](finding-types.md) - Type-aware deduplication and specialized fields
