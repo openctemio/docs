@@ -3,27 +3,15 @@ layout: default
 title: CTIS Asset Schema
 parent: CTIS Schema Reference
 nav_order: 2
----
 
 # CTIS Asset Schema
-
-The Asset schema represents discovered assets such as domains, IP addresses, repositories, cloud resources, and Web3 contracts.
-
 **Schema Location**: `schemas/ctis/v1/asset.json`
-
----
-
 ## Required Fields
-
 | Field | Type | Description |
 |-------|------|-------------|
 | `type` | enum | Asset type (see [AssetType](#assettype)) |
-| `value` | string | Primary value (domain name, IP address, contract address, etc.) |
-
----
-
+| `value` | string | Primary value (domain name, IP address, etc.) |
 ## All Fields
-
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `id` | string | No | Unique identifier within the report |
@@ -41,13 +29,8 @@ The Asset schema represents discovered assets such as domains, IP addresses, rep
 | `services` | array[[ServiceInfo](#serviceinfo)] | No | Services running on this asset (CTEM) |
 | `is_internet_accessible` | boolean | No | Is the asset directly accessible from the internet |
 | `properties` | object | No | Custom properties |
-
----
-
 ## Enums
-
 ### AssetType
-
 | Value | Description |
 |-------|-------------|
 | `domain` | Root domain |
@@ -83,71 +66,45 @@ The Asset schema represents discovered assets such as domains, IP addresses, rep
 | `http_service` | HTTP service |
 | `open_port` | Open port |
 | `discovered_url` | Discovered URL |
-| `smart_contract` | Smart contract |
+| `compute` | Cloud compute instance |
+| `storage` | Cloud storage |
+| `s3_bucket` | S3/object storage bucket |
+| `subnet` | Network subnet |
+| `data_store` | Data store |
 | `wallet` | Blockchain wallet |
 | `token` | Token (ERC-20, etc.) |
 | `nft_collection` | NFT collection |
 | `defi_protocol` | DeFi protocol |
-| `blockchain` | Blockchain |
 | `unclassified` | Unclassified asset (not yet categorized) |
 | `other` | Other (**deprecated** - use `unclassified`) |
-
 ### Criticality
-
-| Value | Description |
-|-------|-------------|
 | `critical` | Critical asset |
 | `high` | High criticality |
 | `medium` | Medium criticality |
 | `low` | Low criticality |
 | `info` | Informational |
-
----
-
 ## Object Definitions
-
 ### AssetTechnical
-
 Type-specific technical details. Only the relevant sub-object should be populated based on asset type.
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `domain` | [DomainTechnical](#domaintechnical) | Domain-specific details |
 | `ip_address` | [IPAddressTechnical](#ipaddresstechnical) | IP address details |
 | `repository` | [RepositoryTechnical](#repositorytechnical) | Repository details |
 | `certificate` | [CertificateTechnical](#certificatetechnical) | Certificate details |
 | `cloud` | [CloudTechnical](#cloudtechnical) | Cloud resource details |
 | `service` | [ServiceTechnical](#servicetechnical) | Network service details |
-| `web3` | [Web3Asset](ctis-web3-asset.md) | Web3/blockchain details |
-
----
-
 ### DomainTechnical
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `registrar` | string | Domain registrar |
 | `registered_at` | string (date-time) | Registration date |
 | `expires_at` | string (date-time) | Expiration date |
 | `nameservers` | array[string] | Nameservers |
 | `dns_records` | array[[DNSRecord](#dnsrecord)] | DNS records |
 | `whois` | object | WHOIS data (key-value) |
-
 ### DNSRecord
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
 | `type` | enum | **Yes** | Record type: `A`, `AAAA`, `CNAME`, `MX`, `TXT`, `NS`, `SOA`, `PTR`, `SRV` |
 | `name` | string | **Yes** | Record name |
 | `value` | string | **Yes** | Record value |
 | `ttl` | integer | No | Time to live |
-
----
-
 ### IPAddressTechnical
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `version` | integer | IP version: `4` or `6` |
 | `hostname` | string | Reverse hostname |
 | `asn` | integer | Autonomous System Number |
@@ -156,32 +113,18 @@ Type-specific technical details. Only the relevant sub-object should be populate
 | `city` | string | City |
 | `ports` | array[[PortInfo](#portinfo)] | Open ports |
 | `geolocation` | [Geolocation](#geolocation) | Geographic coordinates |
-
 ### PortInfo
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
 | `port` | integer (1-65535) | **Yes** | Port number |
 | `protocol` | enum | No | `tcp` or `udp` |
 | `state` | enum | No | `open`, `filtered`, `closed` |
 | `service` | string | No | Service name |
 | `banner` | string | No | Service banner |
 | `version` | string | No | Service version |
-
 ### Geolocation
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
 | `latitude` | number (-90 to 90) | **Yes** | Latitude |
 | `longitude` | number (-180 to 180) | **Yes** | Longitude |
 | `accuracy` | number | No | Accuracy in meters |
-
----
-
 ### RepositoryTechnical
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `platform` | enum | `github`, `gitlab`, `bitbucket`, `azure_devops` |
 | `owner` | string | Repository owner |
 | `name` | string | Repository name |
@@ -194,13 +137,7 @@ Type-specific technical details. Only the relevant sub-object should be populate
 | `forks` | integer | Fork count |
 | `last_commit_sha` | string | Last commit SHA |
 | `last_commit_at` | string (date-time) | Last commit date |
-
----
-
 ### CertificateTechnical
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `serial_number` | string | Certificate serial number |
 | `subject_cn` | string | Subject common name |
 | `sans` | array[string] | Subject Alternative Names |
@@ -215,13 +152,7 @@ Type-specific technical details. Only the relevant sub-object should be populate
 | `self_signed` | boolean | Is self-signed |
 | `expired` | boolean | Is expired |
 | `wildcard` | boolean | Is wildcard certificate |
-
----
-
 ### CloudTechnical
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `provider` | enum | `aws`, `gcp`, `azure`, `alibaba`, `oracle` |
 | `account_id` | string | Cloud account ID |
 | `region` | string | Region |
@@ -230,15 +161,8 @@ Type-specific technical details. Only the relevant sub-object should be populate
 | `resource_id` | string | Resource ID |
 | `arn` | string | AWS ARN (if applicable) |
 | `tags` | object | Resource tags (key-value) |
-
----
-
 ### ServiceTechnical
-
 Technical details for network services (SSH, SMTP, FTP, HTTP, databases, etc.).
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `name` | string | Service name |
 | `version` | string | Service version |
 | `port` | integer (1-65535) | Port number |
@@ -261,47 +185,26 @@ Technical details for network services (SSH, SMTP, FTP, HTTP, databases, etc.).
 | `response_time_ms` | integer | Response time in ms |
 | `last_seen` | string (date-time) | Last seen timestamp |
 | `details` | object | Protocol-specific details |
-
----
-
 ### AssetCompliance
-
 CTEM compliance context for an asset.
-
-| Field | Type | Description |
-|-------|------|-------------|
 | `frameworks` | array[string] | Compliance frameworks: `PCI-DSS`, `HIPAA`, `SOC2`, `GDPR`, `ISO27001` |
 | `data_classification` | enum | `public`, `internal`, `confidential`, `restricted`, `secret` |
 | `pii_exposed` | boolean | Contains Personally Identifiable Information |
 | `phi_exposed` | boolean | Contains Protected Health Information |
 | `regulatory_owner` | string | Regulatory owner email/username |
-
----
-
 ### ServiceInfo
-
 Network service discovered on an asset (CTEM).
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `port` | integer (1-65535) | Port number |
 | `protocol` | enum | `tcp` or `udp` |
 | `service_type` | string | Service type: `http`, `https`, `ssh`, `ftp`, `mysql`, etc. |
 | `product` | string | Product name: `Apache`, `nginx`, `OpenSSH`, etc. |
 | `version` | string | Product version |
 | `banner` | string | Service banner |
-| `cpe` | string | CPE identifier |
 | `is_public` | boolean | Publicly accessible from internet |
 | `tls_enabled` | boolean | TLS enabled |
 | `tls_version` | string | TLS version |
 | `state` | enum | `active`, `inactive`, `filtered` |
-
----
-
 ## Examples
-
 ### Domain Asset
-
 ```json
 {
   "type": "domain",
@@ -321,16 +224,11 @@ Network service discovered on an asset (CTEM).
   }
 }
 ```
-
 ### Repository Asset
-
-```json
-{
   "type": "repository",
   "value": "github.com/myorg/myrepo",
   "name": "myrepo",
   "criticality": "critical",
-  "technical": {
     "repository": {
       "platform": "github",
       "owner": "myorg",
@@ -339,21 +237,9 @@ Network service discovered on an asset (CTEM).
       "visibility": "private",
       "url": "https://github.com/myorg/myrepo",
       "languages": {"Go": 50000, "TypeScript": 30000}
-    }
-  }
-}
-```
-
 ### Smart Contract Asset
-
-```json
-{
-  "type": "smart_contract",
   "value": "0x1234567890abcdef1234567890abcdef12345678",
   "name": "MyToken",
-  "criticality": "critical",
-  "technical": {
-    "web3": {
       "chain": "ethereum",
       "chain_id": 1,
       "address": "0x1234567890abcdef1234567890abcdef12345678",
@@ -364,14 +250,5 @@ Network service discovered on an asset (CTEM).
         "is_proxy": false,
         "compiler_version": "0.8.20"
       }
-    }
-  }
-}
-```
-
----
-
 ## Related Schemas
-
-- [Web3 Asset Schema](ctis-web3-asset.md) - Web3-specific asset details
 - [Finding Schema](ctis-finding.md) - Findings related to assets
