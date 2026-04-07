@@ -22,8 +22,6 @@ CTEM Ingest Schema (CTIS) is the standard format for ingesting security data int
 | [Asset](ctis-asset.md) | Discovered assets (domains, IPs, repos, etc.) | `schemas/ctis/v1/asset.json` |
 | [Finding](ctis-finding.md) | Security findings (vulnerabilities, secrets, etc.) | `schemas/ctis/v1/finding.json` |
 | [Dependency](ctis-dependency.md) | Software dependencies (SBOM) | `schemas/ctis/v1/dependency.json` |
-| [Web3 Asset](ctis-web3-asset.md) | Web3/blockchain asset details | `schemas/ctis/v1/web3-asset.json` |
-| [Web3 Finding](ctis-web3-finding.md) | Smart contract vulnerabilities | `schemas/ctis/v1/web3-finding.json` |
 
 ---
 
@@ -171,7 +169,6 @@ Report
 | `secret` | Exposed credentials | `secret` |
 | `misconfiguration` | IaC/config issues | `misconfiguration` |
 | `compliance` | Compliance violations | `compliance` |
-| `web3` | Smart contract issues | `web3` |
 
 ### Severity Levels
 

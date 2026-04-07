@@ -112,7 +112,6 @@ Target scope of the scan/collection.
 - `network` - Network/IP range scope
 - `repository` - Repository scope
 - `cloud_account` - Cloud account scope
-- `blockchain` - Blockchain/Web3 scope
 
 ---
 
@@ -134,7 +133,6 @@ Tool that generated this report.
 - `secret` - Secret detection
 - `misconfiguration` - Misconfiguration detection
 - `compliance` - Compliance checking
-- `web3` - Web3/smart contract analysis
 - `domain`, `ip_address`, `repository`, `certificate` - Asset discovery
 - `cloud`, `container` - Cloud/container scanning
 - `sast`, `code_analysis`, `vulnerability_detection`, `code_quality` - Code analysis
