@@ -153,7 +153,7 @@ server {
 // Backend CORS
 cors.New(cors.Options{
     AllowedOrigins: []string{
-        "https://app.openctem.io",
+        "https://your-domain.com",
         "https://staging.openctem.io",
     },
     AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},

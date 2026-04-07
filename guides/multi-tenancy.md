@@ -252,8 +252,8 @@ refresh_token + tenant_id → access_token
 ### 2. URL Structure
 Use tenant slug in URLs for SEO and UX:
 ```
-https://app.openctem.io/{tenant-slug}/dashboard
-https://app.openctem.io/{tenant-slug}/assets
+https://your-domain.com/{tenant-slug}/dashboard
+https://your-domain.com/{tenant-slug}/assets
 ```
 
 ### 3. Default Tenant

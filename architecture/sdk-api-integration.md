@@ -100,7 +100,7 @@ This document describes how the OpenCTEM SDK integrates with the Backend API for
 
 ```http
 POST /api/v1/agent/ingest HTTP/1.1
-Host: api.openctem.io
+Host: api.your-domain.com
 Content-Type: application/json
 Authorization: Bearer rs_src_xxxxxxxxxxxxxxxxxxxxxxxx
 X-OpenCTEM-Source-ID: src_abc123def456
@@ -161,7 +161,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 ```go
 client := client.New(&client.Config{
-    BaseURL:  "https://api.openctem.io",
+    BaseURL:  "https://api.your-domain.com",
     APIKey:   "rs_src_xxxxxxxxxxxxxxxxxxxxxxxx", // Source API key
     SourceID: "src_abc123def456",                // Registered source ID
     Timeout:  30 * time.Second,
@@ -180,7 +180,7 @@ agent:
   heartbeat_interval: 1m
 
 server:
-  base_url: https://api.openctem.io
+  base_url: https://api.your-domain.com
   api_key: ${API_KEY}      # Source API key
   source_id: ${SOURCE_ID}  # Registered source ID
   timeout: 30s

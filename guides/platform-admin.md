@@ -247,13 +247,13 @@ The CLI supports three configuration methods (in priority order):
 #### 1. Command Line Flags (Highest Priority)
 
 ```bash
-openctem-admin --api-url=https://api.openctem.io --api-key=oc-admin-xxx get agents
+openctem-admin --api-url=https://api.your-domain.com --api-key=oc-admin-xxx get agents
 ```
 
 #### 2. Environment Variables
 
 ```bash
-export OPENCTEM_API_URL=https://api.openctem.io
+export OPENCTEM_API_URL=https://api.your-domain.com
 export OPENCTEM_API_KEY=oc-admin-a1b2c3d4e5f6...
 openctem-admin get agents
 ```
@@ -263,14 +263,14 @@ openctem-admin get agents
 ```bash
 # Create context
 openctem-admin config set-context prod \
-  --api-url=https://api.openctem.io \
+  --api-url=https://api.your-domain.com \
   --api-key=oc-admin-a1b2c3d4e5f6...
 
 # Or use key file for security
 echo "oc-admin-a1b2c3d4e5f6..." > ~/.openctem/prod-key
 chmod 600 ~/.openctem/prod-key
 openctem-admin config set-context prod \
-  --api-url=https://api.openctem.io \
+  --api-url=https://api.your-domain.com \
   --api-key-file=~/.openctem/prod-key
 
 # Switch contexts
@@ -291,7 +291,7 @@ current-context: prod
 contexts:
   - name: prod
     context:
-      api-url: https://api.openctem.io
+      api-url: https://api.your-domain.com
       api-key-file: ~/.openctem/prod-key
 
   - name: staging
@@ -395,7 +395,7 @@ openctem-admin create token --max-uses=5 --expires=24h
 #   abc123.xxxxxxxxxxxxxxxx
 #
 # Use this token to register a platform agent:
-#   ./agent -platform -bootstrap-token=abc123.xxxxxxxxxxxxxxxx -api-url=https://api.openctem.io
+#   ./agent -platform -bootstrap-token=abc123.xxxxxxxxxxxxxxxx -api-url=https://api.your-domain.com
 
 # Revoke token
 openctem-admin revoke token tok-abc123 --reason="No longer needed"
@@ -548,7 +548,7 @@ openctem-admin create token --max-uses=1 --expires=1h
 # 2. Start agent with token (on agent machine)
 ./agent -platform \
   -bootstrap-token=abc123.xxxxxxxxxxxxxxxx \
-  -api-url=https://api.openctem.io \
+  -api-url=https://api.your-domain.com \
   -region=us-east-1 \
   -capabilities=sast,sca,secrets
 
@@ -571,7 +571,7 @@ openctem-admin create agent \
 # 3. Start agent with key (on agent machine)
 ./agent -platform \
   -api-key=ragent_xxxxx \
-  -api-url=https://api.openctem.io
+  -api-url=https://api.your-domain.com
 ```
 
 ### Docker Deployment
@@ -581,7 +581,7 @@ openctem-admin create agent \
 docker run -d \
   --name openctem-platform-agent \
   --restart unless-stopped \
-  -e API_URL=https://api.openctem.io \
+  -e API_URL=https://api.your-domain.com \
   -e BOOTSTRAP_TOKEN=abc123.xxxxxxxxxxxxxxxx \
   -v agent-data:/home/openctem/.openctem \
   openctemio/agent:platform
@@ -590,7 +590,7 @@ docker run -d \
 docker run -d \
   --name openctem-platform-agent \
   --restart unless-stopped \
-  -e API_URL=https://api.openctem.io \
+  -e API_URL=https://api.your-domain.com \
   -e API_KEY=ragent_xxxxx \
   openctemio/agent:platform
 ```
@@ -631,7 +631,7 @@ spec:
           image: openctemio/agent:platform
           env:
             - name: API_URL
-              value: "https://api.openctem.io"
+              value: "https://api.your-domain.com"
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
@@ -693,7 +693,7 @@ spec:
           image: openctemio/agent:platform
           env:
             - name: API_URL
-              value: "https://api.openctem.io"
+              value: "https://api.your-domain.com"
             - name: BOOTSTRAP_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -751,7 +751,7 @@ openctem-admin create token --max-uses=10 --expires=24h
 helm install platform-agent openctem/platform-agent \
   --namespace openctem \
   --create-namespace \
-  --set apiUrl=https://api.openctem.io \
+  --set apiUrl=https://api.your-domain.com \
   --set bootstrapToken=abc123.xxxxxxxxxxxxxxxx \
   --set replicaCount=3 \
   --set agent.region=us-east-1 \
@@ -770,7 +770,7 @@ openctem-admin create agent --name=k8s-pool --region=us-east-1 --capabilities=sa
 helm install platform-agent openctem/platform-agent \
   --namespace openctem \
   --create-namespace \
-  --set apiUrl=https://api.openctem.io \
+  --set apiUrl=https://api.your-domain.com \
   --set apiKey=ragent_xxxxx \
   --set useStatefulSet=false \
   --set replicaCount=3
@@ -789,7 +789,7 @@ kubectl create secret generic openctem-agent-creds \
 # 2. Install using existing secret
 helm install platform-agent openctem/platform-agent \
   --namespace openctem \
-  --set apiUrl=https://api.openctem.io \
+  --set apiUrl=https://api.your-domain.com \
   --set existingSecret.enabled=true \
   --set existingSecret.name=openctem-agent-creds \
   --set useStatefulSet=false
@@ -953,7 +953,7 @@ openctem-admin config view
 openctem-admin --verbose get agents
 
 # Verify network connectivity
-curl -v https://api.openctem.io/health
+curl -v https://api.your-domain.com/health
 ```
 
 ### Agent Not Registering

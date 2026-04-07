@@ -51,5 +51,5 @@ After completing the getting started guides:
 ## Need Help?
 
 - **Documentation**: Browse the sections in the left sidebar
-- **API Reference**: [api.openctem.io/docs](https://api.openctem.io/docs)
+- **API Reference**: [api.your-domain.com/docs](https://api.your-domain.com/docs)
 - **GitHub Issues**: [github.com/openctemio](https://github.com/openctemio)

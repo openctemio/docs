@@ -11,12 +11,12 @@ search_exclude: true
 
 Unified Attack Surface Management & Vulnerability Management
 
-[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://github.com/openctemio/api)
+[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://github.com/openctemio/api)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://github.com/openctemio/ui)
 [![Docker](https://img.shields.io/badge/Docker-Hub-2496ED?logo=docker)](https://hub.docker.com/u/openctemio)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-GPL-blue.svg)](LICENSE)
 
-[Website](https://openctem.io) | [Platform](https://app.openctem.io) | [API Docs](https://api.openctem.io/docs) | [Getting Started](./getting-started/)
+[Website](https://openctem.io) | [Platform](https://your-domain.com) | [API Docs](https://api.your-domain.com/docs) | [Getting Started](./getting-started/)
 
 ---
 
@@ -145,9 +145,9 @@ docker compose up -d
 
 | Service | Local | Production |
 |---------|-------|------------|
-| Frontend | http://localhost:3000 | https://app.openctem.io |
-| Backend API | http://localhost:8080 | https://api.openctem.io |
-| API Docs | http://localhost:8080/docs | https://api.openctem.io/docs |
+| Frontend | http://localhost:3000 | https://your-domain.com |
+| Backend API | http://localhost:8080 | https://api.your-domain.com |
+| API Docs | http://localhost:8080/docs | https://api.your-domain.com/docs |
 
 ---
 
@@ -209,4 +209,4 @@ If you find OpenCTEM useful, consider supporting the project:
 
 ## 📄 License
 
-MIT License - see [LICENSE](https://github.com/openctemio/api/blob/main/LICENSE)
+GPL License - see [LICENSE](https://github.com/openctemio/api/blob/main/LICENSE)

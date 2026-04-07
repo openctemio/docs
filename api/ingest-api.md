@@ -2392,7 +2392,7 @@ import (
 func main() {
     // Create client
     client := ingest.NewClient(
-        "https://api.openctem.io",
+        "https://api.your-domain.com",
         "your-api-key-here",
     )
 
@@ -2456,7 +2456,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     finding := ctis.Finding{
         Type:       "vulnerability",
@@ -2565,7 +2565,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     secrets := []ctis.Finding{
         {
@@ -2658,7 +2658,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     report := &ctis.Report{
         Version: "1.0",
@@ -2734,7 +2734,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     findings := []ctis.Finding{
         {
@@ -2815,7 +2815,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     finding := ctis.Finding{
         Type:     "vulnerability",
@@ -2892,7 +2892,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     assets := []ctis.Asset{
         {
@@ -3025,7 +3025,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     // Generate large report with many findings
     findings := make([]ctis.Finding, 50000)
@@ -3119,7 +3119,7 @@ func generateFingerprint(f ctis.Finding) string {
 }
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
     ctx := context.Background()
 
     // Findings from scanner
@@ -3196,7 +3196,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     // Get PR context from CI environment
     prNumber := os.Getenv("PR_NUMBER")
@@ -3276,7 +3276,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     reconInput := &ctis.ReconToCTISInput{
         ScannerName:    "subfinder",
@@ -3359,7 +3359,7 @@ import (
 )
 
 func main() {
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
 
     report := &ctis.Report{
         Version: "1.0",
@@ -3461,7 +3461,7 @@ func main() {
     }
 
     // Ingest to OpenCTEM
-    client := ingest.NewClient("https://api.openctem.io", "api-key")
+    client := ingest.NewClient("https://api.your-domain.com", "api-key")
     result, err := client.IngestCTIS(ctx, report)
     if err != nil {
         log.Fatalf("Ingestion failed: %v", err)
@@ -3499,7 +3499,7 @@ type Agent struct {
 
 func NewAgent(apiKey string) *Agent {
     return &Agent{
-        client:    ingest.NewClient("https://api.openctem.io", apiKey),
+        client:    ingest.NewClient("https://api.your-domain.com", apiKey),
         startTime: time.Now(),
         stopCh:    make(chan struct{}),
     }
@@ -3600,7 +3600,7 @@ func main() {
 from openctem import Client, CTISReport, Finding, Location
 
 client = Client(
-    base_url="https://api.openctem.io",
+    base_url="https://api.your-domain.com",
     api_key="your-api-key"
 )
 
@@ -3642,7 +3642,7 @@ print(f"Created {result.findings_created} findings")
 #### Basic CTIS Ingestion
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/agent/ingest/ctis \
+curl -X POST https://api.your-domain.com/api/v1/agent/ingest/ctis \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -3672,7 +3672,7 @@ curl -X POST https://api.openctem.io/api/v1/agent/ingest/ctis \
 
 ```bash
 # Compress and send
-cat report.json | gzip | curl -X POST https://api.openctem.io/api/v1/agent/ingest/ctis \
+cat report.json | gzip | curl -X POST https://api.your-domain.com/api/v1/agent/ingest/ctis \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -H "Content-Encoding: gzip" \
@@ -3682,7 +3682,7 @@ cat report.json | gzip | curl -X POST https://api.openctem.io/api/v1/agent/inges
 #### SARIF Ingestion
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
+curl -X POST https://api.your-domain.com/api/v1/agent/ingest/sarif \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d @codeql-results.sarif
@@ -3691,7 +3691,7 @@ curl -X POST https://api.openctem.io/api/v1/agent/ingest/sarif \
 #### Check Fingerprints
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/agent/ingest/check \
+curl -X POST https://api.your-domain.com/api/v1/agent/ingest/check \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"fingerprints": ["fp1", "fp2", "fp3"]}'
@@ -3700,7 +3700,7 @@ curl -X POST https://api.openctem.io/api/v1/agent/ingest/check \
 #### Heartbeat
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/agent/heartbeat \
+curl -X POST https://api.your-domain.com/api/v1/agent/heartbeat \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

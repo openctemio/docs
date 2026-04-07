@@ -164,7 +164,7 @@ Send notifications to any HTTP endpoint. The payload format:
   "title": "Critical Vulnerability Detected",
   "body": "SQL Injection found in login.php",
   "severity": "critical",
-  "url": "https://app.openctem.io/findings/abc123",
+  "url": "https://your-domain.com/findings/abc123",
   "fields": {
     "asset": "web-app-prod",
     "tool": "semgrep"

@@ -464,7 +464,7 @@ var upgrader = websocket.Upgrader{
     CheckOrigin: func(r *http.Request) bool {
         origin := r.Header.Get("Origin")
         // Allow trusted origins only
-        return origin == "https://app.openctem.io" ||
+        return origin == "https://your-domain.com" ||
                strings.HasSuffix(origin, ".openctem.io")
     },
 }
