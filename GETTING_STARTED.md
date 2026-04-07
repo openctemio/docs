@@ -16,7 +16,7 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 - 🔍 **Asset Discovery** - Auto-discover repositories, cloud resources, cloud resources
 - 🛡️ **Security Scanning** - SAST, SCA, secrets, IaC misconfigurations, infrastructure vulnerabilities  
 - 📊 **Risk Prioritization** - Configurable risk scoring with CTEM factors
-- 🔗 **Multi-Source Integration** - Aggregate findings from Wiz, Tenable, CrowdStrike, and more
+- 🔗 **Multi-Source Integration** - 8 built-in scanner integrations via Agent SDK
 
 ---
 
@@ -34,11 +34,11 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 
 ```bash
 # Clone the meta-repository
-git clone https://github.com/openctemio/openctem-platform.git
+git clone https://github.com/openctemio/openctemio.git
 cd openctemio
 
 # Initialize all sub-repositories (api, agent, ui, sdk)
-make setup
+make init-prod
 ```
 
 This clones the API, Agent, UI, and SDK repositories into your workspace.
@@ -49,7 +49,7 @@ This clones the API, Agent, UI, and SDK repositories into your workspace.
 
 ```bash
 # Start all services (PostgreSQL, Redis, API, UI)
-make up
+make prod-up
 
 # View logs (optional)
 make logs
@@ -156,10 +156,10 @@ This scans the current directory for:
 
 ```bash
 # Start platform
-make up
+make prod-up
 
 # Stop platform
-make down
+make prod-down
 
 # View logs
 make logs
@@ -212,7 +212,7 @@ Expected response: `{"status":"ok"}`
 
 - 📚 **Documentation:** [docs.openctem.io](https://docs.openctem.io)
 - 💬 **Discord:** [discord.gg/openctemio](https://discord.gg/openctemio)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/openctemio/openctem-platform/issues)
+- 🐛 **Issues:** [GitHub Issues](https://github.com/openctemio/openctemio/issues)
 
 ---
 

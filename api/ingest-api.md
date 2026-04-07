@@ -2703,7 +2703,7 @@ func main() {
                     CWEIDs:           []string{"CWE-502", "CWE-400"},
                     CVSSScore:        10.0,
                     CVSSVector:       "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
-                    EPSSScore:        0.97565,
+                    configurable risk scoringScore:        0.97565,
                     PackageName:      "log4j-core",
                     PURL:             "pkg:maven/org.apache.logging.log4j/log4j-core@2.14.1",
                     InstalledVersion: "2.14.1",
