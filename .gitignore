@@ -88,3 +88,9 @@ temp/
 search-index.json
 lunr-index.json
 algolia-index.json
+_commercial/
+_internal/
+internal/
+research/
+reviews/
+marketing/

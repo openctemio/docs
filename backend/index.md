@@ -7,7 +7,7 @@ nav_order: 3
 
 # Backend API Service
 
-[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://go.dev)
+[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://go.dev)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-Hub-2496ED?logo=docker)](https://hub.docker.com/r/openctemio/api)
 
@@ -36,7 +36,7 @@ Unified Exposure Management platform built with Clean Architecture in Go.
 
 | Component | Technology |
 |-----------|------------|
-| Language | Go 1.25+ |
+| Language | Go 1.26+ |
 | HTTP | Standard `net/http` |
 | Authentication | Local JWT / Keycloak OIDC |
 | Database | PostgreSQL 17 |
@@ -83,7 +83,7 @@ openctem/
 
 ### Prerequisites
 
-- Go 1.25+
+- Go 1.26+
 - Docker & Docker Compose
 - Make (optional)
 
