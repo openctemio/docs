@@ -154,10 +154,10 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `WIZ_CLIENT_ID` | No | - | Wiz API client ID |
-| `WIZ_CLIENT_SECRET` | No | - | Wiz API client secret |
-| `WIZ_AUTH_URL` | No | - | Wiz authentication URL |
-| `WIZ_API_URL` | No | - | Wiz API URL |
+| `WIZ_CLIENT_ID` | No | - | Wiz API client ID (planned) |
+| `WIZ_CLIENT_SECRET` | No | - | Wiz API client secret (planned) |
+| `WIZ_AUTH_URL` | No | - | Wiz auth URL (planned) |
+| `WIZ_API_URL` | No | - | Wiz API URL (planned) |
 | `TENABLE_ACCESS_KEY` | No | - | Tenable access key |
 | `TENABLE_SECRET_KEY` | No | - | Tenable secret key |
 

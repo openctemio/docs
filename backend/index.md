@@ -30,7 +30,7 @@ Unified Exposure Management platform built with Clean Architecture in Go.
 - **Exposure Detection** - Identify vulnerabilities and risks
 - **Attack Path Analysis** - Visualize attack vectors
 - **Risk Scoring** - Calculate and prioritize risks
-- **Multi-source Integration** - Wiz, Tenable, Snyk, CrowdStrike
+- **Multi-source Integration — 8 built-in scanners (Nuclei, Trivy, Semgrep, Gitleaks, Nmap, Subfinder, HTTPx, Katana)
 
 ## Tech Stack
 
