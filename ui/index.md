@@ -7,7 +7,7 @@ nav_order: 5
 
 # Project Documentation
 
-Complete documentation for the Next.js 16 application with Keycloak authentication and backend API integration.
+Complete documentation for the Next.js 16 application with Multi-provider authentication (Local, OAuth, OIDC, SSO) and backend API integration.
 
 ## 📁 Documentation Structure
 

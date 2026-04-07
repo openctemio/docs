@@ -111,7 +111,7 @@ src/
 ### Backend (api)
 
 **Technology Stack:**
-- Go 1.25
+- Go 1.26
 - Chi router (standard net/http)
 - PostgreSQL 17
 - Redis 7

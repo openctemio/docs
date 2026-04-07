@@ -64,7 +64,7 @@ Semgrep rules define static analysis patterns:
 ```yaml
 rules:
   - id: custom-hardcoded-secret
-    pattern: password = "$SECRET"
+    pattern: password = "YOUR_PASSWORD"
     message: Hardcoded password detected in source code
     severity: ERROR
     languages: [python, javascript, java]
