@@ -7,7 +7,6 @@ nav_order: 3
 
 # CTIS Finding Schema
 
-The Finding schema represents security findings including vulnerabilities, secrets, misconfigurations, compliance issues, and Web3 vulnerabilities.
 
 **Schema Location**: `schemas/ctis/v1/finding.json`
 
@@ -17,7 +16,6 @@ The Finding schema represents security findings including vulnerabilities, secre
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `type` | enum | Finding type: `vulnerability`, `secret`, `misconfiguration`, `compliance`, `web3` |
 | `title` | string | Short title |
 | `severity` | enum | Severity level: `critical`, `high`, `medium`, `low`, `info` |
 
@@ -66,7 +64,6 @@ The Finding schema represents security findings including vulnerabilities, secre
 | `secret` | [SecretDetails](#secretdetails) | Secret-specific details |
 | `misconfiguration` | [MisconfigurationDetails](#misconfigurationdetails) | Misconfiguration details |
 | `compliance` | [ComplianceDetails](#compliancedetails) | Compliance details |
-| `web3` | [Web3Finding](ctis-web3-finding.md) | Web3 vulnerability details |
 | `data_flow` | [DataFlow](#dataflow) | Taint tracking data flow |
 
 ### Metadata and Lifecycle
@@ -125,7 +122,6 @@ The Finding schema represents security findings including vulnerabilities, secre
 | `secret` | Exposed credential or secret |
 | `misconfiguration` | IaC/configuration issue |
 | `compliance` | Compliance violation |
-| `web3` | Smart contract vulnerability |
 
 ### Severity
 
@@ -537,5 +533,4 @@ Artifact or evidence attachment (SARIF attachment).
 
 ## Related Schemas
 
-- [Web3 Finding Schema](ctis-web3-finding.md) - Smart contract vulnerabilities
 - [Data Flow Tracking](../features/data-flow-tracking.md) - DataFlow field documentation
