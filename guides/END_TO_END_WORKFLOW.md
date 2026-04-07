@@ -303,7 +303,7 @@ agent:
   heartbeat_interval: 1m
 
 server:
-  base_url: https://api.openctem.io
+  base_url: https://api.your-domain.com
   api_key: your-api-key
 
 scanners:
@@ -372,7 +372,7 @@ func main() {
 
     // Push to platform
     apiClient := client.New(&client.Config{
-        BaseURL: "https://api.openctem.io",
+        BaseURL: "https://api.your-domain.com",
         APIKey:  os.Getenv("API_KEY"),
     })
 

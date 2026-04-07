@@ -58,7 +58,7 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: app.openctem.io
+    - host: your-domain.com
       paths:
         - path: /
           pathType: Prefix
@@ -69,7 +69,7 @@ ingress:
   tls:
     - secretName: openctem-tls
       hosts:
-        - app.openctem.io
+        - your-domain.com
 ```
 
 ### PostgreSQL StatefulSet

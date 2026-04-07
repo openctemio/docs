@@ -54,7 +54,7 @@ docker run --rm -v /path/to/project:/scan openctemio/agent:latest \
 
 # Push results to OpenCTEM platform
 docker run --rm -v $(pwd):/scan \
-    -e API_URL=https://api.openctem.io \
+    -e API_URL=https://api.your-domain.com \
     -e API_KEY=your-api-key \
     openctemio/agent:latest \
     -tools semgrep,gitleaks,trivy -target /scan -push -verbose
@@ -381,7 +381,7 @@ docker run --rm \
     -v $(pwd)/config.yaml:/config/config.yaml:ro \
     -v app-cache:/cache \
     -v $(pwd)/output:/output \
-    -e API_URL=https://api.openctem.io \
+    -e API_URL=https://api.your-domain.com \
     -e API_KEY=your-api-key \
     -e WORKER_ID=scanner-001 \
     ghcr.io/openctemio/agent:latest \

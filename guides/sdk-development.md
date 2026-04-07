@@ -476,7 +476,7 @@ func main() {
 
     // Create API client for pushing results
     pusher := client.New(&client.Config{
-        BaseURL: "https://api.openctem.io",
+        BaseURL: "https://api.your-domain.com",
         APIKey:  os.Getenv("API_KEY"),
     })
 
@@ -531,7 +531,7 @@ The SDK includes a ready-to-use CLI:
 go build -o agent ./cmd/agent
 
 # Run single scan
-./agent -tool semgrep -target /path/to/project -api-url https://api.openctem.io -api-key $API_KEY
+./agent -tool semgrep -target /path/to/project -api-url https://api.your-domain.com -api-key $API_KEY
 
 # Run as daemon with config file
 ./agent -daemon -config config.yaml
@@ -550,7 +550,7 @@ agent:
   verbose: true
 
 server:
-  base_url: https://api.openctem.io
+  base_url: https://api.your-domain.com
   api_key: ${API_KEY}
   timeout: 30s
 
@@ -735,7 +735,7 @@ import "github.com/openctemio/sdk-go/pkg/client"
 
 // Create API client
 c := client.New(&client.Config{
-    BaseURL: "https://api.openctem.io",
+    BaseURL: "https://api.your-domain.com",
     APIKey:  os.Getenv("API_KEY"),
     Timeout: 30 * time.Second,
     Verbose: true,
@@ -862,7 +862,7 @@ func main() {
 
     // Create API client (implements core.CommandClient)
     apiClient := client.New(&client.Config{
-        BaseURL:  "https://api.openctem.io",
+        BaseURL:  "https://api.your-domain.com",
         APIKey:   os.Getenv("API_KEY"),
         SourceID: os.Getenv("SOURCE_ID"), // For tenant tracking
         Verbose:  true,
@@ -932,7 +932,7 @@ import (
 
 // Create API client
 pusher := client.New(&client.Config{
-    BaseURL:  "https://api.openctem.io",
+    BaseURL:  "https://api.your-domain.com",
     APIKey:   os.Getenv("API_KEY"),
     SourceID: "src_abc123",
 })
@@ -1105,7 +1105,7 @@ When pushing data to OpenCTEM, tenant identification is done via API Key + Sourc
 ```go
 // Create client with Source ID
 client := client.New(&client.Config{
-    BaseURL:  "https://api.openctem.io",
+    BaseURL:  "https://api.your-domain.com",
     APIKey:   "rs_src_xxxxxxxxxxxxxxxxxxxxxxxx", // Identifies tenant
     SourceID: "src_abc123def456",                // Identifies this scanner/agent
     Timeout:  30 * time.Second,
@@ -1116,7 +1116,7 @@ client := client.New(&client.Config{
 
 ```http
 POST /api/v1/agent/ingest HTTP/1.1
-Host: api.openctem.io
+Host: api.your-domain.com
 Content-Type: application/json
 Authorization: Bearer rs_src_xxxxxxxxxxxxxxxxxxxxxxxx
 X-OpenCTEM-Source-ID: src_abc123def456
@@ -1128,7 +1128,7 @@ User-Agent: sdk/1.0
 Sources should be registered via the OpenCTEM API or UI before use:
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/sources \
+curl -X POST https://api.your-domain.com/api/v1/sources \
   -H "Authorization: Bearer $USER_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -1332,7 +1332,7 @@ import (
 
 // Create API client
 pusher := client.New(&client.Config{
-    BaseURL: "https://api.openctem.io",
+    BaseURL: "https://api.your-domain.com",
     APIKey:  os.Getenv("API_KEY"),
 })
 
@@ -1867,7 +1867,7 @@ func main() {
 
     // 3. Initialize handler
     pusher := client.New(&client.Config{
-        BaseURL: "https://api.openctem.io",
+        BaseURL: "https://api.your-domain.com",
         APIKey:  os.Getenv("API_KEY"),
     })
     h := handler.NewRemoteHandler(&handler.RemoteHandlerConfig{
@@ -1929,7 +1929,7 @@ import (
 
 // Create client with retry enabled
 c := client.New(&client.Config{
-    BaseURL:       "https://api.openctem.io",
+    BaseURL:       "https://api.your-domain.com",
     APIKey:        os.Getenv("API_KEY"),
     RetryEnabled:  true,                        // Enable retry queue
     RetryQueueDir: "/var/lib/openctem/queue",    // Queue storage path
@@ -2302,7 +2302,7 @@ health.SetReady(false)
 ```go
 // HTTP endpoint check
 h.Register("api", &health.HTTPCheck{
-    URL:     "https://api.openctem.io/health",
+    URL:     "https://api.your-domain.com/health",
     Timeout: 5 * time.Second,
 })
 

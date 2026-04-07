@@ -20,7 +20,7 @@ cp agent.yaml.template agent.yaml
 2. Update with your settings:
 ```yaml
 server:
-  base_url: "https://api.openctem.io"
+  base_url: "https://api.your-domain.com"
   api_key: "your-api-key"
 ```
 
@@ -40,7 +40,7 @@ agent:
   name: "My Scanner"
 
 server:
-  base_url: "https://api.openctem.io"
+  base_url: "https://api.your-domain.com"
   api_key: "your-api-key"
 
 scanners:
@@ -61,7 +61,7 @@ agent:
 
 # Platform Connection
 server:
-  base_url: "https://api.openctem.io"
+  base_url: "https://api.your-domain.com"
   api_key: "your-api-key"
   worker_id: ""  # Auto-generated if empty
   timeout: 30s
@@ -269,7 +269,7 @@ docker run --rm \
 # With environment variables
 docker run --rm \
   -v $(pwd):/scan \
-  -e API_URL=https://api.openctem.io \
+  -e API_URL=https://api.your-domain.com \
   -e API_KEY=your-key \
   openctemio/agent:latest \
   -tools semgrep,gitleaks,trivy -target /scan -push

@@ -702,7 +702,7 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 
 | Area | Status | Details |
 |------|--------|---------|
-| Codebase | 511K+ LOC | Go API + Next.js UI + Go SDK |
+| Codebase | Production-ready | Go API + Next.js UI + Go SDK |
 | Domain Entities | 44 | Full CTEM coverage |
 | Route Groups | 54 | All API endpoints wired |
 | UI Pages | 161 | 0 placeholder pages remaining |

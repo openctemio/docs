@@ -8,7 +8,7 @@ permalink: /features/platform-overview/
 
 # Platform Overview
 
-OpenCTEM is a Continuous Threat Exposure Management (CTEM) platform with 511K+ LOC, 44 domain entities, 54 route groups, 161 UI pages, and 14,000+ tests.
+OpenCTEM is a Continuous Threat Exposure Management (CTEM) platform with production-ready, 35+ domain entities, 50+ route groups, 172 UI pages, and comprehensive test suite.
 
 ---
 
@@ -27,7 +27,7 @@ All API services have dedicated unit tests covering CRUD operations, validation,
 
 ### Feature Completeness
 
-All 161 UI pages are fully implemented — zero placeholder pages remain. Every feature has complete backend API, frontend UI, and test coverage.
+All 172 UI pages are fully implemented — zero placeholder pages remain. Every feature has complete backend API, frontend UI, and test coverage.
 
 ### Observability & Monitoring
 
@@ -122,7 +122,7 @@ Performance optimization: incremental access refresh for scope rule changes uses
                           │
 ┌─────────────────────────▼───────────────────────────┐
 │                    API (Go + Chi)                     │
-│  54 route groups, 44 domain entities, DDD arch       │
+│  50+ route groups, 35+ domain entities, DDD arch       │
 │  OpenTelemetry tracing, structured logging           │
 └───────┬─────────────────┬───────────────────┬───────┘
         │                 │                   │

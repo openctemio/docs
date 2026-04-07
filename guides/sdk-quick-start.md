@@ -69,7 +69,7 @@ func main() {
 
     // 4. Push to OpenCTEM platform
     apiClient := client.New(&client.Config{
-        BaseURL: "https://api.openctem.io",
+        BaseURL: "https://api.your-domain.com",
         APIKey:  os.Getenv("API_KEY"),
     })
 
@@ -150,7 +150,7 @@ result, err := scanner.Scan(ctx, target, &core.ScanOptions{
 import "github.com/openctemio/sdk-go/pkg/client"
 
 apiClient := client.New(&client.Config{
-    BaseURL:  "https://api.openctem.io",
+    BaseURL:  "https://api.your-domain.com",
     APIKey:   os.Getenv("API_KEY"),
     WorkerID: "worker-uuid",  // Optional: for tracking
     Timeout:  30 * time.Second,

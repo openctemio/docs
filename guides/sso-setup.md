@@ -48,7 +48,7 @@ Before configuring SSO you need:
    APP_ENCRYPTION_KEY=<your-64-character-hex-string>
    ```
 
-4. **Your OpenCTEM base URL** -- you need to know the public URL of your deployment (e.g., `https://app.openctem.io`) to configure redirect URIs.
+4. **Your OpenCTEM base URL** -- you need to know the public URL of your deployment (e.g., `https://your-domain.com`) to configure redirect URIs.
 
 ---
 
@@ -259,7 +259,7 @@ Example `.env` excerpt:
 ```bash
 APP_ENCRYPTION_KEY=a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
 AUTH_JWT_SECRET=your-64-character-minimum-jwt-secret-here-make-it-long-enough-please
-CORS_ALLOWED_ORIGINS=https://app.openctem.io
+CORS_ALLOWED_ORIGINS=https://your-domain.com
 ```
 
 ### 7.2 Admin API Endpoints
