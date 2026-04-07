@@ -16,7 +16,15 @@ Unified Attack Surface Management & Vulnerability Management
 [![Docker](https://img.shields.io/badge/Docker-Hub-2496ED?logo=docker)](https://hub.docker.com/u/openctemio)
 [![License](https://img.shields.io/badge/License-GPL-blue.svg)](LICENSE)
 
-[Website](https://openctem.io) | [Platform](https://your-domain.com) | [API Docs](https://api.your-domain.com/docs) | [Getting Started](./getting-started/)
+[Website](https://openctem.io) | [GitHub](https://github.com/openctemio) | [Getting Started](./guides/getting-started.md)
+
+## Documentation
+
+| Guide | Audience | Description |
+|-------|----------|-------------|
+| [User Guide](USER_GUIDE.md) | Security teams, analysts | How to use the platform day-to-day |
+| [Admin Guide](ADMIN_GUIDE.md) | DevOps, SRE, admins | Deployment, configuration, operations |
+| [Developer Guide](DEVELOPER_GUIDE.md) | Contributors, integrators | Architecture, API, SDK, contributing |
 
 ---
 
