@@ -616,7 +616,6 @@ Server should rate limit command creation per tenant.
 | Scheduling | Server-side | Server-side | Server + Agent |
 | Real-time updates | Yes (WS) | Limited | Optional (WS) |
 | Offline capability | Limited | Limited | Full (standalone mode) |
-| Multi-tenant | Enterprise only | Enterprise only | Built-in |
 
 ---
 

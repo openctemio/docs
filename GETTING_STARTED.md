@@ -24,7 +24,7 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 
 - **Docker & Docker Compose** (required)
 - **Git** (required)
-- **Go 1.25+** (optional, for development)
+- **Go 1.26+** (optional, for development)
 
 ---
 
