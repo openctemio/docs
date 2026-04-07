@@ -99,7 +99,7 @@ docker pull openctemio/agent:ci      # CI/CD optimized (~1.2GB)
 
 ```bash
 # Set credentials
-export API_URL=https://api.openctem.io
+export API_URL=https://api.your-domain.com
 export API_KEY=rdw_your_api_key_here
 
 # Run a scan and push results
@@ -321,7 +321,7 @@ agent:
 
 # Platform connection
 server:
-  base_url: "https://api.openctem.io"
+  base_url: "https://api.your-domain.com"
   api_key: "rdw_your_api_key"
   agent_id: ""  # Auto-generated if empty
   timeout: 30s
@@ -988,7 +988,7 @@ docker run --rm openctemio/agent:nuclei \
 ```bash
 docker run --rm \
     -v $(pwd):/scan \
-    -e API_URL=https://api.openctem.io \
+    -e API_URL=https://api.your-domain.com \
     -e API_KEY=rdw_your_api_key \
     openctemio/agent:latest \
     -tools semgrep,gitleaks,trivy \
@@ -1208,7 +1208,7 @@ Platform mode enables the agent to be managed by the OpenCTEM platform, receivin
 ```bash
 # First-time registration
 ./agent -platform \
-  -api-url https://api.openctem.io \
+  -api-url https://api.your-domain.com \
   -bootstrap-token abc123.xxxxxxxx \
   -region us-east-1 \
   -enable-recon \
@@ -1216,7 +1216,7 @@ Platform mode enables the agent to be managed by the OpenCTEM platform, receivin
 
 # Subsequent runs (uses stored credentials)
 ./agent -platform \
-  -api-url https://api.openctem.io \
+  -api-url https://api.your-domain.com \
   -region us-east-1
 ```
 
@@ -1225,7 +1225,7 @@ Platform mode enables the agent to be managed by the OpenCTEM platform, receivin
 ```yaml
 # platform-agent.yaml
 platform:
-  api_url: https://api.openctem.io
+  api_url: https://api.your-domain.com
   credentials_file: ~/.openctem/agent-credentials.json
   region: us-east-1
   max_concurrent: 5

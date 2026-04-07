@@ -502,7 +502,7 @@ For each suppression, create an equivalent platform rule:
 
 ```bash
 # Convert .semgrepignore entry to API call
-curl -X POST https://api.openctem.io/api/v1/suppressions \
+curl -X POST https://api.your-domain.com/api/v1/suppressions \
   -H "Authorization: Bearer $API_KEY" \
   -d '{
     "path_pattern": "tests/fixtures/**",

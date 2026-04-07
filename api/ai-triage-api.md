@@ -26,7 +26,7 @@ Required permission: `findings:write` for POST requests, `findings:read` for GET
 ## Base URL
 
 ```
-https://api.openctem.io/api/v1
+https://api.your-domain.com/api/v1
 ```
 
 ---
@@ -83,7 +83,7 @@ POST /findings/{finding_id}/ai-triage
 #### Example
 
 ```bash
-curl -X POST "https://api.openctem.io/api/v1/findings/01HQ5K7N.../ai-triage" \
+curl -X POST "https://api.your-domain.com/api/v1/findings/01HQ5K7N.../ai-triage" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"mode": "quick"}'

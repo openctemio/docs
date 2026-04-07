@@ -276,7 +276,7 @@ jobs:
       - name: Run OpenCTEM Scan
         id: scan
         run: |
-          RESULT=$(curl -s -X POST https://api.openctem.io/api/v1/scans \
+          RESULT=$(curl -s -X POST https://api.your-domain.com/api/v1/scans \
             -H "Authorization: Bearer ${{ secrets.OPENCTEM_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -291,7 +291,7 @@ jobs:
 
           # Wait for scan completion and check quality gate
           while true; do
-            STATUS=$(curl -s "https://api.openctem.io/api/v1/scans/$SCAN_ID" \
+            STATUS=$(curl -s "https://api.your-domain.com/api/v1/scans/$SCAN_ID" \
               -H "Authorization: Bearer ${{ secrets.OPENCTEM_TOKEN }}" \
               | jq -r '.status')
 
@@ -302,7 +302,7 @@ jobs:
           done
 
           # Check quality gate result
-          PASSED=$(curl -s "https://api.openctem.io/api/v1/scans/$SCAN_ID" \
+          PASSED=$(curl -s "https://api.your-domain.com/api/v1/scans/$SCAN_ID" \
             -H "Authorization: Bearer ${{ secrets.OPENCTEM_TOKEN }}" \
             | jq -r '.quality_gate_result.passed')
 
@@ -320,7 +320,7 @@ security-scan:
   stage: test
   script:
     - |
-      RESULT=$(curl -s -X POST https://api.openctem.io/api/v1/scans \
+      RESULT=$(curl -s -X POST https://api.your-domain.com/api/v1/scans \
         -H "Authorization: Bearer $OPENCTEM_TOKEN" \
         -H "Content-Type: application/json" \
         -d "{
@@ -334,7 +334,7 @@ security-scan:
 
       # Poll for completion
       while true; do
-        SCAN=$(curl -s "https://api.openctem.io/api/v1/scans/$SCAN_ID" \
+        SCAN=$(curl -s "https://api.your-domain.com/api/v1/scans/$SCAN_ID" \
           -H "Authorization: Bearer $OPENCTEM_TOKEN")
         STATUS=$(echo $SCAN | jq -r '.status')
 

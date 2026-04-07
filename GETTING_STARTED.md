@@ -13,9 +13,9 @@ Get your security platform running in **5 minutes**.
 OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that helps you discover assets, scan for vulnerabilities, and prioritize remediation across your entire attack surface.
 
 **Key Capabilities:**
-- 🔍 **Asset Discovery** - Auto-discover repositories, cloud resources, smart contracts
-- 🛡️ **Security Scanning** - SAST, SCA, secrets, IaC misconfigurations, Web3 vulnerabilities  
-- 📊 **Risk Prioritization** - AI-powered scoring with EPSS and threat intelligence
+- 🔍 **Asset Discovery** - Auto-discover repositories, cloud resources, cloud resources
+- 🛡️ **Security Scanning** - SAST, SCA, secrets, IaC misconfigurations, infrastructure vulnerabilities  
+- 📊 **Risk Prioritization** - Configurable risk scoring with CTEM factors
 - 🔗 **Multi-Source Integration** - Aggregate findings from Wiz, Tenable, CrowdStrike, and more
 
 ---

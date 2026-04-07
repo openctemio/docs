@@ -351,7 +351,7 @@ Configuration for the nginx reverse proxy that serves both UI and API domains.
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `NGINX_HOST` | Yes | `localhost` | UI domain (e.g., `openctem.io`) |
-| `API_HOST` | Yes | `api.localhost` | API domain (e.g., `api.openctem.io`) |
+| `API_HOST` | Yes | `api.localhost` | API domain (e.g., `api.your-domain.com`) |
 
 ### Configuration by Environment
 
@@ -370,7 +370,7 @@ API_HOST=api.staging.openctem.io
 #### Production
 ```bash
 NGINX_HOST=openctem.io
-API_HOST=api.openctem.io
+API_HOST=api.your-domain.com
 ```
 
 ### Rate Limiting

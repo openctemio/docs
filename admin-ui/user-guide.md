@@ -283,7 +283,7 @@ After creating a token, use it to register a platform agent:
 ```bash
 ./agent -platform \
   -bootstrap-token=<full-token> \
-  -api-url=https://api.openctem.io \
+  -api-url=https://api.your-domain.com \
   -region=us-east-1
 ```
 

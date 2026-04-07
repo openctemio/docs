@@ -67,7 +67,7 @@ go install github.com/openctemio/agent@latest
 agent -tools semgrep,trivy,gitleaks \
       -target . \
       -push \
-      -api-url https://api.openctem.io \
+      -api-url https://api.your-domain.com \
       -api-key $API_KEY
 ```
 
@@ -85,7 +85,7 @@ import (
 func main() {
     // Initialize client
     c := client.New(&client.Config{
-        BaseURL:  "https://api.openctem.io",
+        BaseURL:  "https://api.your-domain.com",
         APIKey:   os.Getenv("OPENCTEM_API_KEY"),
         WorkerID: "my-integration-001",
     })
@@ -108,7 +108,7 @@ func main() {
 Call the REST API directly.
 
 ```bash
-curl -X POST https://api.openctem.io/api/v1/agent/ingest \
+curl -X POST https://api.your-domain.com/api/v1/agent/ingest \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -231,6 +231,6 @@ security-scan:
 ## Support
 
 - **Documentation**: https://docs.openctem.io
-- **API Reference**: https://api.openctem.io/docs
+- **API Reference**: https://api.your-domain.com/docs
 - **SDK Source**: https://github.com/openctemio/sdk-go
 {% endraw %}

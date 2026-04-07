@@ -108,7 +108,7 @@ Create `values.yaml`:
 ```yaml
 # values.yaml
 global:
-  domain: app.openctem.io
+  domain: your-domain.com
   tlsEnabled: true
 
 api:
@@ -125,7 +125,7 @@ api:
       cpu: "1000m"
   env:
     AUTH_PROVIDER: local  # or "oidc" for Keycloak
-    CORS_ALLOWED_ORIGINS: "https://app.openctem.io"
+    CORS_ALLOWED_ORIGINS: "https://your-domain.com"
     LOG_LEVEL: info
 
 ui:
@@ -168,14 +168,14 @@ ingress:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
-    - host: app.openctem.io
+    - host: your-domain.com
       paths:
         - path: /
           pathType: Prefix
   tls:
     - secretName: openctem-tls
       hosts:
-        - app.openctem.io
+        - your-domain.com
 ```
 
 ---
@@ -275,7 +275,7 @@ kubectl exec -it deployment/openctem-api --namespace openctem -- \
    kubectl get ingress openctem-ingress --namespace openctem
    ```
 
-2. Navigate to your domain: `https://app.openctem.io`
+2. Navigate to your domain: `https://your-domain.com`
 
 3. Login with default credentials (change immediately):
    - Email: `admin@openctem.io`
@@ -345,8 +345,8 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       AUTH_JWT_SECRET: ${JWT_SECRET}
       CSRF_SECRET: ${CSRF_SECRET}
-      CORS_ALLOWED_ORIGINS: https://app.openctem.io
-      NEXT_PUBLIC_APP_URL: https://app.openctem.io
+      CORS_ALLOWED_ORIGINS: https://your-domain.com
+      NEXT_PUBLIC_APP_URL: https://your-domain.com
       LOG_LEVEL: info
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
@@ -361,7 +361,7 @@ services:
       - api
     environment:
       BACKEND_API_URL: http://api:8080
-      NEXT_PUBLIC_APP_URL: https://app.openctem.io
+      NEXT_PUBLIC_APP_URL: https://your-domain.com
       CSRF_SECRET: ${CSRF_SECRET}
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
@@ -402,13 +402,13 @@ upstream api {
 
 server {
     listen 80;
-    server_name app.openctem.io;
+    server_name your-domain.com;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name app.openctem.io;
+    server_name your-domain.com;
 
     ssl_certificate /etc/nginx/ssl/fullchain.pem;
     ssl_certificate_key /etc/nginx/ssl/privkey.pem;
@@ -447,13 +447,13 @@ sudo apt install certbot
 
 # Generate certificate
 sudo certbot certonly --standalone \
-  -d app.openctem.io \
+  -d your-domain.com \
   --email admin@openctem.io \
   --agree-tos
 
 # Copy certificates
-sudo cp /etc/letsencrypt/live/app.openctem.io/fullchain.pem ./ssl/
-sudo cp /etc/letsencrypt/live/app.openctem.io/privkey.pem ./ssl/
+sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ./ssl/
+sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ./ssl/
 ```
 
 ---
@@ -540,10 +540,10 @@ All services expose health endpoints:
 
 ```bash
 # API
-curl https://app.openctem.io/api/health
+curl https://your-domain.com/api/health
 
 # UI (via proxy)
-curl https://app.openctem.io/api/health
+curl https://your-domain.com/api/health
 ```
 
 ### Metrics (Prometheus)

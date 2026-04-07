@@ -126,7 +126,7 @@ agent:
 
 # OpenCTEM Platform Connection
 server:
-  base_url: https://api.openctem.io   # Your OpenCTEM API URL
+  base_url: https://api.your-domain.com   # Your OpenCTEM API URL
   api_key: rda_xxxxxxxxxxxxxxxxxx    # API key from Step 2
   agent_id: 76d81868-25cd-...        # Optional: Agent UUID from UI
   timeout: 30s
@@ -155,7 +155,7 @@ targets:
 You can also use environment variables:
 
 ```bash
-export API_URL=https://api.openctem.io
+export API_URL=https://api.your-domain.com
 export API_KEY=rda_xxxxxxxxxxxxxxxxxx
 export AGENT_ID=76d81868-25cd-45e6-ba66-6adfda4d0573
 ```
@@ -362,7 +362,7 @@ agent:
 
 ### Manually via API
 ```bash
-curl -X POST https://api.openctem.io/api/v1/commands \
+curl -X POST https://api.your-domain.com/api/v1/commands \
   -H "Authorization: Bearer $JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -567,7 +567,7 @@ openctem-admin create token --max-uses=5 --expires=24h
 #   abc123.xxxxxxxxxxxxxxxx
 #
 # Use this token to register a platform agent:
-#   ./agent -platform -bootstrap-token=abc123.xxxxxxxxxxxxxxxx -api-url=https://api.openctem.io
+#   ./agent -platform -bootstrap-token=abc123.xxxxxxxxxxxxxxxx -api-url=https://api.your-domain.com
 ```
 
 #### Step 2: Start the Agent with Bootstrap Token
@@ -576,7 +576,7 @@ openctem-admin create token --max-uses=5 --expires=24h
 # Binary - with specific executors enabled
 ./agent -platform \
   -bootstrap-token=abc123.xxxxxxxxxxxxxxxx \
-  -api-url=https://api.openctem.io \
+  -api-url=https://api.your-domain.com \
   -region=us-east-1 \
   -enable-recon \
   -enable-vulnscan \
@@ -587,14 +587,14 @@ docker run -d \
   --name platform-agent \
   --restart unless-stopped \
   -e BOOTSTRAP_TOKEN=abc123.xxxxxxxxxxxxxxxx \
-  -e API_URL=https://api.openctem.io \
+  -e API_URL=https://api.your-domain.com \
   -v agent-data:/home/openctem/.openctem \
   openctemio/agent:platform
 
 # Hybrid build (uses Go libraries for better performance)
 ./agent -platform \
   -bootstrap-token=abc123.xxxxxxxxxxxxxxxx \
-  -api-url=https://api.openctem.io \
+  -api-url=https://api.your-domain.com \
   -region=us-east-1 \
   -enable-recon
 ```
@@ -627,7 +627,7 @@ helm repo update
 helm install platform-agent openctem/platform-agent \
   --namespace openctem \
   --create-namespace \
-  --set apiUrl=https://api.openctem.io \
+  --set apiUrl=https://api.your-domain.com \
   --set bootstrapToken=abc123.xxxxxxxxxxxxxxxx \
   --set replicaCount=3 \
   --set agent.region=us-east-1
@@ -635,7 +635,7 @@ helm install platform-agent openctem/platform-agent \
 # Or install with pre-assigned API key
 helm install platform-agent openctem/platform-agent \
   --namespace openctem \
-  --set apiUrl=https://api.openctem.io \
+  --set apiUrl=https://api.your-domain.com \
   --set apiKey=ragent_xxxxx \
   --set useStatefulSet=false
 ```

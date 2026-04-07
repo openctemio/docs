@@ -136,7 +136,7 @@ agent:
   renew_interval: 20s
 
 api:
-  base_url: "https://api.openctem.io"
+  base_url: "https://api.your-domain.com"
 
 executors:
   recon:

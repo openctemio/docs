@@ -85,7 +85,7 @@ This document describes the different ways to deploy and use the OpenCTEM SDK ba
    .openctem scan \
       --tool semgrep \
       --target . \
-      --api-url https://api.openctem.io \
+      --api-url https://api.your-domain.com \
       --api-key ${{ secrets.API_KEY }} \
       --source-id ${{ secrets.SOURCE_ID }} \
       --push
@@ -197,7 +197,7 @@ collectors:
     poll_interval: 1h            # Collect from GitHub every hour
 
 server:
-  base_url: https://api.openctem.io
+  base_url: https://api.your-domain.com
   api_key: ${API_KEY}
   source_id: ${SOURCE_ID}
 ```

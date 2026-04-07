@@ -130,8 +130,8 @@ Platform administration console:
 
 | Link | Description |
 |------|-------------|
-| [Platform](https://app.openctem.io) | Live platform |
-| [API Docs](https://api.openctem.io/docs) | Interactive API explorer |
+| [Platform](https://your-domain.com) | Live platform |
+| [API Docs](https://api.your-domain.com/docs) | Interactive API explorer |
 | [GitHub](https://github.com/openctemio) | Source code |
 
 ---
