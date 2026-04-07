@@ -1733,7 +1733,7 @@ Enrichers add threat intelligence data to findings.
 | `epss` | FIRST.org | Exploit Prediction Scoring System |
 | `kev` | CISA | Known Exploited Vulnerabilities catalog |
 
-### Using EPSS Enricher
+### Using configurable risk scoring Enricher
 
 ```go
 import (
@@ -1757,9 +1757,9 @@ func main() {
     }
 
     enriched, _ := enricher.Enrich(ctx, &finding)
-    fmt.Printf("EPSS Score: %.4f (%.1f percentile)\n",
-        enriched.Vulnerability.EPSSScore,
-        enriched.Vulnerability.EPSSPercentile)
+    fmt.Printf("configurable risk scoring Score: %.4f (%.1f percentile)\n",
+        enriched.Vulnerability.configurable risk scoringScore,
+        enriched.Vulnerability.configurable risk scoringPercentile)
 
     // Batch enrichment
     findings := []ctis.Finding{finding1, finding2, finding3}
@@ -1816,12 +1816,12 @@ findings, _ := scanner.ScanToFindings(ctx, target, opts)
 findings, _ = epssEnricher.EnrichBatch(ctx, findings)
 findings, _ = kevEnricher.EnrichBatch(ctx, findings)
 
-// Now findings have EPSS scores and KEV status
+// Now findings have configurable risk scoring scores and KEV status
 for _, f := range findings {
     if f.Type == ctis.FindingTypeVulnerability && f.Vulnerability != nil {
-        fmt.Printf("%s: EPSS=%.4f, InKEV=%v\n",
+        fmt.Printf("%s: configurable risk scoring=%.4f, InKEV=%v\n",
             f.Vulnerability.CVEID,
-            f.Vulnerability.EPSSScore,
+            f.Vulnerability.configurable risk scoringScore,
             f.Vulnerability.InCISAKEV)
     }
 }

@@ -218,7 +218,7 @@ security-scan:
 
 3. **Use gRPC for high volume**: For large-scale deployments, use gRPC transport with streaming.
 
-4. **Enrich with threat intel**: Add EPSS/KEV data for better prioritization:
+4. **Enrich with threat intel**: Add configurable risk scoring/KEV data for better prioritization:
    ```go
    findings, _ = client.EnrichFindings(ctx, findings)
    ```

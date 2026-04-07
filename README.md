@@ -42,7 +42,7 @@ OpenCTEM is an enterprise-grade **Continuous Threat Exposure Management (CTEM)**
 
 | Category | Features |
 |----------|----------|
-| **Asset Management** | 6 asset types (Domains, Websites, Services, Repositories, Cloud, Credentials) |
+| **Asset Management** | 35+ asset types (Domains, IPs, Certificates, Cloud, Containers, K8s, IAM, Repositories, and more) |
 | **Vulnerability Management** | Findings, CVE tracking, CVSS scoring, SLA policies |
 | **Scan Management** | Agents, Scan Profiles, Pipelines, Tool Categories |
 | **Multi-tenancy** | Teams, Role-based access (Owner/Admin/Member/Viewer) |
