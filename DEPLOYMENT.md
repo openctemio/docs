@@ -104,7 +104,7 @@
 
 | Thành phần         | Công nghệ                        | Vai trò                                            |
 | ------------------ | -------------------------------- | -------------------------------------------------- |
-| **API Backend**    | Go 1.25+, Chi Router, DDD        | Xử lý business logic, REST + gRPC API              |
+| **API Backend**    | Go 1.26+, Chi Router, DDD        | Xử lý business logic, REST + gRPC API              |
 | **UI Frontend**    | Next.js 16, React 19, TypeScript | Giao diện người dùng, SSR/CSR                      |
 | **Admin UI**       | Next.js (Optional)               | Console quản trị nền tảng                          |
 | **PostgreSQL**     | v17-alpine                       | Lưu trữ dữ liệu chính, multi-tenant                |

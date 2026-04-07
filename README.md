@@ -155,7 +155,7 @@ docker compose up -d
 
 | Component | Technologies |
 |-----------|-------------|
-| **Backend** | Go 1.25, Chi Router, PostgreSQL 17, Redis 7 |
+| **Backend** | Go 1.26, Chi Router, PostgreSQL 17, Redis 7 |
 | **Frontend** | Next.js 16, React 19, TypeScript, Tailwind 4 |
 | **Auth** | JWT (local) / Keycloak (OIDC) |
 | **SDK** | Go SDK with Scanner/Parser/Collector interfaces |
