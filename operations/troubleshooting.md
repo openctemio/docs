@@ -241,25 +241,48 @@ Access to fetch at 'http://localhost:8080' from origin 'http://localhost:3000' h
 
 ### API Connection Failed
 
-**Symptom:** Network errors when calling API
+**Symptom:** Network errors when calling API, or login response shows:
+```
+{"success":false,"error":"fetch failed"}
+```
+
+This means the **Next.js server** (UI container) cannot reach the **backend API**.
+There is only ONE env var: `BACKEND_API_URL` (server-side only). Client-side
+requests are proxied through Next.js at `/api/v1/*`.
 
 **Solutions:**
 
-1. **Verify backend is running:**
+1. **Verify backend is running and reachable from UI container:**
    ```bash
-   curl http://localhost:8080/health
+   docker exec -it <ui-container> wget -qO- $BACKEND_API_URL/health
+   # Should return: {"status":"healthy"}
    ```
 
-2. **Check environment variable:**
+2. **Check environment variable inside UI container:**
    ```bash
-   # In ui/.env.local
-   BACKEND_API_URL=http://localhost:8080
+   docker exec -it <ui-container> printenv | grep BACKEND_API_URL
    ```
 
-3. **Restart frontend after env changes:**
+   Common correct values:
+   | Setup | Value |
+   |-------|-------|
+   | docker-compose (service name `api`) | `http://api:8080` |
+   | Kubernetes (default namespace) | `http://api:8080` |
+   | Kubernetes (cross-namespace) | `http://api.openctem.svc.cluster.local:8080` |
+   | Local dev (UI in container, API on host) | `http://host.docker.internal:8080` |
+   | Local dev (both on host) | `http://localhost:8080` |
+
+3. **Common pitfalls:**
+   - Helm chart was setting `BACKEND_URL` instead of `BACKEND_API_URL` (fixed in
+     latest chart). If you see this on an old deployment, upgrade the chart.
+   - `localhost` from inside a container points to the container itself, not the
+     host. Use the service name or `host.docker.internal`.
+   - HTTPS with self-signed certs: Node.js rejects them. Use HTTP for the
+     internal URL or install the cert into the container's trust store.
+
+4. **Restart frontend after env changes:**
    ```bash
-   # Stop and restart
-   npm run dev
+   docker restart <ui-container>
    ```
 
 ### Authentication Not Working

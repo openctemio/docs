@@ -49,8 +49,9 @@ Frontend (Next.js) → API Client → Backend API
 ### 1. Configure Backend URL
 
 ```bash
-# .env.local
-NEXT_PUBLIC_BACKEND_API_URL=https://your-backend-api.com
+# .env.local — server-side only (single source of truth)
+# Client-side requests proxied through Next.js at /api/v1/*
+BACKEND_API_URL=http://api:8080
 ```
 
 ### 2. Use in Components
@@ -94,11 +95,9 @@ export function UsersPage() {
 ### Environment Variables
 
 ```env
-# Required - Your backend API base URL
-NEXT_PUBLIC_BACKEND_API_URL=https://api.example.com
-
-# Optional - Server-side only (for Server Components)
-BACKEND_API_URL=https://api.example.com
+# Required - Backend API URL (server-side only — single source of truth)
+# Client-side requests proxied through Next.js at /api/v1/*
+BACKEND_API_URL=http://api:8080
 
 # Optional - Request timeout (default: 30000ms)
 API_TIMEOUT=30000
@@ -759,8 +758,8 @@ app.use(cors({
 **Problem:** `Network error - please check your connection`
 
 **Solutions:**
-1. Check `NEXT_PUBLIC_BACKEND_API_URL` is correct
-2. Verify backend is running
+1. Check `BACKEND_API_URL` is correct (server-side only)
+2. Verify backend is running and reachable from the Next.js container
 3. Check firewall/proxy settings
 
 ### TypeScript Errors
@@ -784,7 +783,7 @@ export interface User {
 
 ## Next Steps
 
-1. **Configure Environment:** Set `NEXT_PUBLIC_BACKEND_API_URL` in `.env.local`
+1. **Configure Environment:** Set `BACKEND_API_URL` in `.env.local`
 2. **Customize Types:** Update `src/lib/api/types.ts` for your backend schema
 3. **Add Endpoints:** Add more endpoints in `src/lib/api/endpoints.ts`
 4. **Create Hooks:** Create domain-specific hooks for your features
