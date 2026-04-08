@@ -326,7 +326,7 @@ console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
 
 - [Architecture](../architecture.md) - System architecture overview
 - [API_INTEGRATION.md](./API_INTEGRATION.md) - API integration patterns
-- [DEPLOYMENT.md](./DEPLOYMENT.md) - Deployment guide
+- [guides/getting-started.md](./guides/getting-started.md) - Deployment guide
 - [Docker Compose](../docker-compose.staging.yml) - Staging configuration
 
 ---

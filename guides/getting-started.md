@@ -416,4 +416,4 @@ kubectl run migrate-fix --rm -it --restart=Never -n openctem \
 
 - [SSO with Entra ID](sso-entra-id.md)
 - [SMTP Configuration](smtp-configuration.md)
-- [Deployment Guide](../DEPLOYMENT.md)
+- [Deployment Guide](../guides/getting-started.md)

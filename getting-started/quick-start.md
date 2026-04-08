@@ -119,7 +119,7 @@ make status    # Check health
 |------|-------|
 | Run first scan | [First Scan Tutorial](./first-scan.md) |
 | Understand architecture | [System Overview](../architecture/overview.md) |
-| Deploy to production | [Production Guide](../operations/PRODUCTION_DEPLOYMENT.md) |
+| Deploy to production | [Production Guide](../operations/PRODUCTION_guides/getting-started.md) |
 | Build custom tools | [SDK Development](../guides/sdk-development.md) |
 
 ---

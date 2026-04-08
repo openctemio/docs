@@ -120,6 +120,6 @@ maintenance_work_mem = 512MB
 
 ## Related Documentation
 
-- [Production Deployment](./PRODUCTION_DEPLOYMENT.md) — Initial production setup
+- [Production Deployment](./PRODUCTION_guides/getting-started.md) — Initial production setup
 - [Monitoring Guide](./MONITORING.md) — Metrics and alerting
 - [Platform Agent Runbook](./platform-agent-runbook.md) — Agent scaling
