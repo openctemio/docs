@@ -31,7 +31,7 @@ ui/docs/
 │
 ├── ops/                             # Operations & Deployment
 │   ├── README.md
-│   ├── DEPLOYMENT.md                # Deployment Guide
+│   ├── guides/getting-started.md                # Deployment Guide
 │   ├── DOCKER_SENTRY_SETUP.md       # Docker & Sentry
 │   ├── ENVIRONMENT_VARIABLES.md     # Env Vars
 │   └── PRODUCTION_CHECKLIST.md      # Production Checklist
@@ -61,7 +61,7 @@ ui/docs/
 
 **4. Deploy to Production**
 1. [ops/PRODUCTION_CHECKLIST.md](./ops/PRODUCTION_CHECKLIST.md) - Pre-deployment checklist
-2. [ops/DEPLOYMENT.md](./ops/DEPLOYMENT.md) - Deployment guide
+2. [ops/guides/getting-started.md](./ops/guides/getting-started.md) - Deployment guide
 
 ---
 
@@ -106,7 +106,7 @@ ui/docs/
 
 ### 🚀 Operations (`ops/`)
 
-**[DEPLOYMENT.md](./ops/DEPLOYMENT.md)**
+**[guides/getting-started.md](./ops/guides/getting-started.md)**
 - Deploy to Vercel, Docker, or VP
 - Nginx & SSL configuration
 
@@ -134,7 +134,7 @@ ui/docs/
 | **Call backend API** | [guides/API_INTEGRATION.md](./guides/API_INTEGRATION.md) |
 | **Customize types** | [guides/CUSTOMIZE_TYPES_GUIDE.md](./guides/CUSTOMIZE_TYPES_GUIDE.md) |
 | **Account settings** | [features/ACCOUNT_SETTINGS.md](./features/ACCOUNT_SETTINGS.md) |
-| **Deploy** | [ops/DEPLOYMENT.md](./ops/DEPLOYMENT.md) |
+| **Deploy** | [ops/guides/getting-started.md](./ops/guides/getting-started.md) |
 
 ---
 

@@ -46,7 +46,7 @@ New to OpenCTEM? Start here:
 
 | Topic | Description |
 |-------|-------------|
-| [Production Deployment](./operations/PRODUCTION_DEPLOYMENT.md) | Kubernetes/Docker/Cloud |
+| [Production Deployment](./operations/PRODUCTION_guides/getting-started.md) | Kubernetes/Docker/Cloud |
 | [Configuration Reference](./operations/configuration.md) | Environment variables |
 | [Monitoring Guide](./operations/MONITORING.md) | Observability setup |
 | [Troubleshooting](./operations/troubleshooting.md) | Common issues |
