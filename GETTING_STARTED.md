@@ -130,7 +130,7 @@ This scans the current directory for:
 
 | Topic | Guide |
 |-------|-------|
-| **Kubernetes** | [Production Deployment](./operations/PRODUCTION_DEPLOYMENT.md) |
+| **Kubernetes** | [Production Deployment](./operations/PRODUCTION_guides/getting-started.md) |
 | **Environment Config** | [Environment Variables](./ui/ops/ENVIRONMENT_VARIABLES.md) |
 | **Security Hardening** | [Production Checklist](./ui/ops/PRODUCTION_CHECKLIST.md) |
 

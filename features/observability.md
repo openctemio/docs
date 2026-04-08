@@ -159,5 +159,5 @@ docker compose -f docker-compose.monitoring.yml up -d
 ## Related Documentation
 
 - [Monitoring Operations Guide](../operations/MONITORING.md) — Day-to-day monitoring procedures
-- [Production Deployment](../operations/PRODUCTION_DEPLOYMENT.md) — Full stack deployment
+- [Production Deployment](../operations/PRODUCTION_guides/getting-started.md) — Full stack deployment
 - [Notification System](../architecture/notification-system.md) — Notification pipeline details

@@ -433,7 +433,7 @@ docker run --network=host ...
 
 ## Next Steps
 
-- **[Production Deployment](../operations/PRODUCTION_DEPLOYMENT.md)** - Deploy to Kubernetes/Cloud
+- **[Production Deployment](../operations/PRODUCTION_guides/getting-started.md)** - Deploy to Kubernetes/Cloud
 - **[Agent Configuration](https://github.com/openctemio/agent#configuration)** - Advanced agent.yaml options
 - **[API Reference](../backend/api-reference.md)** - Full API documentation
 - **[SDK Guide](https://github.com/openctemio/sdk-go#readme)** - Build custom tools

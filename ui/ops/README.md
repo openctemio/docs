@@ -12,7 +12,7 @@ This section contains operational guides for deploying and running the UI in pro
 
 ## Available Guides
 
-- **[Deployment](./DEPLOYMENT.md)** - Deploy to Vercel, Docker, or VPS
+- **[Deployment](./guides/getting-started.md)** - Deploy to Vercel, Docker, or VPS
 - **[Environment Variables](./ENVIRONMENT_VARIABLES.md)** - Configuration reference
 - **[Docker & Sentry Setup](./DOCKER_SENTRY_SETUP.md)** - Containerization and error tracking
 - **[Production Checklist](./PRODUCTION_CHECKLIST.md)** - Pre-deployment verification

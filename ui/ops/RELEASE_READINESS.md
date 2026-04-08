@@ -69,5 +69,5 @@ Pre-release checklist for OpenCTEM UI deployments.
 ## Related Documentation
 
 - [Production Checklist](./PRODUCTION_CHECKLIST.md) — Comprehensive production checklist
-- [Deployment Guide](./DEPLOYMENT.md) — Deployment procedures
+- [Deployment Guide](./guides/getting-started.md) — Deployment procedures
 - [Environment Variables](./ENVIRONMENT_VARIABLES.md) — Configuration reference

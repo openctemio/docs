@@ -256,7 +256,7 @@ If critical issues are found after deployment:
 
 **Related Documents:**
 
-- [Production Deployment Guide](./PRODUCTION_DEPLOYMENT.md)
+- [Production Deployment Guide](./PRODUCTION_guides/getting-started.md)
 - [Monitoring & Observability](./MONITORING.md)
 - [Backup & Restore](./backup-restore.md)
 - [Troubleshooting](./troubleshooting.md)

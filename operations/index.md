@@ -18,8 +18,8 @@ Guides for developers and operators.
 
 ## Deployment
 
-- **[Staging Deployment](./STAGING_DEPLOYMENT.md)** - Deploy to staging
-- **[Production Deployment](./PRODUCTION_DEPLOYMENT.md)** - Production setup
+- **[Staging Deployment](./STAGING_guides/getting-started.md)** - Deploy to staging
+- **[Production Deployment](./PRODUCTION_guides/getting-started.md)** - Production setup
 
 ## Platform Operations
 

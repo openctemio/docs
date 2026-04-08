@@ -129,6 +129,6 @@ helm rollback openctem 1 --namespace openctem
 
 ## Related Documentation
 
-- [Production Deployment](../operations/PRODUCTION_DEPLOYMENT.md) — Full deployment procedures
+- [Production Deployment](../operations/PRODUCTION_guides/getting-started.md) — Full deployment procedures
 - [Backup & Disaster Recovery](backup-disaster-recovery.md) — Backup automation
 - [Scaling Guide](../operations/SCALING.md) — Scaling strategies

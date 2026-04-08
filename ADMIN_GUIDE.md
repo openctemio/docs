@@ -7,8 +7,8 @@ For platform administrators, DevOps, and SRE teams.
 - [Getting Started (Full Guide)](guides/getting-started.md) — Complete deployment walkthrough
 - [Docker Deployment](guides/docker-deployment.md) — Docker Compose setup
 - [Kubernetes Deployment](guides/kubernetes-deployment.md) — Helm chart setup
-- [Production Deployment](operations/PRODUCTION_DEPLOYMENT.md) — Production checklist
-- [Deployment Architecture](DEPLOYMENT.md) — Infrastructure overview
+- [Production Deployment](operations/PRODUCTION_guides/getting-started.md) — Production checklist
+- [Deployment Architecture](guides/getting-started.md) — Infrastructure overview
 
 ## Configuration
 

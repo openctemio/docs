@@ -262,7 +262,7 @@ Quick reference checklist for deploying to production. Print this and check off 
 ### 14. Documentation Updates 📚
 
 - [ ] README.md updated with production URL
-- [ ] Deployment guide reviewed ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md))
+- [ ] Deployment guide reviewed ([docs/guides/getting-started.md](docs/guides/getting-started.md))
 - [ ] Architecture diagram updated
 - [ ] API endpoints documented
 - [ ] Environment variables documented
@@ -400,7 +400,7 @@ _Add any deployment-specific notes, issues encountered, or special configuration
 **🎉 Congratulations on your production deployment!**
 
 For issues or questions, refer to:
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Full deployment guide
+- [docs/guides/getting-started.md](docs/guides/getting-started.md) - Full deployment guide
 - [docs/auth/TROUBLESHOOTING.md](docs/auth/TROUBLESHOOTING.md) - Common issues
 - [RELEASE_READINESS.md](RELEASE_READINESS.md) - Release assessment
 
