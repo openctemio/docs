@@ -1,7 +1,7 @@
 # Implementation Plan — CTEM Platform Enhancement
 
 **Created**: 2026-04-13  
-**Last Updated**: 2026-04-13  
+**Last Updated**: 2026-04-13 (Sprint 1.1 complete: 4/10 items)  
 **Current CTEM Score**: 14/25 (56%)  
 **Target**: 19/25 by end of Q2 2026
 
@@ -24,10 +24,10 @@
 ### 1.1 Asset Type Category Mapping
 > Add category field derived from type. No DB change.
 
-- [ ] Create `api/pkg/domain/asset/category.go` with `TypeToCategory` map
-- [ ] Add `Category()` method to Asset entity (derived, not stored)
-- [ ] Update asset API response to include `category` field
-- [ ] Update UI asset types to include category
+- [x] Create `api/pkg/domain/asset/category.go` with `TypeToCategory` map
+- [x] Add `Category()` method to Asset entity (derived, not stored)
+- [x] Update asset API response to include `category` field
+- [x] Update UI asset types to include `AssetCategory` type + `ASSET_CATEGORY_LABELS`
 - [ ] Update sidebar-data.ts: group by category (keep existing pages, add category headers)
 
 ### 1.2 Fix Mock Pages — Wire to Existing APIs
@@ -184,12 +184,12 @@
 
 | Sprint | Items | Done | Progress |
 |--------|-------|------|----------|
-| Sprint 1: Foundation | 10 | 0 | 0% |
+| Sprint 1: Foundation | 10 | 4 | 40% |
 | Sprint 2: Mobilization | 20 | 0 | 0% |
 | Sprint 3: Prioritization | 14 | 0 | 0% |
 | Sprint 4: Validation | 8 | 0 | 0% |
 | Sprint 5: Consolidation | 6 | 0 | 0% |
-| **Total** | **58** | **0** | **0%** |
+| **Total** | **58** | **4** | **7%** |
 
 ---
 
