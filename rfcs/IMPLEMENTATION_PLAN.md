@@ -65,11 +65,11 @@
 ### 2.2 Remediation Campaigns
 > Track "fix all Log4j" as one campaign with progress
 
-- [ ] Migration: `remediation_campaigns` table (name, description, finding_filter, status, progress, assignee, deadline)
-- [ ] Domain model: `pkg/domain/remediation/campaign.go`
-- [ ] Repository: Postgres CRUD + progress calculation
-- [ ] Service: `RemediationCampaignService` (create, update status, calculate progress)
-- [ ] Handler + routes: `POST/GET/PUT /api/v1/remediation/campaigns`
+- [x] Migration 000125: `remediation_campaigns` table
+- [x] Domain model: `pkg/domain/remediation/campaign.go` (full lifecycle)
+- [x] Repository: Postgres CRUD + priority-ordered listing
+- [x] Service: `RemediationCampaignService` (create, status transitions, progress)
+- [x] Handler + routes: `GET/POST /api/v1/remediation/campaigns`, `GET/PATCH/DELETE /{id}`
 - [ ] UI: campaign list page (replace mock at `/remediation`)
 - [ ] UI: campaign detail with progress bar, finding list, burndown
 
@@ -99,16 +99,16 @@
 ### 3.1 Trending Risks
 > Risk velocity: are we improving or getting worse?
 
-- [ ] API: `GET /api/v1/dashboard/trends` (new/resolved per week, 12-week window)
-- [ ] Repository: time-series query on findings created_at/resolved_at
-- [ ] UI: trend line chart on dashboard (positive = losing ground)
+- [x] Repository: `GetRiskVelocity()` — new vs resolved per week, 12-week window
+- [ ] API: expose via `GET /api/v1/dashboard/velocity` endpoint
+- [ ] UI: trend line chart on dashboard
 
 ### 3.2 MTTR/MTTD Metrics
 > Mean time to detect + mean time to remediate
 
-- [ ] API: extend dashboard stats with MTTR/MTTD
-- [ ] Repository: `AVG(resolved_at - created_at)` by severity
-- [ ] UI: metric cards on dashboard + insights page
+- [x] Repository: `GetMTTRMetrics()` — avg hours to remediate per severity
+- [ ] API: expose via dashboard stats endpoint
+- [ ] UI: metric cards on dashboard
 
 ### 3.3 Business Units API
 > Wire the mock page to real backend
@@ -186,11 +186,11 @@
 | Sprint | Items | Done | Progress |
 |--------|-------|------|----------|
 | Sprint 1: Foundation | 10 | 4 | 40% |
-| Sprint 2: Mobilization | 20 | 12 | 60% (11 pre-existing) |
-| Sprint 3: Prioritization | 14 | 0 | 0% |
+| Sprint 2: Mobilization | 20 | 17 | 85% |
+| Sprint 3: Prioritization | 14 | 2 | 14% |
 | Sprint 4: Validation | 8 | 0 | 0% |
 | Sprint 5: Consolidation | 6 | 0 | 0% |
-| **Total** | **58** | **16** | **28%** |
+| **Total** | **58** | **23** | **40%** |
 
 ---
 
