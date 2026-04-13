@@ -113,14 +113,14 @@
 ### 3.3 Business Units API
 > Wire the mock page to real backend
 
-- [ ] Migration: `business_units` table (name, description, owner, assets[])
-- [ ] Domain + repo + service + handler
+- [x] Migration 000126: `business_units` + `business_unit_assets` tables (name, description, owner, assets[])
+- [x] Domain + repo + service + handler
 - [ ] UI: replace mock data at `/business-units`
 
 ### 3.4 Crown Jewels API
 > Critical asset designation + impact scoring
 
-- [ ] Add `is_crown_jewel` boolean + `business_impact_score` to assets (or separate table)
+- [x] Add `is_crown_jewel` boolean + `business_impact_score` + `business_impact_notes` + `business_impact_score` to assets (or separate table)
 - [ ] Handler: `PATCH /api/v1/assets/{id}/crown-jewel`
 - [ ] UI: replace mock data at `/crown-jewels`, filter from asset inventory
 
@@ -187,10 +187,10 @@
 |--------|-------|------|----------|
 | Sprint 1: Foundation | 10 | 4 | 40% |
 | Sprint 2: Mobilization | 20 | 17 | 85% |
-| Sprint 3: Prioritization | 14 | 2 | 14% |
+| Sprint 3: Prioritization | 14 | 6 | 43% |
 | Sprint 4: Validation | 8 | 0 | 0% |
 | Sprint 5: Consolidation | 6 | 0 | 0% |
-| **Total** | **58** | **23** | **40%** |
+| **Total** | **58** | **27** | **47%** |
 
 ---
 
