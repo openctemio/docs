@@ -32,42 +32,21 @@ Q4 2026: 22 → 24/25  (Scoping + Polish)
 
 ## Phase 1: Asset Type Consolidation
 
-### Problem
-33 asset types → sidebar sprawl, overlapping types, inconsistent properties.
+> **Full RFC**: [2026-04-asset-type-consolidation.md](./2026-04-asset-type-consolidation.md)
 
-### Solution: Category + SubType (4 phases, no breaking change)
+### Summary
+33 types → 15 core types + sub_types. 9 categories for sidebar grouping.
 
-**Step 1 — Category mapping** (no DB change, 1 week)
 ```
-external_surface  → domain, subdomain, certificate, ip_address
-application       → website, web_application, api, mobile_app, service
-infrastructure    → host, container, kubernetes_cluster, kubernetes_namespace
-network           → network, vpc, subnet, firewall, load_balancer
-cloud             → cloud_account, compute, storage, serverless, container_registry
-data              → database, data_store, s3_bucket
-code              → repository
-identity          → iam_user, iam_role, service_account
-discovery         → open_port, http_service, discovered_url
-unclassified      → unclassified
+external_surface  → domain, subdomain, certificate, ip_address (keep all 4)
+application       → application (merge website, web_app, api, mobile_app)
+infrastructure    → host (merge compute, serverless) + container + kubernetes (merge cluster, namespace)
+network           → network (merge vpc, subnet, firewall, load_balancer) + service (merge http_service, open_port, discovered_url)
+cloud             → cloud_account + storage (merge s3_bucket, container_registry)
+data              → database (merge data_store) + repository
+identity          → identity (merge iam_user, iam_role, service_account)
+other             → unclassified
 ```
-
-**Step 2 — UI consolidation** (2-3 weeks)
-Gộp 30+ sidebar pages → 10 category pages với tabs filter by type.
-
-**Step 3 — Type aliasing** (1 month)
-```
-compute    → host (sub_type: compute)
-serverless → host (sub_type: serverless)
-data_store → database (sub_type: data_store)
-s3_bucket  → storage (sub_type: s3_bucket)
-```
-Ingest API chấp nhận type cũ, auto-alias. Không break collectors.
-
-**Step 4 — Sub-type field** (1 sprint)
-```sql
-ALTER TABLE assets ADD COLUMN sub_type VARCHAR(50);
-```
-Target: 12 core types + unlimited sub_types.
 
 ---
 
