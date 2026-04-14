@@ -178,7 +178,7 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 | Type-cast Bugs | 22 | **0** | 0 |
 | Unit Tests (new) | 0 | **23** | 50+ |
 | Integration Tests | 0 | **18 assertions** | 50+ |
-| Migrations | 130 | **132** | — |
+| Migrations | 130 | **135** | — |
 | API Naming Issues Fixed | — | **8** (5 HIGH + 3 MEDIUM) | 0 remaining |
 | Deprecated Routes Removed | — | **3** standalone prefixes | — |
 | Mock Pages → Real API | — | **4** (BU, Crown Jewels, MTTR, Velocity) | all |
@@ -188,5 +188,5 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 ## References
 
 - [Asset Type Consolidation RFC](./2026-04-asset-type-consolidation.md) — Status: Implemented
-- [Implementation Plan](./IMPLEMENTATION_PLAN.md) — 73% complete
+- [Implementation Plan](./IMPLEMENTATION_PLAN.md) — 77% complete (Sprint 6 done)
 - [Gartner CTEM Framework](https://www.gartner.com/en/articles/how-to-manage-cybersecurity-threats-not-episodes)

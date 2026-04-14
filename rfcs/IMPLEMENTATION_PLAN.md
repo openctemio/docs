@@ -1,9 +1,9 @@
 # Implementation Plan — CTEM Platform Enhancement
 
 **Created**: 2026-04-13  
-**Last Updated**: 2026-04-14 (43/58 items done)  
-**Current CTEM Score**: 16/25 (64%)  
-**Target**: 19/25 by end of Q2 2026
+**Last Updated**: 2026-04-14 (session 2)  
+**Current CTEM Score**: 22/25 (88%)  
+**Target**: 24/25 by end of Q2 2026
 
 ---
 
@@ -203,6 +203,34 @@
 
 ---
 
+## Sprint 6: Stability & Standards (2026-04-14 Session 2) — ✅ COMPLETED
+
+**Goal**: Fix prod bugs, standardize data conventions, CSP security
+
+### 6.1 Critical Bug Fixes ✅
+- [x] **Pagination bug**: All 7 asset pages — `key={searchParams.toString()}` caused full remount on page change → fixed to key only on `type`/`sub_type`
+- [x] **CSP WebSocket**: Added configurable `CSP_CONNECT_SRC` env var for prod WebSocket origins
+- [x] **TypeError payload**: Next.js router error from pagination remount — resolved by #6.1 fix
+- [x] **Chart width/height**: Recharts `ResponsiveContainer` `minWidth={0}` wrapper globally
+- [x] **SECURE_COOKIES**: Already fixed in session 1 — verified all 28 occurrences use `SECURE_COOKIES` not `NODE_ENV`
+
+### 6.2 snake_case Standardization ✅
+- [x] Backend: Generic `camelToSnakeCase()` converter in `PromoteKnownProperties` — normalizes ALL property keys on ingest
+- [x] Migration 000135: Batch convert existing camelCase JSONB keys to snake_case
+- [x] Frontend: All 17 asset config files converted (formFields, columns, stats, details, exports)
+- [x] TypeScript: `AssetMetadata` marked deprecated, `Asset.metadata` typed as `AssetMetadata & Record<string, unknown>`
+- [x] Unit tests: 2 new tests for camelToSnake normalization + duplicate handling
+
+### 6.3 Test Mock Stubs ✅
+- [x] Added `GetByWorkItemURI` + `UpdateWorkItemURIs` to 5 mock structs across test files
+- [x] All Go unit tests pass (12.8s)
+
+### 6.4 Documentation ✅
+- [x] `CSP_CONNECT_SRC` added to `.env.example` + `docker-compose.prod.yml`
+- [x] Memory: snake_case convention saved for future sessions
+
+---
+
 ## Progress Tracking
 
 | Sprint | Items | Done | Progress |
@@ -212,7 +240,8 @@
 | Sprint 3: Prioritization | 14 | 9 | 64% |
 | Sprint 4: Validation | 8 | 0 | 0% |
 | Sprint 5: Consolidation | 25 | 25 | **100%** |
-| **Total** | **77** | **56** | **73%** |
+| Sprint 6: Stability | 15 | 15 | **100%** |
+| **Total** | **92** | **71** | **77%** |
 
 ---
 
@@ -251,6 +280,8 @@ Sprint 3.3 (BU)        ──→ Sprint 3.4 (Crown Jewels)
 ## Notes
 
 - Sprint 5 completed in 1 session (2026-04-13 → 2026-04-14)
+- Sprint 6 completed in session 2 (2026-04-14)
 - All changes backward compatible — no breaking API changes
-- 132 migrations total, all applied, dirty=false
-- TypeScript 0 errors, Go build + vet clean, ESLint 0 warnings
+- 135 migrations total (added 000133–000135)
+- TypeScript 0 errors, Go build + test clean, ESLint 0 errors (36 warnings pre-existing)
+- **Convention**: All JSONB property keys must use snake_case (backend auto-converts camelCase on ingest)
