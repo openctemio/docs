@@ -6,9 +6,11 @@ nav_order: 100
 
 # Feature Roadmap
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-04-14
 
 Platform status and planned features. See [Features](features/index.md) for documentation on implemented features.
+
+**Current CTEM Maturity: 22/25 (88%)**. See [CTEM Roadmap RFC](rfcs/2026-04-ctem-roadmap.md) for detailed breakdown.
 
 ---
 
@@ -16,13 +18,13 @@ Platform status and planned features. See [Features](features/index.md) for docu
 
 The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure Management) framework:
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| Scoping | Partial | Define attack surface and business context |
-| Discovery | Partial | Identify assets, vulnerabilities, exposures |
-| Prioritization | Partial | Rank risks based on impact |
-| Validation | Partial | Verify threats and test controls |
-| Mobilization | Partial | Execute remediation |
+| Phase | Score | Status | Description |
+|-------|-------|--------|-------------|
+| Scoping | 5/5 | **Complete** | Define attack surface and business context |
+| Discovery | 5/5 | **Complete** | Identify assets, vulnerabilities, exposures |
+| Prioritization | 5/5 | **Complete** | Rank risks based on impact |
+| Validation | 4/5 | In Progress | Verify threats and test controls |
+| Mobilization | 3/5 | In Progress | Execute remediation |
 
 ---
 
@@ -698,16 +700,17 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 
 ---
 
-## Platform Maturity (2026-03-12)
+## Platform Maturity (2026-04-14)
 
 | Area | Status | Details |
 |------|--------|---------|
+| CTEM Score | 22/25 (88%) | Phases 1-3 complete, 4-5 in progress |
 | Codebase | Production-ready | Go API + Next.js UI + Go SDK |
-| Domain Entities | 44 | Full CTEM coverage |
-| Route Groups | 54 | All API endpoints wired |
-| UI Pages | 161 | 0 placeholder pages remaining |
-| Tests | 14,000+ | 1,283 API test functions, 20+ UI test files |
-| Migrations | 83 | Full schema with indexes and constraints |
+| Asset Types | 15 core + sub_types | Consolidated from 33 (migration 000128-132) |
+| Route Groups | 54+ | All API endpoints wired |
+| UI Pages | 161+ | 0 placeholder pages, 0 mock pages |
+| Migrations | 136 | Full schema with indexes and constraints |
+| Feature Docs | 35 | docs/features/ |
 
 ### Completed Infrastructure
 
@@ -810,4 +813,4 @@ When implementing a new feature:
 
 ---
 
-**Last Updated:** 2026-03-12
+**Last Updated:** 2026-04-14
