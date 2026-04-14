@@ -7,19 +7,17 @@
 
 ---
 
-## Current State: 17/25 (68% CTEM Maturity)
+## Current State: 22/25 (88% CTEM Maturity)
 
 ```
-PHASE 1: SCOPING          ⭐⭐⭐⭐☆  4/5 (80%)   ↑ was 60%
-PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ was 80%
-PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐☆  4/5 (80%)   ↑ was 60% (MTTR + velocity charts done)
-PHASE 4: VALIDATION        ⭐⭐☆☆☆  2/5 (40%)
-PHASE 5: MOBILIZATION      ⭐⭐☆☆☆  2/5 (40%)   ← still critical bottleneck
+PHASE 1: SCOPING          ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ compliance wired
+PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ DNS extraction
+PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ attack paths + BU + crown jewels
+PHASE 4: VALIDATION        ⭐⭐⭐⭐☆  4/5 (80%)   ↑ verification scan + MITRE + detection
+PHASE 5: MOBILIZATION      ⭐⭐⭐☆☆  3/5 (60%)   ↑ remediation + threat intel cron + ticketing
 ```
 
-**Phase 3 improvement**: MTTR + Risk Velocity charts on dashboard, business units + crown jewels wired to real API.
-
-**Biggest remaining gap**: Mobilization — remediation campaigns UI + threat intel automation.
+**Remaining gaps**: Full Jira bidirectional sync (Phase 5), detection coverage improvements (Phase 4).
 
 ---
 
@@ -122,15 +120,17 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 - [x] POST /findings/{id}/request-verification endpoint
 - [x] VerificationScanTrigger adapter → QuickScan
 - [x] UI: "Request Verification Scan" button on fix_applied findings
-- [x] Dialog with scanner selection → triggers targeted scan on affected asset
 
-### 4.2 MITRE ATT&CK Coverage Heatmap
-- [ ] Map findings → MITRE techniques
-- [ ] UI: heatmap matrix
+### 4.2 MITRE ATT&CK Coverage Heatmap — ✅ DONE
+- [x] /pentest/mitre-coverage page with 14-tactic matrix grid
+- [x] Client-side OWASP→MITRE mapping + simulation data
+- [x] Color-coded cells, source filter, coverage stats
 
-### 4.3 Detection Coverage Testing
-- [ ] Control tests → MITRE techniques
-- [ ] Detection coverage dashboard
+### 4.3 Detection Coverage Testing — ✅ DONE
+- [x] Control testing page wired to real /control-tests API
+- [x] Create Control Test dialog
+- [x] MITRE coverage table from simulations
+- [x] Coverage % stat card
 
 ---
 
@@ -156,13 +156,14 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 | Remediation Campaigns UI | 🔴 Critical | Backend done | Q2 |
 | Threat Intel Cron Jobs | 🔴 Critical | Partial | Q2 |
 | Business Units UI | 🟡 Medium | Read wired | Q2 |
-| ~~Dashboard Velocity/MTTR~~ | 🟠 High | ✅ Done (charts) | Q2 |
-| Crown Jewels UI | 🟡 Medium | Read wired | Q2 |
-| Jira Integration | 🔴 Critical | Not started | Q3 |
-| Verification Scan | 🟡 Medium | Not started | Q3 |
-| MITRE Heatmap | 🟡 Medium | Not started | Q3 |
-| Compliance Seeding | 🟡 Medium | Not started | Q4 |
-| Attack Path Scoring | 🟡 Medium | Not started | Q4 |
+| ~~Dashboard Velocity/MTTR~~ | 🟠 High | ✅ Done | Q2 |
+| ~~Crown Jewels UI~~ | 🟡 Medium | ✅ Done | Q2 |
+| Jira Integration | 🔴 Critical | Foundation done | Q3 |
+| ~~Verification Scan~~ | 🟡 Medium | ✅ Done | Q3 |
+| ~~MITRE Heatmap~~ | 🟡 Medium | ✅ Done | Q3 |
+| ~~Compliance~~ | 🟡 Medium | ✅ Done (wired) | Q2 |
+| ~~Attack Path Scoring~~ | 🟡 Medium | ✅ Done | Q3 |
+| ~~Detection Coverage~~ | 🟡 Medium | ✅ Done | Q3 |
 
 ---
 
@@ -170,7 +171,7 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 
 | Metric | Before Session | After Session | Q4 Target |
 |--------|---------------|--------------|-----------|
-| CTEM Score | 14/25 (56%) | **17/25 (68%)** | 24/25 |
+| CTEM Score | 14/25 (56%) | **22/25 (88%)** | 24/25 |
 | Asset Types | 33 (sprawl) | **15 core + sub_types** | 15 |
 | Sidebar Pages | 30+ | **15 organized** | 15 |
 | API Calls/Page | 4 | **2** | 2 |
