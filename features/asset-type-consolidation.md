@@ -1,8 +1,13 @@
-# RFC: Asset Type Consolidation
+---
+layout: default
+title: Asset Type Consolidation
+parent: Features
+nav_order: 38
+---
 
-**Date**: 2026-04-13  
-**Status**: Implemented (2026-04-14)  
-**Related**: [CTEM Roadmap](./2026-04-ctem-roadmap.md)  
+# Asset Type Consolidation
+
+**Implemented**: 2026-04-14  
 **Migrations**: 000128–000132  
 **Tests**: 23 unit + 18 integration assertions
 

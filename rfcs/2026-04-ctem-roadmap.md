@@ -47,7 +47,7 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 
 | Feature | Status | Feature Doc |
 |---------|--------|-------------|
-| Asset Inventory (15 types + sub_types) | Done | [asset-type-consolidation.md](./2026-04-asset-type-consolidation.md) |
+| Asset Inventory (15 types + sub_types) | Done | [asset-type-consolidation.md](../features/asset-type-consolidation.md) |
 | Scan Management + Runners | Done | [scan-feature-comprehensive.md](../features/scan-feature-comprehensive.md) |
 | Relationship Suggestions | Done | [relationship-suggestions.md](../features/relationship-suggestions.md) |
 | DNS Discovery (domain/subdomain extraction) | Done | Built into asset ingestion |
@@ -146,6 +146,6 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 
 ## References
 
-- [Asset Type Consolidation RFC](./2026-04-asset-type-consolidation.md)
+- [Asset Type Consolidation](../features/asset-type-consolidation.md) — Feature doc
 - [Feature Documentation Index](../features/index.md)
 - [Gartner CTEM Framework](https://www.gartner.com/en/articles/how-to-manage-cybersecurity-threats-not-episodes)
