@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OpenCTEM — Letterform mark (smooth chunky C)
+  =============================================
+  A single-arc chunky lowercase C with a marker dot in the opening. The
+  C stands for both "CTEM" and "Continuous"; the marker dot is the only
+  accent-coloured element and represents the "live position" in the cycle.
+
+  IMPORTANT — design history:
+    A previous draft built the C from FIVE separate stroked arcs (one
+    per CTEM stage) with 4° gaps between them. With chunky strokes
+    (16 units) and round caps (radius 8), the round caps were larger
+    than the gaps — so the joints became visible bumps and the brain
+    read the shape as a hexagonal nut, not a C. The "5 stages" hidden
+    meaning was a clever idea that broke at the only size that mattered.
+
+    Lesson: a mark must be legible *first*, architecturally meaningful
+    *second*. The 5-stage meaning still lives in the product (the
+    sidebar literally has Scoping → Discovery → Prioritization →
+    Validation → Mobilization groups) — it doesn't need to live in
+    the glyph.
+
+  Geometry:
+    - viewBox 120×120, center (60, 60), arc radius 38, stroke width 16
+    - Single arc, 296° sweep (opens 64° to the right, from −32° to +32°)
+    - Round linecaps so the C ends are softly capped
+    - Marker dot: 7-unit radius, sits at (98, 60) inside the opening
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"
+     fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="butt"
+     role="img" aria-label="OpenCTEM">
+  <!-- Single smooth arc forming the C. Endpoints are at angle ±32° on the
+       right side; large-arc-flag=1 + sweep-flag=0 sweeps the long way
+       around (CCW in SVG y-down coordinates). -->
+  <path d="M 92.22 39.86 A 38 38 0 1 0 92.22 80.14"/>
+  <!-- Marker dot inside the C opening — the only accent-coloured element -->
+  <circle cx="98" cy="60" r="7" fill="currentColor" stroke="none"/>
+</svg>

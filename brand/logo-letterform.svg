@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OpenCTEM — Letterform lockup (smooth C, balanced)
+  ==================================================
+  The C in "openctem" IS the mark. No separate mark + wordmark — they're
+  one object. Removing the C breaks the wordmark; removing the wordmark
+  leaves a recognisable brand letter.
+
+  Geometry budget (viewBox 295×88, all in viewBox units):
+    x=4    "open" left edge       (fontSize 56, text width ≈ 119)
+    x=123  end of "open"
+    x=129  visual left of C body  (6 unit gap)
+    x=193  visual right of C body (C body width ≈ 64 at scale 0.70)
+    x=199  start of "tem"         (6 unit gap)
+    x=292  end of "tem"           (text width ≈ 93)
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 295 88"
+     role="img" aria-label="OpenCTEM">
+
+  <!-- "open" — left of the C -->
+  <text x="4" y="66"
+        font-family="-apple-system, system-ui, 'Segoe UI', Inter, sans-serif"
+        font-size="56" font-weight="700" letter-spacing="-2.5" fill="#0A1628">open</text>
+
+  <!--
+    The chunky C — single smooth arc, scaled and translated so its body
+    cap-height matches the wordmark cap-height. See mark-letterform.svg
+    for the design history of why this is one arc instead of five.
+  -->
+  <g transform="translate(119 16) scale(0.70)"
+     fill="none" stroke="#0A1628"
+     stroke-width="16" stroke-linecap="butt">
+    <path d="M 92.22 39.86 A 38 38 0 1 0 92.22 80.14"/>
+    <!-- Marker — only coloured element -->
+    <circle cx="98" cy="60" r="7" fill="#0D9488" stroke="none"/>
+  </g>
+
+  <!-- "tem" — right of the C -->
+  <text x="199" y="66"
+        font-family="-apple-system, system-ui, 'Segoe UI', Inter, sans-serif"
+        font-size="56" font-weight="700" letter-spacing="-2.5" fill="#0A1628">tem</text>
+</svg>
