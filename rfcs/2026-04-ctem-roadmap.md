@@ -7,17 +7,17 @@
 
 ---
 
-## Current State: 22/25 (88% CTEM Maturity)
+## Current State: 23/25 (92% CTEM Maturity)
 
 ```
 PHASE 1: SCOPING          ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
 PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
 PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
-PHASE 4: VALIDATION        ⭐⭐⭐⭐☆  4/5 (80%)   🔧 In progress
-PHASE 5: MOBILIZATION      ⭐⭐⭐☆☆  3/5 (60%)   🔧 In progress
+PHASE 4: VALIDATION        ⭐⭐⭐⭐☆  4/5 (80%)   🔧 BAS remaining
+PHASE 5: MOBILIZATION      ⭐⭐⭐⭐☆  4/5 (80%)   🔧 Jira remaining
 ```
 
-**Remaining gaps**: Remediation Campaign UI (Phase 5), Jira bidirectional sync (Phase 5).
+**Remaining gaps**: BAS (Phase 4), Jira bidirectional sync (Phase 5).
 
 ---
 
@@ -73,43 +73,36 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 | Verification Scan Automation | Done | Built into finding lifecycle |
 | **BAS (Breach & Attack Simulation)** | **TODO** | — |
 
-### Phase 5: Mobilization — 3/5
+### Phase 5: Mobilization — 4/5
 
 | Feature | Status | Feature Doc |
 |---------|--------|-------------|
 | Finding Exceptions (accept/suppress) | Done | [approval-workflow.md](../features/approval-workflow.md) |
 | Vulnerability Group View | Done | Built into findings |
 | Workflows + Auto-Remediation | Done | [workflows.md](../features/workflows.md) |
-| **Remediation Campaigns UI** | **Backend done, UI pending** | — |
+| Remediation Campaigns | Done | List + detail pages wired to API |
 | **Jira Bidirectional Sync** | **TODO** | — |
 
 ---
 
 ## Remaining Work
 
-### 2.1 Remediation Campaigns UI — 🟡 Backend Done
-
-- [x] Migration 000125: `remediation_campaigns` table
-- [x] Domain + repo + service + handler (API returns 200)
-- [ ] **TODO**: UI campaign list page (replace mock)
-- [ ] **TODO**: UI campaign detail (progress bar, burndown)
-
 ### 2.2 ITSM Integration (Jira)
 
 - [ ] Bidirectional sync: finding ↔ Jira ticket
 - [ ] Auto-create ticket from finding/campaign
 
-### 2.3 Threat Intel Automation — 🟡 Partial
+### 2.3 Threat Intel Automation — ✅ DONE
 
 - [x] Service: `ThreatIntelService` with EPSS/KEV enrichment
-- [ ] **TODO**: Asynq cron jobs (daily auto-refresh)
-- [ ] **TODO**: Auto-escalate on KEV appearance
+- [x] Controller: 24h daily refresh (EPSS + KEV sync)
+- [x] KEV auto-escalation: findings with KEV CVEs → critical severity
 
-### 2.4 Business Unit / Crown Jewel Mutations — 🟡 Read Wired
+### 2.4 Business Units + Crown Jewels — ✅ DONE
 
 - [x] Migration + domain + repo + service + handler
-- [x] UI reads from real API
-- [ ] **TODO**: Wire create/edit/delete mutations to API
+- [x] UI fully wired: CRUD operations call real API
+- [x] Crown jewels: designate/undesignate via PATCH endpoint
 
 ### 2.5 Risk Reduction Tracking
 
@@ -122,12 +115,12 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 
 | Item | Impact | Status | Quarter |
 |------|--------|--------|---------|
-| Remediation Campaigns UI | 🔴 Critical | Backend done | Q2 |
-| Threat Intel Cron Jobs | 🔴 Critical | Partial | Q2 |
+| ~~Remediation Campaigns~~ | 🔴 Critical | ✅ Done | Q2 |
+| ~~Threat Intel Auto-Escalation~~ | 🔴 Critical | ✅ Done | Q2 |
+| ~~BU/Crown Jewel Mutations~~ | 🟡 Medium | ✅ Done | Q2 |
 | Jira Integration | 🔴 Critical | Not started | Q3 |
-| BU/Crown Jewel Mutations | 🟡 Medium | Read wired | Q2 |
-| Risk Reduction Tracking | 🟡 Medium | Not started | Q3 |
 | BAS (Breach & Attack Sim) | 🟡 Medium | Not started | Q3 |
+| Risk Reduction Tracking | 🟡 Medium | Not started | Q3 |
 | Host/Container Discovery | 🟢 Low | Not started | Q4 |
 
 ---
