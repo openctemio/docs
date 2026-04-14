@@ -118,9 +118,11 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 
 ## Phase 4: Validation Completion (Q3 2026)
 
-### 4.1 Verification Scan Automation
-- [ ] Workflow trigger on finding remediation
-- [ ] Auto-scan + auto-verify/reopen
+### 4.1 Verification Scan Automation — ✅ DONE
+- [x] POST /findings/{id}/request-verification endpoint
+- [x] VerificationScanTrigger adapter → QuickScan
+- [x] UI: "Request Verification Scan" button on fix_applied findings
+- [x] Dialog with scanner selection → triggers targeted scan on affected asset
 
 ### 4.2 MITRE ATT&CK Coverage Heatmap
 - [ ] Map findings → MITRE techniques
