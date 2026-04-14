@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OpenCTEM — Mark v3
+  ===================
+  An asymmetric, tilted, layered loop with a dominant marker.
+
+  This is v2 reworked after honest critique that v2 read as "anonymous
+  geometric chart" rather than "brand mark". The fix isn't to add more
+  elements — it's to give the existing elements *opinionated proportions*.
+
+  Five things changed from v2:
+    1. The whole mark is tilted -12° → kinetic, alive, not a static diagram.
+    2. Segment widths are no longer equal — they grow as you go around the
+       loop, mirroring how a CTEM cycle accumulates context with each pass.
+    3. A second, much fainter "echo" ring sits inside the main loop —
+       creates depth, suggests "history of past cycles".
+    4. The marker dot is now ~2× bigger and has a smaller inner dot, like a
+       planet with its own focus point. It's the protagonist, not a side note.
+    5. The 4 inter-segment gaps each have a tiny tick mark — creates rhythm
+       and reads as "you can tell where one stage ends and the next begins"
+       at any size.
+
+  The form is still geometric and minimal — but now it has *one specific
+  way of being*, not a generic way of being. That's the difference between
+  "simple" and "distinctively simple".
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"
+     fill="none" role="img" aria-label="OpenCTEM">
+  <!--
+    Everything is wrapped in a tilted group so we can change the tilt angle
+    in one place. -12° gives a clear lean without tipping over.
+  -->
+  <g transform="rotate(-12 60 60)">
+
+    <!-- Echo ring: a faint full circle behind everything. Suggests "the
+         shape of the cycle as a whole" while the segments do the talking. -->
+    <circle cx="60" cy="60" r="44" stroke="currentColor" stroke-width="1.5"
+            stroke-dasharray="1 4" opacity="0.25"/>
+
+    <!--
+      Five segments, varying in width (stroke-width grows around the loop).
+      Same arc geometry as v2 (radius 38, angles below) but each segment
+      has its own stroke width to break the democratic equality.
+        seg1 (Scoping)        12.0  ← starts here
+        seg2 (Discovery)      13.0
+        seg3 (Prioritization) 14.0
+        seg4 (Validation)     15.5
+        seg5 (Mobilization)   17.0  ← ends thickest, then loops back
+
+      The growing weight reads as "context accumulates" — by the time you
+      get to Mobilization you have the most signal to act on.
+    -->
+    <g transform="translate(10 10)" stroke="currentColor" stroke-linecap="round">
+      <!-- Segment 1: Scoping -->
+      <path d="M 63.00 14.30 A 38 38 0 0 1 87.42 43.40" stroke-width="12"/>
+      <!-- Segment 2: Discovery -->
+      <path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13" stroke-width="13"/>
+      <!-- Segment 3: Prioritization -->
+      <path d="M 69.00 82.91 A 38 38 0 0 1 31.00 82.91" stroke-width="14"/>
+      <!-- Segment 4: Validation -->
+      <path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69" stroke-width="15.5"/>
+      <!-- Segment 5: Mobilization -->
+      <path d="M 12.58 43.40 A 38 38 0 0 1 37.00 14.30" stroke-width="17"/>
+
+      <!--
+        Tick marks in the gaps. Tiny radial lines that "carve" the segment
+        boundaries. Each one is a 4px line pointing outward from the loop.
+        Positions are at the angle midway between two segments.
+      -->
+      <g stroke-width="1.8" opacity="0.55">
+        <line x1="87.83" y1="44.81" x2="91.79" y2="46.20"/>   <!-- gap 1-2 ~82° -->
+        <line x1="70.94" y1="82.40" x2="72.61" y2="86.16"/>   <!-- gap 2-3 ~147° -->
+        <line x1="29.06" y1="82.40" x2="27.39" y2="86.16"/>   <!-- gap 3-4 ~213° -->
+        <line x1="12.17" y1="44.81" x2="8.21"  y2="46.20"/>   <!-- gap 4-5 ~278° -->
+      </g>
+
+      <!--
+        Marker — the protagonist. Outer dot is the main signal; inner dot
+        is the "focal point inside the focal point". This is the only
+        accent-coloured element in the whole mark — when the brand renders
+        in colour, this is the spot the eye lands on first.
+      -->
+      <circle cx="63.00" cy="14.30" r="9" fill="currentColor" stroke="none"/>
+      <circle cx="63.00" cy="14.30" r="3.5" fill="#FAFAF9" stroke="none"/>
+    </g>
+  </g>
+</svg>

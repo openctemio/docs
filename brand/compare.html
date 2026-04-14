@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>OpenCTEM brand — direction compare</title>
+<style>
+  :root {
+    --ink: #0A1628;
+    --teal: #0D9488;
+    --teal-bright: #14B8A6;
+    --paper: #FAFAF9;
+    --muted: #525252;
+    --border: #E7E5E4;
+  }
+  * { box-sizing: border-box }
+  body {
+    font-family: -apple-system, system-ui, 'Segoe UI', Inter, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    margin: 0;
+    padding: 56px 48px;
+    line-height: 1.6;
+  }
+  h1 { font-weight: 600; letter-spacing: -1.5px; margin: 0 0 8px; font-size: 32px }
+  h2 { font-weight: 600; margin: 56px 0 12px; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted) }
+  h3 { font-weight: 600; margin: 0 0 4px; font-size: 18px }
+  p  { color: var(--muted); margin: 0 0 16px; max-width: 65ch }
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0 }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1200px;
+    margin-top: 24px;
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px 24px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .card .name {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 16px 0 4px;
+  }
+  .card .desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 28ch;
+  }
+  .card .stage {
+    margin: 16px 0;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage object,
+  .stage svg { max-width: 100%; max-height: 100% }
+
+  .sizes {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    justify-content: space-around;
+  }
+  .sizes .item { display: flex; flex-direction: column; align-items: center; gap: 4px }
+  .sizes .item span { font-size: 10px; color: var(--muted); font-variant-numeric: tabular-nums }
+  .s16  { width: 16px;  height: 16px;  color: var(--ink) }
+  .s24  { width: 24px;  height: 24px;  color: var(--ink) }
+  .s48  { width: 48px;  height: 48px;  color: var(--ink) }
+  .s96  { width: 96px;  height: 96px;  color: var(--ink) }
+
+  .dark-section {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px;
+    border-radius: 16px;
+    margin-top: 32px;
+  }
+  .dark-section h2 { color: rgba(255,255,255,0.6) }
+  .dark-section .card { background: #122039; border-color: #1e2a47 }
+  .dark-section .card .label,
+  .dark-section .card .desc { color: #94a3b8 }
+  .dark-section .card .name { color: var(--paper) }
+  .dark-section .s16, .dark-section .s24, .dark-section .s48, .dark-section .s96 { color: var(--paper) }
+  .dark-section .sizes { border-top-color: #1e2a47 }
+
+  .meta {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 8px 16px;
+    font-size: 13px;
+    margin-top: 24px;
+    width: 100%;
+    text-align: left;
+  }
+  .meta dt { color: var(--muted) }
+  .meta dd { margin: 0; font-weight: 500 }
+</style>
+</head>
+<body>
+
+<h1>OpenCTEM brand — three directions</h1>
+<p>v1 (shield + iris) was honest-mediocre. v2 (open loop) was geometrically clean but anonymous. v3 explores two more characterful directions. Open this file in a browser to compare.</p>
+<p><strong>The question:</strong> which one feels like a brand you'd remember 3 days after seeing it once?</p>
+
+<h2>Light mode</h2>
+<div class="grid">
+
+  <!-- ============ v2: open loop (anonymous) ============ -->
+  <div class="card">
+    <div class="label">Direction A · v2</div>
+    <div class="stage">
+      <svg viewBox="0 0 100 100" width="180" height="180" fill="none" stroke="var(--ink)" stroke-width="12" stroke-linecap="round">
+        <path d="M 63.00 14.30 A 38 38 0 0 1 87.42 43.40"/>
+        <path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13"/>
+        <path d="M 69.00 82.91 A 38 38 0 0 1 31.00 82.91"/>
+        <path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69"/>
+        <path d="M 12.58 43.40 A 38 38 0 0 1 37.00 14.30"/>
+        <circle cx="63.00" cy="14.30" r="7" fill="var(--teal)" stroke="none"/>
+      </svg>
+    </div>
+    <div class="name">Open Loop (symmetric)</div>
+    <div class="desc">5 equal arcs + dot. Geometric. Probably reads as a generic chart icon.</div>
+    <dl class="meta">
+      <dt>Strength</dt><dd>Cleanest possible execution of the concept</dd>
+      <dt>Weakness</dt><dd>No personality; "anonymous"</dd>
+      <dt>Closest to</dt><dd>Apple Activity rings, loading spinner</dd>
+    </dl>
+    <div class="sizes">
+      <div class="item">
+        <svg class="s16" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round">
+          <path d="M 63 14.30 A 38 38 0 0 1 87.42 43.40"/><path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13"/>
+          <path d="M 69 82.91 A 38 38 0 0 1 31 82.91"/><path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69"/>
+          <path d="M 12.58 43.40 A 38 38 0 0 1 37 14.30"/><circle cx="63" cy="14.30" r="7" fill="currentColor"/>
+        </svg>
+        <span>16</span>
+      </div>
+      <div class="item">
+        <svg class="s24" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round">
+          <path d="M 63 14.30 A 38 38 0 0 1 87.42 43.40"/><path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13"/>
+          <path d="M 69 82.91 A 38 38 0 0 1 31 82.91"/><path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69"/>
+          <path d="M 12.58 43.40 A 38 38 0 0 1 37 14.30"/><circle cx="63" cy="14.30" r="7" fill="currentColor"/>
+        </svg>
+        <span>24</span>
+      </div>
+      <div class="item">
+        <svg class="s48" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round">
+          <path d="M 63 14.30 A 38 38 0 0 1 87.42 43.40"/><path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13"/>
+          <path d="M 69 82.91 A 38 38 0 0 1 31 82.91"/><path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69"/>
+          <path d="M 12.58 43.40 A 38 38 0 0 1 37 14.30"/><circle cx="63" cy="14.30" r="7" fill="currentColor"/>
+        </svg>
+        <span>48</span>
+      </div>
+      <div class="item">
+        <svg class="s96" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round">
+          <path d="M 63 14.30 A 38 38 0 0 1 87.42 43.40"/><path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13"/>
+          <path d="M 69 82.91 A 38 38 0 0 1 31 82.91"/><path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69"/>
+          <path d="M 12.58 43.40 A 38 38 0 0 1 37 14.30"/><circle cx="63" cy="14.30" r="7" fill="currentColor"/>
+        </svg>
+        <span>96</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ v3: tilted loop with weight + ticks ============ -->
+  <div class="card">
+    <div class="label">Direction B · v3 (loop reworked)</div>
+    <div class="stage">
+      <object data="mark.svg" type="image/svg+xml" width="200" height="200" style="color: var(--ink)"></object>
+    </div>
+    <div class="name">Loaded Loop (asymmetric, tilted)</div>
+    <div class="desc">Same architecture, but with rhythm: tilt, growing weight per stage, gap ticks, fat marker, faint echo ring.</div>
+    <dl class="meta">
+      <dt>Strength</dt><dd>Keeps the architectural meaning, gains personality</dd>
+      <dt>Weakness</dt><dd>More elements means tougher at favicon size</dd>
+      <dt>Closest to</dt><dd>Datadog dot pattern, telemetry dashboard</dd>
+    </dl>
+    <div class="sizes">
+      <div class="item">
+        <object data="mark.svg" type="image/svg+xml" width="16" height="16" style="color: var(--ink)"></object>
+        <span>16</span>
+      </div>
+      <div class="item">
+        <object data="mark.svg" type="image/svg+xml" width="24" height="24" style="color: var(--ink)"></object>
+        <span>24</span>
+      </div>
+      <div class="item">
+        <object data="mark.svg" type="image/svg+xml" width="48" height="48" style="color: var(--ink)"></object>
+        <span>48</span>
+      </div>
+      <div class="item">
+        <object data="mark.svg" type="image/svg+xml" width="96" height="96" style="color: var(--ink)"></object>
+        <span>96</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ v3: letterform C ============ -->
+  <div class="card">
+    <div class="label">Direction C · v3 (letterform)</div>
+    <div class="stage">
+      <object data="mark-letterform.svg" type="image/svg+xml" width="200" height="200" style="color: var(--ink)"></object>
+    </div>
+    <div class="name">Chunky C (notched)</div>
+    <div class="desc">A chunky lowercase C with five visible notches in its curve + a marker dot in the opening. The letter IS the brand.</div>
+    <dl class="meta">
+      <dt>Strength</dt><dd>Strongest brand-name fusion (Stripe S, Klarna K family)</dd>
+      <dt>Weakness</dt><dd>Many vendors use letter-marks; C alone is broad</dd>
+      <dt>Closest to</dt><dd>Stripe S, Pinterest P</dd>
+    </dl>
+    <div class="sizes">
+      <div class="item">
+        <object data="mark-letterform.svg" type="image/svg+xml" width="16" height="16" style="color: var(--ink)"></object>
+        <span>16</span>
+      </div>
+      <div class="item">
+        <object data="mark-letterform.svg" type="image/svg+xml" width="24" height="24" style="color: var(--ink)"></object>
+        <span>24</span>
+      </div>
+      <div class="item">
+        <object data="mark-letterform.svg" type="image/svg+xml" width="48" height="48" style="color: var(--ink)"></object>
+        <span>48</span>
+      </div>
+      <div class="item">
+        <object data="mark-letterform.svg" type="image/svg+xml" width="96" height="96" style="color: var(--ink)"></object>
+        <span>96</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Lockup comparison -->
+<h2>Wordmark lockup — direction C only (the letterform fuses with wordmark)</h2>
+<p>Direction C is the only one where mark + wordmark are literally the same object: removing the C breaks the wordmark, removing the wordmark leaves a recognisable brand letter. That's the strongest possible coupling.</p>
+<div style="background: white; border: 1px solid var(--border); border-radius: 12px; padding: 48px; display: flex; align-items: center; justify-content: center;">
+  <object data="logo-letterform.svg" type="image/svg+xml" width="360" height="100"></object>
+</div>
+
+<!-- Dark mode + app icon -->
+<div class="dark-section">
+  <h2>Dark mode + app icon</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="label">Direction A</div>
+      <div class="stage">
+        <svg viewBox="0 0 100 100" width="180" height="180" fill="none" stroke="var(--paper)" stroke-width="12" stroke-linecap="round">
+          <path d="M 63 14.30 A 38 38 0 0 1 87.42 43.40"/><path d="M 87.85 46.69 A 38 38 0 0 1 71.81 81.13"/>
+          <path d="M 69 82.91 A 38 38 0 0 1 31 82.91"/><path d="M 28.19 81.13 A 38 38 0 0 1 12.15 46.69"/>
+          <path d="M 12.58 43.40 A 38 38 0 0 1 37 14.30"/><circle cx="63" cy="14.30" r="7" fill="var(--teal-bright)" stroke="none"/>
+        </svg>
+      </div>
+      <div class="name">Symmetric loop</div>
+    </div>
+    <div class="card">
+      <div class="label">Direction B</div>
+      <div class="stage">
+        <object data="mark.svg" type="image/svg+xml" width="200" height="200" style="color: var(--paper)"></object>
+      </div>
+      <div class="name">Tilted loop</div>
+    </div>
+    <div class="card">
+      <div class="label">Direction C</div>
+      <div class="stage">
+        <object data="app-icon.svg" type="image/svg+xml" width="160" height="160"></object>
+      </div>
+      <div class="name">Chunky C app icon</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
