@@ -1,326 +1,184 @@
 # RFC: OpenCTEM Platform Roadmap — CTEM Framework Alignment
 
 **Date**: 2026-04-13  
-**Status**: Draft  
+**Status**: Active  
+**Last Updated**: 2026-04-14  
 **Author**: Platform Team
 
 ---
 
-## Current State: 14/25 (56% CTEM Maturity)
+## Current State: 16/25 (64% CTEM Maturity)
 
 ```
-PHASE 1: SCOPING          ⭐⭐⭐☆☆  3/5 (60%)
-PHASE 2: DISCOVERY         ⭐⭐⭐⭐☆  4/5 (80%)
+PHASE 1: SCOPING          ⭐⭐⭐⭐☆  4/5 (80%)   ↑ was 60%
+PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ was 80%
 PHASE 3: PRIORITIZATION    ⭐⭐⭐☆☆  3/5 (60%)
 PHASE 4: VALIDATION        ⭐⭐☆☆☆  2/5 (40%)
-PHASE 5: MOBILIZATION      ⭐⭐☆☆☆  2/5 (40%)  ← critical bottleneck
+PHASE 5: MOBILIZATION      ⭐⭐☆☆☆  2/5 (40%)   ← still critical bottleneck
 ```
 
-**Biggest gap**: Platform discovers vulnerabilities well but lacks business layer to remediate them efficiently. Customers use OpenCTEM as a scanner, not a platform.
+**Phase 2 improvement**: Asset type consolidation (33→15+sub_type), dynamic property filtering, unified pages, complete module system cleanup.
+
+**Biggest remaining gap**: Mobilization — remediation campaigns UI + threat intel automation.
 
 ---
 
 ## Target: 24/25 (96%) by end of 2026
 
 ```
-Q2 2026: 14 → 19/25  (Mobilization + Prioritization)
-Q3 2026: 19 → 22/25  (Validation + Discovery)
-Q4 2026: 22 → 24/25  (Scoping + Polish)
+Q2 2026: 16 → 20/25  (Mobilization + Prioritization)
+Q3 2026: 20 → 23/25  (Validation + Discovery)
+Q4 2026: 23 → 24/25  (Scoping + Polish)
 ```
 
 ---
 
-## Phase 1: Asset Type Consolidation
+## Phase 1: Asset Type Consolidation — ✅ COMPLETED (2026-04-14)
 
 > **Full RFC**: [2026-04-asset-type-consolidation.md](./2026-04-asset-type-consolidation.md)
 
-### Summary
-33 types → 15 core types + sub_types. 9 categories for sidebar grouping.
-
-```
-external_surface  → domain, subdomain, certificate, ip_address (keep all 4)
-application       → application (merge website, web_app, api, mobile_app)
-infrastructure    → host (merge compute, serverless) + container + kubernetes (merge cluster, namespace)
-network           → network (merge vpc, subnet, firewall, load_balancer) + service (merge http_service, open_port, discovered_url)
-cloud             → cloud_account + storage (merge s3_bucket, container_registry)
-data              → database (merge data_store) + repository
-identity          → identity (merge iam_user, iam_role, service_account)
-other             → unclassified
-```
+### What was delivered:
+- 33 types → 15 core types + sub_types (migrations 000128–000132)
+- 15 live asset pages + 10 redirect pages for backward compat
+- Dynamic PropertyFilter: server-side JSONB faceted search on any property field
+- `GET /assets/facets` API: auto-discovers filterable fields from data
+- `?properties=key:value` server-side filter (GIN indexed)
+- `by_sub_type` breakdown in stats API
+- Auto-promote properties: collectors send sub_type/scope/tags in JSONB → auto-extracted to columns
+- Unified `/assets/identity` page (replaces 3 separate IAM pages)
+- 20 active modules (cleaned from 25, added Identity)
+- 23 unit tests + 18 integration test assertions
+- 22 runtime type-cast bug fixes
 
 ---
 
 ## Phase 2: Mobilization (Q2 2026) — HIGHEST PRIORITY
 
-### Why first?
-Without remediation workflows, customers can't close the CTEM loop. Discovery without remediation = noise.
+### 2.1 Vulnerability Group View — ✅ DONE
+- [x] API: `GET /api/v1/findings/groups?group_by=cve_id`
+- [x] Repository: `ListFindingGroups()`
+- [x] UI: `finding-groups-tab.tsx`
+- [x] Bulk operations: `BulkUpdateStatusByFilter()`
 
-### 2.1 Vulnerability Group View
-**Problem**: 500 Log4j findings = 500 individual items. Should be 1 vulnerability with 500 affected assets.
-
-**Solution**:
-- API: `GET /api/v1/findings/grouped?group_by=cve_id` → aggregate by CVE/CWE
-- UI: Vulnerability list page with expandable asset list per CVE
-- Priority: each group shows worst severity + total affected count
-
-**Effort**: 3-4 days  
-**Impact**: 🔴 Critical (every team needs this daily)
-
-### 2.2 Remediation Campaigns
-**Problem**: No way to track "fix all Log4j" as a campaign with progress.
-
-**Solution**:
-```
-Campaign lifecycle: draft → active → validating → completed
-Fields: name, description, findings[], assignee, deadline, progress%
-```
-- Link campaign to finding filter (severity=critical, cve=CVE-2021-44228)
-- Auto-calculate progress from finding status changes
-- Dashboard: burndown chart, team assignments, SLA compliance
-
-**Effort**: 2 weeks  
-**Dependencies**: Vulnerability Group View
+### 2.2 Remediation Campaigns — 🟡 Backend Done, UI Pending
+- [x] Migration 000125: `remediation_campaigns` table
+- [x] Domain + repo + service + handler (API returns 200)
+- [ ] **TODO**: UI campaign list page (replace mock)
+- [ ] **TODO**: UI campaign detail (progress bar, burndown)
 
 ### 2.3 ITSM Integration (Jira)
-**Problem**: Findings exist in OpenCTEM but tickets created manually in Jira.
+- [ ] Bidirectional sync: finding ↔ Jira ticket
+- [ ] Auto-create ticket from finding/campaign
 
-**Solution**:
-- Bidirectional sync: finding status ↔ Jira ticket status
-- Auto-create ticket from finding/campaign
-- Webhook listener for Jira status changes → update finding
+### 2.4 Finding Exceptions — ✅ DONE
+- [x] Approval workflow: request → review → approve/reject
+- [x] Suppression system with expiration
+- [x] Audit trail
 
-**Effort**: 2 weeks  
-**Dependencies**: Integration entity (already exists)
+### 2.5 Threat Intel Automation — 🟡 Partial
+- [x] Service: `ThreatIntelService` with EPSS/KEV enrichment endpoints
+- [ ] **TODO**: Asynq cron jobs (daily auto-refresh)
+- [ ] **TODO**: Auto-escalate on KEV appearance
 
-### 2.4 Finding Exceptions
-**Problem**: False positives and accepted risks need audit trail + expiration.
-
-**Solution**:
-- Exception types: false_positive, accepted_risk, compensating_control
-- Approval workflow: requester → reviewer → approved/rejected
-- Expiration: auto-reopen after N days for re-evaluation
-- Audit trail: who approved, when, why
-
-**Effort**: 1 week
-
-### 2.5 Risk Reduction Tracking
-**Problem**: Can't show "this campaign reduced risk by 30%".
-
-**Solution**:
-- Snapshot risk score before campaign starts
-- Calculate delta when findings resolved
-- Dashboard: risk trend over time, per campaign
-
-**Effort**: 1 week  
-**Dependencies**: Remediation Campaigns
+### 2.6 Risk Reduction Tracking
+- [ ] Snapshot risk score at campaign start
+- [ ] Delta calculation on resolution
 
 ---
 
 ## Phase 3: Prioritization Enhancement (Q2-Q3 2026)
 
-### 3.1 Threat Intel Feed Automation
-**Problem**: EPSS/KEV data is stale (manual seed, no auto-refresh).
+### 3.1 Trending Risks — 🟡 Backend Done
+- [x] Repository: `GetRiskVelocity()` — weekly new vs resolved
+- [ ] **TODO**: Dashboard UI trend chart
 
-**Solution**:
-- Asynq cron job: daily EPSS refresh from FIRST.org API
-- Asynq cron job: daily CISA KEV refresh
-- Auto-escalate findings when CVE appears in KEV
-- Webhook for custom threat feeds
+### 3.2 MTTR/MTTD Metrics — 🟡 Backend Done
+- [x] Repository: `GetMTTRMetrics()` — avg hours by severity
+- [ ] **TODO**: Dashboard UI metric cards
 
-**Effort**: 1 week  
-**Impact**: 🔴 Critical for enterprise
+### 3.3 Business Units — 🟡 Backend Done
+- [x] Migration 000126 + domain + repo + service + handler
+- [ ] **TODO**: Wire UI to real API (replace mock)
 
-### 3.2 Attack Path Scoring
-**Problem**: Can fix asset X but don't know how many attack paths it breaks.
+### 3.4 Crown Jewels — 🟡 Backend Done
+- [x] DB columns on assets + handler endpoint
+- [ ] **TODO**: Wire UI to real API
 
-**Solution**:
-- Graph traversal on asset relationships
-- Score = number of paths from internet-facing → crown jewel that pass through this asset
-- UI: "Fixing this asset eliminates 12 attack paths"
+### 3.5 Attack Path Scoring
+- [ ] Graph traversal on asset relationships
+- [ ] UI: attack path visualization
 
-**Effort**: 2 weeks  
-**Dependencies**: Asset relationships (exists), Crown Jewels (Phase 5)
-
-### 3.3 Trending Risks
-**Problem**: No velocity metric — is exposure growing faster than remediation?
-
-**Solution**:
-- Risk velocity = (new findings per week) - (resolved findings per week)
-- Positive = losing ground, negative = improving
-- Dashboard: trend line over 30/60/90 days
-
-**Effort**: 3 days
+### 3.6 Compliance Framework Seeding
+- [ ] Seed: PCI-DSS 4.0, SOC 2, ISO 27001, NIST CSF
+- [ ] Wire UI to frameworks API
 
 ---
 
 ## Phase 4: Validation Completion (Q3 2026)
 
 ### 4.1 Verification Scan Automation
-**Problem**: After remediation, must manually re-scan to verify fix.
-
-**Solution**:
-- When finding status → "remediated", auto-trigger targeted scan
-- Scan result updates finding to "verified" or back to "open"
-- Wire via existing workflow engine (trigger: finding_status_changed)
-
-**Effort**: 1 week
+- [ ] Workflow trigger on finding remediation
+- [ ] Auto-scan + auto-verify/reopen
 
 ### 4.2 MITRE ATT&CK Coverage Heatmap
-**Problem**: Can't visualize "which ATT&CK techniques have we tested?"
-
-**Solution**:
-- Map findings (OWASP/CWE) → MITRE techniques (mapping data exists)
-- Map pentest campaigns → techniques tested
-- UI: ATT&CK matrix heatmap with coverage percentage per technique
-
-**Effort**: 2 weeks  
-**Dependencies**: MITRE mapping data (exists in `mitre-attack.ts`)
+- [ ] Map findings → MITRE techniques
+- [ ] UI: heatmap matrix
 
 ### 4.3 Detection Coverage Testing
-**Problem**: No way to measure "can our SIEM detect technique X?"
-
-**Solution**:
-- Control test results linked to MITRE techniques
-- Pass/fail per technique per detection tool
-- Dashboard: detection coverage % across ATT&CK matrix
-
-**Effort**: 1 week  
-**Dependencies**: Control test API (exists), MITRE mapping
-
-### 4.4 MTTR/MTTD Metrics
-**Problem**: No mean-time-to-detect or mean-time-to-remediate tracking.
-
-**Solution**:
-- MTTD = avg(finding.created_at - finding.first_seen)
-- MTTR = avg(finding.resolved_at - finding.created_at)
-- Dashboard: trend over time, by severity, by team
-
-**Effort**: 3 days
+- [ ] Control tests → MITRE techniques
+- [ ] Detection coverage dashboard
 
 ---
 
 ## Phase 5: Scoping & Discovery Extension (Q4 2026)
 
-### 5.1 Business Units & Crown Jewels API
-**Problem**: UI pages exist with mock data, no backend.
+### 5.1 Host & Container Discovery
+- [ ] Nessus/Qualys import
+- [ ] Kubernetes API sync
 
-**Solution**:
-- Business unit CRUD + asset linkage
-- Crown jewel designation + impact scoring
-- Risk aggregation per business unit
-
-**Effort**: 1 week each
-
-### 5.2 Compliance Framework Seeding
-**Problem**: Compliance mapping is empty.
-
-**Solution**:
-- Seed data: PCI-DSS 4.0, SOC 2, ISO 27001, NIST CSF, CIS Controls
-- Control → finding mapping rules
-- Compliance dashboard: % controls met per framework
-
-**Effort**: 2 weeks
-
-### 5.3 Host & Container Discovery
-**Problem**: No infrastructure scan integration.
-
-**Solution**:
-- Nessus/Qualys result import (via CTIS adapter in SDK)
-- Kubernetes API sync (cluster → namespace → workload → container)
-- CMDB import (ServiceNow, BMC)
-
-**Effort**: 2 weeks per integration
-
-### 5.4 Identity Risk Discovery
-**Problem**: No IAM analysis.
-
-**Solution**:
-- AD/LDAP user enumeration
-- MFA coverage tracking
-- Dormant account detection
-- Over-privileged role analysis
-
-**Effort**: 3 weeks
+### 5.2 Identity Risk Discovery
+- [ ] AD/LDAP enumeration
+- [ ] MFA coverage, dormant accounts
 
 ---
 
-## Phase 6: Platform Hardening (2027+)
+## Priority Matrix (Updated)
 
-### 6.1 Asset Type Finalization
-- Complete type aliasing (Phase 1 Step 3-4)
-- API v2 with 12 core types + sub_types
-- Deprecate v1 types
-
-### 6.2 Advanced Threat Intel
-- STIX/TAXII feed connector
-- Threat actor profiles linked to CVEs
-- Industry-specific threat landscape
-
-### 6.3 AI-Assisted Operations
-- AI finding dedup (leverage existing AI Triage service)
-- AI remediation recommendations
-- Natural language risk queries
-
-### 6.4 Advanced Integrations
-- ServiceNow bidirectional sync
-- Splunk/ELK SIEM connector
-- Cloud posture management (AWS Security Hub, Azure Defender)
+| Item | Impact | Status | Quarter |
+|------|--------|--------|---------|
+| ~~Asset Type Consolidation~~ | 🔴 Critical | ✅ Done | Q2 |
+| ~~Vulnerability Group View~~ | 🔴 Critical | ✅ Done | Q2 |
+| ~~Finding Exceptions~~ | 🟠 High | ✅ Done | Q2 |
+| Remediation Campaigns UI | 🔴 Critical | Backend done | Q2 |
+| Threat Intel Cron Jobs | 🔴 Critical | Partial | Q2 |
+| Business Units UI | 🟡 Medium | Backend done | Q2 |
+| Dashboard Velocity/MTTR | 🟠 High | Backend done | Q2 |
+| Crown Jewels UI | 🟡 Medium | Backend done | Q2 |
+| Jira Integration | 🔴 Critical | Not started | Q3 |
+| Verification Scan | 🟡 Medium | Not started | Q3 |
+| MITRE Heatmap | 🟡 Medium | Not started | Q3 |
+| Compliance Seeding | 🟡 Medium | Not started | Q4 |
+| Attack Path Scoring | 🟡 Medium | Not started | Q4 |
 
 ---
 
-## Priority Matrix
+## Success Metrics (Updated)
 
-| Item | Impact | Effort | Phase | Quarter |
-|------|--------|--------|-------|---------|
-| Vulnerability Group View | 🔴 Critical | 3-4 days | Mobilization | Q2 |
-| Remediation Campaigns | 🔴 Critical | 2 weeks | Mobilization | Q2 |
-| Jira Integration | 🔴 Critical | 2 weeks | Mobilization | Q2 |
-| Threat Intel Automation | 🔴 Critical | 1 week | Prioritization | Q2 |
-| Finding Exceptions | 🟠 High | 1 week | Mobilization | Q2 |
-| Risk Reduction Tracking | 🟠 High | 1 week | Mobilization | Q2 |
-| Trending Risks | 🟠 High | 3 days | Prioritization | Q2 |
-| Asset Type Category Mapping | 🟠 High | 1 week | Consolidation | Q2 |
-| UI Sidebar Consolidation | 🟠 High | 2-3 weeks | Consolidation | Q3 |
-| Verification Scan Auto | 🟡 Medium | 1 week | Validation | Q3 |
-| MITRE ATT&CK Heatmap | 🟡 Medium | 2 weeks | Validation | Q3 |
-| MTTR/MTTD Dashboard | 🟡 Medium | 3 days | Validation | Q3 |
-| Business Units API | 🟡 Medium | 1 week | Scoping | Q4 |
-| Crown Jewels API | 🟡 Medium | 1 week | Scoping | Q4 |
-| Compliance Seeding | 🟡 Medium | 2 weeks | Scoping | Q4 |
-| Host Discovery | 🟡 Medium | 2 weeks | Discovery | Q4 |
-| Attack Path Scoring | 🟡 Medium | 2 weeks | Prioritization | Q4 |
-| Type Aliasing | 🔵 Low | 1 month | Consolidation | Q4 |
-
----
-
-## Success Metrics
-
-| Metric | Current | Q2 Target | Q4 Target |
-|--------|---------|-----------|-----------|
-| CTEM Score | 14/25 | 19/25 | 24/25 |
-| Asset Types | 33 (sprawl) | 33 (categorized) | 12+sub_types |
-| Sidebar Pages | 30+ | 30+ (categorized) | 10 |
-| Integrations | 5 notification | +Jira | +ServiceNow, +Nessus |
-| Threat Intel | Manual | Auto-daily | +STIX/TAXII |
-| Remediation | Per-finding | Campaigns | +ITSM sync |
-| MTTR visibility | None | Basic | Full dashboard |
-
----
-
-## Risk Factors
-
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|-----------|
-| Type aliasing breaks collectors | Medium | High | Backward-compatible aliases, never delete types |
-| Jira integration scope creep | High | Medium | MVP: one-way sync first, bidirectional Q3 |
-| Threat intel data volume | Medium | Medium | Rate limiting, incremental updates |
-| UI consolidation regression | Low | Medium | Feature flags, gradual rollout |
+| Metric | Before Session | After Session | Q4 Target |
+|--------|---------------|--------------|-----------|
+| CTEM Score | 14/25 (56%) | **16/25 (64%)** | 24/25 |
+| Asset Types | 33 (sprawl) | **15 core + sub_types** | 15 |
+| Sidebar Pages | 30+ | **15 organized** | 15 |
+| API Calls/Page | 4 | **2** | 2 |
+| Type-cast Bugs | 22 | **0** | 0 |
+| Unit Tests (new) | 0 | **23** | 50+ |
+| Integration Tests | 0 | **18 assertions** | 50+ |
+| Migrations | 130 | **132** | — |
 
 ---
 
 ## References
 
+- [Asset Type Consolidation RFC](./2026-04-asset-type-consolidation.md) — Status: Implemented
+- [Implementation Plan](./IMPLEMENTATION_PLAN.md) — 73% complete
 - [Gartner CTEM Framework](https://www.gartner.com/en/articles/how-to-manage-cybersecurity-threats-not-episodes)
-- [Asset IP-Hostname Correlation](../api/docs/architecture/asset-ip-hostname-correlation.md)
-- [Workflow Templates](../api/configs/workflow-templates/auto-remediation.json)
-- [MITRE ATT&CK Mapping](../ui/src/features/pentest/lib/mitre-attack.ts)
