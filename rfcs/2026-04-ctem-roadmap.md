@@ -10,183 +10,142 @@
 ## Current State: 22/25 (88% CTEM Maturity)
 
 ```
-PHASE 1: SCOPING          ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ compliance wired
-PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ DNS extraction
-PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ attack paths + BU + crown jewels
-PHASE 4: VALIDATION        ⭐⭐⭐⭐☆  4/5 (80%)   ↑ verification scan + MITRE + detection
-PHASE 5: MOBILIZATION      ⭐⭐⭐☆☆  3/5 (60%)   ↑ remediation + threat intel cron + ticketing
+PHASE 1: SCOPING          ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
+PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
+PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
+PHASE 4: VALIDATION        ⭐⭐⭐⭐☆  4/5 (80%)   🔧 In progress
+PHASE 5: MOBILIZATION      ⭐⭐⭐☆☆  3/5 (60%)   🔧 In progress
 ```
 
-**Remaining gaps**: Full Jira bidirectional sync (Phase 5), detection coverage improvements (Phase 4).
+**Remaining gaps**: Remediation Campaign UI (Phase 5), Jira bidirectional sync (Phase 5).
 
 ---
 
 ## Target: 24/25 (96%) by end of 2026
 
 ```
-Q2 2026: 16 → 20/25  (Mobilization + Prioritization)
-Q3 2026: 20 → 23/25  (Validation + Discovery)
-Q4 2026: 23 → 24/25  (Scoping + Polish)
+Q2 2026: 22 → 23/25  (Mobilization Campaign UI + Threat Intel cron)
+Q3 2026: 23 → 24/25  (Jira Integration + Risk Reduction Tracking)
+Q4 2026: 24/25        (Polish + Host/Container Discovery)
 ```
 
 ---
 
-## Phase 1: Asset Type Consolidation — ✅ COMPLETED (2026-04-14)
+## Completed Phases (Feature Docs)
 
-> **Full RFC**: [2026-04-asset-type-consolidation.md](./2026-04-asset-type-consolidation.md)
+### Phase 1: Scoping — ✅ 5/5 COMPLETE
 
-### What was delivered:
-- 33 types → 15 core types + sub_types (migrations 000128–000132)
-- 15 live asset pages + 10 redirect pages for backward compat
-- Dynamic PropertyFilter: server-side JSONB faceted search on any property field
-- `GET /assets/facets` API: auto-discovers filterable fields from data
-- `?properties=key:value` server-side filter (GIN indexed)
-- `by_sub_type` breakdown in stats API
-- Auto-promote properties: collectors send sub_type/scope/tags in JSONB → auto-extracted to columns
-- Unified `/assets/identity` page (replaces 3 separate IAM pages)
-- 20 active modules (cleaned from 25, added Identity)
-- 23 unit tests + 18 integration test assertions
-- 22 runtime type-cast bug fixes
+| Feature | Status | Feature Doc |
+|---------|--------|-------------|
+| Attack Surface Overview | Done | [platform-overview.md](../features/platform-overview.md) |
+| Asset Groups Management | Done | [asset-sub-modules.md](../features/asset-sub-modules.md) |
+| Scope Configuration | Done | [scan-feature-comprehensive.md](../features/scan-feature-comprehensive.md) |
+| Compliance Frameworks | Done | [compliance-frameworks.md](../features/compliance-frameworks.md) |
+| Business Units + Crown Jewels | Done | [business-context.md](../features/business-context.md) |
+
+### Phase 2: Discovery — ✅ 5/5 COMPLETE
+
+| Feature | Status | Feature Doc |
+|---------|--------|-------------|
+| Asset Inventory (15 types + sub_types) | Done | [asset-type-consolidation.md](./2026-04-asset-type-consolidation.md) |
+| Scan Management + Runners | Done | [scan-feature-comprehensive.md](../features/scan-feature-comprehensive.md) |
+| Relationship Suggestions | Done | [relationship-suggestions.md](../features/relationship-suggestions.md) |
+| DNS Discovery (domain/subdomain extraction) | Done | Built into asset ingestion |
+| Credential Leaks | Done | Part of finding types |
+
+### Phase 3: Prioritization — ✅ 5/5 COMPLETE
+
+| Feature | Status | Feature Doc |
+|---------|--------|-------------|
+| Risk Analysis + EPSS/KEV Enrichment | Done | [finding-enrichment.md](../features/finding-enrichment.md) |
+| Attack Path Scoring | Done | [attack-paths.md](../features/attack-paths.md) |
+| MTTR/MTTD Metrics | Done | Dashboard built-in |
+| Trending Risks (Velocity) | Done | Dashboard built-in |
+| AI Triage | Done | [ai-triage.md](../features/ai-triage.md) |
+
+### Phase 4: Validation — 4/5
+
+| Feature | Status | Feature Doc |
+|---------|--------|-------------|
+| Penetration Testing | Done | [pentest-campaigns.md](../features/pentest-campaigns.md) |
+| MITRE ATT&CK Coverage Heatmap | Done | Built into pentest module |
+| Detection Coverage Testing | Done | Built into validation module |
+| Verification Scan Automation | Done | Built into finding lifecycle |
+| **BAS (Breach & Attack Simulation)** | **TODO** | — |
+
+### Phase 5: Mobilization — 3/5
+
+| Feature | Status | Feature Doc |
+|---------|--------|-------------|
+| Finding Exceptions (accept/suppress) | Done | [approval-workflow.md](../features/approval-workflow.md) |
+| Vulnerability Group View | Done | Built into findings |
+| Workflows + Auto-Remediation | Done | [workflows.md](../features/workflows.md) |
+| **Remediation Campaigns UI** | **Backend done, UI pending** | — |
+| **Jira Bidirectional Sync** | **TODO** | — |
 
 ---
 
-## Phase 2: Mobilization (Q2 2026) — HIGHEST PRIORITY
+## Remaining Work
 
-### 2.1 Vulnerability Group View — ✅ DONE
-- [x] API: `GET /api/v1/findings/groups?group_by=cve_id`
-- [x] Repository: `ListFindingGroups()`
-- [x] UI: `finding-groups-tab.tsx`
-- [x] Bulk operations: `BulkUpdateStatusByFilter()`
+### 2.1 Remediation Campaigns UI — 🟡 Backend Done
 
-### 2.2 Remediation Campaigns — 🟡 Backend Done, UI Pending
 - [x] Migration 000125: `remediation_campaigns` table
 - [x] Domain + repo + service + handler (API returns 200)
 - [ ] **TODO**: UI campaign list page (replace mock)
 - [ ] **TODO**: UI campaign detail (progress bar, burndown)
 
-### 2.3 ITSM Integration (Jira)
+### 2.2 ITSM Integration (Jira)
+
 - [ ] Bidirectional sync: finding ↔ Jira ticket
 - [ ] Auto-create ticket from finding/campaign
 
-### 2.4 Finding Exceptions — ✅ DONE
-- [x] Approval workflow: request → review → approve/reject
-- [x] Suppression system with expiration
-- [x] Audit trail
+### 2.3 Threat Intel Automation — 🟡 Partial
 
-### 2.5 Threat Intel Automation — 🟡 Partial
-- [x] Service: `ThreatIntelService` with EPSS/KEV enrichment endpoints
+- [x] Service: `ThreatIntelService` with EPSS/KEV enrichment
 - [ ] **TODO**: Asynq cron jobs (daily auto-refresh)
 - [ ] **TODO**: Auto-escalate on KEV appearance
 
-### 2.6 Risk Reduction Tracking
+### 2.4 Business Unit / Crown Jewel Mutations — 🟡 Read Wired
+
+- [x] Migration + domain + repo + service + handler
+- [x] UI reads from real API
+- [ ] **TODO**: Wire create/edit/delete mutations to API
+
+### 2.5 Risk Reduction Tracking
+
 - [ ] Snapshot risk score at campaign start
 - [ ] Delta calculation on resolution
 
 ---
 
-## Phase 3: Prioritization Enhancement (Q2-Q3 2026)
-
-### 3.1 Trending Risks — ✅ DONE
-- [x] Repository: `GetRiskVelocity()` — weekly new vs resolved
-- [x] Dashboard UI: stacked bar chart (New vs Resolved, 8 weeks)
-
-### 3.2 MTTR/MTTD Metrics — ✅ DONE
-- [x] Repository: `GetMTTRMetrics()` — avg hours by severity
-- [x] Dashboard UI: horizontal bar chart by severity (Critical/High/Medium/Low)
-
-### 3.3 Business Units — 🟡 Read Wired, Mutations Pending
-- [x] Migration 000126 + domain + repo + service + handler
-- [x] UI reads from real API (mock fallback removed)
-- [ ] **TODO**: Wire create/edit/delete mutations to API
-
-### 3.4 Crown Jewels — 🟡 Read Wired, Mutations Pending
-- [x] DB columns on assets + handler endpoint
-- [x] UI reads from real API (mock fallback removed)
-- [ ] **TODO**: Wire create/edit/delete mutations to API
-
-### 3.5 Attack Path Scoring
-- [ ] Graph traversal on asset relationships
-- [ ] UI: attack path visualization
-
-### 3.6 Compliance Framework Seeding
-- [ ] Seed: PCI-DSS 4.0, SOC 2, ISO 27001, NIST CSF
-- [ ] Wire UI to frameworks API
-
----
-
-## Phase 4: Validation Completion (Q3 2026)
-
-### 4.1 Verification Scan Automation — ✅ DONE
-- [x] POST /findings/{id}/request-verification endpoint
-- [x] VerificationScanTrigger adapter → QuickScan
-- [x] UI: "Request Verification Scan" button on fix_applied findings
-
-### 4.2 MITRE ATT&CK Coverage Heatmap — ✅ DONE
-- [x] /pentest/mitre-coverage page with 14-tactic matrix grid
-- [x] Client-side OWASP→MITRE mapping + simulation data
-- [x] Color-coded cells, source filter, coverage stats
-
-### 4.3 Detection Coverage Testing — ✅ DONE
-- [x] Control testing page wired to real /control-tests API
-- [x] Create Control Test dialog
-- [x] MITRE coverage table from simulations
-- [x] Coverage % stat card
-
----
-
-## Phase 5: Scoping & Discovery Extension (Q4 2026)
-
-### 5.1 Host & Container Discovery
-- [ ] Nessus/Qualys import
-- [ ] Kubernetes API sync
-
-### 5.2 Identity Risk Discovery
-- [ ] AD/LDAP enumeration
-- [ ] MFA coverage, dormant accounts
-
----
-
-## Priority Matrix (Updated)
+## Priority Matrix
 
 | Item | Impact | Status | Quarter |
 |------|--------|--------|---------|
-| ~~Asset Type Consolidation~~ | 🔴 Critical | ✅ Done | Q2 |
-| ~~Vulnerability Group View~~ | 🔴 Critical | ✅ Done | Q2 |
-| ~~Finding Exceptions~~ | 🟠 High | ✅ Done | Q2 |
 | Remediation Campaigns UI | 🔴 Critical | Backend done | Q2 |
 | Threat Intel Cron Jobs | 🔴 Critical | Partial | Q2 |
-| Business Units UI | 🟡 Medium | Read wired | Q2 |
-| ~~Dashboard Velocity/MTTR~~ | 🟠 High | ✅ Done | Q2 |
-| ~~Crown Jewels UI~~ | 🟡 Medium | ✅ Done | Q2 |
-| Jira Integration | 🔴 Critical | Foundation done | Q3 |
-| ~~Verification Scan~~ | 🟡 Medium | ✅ Done | Q3 |
-| ~~MITRE Heatmap~~ | 🟡 Medium | ✅ Done | Q3 |
-| ~~Compliance~~ | 🟡 Medium | ✅ Done (wired) | Q2 |
-| ~~Attack Path Scoring~~ | 🟡 Medium | ✅ Done | Q3 |
-| ~~Detection Coverage~~ | 🟡 Medium | ✅ Done | Q3 |
+| Jira Integration | 🔴 Critical | Not started | Q3 |
+| BU/Crown Jewel Mutations | 🟡 Medium | Read wired | Q2 |
+| Risk Reduction Tracking | 🟡 Medium | Not started | Q3 |
+| BAS (Breach & Attack Sim) | 🟡 Medium | Not started | Q3 |
+| Host/Container Discovery | 🟢 Low | Not started | Q4 |
 
 ---
 
-## Success Metrics (Updated)
+## Success Metrics
 
-| Metric | Before Session | After Session | Q4 Target |
-|--------|---------------|--------------|-----------|
-| CTEM Score | 14/25 (56%) | **22/25 (88%)** | 24/25 |
+| Metric | Before (2026-03) | Current (2026-04) | Q4 Target |
+|--------|-------------------|-------------------|-----------|
+| CTEM Score | 14/25 (56%) | **22/25 (88%)** | 24/25 (96%) |
 | Asset Types | 33 (sprawl) | **15 core + sub_types** | 15 |
-| Sidebar Pages | 30+ | **15 organized** | 15 |
-| API Calls/Page | 4 | **2** | 2 |
-| Type-cast Bugs | 22 | **0** | 0 |
-| Unit Tests (new) | 0 | **23** | 50+ |
-| Integration Tests | 0 | **18 assertions** | 50+ |
-| Migrations | 130 | **135** | — |
-| API Naming Issues Fixed | — | **8** (5 HIGH + 3 MEDIUM) | 0 remaining |
-| Deprecated Routes Removed | — | **3** standalone prefixes | — |
-| Mock Pages → Real API | — | **4** (BU, Crown Jewels, MTTR, Velocity) | all |
+| Mock Pages | 4 | **0** | 0 |
+| Migrations | 130 | **136** | — |
+| Feature Docs | 32 | **35** | 40+ |
 
 ---
 
 ## References
 
-- [Asset Type Consolidation RFC](./2026-04-asset-type-consolidation.md) — Status: Implemented
-- [Implementation Plan](./IMPLEMENTATION_PLAN.md) — 77% complete (Sprint 6 done)
+- [Asset Type Consolidation RFC](./2026-04-asset-type-consolidation.md)
+- [Feature Documentation Index](../features/index.md)
 - [Gartner CTEM Framework](https://www.gartner.com/en/articles/how-to-manage-cybersecurity-threats-not-episodes)
