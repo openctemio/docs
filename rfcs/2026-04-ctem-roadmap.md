@@ -7,17 +7,17 @@
 
 ---
 
-## Current State: 16/25 (64% CTEM Maturity)
+## Current State: 17/25 (68% CTEM Maturity)
 
 ```
 PHASE 1: SCOPING          ⭐⭐⭐⭐☆  4/5 (80%)   ↑ was 60%
 PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ↑ was 80%
-PHASE 3: PRIORITIZATION    ⭐⭐⭐☆☆  3/5 (60%)
+PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐☆  4/5 (80%)   ↑ was 60% (MTTR + velocity charts done)
 PHASE 4: VALIDATION        ⭐⭐☆☆☆  2/5 (40%)
 PHASE 5: MOBILIZATION      ⭐⭐☆☆☆  2/5 (40%)   ← still critical bottleneck
 ```
 
-**Phase 2 improvement**: Asset type consolidation (33→15+sub_type), dynamic property filtering, unified pages, complete module system cleanup.
+**Phase 3 improvement**: MTTR + Risk Velocity charts on dashboard, business units + crown jewels wired to real API.
 
 **Biggest remaining gap**: Mobilization — remediation campaigns UI + threat intel automation.
 
@@ -88,21 +88,23 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 
 ## Phase 3: Prioritization Enhancement (Q2-Q3 2026)
 
-### 3.1 Trending Risks — 🟡 Backend Done
+### 3.1 Trending Risks — ✅ DONE
 - [x] Repository: `GetRiskVelocity()` — weekly new vs resolved
-- [ ] **TODO**: Dashboard UI trend chart
+- [x] Dashboard UI: stacked bar chart (New vs Resolved, 8 weeks)
 
-### 3.2 MTTR/MTTD Metrics — 🟡 Backend Done
+### 3.2 MTTR/MTTD Metrics — ✅ DONE
 - [x] Repository: `GetMTTRMetrics()` — avg hours by severity
-- [ ] **TODO**: Dashboard UI metric cards
+- [x] Dashboard UI: horizontal bar chart by severity (Critical/High/Medium/Low)
 
-### 3.3 Business Units — 🟡 Backend Done
+### 3.3 Business Units — 🟡 Read Wired, Mutations Pending
 - [x] Migration 000126 + domain + repo + service + handler
-- [ ] **TODO**: Wire UI to real API (replace mock)
+- [x] UI reads from real API (mock fallback removed)
+- [ ] **TODO**: Wire create/edit/delete mutations to API
 
-### 3.4 Crown Jewels — 🟡 Backend Done
+### 3.4 Crown Jewels — 🟡 Read Wired, Mutations Pending
 - [x] DB columns on assets + handler endpoint
-- [ ] **TODO**: Wire UI to real API
+- [x] UI reads from real API (mock fallback removed)
+- [ ] **TODO**: Wire create/edit/delete mutations to API
 
 ### 3.5 Attack Path Scoring
 - [ ] Graph traversal on asset relationships
@@ -151,9 +153,9 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 | ~~Finding Exceptions~~ | 🟠 High | ✅ Done | Q2 |
 | Remediation Campaigns UI | 🔴 Critical | Backend done | Q2 |
 | Threat Intel Cron Jobs | 🔴 Critical | Partial | Q2 |
-| Business Units UI | 🟡 Medium | Backend done | Q2 |
-| Dashboard Velocity/MTTR | 🟠 High | Backend done | Q2 |
-| Crown Jewels UI | 🟡 Medium | Backend done | Q2 |
+| Business Units UI | 🟡 Medium | Read wired | Q2 |
+| ~~Dashboard Velocity/MTTR~~ | 🟠 High | ✅ Done (charts) | Q2 |
+| Crown Jewels UI | 🟡 Medium | Read wired | Q2 |
 | Jira Integration | 🔴 Critical | Not started | Q3 |
 | Verification Scan | 🟡 Medium | Not started | Q3 |
 | MITRE Heatmap | 🟡 Medium | Not started | Q3 |
@@ -166,7 +168,7 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 
 | Metric | Before Session | After Session | Q4 Target |
 |--------|---------------|--------------|-----------|
-| CTEM Score | 14/25 (56%) | **16/25 (64%)** | 24/25 |
+| CTEM Score | 14/25 (56%) | **17/25 (68%)** | 24/25 |
 | Asset Types | 33 (sprawl) | **15 core + sub_types** | 15 |
 | Sidebar Pages | 30+ | **15 organized** | 15 |
 | API Calls/Page | 4 | **2** | 2 |
@@ -174,6 +176,9 @@ Q4 2026: 23 → 24/25  (Scoping + Polish)
 | Unit Tests (new) | 0 | **23** | 50+ |
 | Integration Tests | 0 | **18 assertions** | 50+ |
 | Migrations | 130 | **132** | — |
+| API Naming Issues Fixed | — | **8** (5 HIGH + 3 MEDIUM) | 0 remaining |
+| Deprecated Routes Removed | — | **3** standalone prefixes | — |
+| Mock Pages → Real API | — | **4** (BU, Crown Jewels, MTTR, Velocity) | all |
 
 ---
 
