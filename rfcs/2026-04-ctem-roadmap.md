@@ -7,17 +7,17 @@
 
 ---
 
-## Current State: 23/25 (92% CTEM Maturity)
+## Current State: 25/25 (100% CTEM Maturity)
 
 ```
 PHASE 1: SCOPING          ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
 PHASE 2: DISCOVERY         ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
 PHASE 3: PRIORITIZATION    ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
-PHASE 4: VALIDATION        ⭐⭐⭐⭐☆  4/5 (80%)   🔧 BAS remaining
-PHASE 5: MOBILIZATION      ⭐⭐⭐⭐☆  4/5 (80%)   🔧 Jira remaining
+PHASE 4: VALIDATION        ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
+PHASE 5: MOBILIZATION      ⭐⭐⭐⭐⭐  5/5 (100%)  ✅ Complete
 ```
 
-**Remaining gaps**: BAS (Phase 4), Jira bidirectional sync (Phase 5).
+**All CTEM phases complete.** Platform covers the full Gartner CTEM framework.
 
 ---
 
@@ -71,7 +71,7 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 | MITRE ATT&CK Coverage Heatmap | Done | Built into pentest module |
 | Detection Coverage Testing | Done | Built into validation module |
 | Verification Scan Automation | Done | Built into finding lifecycle |
-| **BAS (Breach & Attack Simulation)** | **TODO** | — |
+| BAS (Breach & Attack Simulation) | Done | Execution engine + run tracking |
 
 ### Phase 5: Mobilization — 4/5
 
@@ -81,7 +81,7 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 | Vulnerability Group View | Done | Built into findings |
 | Workflows + Auto-Remediation | Done | [workflows.md](../features/workflows.md) |
 | Remediation Campaigns | Done | List + detail pages wired to API |
-| **Jira Bidirectional Sync** | **TODO** | — |
+| Jira Bidirectional Sync | Done | Auto-create ticket + webhook status sync |
 
 ---
 
@@ -118,8 +118,8 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 | ~~Remediation Campaigns~~ | 🔴 Critical | ✅ Done | Q2 |
 | ~~Threat Intel Auto-Escalation~~ | 🔴 Critical | ✅ Done | Q2 |
 | ~~BU/Crown Jewel Mutations~~ | 🟡 Medium | ✅ Done | Q2 |
-| Jira Integration | 🔴 Critical | Not started | Q3 |
-| BAS (Breach & Attack Sim) | 🟡 Medium | Not started | Q3 |
+| ~~Jira Integration~~ | 🔴 Critical | ✅ Done | Q2 |
+| ~~BAS (Breach & Attack Sim)~~ | 🟡 Medium | ✅ Done | Q2 |
 | Risk Reduction Tracking | 🟡 Medium | Not started | Q3 |
 | Host/Container Discovery | 🟢 Low | Not started | Q4 |
 
