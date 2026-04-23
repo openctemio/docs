@@ -125,14 +125,23 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `CORS_ALLOWED_ORIGINS` | Yes | - | Allowed origins (comma-separated or `*`) |
+| `CORS_ALLOWED_ORIGINS` | Yes | - | Allowed origins (comma-separated or `*`). `*` is rejected when `APP_ENV=production`. |
 | `CORS_ALLOWED_METHODS` | No | `GET,POST,PUT,DELETE,OPTIONS,PATCH` | Allowed HTTP methods |
 | `CORS_ALLOWED_HEADERS` | No | See below | Allowed headers |
 | `CORS_MAX_AGE` | No | `86400` | Preflight cache duration (seconds) |
 
-**Default CORS Headers**: `Accept,Authorization,Content-Type,X-Request-ID,X-Admin-API-Key`
+**Default CORS Headers**: `Accept,Authorization,Content-Type,X-Request-ID,X-CSRF-Token,X-Admin-API-Key`
 
-> **Important**: The `X-Admin-API-Key` header is required for Admin UI authentication. If you override `CORS_ALLOWED_HEADERS`, make sure to include it.
+> **Important**: The `X-Admin-API-Key` header is required for Admin UI authentication, and `X-CSRF-Token` is required for the CSRF double-submit-cookie defence. If you override `CORS_ALLOWED_HEADERS`, make sure to include both.
+
+### SSRF / outbound HTTP guard
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OPENCTEM_HTTPSEC_ALLOW_PRIVATE` | No | unset | Set `1` to allow API outbound HTTP to RFC1918 / IPv6 ULA. **Most deployments do not need this** — typically only set when an outbound target (internal feed mirror, internal webhook, on-prem SSO) lives on a private IP. IMDS / loopback / CGNAT stay blocked regardless. |
+| `OPENCTEM_SDK_HTTPSEC_ALLOW_PRIVATE` | No | unset | Same as above, scoped to SDK consumers. The SDK also honours `OPENCTEM_HTTPSEC_ALLOW_PRIVATE` as a fallback. |
+
+See the [security hardening operator guide](./security-hardening.md) for the typical-vs-edge-case decision matrix and the agent-side `AGENT_ALLOW_PRIVATE_TARGETS` toggle (which is the one most on-prem deployments actually need).
 
 ### Rate Limiting
 
@@ -261,15 +270,24 @@ ui/.env.production.local  # Frontend production secrets
 
 ## Generating Secrets
 
+The API refuses to boot in production (`APP_ENV != development`) when `AUTH_JWT_SECRET` or `APP_ENCRYPTION_KEY` still matches a docker-compose dev default. Always generate fresh values for staging and production.
+
 ### JWT Secret (Backend)
 
 ```bash
-# Using OpenSSL
-openssl rand -base64 48
-
-# Using Go
-openssl rand -base64 48
+# 64-char JWT secret (min 64 chars enforced)
+openssl rand -base64 64
 ```
+
+### Encryption Key (Backend)
+
+```bash
+# 32-byte AES-256 key — hex OR base64, either is accepted
+openssl rand -hex 32         # 64-char hex
+openssl rand -base64 32      # 44-char base64
+```
+
+Store both in your secret manager (Vault, AWS/GCP secret manager, K8s `Secret` + External Secrets, sealed-secrets, SOPS). Never commit values to git.
 
 ### CSRF Secret (Frontend)
 
