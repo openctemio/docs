@@ -33,6 +33,10 @@ Guides for developers and operators.
 - **[Backup & Restore](./backup-restore.md)** - Backup strategy, off-site storage, restore procedures
 - **[Release Validation](./RELEASE_VALIDATION.md)** - Pre-release checklist
 
+## Security
+
+- **[Security Hardening Operator Guide](./security-hardening.md)** - 2026-04 security batch: SSRF two-tier blocklist, CSRF, startup sentinel, audit-chain break runbook
+
 ## Configuration
 
 - **[Redis Setup](./redis-setup.md)** - Redis configuration
