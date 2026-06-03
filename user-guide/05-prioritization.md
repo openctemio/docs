@@ -47,6 +47,7 @@ Nền tảng dùng các tín hiệu trên theo hai cơ chế bổ trợ nhau:
 
 **Ghi chú:** EPSS và KEV được đồng bộ định kỳ tự động; `Sync Now` chỉ dùng khi cần làm mới gấp. Dữ liệu này là **đầu vào** cho việc ưu tiên — bản thân trang không thay đổi priority của finding.
 ![Threat Intelligence](screenshots/threat-intel.png)
+*🌙 Dark mode:* ![Threat Intelligence — dark](screenshots/threat-intel-dark.png)
 
 ---
 
@@ -64,6 +65,7 @@ Các tính năng được công bố (theo nội dung placeholder), **đều là
 
 **Ghi chú:** Trong khi chờ trang này hoàn thiện, hãy dùng **Business Impact Analysis** (`/business-impact`) cho góc nhìn rủi ro theo tài sản/business unit, và **Scoring Configuration** (`/settings/scoring`) để điều chỉnh công thức điểm rủi ro.
 ![Risk Analysis (Coming Soon)](screenshots/risk-analysis.png)
+*🌙 Dark mode:* ![Risk Analysis (Coming Soon) — dark](screenshots/risk-analysis-dark.png)
 
 ---
 
@@ -84,6 +86,7 @@ Các tính năng được công bố (theo nội dung placeholder), **đều là
 
 **Ghi chú:** Toàn bộ số liệu phái sinh từ dữ liệu tài sản và findings thực tế của tenant; muốn các con số "đúng" với thực tế nghiệp vụ, hãy đánh dấu crown jewels và gán tài sản vào business units trong giai đoạn Scoping. Risk score của tài sản do **Scoring Configuration** quyết định (xem mục dưới).
 ![Business Impact Analysis](screenshots/business-impact.png)
+*🌙 Dark mode:* ![Business Impact Analysis — dark](screenshots/business-impact-dark.png)
 
 ---
 
@@ -137,6 +140,7 @@ Các tính năng được công bố (theo nội dung placeholder), **đều là
 
 **Ghi chú:** Dry-run hiện là **ước tính phía client** cho mục đích xem nhanh. Để thực sự đổi priority, hãy **lưu luật** rồi kích hoạt một đợt reclassification (reclassification sweep) từ trang **Cycles** (quyền admin). Một endpoint dry-run phía server (trả về số khớp *chính xác* cho cả các điều kiện EPSS/KEV/asset) là tính năng dự kiến tương lai.
 ![Priority Override Rules](screenshots/settings__priority-rules.png)
+*🌙 Dark mode:* ![Priority Override Rules — dark](screenshots/settings__priority-rules-dark.png)
 
 ---
 
@@ -168,6 +172,7 @@ Mỗi thành phần cho ra điểm 0–100, nhân với trọng số (%) tương
 - Trang cảnh báo khi bạn rời đi với thay đổi chưa lưu (`beforeunload`).
 - Đây là cấu hình **risk score của tài sản** — khác với **Priority Override Rules** vốn quyết định **priority class của finding**. Hai cơ chế bổ trợ nhau: scoring xếp hạng *tài sản*, priority rules xếp hạng *finding*.
 ![Scoring Configuration](screenshots/settings__scoring.png)
+*🌙 Dark mode:* ![Scoring Configuration — dark](screenshots/settings__scoring-dark.png)
 
 ---
 

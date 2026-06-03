@@ -34,6 +34,7 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 
 **Ghi chú:** Các trạng thái hiển thị (Open / In Progress / In Review / Completed / Blocked) được ánh xạ từ trạng thái chiến dịch của backend (`draft`, `active`, `validating`, `completed`, `paused`). Khi rỗng, bảng hiển thị "No tasks found"; khi lỗi tải hiện thẻ đỏ "Failed to load tasks" với nút `Retry`. `Export` chỉ xuất phần đang lọc. Nút `New Task`, `Edit`, `Delete` phụ thuộc quyền `remediation:write`.
 ![Remediation Tasks](screenshots/remediation.png)
+*🌙 Dark mode:* ![Remediation Tasks — dark](screenshots/remediation-dark.png)
 
 ---
 
@@ -61,6 +62,7 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 
 **Ghi chú:** Số `Total Workflows` lấy từ toàn bộ dữ liệu tenant, nhưng các số `Active` / `Total Triggered` / `Success Rate` được tính trên trang hiện tại (tối đa 50 workflow mỗi trang). Khi chưa có workflow, danh sách hiển thị "No workflows yet" + nút tạo; chưa có lần chạy nào thì tab Executions hiện "No executions yet".
 ![Automation Workflows](screenshots/workflows.png)
+*🌙 Dark mode:* ![Automation Workflows — dark](screenshots/workflows-dark.png)
 
 ---
 
@@ -105,6 +107,7 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 
 **Ghi chú:** Trình dựng (xyflow ~100KB+) được nạp động (lazy-load) nên chỉ tải khi bạn thực sự mở builder. Khi lỗi tải pipeline, trang hiển thị "Pipeline not found" + nút quay lại. Quét thực tế chạy trên agent theo `Agent Selection` đã cấu hình; pipeline không có scanner hợp lệ sẽ không lưu được.
 ![Scan Pipelines](screenshots/pipelines.png)
+*🌙 Dark mode:* ![Scan Pipelines — dark](screenshots/pipelines-dark.png)
 
 ---
 

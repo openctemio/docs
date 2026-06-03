@@ -30,6 +30,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Khi chưa có campaign nào, bảng hiển thị "No campaigns yet." kèm gợi ý tạo mới. Nếu bật `My Campaigns` mà bạn chưa thuộc campaign nào, sẽ có thông báo và nút `Show all campaigns`. Xóa campaign sẽ **xóa kèm toàn bộ finding liên quan** và không thể hoàn tác.
 ![Pentest Campaigns](screenshots/pentest__campaigns.png)
+*🌙 Dark mode:* ![Pentest Campaigns — dark](screenshots/pentest__campaigns-dark.png)
 
 ---
 
@@ -45,6 +46,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Số liệu trong thẻ thống kê được tính trên trang đã tải (tối đa 100–500 finding); với tập dữ liệu rất lớn các con số severity có thể thấp hơn thực tế. Nút `New Finding` phụ thuộc quyền `pentest:write`.
 ![Pentest Findings](screenshots/pentest__findings.png)
+*🌙 Dark mode:* ![Pentest Findings — dark](screenshots/pentest__findings-dark.png)
 
 ---
 
@@ -64,6 +66,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Khi không còn gì chờ retest, tab Pending hiển thị "No Pending Retests"; tab History trống hiển thị "No Retest History". Nút `Retest` và việc đổi trạng thái lần lượt cần quyền `pentest:retests:write` và `pentest:findings:write`. Hộp thoại không cho gửi nếu `Notes` để trống.
 ![Retest Management](screenshots/pentest__retests.png)
+*🌙 Dark mode:* ![Retest Management — dark](screenshots/pentest__retests-dark.png)
 
 ---
 
@@ -81,6 +84,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Khi chưa có báo cáo, hiển thị trạng thái rỗng "No Reports Found" kèm nút `Generate Report`. Việc tải về chỉ chấp nhận URL `http(s)` (mở tab mới với `noopener,noreferrer`); URL không hợp lệ sẽ báo lỗi. Báo cáo `Generating` sẽ tự cập nhật khi hoàn tất.
 ![Pentest Reports](screenshots/pentest__reports.png)
+*🌙 Dark mode:* ![Pentest Reports — dark](screenshots/pentest__reports-dark.png)
 
 ---
 
@@ -97,6 +101,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Built-in template không thể xóa — chọn để xóa hàng loạt sẽ bị bỏ qua kèm thông báo. Khi không có kết quả, hiển thị "No Templates Found" (kèm nút `Clear Filters` nếu đang lọc, hoặc `Create Template`). Nút tạo mới phụ thuộc quyền `pentest:write`.
 ![Finding Templates](screenshots/pentest__templates.png)
+*🌙 Dark mode:* ![Finding Templates — dark](screenshots/pentest__templates-dark.png)
 
 ---
 
@@ -111,6 +116,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Đây là màn hình chỉ-đọc (phân tích). Pentest finding chỉ được ánh xạ khi có `owasp_category`; simulation chỉ ánh xạ khi có cả `mitre_technique_id` và `mitre_tactic`. Nút `Export` chưa khả dụng.
 ![MITRE ATT&CK Coverage](screenshots/pentest__mitre-coverage.png)
+*🌙 Dark mode:* ![MITRE ATT&CK Coverage — dark](screenshots/pentest__mitre-coverage-dark.png)
 
 ---
 
@@ -125,6 +131,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Khi chưa có simulation, hiển thị trạng thái rỗng "No Simulations Yet". Việc **tạo mới simulation hiện chưa khả dụng** — bấm `New Simulation`, `Create Simulation` hay một kịch bản trong `Quick Simulations` đều hiện thông báo "Attack simulation creation is coming soon". Hiện chỉ chạy lại được các simulation đã có (trạng thái Active).
 ![Breach & Attack Simulation](screenshots/attack-simulation.png)
+*🌙 Dark mode:* ![Breach & Attack Simulation — dark](screenshots/attack-simulation-dark.png)
 
 ---
 
@@ -140,6 +147,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Khi chưa có control test, hiển thị "No Control Tests Yet" kèm nút thêm. Bảng MITRE coverage tự ẩn nếu không có simulation nào có `mitre_technique_id`.
 ![Control Testing](screenshots/control-testing.png)
+*🌙 Dark mode:* ![Control Testing — dark](screenshots/control-testing-dark.png)
 
 ---
 
@@ -154,6 +162,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 **Ghi chú:** Khi chưa có control, hiển thị "No compensating controls yet." Các nút `New Control`, `Test` và `Delete` chỉ hiện với quyền `compensating-controls:write`. `Reduction Factor` quyết định mức giảm điểm rủi ro áp lên finding liên quan.
 ![Compensating Controls](screenshots/controls.png)
+*🌙 Dark mode:* ![Compensating Controls — dark](screenshots/controls-dark.png)
 
 ---
 
