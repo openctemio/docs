@@ -34,6 +34,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** `Export` chỉ xuất các finding đang hiển thị (CSV/JSON, tải về trình duyệt). Khi lỗi tải sẽ hiện màn hình "Failed to load findings" với nút `Retry`. Nút `Add Finding` và `Delete` phụ thuộc quyền (`findings:write`, `findings:delete`).
 ![Security Findings](screenshots/findings.png)
+*🌙 Dark mode:* ![Security Findings — dark](screenshots/findings-dark.png)
 
 ### Chi tiết một finding — drawer & trang đầy đủ
 **Mục đích:** Xem toàn bộ ngữ cảnh của một finding và thực hiện hành động (đổi trạng thái, severity, giao việc, bình luận, triage AI).
@@ -65,6 +66,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Khi rỗng hiển thị "No approval requests"; lỗi tải hiện màn hình "Failed to load approvals" + `Retry`.
 ![Approval Requests](screenshots/findings.png)
+*🌙 Dark mode:* ![Approval Requests — dark](screenshots/findings-dark.png)
 
 ---
 
@@ -84,6 +86,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Mọi thao tác đổi state đều ghi vào audit log. Khi không có exposure: "No exposures found — Your attack surface is looking clean!".
 ![Exposure Events](screenshots/exposures.png)
+*🌙 Dark mode:* ![Exposure Events — dark](screenshots/exposures-dark.png)
 
 ## Vulnerability Exposures (`/exposures/vulnerabilities`)
 **Mục đích:** Bảng tổng quan lỗ hổng (vulnerability) toàn tenant cùng CVE đang tác động và danh mục CVE toàn cục.
@@ -94,6 +97,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Khi chưa có dữ liệu: "No vulnerability data available — Run vulnerability scans...".
 ![Vulnerability Exposures](screenshots/exposures__vulnerabilities.png)
+*🌙 Dark mode:* ![Vulnerability Exposures — dark](screenshots/exposures__vulnerabilities-dark.png)
 
 ## Misconfiguration Exposures (`/exposures/misconfigurations`)
 **Mục đích:** Nhận diện các cấu hình sai (misconfiguration) ở hạ tầng và ứng dụng.
@@ -104,6 +108,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Khi chưa có dữ liệu: "No misconfiguration data available — Run configuration scans...".
 ![Misconfiguration Exposures](screenshots/exposures__misconfigurations.png)
+*🌙 Dark mode:* ![Misconfiguration Exposures — dark](screenshots/exposures__misconfigurations-dark.png)
 
 ## Secret Exposures (`/exposures/secrets`)
 **Mục đích:** Giám sát secret/credential bị lộ trong mã nguồn.
@@ -114,6 +119,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Khi chưa có dữ liệu: "No secret exposure data available — Configure secret scanning...".
 ![Secret Exposures](screenshots/exposures__secrets.png)
+*🌙 Dark mode:* ![Secret Exposures — dark](screenshots/exposures__secrets-dark.png)
 
 ## Code Vulnerabilities (`/exposures/code`)
 **Mục đích:** Theo dõi lỗ hổng cấp mã nguồn từ phân tích tĩnh (SAST).
@@ -124,6 +130,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Khi chưa có dữ liệu: "No code vulnerability data available — Configure static analysis scanners...".
 ![Code Vulnerabilities](screenshots/exposures__code.png)
+*🌙 Dark mode:* ![Code Vulnerabilities — dark](screenshots/exposures__code-dark.png)
 
 ---
 
@@ -141,6 +148,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 
 **Ghi chú:** Hành động `Add` / `Edit` / `Delete` credential hiện là **giao diện khung** — việc thêm/sửa/xóa thực tế sẽ được nối với API ở giai đoạn sau (nút có thể hiển thị thông báo "coming soon"); `Mark Resolved` đã hoạt động qua API.
 ![Credential Leaks](screenshots/credentials.png)
+*🌙 Dark mode:* ![Credential Leaks — dark](screenshots/credentials-dark.png)
 
 ---
 
@@ -155,6 +163,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 6. Thẻ **`Quick Actions`**: lối tắt tới All Components, Vulnerable, Licenses, Export SBOM.
 7. Nếu có thành phần dính **CISA KEV**, một banner đỏ ở cuối với nút `View KEV Components`.
 ![Software Components](screenshots/components.png)
+*🌙 Dark mode:* ![Software Components — dark](screenshots/components-dark.png)
 
 ### All Components (`/components/all`)
 **Mục đích:** Danh mục đầy đủ mọi thành phần phần mềm.
@@ -165,21 +174,25 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 4. Ô `Search components...` và bộ chọn `Ecosystem` (danh sách lấy từ API).
 5. Bảng thành phần (`ComponentTable`); bấm một dòng mở **Component Detail Sheet** (chi tiết version, license, lỗ hổng, đường dẫn phụ thuộc).
 ![All Components](screenshots/components__all.png)
+*🌙 Dark mode:* ![All Components — dark](screenshots/components__all-dark.png)
 
 ### Vulnerable Components (`/components/vulnerable`)
 **Mục đích:** Tập trung vào các thành phần có lỗ hổng đã biết, ưu tiên các thành phần dính CISA KEV (hỗ trợ tham số `?cisaKev=true`).
 **Cách dùng:** Xem danh sách thành phần dễ tổn thương cùng số lượng lỗ hổng theo severity, cờ KEV và chi tiết khắc phục/nâng cấp.
 ![Vulnerable Components](screenshots/components__vulnerable.png)
+*🌙 Dark mode:* ![Vulnerable Components — dark](screenshots/components__vulnerable-dark.png)
 
 ### Package Ecosystems (`/components/ecosystems`)
 **Mục đích:** Phân tích thành phần theo hệ sinh thái gói (npm, PyPI, Maven, Go, ...).
 **Cách dùng:** Xem số lượng thành phần, số vulnerable và số outdated theo từng ecosystem để biết nơi rủi ro chuỗi cung ứng tập trung.
 ![Package Ecosystems](screenshots/components__ecosystems.png)
+*🌙 Dark mode:* ![Package Ecosystems — dark](screenshots/components__ecosystems-dark.png)
 
 ### License Compliance (`/components/licenses`)
 **Mục đích:** Theo dõi tuân thủ giấy phép — phân bố license và mức rủi ro pháp lý/tuân thủ.
 **Cách dùng:** Xem các thành phần theo giấy phép và mức rủi ro (critical/high/medium/low/unknown) phục vụ báo cáo tuân thủ.
 ![License Compliance](screenshots/components__licenses.png)
+*🌙 Dark mode:* ![License Compliance — dark](screenshots/components__licenses-dark.png)
 
 ### Export SBOM (`/components/sbom-export`)
 **Mục đích:** Tạo file Software Bill of Materials theo chuẩn công nghiệp để chia sẻ/tuân thủ (ví dụ Executive Order 14028).
@@ -192,6 +205,7 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
    - Nút **`Export SBOM`** sinh file và tải về trình duyệt (tên dạng `sbom-<format>.json/xml`), kèm toast xác nhận.
 3. Thẻ **`About SBOM Formats`** giải thích CycloneDX vs SPDX, mức "Compliance Ready", và cảnh báo CISA KEV nếu có thành phần dính lỗ hổng đang bị khai thác.
 ![Export SBOM](screenshots/components__sbom-export.png)
+*🌙 Dark mode:* ![Export SBOM — dark](screenshots/components__sbom-export-dark.png)
 
 ---
 

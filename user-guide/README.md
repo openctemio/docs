@@ -159,5 +159,7 @@ Mỗi tính năng được mô tả theo khuôn mẫu: **Mục đích** → **C�
 2. Duyệt **toàn bộ 87 route** trong cấu hình sidebar, chụp **full-page screenshot** từng trang vào `screenshots/`.
 3. Seed dữ liệu findings mẫu để các trang dữ liệu (Findings/Dashboard/Exposures) hiển thị nội dung thật.
 4. Mỗi chương do một người soạn đối chiếu **mã nguồn trang** để mô tả đúng thao tác.
+5. Seed thêm 14 tài sản (10 loại) + 10 findings để Dashboard/Assets/Findings/Exposures hiển thị dữ liệu thật.
+6. Chụp **cả light và dark mode** cho mỗi tính năng (mỗi mục có ảnh sáng + ảnh tối).
 
 > Tái tạo: xem ghi chú vận hành trong bộ nhớ dự án (`project-ui-expert-review-2026-06`) cho recipe chạy dev server + đăng nhập + seed.

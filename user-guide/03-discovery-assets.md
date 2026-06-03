@@ -48,6 +48,7 @@ Mỗi tài sản còn được phân loại theo các trục bổ sung: **Critic
 **Ghi chú:** Xóa một cấu hình sẽ xóa luôn toàn bộ lịch sử run liên quan (không hoàn tác được). Tab `Runs` cho phép lọc theo trạng thái thực thi: `Running`, `Queued`, `Pending`, `Completed`, `Failed`, `Timed Out`.
 
 ![Scan Management](screenshots/scans.png)
+*🌙 Dark mode:* ![Scan Management — dark](screenshots/scans-dark.png)
 
 ### Trình hướng dẫn tạo quét (New Scan Wizard)
 
@@ -105,6 +106,7 @@ Hộp thoại `New Scan` dẫn bạn qua **4 bước** (thanh stepper phía trê
 **Ghi chú:** Tài sản hầu hết đến từ các lần quét; nếu bảng rỗng, hãy chạy một scan từ `/scans`. Bạn vẫn có thể thêm tài sản thủ công bằng nút `Add <Loại>`.
 
 ![Asset Inventory](screenshots/assets.png)
+*🌙 Dark mode:* ![Asset Inventory — dark](screenshots/assets-dark.png)
 
 ---
 
@@ -117,90 +119,105 @@ Tất cả các trang dưới đây dùng chung bảng dữ liệu thống nhấ
 **Cách dùng:** Được phát hiện qua liệt kê DNS, Certificate Transparency, bruteforce subdomain, recon thụ động, hoặc nhập thủ công. Cột riêng: `Type` (Root/Sub), `DNS Info` (record type, resolved IP, CNAME, hoặc registrar cho root). Panel chi tiết hiển thị Registrar, Expiry Date, Root Domain, Collector, DNS Records, Resolved IPs, CNAME Target.
 
 ![Domains & Subdomains](screenshots/assets__domains.png)
+*🌙 Dark mode:* ![Domains & Subdomains — dark](screenshots/assets__domains-dark.png)
 
 ### IP Addresses (`/assets/ip-addresses`)
 **Mục đích:** Quản lý địa chỉ IPv4/IPv6 trong hạ tầng, kèm thông tin ASN.
 **Cách dùng:** Phát hiện qua phân giải DNS và quét mạng. Cột riêng: `ASN / Organization`, `Type` (Public/Private), `Open Ports`. Có bộ lọc `IP Type` (Public/Private).
 
 ![IP Addresses](screenshots/assets__ip-addresses.png)
+*🌙 Dark mode:* ![IP Addresses — dark](screenshots/assets__ip-addresses-dark.png)
 
 ### Websites (`/assets/websites`)
 **Mục đích:** Quản lý tài sản ứng dụng web/website.
 **Cách dùng:** Phát hiện qua web crawl, HTTP probing và tech detection trong các lần quét. Cột riêng: `Technology`, `SSL`, `Status Code`. Panel chi tiết gồm URL, công nghệ, mã HTTP, response time, server, SSL/TLS.
 
 ![Websites](screenshots/assets__websites.png)
+*🌙 Dark mode:* ![Websites — dark](screenshots/assets__websites-dark.png)
 
 ### APIs (`/assets/apis`)
 **Mục đích:** Quản lý tài sản API và các endpoint.
 **Cách dùng:** Phát hiện qua phân tích lưu lượng, OpenAPI spec và quét bảo mật API. Cột riêng: `Type` (REST/GraphQL/gRPC/WebSocket/SOAP), `Auth`, `Endpoints`, `Base URL`.
 
 ![APIs](screenshots/assets__apis.png)
+*🌙 Dark mode:* ![APIs — dark](screenshots/assets__apis-dark.png)
 
 ### Hosts (`/assets/hosts`)
 **Mục đích:** Quản lý máy chủ vật lý và ảo (servers, VMs, compute).
 **Cách dùng:** Phát hiện qua quét mạng/cổng và tích hợp cloud. Cột riêng: `IP`, `OS`, `Resources` (CPU/RAM), `Arch`, `Ports`.
 
 ![Hosts](screenshots/assets__hosts.png)
+*🌙 Dark mode:* ![Hosts — dark](screenshots/assets__hosts-dark.png)
 
 ### Services (`/assets/services`)
 **Mục đích:** Quản lý dịch vụ mạng và cổng mở.
 **Cách dùng:** Phát hiện qua port scanning và service detection (banner grabbing). Cột riêng: `Port`, `Protocol` (TCP/UDP), `Version`, `Technology`.
 
 ![Services](screenshots/assets__services.png)
+*🌙 Dark mode:* ![Services — dark](screenshots/assets__services-dark.png)
 
 ### Containers & Kubernetes (`/assets/containers`)
 **Mục đích:** Quản lý container workloads và cụm Kubernetes (clusters, namespaces, workloads).
 **Cách dùng:** Phát hiện qua tích hợp với nền tảng orchestration và registry. Cột riêng: `Kind`, `Provider` (EKS/GKE/AKS/Self-hosted/Docker), `Version`, `Namespace`.
 
 ![Containers & Kubernetes](screenshots/assets__containers.png)
+*🌙 Dark mode:* ![Containers & Kubernetes — dark](screenshots/assets__containers-dark.png)
 
 ### Databases (`/assets/databases`)
 **Mục đích:** Quản lý tài sản cơ sở dữ liệu (mọi engine).
 **Cách dùng:** Phát hiện qua quét dịch vụ và tích hợp cloud. Cột riêng: `Engine` (MySQL/PostgreSQL/MongoDB/Redis/Elasticsearch/MSSQL/Oracle…), `Size`, `Security` (mã hóa, public-access).
 
 ![Databases](screenshots/assets__databases.png)
+*🌙 Dark mode:* ![Databases — dark](screenshots/assets__databases-dark.png)
 
 ### Storage Buckets (`/assets/storage`)
 **Mục đích:** Quản lý kho lưu trữ đối tượng — S3 buckets, Azure Blobs, GCS buckets.
 **Cách dùng:** Phát hiện qua tích hợp nhà cung cấp cloud. Cột riêng: `Provider` (AWS/GCP/Azure), `Region`, `Size`, `Security` (mã hóa, public-access, versioning).
 
 ![Storage Buckets](screenshots/assets__storage.png)
+*🌙 Dark mode:* ![Storage Buckets — dark](screenshots/assets__storage-dark.png)
 
 ### Cloud Accounts (`/assets/cloud-accounts`)
 **Mục đích:** Quản lý tài khoản cloud — AWS accounts, GCP projects, Azure subscriptions.
 **Cách dùng:** Thêm qua kết nối nhà cung cấp cloud (Integrations). Cột riêng: `Provider` (AWS/GCP/Azure/OCI/Alibaba/DigitalOcean), `Account ID`, `Resources`, `Security` (MFA/SSO).
 
 ![Cloud Accounts](screenshots/assets__cloud-accounts.png)
+*🌙 Dark mode:* ![Cloud Accounts — dark](screenshots/assets__cloud-accounts-dark.png)
 
 ### Network & Security Devices (`/assets/networks`)
 **Mục đích:** Quản lý thiết bị mạng và an ninh — firewalls, switches, routers, load balancers.
 **Cách dùng:** Phát hiện qua quét mạng và tích hợp hạ tầng. Cột riêng: `Device Type`, `Vendor / Model`, `Firmware`, `Management IP`.
 
 ![Network & Security Devices](screenshots/assets__networks.png)
+*🌙 Dark mode:* ![Network & Security Devices — dark](screenshots/assets__networks-dark.png)
 
 ### Mobile Apps (`/assets/mobile`)
 **Mục đích:** Quản lý ứng dụng di động (iOS/Android/Cross-platform).
 **Cách dùng:** Thêm thủ công hoặc qua tích hợp app store/MDM. Cột riêng: `Version` (kèm platform và Bundle ID trong chi tiết). Có bộ lọc `Platform` (iOS/Android).
 
 ![Mobile Apps](screenshots/assets__mobile.png)
+*🌙 Dark mode:* ![Mobile Apps — dark](screenshots/assets__mobile-dark.png)
 
 ### Certificates (`/assets/certificates`)
 **Mục đích:** Quản lý chứng chỉ SSL/TLS trong hạ tầng.
 **Cách dùng:** Phát hiện qua SSL/TLS analysis và Certificate Transparency. Cột riêng: `Issuer`, `Valid Until`, `Days Left`, `Validity` (Valid/Expiring/Expired). Có bộ lọc `Validity`; panel chi tiết hiển thị Subject, thuật toán, key size, serial, SANs, wildcard.
 
 ![Certificates](screenshots/assets__certificates.png)
+*🌙 Dark mode:* ![Certificates — dark](screenshots/assets__certificates-dark.png)
 
 ### Identity & Access (`/assets/identity`)
 **Mục đích:** Quản lý danh tính — IAM users, roles, service accounts trên các nhà cung cấp cloud.
 **Cách dùng:** Phát hiện qua tích hợp IAM của cloud provider. Cột riêng: `Type`, `Email / ID`, `Provider` (AWS/GCP/Azure/Kubernetes), `MFA`.
 
 ![Identity & Access](screenshots/assets__identity.png)
+*🌙 Dark mode:* ![Identity & Access — dark](screenshots/assets__identity-dark.png)
 
 ### Repositories (`/assets/repositories`)
 **Mục đích:** Quản lý kho mã nguồn và cấu hình quét bảo mật cho chúng.
 **Cách dùng:** Thêm qua kết nối SCM (GitHub/GitLab/Bitbucket/Azure DevOps/CodeCommit). Cột riêng: `Source` (provider), `Visibility` (Private/Internal/Public), `Language`. Panel chi tiết hiển thị số sao/fork, branch, thành phần dễ tổn thương (vulnerable components), findings.
 
 ![Repositories](screenshots/assets__repositories.png)
+*🌙 Dark mode:* ![Repositories — dark](screenshots/assets__repositories-dark.png)
 
 ---
 
