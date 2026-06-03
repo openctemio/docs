@@ -11,6 +11,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 4. Cuộn xuống `Recent Attack Surface Changes` để theo dõi tài sản được thêm (`added`), gỡ bỏ (`removed`) hoặc thay đổi (`modified`).
 **Ghi chú:** Trang này chỉ đọc, dùng để quan sát — không có thao tác chỉnh sửa. Khi chưa có dữ liệu, các khối hiển thị "No assets found", "No exposed services found" hoặc "No recent changes". Nếu tải lỗi sẽ có banner đỏ "Failed to load attack surface data". Trang còn có các tab con `external`, `internal`, `cloud` để xem chi tiết theo vùng phơi nhiễm.
 ![Attack Surface Overview](screenshots/attack-surface.png)
+*🌙 Dark mode:* ![Attack Surface Overview — dark](screenshots/attack-surface-dark.png)
 
 ## Asset Groups (`/asset-groups`)
 **Mục đích:** Tổ chức tài sản thành các nhóm logic theo môi trường (`environment`) và mức độ trọng yếu (`criticality`) để theo dõi rủi ro và findings theo từng nhóm.
@@ -23,6 +24,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 6. Nhấn `Export` để xuất CSV/JSON, `Refresh` để tải lại.
 **Ghi chú:** Các hành động `Edit`/`Add Assets`/`Manage Assets` yêu cầu quyền `AssetGroupsWrite`; `Delete` yêu cầu `AssetGroupsDelete`; nút `New Group` bị vô hiệu hóa nếu thiếu quyền ghi. Khi chưa có nhóm, bảng hiển thị "No asset groups found" với gợi ý tạo nhóm đầu tiên. Xóa nhóm sẽ bỏ gán (unassign) tất cả tài sản trong nhóm chứ không xóa tài sản.
 ![Asset Groups](screenshots/asset-groups.png)
+*🌙 Dark mode:* ![Asset Groups — dark](screenshots/asset-groups-dark.png)
 
 ## Scope Configuration (`/scope-config`)
 **Mục đích:** Cấu hình ranh giới phạm vi: khai báo target trong phạm vi (`In-Scope Targets`), loại trừ (`Exclusions`) và lịch quét tự động (`Scan Schedules`).
@@ -35,6 +37,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 6. Dùng ô tìm kiếm và bộ lọc theo loại ở mỗi tab; danh sách có phân trang.
 **Ghi chú:** Mọi thao tác thêm/sửa/xóa target và exclusion yêu cầu quyền `ScopeWrite`; xóa yêu cầu `ScopeDelete`; công tắc bật/tắt trạng thái bị vô hiệu khi thiếu `ScopeWrite`. Pattern không hợp lệ hoặc trùng sẽ báo lỗi đỏ ngay trong form. Khi chưa có dữ liệu, bảng hiển thị "No targets configured yet. Click 'Add Target' to get started." Nếu thêm target gây chồng lấn (overlap), hệ thống hiển thị cảnh báo dạng toast.
 ![Scope Configuration](screenshots/scope-config.png)
+*🌙 Dark mode:* ![Scope Configuration — dark](screenshots/scope-config-dark.png)
 
 ## Business Services (`/business-services`)
 **Mục đích:** Định nghĩa các dịch vụ nghiệp vụ cùng yêu cầu tuân thủ, đặc tính xử lý dữ liệu (PII/PHI/Financial) và mục tiêu khả dụng (availability, RPO, RTO) để gắn bối cảnh nghiệp vụ cho phạm vi.
@@ -48,6 +51,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 7. Dùng menu `...` trên mỗi dòng để `Edit` hoặc `Delete`.
 **Ghi chú:** Nút `Create Service` và menu thao tác chỉ hiện khi có quyền `BusinessServicesWrite`. `Name` là trường bắt buộc. Khi chưa có dịch vụ, bảng hiển thị "No business services yet. Click "Create Service" to add one." Nếu tải lỗi, bảng hiển thị thông báo lỗi kèm nút `Retry`. Xóa dịch vụ là hành động không thể hoàn tác.
 ![Business Services](screenshots/business-services.png)
+*🌙 Dark mode:* ![Business Services — dark](screenshots/business-services-dark.png)
 
 ## CTEM Cycles (`/cycles`)
 **Mục đích:** Quản lý các chu kỳ CTEM (Continuous Threat Exposure Management) — đóng khung từng đợt đánh giá phơi nhiễm theo thời gian với vòng đời trạng thái rõ ràng.
@@ -62,6 +66,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 4. Mỗi lần chuyển trạng thái sẽ hiện hộp xác nhận giải thích hệ quả trước khi thực hiện.
 **Ghi chú:** Các chuyển đổi trạng thái có hệ quả quan trọng và được nhắc rõ trong hộp xác nhận: kích hoạt (`Activate`) sẽ "đóng băng" phạm vi tài sản thành một snapshot bất biến (không thể đổi sau đó); đóng (`Close`) là thao tác **không thể hoàn tác**, chu kỳ và snapshot trở thành dữ liệu lưu trữ chỉ-đọc. Khi chưa có chu kỳ, trang hiển thị "No CTEM cycles yet. Create one to get started."
 ![CTEM Cycles](screenshots/cycles.png)
+*🌙 Dark mode:* ![CTEM Cycles — dark](screenshots/cycles-dark.png)
 
 ## Attacker Profiles (`/attacker-profiles`)
 **Mục đích:** Định nghĩa các hồ sơ tác nhân đe dọa (threat actor) để đánh giá phơi nhiễm theo góc nhìn của kẻ tấn công cụ thể.
@@ -73,6 +78,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 5. Với hồ sơ tùy chỉnh, dùng nút thùng rác để xóa (có hộp xác nhận).
 **Ghi chú:** Tạo và xóa hồ sơ yêu cầu quyền `AttackerProfilesWrite`. Các hồ sơ mặc định (`is_default`) có biểu tượng khóa, được gắn nhãn `Default` và **không thể xóa**. Khi chưa có hồ sơ, trang hiển thị "No attacker profiles yet. Create one to get started." Xóa là hành động không thể hoàn tác.
 ![Attacker Profiles](screenshots/attacker-profiles.png)
+*🌙 Dark mode:* ![Attacker Profiles — dark](screenshots/attacker-profiles-dark.png)
 
 ## Relationship Suggestions (`/relationships/suggestions`)
 **Mục đích:** Xem xét và phê duyệt các quan hệ giữa tài sản được hệ thống tự động phát hiện, giúp xây dựng bản đồ liên kết (graph) chính xác cho phạm vi.
@@ -85,6 +91,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 6. Dùng `Previous`/`Next` để chuyển trang.
 **Ghi chú:** Các thao tác `Approve All` và `Approve Selected` đều có hộp xác nhận vì tạo quan hệ là thao tác không thể hoàn tác. Confidence được tô màu: ≥90% xanh, ≥70% vàng, còn lại đỏ. Khi không có đề xuất, trang hiển thị "No pending suggestions" với gợi ý nhấn `Scan`; nếu tìm kiếm không khớp sẽ hiển thị "No matching suggestions". Nếu tải lỗi sẽ có banner lỗi đỏ.
 ![Relationship Suggestions](screenshots/relationships__suggestions.png)
+*🌙 Dark mode:* ![Relationship Suggestions — dark](screenshots/relationships__suggestions-dark.png)
 
 ## Compliance Requirements (`/compliance`)
 **Mục đích:** Theo dõi các khung tuân thủ (frameworks) và yêu cầu pháp lý/kiểm soát (controls), đánh giá mức độ triển khai để đưa yêu cầu tuân thủ vào phạm vi CTEM.
@@ -97,6 +104,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 6. Nhấn `Export Report` để xuất báo cáo.
 **Ghi chú:** Điểm tuân thủ được tính theo công thức (Implemented + Partial×0.5) / Total. Khi chưa có khung nào, tab Frameworks hiển thị "No compliance frameworks configured yet."; tab Controls hiển thị "No controls found." khi không có control khớp bộ lọc.
 ![Compliance Requirements](screenshots/compliance.png)
+*🌙 Dark mode:* ![Compliance Requirements — dark](screenshots/compliance-dark.png)
 
 ## Business Impact Analysis (`/business-impact`)
 **Mục đích:** Đánh giá tác động nghiệp vụ của các lỗ hổng bảo mật trên toàn bộ tài sản và đơn vị nghiệp vụ, làm cơ sở xác định ưu tiên trong phạm vi.
@@ -107,6 +115,7 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 4. Cuộn xuống bảng `Business Unit Impact` để xem rủi ro theo từng đơn vị nghiệp vụ: `Owner`, `Assets`, `Critical Findings`, `Total Findings`, `Avg Risk Score`, `Risk Level`.
 **Ghi chú:** Trang này chỉ đọc, tổng hợp dữ liệu từ findings, tài sản, crown jewels và business units. Nếu chưa có crown jewel, khối hiển thị "No crown jewels designated yet." kèm gợi ý đánh dấu từ trang Crown Jewels. Nếu chưa có đơn vị nghiệp vụ, bảng hiển thị "No business units configured." kèm gợi ý tạo từ mục Scoping. Mức rủi ro tính theo điểm: ≥75 Critical, ≥50 High, ≥25 Medium, còn lại Low.
 ![Business Impact Analysis](screenshots/business-impact.png)
+*🌙 Dark mode:* ![Business Impact Analysis — dark](screenshots/business-impact-dark.png)
 
 ## Checklist
 - [x] Attack Surface Overview — chỉ đọc; thống kê, asset breakdown, exposed services, recent changes; có tab con external/internal/cloud

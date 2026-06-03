@@ -37,6 +37,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Hầu hết thao tác sửa yêu cầu quyền cập nhật tenant (vai trò `Owner`/`Admin`); khi không đủ quyền các trường bị khóa và hover hiện tooltip *"You do not have permission to update tenant settings"*. Mỗi tab có nút `Save` riêng. Việc tạo tenant mới nằm ở `/settings/tenant/create`.
 ![Tenant Settings](screenshots/settings__tenant.png)
+*🌙 Dark mode:* ![Tenant Settings — dark](screenshots/settings__tenant-dark.png)
 
 ---
 
@@ -52,6 +53,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** `Language` hiển thị danh sách ngôn ngữ nhưng UI hiện chỉ tiếng Anh (xem lưu ý ngôn ngữ ở phần Giới thiệu). Display/Data Refresh là tùy chọn **theo trình duyệt của từng người dùng**, không đồng bộ giữa các thiết bị.
 ![General Settings](screenshots/settings__general.png)
+*🌙 Dark mode:* ![General Settings — dark](screenshots/settings__general-dark.png)
 
 ---
 
@@ -68,6 +70,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Một người dùng có thể giữ **nhiều vai trò** cùng lúc. Mời thành viên / đổi vai trò yêu cầu quyền quản trị thành viên (vai trò `Owner`/`Admin`).
 ![User Management](screenshots/settings__users.png)
+*🌙 Dark mode:* ![User Management — dark](screenshots/settings__users-dark.png)
 
 ---
 
@@ -84,6 +87,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** **Role hệ thống không thể sửa/xóa** (checkbox chọn cũng bị khóa). Xóa role hiện hộp thoại xác nhận và cảnh báo "Users with this role will lose its permissions". `Data Access = Full Access` nghĩa là role bỏ qua giới hạn theo Team (thấy toàn bộ dữ liệu); `Group-based` nghĩa là phạm vi dữ liệu do Team quyết định.
 ![Roles](screenshots/settings__roles.png)
+*🌙 Dark mode:* ![Roles — dark](screenshots/settings__roles-dark.png)
 
 ---
 
@@ -99,6 +103,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Team quyết định người dùng nhìn thấy tài sản/dữ liệu nào, trừ khi role của họ có `Full Access`. Yêu cầu quyền quản trị truy cập (thường gắn permission `team:update`).
 ![Teams](screenshots/settings__access-control__groups.png)
+*🌙 Dark mode:* ![Teams — dark](screenshots/settings__access-control__groups-dark.png)
 
 ---
 
@@ -113,6 +118,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Đây là cơ chế tự động hóa data scope: khi tài sản khớp điều kiện, nó được gán vào Team tương ứng. Yêu cầu quyền quản trị truy cập.
 ![Assignment Rules](screenshots/settings__access-control__assignment-rules.png)
+*🌙 Dark mode:* ![Assignment Rules — dark](screenshots/settings__access-control__assignment-rules-dark.png)
 
 ---
 
@@ -129,6 +135,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Module lõi không thể tắt vì cần cho vận hành nền tảng. Tắt module sẽ ẩn các quyền liên quan khỏi danh sách permission của role.
 ![Module Management](screenshots/settings__modules.png)
+*🌙 Dark mode:* ![Module Management — dark](screenshots/settings__modules-dark.png)
 
 ---
 
@@ -144,6 +151,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Trang này hiển thị log dạng chỉ-đọc cùng bộ lọc/thống kê; mục đích là phục vụ điều tra và tuân thủ. Truy cập thường giới hạn cho quản trị viên. (Việc xác minh tính toàn vẹn chuỗi log ở tầng hạ tầng/backend, không thao tác trên giao diện này.)
 ![Audit Log](screenshots/settings__audit.png)
+*🌙 Dark mode:* ![Audit Log — dark](screenshots/settings__audit-dark.png)
 
 ---
 
@@ -157,6 +165,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Cần permission `team:update` để xem hoặc thay đổi. Nếu thiếu quyền, trang hiện cảnh báo *"Insufficient permissions — You need the team:update permission..."*. Nếu endpoint không khả dụng trên môi trường, hiện *"Failed to load settings"*.
 ![Asset Lifecycle](screenshots/settings__asset-lifecycle.png)
+*🌙 Dark mode:* ![Asset Lifecycle — dark](screenshots/settings__asset-lifecycle-dark.png)
 
 ---
 
@@ -176,6 +185,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Hub chỉ điều hướng; cấu hình thực hiện trong từng trang con. Lưu ý SIEM và CI/CD hiện là *Coming Soon* (xem bên dưới).
 ![Integrations](screenshots/settings__integrations.png)
+*🌙 Dark mode:* ![Integrations — dark](screenshots/settings__integrations-dark.png)
 
 ### SCM Connections (`/settings/integrations/scm`)
 
@@ -188,6 +198,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Yêu cầu quyền quản trị tích hợp. Token/credential nhạy cảm — cân nhắc dùng `Secret Store` cho thông tin xác thực dùng lại.
 ![SCM Connections](screenshots/settings__integrations__scm.png)
+*🌙 Dark mode:* ![SCM Connections — dark](screenshots/settings__integrations__scm-dark.png)
 
 ### Notification Integrations (`/settings/integrations/notifications`)
 
@@ -201,6 +212,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Khi chưa có kênh nào, dùng `Add Your First Channel`. Yêu cầu quyền quản trị tích hợp.
 ![Notification Integrations](screenshots/settings__integrations__notifications.png)
+*🌙 Dark mode:* ![Notification Integrations — dark](screenshots/settings__integrations__notifications-dark.png)
 
 ### Ticketing Integration (`/settings/integrations/ticketing`)
 
@@ -214,6 +226,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Yêu cầu quyền quản trị tích hợp. Provider hỗ trợ tùy môi trường (Jira/Linear thấy trong giao diện thêm kết nối).
 ![Ticketing Integration](screenshots/settings__integrations__ticketing.png)
+*🌙 Dark mode:* ![Ticketing Integration — dark](screenshots/settings__integrations__ticketing-dark.png)
 
 ### SIEM Integration (`/settings/integrations/siem`) — Coming Soon
 
@@ -221,6 +234,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Trang này hiện là **`Coming Soon`** (render qua `ComingSoonPage`) — chưa có thao tác cấu hình.
 ![SIEM Integration](screenshots/settings__integrations__siem.png)
+*🌙 Dark mode:* ![SIEM Integration — dark](screenshots/settings__integrations__siem-dark.png)
 
 ### CI/CD Integration (`/settings/integrations/cicd`) — Coming Soon
 
@@ -228,6 +242,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Trang này hiện là **`Coming Soon`** (render qua `ComingSoonPage`) — chưa có thao tác cấu hình.
 ![CI/CD Integration](screenshots/settings__integrations__cicd.png)
+*🌙 Dark mode:* ![CI/CD Integration — dark](screenshots/settings__integrations__cicd-dark.png)
 
 ---
 
@@ -246,6 +261,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** API key chỉ hiện một lần — nếu mất phải dùng `Regenerate key`. Quản trị agent là thao tác đặc quyền (yêu cầu vai trò quản trị nền tảng).
 ![Platform Agents](screenshots/agents.png)
+*🌙 Dark mode:* ![Platform Agents — dark](screenshots/agents-dark.png)
 
 ---
 
@@ -260,6 +276,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Công cụ built-in là read-only; chỉ tool custom mới sửa/xóa được. Khi rỗng (ở chế độ custom) có nút thêm tool đầu tiên.
 ![Tools](screenshots/tools.png)
+*🌙 Dark mode:* ![Tools — dark](screenshots/tools-dark.png)
 
 ---
 
@@ -275,6 +292,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Trạng thái `Deprecated` giúp loại template cũ khỏi danh sách chọn mà không xóa hẳn. Yêu cầu quyền tương ứng để tạo/sửa/xóa.
 ![Scanner Templates](screenshots/scanner-templates.png)
+*🌙 Dark mode:* ![Scanner Templates — dark](screenshots/scanner-templates-dark.png)
 
 ---
 
@@ -288,6 +306,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Nguồn thường cần thông tin xác thực (Git token...) — lấy từ `Secret Store`. Khi rỗng có nút thêm nguồn đầu tiên.
 ![Template Sources](screenshots/template-sources.png)
+*🌙 Dark mode:* ![Template Sources — dark](screenshots/template-sources-dark.png)
 
 ---
 
@@ -301,6 +320,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Giá trị secret được lưu an toàn và không hiển thị lại sau khi nhập. Yêu cầu quyền credential (`credentials:write` để tạo/sửa). Dùng kho này thay vì dán secret trực tiếp vào từng tích hợp.
 ![Secret Store](screenshots/secret-store.png)
+*🌙 Dark mode:* ![Secret Store — dark](screenshots/secret-store-dark.png)
 
 ---
 
@@ -315,6 +335,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Profile giúp chuẩn hóa cách quét giữa các lần/đội nhóm. Khi rỗng có nút tạo profile đầu tiên.
 ![Scan Profiles](screenshots/scan-profiles.png)
+*🌙 Dark mode:* ![Scan Profiles — dark](screenshots/scan-profiles-dark.png)
 
 ---
 
@@ -330,6 +351,7 @@ Cách tổ chức tư duy:
 
 **Ghi chú:** Capability nền tảng (built-in) không thể sửa/xóa. Tạo capability custom yêu cầu quyền tương ứng.
 ![Capabilities](screenshots/capabilities.png)
+*🌙 Dark mode:* ![Capabilities — dark](screenshots/capabilities-dark.png)
 
 ---
 
