@@ -1,0 +1,785 @@
+[
+  {
+    "route": "/",
+    "slug": "home",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/account",
+    "slug": "account",
+    "title": "OpenCTEM",
+    "h1": "Account Settings",
+    "desc": "Manage your account settings and preferences",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/account/activity",
+    "slug": "account__activity",
+    "title": "OpenCTEM",
+    "h1": "Account Settings",
+    "desc": "Manage your account settings and preferences",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/account/security",
+    "slug": "account__security",
+    "title": "OpenCTEM",
+    "h1": "Account Settings",
+    "desc": "Manage your account settings and preferences",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/agents",
+    "slug": "agents",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/asset-groups",
+    "slug": "asset-groups",
+    "title": "OpenCTEM",
+    "h1": "Asset Groups",
+    "desc": "Organize and monitor your assets by logical groups",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets",
+    "slug": "assets",
+    "title": "OpenCTEM",
+    "h1": "Asset Inventory",
+    "desc": "Complete visibility into your organization's digital assets and attack surface",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/apis",
+    "slug": "assets__apis",
+    "title": "OpenCTEM",
+    "h1": "APIs",
+    "desc": "0 apis in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/certificates",
+    "slug": "assets__certificates",
+    "title": "OpenCTEM",
+    "h1": "Certificates",
+    "desc": "0 certificates in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/cloud-accounts",
+    "slug": "assets__cloud-accounts",
+    "title": "OpenCTEM",
+    "h1": "Cloud Accounts",
+    "desc": "0 cloud accounts in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/containers",
+    "slug": "assets__containers",
+    "title": "OpenCTEM",
+    "h1": "Containers & Kubernetes",
+    "desc": "0 containers & kubernetes in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/databases",
+    "slug": "assets__databases",
+    "title": "OpenCTEM",
+    "h1": "Databases",
+    "desc": "0 databases in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/domains",
+    "slug": "assets__domains",
+    "title": "OpenCTEM",
+    "h1": "Domains & Subdomains",
+    "desc": "0 domains & subdomains in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/hosts",
+    "slug": "assets__hosts",
+    "title": "OpenCTEM",
+    "h1": "Hosts",
+    "desc": "0 hosts in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/identity",
+    "slug": "assets__identity",
+    "title": "OpenCTEM",
+    "h1": "Identity & Access",
+    "desc": "0 identity & access in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/ip-addresses",
+    "slug": "assets__ip-addresses",
+    "title": "OpenCTEM",
+    "h1": "IP Addresses",
+    "desc": "0 ip addresses in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/mobile",
+    "slug": "assets__mobile",
+    "title": "OpenCTEM",
+    "h1": "Mobile Apps",
+    "desc": "0 mobile apps in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/networks",
+    "slug": "assets__networks",
+    "title": "OpenCTEM",
+    "h1": "Network & Security Devices",
+    "desc": "0 network & security devices in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/repositories",
+    "slug": "assets__repositories",
+    "title": "OpenCTEM",
+    "h1": "Repositories",
+    "desc": "0 repositories in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/services",
+    "slug": "assets__services",
+    "title": "OpenCTEM",
+    "h1": "Services",
+    "desc": "0 services in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/storage",
+    "slug": "assets__storage",
+    "title": "OpenCTEM",
+    "h1": "Storage Buckets",
+    "desc": "0 storage buckets in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/assets/websites",
+    "slug": "assets__websites",
+    "title": "OpenCTEM",
+    "h1": "Websites",
+    "desc": "0 websites in your infrastructure",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/attacker-profiles",
+    "slug": "attacker-profiles",
+    "title": "OpenCTEM",
+    "h1": "Attacker Profiles",
+    "desc": "Define threat actor profiles for exposure assessment",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/attack-simulation",
+    "slug": "attack-simulation",
+    "title": "OpenCTEM",
+    "h1": "Breach & Attack Simulation",
+    "desc": "Validate security controls against real-world attack techniques",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/attack-surface",
+    "slug": "attack-surface",
+    "title": "OpenCTEM",
+    "h1": "Attack Surface Overview",
+    "desc": "Visualize and monitor your organization's external attack surface",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/business-impact",
+    "slug": "business-impact",
+    "title": "OpenCTEM",
+    "h1": "Business Impact Analysis",
+    "desc": "Assess the business impact of security vulnerabilities across assets and business units",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/business-services",
+    "slug": "business-services",
+    "title": "OpenCTEM",
+    "h1": "Business Services",
+    "desc": "Define business services and their compliance, data handling, and availability requirements.",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/capabilities",
+    "slug": "capabilities",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/compliance",
+    "slug": "compliance",
+    "title": "OpenCTEM",
+    "h1": "Compliance Requirements",
+    "desc": "Track compliance frameworks and regulatory requirements",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/components",
+    "slug": "components",
+    "title": "OpenCTEM",
+    "h1": "Software Components",
+    "desc": "Software Bill of Materials (SBOM) and supply chain security",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/components/all",
+    "slug": "components__all",
+    "title": "OpenCTEM",
+    "h1": "All Components",
+    "desc": "0 software components in your organization",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/components/ecosystems",
+    "slug": "components__ecosystems",
+    "title": "OpenCTEM",
+    "h1": "Package Ecosystems",
+    "desc": "Components distributed across 0 package ecosystems",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/components/licenses",
+    "slug": "components__licenses",
+    "title": "OpenCTEM",
+    "h1": "License Compliance",
+    "desc": "0 unique licenses across 0 components",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/components/sbom-export",
+    "slug": "components__sbom-export",
+    "title": "OpenCTEM",
+    "h1": "Export SBOM",
+    "desc": "Generate Software Bill of Materials in standard formats",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/components/vulnerable",
+    "slug": "components__vulnerable",
+    "title": "OpenCTEM",
+    "h1": "Vulnerable Components",
+    "desc": "0 components with known security vulnerabilities",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/controls",
+    "slug": "controls",
+    "title": "OpenCTEM",
+    "h1": "Compensating Controls",
+    "desc": "Manage compensating controls that reduce finding risk scores",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/control-testing",
+    "slug": "control-testing",
+    "title": "OpenCTEM",
+    "h1": "Control Testing",
+    "desc": "Track and validate security control effectiveness across compliance frameworks",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/credentials",
+    "slug": "credentials",
+    "title": "OpenCTEM",
+    "h1": "Credential Leaks",
+    "desc": "0 leaked credentials detected",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/cycles",
+    "slug": "cycles",
+    "title": "OpenCTEM",
+    "h1": "CTEM Cycles",
+    "desc": "Manage continuous threat exposure management cycles",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/exposures",
+    "slug": "exposures",
+    "title": "OpenCTEM",
+    "h1": "Exposure Events",
+    "desc": "Monitor and manage attack surface exposures",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/exposures/code",
+    "slug": "exposures__code",
+    "title": "OpenCTEM",
+    "h1": "Code Vulnerabilities",
+    "desc": "Track code-level security vulnerabilities from static analysis",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/exposures/misconfigurations",
+    "slug": "exposures__misconfigurations",
+    "title": "OpenCTEM",
+    "h1": "Misconfiguration Exposures",
+    "desc": "Identify infrastructure and application misconfigurations",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/exposures/secrets",
+    "slug": "exposures__secrets",
+    "title": "OpenCTEM",
+    "h1": "Secret Exposures",
+    "desc": "Monitor exposed secrets and credentials in your codebase",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/exposures/vulnerabilities",
+    "slug": "exposures__vulnerabilities",
+    "title": "OpenCTEM",
+    "h1": "Vulnerability Exposures",
+    "desc": "Dashboard overview, CVEs currently impacting your assets, and the global CVE catalog",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/findings",
+    "slug": "findings",
+    "title": "OpenCTEM",
+    "h1": "Security Findings",
+    "desc": "0 total findings - 0 open",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/insights/ctem-maturity",
+    "slug": "insights__ctem-maturity",
+    "title": "OpenCTEM",
+    "h1": "CTEM maturity",
+    "desc": "Loop-closing invariant health — feedback, blocking, and observability edges.",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/insights/executive",
+    "slug": "insights__executive",
+    "title": "OpenCTEM",
+    "h1": "Executive Summary",
+    "desc": "High-level view of risk posture, remediation performance, and process health",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/notifications",
+    "slug": "notifications",
+    "title": "OpenCTEM",
+    "h1": "Notifications",
+    "desc": "Manage your in-app notifications",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/pentest/campaigns",
+    "slug": "pentest__campaigns",
+    "title": "OpenCTEM",
+    "h1": "Pentest Campaigns",
+    "desc": "Plan, execute, and track penetration testing engagements",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/pentest/findings",
+    "slug": "pentest__findings",
+    "title": "OpenCTEM",
+    "h1": "Pentest Findings",
+    "desc": "Document and track security vulnerabilities discovered during penetration testing",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/pentest/mitre-coverage",
+    "slug": "pentest__mitre-coverage",
+    "title": "OpenCTEM",
+    "h1": "MITRE ATT&CK Coverage",
+    "desc": "Visualize technique coverage from pentest findings and attack simulations",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/pentest/reports",
+    "slug": "pentest__reports",
+    "title": "OpenCTEM",
+    "h1": "Pentest Reports",
+    "desc": "Search for a command to run...",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/pentest/retests",
+    "slug": "pentest__retests",
+    "title": "OpenCTEM",
+    "h1": "Retest Management",
+    "desc": "Verify remediation effectiveness and track retest results",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/pentest/templates",
+    "slug": "pentest__templates",
+    "title": "OpenCTEM",
+    "h1": "Finding Templates",
+    "desc": "8 templates|8 built-in|0 custom",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/pipelines",
+    "slug": "pipelines",
+    "title": "OpenCTEM",
+    "h1": "Scan Pipelines",
+    "desc": "Create and manage multi-step scan workflows with visual builder",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/relationships/suggestions",
+    "slug": "relationships__suggestions",
+    "title": "OpenCTEM",
+    "h1": "Relationship Suggestions",
+    "desc": "Auto-detected relationships between assets. Review and approve to create links.",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/remediation",
+    "slug": "remediation",
+    "title": "OpenCTEM",
+    "h1": "Remediation Tasks",
+    "desc": "0 of 0 tasks",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/reports",
+    "slug": "reports",
+    "title": "OpenCTEM",
+    "h1": "Security Reports",
+    "desc": "Generate, schedule, and export security reports",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/risk-analysis",
+    "slug": "risk-analysis",
+    "title": "OpenCTEM",
+    "h1": "Risk Analysis",
+    "desc": "Aggregate, category-level risk scoring across your exposure data — so prioritization reflects real, computed risk rather than raw finding counts.",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/scanner-templates",
+    "slug": "scanner-templates",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/scan-profiles",
+    "slug": "scan-profiles",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/scans",
+    "slug": "scans",
+    "title": "OpenCTEM",
+    "h1": "Scan Management",
+    "desc": "Manage scheduled and recurring scan configurations",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/scope-config",
+    "slug": "scope-config",
+    "title": "OpenCTEM",
+    "h1": "Scope Configuration",
+    "desc": "Configure scan targets, exclusions, and schedules",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/secret-store",
+    "slug": "secret-store",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings",
+    "slug": "settings",
+    "title": "OpenCTEM",
+    "h1": "Tenant Settings",
+    "desc": "Manage your organization settings and configuration",
+    "empty": false,
+    "redirected": "/settings/tenant"
+  },
+  {
+    "route": "/settings/access-control/assignment-rules",
+    "slug": "settings__access-control__assignment-rules",
+    "title": "OpenCTEM",
+    "h1": "Assignment Rules",
+    "desc": "Manage rules that automatically assign assets to groups",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/access-control/groups",
+    "slug": "settings__access-control__groups",
+    "title": "OpenCTEM",
+    "h1": "Teams",
+    "desc": "Organize users into teams to control access to assets",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/asset-lifecycle",
+    "slug": "settings__asset-lifecycle",
+    "title": "OpenCTEM",
+    "h1": "Asset Lifecycle",
+    "desc": "Automatically transition stale assets out of active inventory so operators can focus on fresh exposure signal.",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/audit",
+    "slug": "settings__audit",
+    "title": "OpenCTEM",
+    "h1": "Audit Log",
+    "desc": "View activity history and security events",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/general",
+    "slug": "settings__general",
+    "title": "OpenCTEM",
+    "h1": "General Settings",
+    "desc": "Configure general platform settings and preferences",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/integrations",
+    "slug": "settings__integrations",
+    "title": "OpenCTEM",
+    "h1": "Integrations",
+    "desc": "Connect with third-party tools and services",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/integrations/cicd",
+    "slug": "settings__integrations__cicd",
+    "title": "OpenCTEM",
+    "h1": "CI/CD Integration",
+    "desc": "Integrate security scanning into your CI/CD pipelines and gate deployments on findings.",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/integrations/notifications",
+    "slug": "settings__integrations__notifications",
+    "title": "OpenCTEM",
+    "h1": "Notification Integrations",
+    "desc": "Manage notification channels for Slack, Microsoft Teams, Telegram, and custom webhooks",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/integrations/scm",
+    "slug": "settings__integrations__scm",
+    "title": "OpenCTEM",
+    "h1": "SCM Connections",
+    "desc": "Manage connections to your source code management providers (GitHub, GitLab, Bitbucket, Azure DevOps)",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/integrations/siem",
+    "slug": "settings__integrations__siem",
+    "title": "OpenCTEM",
+    "h1": "SIEM Integration",
+    "desc": "Forward security findings, asset changes, and scan results to your SIEM or SOAR platform for centralized monitoring and automated incident response.",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/integrations/ticketing",
+    "slug": "settings__integrations__ticketing",
+    "title": "OpenCTEM",
+    "h1": "Ticketing Integration",
+    "desc": "Connect with ticketing systems for automated remediation tracking",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/modules",
+    "slug": "settings__modules",
+    "title": "OpenCTEM",
+    "h1": "Module Management",
+    "desc": "Enable or disable modules for your organization. Core modules required for platform operation cannot be disabled.",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/pentest",
+    "slug": "settings__pentest",
+    "title": "OpenCTEM",
+    "h1": "Pentest Settings",
+    "desc": "Configure campaign types and methodologies for your organization",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/priority-rules",
+    "slug": "settings__priority-rules",
+    "title": "OpenCTEM",
+    "h1": "Priority Override Rules",
+    "desc": "Define rules that override the calculated finding priority based on conditions.",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/roles",
+    "slug": "settings__roles",
+    "title": "OpenCTEM",
+    "h1": "Roles",
+    "desc": "Manage roles and their permissions. Users can have multiple roles.",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/scoring",
+    "slug": "settings__scoring",
+    "title": "OpenCTEM",
+    "h1": "Scoring Configuration",
+    "desc": "Configure risk scoring weights and parameters for your organization",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/tenant",
+    "slug": "settings__tenant",
+    "title": "OpenCTEM",
+    "h1": "Tenant Settings",
+    "desc": "Manage your organization settings and configuration",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/settings/users",
+    "slug": "settings__users",
+    "title": "OpenCTEM",
+    "h1": "User Management",
+    "desc": "Manage team members and access permissions",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/template-sources",
+    "slug": "template-sources",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": true,
+    "redirected": ""
+  },
+  {
+    "route": "/threat-intel",
+    "slug": "threat-intel",
+    "title": "OpenCTEM",
+    "h1": "Threat Intelligence",
+    "desc": "EPSS and CISA KEV data for vulnerability prioritization",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/tools",
+    "slug": "tools",
+    "title": "OpenCTEM",
+    "h1": "",
+    "desc": "Search for a command to run...",
+    "empty": false,
+    "redirected": ""
+  },
+  {
+    "route": "/workflows",
+    "slug": "workflows",
+    "title": "OpenCTEM",
+    "h1": "Automation Workflows",
+    "desc": "Create and manage automated security response workflows",
+    "empty": true,
+    "redirected": ""
+  }
+]
