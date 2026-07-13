@@ -11,6 +11,8 @@ permalink: /features/
 Documentation for major features in the OpenCTEM CTEM Platform.
 
 > **[Platform Overview](platform-overview.md)** — Architecture summary, capabilities matrix, and infrastructure details.
+>
+> **[Module Feature Catalog](module-feature-catalog.md)** — Every module and the concrete features it provides, organized by CTEM phase, with a bundle→module map.
 
 ---
 
