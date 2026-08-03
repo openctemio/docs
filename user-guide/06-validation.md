@@ -8,7 +8,7 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 - **Manual pentest workflow (quy trình kiểm thử xâm nhập thủ công)** — lập kế hoạch và theo dõi các đợt pentest (`campaigns`), tài liệu hóa từng lỗ hổng tìm được (`findings`), kiểm chứng lại sau khi vá (`retests`), xuất báo cáo (`reports`), tái sử dụng mẫu lỗ hổng (`templates`) và đo phủ kỹ thuật theo khung MITRE ATT&CK (`mitre-coverage`).
 - **Breach & Attack Simulation (mô phỏng tấn công tự động)** — chạy các kịch bản tấn công ánh xạ MITRE ATT&CK để đo tỉ lệ phát hiện/ngăn chặn của hệ thống (`/attack-simulation`).
-- **Verifying controls (kiểm chứng biện pháp kiểm soát)** — theo dõi hiệu lực của các biện pháp kiểm soát bảo mật theo khung tuân thủ (`/control-testing`) và quản lý các **compensating control** giúp giảm điểm rủi ro của finding (`/controls`).
+- **Verifying controls (kiểm chứng biện pháp kiểm soát)** — theo dõi hiệu lực của các biện pháp kiểm soát bảo mật theo khung tuân thủ (`/control-testing`) và quản lý các **compensating control** giúp hạ mức ưu tiên của finding (`/controls`).
 
 **Cách pentest finding chảy vào Findings workbench chung:** Mỗi pentest finding (tài liệu hóa trong giai đoạn Validation) cũng là một **Security Finding** của tenant. Vì vậy chúng xuất hiện song song tại **Findings workbench** (`/findings`) cùng kết quả từ SAST, DAST, SCA... với nguồn `Pentest`. Pentest finding dùng tập trạng thái riêng (`Draft → In Review → Confirmed → Remediation → Retest → Verified`, cùng `False Positive` / `Accepted Risk`); hai trạng thái `draft` và `in_review` là bản nháp (WIP) nên bị ẩn mặc định ở workbench chung. Chi tiết về workbench xem Phần 4.
 
@@ -152,15 +152,17 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 ---
 
 ## Compensating Controls (`/controls`)
-**Mục đích:** Quản lý các **biện pháp kiểm soát bù trừ (compensating control)** — những biện pháp giúp **giảm điểm rủi ro (risk score) của finding** khi chưa thể vá triệt để (ví dụ WAF rate limiting bù cho một lỗ hổng injection).
+**Mục đích:** Quản lý các **biện pháp kiểm soát bù trừ (compensating control)** — những biện pháp làm **hạ mức ưu tiên (priority class) của finding** khi chưa thể vá triệt để (ví dụ WAF rate limiting bù cho một lỗ hổng injection).
 
 **Cách dùng:**
-1. **Bảng `All Controls`**: cột `Name`, `Type` (Preventive/Detective/Corrective/Compensating), `Status` (Active/Inactive/Pending), `Reduction` (% giảm rủi ro), `Last Tested`, `Test Result` (Pass/Fail/Partial) và `Actions`.
-2. **Tạo mới**: nút `New Control` (cần `compensating-controls:write`) mở hộp thoại — bắt buộc `Name`; tùy chọn `Description`, `Control Type` và `Reduction Factor (%)` (0–100, mặc định 20%).
+1. **Bảng `All Controls`**: cột `Name`, `Type` (Segmentation / Identity / Runtime / Detection / Other), `Status` (Active / Inactive / Expired / Untested), `Reduction` (%), `Last Tested`, `Test Result` (Pass/Fail/Partial) và `Actions`.
+2. **Tạo mới**: nút `New Control` (cần `compensating-controls:write`) mở hộp thoại — bắt buộc `Name`; tùy chọn `Description`, `Control Type` và `Reduction Factor (%)` (1–100, mặc định 20%). Form nhận phần trăm rồi quy đổi sang phân số 0.01–1 khi gửi lên API.
 3. **Ghi kết quả test**: nút `Test` (icon bình thí nghiệm) trên mỗi dòng mở hộp thoại `Record Test Result` để chọn `Pass` / `Fail` / `Partial`, cập nhật `Last Tested` và `Test Result`.
 4. **Xóa**: nút thùng rác mở hộp thoại xác nhận xóa (không thể hoàn tác).
 
-**Ghi chú:** Khi chưa có control, hiển thị "No compensating controls yet." Các nút `New Control`, `Test` và `Delete` chỉ hiện với quyền `compensating-controls:write`. `Reduction Factor` quyết định mức giảm điểm rủi ro áp lên finding liên quan.
+**Ghi chú:** Khi chưa có control, hiển thị "No compensating controls yet." Các nút `New Control`, `Test` và `Delete` chỉ hiện với quyền `compensating-controls:write`.
+
+> **`Reduction Factor` hiện có tác dụng nhị phân, không tỉ lệ thuận.** Bộ phân loại ưu tiên chỉ hỏi asset *có* control hiệu lực hay không (`reduction > 0` ⇒ `IsProtected`): một finding Critical + reachable bị hạ từ **P1 xuống P2**. Đặt 5% hay 90% cho kết quả **y hệt nhau** — con số chỉ xuất hiện trong câu giải thích ("Compensating controls present (reduction: 30%)"). Hãy xem nó như ghi chú cho người đọc, đừng kỳ vọng nó trừ điểm theo tỉ lệ.
 ![Compensating Controls](screenshots/controls.png)
 *🌙 Dark mode:* ![Compensating Controls — dark](screenshots/controls-dark.png)
 
@@ -177,5 +179,5 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 - [ ] Dùng **MITRE ATT&CK Coverage** để thấy độ phủ kỹ thuật và các vùng còn mù (lọc theo Pentest/Simulation/All).
 - [ ] Đo hiệu quả phòng thủ qua **Breach & Attack Simulation** (lưu ý: tạo mới simulation hiện "coming soon", chỉ chạy lại được simulation Active).
 - [ ] Theo dõi hiệu lực kiểm soát theo khung tuân thủ tại **Control Testing**.
-- [ ] Quản lý **Compensating Controls** để giảm điểm rủi ro finding khi chưa thể vá triệt để; ghi kết quả test định kỳ.
+- [ ] Quản lý **Compensating Controls** để hạ mức ưu tiên finding (P1 → P2) khi chưa thể vá triệt để; ghi kết quả test định kỳ.
 - [ ] Kiểm tra phân quyền RBAC nếu không thấy nút tạo/sửa/xóa hoặc nút Retest.
