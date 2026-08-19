@@ -39,9 +39,8 @@ This guide walks you through a **complete security scan workflow** from creating
 
 Navigate to [http://localhost:3000](http://localhost:3000)
 
-**Default credentials:**
-- Email: `admin@openctem.io`
-- Password: `Admin123!`
+Log in with the admin account you created via `bootstrap-admin` (there is no seeded
+default account — see [Getting Started](getting-started.md#create-the-first-admin-account)).
 
 ### 1.2 Add a Repository
 

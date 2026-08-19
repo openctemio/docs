@@ -21,7 +21,7 @@ Each tenant can have its own Entra ID configuration — different Azure AD tenan
 |---|---|
 | **Name** | `OpenCTEM SSO` (or your preferred name) |
 | **Supported account types** | `Accounts in this organizational directory only` |
-| **Redirect URI (Web)** | `https://your-domain.com/auth/sso/callback` |
+| **Redirect URI (Web)** | `https://your-domain.com/auth/sso/callback/entra_id` |
 
 4. Click **Register**
 
@@ -50,10 +50,13 @@ After registration, note down:
 
 Add all environments:
 
+The redirect URI must include the provider segment (`entra_id`) — it maps to the UI
+route `/auth/sso/callback/[provider]`. A missing segment breaks the SSO login callback.
+
 ```
-https://app.yourcompany.com/auth/sso/callback      # Production
-https://staging.yourcompany.com/auth/sso/callback   # Staging
-http://localhost:3000/auth/sso/callback              # Development
+https://app.yourcompany.com/auth/sso/callback/entra_id      # Production
+https://staging.yourcompany.com/auth/sso/callback/entra_id  # Staging
+http://localhost:3000/auth/sso/callback/entra_id            # Development
 ```
 
 ## Step 2: Configure in OpenCTEM

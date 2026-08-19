@@ -26,7 +26,7 @@ ui/docs/
 │
 ├── features/                        # Feature Documentation
 │   ├── README.md
-│   ├── auth/                        # Authentication (Keycloak)
+│   ├── ACCOUNT_SETTINGS.md          # Account settings
 │   └── ACCESS_CONTROL.md            # Access Control
 │
 ├── ops/                             # Operations & Deployment
@@ -52,8 +52,8 @@ ui/docs/
 3. Configure environment variables ([ops/ENVIRONMENT_VARIABLES.md](./ops/ENVIRONMENT_VARIABLES.md))
 
 **2. Setup Authentication**
-1. [features/auth/KEYCLOAK_SETUP.md](./features/auth/KEYCLOAK_SETUP.md) - Setup Keycloak server
-2. [features/auth/AUTH_USAGE.md](./features/auth/AUTH_USAGE.md) - Implement login/logout
+1. [Authentication guide](../../guides/authentication.md) - Local JWT, OAuth social, and enterprise SSO
+2. [SSO setup](../../guides/sso-setup.md) - Configure per-tenant SAML / OIDC / Entra ID
 
 **3. Connect to Backend**
 1. [guides/API_INTEGRATION.md](./guides/API_INTEGRATION.md) - Setup API client
@@ -90,10 +90,9 @@ ui/docs/
 
 ### ✨ Features (`features/`)
 
-**[Authentication](./features/auth/README.md)**
-- **[Setup Guide](./features/auth/KEYCLOAK_SETUP.md)**
-- **[Usage Guide](./features/auth/AUTH_USAGE.md)**
-- **[API Reference](./features/auth/API_REFERENCE.md)**
+**[Authentication](../../guides/authentication.md)**
+- Local JWT (email/password) + OAuth social (Google/GitHub/Microsoft)
+- Enterprise SSO: per-tenant SAML / OIDC / Microsoft Entra ID ([SSO setup](../../guides/sso-setup.md))
 
 **[Access Control](./features/ACCESS_CONTROL.md)**
 - Group-based permissions
@@ -130,7 +129,7 @@ ui/docs/
 | **Setup project** | [README.md](../../README.md) |
 | **Understand system** | [Architecture](./architecture.md) |
 | **Configure env vars** | [ops/ENVIRONMENT_VARIABLES.md](./ops/ENVIRONMENT_VARIABLES.md) |
-| **Add login/logout** | [features/auth/AUTH_USAGE.md](./features/auth/AUTH_USAGE.md) |
+| **Add login/logout** | [Authentication guide](../../guides/authentication.md) |
 | **Call backend API** | [guides/API_INTEGRATION.md](./guides/API_INTEGRATION.md) |
 | **Customize types** | [guides/CUSTOMIZE_TYPES_GUIDE.md](./guides/CUSTOMIZE_TYPES_GUIDE.md) |
 | **Account settings** | [features/ACCOUNT_SETTINGS.md](./features/ACCOUNT_SETTINGS.md) |
@@ -143,6 +142,6 @@ ui/docs/
 - **Next.js 16:** [nextjs.org/docs](https://nextjs.org/docs)
 - **React 19:** [react.dev](https://react.dev)
 - **Tailwind CSS:** [tailwindcss.com](https://tailwindcss.com)
-- **Keycloak:** [keycloak.org/documentation](https://www.keycloak.org/documentation)
+- **Microsoft Entra ID:** [learn.microsoft.com/entra/identity](https://learn.microsoft.com/entra/identity/)
 
 ---

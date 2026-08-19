@@ -277,7 +277,7 @@ services:
       - ui
 
   db:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
