@@ -360,55 +360,43 @@ Hydration failed because the initial UI does not match what was rendered on the 
 
 ---
 
-## Keycloak Issues
+## SSO / Social Login Issues
 
-### Keycloak Not Starting
+OpenCTEM has no Keycloak. Authentication is local JWT plus OAuth social login
+(Google/GitHub/Microsoft) and per-tenant enterprise SSO (SAML / OIDC, including
+Microsoft Entra ID). Most sign-in failures are redirect-URI or credential
+mismatches at the identity provider.
 
-**Symptom:** Keycloak container fails to start
+### SSO Sign-in Redirect Fails
 
-**Solutions:**
-
-1. **Check logs:**
-   ```bash
-   docker compose logs keycloak
-   ```
-
-2. **Verify database connection:**
-   ```bash
-   # In .env.keycloak.dev
-   KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
-   ```
-
-3. **Check port availability:**
-   ```bash
-   lsof -i :8180
-   ```
-
-### OIDC Authentication Failed
-
-**Symptom:** Keycloak login redirects fail
+**Symptom:** After authenticating at the IdP, the browser errors on return.
 
 **Solutions:**
 
-1. **Verify Keycloak URLs match:**
-   ```bash
-   # Frontend
-   NEXT_PUBLIC_KEYCLOAK_URL=http://localhost:8180
-
-   # Backend
-   KEYCLOAK_BASE_URL=http://localhost:8180
+1. **Verify the redirect URI includes the provider segment.** The callback route is
+   `/auth/sso/callback/{provider}` — a missing segment breaks the callback:
    ```
-
-2. **Check redirect URI is configured:**
-   - In Keycloak Admin Console
-   - Clients > ui > Valid redirect URIs
-   - Add: `http://localhost:3000/*`
-
-3. **Verify client secret:**
-   ```bash
-   # Must match secret in Keycloak
-   KEYCLOAK_CLIENT_SECRET=your-secret
+   https://your-domain.com/auth/sso/callback/entra_id
    ```
+   Register this exact URI in the IdP (Entra ID / Okta / Google Workspace), including
+   scheme and host.
+
+2. **Check the tenant's SSO configuration** in the platform admin UI (client ID,
+   client secret / SAML metadata, and issuer/tenant ID) match the IdP.
+
+3. **Confirm `AUTH_PROVIDER`** is `oidc` or `hybrid` on the backend (and
+   `NEXT_PUBLIC_AUTH_PROVIDER` matches on the frontend) so SSO is enabled.
+
+### OAuth Social Login Not Offered
+
+**Symptom:** The Google/GitHub/Microsoft button is missing.
+
+**Solution:** Enable the provider and set its credentials on the backend, e.g.:
+```bash
+OAUTH_GOOGLE_ENABLED=true
+OAUTH_GOOGLE_CLIENT_ID=your-client-id
+OAUTH_GOOGLE_CLIENT_SECRET=your-client-secret
+```
 
 ---
 

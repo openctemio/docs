@@ -163,7 +163,7 @@ api:
     RATE_LIMIT_ENABLED: "true"         # Enable per-IP rate limiting
     RATE_LIMIT_RPS: "100"              # Requests per second per IP
     RATE_LIMIT_BURST: "200"            # Burst allowance above RPS
-    AUTH_PROVIDER: local               # "local" or "oidc" (for Keycloak/Okta)
+    AUTH_PROVIDER: local               # "local", "oidc", or "hybrid" (per-tenant SSO: Entra ID / Okta / Google)
     AUTH_REQUIRE_EMAIL_VERIFICATION: "false"
     AUTH_ALLOW_REGISTRATION: "true"    # Set "false" for invite-only
   envFromSecret: openctem-api-secrets  # Secret name containing sensitive vars

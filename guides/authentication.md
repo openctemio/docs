@@ -80,14 +80,18 @@ OpenCTEM uses a **Hybrid JWT + Redis Permission System** for authentication and 
 - Email verification required
 - Session management with refresh tokens
 
-### OIDC/Keycloak (Enterprise)
-- Single Sign-On (SSO)
-- External identity providers
-- Automatic user provisioning
-- Token validation with JWKS
+### OAuth Social Login
+- Google, GitHub, and Microsoft sign-in
+- Enabled per provider via `OAUTH_<PROVIDER>_ENABLED` / client credentials
+- Automatic user provisioning on first login
+
+### Enterprise SSO
+- Per-tenant Single Sign-On via SAML and OIDC (including Microsoft Entra ID)
+- External identity providers configured per tenant (no shared Keycloak)
+- Automatic user provisioning and JWKS/assertion validation
 
 ### Hybrid Mode
-- Support both local and OIDC
+- Local + social + SSO available simultaneously
 - Automatic provider detection
 - Unified authentication flow
 
@@ -313,11 +317,11 @@ The new password must meet the following criteria:
 
 ## SSO Authentication
 
-OpenCTEM supports Single Sign-On (SSO) via OIDC/Keycloak for enterprise deployments. SSO allows users to authenticate using external identity providers (Google, Microsoft, Okta, etc.) with automatic user provisioning and token validation via JWKS.
+OpenCTEM supports Single Sign-On (SSO) via per-tenant SAML and OIDC (including Microsoft Entra ID) for enterprise deployments. Each tenant configures its own identity provider — there is no shared Keycloak. SSO allows users to authenticate using external identity providers (Microsoft Entra ID, Okta, Google Workspace, etc.) with automatic user provisioning and token/assertion validation.
 
 The authentication provider is configured via the `AUTH_PROVIDER` environment variable (`local`, `oidc`, or `hybrid`). In hybrid mode, both local and SSO authentication are available simultaneously.
 
-The SSO callback is handled at `/auth/sso/callback` on the frontend.
+The SSO callback is handled per provider at `/auth/sso/callback/{provider}` on the frontend (for example `/auth/sso/callback/entra_id`).
 
 ---
 
