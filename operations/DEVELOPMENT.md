@@ -141,7 +141,7 @@ openssl rand -base64 32
 Use the root Makefile to spin up the full stack:
 
 ```bash
-make up        # Start Postgres, Keycloak, etc.
+make up        # Start Postgres, Redis, etc.
 make logs      # View logs
 make down      # Stop everything
 ```

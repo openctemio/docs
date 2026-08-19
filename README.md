@@ -165,7 +165,7 @@ docker compose up -d
 |-----------|-------------|
 | **Backend** | Go 1.26, Chi Router, PostgreSQL 17, Redis 7 |
 | **Frontend** | Next.js 16, React 19, TypeScript, Tailwind 4 |
-| **Auth** | JWT (local) / Keycloak (OIDC) |
+| **Auth** | Local JWT + OAuth social (Google/GitHub/Microsoft) + enterprise SSO (SAML / per-tenant OIDC / Entra ID) |
 | **SDK** | Go SDK with Scanner/Parser/Collector interfaces |
 
 ---
@@ -180,7 +180,6 @@ docker compose up -d
 | [agent](https://github.com/openctemio/agent) | Security scanning agent |
 | [setup](https://github.com/openctemio/setup) | Deployment & Docker Compose |
 | [schemas](https://github.com/openctemio/schemas) | CTIS JSON Schemas |
-| [keycloak](https://github.com/openctemio/keycloak) | Keycloak Configuration |
 | [docs](https://github.com/openctemio/docs) | Documentation (this repo) |
 
 ---

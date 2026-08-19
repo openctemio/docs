@@ -23,8 +23,8 @@ Deploy the OpenCTEM platform to production environments using Kubernetes, Docker
             │                         │                         │
             ▼                         ▼                         ▼
     ┌───────────────┐      ┌───────────────┐      ┌───────────────┐
-    │  UI (Next.js) │      │   API (Go)    │      │   Keycloak    │
-    │   Replicas: 2 │      │   Replicas: 3 │      │   (Optional)  │
+    │  UI (Next.js) │      │   API (Go)    │      │  External IdP │
+    │   Replicas: 2 │      │   Replicas: 3 │      │  (SSO, opt.)  │
     └───────────────┘      └───────────────┘      └───────────────┘
             │                         │                         │
             └─────────────────────────┼─────────────────────────┘
@@ -33,9 +33,9 @@ Deploy the OpenCTEM platform to production environments using Kubernetes, Docker
             │                         │                         │
             ▼                         ▼                         ▼
     ┌───────────────┐      ┌───────────────┐      ┌───────────────┐
-    │  PostgreSQL   │      │     Redis     │      │   Keycloak    │
-    │  Primary +    │      │   Cluster     │      │   PostgreSQL  │
-    │  Replicas     │      │   Sentinel    │      │               │
+    │  PostgreSQL   │      │     Redis     │      │  External IdP │
+    │  Primary +    │      │   Cluster     │      │  (SAML/OIDC/  │
+    │  Replicas     │      │   Sentinel    │      │   Entra ID)   │
     └───────────────┘      └───────────────┘      └───────────────┘
 ```
 
@@ -124,7 +124,7 @@ api:
       memory: "2Gi"
       cpu: "1000m"
   env:
-    AUTH_PROVIDER: local  # or "oidc" for Keycloak
+    AUTH_PROVIDER: local  # "local", "oidc", or "hybrid" (per-tenant SSO: Entra ID / Okta / Google)
     CORS_ALLOWED_ORIGINS: "https://your-domain.com"
     LOG_LEVEL: info
 
@@ -277,9 +277,11 @@ kubectl exec -it deployment/openctem-api --namespace openctem -- \
 
 2. Navigate to your domain: `https://your-domain.com`
 
-3. Login with default credentials (change immediately):
-   - Email: `admin@openctem.io`
-   - Password: `Admin123!`
+3. Create the first admin account — there is no seeded default account:
+   ```bash
+   make bootstrap-admin-prod email=admin@yourcompany.com
+   ```
+   The command prints a one-time API key. Log in with that admin account.
 
 ---
 

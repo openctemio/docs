@@ -133,15 +133,10 @@ nano .env
 Required variables:
 
 ```env
-# Keycloak Authentication
-NEXT_PUBLIC_KEYCLOAK_URL=https://auth.your-domain.com
-NEXT_PUBLIC_KEYCLOAK_REALM=production
-NEXT_PUBLIC_KEYCLOAK_CLIENT_ID=nextjs-client
-NEXT_PUBLIC_KEYCLOAK_REDIRECT_URI=https://app.your-domain.com/auth/callback
-KEYCLOAK_CLIENT_SECRET=<from-keycloak>
-
 # API (server-side only — single source of truth)
-# Client-side requests proxied through Next.js at /api/v1/*
+# Auth (local JWT / OAuth social / SAML SSO) is handled by the backend — no
+# Keycloak/OIDC variables are needed. Client-side requests are proxied through
+# Next.js at /api/v1/*.
 BACKEND_API_URL=https://api.your-domain.com
 
 # Application
@@ -151,7 +146,7 @@ NEXT_PUBLIC_APP_URL=https://app.your-domain.com
 SECURE_COOKIES=true
 CSRF_SECRET=<generate-with-npm-run-generate-secret>
 
-# Optional
+# Optional (inert until @sentry/nextjs is wired — see Sentry Setup below)
 NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
 ```
 
@@ -247,6 +242,13 @@ In `docker-compose.prod.yml`, uncomment the nginx service section.
 ---
 
 ## Sentry Setup
+
+> **Sentry is NOT wired yet.** `@sentry/nextjs` is not a dependency. The
+> `sentry.{client,server,edge}.config.ts` files are no-op stubs (`export {}`), the
+> `register()` hook in `instrumentation.ts` is a commented-out placeholder,
+> `next.config.ts` does not wrap the config in `withSentryConfig`, and there is no
+> `/api/test-sentry` route. Setting `NEXT_PUBLIC_SENTRY_DSN` alone does nothing.
+> The steps below are what it would take to enable it.
 
 ### Step 1: Create Sentry Project
 
@@ -351,7 +353,7 @@ newgrp docker
 - [ ] `.env` file created with all required variables
 - [ ] `CSRF_SECRET` generated (32+ chars)
 - [ ] `SECURE_COOKIES=true`
-- [ ] Keycloak URLs configured
+- [ ] `BACKEND_API_URL` configured (auth is backend-handled — no Keycloak/OIDC vars needed)
 - [ ] Backend API accessible
 
 ### Docker

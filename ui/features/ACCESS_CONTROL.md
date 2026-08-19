@@ -405,7 +405,7 @@ The Access Control feature has a solid foundation with proper structure, type sa
 
 ## Related Documentation
 
-- [Authentication](../features/auth/README.md) - Auth system overview
+- [Authentication](../../guides/authentication.md) - Auth system overview (local JWT, OAuth social, enterprise SSO)
 - [API Integration](../guides/API_INTEGRATION.md) - API client patterns
 - [Architecture](../architecture.md) - System architecture
 

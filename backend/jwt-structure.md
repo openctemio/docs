@@ -9,19 +9,23 @@ nav_order: 3
 
 ## Overview
 
-OpenCTEM uses JWT (JSON Web Tokens) for authentication with a **hybrid approach**: JWTs contain minimal user identity claims, while permissions are fetched dynamically from Redis cache or the database.
+OpenCTEM uses JWT (JSON Web Tokens) for authentication with a **slim tenant-scoped token plus a Redis-backed version sync**:
 
-## Why Hybrid JWT + Redis?
+- **Owner/Admin** tokens carry **no permissions** — they set `admin: true` and bypass all permission checks.
+- **Member/Viewer/Custom** tokens **embed** the user's permissions (resolved from RBAC roles at token issue), kept under the 4KB browser-cookie limit.
+- Every token also carries a `perm_version`. A permission-sync middleware compares it against the current version in Redis and, on a mismatch, sets an `X-Permission-Stale` response header so the frontend can refresh permissions without waiting for token expiry.
 
-### Problem with Traditional JWT
-- **Large Token Size:** Embedding all permissions in JWT resulted in 2.5KB+ tokens
+## Why This Design?
+
+### Problem with a Fat JWT
+- **Large Token Size:** Embedding *all* permissions produced 2.5KB+ tokens for privileged roles
 - **Cookie Limits:** Browsers limit cookies to 4KB, causing failures
 - **No Real-time Updates:** Permission changes required waiting for token expiry (15 min)
 
-### Solution: Hybrid System
-- **Small JWT:** Only essential identity claims (~200 bytes)
-- **Dynamic Permissions:** Fetched from Redis cache (<1ms) or DB
-- **Real-time Updates:** Cache invalidation enables instant permission changes
+### Solution: Slim token + version sync
+- **Admin bypass:** Owner/Admin tokens omit permissions entirely (~500 bytes) and bypass checks via the `admin` flag
+- **Scoped embedding:** Non-admin tokens embed only that user's role-derived permissions (Member ~1.5KB, Viewer ~1KB)
+- **Real-time invalidation:** `perm_version` + Redis lets the backend flag a stale token (`X-Permission-Stale`) the moment a role changes
 
 ---
 
@@ -36,12 +40,15 @@ OpenCTEM uses JWT (JSON Web Tokens) for authentication with a **hybrid approach*
   "tenant": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
   "role": "admin",
   "admin": true,
+  "perm_version": 7,
   "sub": "66666666-6666-6666-6666-666666666666",
   "exp": 1737589200,
   "iat": 1737588300,
   "iss": "openctem-api"
 }
 ```
+
+> This example is an **Admin** token, so it carries no `permissions` array (admin bypasses checks). A **Member/Viewer** token additionally includes a `"permissions": ["assets:read", ...]` array derived from the user's RBAC roles.
 
 > **Note:** Both `"id"` (custom claim) and `"sub"` (standard JWT `RegisteredClaims.Subject`) contain the user ID. The `"id"` field is the custom claim defined on the `Claims` struct, while `"sub"` comes from the embedded `jwt.RegisteredClaims` and is set to the same value. Most application code uses `claims.UserID` (mapped from `"id"`), but `"sub"` is included for JWT standards compliance.
 
@@ -54,12 +61,14 @@ OpenCTEM uses JWT (JSON Web Tokens) for authentication with a **hybrid approach*
 | `email` | string | User email address |
 | `tenant` | string | Active tenant ID (UUID) |
 | `role` | string | User's role name (e.g., "admin", "member") |
-| `admin` | boolean | Whether user is a tenant administrator |
+| `admin` | boolean | Whether user is a tenant administrator (Owner/Admin) — bypasses permission checks |
+| `permissions` | string[] | Role-derived permissions — **present for Member/Viewer/Custom**, omitted for Owner/Admin |
+| `perm_version` | int | Permission version stamped at issue; compared against Redis to detect a stale token |
 | `exp` | int64 | Token expiration time (Unix timestamp) |
 | `iat` | int64 | Token issued at time (Unix timestamp) |
 | `iss` | string | Token issuer ("openctem-api") |
 
-> **📌 Note:** `permissions` array is **NOT** included in JWT. Permissions are fetched from Redis/DB on each request.
+> **📌 Note:** For **Owner/Admin** the `permissions` array is omitted (they bypass checks via `admin: true`). For **Member/Viewer/Custom** the array **is embedded** in the token. In all cases the `perm_version` claim lets the permission-sync middleware flag a stale token (`X-Permission-Stale`) so the frontend can refresh via `GET /api/v1/me/permissions`.
 
 ---
 
@@ -75,23 +84,20 @@ sequenceDiagram
 
     U->>UI: Login
     UI->>API: POST /auth/login
-    API->>DB: Verify credentials
-    API->>API: Generate JWT (no permissions)
-    API->>Redis: Cache user permissions (TTL 15min)
+    API->>DB: Verify credentials + resolve RBAC permissions
+    API->>API: Generate JWT (Admin: no perms; Member/Viewer: perms embedded) + perm_version
     API-->>UI: Access Token + Refresh Token (cookie)
     
     Note over UI,API: Later: Making authenticated request
     UI->>API: GET /api/v1/assets (with JWT)
-    API->>API: Decode JWT → Extract userID, tenantID
-    API->>Redis: Get permissions (cache key: perms:{userID}:{tenantID})
-    alt Cache Hit
-        Redis-->>API: permissions[]
-    else Cache Miss
-        API->>DB: Load permissions from DB
-        DB-->>API: permissions[]
-        API->>Redis: Cache permissions (TTL 15min)
+    API->>API: Decode JWT → userID, tenantID, admin, permissions[], perm_version
+    API->>Redis: Get current permission version
+    alt Version matches
+        API->>API: Check required permission (admin bypass, else JWT permissions[])
+    else Version stale
+        API-->>UI: Set X-Permission-Stale: true
+        API->>Redis: Fetch fresh permissions (DB fallback)
     end
-    API->>API: Check permission required
     API-->>UI: 200 OK or 403 Forbidden
 ```
 
@@ -99,11 +105,15 @@ sequenceDiagram
 
 ## Token Sizes
 
-| Role | Before (with permissions) | After (no permissions) | Reduction |
-|------|---------------------------|------------------------|-----------|
-| **Owner** | 2,500 bytes | 200 bytes | **92%** |
-| **Admin** | 2,300 bytes | 200 bytes | **91%** |
-| **Member** | 1,500 bytes | 200 bytes | **87%** |
+Token size scales with embedded permissions; Owner/Admin carry none, so they stay small:
+
+| Role | Permissions in token | Approx. size |
+|------|----------------------|--------------|
+| **Owner / Admin** | none (bypass via `admin`) | ~500 bytes |
+| **Member** | ~42 role-derived permissions | ~1.5 KB |
+| **Viewer** | ~25 role-derived permissions | ~1 KB |
+
+All sizes stay under the 4KB browser-cookie limit.
 
 ---
 
@@ -121,29 +131,30 @@ sequenceDiagram
 ### What's in the Token
 ✅ User identity (ID, email)  
 ✅ Tenant context (tenant ID, role)  
-✅ Administrative flag  
-❌ Permissions (fetched dynamically)
+✅ Administrative flag (`admin`)  
+✅ Permission version (`perm_version`)  
+✅ Role-derived permissions — **for Member/Viewer/Custom only** (omitted for Owner/Admin)
 
 ### Why This is Secure
-1. **Smaller Attack Surface:** Less sensitive data in JWT
-2. **Real-time Revocation:** Cache invalidation removes access instantly
-3. **No Permission Tampering:** Permissions verified server-side every request
+1. **Signed claims:** The permissions in a non-admin token are HMAC-signed and cannot be tampered with
+2. **Real-time invalidation:** A `perm_version` bump flags the token stale (`X-Permission-Stale`) so the client re-fetches
+3. **Admin bypass is explicit:** Owner/Admin carry no permissions and are gated by the signed `admin` flag
 4. **Audit Trail:** All permission checks logged
 
 ### Token Validation
 ```go
-// Extract claims from JWT
-claims, err := jwt.ParseToken(accessToken)
+// Extract claims from JWT (includes admin flag, permissions[], perm_version)
+claims, err := jwt.ValidateAccessToken(accessToken)
 
-// Get permissions from cache/DB (NOT from JWT)
-permissions, err := permissionService.GetUserPermissionsFromCache(
-    ctx, claims.UserID, claims.TenantID,
-)
-
-// Check permission
-if !slices.Contains(permissions, "assets:write") {
+// Admin/Owner bypass; otherwise check the permissions embedded in the token
+if claims.IsAdmin {
+    // allowed
+} else if !slices.Contains(claims.Permissions, "assets:write") {
     return http.StatusForbidden
 }
+
+// The permission-sync middleware compares claims.perm_version against Redis and
+// sets X-Permission-Stale when the two diverge.
 ```
 
 ---
@@ -201,12 +212,14 @@ func PermissionVersion(permSvc *app.PermissionService) func(http.Handler) http.H
 // File: api/pkg/jwt/jwt.go
 
 type Claims struct {
-    UserID   string `json:"id"`        // User ID (custom claim)
-    Email    string `json:"email"`
-    TenantID string `json:"tenant"`    // Tenant ID
-    Role     string `json:"role"`
-    IsAdmin  bool   `json:"admin"`     // Admin flag
-    jwt.RegisteredClaims               // Includes "sub" (set to UserID)
+    UserID      string   `json:"id"`                      // User ID (custom claim)
+    Email       string   `json:"email"`
+    TenantID    string   `json:"tenant"`                  // Tenant ID
+    Role        string   `json:"role"`
+    IsAdmin     bool     `json:"admin"`                   // Admin flag (bypass)
+    Permissions []string `json:"permissions,omitempty"`   // Embedded for Member/Viewer/Custom; omitted for Owner/Admin
+    PermVersion int      `json:"perm_version,omitempty"`  // For real-time stale detection vs Redis
+    jwt.RegisteredClaims                                  // Includes "sub" (set to UserID)
 }
 
 func (c *Client) GenerateTenantScopedAccessToken(
@@ -257,13 +270,14 @@ const login = (accessToken: string) => {
 
 ## Migration Notes
 
-### Breaking Changes
-❌ **Old JWT:** Contains `permissions` array  
-✅ **New JWT:** No permissions, smaller size
+### Model summary
+- **Owner/Admin:** no `permissions` in the token; authorized via the signed `admin` flag
+- **Member/Viewer/Custom:** `permissions` embedded in the token, derived from RBAC roles
+- **All roles:** carry `perm_version`; the sync middleware flags `X-Permission-Stale` on a Redis-version mismatch
 
-### Backward Compatibility
-- Old clients will fail if they expect `permissions` in JWT
-- Update frontend to fetch permissions from `/api/v1/me/permissions`
+### Client guidance
+- Clients should read permissions from the token (non-admin) or from `GET /api/v1/me/permissions`
+- On an `X-Permission-Stale: true` response, refresh permissions via `GET /api/v1/me/permissions`
 
 ---
 
@@ -280,7 +294,7 @@ const login = (accessToken: string) => {
 ### Token Too Large Error
 **Symptom:** `431 Request Header Fields Too Large`
 
-**Solution:** ✅ Already fixed! New tokens are ~200 bytes (vs 2.5KB before)
+**Solution:** Owner/Admin tokens carry no permissions (~500 bytes); Member/Viewer embed only that user's role-derived permissions (~1–1.5KB), staying under the 4KB cookie limit.
 
 ### Permissions Not Updating
 **Symptom:** Permission changes don't reflect immediately

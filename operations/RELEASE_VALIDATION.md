@@ -56,10 +56,10 @@ Production validation checklist for OpenCTEM MVP release (Phase 1.4). Complete a
 
 ### 3. Authorization & Permissions
 
-- [ ] **Owner** sees all features and menu items (126 permissions)
-- [ ] **Admin** sees all except team:delete (125 permissions)
-- [ ] **Member** sees only assigned permissions (64 permissions)
-- [ ] **Viewer** has read-only access (42 permissions)
+- [ ] **Owner** sees all features and menu items (all 164 permissions; bypasses checks via `admin` flag)
+- [ ] **Admin** sees all except owner-only operations (bypasses checks via `admin` flag, excluding the 5 owner-only ops)
+- [ ] **Member** sees only role-assigned permissions (~42, embedded in JWT)
+- [ ] **Viewer** has read-only access (~25 permissions, embedded in JWT)
 - [ ] Permission changes reflect in real-time (no re-login required)
 - [ ] `PermissionGate` hides unauthorized UI elements
 - [ ] API returns 403 for unauthorized requests (not 500)
