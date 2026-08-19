@@ -36,7 +36,9 @@ The Dependency schema represents software components and libraries (SBOM - Softw
 | `relationship` | string | No | Relationship to the project (`direct`, `transitive`) |
 | `depends_on` | array[string] | No | List of dependency IDs this component depends on |
 | `path` | string | No | File path where defined (manifest file) |
-| `location` | [Location](#location) | No | Precise location in the file |
+| `uid` | string | No | Stable unique identity for the component across scans |
+| `location` | [Location](#location) | No | Precise location in the file (deprecated — prefer `locations`) |
+| `locations` | array[[Location](#location)] | No | All locations where the component is defined |
 | `target_index` | integer | No | Index of the target asset in the report's targets array |
 | `properties` | object | No | Custom properties |
 

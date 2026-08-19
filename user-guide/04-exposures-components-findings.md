@@ -88,6 +88,21 @@ OpenCTEM tách bạch ba lớp dữ liệu trong giai đoạn **Discovery / Prio
 ![Exposure Events](screenshots/exposures.png)
 *🌙 Dark mode:* ![Exposure Events — dark](screenshots/exposures-dark.png)
 
+### Exposure được sinh ra từ đâu (emitters) & được làm giàu thế nào
+
+**Emitters (bộ phát sinh exposure):** Exposure event không nhập tay — chúng được **tự động chiếu (project) từ pipeline ingest** mỗi khi có scan mới, qua một số emitter:
+- **Port / Service** — từ tài sản recon (cổng mở, dịch vụ phát hiện được) → `port_open`, `service_detected`.
+- **TLS / Certificate** — từ phân tích chứng chỉ: sắp hết hạn / đã hết hạn / self-signed / RSA yếu / thuật toán ký SHA1-MD5 → `certificate_expiring`, `certificate_expired`, `ssl_issue`.
+- **Secret** — từ finding secret/credential → `credential_leaked` (nguồn `secret_scan`).
+- **Misconfiguration** — từ finding cấu hình sai → `misconfiguration` (nguồn `misconfig_scan`).
+- **Certificate Transparency** — bộ giám sát CT log (xem Phần 3) phát sinh `subdomain_discovered` và `certificate_expiring` từ crt.sh.
+
+Mỗi emitter dùng chung một **fingerprint ổn định để khử trùng lặp**: scan lặp lại chỉ cập nhật `last_seen` (và có thể `reactivate`) thay vì tạo bản ghi mới — đây chính là cơ chế "một điểm phơi nhiễm = một exposure có vòng đời" mô tả ở đầu chương.
+
+**Làm giàu (enrichment) trên exposure:** Ở phía API, mỗi exposure được **làm giàu lúc đọc** với các tín hiệu ưu tiên: `effective_criticality`, `is_internet_accessible`, `on_attack_path`, `epss_score` / `epss_percentile`, `is_in_kev`, `kev_due_date` (CVE lấy từ chi tiết exposure). Các trường này có trong **response của Exposure API** để tích hợp/tự động hóa. *Lưu ý:* giao diện Exposure Events hiện **chưa hiển thị** các trường làm giàu này — chúng là năng lực API, phần trình bày trên UI sẽ bổ sung sau.
+
+**CTEM-ID catalog:** Nền tảng có một **danh mục chuẩn hóa các lớp phơi nhiễm (CTEM-ID)** — tương tự cách CVE chuẩn hóa lỗ hổng — lưu trong DB và đồng bộ định kỳ (hàng ngày, fail-open) từ một feed ngoài (`CTEM_ID_FEED_URL`, mặc định trỏ tới `ctem.org`). Đọc qua `GET /api/v1/ctem-ids`; có thể gán một CTEM-ID cho finding qua `PUT /api/v1/findings/{id}/ctem-id`. *Lưu ý:* feed mặc định hiện là placeholder nên danh mục có thể trống nếu chưa cấu hình feed thật; chưa có trang UI riêng cho danh mục này.
+
 ## Vulnerability Exposures (`/exposures/vulnerabilities`)
 **Mục đích:** Bảng tổng quan lỗ hổng (vulnerability) toàn tenant cùng CVE đang tác động và danh mục CVE toàn cục.
 **Cách dùng:**
