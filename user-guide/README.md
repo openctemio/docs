@@ -37,7 +37,7 @@ Mỗi tính năng được mô tả theo khuôn mẫu: **Mục đích** → **C�
 
 ---
 
-## Danh mục tính năng đầy đủ (Master Checklist — 87 mục)
+## Danh mục tính năng đầy đủ (Master Checklist)
 
 ### 01 · Bắt đầu & Dashboard
 - [x] Dashboard tổng quan (`/`) — CTEM stepper, Quick Actions, thẻ thống kê, Findings Trend, Severity Distribution, Recent Activity
@@ -54,6 +54,7 @@ Mỗi tính năng được mô tả theo khuôn mẫu: **Mục đích** → **C�
 - [x] Asset Groups (`/asset-groups`)
 - [x] Scope Configuration (`/scope-config`)
 - [x] Business Services (`/business-services`)
+- [x] Business Units & mô hình mức trọng yếu (`/business-units`) — criticality + phân cấp, effective criticality (MAX), CIA impact, cờ `is_control_plane`
 - [x] CTEM Cycles (`/cycles`)
 - [x] Attacker Profiles (`/attacker-profiles`)
 - [x] Relationship Suggestions (`/relationships/suggestions`)
@@ -95,6 +96,7 @@ Mỗi tính năng được mô tả theo khuôn mẫu: **Mục đích** → **C�
 - [x] Export SBOM (`/components/sbom-export`) — CycloneDX/SPDX, JSON/XML
 
 ### 05 · Prioritization
+- [x] Điểm ưu tiên minh bạch "Why this priority" — `(Impact+Likelihood+Exposure)×(1−control)` thang 0–15, panel trên chi tiết finding
 - [x] Threat Intelligence (`/threat-intel`) — EPSS, CISA KEV
 - [x] Risk Analysis (`/risk-analysis`) — **Coming Soon (placeholder)**
 - [x] Business Impact Analysis (`/business-impact`)
@@ -102,6 +104,7 @@ Mỗi tính năng được mô tả theo khuôn mẫu: **Mục đích** → **C�
 - [x] Scoring Configuration (`/settings/scoring`)
 
 ### 06 · Validation
+- [x] Automated finding validation — Re-verify (RFC-011.2): safe-check reachability, verdict confirm-or-downgrade, downgrade %
 - [x] Pentest Campaigns (`/pentest/campaigns`)
 - [x] Pentest Findings (`/pentest/findings`)
 - [x] Retest Management (`/pentest/retests`)
@@ -113,9 +116,12 @@ Mỗi tính năng được mô tả theo khuôn mẫu: **Mục đích** → **C�
 - [x] Compensating Controls (`/controls`)
 
 ### 07 · Mobilization
-- [x] Remediation Tasks (`/remediation`)
+- [x] Remediation Tasks (`/remediation`) — campaign có chủ sở hữu/SLA
+- [x] Vé cấp kỹ sư — Mobilization Brief (Definition of Done + acceptable fixes vào body Jira/GitHub)
+- [x] Remediation Groups (`/remediations`) — bulk-resolve theo solution family (RFC-015)
 - [x] Automation Workflows (`/workflows`) — trình dựng node (xyflow)
 - [x] Scan Pipelines (`/pipelines`) + trình dựng trực quan (`/pipelines/[id]/builder`)
+- [x] Program Health (`/insights/program-health`) + SLA compliance + Scope refinement (khép vòng lặp về Scoping)
 
 ### 08 · Cài đặt & Quản trị
 - [x] Tenant Settings (`/settings/tenant`)

@@ -103,6 +103,10 @@ Hộp thoại `New Scan` dẫn bạn qua **4 bước** (thanh stepper phía trê
 
 **Khử trùng lặp (Deduplication / Merge):** OpenCTEM tự động phát hiện các tài sản trùng lặp (cùng tên chuẩn hóa, cùng loại) và gộp chúng để giữ kho sạch. Hệ thống duy trì hàng đợi **dedup reviews** (gợi ý gộp chờ duyệt: giữ lại asset nào, gộp asset nào, kèm số findings) cùng **merge log** ghi lại lịch sử gộp (asset giữ/gộp, loại tương quan, hành động, nguồn). Bạn có thể `Approve` hoặc `Reject` từng đề xuất gộp. Lịch sử gộp của một tài sản cũng hiển thị trong panel chi tiết của nó.
 
+**Giám sát Certificate Transparency liên tục (continuous CT monitoring):** Ngoài việc phát hiện qua scan, nền tảng có một **bộ giám sát CT log tích hợp (bật mặc định)** chạy định kỳ (mặc định 24h, cấu hình qua `CERT_MONITOR_ENABLED` / `CERT_MONITOR_INTERVAL`). Với mỗi tenant có tài sản **domain**, bộ này truy vấn nguồn công khai **crt.sh** (chỉ đọc dữ liệu CT công khai, không dùng credential; được chặn SSRF, giới hạn số domain/subdomain mỗi lần) và **tự phát sinh exposure** kiểu `subdomain_discovered` (subdomain mới) và `certificate_expiring` (chứng chỉ sắp hết hạn) vào Exposure Register (xem Phần 4). Nếu tenant chưa có tài sản domain nào thì bộ giám sát không có gì để quét.
+
+**Chỉ số độ tươi của dữ liệu (freshness / staleness):** Nền tảng theo dõi mức độ "mới" của kho tài sản qua **Data Quality Scorecard** (`GET /api/v1/dashboard/data-quality`): tuổi trung vị của lần quan sát gần nhất (`median last-seen age`) và **tỉ lệ tài sản "cũ" (stale)** — tài sản không được quan sát lại trong 30 ngày. Bạn cũng có thể lọc tài sản theo mốc `last seen`. Đây là tín hiệu để biết bề mặt tấn công có đang được quét đủ thường xuyên hay không (các chỉ số này hiển thị trên bảng Program Health, xem Phần 7).
+
 **Ghi chú:** Tài sản hầu hết đến từ các lần quét; nếu bảng rỗng, hãy chạy một scan từ `/scans`. Bạn vẫn có thể thêm tài sản thủ công bằng nút `Add <Loại>`.
 
 ![Asset Inventory](screenshots/assets.png)
