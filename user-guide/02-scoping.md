@@ -53,6 +53,33 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 ![Business Services](screenshots/business-services.png)
 *🌙 Dark mode:* ![Business Services — dark](screenshots/business-services-dark.png)
 
+## Business Units & mô hình mức trọng yếu (`/business-units`)
+**Mục đích:** Gắn tài sản với **đơn vị nghiệp vụ (business unit)** và khai báo các tín hiệu trọng yếu nghiệp vụ để nền tảng tính ra **mức trọng yếu hiệu lực (effective criticality)** của mỗi tài sản. Đây là "bối cảnh nghiệp vụ" nuôi cả điểm rủi ro (`risk_score`) lẫn xếp hạng ưu tiên (priority) của finding.
+**Cách dùng:**
+1. Mở `/business-units`. Nhấn tạo đơn vị nghiệp vụ mới, đặt `Name`, chọn `Criticality` (`critical`/`high`/`medium`/`low`), `Risk Tolerance` và (tùy chọn) `Parent Unit`.
+2. **Phân cấp (hierarchy):** một business unit có thể trỏ tới một **đơn vị cha (`Parent Unit`)**. Bộ chọn cha tự loại trừ chính đơn vị và các đơn vị con của nó để không tạo vòng lặp. Mức trọng yếu **kế thừa lên theo chuỗi cha**: một đơn vị con không bao giờ có mức trọng yếu thấp hơn bất kỳ tổ tiên nào của nó (lấy MAX dọc theo `parent_id`).
+3. Gán tài sản vào business unit để chúng thừa hưởng bối cảnh trọng yếu của đơn vị.
+
+**Cách tính `effective criticality` (rất quan trọng cho ưu tiên hóa):** Nền tảng không dùng trực tiếp mức trọng yếu bạn nhập cho tài sản, mà tính ra một **mức trọng yếu hiệu lực** theo quy tắc **MAX (chỉ nâng lên, không bao giờ hạ)** trên bốn tín hiệu:
+- Mức trọng yếu **của chính tài sản** (`criticality`),
+- Mức trọng yếu của **business unit** mà tài sản thuộc về (đã kế thừa theo phân cấp),
+- Mức trọng yếu của **business service** liên quan,
+- Mức trọng yếu được **kế thừa qua quan hệ control-plane** (xem cờ `is_control_plane` bên dưới).
+
+Kết quả kèm theo một câu **giải thích (audit reason)** cho biết tín hiệu nào đã nâng mức trọng yếu (ví dụ "raised by business unit criticality: high"). Mức trọng yếu hiệu lực này **nuôi cả hai cơ chế**: thành phần criticality trong `risk_score` của tài sản **và** việc phân loại priority class của finding. Nó chỉ **nâng** giá trị, không ghi đè cột `criticality` gốc bạn đã nhập.
+
+**Ghi chú:** Đây là mô hình bối cảnh nghiệp vụ đã được nối end-to-end (di trú DB + domain + API + UI). Khi chưa có đơn vị nghiệp vụ nào, trang hiển thị trạng thái rỗng. Tạo/sửa đơn vị và gán tài sản có kiểm soát bằng quyền RBAC tương ứng.
+
+### Xếp hạng tác động CIA của tài sản (Confidentiality / Integrity / Availability)
+**Mục đích:** Cho phép đánh giá **tác động bảo mật** của từng tài sản theo ba trục kinh điển: **Confidentiality** (bí mật), **Integrity** (toàn vẹn), **Availability** (khả dụng). Mỗi trục nhận một trong ba mức: `low` / `moderate` / `high` (để trống = chưa đánh giá).
+**Cách dùng:** Trong form tạo/sửa tài sản (`Add/Edit Asset`), đặt ba trường `Impact — Confidentiality`, `Impact — Integrity`, `Impact — Availability`.
+**Tác dụng thực tế (đọc kỹ để không hiểu nhầm):** Xếp hạng CIA **chỉ nâng mức ưu tiên (priority) của finding** trên tài sản đó — nó góp vào thành phần *business-impact* của điểm ưu tiên và có thể đẩy một finding sát ngưỡng lên một bậc, kèm audit reason (ví dụ "impact raised by CIA rating: confidentiality=high"). CIA **không** thay đổi `risk_score` của tài sản và **không** tham gia vào công thức effective criticality ở trên. Hãy xem CIA như một tín hiệu ưu tiên bổ sung ở cấp finding, không phải một thành phần của điểm rủi ro tài sản.
+
+### Cờ quan hệ `is_control_plane`
+**Mục đích:** Đánh dấu một **quan hệ phụ thuộc (relationship)** là *mặt phẳng điều khiển (control plane)* — tức tài sản nguồn là hạ tầng nền mà các tài sản khác phụ thuộc để vận hành/bảo mật (IdP/SSO, kho secret, hệ thống CI/CD, SIEM...).
+**Cách dùng:** Khi tạo quan hệ giữa hai tài sản (`Add Relationship`), bật ô `Control plane`.
+**Tác dụng:** Một cạnh control-plane sẽ **nâng sàn** mức trọng yếu hiệu lực của tài sản control-plane lên **MAX mức trọng yếu của tất cả tài sản phụ thuộc vào nó** — lan truyền **nhiều bước (multi-hop)**, có chặn vòng lặp và giới hạn độ sâu. Nói cách khác: nếu một IdP phục vụ nhiều dịch vụ critical, bản thân IdP đó cũng trở nên critical trong tính toán ưu tiên và rủi ro. Đây chính là tín hiệu "control-plane-served" trong công thức effective criticality ở trên.
+
 ## CTEM Cycles (`/cycles`)
 **Mục đích:** Quản lý các chu kỳ CTEM (Continuous Threat Exposure Management) — đóng khung từng đợt đánh giá phơi nhiễm theo thời gian với vòng đời trạng thái rõ ràng.
 **Cách dùng:**
@@ -122,6 +149,9 @@ Scoping là giai đoạn đầu tiên của vòng đời CTEM: bạn quyết đ�
 - [x] Asset Groups — CRUD nhóm + thao tác hàng loạt + lọc + export; quyền AssetGroupsWrite/Delete
 - [x] Scope Configuration — quản lý targets/exclusions/schedules theo tab; quyền ScopeWrite/Delete; có validate pattern và cảnh báo overlap
 - [x] Business Services — CRUD dịch vụ với compliance scope, data handling, availability/RPO/RTO; quyền BusinessServicesWrite
+- [x] Business Units & mô hình mức trọng yếu — BU criticality + phân cấp (parent) kế thừa lên; effective criticality = MAX(own, BU, business service, control-plane-served) nuôi cả risk_score lẫn priority
+- [x] Xếp hạng CIA của tài sản (impact_confidentiality/integrity/availability) — chỉ nâng priority của finding, không đổi risk_score
+- [x] Cờ quan hệ `is_control_plane` — nâng sàn mức trọng yếu hiệu lực của tài sản control-plane theo các tài sản phụ thuộc (multi-hop)
 - [x] CTEM Cycles — tạo và chuyển trạng thái planning→active→review→closed với xác nhận; activate đóng băng scope, close không hoàn tác
 - [x] Attacker Profiles — CRUD hồ sơ tác nhân; hồ sơ default không xóa được; quyền AttackerProfilesWrite
 - [x] Relationship Suggestions — quét, phê duyệt/bỏ qua/đổi loại, phê duyệt hàng loạt và toàn bộ

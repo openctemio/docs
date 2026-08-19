@@ -63,17 +63,18 @@ Q4 2026: 24/25        (Polish + Host/Container Discovery)
 | Trending Risks (Velocity) | Done | Dashboard built-in |
 | AI Triage | Done | [ai-triage.md](../features/ai-triage.md) |
 
-### Phase 4: Validation — 4/5
+### Phase 4: Validation — ✅ 5/5 COMPLETE
 
 | Feature | Status | Feature Doc |
 |---------|--------|-------------|
+| Automated finding validation (Re-verify: safe-check + confirm-or-downgrade) | Done | RFC-011.2 validation engine |
 | Penetration Testing | Done | [pentest-campaigns.md](../features/pentest-campaigns.md) |
 | MITRE ATT&CK Coverage Heatmap | Done | Built into pentest module |
 | Detection Coverage Testing | Done | Built into validation module |
 | Verification Scan Automation | Done | Built into finding lifecycle |
 | BAS (Breach & Attack Simulation) | Done | Execution engine + run tracking |
 
-### Phase 5: Mobilization — 4/5
+### Phase 5: Mobilization — ✅ 5/5 COMPLETE
 
 | Feature | Status | Feature Doc |
 |---------|--------|-------------|
