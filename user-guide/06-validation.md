@@ -4,15 +4,38 @@
 
 **Validation** là giai đoạn trong vòng đời CTEM nhằm **chứng minh các phơi nhiễm (exposure) là có thật và có thể khai thác được**, đồng thời **kiểm tra xem hệ thống phòng thủ có phát hiện/ngăn chặn được tấn công hay không**. Thay vì chỉ dựa vào kết quả quét tự động (vốn có thể có dương tính giả), Validation trả lời câu hỏi: *"Kẻ tấn công có thực sự lợi dụng được lỗ hổng này không, và nếu họ thử thì biện pháp kiểm soát của chúng ta có hoạt động không?"*
 
-OpenCTEM gom giai đoạn này thành ba khối công việc:
+OpenCTEM gom giai đoạn này thành bốn khối công việc:
 
+- **Automated finding validation (kiểm chứng finding tự động — Re-verify)** — nút **Re-verify** ngay trên một finding sẽ chạy một phép **kiểm chứng an toàn (safe-check)** để xác nhận phơi nhiễm còn thật hay không, rồi tự **giữ nguyên (confirm) hoặc hạ cấp (downgrade)** finding. Đây là engine validation theo RFC-011.2 (xem mục ngay bên dưới).
 - **Manual pentest workflow (quy trình kiểm thử xâm nhập thủ công)** — lập kế hoạch và theo dõi các đợt pentest (`campaigns`), tài liệu hóa từng lỗ hổng tìm được (`findings`), kiểm chứng lại sau khi vá (`retests`), xuất báo cáo (`reports`), tái sử dụng mẫu lỗ hổng (`templates`) và đo phủ kỹ thuật theo khung MITRE ATT&CK (`mitre-coverage`).
 - **Breach & Attack Simulation (mô phỏng tấn công tự động)** — chạy các kịch bản tấn công ánh xạ MITRE ATT&CK để đo tỉ lệ phát hiện/ngăn chặn của hệ thống (`/attack-simulation`).
 - **Verifying controls (kiểm chứng biện pháp kiểm soát)** — theo dõi hiệu lực của các biện pháp kiểm soát bảo mật theo khung tuân thủ (`/control-testing`) và quản lý các **compensating control** giúp hạ mức ưu tiên của finding (`/controls`).
 
 **Cách pentest finding chảy vào Findings workbench chung:** Mỗi pentest finding (tài liệu hóa trong giai đoạn Validation) cũng là một **Security Finding** của tenant. Vì vậy chúng xuất hiện song song tại **Findings workbench** (`/findings`) cùng kết quả từ SAST, DAST, SCA... với nguồn `Pentest`. Pentest finding dùng tập trạng thái riêng (`Draft → In Review → Confirmed → Remediation → Retest → Verified`, cùng `False Positive` / `Accepted Risk`); hai trạng thái `draft` và `in_review` là bản nháp (WIP) nên bị ẩn mặc định ở workbench chung. Chi tiết về workbench xem Phần 4.
 
-> **Lưu ý quyền (RBAC):** Nhiều nút/cột bị ẩn hoặc vô hiệu hóa tùy phân quyền. Các quyền liên quan giai đoạn này gồm `pentest:write`, `pentest:campaigns:write/delete`, `pentest:findings:write`, `pentest:retests:write`, `pentest:reports:write` và `compensating-controls:write`. Nếu không thấy một nút, rất có thể bạn chưa có quyền tương ứng.
+> **Lưu ý quyền (RBAC):** Nhiều nút/cột bị ẩn hoặc vô hiệu hóa tùy phân quyền. Các quyền liên quan giai đoạn này gồm `pentest:write`, `pentest:campaigns:write/delete`, `pentest:findings:write`, `pentest:retests:write`, `pentest:reports:write`, `compensating-controls:write` và `findings:write` (cho nút Re-verify). Nếu không thấy một nút, rất có thể bạn chưa có quyền tương ứng.
+
+---
+
+## Automated finding validation — Re-verify (RFC-011.2)
+
+**Mục đích:** Với bất kỳ finding tự động nào (SAST/DAST/SCA/recon...), nút **Re-verify** cho phép **kiểm chứng lại một cách an toàn** rằng phơi nhiễm còn thật hay không, rồi để hệ thống tự **giữ nguyên (confirm)** hoặc **hạ cấp (downgrade)** finding — thay vì để analyst đoán bằng tay. Đây là engine validation của giai đoạn CTEM Stage-4 đã được nối end-to-end (API + UI).
+
+**Cách dùng:**
+1. Mở chi tiết một finding (drawer hoặc trang đầy đủ `/findings/{id}`). Ở header có nút **`Re-verify`** (cần quyền `findings:write`). Nút này **ẩn với finding nguồn pentest** (pentest dùng luồng Retest thủ công ở mục dưới).
+2. Bấm `Re-verify`. Hệ thống **xếp một lệnh validation (`validate`)** cho finding và trả về trạng thái `queued` (`202`). Việc kiểm chứng chạy **bất đồng bộ** trên một agent có năng lực validation; kết quả được áp lại khi agent hoàn tất.
+3. Khi hoàn tất, **verdict** được ghi bền vào finding và bạn thấy trạng thái thay đổi (hoặc giữ nguyên) theo kết luận bên dưới.
+
+**Phép kiểm chứng an toàn (safe-check reachability probe):** Kiểm chứng mặc định **không phải là khai thác**. Agent thực hiện một **phép thăm dò khả năng tiếp cận an toàn (safe-check)** — một kết nối TCP không xâm nhập tới dịch vụ (ví dụ thử cổng 443 rồi 80): cổng **mở → `detected`**, bị **từ chối → `not_detected`**, **timeout → `inconclusive`**. Phép thăm dò này được **chặn SSRF** (`httpsec`): từ chối loopback, IMDS và dải nội bộ RFC1918 trừ khi người vận hành chủ động cho phép.
+
+**Kết luận confirm-or-downgrade (verdict):**
+- **`reproducible`** (còn phát hiện được) → finding **giữ nguyên** trạng thái đang mở; nếu trước đó đã bị hạ cấp `validated_fixed` thì được **mở lại** về `confirmed`.
+- **`not_reproducible`** (không còn phát hiện) → finding được **hạ cấp xuống `validated_fixed`** (đánh dấu đã được kiểm chứng là đã sửa — **không tự đóng**, để người phụ trách rà lại). Thời điểm hạ cấp được ghi (`downgraded_at`).
+- **`inconclusive` / lỗi / bị bỏ qua** → **không đổi** trạng thái.
+
+**Chỉ số `downgrade %` và Validation Coverage:** Tỉ lệ finding đã kiểm chứng bị hạ cấp (`downgrade %`) cùng độ phủ kiểm chứng (validation coverage) được tổng hợp qua `GET /api/v1/validation/coverage` và hiển thị trên bảng **Program Health** (`/insights/program-health`) — dùng để thấy nhanh "bao nhiêu phần trăm phơi nhiễm được xác nhận đã thực sự biến mất".
+
+> **Kiểm chứng bằng nuclei (chạy lại chính template đã phát hiện) — cần agent validation chuyên dụng.** Ngoài safe-check, nền tảng còn định nghĩa một bậc kiểm chứng mạnh hơn: **chạy lại đúng template nuclei đã phát hiện ra finding** (lấy `template_id` từ `rule_id` của finding, hoặc CVE tương ứng), dưới năng lực agent `validate:nuclei`. Bậc này **chỉ chạy các template an toàn** — nền tảng **loại trừ** các tag `dos`, `fuzz`, `intrusive`, `brute-force` và chặn path-traversal ở template id, đồng thời được chặn SSRF. **Lưu ý triển khai:** bản agent OpenCTEM mặc định **chưa quảng bá** năng lực `validate:nuclei`, nên trong một fleet mặc định nút Re-verify sẽ dùng **safe-check reachability** ở trên. Muốn dùng bậc nuclei, cần triển khai một agent có năng lực validation tương ứng. Đừng kỳ vọng bậc nuclei hoạt động trên agent mặc định.
 
 ---
 
@@ -170,7 +193,9 @@ OpenCTEM gom giai đoạn này thành ba khối công việc:
 
 ## Checklist
 
-- [ ] Đã hiểu Validation = chứng minh phơi nhiễm có thật + kiểm tra hệ thống phòng thủ (pentest thủ công, mô phỏng tấn công, kiểm chứng control).
+- [ ] Đã hiểu Validation = chứng minh phơi nhiễm có thật + kiểm tra hệ thống phòng thủ (kiểm chứng finding tự động, pentest thủ công, mô phỏng tấn công, kiểm chứng control).
+- [ ] Dùng được nút **Re-verify** trên finding tự động; hiểu safe-check reachability (SSRF-guarded) và verdict **confirm-or-downgrade** (`reproducible` giữ mở / `not_reproducible` → `validated_fixed`); biết xem `downgrade %` + validation coverage trên Program Health.
+- [ ] Biết bậc kiểm chứng nuclei (`validate:nuclei`, loại trừ dos/fuzz/intrusive/brute-force) cần agent validation chuyên dụng — agent mặc định dùng safe-check.
 - [ ] Tạo và theo dõi đợt pentest tại **Pentest Campaigns**; gán team với vai trò Lead/Tester/Reviewer/Observer.
 - [ ] Tài liệu hóa lỗ hổng tại **Pentest Findings** (PoC, CVSS, remediation) và nhớ rằng chúng cũng hiện tại Findings workbench chung (`/findings`) với nguồn `Pentest`.
 - [ ] Sau khi vá, dùng **Retest Management** để xác nhận lại — nắm rõ quy tắc chuyển trạng thái theo vai trò (Lead/Reviewer auto-Verified, Tester chờ reviewer, Failed → Remediation).

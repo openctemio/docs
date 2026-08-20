@@ -122,6 +122,7 @@ nav_order: 3
 | `secret` | Exposed credential or secret |
 | `misconfiguration` | IaC/configuration issue |
 | `compliance` | Compliance violation |
+| `web3` | Smart-contract / web3 finding |
 
 ### Severity
 
@@ -239,8 +240,8 @@ Vulnerability-specific details for `type: vulnerability`.
 | `exploit_available` | boolean | Exploit is available |
 | `exploit_maturity` | enum | `none`, `poc`, `functional`, `weaponized` |
 | `in_cisa_kev` | boolean | In CISA Known Exploited Vulnerabilities |
-| `epss_score` | number (0-1) | configurable risk scoring score |
-| `epss_percentile` | number (0-100) | configurable risk scoring percentile ranking |
+| `epss_score` | number (0-1) | EPSS exploit-probability score (0–1) |
+| `epss_percentile` | number (0-100) | EPSS percentile ranking |
 | `cpe` | string | CPE identifier |
 
 ---

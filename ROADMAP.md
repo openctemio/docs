@@ -6,11 +6,11 @@ nav_order: 100
 
 # Feature Roadmap
 
-**Last Updated:** 2026-04-14
+**Last Updated:** 2026-08-19
 
 Platform status and planned features. See [Features](features/index.md) for documentation on implemented features.
 
-**Current CTEM Maturity: 22/25 (88%)**. See [CTEM Roadmap RFC](rfcs/2026-04-ctem-roadmap.md) for detailed breakdown.
+**Current CTEM Maturity: 25/25 (100%)** — all five CTEM stages ship a working core as of v0.6.0. See [CTEM Roadmap RFC](rfcs/2026-04-ctem-roadmap.md) for the phase-by-phase breakdown, and the [User Guide](user-guide/README.md) for the shipped, verified feature walkthrough.
 
 ---
 
@@ -20,11 +20,23 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 
 | Phase | Score | Status | Description |
 |-------|-------|--------|-------------|
-| Scoping | 5/5 | **Complete** | Define attack surface and business context |
-| Discovery | 5/5 | **Complete** | Identify assets, vulnerabilities, exposures |
-| Prioritization | 5/5 | **Complete** | Rank risks based on impact |
-| Validation | 4/5 | In Progress | Verify threats and test controls |
-| Mobilization | 3/5 | In Progress | Execute remediation |
+| Scoping | 5/5 | **Complete** | Define attack surface and business context (incl. asset CIA impact, control-plane flag, business-unit criticality + hierarchy, effective criticality) |
+| Discovery | 5/5 | **Complete** | Identify assets, vulnerabilities, exposures (incl. exposure emitters, continuous CT monitoring, freshness metrics) |
+| Prioritization | 5/5 | **Complete** | Rank risks on a transparent composite score with EPSS/KEV/reachability inputs |
+| Validation | 5/5 | **Complete** | Verify threats and test controls (Re-verify engine: safe-check reachability, confirm-or-downgrade verdict, downgrade %) |
+| Mobilization | 5/5 | **Complete** | Execute remediation (engineering-grade tickets, remediation groups/campaigns, SLA compliance, Program Health, scope-refinement loop) |
+
+---
+
+## Recently Shipped (v0.6.0 — the 5-stage system)
+
+These land the last gaps in the CTEM loop and are **live end-to-end** (verified against the API + UI on `develop`):
+
+- **Validation engine (RFC-011.2)** — a **Re-verify** action on any automated finding runs a safe, non-intrusive **reachability safe-check** (SSRF-guarded), then applies a **confirm-or-downgrade** verdict (`reproducible` keeps it open; `not_reproducible` → `validated_fixed`). The **downgrade %** and validation coverage surface on the Program Health board. (A stronger nuclei re-run of a finding's own detection template — capability `validate:nuclei`, with dos/fuzz/intrusive/brute-force excluded — is defined in the platform contract but requires a validation-capable agent; the default agent runs the safe-check.)
+- **Transparent priority score** — every finding exposes a **"Why this priority"** panel: `Score = (Impact + Likelihood + Exposure) × (1 − ControlReduction)` on a **0–15** scale (three 0–5 sub-scores; controls reduce by at most 50%), with EPSS/KEV/reachability shown as contributing factors. The score explains the P0–P3 class; it does not replace it.
+- **Business-context scoping** — asset **CIA impact rating** (confidentiality/integrity/availability), an `is_control_plane` relationship flag, **business-unit criticality with a parent hierarchy**, and a single **effective criticality = MAX(own, business unit [inherited], business service, control-plane-served)** that feeds both the asset `risk_score` and finding priority.
+- **Engineering-grade mobilization** — a **Mobilization Brief** (Definition of Done + Verification + acceptable/preferred fixes) authored on a finding is embedded into the **Jira/GitHub issue body**; **remediation groups** (bulk-resolve a solution family, RFC-015) alongside remediation campaigns; **SLA compliance** tracking with breach escalation; a **Program Health** outcome scorecard; and a manual **scope-refinement** note at cycle close that feeds the next cycle's scoping.
+- **Exposure register depth** — port/TLS/certificate/secret/misconfiguration **emitters** project scans into deduplicated exposures; **server-side EPSS/KEV/reachability enrichment** on exposures (API); a standardized **CTEM-ID catalog** (feed-synced); **continuous Certificate Transparency monitoring** (crt.sh, default-on); and asset **freshness metrics** (median last-seen age, stale-asset %).
 
 ---
 
@@ -39,6 +51,9 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 - [x] Attack Surface Overview
 - [x] Asset Groups Management
 - [x] Scope Configuration
+- [x] Business Services, Business Units (criticality + parent hierarchy), Crown Jewels
+- [x] Asset CIA impact rating + `is_control_plane` relationship flag
+- [x] Effective criticality = MAX(asset, business unit, business service, control-plane-served)
 
 ### Discovery
 - [x] Scan Management
@@ -51,15 +66,24 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 - [x] Credential Leaks
 
 ### Prioritization
-- [x] Risk Analysis Dashboard
+- [x] Transparent priority score — `(Impact + Likelihood + Exposure) × (1 − control)`, 0–15, "Why this priority" panel
+- [x] Threat Intelligence — EPSS + CISA KEV sync and enrichment
+- [x] Priority Override Rules (rule builder + dry-run)
+- [x] Scoring Configuration (6 industry presets, live preview)
 - [x] Business Impact Assessment
 
 ### Validation
+- [x] Automated finding validation — Re-verify (safe-check reachability, confirm-or-downgrade verdict, downgrade %)
+- [x] Pentest module (campaigns, findings, retests, reports, templates, MITRE ATT&CK coverage)
 - [x] Attack Simulation
-- [x] Control Testing
+- [x] Control Testing + Compensating Controls
 
 ### Mobilization
-- [x] Remediation Tasks
+- [x] Remediation Tasks (campaigns with owner/SLA/progress)
+- [x] Engineering-grade tickets — Mobilization Brief (Definition of Done + acceptable fixes) into Jira/GitHub issue bodies
+- [x] Remediation Groups — bulk-resolve a solution family (RFC-015)
+- [x] SLA compliance tracking + breach escalation
+- [x] Program Health outcome scorecard + scope-refinement feedback loop
 - [x] Workflows
 - [x] **Workflow Automation** (NEW - 2026-01-27)
   - [x] 8 trigger types (manual, schedule, finding_created, finding_updated, finding_age, asset_discovered, scan_completed, webhook)
@@ -116,6 +140,8 @@ The OpenCTEM CTEM Platform follows the 5-stage CTEM (Continuous Threat Exposure 
 ---
 
 ## Planned Features (Roadmap)
+
+> **Note (2026-08):** This planned list predates the v0.6.0 5-stage release. **Many items below have since shipped** — Business Units, Crown Jewels, Compliance, Vulnerabilities/Misconfigurations/Secrets/Code exposure views, Attack Paths, Threat Intelligence (EPSS/KEV), Exposure Scoring, Penetration Testing, SLA Management, and Ticketing (Jira/GitHub) — see **Recently Shipped** and **Implemented Features** above. Genuinely-future items remain external ecosystem connectors (**SIEM Detect/Respond**, ServiceNow, SOAR, additional cloud/scanner integrations) and extended asset types (Hosts/Containers/Databases/Mobile network discovery). Treat the entries below as historical intent, not current gaps.
 
 ### Phase 1: Scoping - Business Context
 

@@ -2,6 +2,8 @@
 
 For security teams, analysts, and daily users of the OpenCTEM platform.
 
+> **New:** the [CTEM User Guide — 5-stage walkthrough](user-guide/README.md) documents every feature across Scoping → Discovery → Prioritization → Validation → Mobilization, verified against the running platform (including the Re-verify validation engine, the transparent "Why this priority" score, CIA/business-context scoping, and engineering-grade mobilization tickets).
+
 ## Getting Started
 
 - [Getting Started](guides/getting-started.md) — Deploy, create admin, first login

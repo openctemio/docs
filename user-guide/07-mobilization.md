@@ -10,6 +10,8 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 - **Automation Workflows** (`/workflows`) — **luồng phản hồi tự động** dạng node (trigger → condition → action → notification): ví dụ, khi có finding nghiêm trọng mới thì tự giao việc, gửi cảnh báo Slack, tạo Jira ticket.
 - **Scan Pipelines** (`/pipelines`) — **quy trình quét nhiều bước** ghép từ nhiều scanner, có **trình dựng trực quan (visual builder)** dựa trên node để thiết kế thứ tự và phụ thuộc giữa các bước.
 
+Bao quanh ba trụ cột đó là các năng lực giúp việc khắc phục "tới đích" thật sự: **vé (ticket) cấp kỹ sư** mang theo Definition-of-Done và các cách sửa được chấp nhận vào Jira/GitHub; **remediation groups** để giải quyết cả một "họ" lỗ hổng dùng chung một cách vá; theo dõi **tuân thủ SLA** và **bảng Program Health**; và một **vòng phản hồi tinh chỉnh phạm vi (scope refinement)** khép vòng lặp CTEM về lại giai đoạn Scoping.
+
 > **Lưu ý quyền (RBAC):** nhiều nút bị ẩn hoặc vô hiệu hóa tùy phân quyền. Tạo/sửa task cần `remediation:write`; tạo/sửa/kích hoạt workflow và pipeline cần `workflows:write`. Nếu không thấy một nút, rất có thể bạn chưa có quyền tương ứng.
 
 ---
@@ -35,6 +37,29 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 **Ghi chú:** Các trạng thái hiển thị (Open / In Progress / In Review / Completed / Blocked) được ánh xạ từ trạng thái chiến dịch của backend (`draft`, `active`, `validating`, `completed`, `paused`). Khi rỗng, bảng hiển thị "No tasks found"; khi lỗi tải hiện thẻ đỏ "Failed to load tasks" với nút `Retry`. `Export` chỉ xuất phần đang lọc. Nút `New Task`, `Edit`, `Delete` phụ thuộc quyền `remediation:write`.
 ![Remediation Tasks](screenshots/remediation.png)
 *🌙 Dark mode:* ![Remediation Tasks — dark](screenshots/remediation-dark.png)
+
+### Vé cấp kỹ sư — Mobilization Brief (Definition of Done + cách sửa chấp nhận được)
+
+**Mục đích:** Biến một finding thành **một vé đủ để kỹ sư sửa mà không phải hỏi lại** — nói rõ *thế nào là xong* và *những cách sửa nào được chấp nhận*. Thông tin này đi thẳng vào **thân (body) của Jira / GitHub issue** khi tạo vé, thay vì chỉ là một link trở ngược về nền tảng.
+
+**Cách dùng:**
+1. Mở chi tiết một finding → tab **`Remediation`**. Điền các trường của **Mobilization Brief**: `Definition of done` (tiêu chí hoàn thành), `Verification` (cách kiểm chứng đã sửa), `Preferred fix` (cách sửa ưu tiên) và `Alternative fixes` (các cách thay thế được chấp nhận). Lưu qua `PATCH /findings/{id}/remediation` (cần quyền ghi).
+2. Khi bạn **tạo vé** từ finding/chiến dịch qua tích hợp **Jira** hoặc **GitHub** (xem Phần 8 — Ticketing), nền tảng **chèn một khối Markdown** vào thân issue gồm các mục **Definition of done**, **Verification** và **Acceptable fixes** (Preferred + Alternatives) lấy từ các trường trên.
+
+**Ghi chú:** Khối này **chỉ xuất hiện khi bạn đã điền** các trường Mobilization Brief — nếu để trống, vé được tạo như bình thường (không có khối). Với finding secret, khối chỉ chứa văn bản hướng dẫn của người vận hành, **không bao giờ** chứa giá trị secret.
+
+---
+
+## Remediation Groups (`/remediations`)
+
+**Mục đích:** Gom các finding **dùng chung một cách khắc phục (một "họ" giải pháp)** để **giải quyết cả cụm trong một thao tác** — ví dụ "nâng `log4j` lên 2.17.1" có thể đóng hàng chục finding trên nhiều tài sản cùng lúc. Đây là hiện thực của RFC-015 (bulk-resolve theo solution family), bổ trợ cho Findings workbench (tab `Groups`, xem Phần 4).
+
+**Cách dùng:**
+1. Mở `/remediations`. Danh sách các **remediation group** được suy ra từ các finding đang mở có chung khóa giải pháp (ví dụ cùng gói/phiên bản vá, cùng khuyến nghị).
+2. Mỗi group hiển thị cách khắc phục chung và số finding thuộc nhóm.
+3. Chọn một group và **`Resolve`** để đóng đồng loạt các finding trong nhóm (đi qua đúng luồng cập nhật hàng loạt của findings, có giới hạn/chống lạm dụng).
+
+**Ghi chú:** Remediation **group** (giải quyết nhanh cả họ) khác với remediation **campaign/task** (`/remediation` — hạng mục công việc có chủ sở hữu, vòng đời trạng thái và tiến độ) mô tả ở mục trên. Danh mục group cũng truy cập được qua API (`GET /api/v1/findings/remediation-groups`) và công cụ MCP `list_remediation_groups`.
 
 ---
 
@@ -111,6 +136,18 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 
 ---
 
+## Đo kết quả & khép vòng lặp: Program Health, SLA compliance, Scope refinement
+
+Mobilization chỉ có nghĩa khi **rủi ro thật sự giảm** và bài học được **đưa ngược về Scoping**. Ba cơ chế sau giúp đo và khép vòng lặp CTEM:
+
+**Program Health (`/insights/program-health`)** — một **bảng điểm kết quả (outcome scorecard)** lấy dữ liệu thật từ nhiều endpoint (`executive-summary`, `mttr-analytics`, `data-quality`, `risk-trend`, `validation/coverage`, `ctem-cycles/metrics/trend`). Nó tổng hợp: xu hướng phơi nhiễm, tỉ lệ/thời gian hoàn tất khắc phục, độ phủ chủ sở hữu (owner coverage), tỉ lệ mở lại (reopen rate), **tuân thủ SLA** và **`downgrade %` từ validation** (Phần 6). Ô nào thật sự chưa có dữ liệu sẽ hiển thị "Not measured" thay vì số giả. (Bảng lãnh đạo tổng hợp — **Executive Summary** — nằm ở `/insights/executive`, xem Phần 1.)
+
+**Tuân thủ SLA (SLA compliance):** Mỗi finding có hạn SLA suy từ priority class (theo SLA policy của tenant, xem Phần 5). Chỉ số **`SLA Compliance`** (tỉ lệ finding chưa quá hạn) được tính từ dữ liệu thật và hiển thị trên Executive Summary lẫn Program Health; các finding **quá hạn** kích hoạt **sự kiện leo thang (escalation)**. Trong màn Remediation Tasks, hãy theo dõi chip `Overdue` và cột `Due Date` để không lỡ hạn.
+
+**Scope refinement — phản hồi về Scoping (khép vòng lặp):** Khi **rà soát/đóng một CTEM Cycle** (Phần 2 — Scoping), người phụ trách ghi lại **ghi chú tinh chỉnh phạm vi (`Scope refinement notes`)** — những gì học được từ đợt này cần điều chỉnh cho phạm vi đợt sau (qua `POST /api/v1/ctem-cycles/{id}/scope-refinement`). Ghi chú của chu kỳ vừa hoàn tất được **hiển thị lại làm gợi ý** khi scoping chu kỳ kế tiếp — đó chính là cạnh feedback đưa Mobilization quay về Scoping. *Lưu ý:* đây là **ghi chú do người nhập** (một vòng lặp thủ công có chủ đích), không phải tín hiệu tự động sinh từ dữ liệu khắc phục.
+
+---
+
 ## Checklist
 
 - [ ] Đã chuyển các finding/nhóm finding ưu tiên cao thành **Remediation Task** có `Assignee` và `Due Date` rõ ràng.
@@ -122,4 +159,8 @@ Nhóm tính năng Mobilization trong OpenCTEM gồm ba trụ cột:
 - [ ] Đã tạo (hoặc `Clone` từ System Template) một **Scan Pipeline**, cấu hình `Triggers` / `Steps` / `Settings` qua wizard.
 - [ ] Trong trình dựng `/pipelines/{id}/builder`: mọi bước đều đã chọn scanner (không còn badge đỏ), node `Start`/`End` và phụ thuộc giữa các bước đã đúng, và đã `Save`.
 - [ ] Đã cân nhắc `Agent Selection` (Auto / Tenant / Platform) phù hợp với hạ tầng và yêu cầu confinement của tổ chức.
+- [ ] Điền **Mobilization Brief** (Definition of Done + Verification + Acceptable fixes) trên finding để vé Jira/GitHub mang theo hướng dẫn cấp kỹ sư.
+- [ ] Dùng **Remediation Groups** (`/remediations`) để giải quyết cả một "họ" lỗ hổng dùng chung một cách vá trong một thao tác; phân biệt với remediation campaign/task.
+- [ ] Theo dõi **Program Health** (`/insights/program-health`) và **SLA compliance**; hiểu finding quá hạn kích hoạt escalation.
+- [ ] Ghi **Scope refinement notes** khi đóng CTEM Cycle để khép vòng lặp về Scoping.
 - [ ] Kiểm tra quyền RBAC (`remediation:write`, `workflows:write`) cho các thành viên cần tạo/sửa task, workflow và pipeline.
