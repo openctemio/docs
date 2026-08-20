@@ -61,7 +61,7 @@ nav_order: 4
 
 **Frontend (Next.js):**
 - ✅ User Interface & UX
-- ✅ Authentication Flow (Keycloak OAuth)
+- ✅ Authentication Flow (local JWT + OAuth social + SAML SSO)
 - ✅ Token Management (access token in memory)
 - ✅ Client-side State Management (Zustand)
 - ✅ Route Protection
@@ -169,30 +169,38 @@ const users = await apiClient<User[]>('/api/users')
 
 ## 🔐 Authentication Flow (with Separate Backend)
 
+Auth is **local JWT (email/password)** plus **OAuth social login** (Google, GitHub,
+Microsoft) and **SAML SSO**. There is no Keycloak/OIDC dependency — `src/` contains
+zero `keycloak` references. Social/SSO callbacks land on
+`/auth/callback/[provider]` and `/auth/sso/callback/[provider]`.
+
+Tokens live in **httpOnly cookies** set by the Next.js BFF proxy — the browser
+never sees a Bearer token. The browser calls the relative proxy path `/api/v1/*`
+with `credentials: 'include'`; the proxy attaches the cookie-borne auth when it
+forwards to `BACKEND_API_URL`. A double-submit `csrf_token` cookie (JS-readable,
+backend-set) is echoed as the `X-CSRF-Token` header on mutations.
+
 ```
-1. User clicks Login
-   └─> Frontend redirects to Keycloak
+1. User signs in (email/password, OAuth social, or SAML SSO)
+   └─> Local: POST /api/v1/auth/login
+   └─> Social/SSO: redirect to provider, return to
+       /auth/callback/[provider] or /auth/sso/callback/[provider]
 
-2. Keycloak authenticates user
-   └─> Returns to /auth/callback with code
+2. Server (proxy / route handler) exchanges credentials for tokens
+   └─> Sets access + refresh tokens as httpOnly cookies
+   └─> Sets a JS-readable csrf_token cookie (double-submit)
 
-3. Frontend exchanges code for tokens
-   └─> Stores access_token in memory (Zustand)
-   └─> Stores refresh_token in HttpOnly cookie
+3. Browser makes API calls to the relative proxy path
+   └─> fetch('/api/v1/...', { credentials: 'include' })
+   └─> Mutations also send X-CSRF-Token: <csrf_token cookie>
 
-4. Frontend makes API calls to Backend
-   └─> Includes: Authorization: Bearer {access_token}
+4. Proxy forwards to BACKEND_API_URL with the cookie-borne auth
 
-5. Backend validates token
-   └─> Checks JWT signature
-   └─> Checks expiration
-   └─> Extracts user info from token
-   └─> Returns data
+5. Backend validates the JWT (signature + expiry) and returns data
 
 6. On token expiry
-   └─> Frontend refreshes token via Keycloak
-   └─> Updates access_token in Zustand
-   └─> Retries failed request
+   └─> Proxy/route handler refreshes via the refresh-token cookie
+   └─> Rotates the httpOnly cookies; browser retries transparently
 ```
 
 ---
@@ -322,8 +330,8 @@ BACKEND_API_URL=http://api:8080
    - Show loading/error states
 
 2. **Authentication**
-   - OAuth flow with Keycloak
-   - Token storage (memory + HttpOnly cookie)
+   - Local JWT, OAuth social, and SAML SSO sign-in flows
+   - Token storage (httpOnly cookies via the BFF proxy)
    - Token refresh
    - Route protection
 
@@ -409,7 +417,7 @@ BACKEND_API_URL=http://api:8080
 
 Your backend API should support:
 
-- [ ] **JWT token validation** (verify Keycloak tokens)
+- [ ] **JWT token validation** (verify backend-issued JWTs)
 - [ ] **CORS headers** (allow Next.js domain)
 - [ ] **RESTful endpoints** (or GraphQL)
 - [ ] **Error responses** (consistent format)
@@ -496,7 +504,7 @@ With separate backend API:
 
 | Category | Status |
 |----------|--------|
-| Security | Keycloak OAuth2, JWT tokens, RBAC permissions |
+| Security | Local JWT + OAuth social + SAML SSO, httpOnly cookies, CSRF, RBAC permissions |
 | Architecture | Next.js frontend + Go backend API, clean separation |
 | Testing | Unit and integration tests in place |
 | Database | PostgreSQL with migrations, managed by backend |

@@ -49,14 +49,20 @@ OpenCTEM implements a **3-Layer Access Control** architecture:
 
 Each tenant has a set of enabled modules that determines feature access:
 
-### Module Service
+### Module Gate
+
+Module access is enforced server-side by the `ModuleGate.RequireModule(moduleID)`
+middleware (`internal/infra/http/middleware/module_gate.go`), which wraps route
+groups and returns `403 MODULE_NOT_ENABLED` when a tenant has **explicitly
+disabled** that module. The gate is **fail-open** — a module that is not explicitly
+disabled is allowed — and results are cached per tenant (60s TTL, invalidated on
+toggle). The same `tenant_modules.is_enabled` flag drives both the UI sidebar and
+this route enforcement.
 
 ```go
-// Check if tenant has access to a module
-hasModule, err := moduleService.CheckModuleAccess(ctx, tenantID, "findings")
-
-// Get tenant's enabled modules
-modules, err := moduleService.GetTenantModules(ctx, tenantID)
+// Route registration wraps a group with the module gate:
+registerFindingRoutes(router, h.Finding, authMiddleware, userSync,
+    h.ModuleGate.RequireModule(moduledom.ModuleFindings))
 ```
 
 ### API Endpoints
@@ -99,7 +105,7 @@ GET /api/v1/me/modules         # Get tenant's enabled modules
 
 | Role | Permission Count | Description |
 |------|-----------------|-------------|
-| **Administrator** | 115+ | Full administrative access |
+| **Administrator** | 164 (all) | Full administrative access |
 | **Member** | 49+ | Standard read/write access |
 | **Viewer** | 38+ | Read-only access |
 
@@ -132,9 +138,9 @@ Check: Does user have required permission?
     │
     ├── If isAdmin=true (Owner/Admin) → Bypass permission check ✓
     │
-    ├── For Local Auth: Check permissions[] array from JWT
-    │
-    └── For OIDC: Check roles from Keycloak claims
+    └── For Member/Viewer/Custom: Check permissions[] array from JWT
+        (permissions are derived from RBAC roles and embedded at token issue,
+         the same way for local, social, and SSO sign-ins)
     ↓
 If permission granted → Call Handler
 If permission denied → 403 Forbidden
