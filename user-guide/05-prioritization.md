@@ -18,13 +18,36 @@ Nền tảng dùng các tín hiệu trên theo hai cơ chế bổ trợ nhau:
 1. **Risk scoring** (chấm điểm rủi ro tài sản, 0–100) — cấu hình trọng số ở **Scoring Configuration** (`/settings/scoring`); điểm này hiển thị xuyên suốt nền tảng.
 2. **Priority Override Rules** (luật ghi đè ưu tiên) — tại **Priority Override Rules** (`/settings/priority-rules`), bạn định nghĩa các luật điều kiện để **ghi đè** priority class đã tính ra (ví dụ: "KEV + crown jewel → P0").
 
-> **Ý nghĩa các priority class** (kèm SLA gợi ý, lấy từ cấu hình trong nền tảng):
-> - **`P0` — Immediate**: đang bị khai thác và reachable. SLA **7 ngày**.
-> - **`P1` — Urgent**: xác suất khai thác cao và reachable. SLA **30 ngày**.
-> - **`P2` — Scheduled**: rủi ro trung bình hoặc đã có biện pháp bù trừ (compensating controls). SLA **60 ngày**.
-> - **`P3` — Track**: rủi ro thấp, sửa khi có cơ hội. SLA **Opportunistic**.
+> **Ý nghĩa các priority class:**
+> - **`P0` — Immediate**: đang bị khai thác và reachable.
+> - **`P1` — Urgent**: xác suất khai thác cao và reachable.
+> - **`P2` — Scheduled**: rủi ro trung bình hoặc đã có biện pháp bù trừ (compensating controls).
+> - **`P3` — Track**: rủi ro thấp, sửa khi có cơ hội.
+>
+> Mỗi priority class gắn với một **hạn SLA**. Badge priority trên UI hiển thị một cửa sổ SLA **gợi ý** (P0 gấp nhất → P3 cơ hội), còn **hạn thực tế** của mỗi finding được tính từ **SLA policy của tenant** (cấu hình được theo tenant/tài sản; mặc định của nền tảng đặt hạn chặt hơn cho class ưu tiên cao hơn). Vì vậy đừng coi con số ngày trên badge là tuyệt đối — hãy tra hạn thực tế trên chính finding.
 
 > Lưu ý quyền (RBAC): nhiều nút bị ẩn/khóa tùy phân quyền. Đặc biệt việc tạo/sửa/xóa luật ưu tiên cần quyền `ctem:priority_rules:write`.
+
+---
+
+## Điểm ưu tiên minh bạch — "Why this priority"
+
+**Mục đích:** Trả lời câu hỏi *"vì sao finding này lại là P1?"* bằng một **điểm số minh bạch, phân rã được** thay vì một hộp đen. Mỗi finding có một panel **`Why this priority`** (hiển thị trên trang chi tiết `/findings/{id}` và trong drawer) trình bày công thức, các điểm thành phần và các yếu tố đóng góp (EPSS, KEV, reachability...).
+
+**Công thức (hiển thị đúng như trong code và trên UI):**
+
+> `Score = (Impact + Likelihood + Exposure) × (1 − ControlReduction)`
+
+- **Ba điểm thành phần `Impact`, `Likelihood`, `Exposure`** mỗi cái nằm trong khoảng **0–5**:
+  - **`Impact`** — lấy MAX giữa mức trọng yếu (effective criticality) của tài sản và severity của finding, cộng thêm các "bump" từ xếp hạng **CIA** của tài sản, cờ **crown jewel** và độ nhạy dữ liệu.
+  - **`Likelihood`** — nếu CVE nằm trong **KEV** thì ghim mức 5; nếu không thì suy từ **EPSS** (điểm EPSS × 5, fallback theo percentile).
+  - **`Exposure`** — theo khả năng tiếp cận: internet-accessible cao nhất, kế đến reachable / nằm trên attack path, rồi network-accessible; có cộng thêm theo số đường có thể chạm tới (breadth).
+- **`ControlReduction`** — hệ số giảm do compensating controls, bị **kẹp trong khoảng 0–0.5** (controls **giảm tối đa 50%**, không bao giờ triệt tiêu điểm). Do đó số nhân `(1 − ControlReduction)` nằm trong **0.5–1.0**.
+- **Kết quả `Score` nằm trong khoảng 0–15** (được làm tròn 1 chữ số). Panel hiển thị dưới dạng `Score / 15` kèm ba thanh đo thành phần 0–5.
+
+**Quan hệ với priority class:** Điểm minh bạch này **giải thích** priority class chứ **không tự ý đổi** nó. Priority class (P0–P3) vẫn do bộ phân loại quyết định theo cascade (KEV + reachable → P0, EPSS cao + reachable → P1, ...) rồi có thể bị **Priority Override Rules** ghi đè. Điểm số cho bạn cùng bộ tín hiệu đầu vào ở dạng con người đọc được để kiểm tra tính hợp lý của xếp hạng.
+
+**Ghi chú:** Panel được tính **theo yêu cầu** qua `GET /api/v1/findings/{id}/priority-explanation` (không lưu sẵn); nếu finding không đủ dữ liệu, panel tự ẩn. Đây là công cụ audit/giải trình, đặc biệt hữu ích khi cần bảo vệ quyết định "sửa cái này trước cái kia".
 
 ---
 
@@ -179,6 +202,7 @@ Mỗi thành phần cho ra điểm 0–100, nhân với trọng số (%) tương
 ## Checklist
 
 - [ ] Hiểu cách prioritization kết hợp **severity + EPSS + KEV + reachability + asset criticality + business impact** thành **priority class** (`P0`–`P3`), và ý nghĩa/SLA của từng class.
+- [ ] Đọc được panel **"Why this priority"** trên chi tiết finding: công thức `(Impact + Likelihood + Exposure) × (1 − ControlReduction)`, thang **0–15**, ba thành phần 0–5 và các yếu tố EPSS/KEV/reachability; hiểu điểm này **giải thích** chứ không đổi priority class.
 - [ ] Tại `/threat-intel`: đọc được tổng quan EPSS/KEV, tra cứu một CVE bằng `CVE Lookup`, và kiểm tra/kích hoạt `Sync Status`.
 - [ ] Biết `/risk-analysis` hiện là **Coming Soon** (chưa khả dụng) — dùng Business Impact / Scoring trong lúc chờ.
 - [ ] Tại `/business-impact`: đọc được 4 thẻ chỉ số, `Asset Criticality Breakdown`, `Crown Jewels`, và bảng `Business Unit Impact`.
