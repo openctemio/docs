@@ -72,9 +72,18 @@ Open your browser:
 
 **URL:** [http://localhost:3000](http://localhost:3000)
 
-**Default Credentials:**
-- Email: `admin@openctem.io`
-- Password: `Admin123!`
+**Create the first admin account** — there is no seeded default account. Create the
+first admin manually with the `bootstrap-admin` CLI, then log in with those
+credentials:
+
+```bash
+cd setup
+make bootstrap-admin-prod email=admin@yourcompany.com
+```
+
+The command prints the new admin's email and a one-time API key (save it). See the
+[Getting Started guide](guides/getting-started.md#create-the-first-admin-account)
+for the Kubernetes command and the registration-based alternative.
 
 ---
 

@@ -10,6 +10,6 @@ nav_order: 2
 
 In-depth documentation for key UI features.
 
-- **[Authentication](./auth/README.md)**: Keycloak OIDC integration and auth flows
+- **[Authentication](../../guides/authentication.md)**: Local JWT, OAuth social login, and enterprise SSO (SAML / per-tenant OIDC / Entra ID)
 - **[Access Control](./ACCESS_CONTROL.md)**: Group-based permissions and RBAC
 - **[Account Settings](./ACCOUNT_SETTINGS.md)**: User profile, security, and preferences

@@ -27,34 +27,38 @@ Comprehensive security guidelines for deploying and operating OpenCTEM in produc
 
 ## Authentication & Authorization
 
-### Keycloak Configuration
+### Authentication Configuration
 
-**Use OIDC/OAuth2** for all authentication:
+OpenCTEM authenticates with **local JWT (email/password)**, **OAuth social login**
+(Google/GitHub/Microsoft), and **per-tenant enterprise SSO** (SAML and OIDC,
+including Microsoft Entra ID). There is no Keycloak dependency — each tenant
+configures its own identity provider.
+
+Recommended hardening:
 
 ```yaml
-# Keycloak Realm Settings
-- Enable User Registration: NO (admin-controlled)
-- Require SSL: EXTERNAL (enforce HTTPS)
-- Login with Email: YES
-- Duplicate Emails: NOT ALLOWED
+- AUTH_ALLOW_REGISTRATION: false      # admin-controlled onboarding in production
+- Enforce HTTPS (TLS) on all endpoints
+- Login with email; no duplicate emails
 ```
 
 **Token Security:**
 ```yaml
 Access Token Lifespan: 15 minutes (short-lived)
-Refresh Token Lifespan: 7 days (long-lived, httpOnly)
+Refresh Token Lifespan: 7 days (long-lived, httpOnly cookie)
 Session Idle Timeout: 30 minutes
 Session Max Lifespan: 10 hours
 ```
 
 ### Multi-Factor Authentication (MFA)
 
-**Enable for all admin users:**
+MFA is enforced at the **identity provider** for SSO tenants and via the per-tenant
+`mfa_required` security policy:
 
-1. Navigate to Keycloak → Authentication
-2. Enable **OTP Policy** (TOTP/HOTP)
-3. Require MFA for `owner` and `admin` roles
-4. Use authenticator apps (Google Authenticator, Authy)
+1. For SSO tenants, require MFA/OTP in your IdP (Entra ID, Okta, Google Workspace).
+2. Set the tenant **`mfa_required`** security setting to require it for members.
+3. Prefer phishing-resistant factors (authenticator apps, FIDO2/WebAuthn) for
+   `owner` and `admin` roles.
 
 ### Password Policy
 

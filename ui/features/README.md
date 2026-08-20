@@ -12,5 +12,5 @@ This section contains documentation for key UI features.
 
 ## Available Features
 
-- **[Authentication](./auth/README.md)** - Keycloak OIDC integration
+- **[Authentication](../../guides/authentication.md)** - Local JWT, OAuth social login, and enterprise SSO (SAML / per-tenant OIDC / Entra ID)
 - **[Access Control](./ACCESS_CONTROL.md)** - Group-based permissions and RBAC
