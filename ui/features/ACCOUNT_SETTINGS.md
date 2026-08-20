@@ -322,7 +322,7 @@ try {
 
 ## Related Documentation
 
-- [Authentication](./auth/README.md) - Auth flows and providers
+- [Authentication](../../guides/authentication.md) - Auth flows and providers (local JWT, OAuth social, enterprise SSO)
 - [Access Control](./ACCESS_CONTROL.md) - Permissions system
 - [API Integration Guide](../guides/API_INTEGRATION.md) - API client usage
 

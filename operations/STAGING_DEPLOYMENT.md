@@ -79,9 +79,9 @@ make staging-up-seed
 # 5. Access application
 open http://localhost:3000
 
-# Login credentials:
-# Email: admin@openctem.io
-# Password: Password123
+# There is no seeded default account. Create the first admin manually:
+#   make bootstrap-admin-prod email=admin@yourcompany.com
+# then log in with that account (the command prints a one-time API key).
 ```
 
 ---
@@ -268,10 +268,10 @@ docker compose exec postgres psql -U openctem -d openctem -c \
 
 ### Test Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@openctem.io | Password123 |
-| User | nguyen.an@techviet.vn | Password123 |
+No accounts are seeded. Create the first admin with `bootstrap-admin`
+(`make bootstrap-admin-prod email=admin@yourcompany.com`), then invite or register
+additional test users from the UI. Use throwaway passwords in staging and never
+reuse production credentials.
 
 ---
 

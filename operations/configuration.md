@@ -13,7 +13,6 @@ Complete reference for all environment variables across OpenCTEM services.
 |---------|-------------|--------------|
 | Backend | `.env` | `.env.example` |
 | Frontend | `.env.local` | `.env.example` |
-| Keycloak | `.env.keycloak.dev` | `.env.keycloak.example` |
 
 ## Backend (api)
 
@@ -109,17 +108,36 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 | `AUTH_ALLOW_REGISTRATION` | No | `true` | Allow new user registration |
 | `AUTH_REQUIRE_EMAIL_VERIFICATION` | No | `false` | Require email verification |
 
-#### Keycloak (when AUTH_PROVIDER is `oidc` or `hybrid`)
+#### Authentication Provider
+
+`AUTH_PROVIDER` selects the auth mode: `local` (built-in email/password), `oidc`
+(external identity provider), or `hybrid` (both). There is no Keycloak dependency —
+OpenCTEM authenticates with local JWT, OAuth social login, and per-tenant enterprise
+SSO (SAML and OIDC, including Microsoft Entra ID).
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `KEYCLOAK_BASE_URL` | Yes* | - | Keycloak server URL |
-| `KEYCLOAK_REALM` | Yes* | - | Keycloak realm name |
-| `KEYCLOAK_CLIENT_ID` | Yes* | - | Keycloak client ID |
-| `KEYCLOAK_JWKS_REFRESH_INTERVAL` | No | `1h` | JWKS cache refresh interval |
-| `KEYCLOAK_HTTP_TIMEOUT` | No | `10s` | HTTP client timeout |
+| `AUTH_PROVIDER` | No | `local` | Auth mode: `local`, `oidc`, or `hybrid` |
 
-*Required only when using OIDC authentication
+#### OAuth Social Login (optional)
+
+Enable per provider; credentials come from each provider's OAuth app.
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `OAUTH_GOOGLE_ENABLED` | No | `false` | Enable Google social login |
+| `OAUTH_GOOGLE_CLIENT_ID` | No | - | Google OAuth client ID |
+| `OAUTH_GOOGLE_CLIENT_SECRET` | No | - | Google OAuth client secret |
+| `OAUTH_GITHUB_ENABLED` | No | `false` | Enable GitHub social login |
+| `OAUTH_GITHUB_CLIENT_ID` | No | - | GitHub OAuth client ID |
+| `OAUTH_GITHUB_CLIENT_SECRET` | No | - | GitHub OAuth client secret |
+| `OAUTH_MICROSOFT_ENABLED` | No | `false` | Enable Microsoft social login |
+| `OAUTH_MICROSOFT_CLIENT_ID` | No | - | Microsoft OAuth client ID |
+| `OAUTH_MICROSOFT_CLIENT_SECRET` | No | - | Microsoft OAuth client secret |
+
+Enterprise SSO (SAML / OIDC / Microsoft Entra ID) is configured **per tenant** in
+the platform admin UI, not via global environment variables. SSO sign-ins return to
+`/auth/sso/callback/{provider}` (e.g. `/auth/sso/callback/entra_id`).
 
 ### CORS
 
@@ -181,17 +199,10 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 | `NEXT_PUBLIC_REFRESH_COOKIE_NAME` | No | `refresh_token` | Refresh token cookie name |
 | `COOKIE_MAX_AGE` | No | `604800` | Cookie max age (seconds) |
 
-### Keycloak (OIDC)
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `NEXT_PUBLIC_KEYCLOAK_URL` | Yes* | - | Keycloak server URL |
-| `NEXT_PUBLIC_KEYCLOAK_REALM` | Yes* | - | Keycloak realm |
-| `NEXT_PUBLIC_KEYCLOAK_CLIENT_ID` | Yes* | - | Keycloak client ID |
-| `KEYCLOAK_CLIENT_SECRET` | Yes* | - | Keycloak client secret |
-| `NEXT_PUBLIC_KEYCLOAK_REDIRECT_URI` | Yes* | - | OAuth redirect URI |
-
-*Required only when using OIDC authentication
+The frontend does not talk to any identity provider directly. It authenticates
+against the backend over its BFF proxy; OAuth social and enterprise SSO flows are
+brokered by the backend and configured there (social) or per tenant (SSO). Set
+`NEXT_PUBLIC_AUTH_PROVIDER` to match the backend `AUTH_PROVIDER`.
 
 ### Application
 
@@ -220,25 +231,6 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 
 ---
 
-## Keycloak (keycloak)
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `KEYCLOAK_ADMIN` | Yes | - | Admin username |
-| `KEYCLOAK_ADMIN_PASSWORD` | Yes | - | Admin password |
-| `KC_DB` | Yes | `postgres` | Database type |
-| `KC_DB_URL` | Yes | - | JDBC database URL |
-| `KC_DB_USERNAME` | Yes | - | Database username |
-| `KC_DB_PASSWORD` | Yes | - | Database password |
-| `KC_HOSTNAME` | Yes | - | Keycloak hostname |
-| `KC_HTTP_ENABLED` | No | `true` | Enable HTTP |
-| `KC_HTTP_PORT` | No | `8180` | HTTP port |
-| `KC_HOSTNAME_STRICT` | No | `false` | Strict hostname checking |
-| `KC_HEALTH_ENABLED` | No | `true` | Enable health endpoints |
-| `KC_METRICS_ENABLED` | No | `true` | Enable metrics endpoints |
-
----
-
 ## Environment Files
 
 ### Development
@@ -246,7 +238,6 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 ```
 api/.env              # Backend development config
 ui/.env.local         # Frontend development config
-keycloak/.env.keycloak.dev  # Keycloak development config
 ```
 
 ### Production

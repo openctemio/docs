@@ -669,11 +669,8 @@ Your backend API must support:
 
 ### 1. JWT Token Validation
 
-Validate Keycloak JWT tokens from `Authorization` header:
-
-```
-Authorization: Bearer {access_token}
-```
+Validate the backend-issued JWT the proxy forwards (from the httpOnly auth cookie).
+Auth is local JWT + OAuth social + SAML SSO — there is no Keycloak/OIDC dependency.
 
 ### 2. CORS Configuration
 
@@ -751,7 +748,7 @@ app.use(cors({
 **Solutions:**
 1. Check access token exists: `useAuthStore.getState().accessToken`
 2. Check token not expired: Use JWT debugger
-3. Verify backend validates Keycloak tokens correctly
+3. Verify the backend validates the issued JWT correctly
 
 ### Network Errors
 
@@ -793,8 +790,8 @@ export interface User {
 
 **See Also:**
 - [Architecture Documentation](../architecture.md)
-- [Auth Usage Guide](../features/auth/AUTH_USAGE.md)
-- [Troubleshooting](../features/auth/TROUBLESHOOTING.md)
+- [Authentication guide](../../../guides/authentication.md)
+- [SSO setup](../../../guides/sso-setup.md)
 
 ---
 
