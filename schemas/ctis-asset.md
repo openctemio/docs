@@ -71,6 +71,8 @@ nav_order: 2
 | `s3_bucket` | S3/object storage bucket |
 | `subnet` | Network subnet |
 | `data_store` | Data store |
+| `smart_contract` | Smart contract |
+| `blockchain` | Blockchain / chain |
 | `wallet` | Blockchain wallet |
 | `token` | Token (ERC-20, etc.) |
 | `nft_collection` | NFT collection |

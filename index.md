@@ -7,7 +7,7 @@ permalink: /
 
 # OpenCTEM Documentation
 
-Welcome to the **OpenCTEM Platform** documentation - a Continuous Threat Exposure Management (CTEM) platform for discovering assets, scanning vulnerabilities, and prioritizing remediation.
+Welcome to the **OpenCTEM Platform** documentation - a Continuous Threat Exposure Management (CTEM) platform that runs the full five-stage loop: **Scoping** (attack surface + business context), **Discovery** (assets & exposures), **Prioritization** (a transparent composite score with EPSS/KEV/reachability), **Validation** (a safe-check Re-verify engine that confirms or downgrades findings), and **Mobilization** (engineering-grade tickets, remediation groups, SLA tracking, and a scope-refinement loop back to Scoping).
 
 ---
 
@@ -28,6 +28,7 @@ New to OpenCTEM? Start here:
 
 | Topic | Description |
 |-------|-------------|
+| [CTEM User Guide (5-stage walkthrough)](./user-guide/README.md) | Feature-by-feature guide across Scoping → Discovery → Prioritization → Validation → Mobilization |
 | [End-to-End Workflow](./guides/END_TO_END_WORKFLOW.md) | Complete scan workflow walkthrough |
 | [Scan Management](./guides/scan-management.md) | Configure and run scans |
 | [Notification Integrations](./guides/notification-integrations.md) | Slack, Teams, Email alerts |
