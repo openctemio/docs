@@ -154,8 +154,8 @@ docker compose up -d
 | Service | Local | Production |
 |---------|-------|------------|
 | Frontend | http://localhost:3000 | https://your-domain.com |
-| Backend API | http://localhost:8080 | https://api.your-domain.com |
-| API Docs | http://localhost:8080/docs | https://api.your-domain.com/docs |
+| Backend API | http://localhost:8080 | https://your-domain.com |
+| API Docs | http://localhost:8080/docs | https://your-domain.com/docs |
 
 ---
 

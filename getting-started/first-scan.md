@@ -72,6 +72,12 @@ docker run --rm \
   -verbose
 ```
 
+{: .note }
+This example targets the **local development stack** (API on `localhost:8080`).
+On a production server behind the built-in gateway, use
+`API_URL=https://<your-host>` (no port) and, with the internal CA, mount the root
+certificate and set `SSL_CERT_DIR`. See [Connecting sensors](../operations/single-https-port.md#connecting-sensors).
+
 **Flags explained:**
 
 | Flag | Purpose |
@@ -235,6 +241,10 @@ On Linux, use:
 -e API_URL=http://172.17.0.1:8080
 # Or use --network host
 ```
+
+These addresses apply to the local development stack only. A production server
+is reached at `https://<your-host>`; see
+[Troubleshooting the gateway](../operations/single-https-port.md#troubleshooting).
 
 ---
 

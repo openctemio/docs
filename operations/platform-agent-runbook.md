@@ -94,7 +94,7 @@ docker logs --tail 100 openctem-platform-agent
 curl -s http://localhost:9100/metrics | grep openctem_agent
 
 # Check API connectivity
-curl -s https://api.your-domain.com/health
+curl -s https://your-domain.com/health
 
 # List all agents via CLI
 openctem-admin get agents
@@ -145,7 +145,7 @@ openctem-admin create token --max-uses=1 --expires=1h
 docker run -d \
   --name openctem-platform-agent \
   --restart unless-stopped \
-  -e API_URL=https://api.your-domain.com \
+  -e API_URL=https://your-domain.com \
   -e BOOTSTRAP_TOKEN=<token-from-step-1> \
   -e REGION=us-east-1 \
   -e CAPABILITIES=sast,sca,secrets \
@@ -176,7 +176,7 @@ openctem-admin create agent \
 docker run -d \
   --name openctem-platform-agent \
   --restart unless-stopped \
-  -e API_URL=https://api.your-domain.com \
+  -e API_URL=https://your-domain.com \
   -e API_KEY=ragent_xxxxx \
   -v agent-data:/home/openctem/.openctem \
   --memory=4g \
@@ -194,7 +194,7 @@ See [Platform Admin Guide - Kubernetes Deployment](../guides/platform-admin.md#k
 helm install platform-agent openctem/platform-agent \
   --namespace openctem \
   --create-namespace \
-  --set apiUrl=https://api.your-domain.com \
+  --set apiUrl=https://your-domain.com \
   --set bootstrapToken=<token> \
   --set replicaCount=3 \
   --set agent.region=us-east-1
@@ -218,7 +218,8 @@ After deployment, verify:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `API_URL` | Yes | - | OpenCTEM API URL |
+| `API_URL` | Yes | - | OpenCTEM URL: the single HTTPS address, e.g. `https://ctem.example.com` (no `:8080`). See [one HTTPS port](single-https-port.md) |
+| `SSL_CERT_DIR` | No | - | Directory holding the platform's root CA certificate when the server uses its internal CA ([details](single-https-port.md#trusting-the-internal-ca)) |
 | `API_KEY` | No* | - | Agent API key (if pre-assigned) |
 | `BOOTSTRAP_TOKEN` | No* | - | Bootstrap token for registration |
 | `REGION` | No | auto | Agent region identifier |
@@ -622,7 +623,7 @@ spec:
 ### SEV1: All Agents Offline
 
 1. **Verify**: `openctem-admin get agents` - all showing offline?
-2. **Check API**: `curl https://api.your-domain.com/health`
+2. **Check API**: `curl https://your-domain.com/health`
 3. **If API down**: Escalate to API team
 4. **If API up**: Check agent logs for common errors
 5. **Recovery**: Restart all agent containers
