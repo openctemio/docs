@@ -85,7 +85,7 @@ docker run --rm \
 
 ```bash
 # Download the agent binary
-curl -LO https://github.com/openctemio/agent/releases/latest/download/agent-linux-amd64
+curl -LO https://github.com/openctemio/sensor/releases/latest/download/agent-linux-amd64
 chmod +x agent-linux-amd64
 
 # Run scan
