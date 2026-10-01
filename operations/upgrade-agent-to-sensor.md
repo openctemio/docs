@@ -279,7 +279,7 @@ against the open-source API:
 | Polling | fixed 30 s | on the heartbeat doorbell (immediate poll when work is pending, safety poll every 5 min) | nothing |
 | Code scans dispatched for a repository asset | fail (`DNS lookup failed for scanner target "<name>"`) | resolved inside `SENSOR_SCAN_ROOTS` | set `SENSOR_SCAN_ROOTS` and mount repositories there (read-write for gitleaks and semgrep in v0.3.0) |
 | `SENSOR_ALLOW_PRIVATE_TARGETS=true` | silently ignored | refuses to start with a clear message | use `1` |
-| Deactivated sensor | 401 on every call | heartbeats, logs `paused by platform`, takes no jobs, resumes on reactivation | nothing |
+| Deactivated sensor | 401 on every call (and `Invalid API key` at start) | while running: heartbeats, logs `paused by platform`, takes no jobs, resumes on reactivation. A v0.3.0 sensor **started** while deactivated still exits with `Invalid API key` (its connection test does not announce the doorbell; fixed in openctemio/sensor#72) | reactivate a sensor before restarting it |
 
 Both versions complete dispatched jobs. v0.2.2 polls on a fixed interval over
 protocol v1, which the platform keeps serving. The `OPENCTEM_SDK_HTTPSEC_ALLOW_*`
