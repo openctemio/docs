@@ -30,6 +30,7 @@ Guides for developers and operators.
 ## Maintenance
 
 - **[Upgrade Guide](./upgrade-guide.md)** - Version upgrades, rollbacks, zero-downtime deployments
+- **[Upgrading to the Sensor release](./upgrade-agent-to-sensor.md)** - Agents become sensors: what is migrated automatically, what to update, in which order
 - **[Backup & Restore](./backup-restore.md)** - Backup strategy, off-site storage, restore procedures
 - **[Release Validation](./RELEASE_VALIDATION.md)** - Pre-release checklist
 

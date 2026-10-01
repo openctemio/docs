@@ -2,6 +2,8 @@
 
 This guide covers upgrading OpenCTEM across Docker Compose and Kubernetes/Helm deployments. Follow the procedures carefully to minimize downtime and risk.
 
+> Upgrading to the release that renames agents to sensors? Read [Upgrading to the Sensor release](upgrade-agent-to-sensor.md) as well.
+
 ## Table of Contents
 
 - [Version Management](#version-management)
