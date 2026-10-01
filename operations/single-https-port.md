@@ -505,11 +505,13 @@ to `OPENCTEM_PUBLIC_URL`, so the URLs the API generates use the public origin.
 - **Protocols:** HTTP/1.1 and HTTP/2. No HTTP/3 (no UDP listener).
 - **Headers:**
   - `Strict-Transport-Security: max-age=31536000` in the TLS modes (`internal`,
-    `acme`, `files`).
+    `acme`, `files`), as a **default**: the API sets its own HSTS in
+    production (`max-age=31536000; includeSubDomains`) and that one is kept, so
+    a response never carries two.
   - `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and
     `Referrer-Policy: strict-origin-when-cross-origin` as **defaults only**. The
     web UI's own CSP and frame headers win.
-  - The `Server` header is removed.
+  - The `Server` and `Via` headers are removed.
 
 ---
 
