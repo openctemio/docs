@@ -140,14 +140,14 @@ Reusable configuration for scans.
 
 ### 5. Scanner Templates
 
-Custom templates for tools that support them (Nuclei, Semgrep, Gitleaks).
+Custom templates for tools that support them (Nuclei, Semgrep, Betterleaks).
 
 | Relationship | Direction | Description |
 |-------------|-----------|-------------|
 | Tenant | N:1 | Template owned by tenant |
 | Template Source | N:1 | (Optional) Synced from Git/S3/HTTP |
 | Scan Profiles | N:N | Referenced by profiles via template_mode |
-| Template Type | 1:1 | nuclei, semgrep, or gitleaks |
+| Template Type | 1:1 | nuclei, semgrep, or betterleaks |
 
 ### 6. Tools
 
@@ -266,7 +266,7 @@ Reusable multi-step workflow definition.
 │             │    - depends_on: []                                           │
 │             │                                                                │
 │             ├── Step 3: Secrets Scan                                        │
-│             │    - tool: gitleaks                                           │
+│             │    - tool: betterleaks                                           │
 │             │    - depends_on: []                                           │
 │             │                                                                │
 │             └── Step 4: Report Generation                                   │

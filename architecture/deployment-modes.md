@@ -144,7 +144,7 @@ security_scan:
 │   │  │ Scanners    │  │ Collectors  │  │ Parsers     │           │    │
 │   │  │ - semgrep   │  │ - github    │  │ - sarif     │           │    │
 │   │  │ - trivy     │  │ - gitlab    │  │ - json      │           │    │
-│   │  │ - gitleaks  │  │ - webhook   │  │             │           │    │
+│   │  │ - betterleaks  │  │ - webhook   │  │             │           │    │
 │   │  └─────────────┘  └─────────────┘  └─────────────┘           │    │
 │   │                                                                │    │
 │   └───────────────────────────────────────────────────────────────┘    │
@@ -184,7 +184,7 @@ agent:
 scanners:
   - name: semgrep
     enabled: true
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
 
 collectors:
@@ -385,7 +385,7 @@ Start
 openctem scan --tool semgrep --target ./src --push
 
 # Multiple tools
-openctem scan --tools semgrep,gitleaks,trivy-fs --target . --push
+openctem scan --tools semgrep,betterleaks,trivy-fs --target . --push
 
 # With custom config
 openctem scan --tool semgrep --config ./semgrep.yml --target . --push
@@ -404,7 +404,7 @@ openctem agent \
   --name my-scanner \
   --scan-interval 6h \
   --target /opt/code \
-  --tool semgrep,gitleaks
+  --tool semgrep,betterleaks
 
 # Standalone mode (no server polling)
 openctem agent --config ./agent.yaml --standalone

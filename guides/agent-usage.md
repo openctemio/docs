@@ -27,7 +27,7 @@ The agent uses a **modular executor architecture**:
 │  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘       │
 │       │            │            │            │              │
 │  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐        │
-│  │subfinder│  │ nuclei  │  │gitleaks │  │  cloud  │        │
+│  │subfinder│  │ nuclei  │  │betterleaks │  │  cloud  │        │
 │  │  dnsx   │  │  trivy  │  │trufflehog│  │  apis  │        │
 │  │ naabu   │  │ semgrep │  └─────────┘  └─────────┘        │
 │  │ httpx   │  └─────────┘                                  │
@@ -115,7 +115,7 @@ export API_KEY=rdw_your_api_key_here
 | Flag | Description | Example |
 |------|-------------|---------|
 | `-tool` | Single tool to run | `-tool semgrep` |
-| `-tools` | Multiple tools (comma-separated) | `-tools semgrep,gitleaks,trivy` |
+| `-tools` | Multiple tools (comma-separated) | `-tools semgrep,betterleaks,trivy` |
 | `-target` | Path or URL to scan | `-target ./src` |
 | `-push` | Push results to OpenCTEM | `-push` |
 | `-verbose` | Enable verbose logging | `-verbose` |
@@ -172,7 +172,7 @@ agent -tool semgrep -target . -fail-on high
 agent -tool semgrep -target . -fail-on critical -push
 
 # Fail on medium and above
-agent -tools semgrep,gitleaks -target . -fail-on medium -output-format sarif -output results.sarif
+agent -tools semgrep,betterleaks -target . -fail-on medium -output-format sarif -output results.sarif
 ```
 
 **Exit Codes:**
@@ -244,7 +244,7 @@ See [Data Flow Analysis Guide](data-flow-analysis.md) for how to use this inform
 
 | Tool | Type | Description |
 |------|------|-------------|
-| `gitleaks` | Secret | Secret and credential detection |
+| `betterleaks` | Secret | Secret and credential detection |
 | `trufflehog` | Secret | Git history secret scanning |
 
 ### Recon Executor (External Attack Surface)
@@ -286,7 +286,7 @@ To view the SBOM for an asset, use the API endpoint:
 | Tool | Description | Install Command |
 |------|-------------|-----------------|
 | `semgrep` | SAST scanner with dataflow/taint tracking | `pip install semgrep` |
-| `gitleaks` | Secret detection scanner | `brew install gitleaks` |
+| `betterleaks` | Secret detection scanner | `brew install --cask betterleaks/tap/betterleaks@1` |
 | `trivy` | SCA/Container/IaC scanner | `brew install trivy` |
 | `nuclei` | Vulnerability scanner (DAST) | `brew install nuclei` |
 
@@ -333,7 +333,7 @@ scanners:
   - name: semgrep
     enabled: true
 
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
 
   - name: trivy
@@ -378,7 +378,7 @@ Run a scan and exit:
 ./agent -tool semgrep -target ./src -push
 
 # Multiple tools
-./agent -tools semgrep,gitleaks,trivy -target . -push
+./agent -tools semgrep,betterleaks,trivy -target . -push
 
 # With config file
 ./agent -config agent.yaml -push
@@ -416,7 +416,7 @@ Run as a long-running service:
 PR/MR Workflow (CI):
 ┌─────────────────────────────────────────────────────────┐
 │  Push/PR → SAST → Secrets → SCA → Build → Deploy       │
-│            (semgrep) (gitleaks) (trivy)                 │
+│            (semgrep) (betterleaks) (trivy)                 │
 │            ↑─────── CI Stage ──────↑                    │
 └─────────────────────────────────────────────────────────┘
 
@@ -452,7 +452,7 @@ jobs:
   security:
     uses: openctemio/sensor/.github/workflows/openctem-security.yml@main
     with:
-      tools: "semgrep,gitleaks,trivy"
+      tools: "semgrep,betterleaks,trivy"
       fail_on: "high"
     secrets:
       api_url: ${{ secrets.API_URL }}
@@ -485,7 +485,7 @@ jobs:
       - name: Security Scan
         uses: openctemio/sensor/ci/github@main
         with:
-          tools: semgrep,gitleaks,trivy
+          tools: semgrep,betterleaks,trivy
           fail_on: high
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -515,7 +515,7 @@ jobs:
         uses: docker://openctemio/agent:ci
         with:
           args: >-
-            -tools semgrep,gitleaks,trivy
+            -tools semgrep,betterleaks,trivy
             -target .
             -auto-ci
             -comments
@@ -584,7 +584,7 @@ security-scan:
   script:
     - |
       agent \
-        -tools semgrep,gitleaks,trivy \
+        -tools semgrep,betterleaks,trivy \
         -target . \
         -auto-ci \
         -comments \
@@ -704,7 +704,7 @@ OpenCTEM provides pre-built templates for quick integration:
 | `.openctem-sast` | `openctemio/agent:semgrep` | SAST scanning with Semgrep |
 | `.openctem-sca` | `openctemio/agent:trivy` | SCA with fresh Trivy DB |
 | `.openctem-sca-fast` | `openctemio/agent:trivy-ci` | SCA with pre-loaded DB (faster) |
-| `.openctem-secrets` | `openctemio/agent:gitleaks` | Secret detection |
+| `.openctem-secrets` | `openctemio/agent:betterleaks` | Secret detection |
 | `.openctem-iac` | `openctemio/agent:trivy` | IaC misconfiguration |
 | `.openctem-container` | `openctemio/agent:trivy` | Container image scanning |
 | `.openctem-full-scan` | `openctemio/agent:ci` | All CI tools in one job |
@@ -765,7 +765,7 @@ When running with `-comments` flag in a PR/MR context, the agent will:
 
 ```bash
 # Enable PR comments
-agent -tools semgrep,gitleaks -target . -push -comments -auto-ci
+agent -tools semgrep,betterleaks -target . -push -comments -auto-ci
 ```
 
 **Requirements:**
@@ -829,10 +829,10 @@ jobs:
 
   secrets:
     runs-on: ubuntu-latest
-    container: openctemio/agent:gitleaks
+    container: openctemio/agent:betterleaks
     steps:
       - uses: actions/checkout@v4
-      - run: agent -tool gitleaks -target . -push -auto-ci -comments -fail-on critical
+      - run: agent -tool betterleaks -target . -push -auto-ci -comments -fail-on critical
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           API_URL: ${{ secrets.API_URL }}
@@ -876,9 +876,9 @@ sast:
 
 secrets:
   stage: security
-  image: openctemio/agent:gitleaks
+  image: openctemio/agent:betterleaks
   script:
-    - agent -tool gitleaks -target . -push -auto-ci -comments
+    - agent -tool betterleaks -target . -push -auto-ci -comments
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
@@ -901,10 +901,10 @@ sca:
 
 | Image | Size | Tools | Use Case |
 |-------|------|-------|----------|
-| `openctemio/agent:ci` | ~600MB | semgrep + gitleaks + trivy | Full CI pipeline (recommended) |
+| `openctemio/agent:ci` | ~600MB | semgrep + betterleaks + trivy | Full CI pipeline (recommended) |
 | `openctemio/agent:ci-cached` | ~700MB | + preloaded Trivy DB | Faster CI (rebuild weekly) |
 | `openctemio/agent:semgrep` | ~400MB | Semgrep only | SAST scanning |
-| `openctemio/agent:gitleaks` | ~50MB | Gitleaks only | Secrets detection |
+| `openctemio/agent:betterleaks` | ~50MB | Betterleaks only | Secrets detection |
 | `openctemio/agent:trivy` | ~100MB | Trivy only | SCA/IaC/Container |
 | `openctemio/agent:trivy-ci` | ~500MB | Trivy + preloaded DB | Fast SCA (no DB download) |
 
@@ -932,7 +932,7 @@ Per-tool images use separate Dockerfiles for better maintainability:
 ```bash
 # Build per-tool images (from separate Dockerfiles)
 docker build -f Dockerfile.semgrep -t openctemio/agent:semgrep .
-docker build -f Dockerfile.gitleaks -t openctemio/agent:gitleaks .
+docker build -f Dockerfile.betterleaks -t openctemio/agent:betterleaks .
 docker build -f Dockerfile.trivy -t openctemio/agent:trivy .
 docker build -f Dockerfile.trivy --target trivy-ci -t openctemio/agent:trivy-ci .
 docker build -f Dockerfile.nuclei -t openctemio/agent:nuclei .
@@ -946,7 +946,7 @@ docker build --target ci -t openctemio/agent:ci .
 **Dockerfile structure:**
 - `Dockerfile` - Main file with builder stages and combined images (slim, full, ci, platform)
 - `Dockerfile.semgrep` - Agent + Semgrep (~400MB)
-- `Dockerfile.gitleaks` - Agent + Gitleaks (~50MB)
+- `Dockerfile.betterleaks` - Agent + Betterleaks (~50MB)
 - `Dockerfile.trivy` - Agent + Trivy with optional trivy-ci target (~100-500MB)
 - `Dockerfile.nuclei` - Agent + Nuclei (~100MB)
 
@@ -958,7 +958,7 @@ docker build --target ci -t openctemio/agent:ci .
 
 ```bash
 docker run --rm -v $(pwd):/scan openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy \
+    -tools semgrep,betterleaks,trivy \
     -target /scan \
     -verbose
 ```
@@ -970,9 +970,9 @@ docker run --rm -v $(pwd):/scan openctemio/agent:latest \
 docker run --rm -v $(pwd):/scan openctemio/agent:semgrep \
     -tool semgrep -target /scan -verbose
 
-# Secrets with Gitleaks
-docker run --rm -v $(pwd):/scan openctemio/agent:gitleaks \
-    -tool gitleaks -target /scan -verbose
+# Secrets with Betterleaks
+docker run --rm -v $(pwd):/scan openctemio/agent:betterleaks \
+    -tool betterleaks -target /scan -verbose
 
 # SCA with Trivy (pre-loaded DB for speed)
 docker run --rm -v $(pwd):/scan openctemio/agent:trivy-ci \
@@ -991,7 +991,7 @@ docker run --rm \
     -e API_URL=https://api.your-domain.com \
     -e API_KEY=rdw_your_api_key \
     openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy \
+    -tools semgrep,betterleaks,trivy \
     -target /scan \
     -push
 ```
@@ -1114,7 +1114,7 @@ Each scanner tool has different update mechanisms for rules/databases:
 |------|--------------|------|-----------|
 | **Semgrep** | Rules from [Semgrep Registry](https://semgrep.dev/docs/running-rules) | Every scan | Auto (needs network) |
 | **Trivy** | Vuln DB from [GHCR](https://trivy.dev/docs/latest/configuration/db/) | Every 6 hours | Auto-download on first use |
-| **Gitleaks** | Rules embedded in binary | On version update | Pull latest image |
+| **Betterleaks** | Rules embedded in binary | On version update | Pull latest image |
 | **Nuclei** | [Templates from GitHub](https://docs.projectdiscovery.io/opensource/nuclei/running) | On first run or `-update-templates` | Auto (needs network) |
 
 ### Keeping Tools Updated
@@ -1127,9 +1127,9 @@ Each scanner tool has different update mechanisms for rules/databases:
 docker pull openctemio/agent:trivy-ci
 ```
 
-**Gitleaks**: Pull latest image to get new detection rules:
+**Betterleaks**: Pull latest image to get new detection rules:
 ```bash
-docker pull openctemio/agent:gitleaks
+docker pull openctemio/agent:betterleaks
 ```
 
 **Nuclei**: Templates auto-update, or force update:

@@ -83,7 +83,7 @@ Each agent is a single binary with pluggable executors that can be enabled/disab
 │  │   Recon       │ │  VulnScan    │ │  SecretScan  │    │
 │  │ --enable-recon│ │--enable-vuln │ │--enable-sec  │    │
 │  │              │ │              │ │              │    │
-│  │ Subfinder    │ │ Nuclei       │ │ Gitleaks     │    │
+│  │ Subfinder    │ │ Nuclei       │ │ Betterleaks     │    │
 │  │ DNSX        │ │ Trivy        │ │ TruffleHog   │    │
 │  │ Naabu       │ │ Semgrep      │ │              │    │
 │  │ HTTPX       │ │              │ │              │    │

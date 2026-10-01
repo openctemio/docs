@@ -6,6 +6,8 @@ This guide covers upgrading OpenCTEM across Docker Compose and Kubernetes/Helm d
 >
 > Upgrading to the release that renames agents to sensors? Read [Upgrading to the Sensor release](upgrade-agent-to-sensor.md) as well.
 
+> Upgrading to the release where Betterleaks replaces gitleaks (API migration 000241)? Read [Upgrading: gitleaks → Betterleaks](upgrade-gitleaks-to-betterleaks.md).
+
 ## Table of Contents
 
 - [Version Management](#version-management)

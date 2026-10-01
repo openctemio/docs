@@ -145,7 +145,7 @@ Match findings from a specific scanner tool.
 
 ```json
 {
-  "tool_name": "gitleaks"
+  "tool_name": "betterleaks"
 }
 ```
 

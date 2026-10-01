@@ -18,7 +18,7 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 - 🔍 **Discover** assets across repos, cloud, and infrastructure
 - 🛡️ **Scan** for vulnerabilities (SAST, SCA, secrets, IaC)
 - 📊 **Prioritize** using AI-powered risk scoring
-- 🔗 **Integrate** findings from Nuclei, Trivy, Semgrep, Gitleaks, and more
+- 🔗 **Integrate** findings from Nuclei, Trivy, Semgrep, Betterleaks, and more
 
 ---
 
@@ -96,7 +96,7 @@ docker run --rm \
   -e API_URL=http://host.docker.internal:8080 \
   -e API_KEY=your-api-key \
   openctemio/agent:latest \
-  -tools semgrep,gitleaks,trivy -target /scan -push
+  -tools semgrep,betterleaks,trivy -target /scan -push
 ```
 
 ---

@@ -65,7 +65,7 @@ Key files:
 | Trivy | JSON |
 | Semgrep | JSON |
 | Nuclei | JSON |
-| Gitleaks | JSON |
+| Betterleaks | JSON |
 | SARIF | SARIF 2.1.0 (generic) |
 
 All adapters convert scanner output to the CTIS (Common Threat Intelligence Schema) format for normalized ingestion.

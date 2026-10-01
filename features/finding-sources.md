@@ -80,7 +80,7 @@ The constants must match the `code` field in the database.
 | `sast` | SAST | Static Application Security Testing (Semgrep, CodeQL) |
 | `dast` | DAST | Dynamic Application Security Testing (ZAP, Nuclei) |
 | `sca` | SCA | Software Composition Analysis (Trivy, Snyk) |
-| `secret` | Secret Scanning | Exposed credentials detection (Gitleaks) |
+| `secret` | Secret Scanning | Exposed credentials detection (Betterleaks) |
 | `iac` | IaC Scanning | Infrastructure as Code (Checkov, Tfsec) |
 | `container` | Container Scanning | Container image vulnerabilities |
 

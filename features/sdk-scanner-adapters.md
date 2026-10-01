@@ -22,7 +22,7 @@ Pre-built adapters in the Go SDK that normalize output from popular open-source 
 | **Trivy** | Trivy | JSON | Vulnerability (CVE), Misconfiguration, Secret | Yes |
 | **Semgrep** | Semgrep | JSON | SAST findings with data flow | Yes |
 | **Nuclei** | Nuclei | JSONL | DAST findings with request/response | Yes |
-| **Gitleaks** | Gitleaks | JSON | Secret/credential detection | Yes |
+| **Betterleaks** | Betterleaks | JSON | Secret/credential detection | Yes |
 | **SARIF** | Any SARIF-compatible tool | SARIF v2.1.0 | Generic (adapts to source tool) | Planned |
 
 ## Architecture
@@ -64,8 +64,8 @@ sdk-go/pkg/adapters/
 ├── nuclei/
 │   ├── adapter.go          # Nuclei JSONL → findings
 │   └── adapter_test.go
-├── gitleaks/
-│   ├── adapter.go          # Gitleaks JSON → findings
+├── betterleaks/
+│   ├── adapter.go          # Betterleaks JSON → findings
 │   └── adapter_test.go
 └── sarif/
     └── adapter.go          # Generic SARIF → findings

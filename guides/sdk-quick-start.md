@@ -91,7 +91,7 @@ Use pre-built scanners with `core.NewPresetScanner()`:
 | `trivy-fs` | SCA | Filesystem vulnerability scanning |
 | `trivy-config` | IaC | Infrastructure as Code scanning |
 | `trivy-image` | Container | Container image scanning |
-| `gitleaks` | Secrets | Secret and credential detection |
+| `betterleaks` | Secrets | Secret and credential detection |
 | `slither` | Web3 | Solidity smart contract analysis |
 | `checkov` | IaC | Cloud infrastructure scanning |
 | `bandit` | SAST | Python security linting |
@@ -206,7 +206,7 @@ jobs:
         uses: docker://openctemio/agent:ci
         with:
           args: >-
-            -tools semgrep,gitleaks,trivy
+            -tools semgrep,betterleaks,trivy
             -target .
             -auto-ci
             -push
@@ -223,7 +223,7 @@ jobs:
 security-scan:
   image: openctemio/agent:ci
   script:
-    - agent -tools semgrep,gitleaks,trivy -target . -auto-ci -push
+    - agent -tools semgrep,betterleaks,trivy -target . -auto-ci -push
   variables:
     GITLAB_TOKEN: $CI_JOB_TOKEN
     API_URL: $API_URL
