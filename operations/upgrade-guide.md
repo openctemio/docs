@@ -2,6 +2,8 @@
 
 This guide covers upgrading OpenCTEM across Docker Compose and Kubernetes/Helm deployments. Follow the procedures carefully to minimize downtime and risk.
 
+> Upgrading from v0.8.x to v0.9.0? Follow [Upgrading from v0.8 to v0.9](upgrade-to-v0.9.md): it has the breaking changes, inventory queries and the exact order for that release.
+>
 > Upgrading to the release that renames agents to sensors? Read [Upgrading to the Sensor release](upgrade-agent-to-sensor.md) as well.
 
 ## Table of Contents
