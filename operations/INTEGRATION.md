@@ -64,7 +64,7 @@ Use the OpenCTEM Agent binary for quick integration.
 go install github.com/openctemio/sensor@latest
 
 # Run scan
-agent -tools semgrep,trivy,gitleaks \
+agent -tools semgrep,trivy,betterleaks \
       -target . \
       -push \
       -api-url https://api.your-domain.com \
@@ -175,7 +175,7 @@ jobs:
         uses: docker://openctemio/agent:ci
         with:
           args: >-
-            -tools semgrep,gitleaks,trivy
+            -tools semgrep,betterleaks,trivy
             -target .
             -auto-ci
             -push
@@ -190,7 +190,7 @@ jobs:
 security-scan:
   image: openctemio/agent:ci
   script:
-    - agent -tools semgrep,gitleaks,trivy -target . -auto-ci -push
+    - agent -tools semgrep,betterleaks,trivy -target . -auto-ci -push
   variables:
     API_URL: $OPENCTEM_API_URL
     API_KEY: $OPENCTEM_API_KEY

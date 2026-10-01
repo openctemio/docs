@@ -30,7 +30,7 @@ Unified Exposure Management platform built with Clean Architecture in Go.
 - **Exposure Detection** - Identify vulnerabilities and risks
 - **Attack Path Analysis** - Visualize attack vectors
 - **Risk Scoring** - Calculate and prioritize risks
-- **Multi-source Integration — 8 built-in scanners (Nuclei, Trivy, Semgrep, Gitleaks, Nmap, Subfinder, HTTPx, Katana)
+- **Multi-source Integration — 8 built-in scanners (Nuclei, Trivy, Semgrep, Betterleaks, Nmap, Subfinder, HTTPx, Katana)
 
 ## Tech Stack
 
@@ -200,8 +200,8 @@ make migrate-down   # Rollback migration
 # Security & Pre-commit
 make pre-commit-install  # Install pre-commit hooks
 make pre-commit-run      # Run all security checks
-make security-scan       # Full security scan with OpenCTEM Agent (semgrep + gitleaks + trivy)
-make gitleaks            # Run secret detection only
+make security-scan       # Full security scan with OpenCTEM Agent (semgrep + betterleaks + trivy)
+make betterleaks            # Run secret detection only
 ```
 
 ## API Documentation

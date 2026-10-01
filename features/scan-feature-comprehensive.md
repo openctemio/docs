@@ -300,7 +300,7 @@ Preconditions:
 
 Flow:
 1. Pipeline triggers scan via API
-2. Multiple scanners execute (Semgrep, Trivy, Gitleaks)
+2. Multiple scanners execute (Semgrep, Trivy, Betterleaks)
 3. Findings aggregated
 4. Quality gate evaluated
 5. If passed: Return success, allow deployment
@@ -747,9 +747,9 @@ Flow:
 | Profile | Tools | Quality Gate | Use Case |
 |---------|-------|--------------|----------|
 | Discovery Scan | nuclei, syft | Disabled | Asset enumeration |
-| Quick Security Check | semgrep, trivy, gitleaks, nuclei | Fail on critical | CI/CD fast check |
+| Quick Security Check | semgrep, trivy, betterleaks, nuclei | Fail on critical | CI/CD fast check |
 | Full Security Scan | All 8 tools | Strict thresholds | Comprehensive audit |
-| Compliance Audit | semgrep, trivy, checkov, tfsec, gitleaks | Zero tolerance | Regulatory compliance |
+| Compliance Audit | semgrep, trivy, checkov, tfsec, betterleaks | Zero tolerance | Regulatory compliance |
 
 ---
 

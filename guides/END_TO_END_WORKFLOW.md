@@ -28,7 +28,7 @@ This guide walks you through a **complete security scan workflow** from creating
 1. **UI** - Configure repository asset
 2. **API** - Register agent and manage metadata
 3. **Agent** - Execute security scanners
-4. **Scanner** - Run tools (Semgrep, Gitleaks, Trivy)
+4. **Scanner** - Run tools (Semgrep, Betterleaks, Trivy)
 5. **Results** - View and remediate in UI
 
 ---
@@ -99,7 +99,7 @@ docker run --rm \
   -e API_URL=http://localhost:8080 \
   -e API_KEY=your-api-key-here \
   openctemio/agent:latest \
-  -tools semgrep,gitleaks,trivy -target /scan -push -verbose
+  -tools semgrep,betterleaks,trivy -target /scan -push -verbose
 ```
 
 **Replace:**
@@ -119,7 +119,7 @@ export API_KEY=your-api-key-here
 cd /path/to/your/repository
 
 # Run scan
-agent -tools semgrep,gitleaks,trivy -target . -push -verbose
+agent -tools semgrep,betterleaks,trivy -target . -push -verbose
 ```
 
 ---
@@ -149,7 +149,7 @@ jobs:
           API_URL: ${{ secrets.OPENCTEM_API_URL }}
           API_KEY: ${{ secrets.OPENCTEM_API_KEY }}
         with:
-          args: -tools semgrep,gitleaks,trivy -target . -push -comments
+          args: -tools semgrep,betterleaks,trivy -target . -push -comments
 ```
 
 **Required Secrets:**
@@ -207,13 +207,13 @@ Based on the remediation advice:
 Re-run the scan:
 
 ```bash
-agent -tools semgrep,gitleaks,trivy -target . -push
+agent -tools semgrep,betterleaks,trivy -target . -push
 ```
 
 ### 5.3 Check Results
 
 - If the vulnerability is truly fixed, it will:
-  - **Disappear** from new scans (Gitleaks, Trivy)
+  - **Disappear** from new scans (Betterleaks, Trivy)
   - **Auto-resolve** in the UI (for deduplication-enabled findings)
 
 - If it persists:
@@ -230,10 +230,10 @@ agent -tools semgrep,gitleaks,trivy -target . -push
 ┌──────────────────────────────────────────────────────────────┐
 │ 1. Agent Execution                                            │
 ├──────────────────────────────────────────────────────────────┤
-│ agent -tools semgrep,gitleaks,trivy -target /code -push      │
+│ agent -tools semgrep,betterleaks,trivy -target /code -push      │
 │   ↓                                                           │
 │ • Runs Semgrep → JSON output                                 │
-│ • Runs Gitleaks → JSON output                                │
+│ • Runs Betterleaks → JSON output                                │
 │ • Runs Trivy → JSON output                                   │
 └──────────────────────────────────────────────────────────────┘
                            ↓
@@ -241,7 +241,7 @@ agent -tools semgrep,gitleaks,trivy -target . -push
 │ 2. Parser (CTIS Conversion)                                     │
 ├──────────────────────────────────────────────────────────────┤
 │ • Semgrep JSON → CTIS Report                                   │
-│ • Gitleaks JSON → CTIS Report                                  │
+│ • Betterleaks JSON → CTIS Report                                  │
 │ • Trivy JSON → CTIS Report                                     │
 │ • Generate fingerprints for deduplication                     │
 └──────────────────────────────────────────────────────────────┘
@@ -308,7 +308,7 @@ server:
 scanners:
   - name: semgrep
     enabled: true
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
   - name: trivy-fs
     enabled: true

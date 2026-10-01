@@ -57,7 +57,7 @@ This document describes how the OpenCTEM Server controls agents, scanners, and c
 │   │   │  │ Scanners    │  │ Collectors  │  │ Parsers     │         │  │     │
 │   │   │  │ semgrep     │  │ github      │  │ sarif       │         │  │     │
 │   │   │  │ trivy       │  │ webhook     │  │ json        │         │  │     │
-│   │   │  │ gitleaks    │  │             │  │             │         │  │     │
+│   │   │  │ betterleaks    │  │             │  │             │         │  │     │
 │   │   │  └─────────────┘  └─────────────┘  └─────────────┘         │  │     │
 │   │   └─────────────────────────────────────────────────────────────┘  │     │
 │   │                                                                     │     │

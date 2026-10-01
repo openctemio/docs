@@ -33,7 +33,7 @@ A **Pipeline** is a **scan orchestration engine** that executes multiple securit
 ### Purpose
 
 - Define multi-step security scanning workflows
-- Execute tools like semgrep, trivy, nuclei, gitleaks
+- Execute tools like semgrep, trivy, nuclei, betterleaks
 - Produce findings and scan results
 
 ### Characteristics
@@ -68,7 +68,7 @@ steps:
 
   - id: secrets
     name: "Secret Detection"
-    tool: gitleaks
+    tool: betterleaks
     capabilities: [secrets]
     order: 3
     parallel_with: [sast, sca]
@@ -91,7 +91,7 @@ steps:
 │                                                                  │
 │   ┌─────────┐   ┌─────────┐   ┌─────────┐                       │
 │   │  SAST   │   │   SCA   │   │ Secrets │  ← Parallel steps    │
-│   │(semgrep)│   │ (trivy) │   │(gitleaks│                       │
+│   │(semgrep)│   │ (trivy) │   │(betterleaks│                       │
 │   └────┬────┘   └────┬────┘   └────┬────┘                       │
 │        │             │             │                             │
 │        └─────────────┼─────────────┘                             │
@@ -377,7 +377,7 @@ The most powerful aspect is that **Workflows can trigger Pipelines**, creating a
    ├──► PIPELINE: "Initial Security Scan"
    │    ├── SAST (semgrep)
    │    ├── SCA (trivy)
-   │    └── Secrets (gitleaks)
+   │    └── Secrets (betterleaks)
    │         │
    │         ▼
    │    FINDINGS: 15 issues found
