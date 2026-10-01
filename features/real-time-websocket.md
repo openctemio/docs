@@ -17,6 +17,14 @@ WebSocket-based real-time communication system that pushes live updates to the U
 
 ## Architecture
 
+{: .note }
+Production installs behind the built-in gateway use **one origin**: the browser
+connects to `wss://<host>/api/v1/ws` on port 443, authenticated with a
+single-use ticket from `/api/v1/auth/ws-token`, and the gateway forwards it to
+the API. Port 8080 is never published. See
+[Exposing OpenCTEM: one HTTPS port](../operations/single-https-port.md#routing).
+The diagram and cookie notes below describe the older direct-port model.
+
 ```
 ┌─────────┐     WebSocket (cookie auth)    ┌──────────────┐
 │ Browser  │◀══════════════════════════════▶│ API Server   │
@@ -178,7 +186,7 @@ The client implements exponential backoff reconnection:
 | `NEXT_PUBLIC_WS_BASE_URL` | _(empty)_ | Explicit WebSocket URL. Leave empty for auto-detect |
 | `NEXT_PUBLIC_API_PORT` | `8080` | API server port for auto-detect mode |
 
-**Production with nginx:** Leave `NEXT_PUBLIC_WS_BASE_URL` empty. Configure nginx to proxy `/api/v1/ws` to the backend:
+**Production:** Leave `NEXT_PUBLIC_WS_BASE_URL` empty. The built-in gateway already routes `/api/v1/ws` to the API ([routing](../operations/single-https-port.md#routing)). Only if you run your own proxy without the gateway, proxy `/api/v1/ws` to the backend:
 
 ```nginx
 location /api/v1/ws {
