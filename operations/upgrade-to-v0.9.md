@@ -320,6 +320,8 @@ call returns **400** (not 401).
 | IPv6 `::` and `ff00::/8` are always blocked as webhook/integration/scan targets | Rare |
 | Heartbeat no longer blanks `version`/`hostname`/IP when an agent omits them | — |
 | Tenant security settings no longer return `sso_enabled`, `sso_provider`, `sso_config_url` (dead fields) | Scripts reading them |
+| SMTP: TLS 1.2 is the explicit minimum for both mail senders (Go already defaulted to it) | Mail servers that only speak TLS 1.0/1.1 |
+| Permissions ETag is SHA-256 (was MD5): each client gets one `200` instead of `304` on its first permissions poll after the upgrade | — |
 | Password reset e-mails link to `/reset-password` (was a non-existent `/auth/reset-password`) | — |
 | Members (not owners/admins) may get 403 on sensor routes for up to 5 minutes after the migration unless the permission cache is flushed | Handled by the procedure |
 
@@ -336,10 +338,11 @@ call returns **400** (not 401).
 | `SSO_ENTRA_DEFAULT_ROLE` | default `member` | default **`viewer`** | Set it if JIT users should be members. |
 | `AGENT_CONFIG_TEMPLATES_DIR`, `AGENT_PUBLIC_API_URL`, `AGENT_KEY_TTL`, `AGENT_LB_*` | | renamed `SENSOR_*` | Old names still work with `WARN deprecated configuration`; the API refuses to start only if old and new are both set and differ. Rename when convenient — table in [the sensor guide](upgrade-agent-to-sensor.md#step-1--upgrade-the-platform). |
 | `CORS_ALLOWED_HEADERS` default | included `X-Admin-API-Key` | no longer does | Remove it if you set the list yourself. |
-| `AUTH_COOKIE_SECURE` | | | Set `true` behind HTTPS: admin console and 2FA challenge cookies follow it. |
+| `AUTH_COOKIE_SECURE` | default `false` | default **`true`** unless `APP_ENV=development`; production refuses `false` for every auth provider (v0.8 only refused it for local/hybrid) | Nothing to do behind HTTPS. **A non-development stack served over plain `http://` must set `false`**, or browsers drop the session cookies and nobody can stay signed in. All session, CSRF, tenant, admin console and 2FA cookies follow it. |
 
-No new variable is required: a v0.8 env file starts v0.9.0 as is (apart from the
-registration default).
+No new variable is required: a v0.8 env file starts v0.9.0 as is, apart from the
+registration default and, for a staging stack on plain `http://`,
+`AUTH_COOKIE_SECURE=false`.
 
 ### UI
 
@@ -528,6 +531,8 @@ df -h /var/lib/docker .     # keep >= 20 % free: Postgres stops if the disk fill
 
 - Decide registration (`AUTH_ALLOW_REGISTRATION`); check your env file does not
   set `true` by accident.
+- Staging or test stacks served over plain `http://` (not `APP_ENV=development`):
+  set `AUTH_COOKIE_SECURE=false`, otherwise sign-in silently fails.
 - If any organization uses an IP allowlist, set up the proxy chain
   (`SERVER_TRUSTED_PROXIES` + `TRUST_PROXY_HEADERS`) or clear the lists.
 - Pick the two administrator emails (no existing account).
