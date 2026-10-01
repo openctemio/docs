@@ -50,13 +50,13 @@ The agent uses a **modular executor architecture**:
 ### Option 1: Go Install
 
 ```bash
-go install github.com/openctemio/agent@latest
+go install github.com/openctemio/sensor@latest
 ```
 
 ### Option 2: Build from Source
 
 ```bash
-git clone https://github.com/openctemio/agent.git
+git clone https://github.com/openctemio/sensor.git
 cd agent
 
 # Standard build (CLI-only tools)
@@ -450,7 +450,7 @@ on: [push, pull_request]
 
 jobs:
   security:
-    uses: openctemio/agent/.github/workflows/openctem-security.yml@main
+    uses: openctemio/sensor/.github/workflows/openctem-security.yml@main
     with:
       tools: "semgrep,gitleaks,trivy"
       fail_on: "high"
@@ -460,7 +460,7 @@ jobs:
 
   # Or use individual scan types:
   # sast:
-  #   uses: openctemio/agent/.github/workflows/openctem-security.yml@main
+  #   uses: openctemio/sensor/.github/workflows/openctem-security.yml@main
   #   with:
   #     scan_type: "sast"
   #     fail_on: "high"
@@ -483,7 +483,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Security Scan
-        uses: openctemio/agent/ci/github@main
+        uses: openctemio/sensor/ci/github@main
         with:
           tools: semgrep,gitleaks,trivy
           fail_on: high
@@ -548,7 +548,7 @@ jobs:
 
 ```yaml
 include:
-  - remote: 'https://raw.githubusercontent.com/openctemio/agent/main/ci/gitlab/openctem-security.yml'
+  - remote: 'https://raw.githubusercontent.com/openctemio/sensor/main/ci/gitlab/openctem-security.yml'
 
 stages:
   - security
@@ -691,9 +691,9 @@ OpenCTEM provides pre-built templates for quick integration:
 
 | Platform | Template Location | Description |
 |----------|-------------------|-------------|
-| GitHub Actions | `openctemio/agent/.github/workflows/openctem-security.yml` | Single job workflow |
-| GitHub Actions | `openctemio/agent/.github/workflows/parallel-security.yml` | **Parallel jobs (fastest)** |
-| GitHub Actions | `openctemio/agent/ci/github/action.yml` | Composite action |
+| GitHub Actions | `openctemio/sensor/.github/workflows/openctem-security.yml` | Single job workflow |
+| GitHub Actions | `openctemio/sensor/.github/workflows/parallel-security.yml` | **Parallel jobs (fastest)** |
+| GitHub Actions | `openctemio/sensor/ci/github/action.yml` | Composite action |
 | GitLab CI | `ci/gitlab/openctem-security.yml` | Include templates |
 | GitLab CI | `ci/gitlab/parallel-security.yml` | **Parallel jobs (fastest)** |
 
@@ -749,7 +749,7 @@ sast:
     FAIL_ON: "high"    # Still enforce security gate
 
 # GitHub Actions
-- uses: openctemio/agent/.github/workflows/openctem-security.yml@main
+- uses: openctemio/sensor/.github/workflows/openctem-security.yml@main
   with:
     push: false        # Disable push for testing
     fail_on: "high"
@@ -786,7 +786,7 @@ on: [push, pull_request]
 
 jobs:
   security:
-    uses: openctemio/agent/.github/workflows/parallel-security.yml@main
+    uses: openctemio/sensor/.github/workflows/parallel-security.yml@main
     with:
       fail_on: "high"
     secrets:
@@ -798,7 +798,7 @@ jobs:
 
 ```yaml
 include:
-  - remote: 'https://raw.githubusercontent.com/openctemio/agent/main/ci/gitlab/parallel-security.yml'
+  - remote: 'https://raw.githubusercontent.com/openctemio/sensor/main/ci/gitlab/parallel-security.yml'
 
 stages:
   - security
