@@ -342,7 +342,7 @@ Scans complete: 42 findings
 You can test suppression matching without the platform:
 
 ```go
-import "github.com/openctemio/agent/internal/gate"
+import "github.com/openctemio/sensor/internal/gate"
 
 rules := []client.SuppressionRule{
     {RuleID: "sql-injection", ToolName: "semgrep"},
