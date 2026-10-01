@@ -7,9 +7,11 @@
 > there as they are. Nothing here is tagged or released.
 
 **Components:** api `v0.9.0`, ui `v0.9.0` (released together; they must be
-deployed together). Unchanged: agent `v0.2.2`, sdk-go `v0.6.0`. Helm chart: a
-chart with `appVersion: v0.9.0` is needed. Until one is published, pin the image
-tags (see the upgrade guide).
+deployed together); sdk-go `v0.7.3` (released); the sensor (formerly agent
+`v0.2.2`) gets its first release under the new name, `ghcr.io/openctemio/sensor`
+(proposed `v0.3.0`, see [Sensor and SDK](#sensor-and-sdk)). Helm chart: a chart
+with `appVersion: v0.9.0` is needed. Until one is published, pin the image tags
+(see the upgrade guide).
 
 **Upgrading from v0.8.x:** read **[Upgrading from v0.8 to v0.9](upgrade-to-v0.9.md)**
 before you upgrade. This release changes who can sign in and how, and it renames
@@ -169,3 +171,44 @@ image now contains only `bootstrap-admin`.
 ### Images
 
 `ghcr.io/openctemio/ui:v0.9.0`.
+
+---
+
+## Sensor and SDK
+
+The sensor and sdk-go release independently of the platform. A v0.2.2 agent
+keeps working against api v0.9.0 (protocol v1 is frozen and covered by a
+compatibility test), so upgrade the platform first and the sensors after.
+
+### sdk-go v0.7.0 – v0.7.3 (released)
+
+- **v0.7.0 (breaking):** agent → sensor vocabulary. `sensor-migrate` rewrites
+  callers (`go run github.com/openctemio/sdk-go/cmd/sensor-migrate@v0.7.0`).
+  Server-dispatched scans now produce findings (nuclei parser, template hash,
+  self-describing chunks).
+- **v0.7.1:** heartbeat doorbell: a daemon polls as soon as the platform says
+  work is waiting, honours `pause` / `drain`, and renews its key on
+  `rotate_key`. An idle sensor makes about 27% fewer requests.
+- **v0.7.2:** the client reaches a platform on loopback, Docker or Kubernetes
+  networks, RFC1918, ULA or Tailscale addresses without
+  `OPENCTEM_SDK_HTTPSEC_ALLOW_PRIVATE=1` (since v0.6.0 every heartbeat failed
+  with `ssrf guard: blocked IP` without it). `HTTPS_PROXY` / `NO_PROXY` work
+  for platform traffic again.
+- **v0.7.3:** `core.CheckEnv()` rejects allow-private values it would ignore
+  (`SENSOR_ALLOW_PRIVATE_TARGETS=true`; only `1` enables it).
+
+### Sensor (first release as `openctemio-sensor`)
+
+- Binary `openctemio-sensor`, images `ghcr.io/openctemio/sensor`. The
+  `ghcr.io/openctemio/agent:*` images stay frozen at their last release.
+- `AGENT_*` settings and `--agent-*` flags keep working with a warning; the
+  sensor refuses to start if an old and a new name disagree, or if
+  `SENSOR_ALLOW_PRIVATE_TARGETS` is set to anything but `1`, `0` or empty.
+- Heartbeat doorbell on by default (`-disable-doorbell` turns it off).
+  `-key-autorenew` works in daemon mode and keeps the renewed key in the
+  credentials file.
+- **Remove `OPENCTEM_SDK_HTTPSEC_ALLOW_PRIVATE=1`** if you set it only so the
+  sensor could reach the platform. Leaving it on also lets scanners reach
+  private targets; that is `SENSOR_ALLOW_PRIVATE_TARGETS=1`.
+- Upgrade guide: [Upgrading agents to sensors](upgrade-agent-to-sensor.md).
+
