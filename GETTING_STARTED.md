@@ -105,14 +105,14 @@ docker run --rm \
   -e API_URL=http://localhost:8080 \
   -e API_KEY=your-api-key-here \
   openctemio/agent:latest \
-  -tools semgrep,gitleaks,trivy -target /scan -push -verbose
+  -tools semgrep,betterleaks,trivy -target /scan -push -verbose
 ```
 
 Replace `your-api-key-here` with the key from step 4a.
 
 This scans the current directory for:
 - **semgrep** - Code vulnerabilities (SAST)
-- **gitleaks** - Exposed secrets
+- **betterleaks** - Exposed secrets
 - **trivy** - Package vulnerabilities (SCA)
 
 #### 4c. View Results

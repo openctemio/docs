@@ -45,7 +45,7 @@ Agents are distributed components that execute security scans and push findings 
      - `Collector`: Data collection agent
      - `Sensor`: EASM sensor
    - **Capabilities**: What the agent can do (SAST, SCA, Secrets, etc.)
-   - **Tools**: Which security tools are installed (semgrep, trivy, gitleaks, etc.)
+   - **Tools**: Which security tools are installed (semgrep, trivy, betterleaks, etc.)
    - **Execution Mode**:
      - `One-shot`: Runs once and exits (for runners)
      - `Daemon`: Long-running process (for workers, collectors, sensors)
@@ -142,7 +142,7 @@ scanners:
     enabled: true
     scan_types: ["fs", "image"]
 
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
 
 # Default Scan Targets (for standalone mode)
@@ -179,7 +179,7 @@ Run a single scan and exit:
 ./agent -tool trivy -target /path/to/project -push
 
 # Scan with multiple tools
-./agent -tools semgrep,gitleaks,trivy -target . -push
+./agent -tools semgrep,betterleaks,trivy -target . -push
 
 # Using config file (IMPORTANT: add -push flag!)
 ./agent -config agent.yaml -push
@@ -395,7 +395,7 @@ curl -X POST https://api.your-domain.com/api/v1/commands \
 |------|------------|---------------|
 | Semgrep | SAST | SARIF |
 | Trivy | SCA, Container, IaC | JSON |
-| Gitleaks | Secrets | JSON |
+| Betterleaks | Secrets | JSON |
 | Nuclei | DAST | JSON |
 | Checkov | IaC | SARIF |
 | TFSec | Terraform | SARIF |
@@ -610,7 +610,7 @@ The agent will:
 |------|-------------|
 | `-enable-recon` | Enable recon executor (subfinder, dnsx, naabu, httpx, katana) |
 | `-enable-vulnscan` | Enable vulnscan executor (nuclei, trivy, semgrep) - default: true |
-| `-enable-secrets` | Enable secrets executor (gitleaks, trufflehog) |
+| `-enable-secrets` | Enable secrets executor (betterleaks, trufflehog) |
 | `-enable-assets` | Enable assets executor (cloud collection) |
 | `-enable-pipeline` | Enable pipeline executor (workflow orchestration) |
 

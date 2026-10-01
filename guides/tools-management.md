@@ -17,7 +17,7 @@ OpenCTEM supports two types of tools:
 
 | Type | Description | Managed By |
 |------|-------------|------------|
-| **Platform Tools** | Pre-configured scanners (Semgrep, Trivy, Gitleaks, etc.) | OpenCTEM |
+| **Platform Tools** | Pre-configured scanners (Semgrep, Trivy, Betterleaks, etc.) | OpenCTEM |
 | **Custom Tools** | User-created scanner integrations | Tenant admins |
 
 ---
