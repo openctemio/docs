@@ -47,7 +47,8 @@ New to OpenCTEM? Start here:
 
 | Topic | Description |
 |-------|-------------|
-| [Production Deployment](./operations/PRODUCTION_guides/getting-started.md) | Kubernetes/Docker/Cloud |
+| [Production Deployment](./operations/PRODUCTION_DEPLOYMENT.md) | Kubernetes/Docker/Cloud |
+| [One HTTPS port](./operations/single-https-port.md) | Built-in gateway: UI, API and sensors on 443 |
 | [Configuration Reference](./operations/configuration.md) | Environment variables |
 | [Monitoring Guide](./operations/MONITORING.md) | Observability setup |
 | [Troubleshooting](./operations/troubleshooting.md) | Common issues |
@@ -132,7 +133,7 @@ Platform administration console:
 | Link | Description |
 |------|-------------|
 | [Platform](https://your-domain.com) | Live platform |
-| [API Docs](https://api.your-domain.com/docs) | Interactive API explorer |
+| [API Docs](https://your-domain.com/docs) | Interactive API explorer |
 | [GitHub](https://github.com/openctemio) | Source code |
 
 ---
