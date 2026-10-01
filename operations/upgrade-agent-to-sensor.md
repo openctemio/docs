@@ -127,6 +127,14 @@ notice; move the keys when convenient (see [Helm values](#helm-values)).
 order and the rename migration is idempotent, so a re-run or a resumed
 migration lands in the same state.
 
+**API server environment variables.** The API's own `AGENT_*` settings
+(for example `AGENT_KEY_TTL`, `AGENT_PUBLIC_API_URL`,
+`AGENT_CONFIG_TEMPLATES_DIR`) become `SENSOR_*`. The new API reads the old
+names when the new ones are unset and logs a deprecation warning naming each
+one; it refuses to start only if an old and a new name are set to different
+values. Rename them in your `.env` / Helm values when convenient — the release
+notes list every variable.
+
 **API and UI must be upgraded together.** The new UI checks `sensors:*`
 permissions and calls `/api/v1/sensors`; an old UI against the new API (or the
 reverse) shows the Agents/Sensors pages as forbidden.
