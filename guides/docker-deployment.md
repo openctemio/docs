@@ -19,7 +19,7 @@ The OpenCTEM Agent is available on both **GitHub Container Registry (GHCR)** and
 
 | Tag | Description | Use Case |
 |-----|-------------|----------|
-| `latest` | All tools included (semgrep, gitleaks, trivy) | Production, general use |
+| `latest` | All tools included (semgrep, betterleaks, trivy) | Production, general use |
 | `slim` | Minimal, tools mounted from host | Size-constrained environments |
 | `ci` | Optimized for CI/CD pipelines | GitHub Actions, GitLab CI |
 
@@ -46,7 +46,7 @@ docker pull openctemio/agent:ci
 ```bash
 # Scan current directory with all tools
 docker run --rm -v $(pwd):/scan openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy -target /scan -verbose
+    -tools semgrep,betterleaks,trivy -target /scan -verbose
 
 # Scan specific directory
 docker run --rm -v /path/to/project:/scan openctemio/agent:latest \
@@ -57,11 +57,11 @@ docker run --rm -v $(pwd):/scan \
     -e API_URL=https://api.your-domain.com \
     -e API_KEY=your-api-key \
     openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy -target /scan -push -verbose
+    -tools semgrep,betterleaks,trivy -target /scan -push -verbose
 
 # Generate JSON and SARIF output
 docker run --rm -v $(pwd):/scan openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy -target /scan \
+    -tools semgrep,betterleaks,trivy -target /scan \
     -json -output /scan/results.json \
     -sarif -sarif-output /scan/results.sarif
 ```
@@ -77,7 +77,7 @@ Output:
 Checking scanner tools installation...
 
   ✓ semgrep      SAST scanner with dataflow/taint tracking (installed: 1.56.0)
-  ✓ gitleaks     Secret detection scanner (installed: 8.28.0)
+  ✓ betterleaks     Secret detection scanner (installed: 1.9.0)
   ✓ trivy        SCA/Container/IaC scanner (installed: 0.67.2)
 
 All tools are installed! Ready to scan.
@@ -92,7 +92,7 @@ All tools are installed! Ready to scan.
 The full image includes:
 - **agent** binary
 - **semgrep** - SAST with dataflow/taint tracking
-- **gitleaks** - Secret detection
+- **betterleaks** - Secret detection
 - **trivy** - SCA, container, and IaC scanning
 - **git** - For repository operations
 
@@ -105,7 +105,7 @@ The full image includes:
 **Usage:**
 ```bash
 docker run --rm -v $(pwd):/scan ghcr.io/openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy -target /scan
+    -tools semgrep,betterleaks,trivy -target /scan
 ```
 
 ### Slim Image (`slim`)
@@ -124,10 +124,10 @@ Minimal image with only the agent binary. Tools must be mounted from host.
 docker run --rm \
     -v $(pwd):/scan \
     -v /usr/local/bin/semgrep:/usr/local/bin/semgrep:ro \
-    -v /usr/local/bin/gitleaks:/usr/local/bin/gitleaks:ro \
+    -v /usr/local/bin/betterleaks:/usr/local/bin/betterleaks:ro \
     -v /usr/local/bin/trivy:/usr/local/bin/trivy:ro \
     ghcr.io/openctemio/agent:slim \
-    -tools semgrep,gitleaks,trivy -target /scan
+    -tools semgrep,betterleaks,trivy -target /scan
 ```
 
 ### CI Image (`ci`)
@@ -150,7 +150,7 @@ docker run --rm \
     -e GITHUB_ACTIONS=true \
     -e GITHUB_TOKEN=$GITHUB_TOKEN \
     openctemio/agent:ci \
-    -tools semgrep,gitleaks,trivy -target . -auto-ci
+    -tools semgrep,betterleaks,trivy -target . -auto-ci
 ```
 
 ---
@@ -172,7 +172,7 @@ services:
       - API_URL=${API_URL:-}
       - API_KEY=${API_KEY:-}
     working_dir: /scan
-    command: ["-tools", "semgrep,gitleaks,trivy", "-target", "/scan", "-verbose"]
+    command: ["-tools", "semgrep,betterleaks,trivy", "-target", "/scan", "-verbose"]
 
   agent:
     image: ghcr.io/openctemio/agent:latest
@@ -239,7 +239,7 @@ jobs:
         uses: docker://openctemio/agent:ci
         with:
           args: >-
-            -tools semgrep,gitleaks,trivy
+            -tools semgrep,betterleaks,trivy
             -target .
             -auto-ci
             -comments
@@ -287,7 +287,7 @@ security-scan:
   script:
     - |
       agent \
-        -tools semgrep,gitleaks,trivy \
+        -tools semgrep,betterleaks,trivy \
         -target . \
         -auto-ci \
         -comments \
@@ -329,7 +329,7 @@ pipeline {
             steps {
                 sh '''
                     agent \
-                        -tools semgrep,gitleaks,trivy \
+                        -tools semgrep,betterleaks,trivy \
                         -target . \
                         -verbose \
                         -json \

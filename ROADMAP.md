@@ -100,7 +100,7 @@ These land the last gaps in the CTEM loop and are **live end-to-end** (verified 
   - [x] Threshold configuration (fail_on_critical, max_high, etc.)
   - [x] CI/CD integration (GitHub Actions, GitLab CI)
   - [x] New findings only mode for PR checks
-- [x] **Scanner Templates** - Custom detection rules for Nuclei, Semgrep, Gitleaks
+- [x] **Scanner Templates** - Custom detection rules for Nuclei, Semgrep, Betterleaks
 - [x] **CTEM Finding Fields** (NEW - 2026-01-27)
   - [x] Exposure Vector (network, local, adjacent_net, physical)
   - [x] Remediation Context (type, fix time, complexity)
@@ -795,7 +795,7 @@ These land the last gaps in the CTEM loop and are **live end-to-end** (verified 
 - Observability stack completed (OTel, Grafana, AlertManager, structured logging)
 - Kubernetes Helm chart (12 templates)
 - Database backup automation (3 scripts + crontab)
-- SDK scanner adapters (Trivy, Semgrep, Nuclei, Gitleaks, SARIF)
+- SDK scanner adapters (Trivy, Semgrep, Nuclei, Betterleaks, SARIF)
 
 ### 2026-01-27
 - Workflow Automation, Quality Gates, CTEM Finding Fields

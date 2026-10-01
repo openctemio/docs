@@ -33,6 +33,7 @@ Guides for developers and operators.
 - **[Upgrading from v0.8 to v0.9](./upgrade-to-v0.9.md)** - Breaking changes, inventory queries, rehearsed Compose/Helm procedure and rollback for v0.9.0
 - **[v0.9.0 release notes](./release-notes-v0.9.0.md)** - What changed in api/ui v0.9.0
 - **[Upgrading to the Sensor release](./upgrade-agent-to-sensor.md)** - Agents become sensors: what is migrated automatically, what to update, in which order
+- **[Upgrading: gitleaks → Betterleaks](./upgrade-gitleaks-to-betterleaks.md)** - The secret scanner changes: migration 000241, upgrade order, what changes in your findings
 - **[Backup & Restore](./backup-restore.md)** - Backup strategy, off-site storage, restore procedures
 - **[Release Validation](./RELEASE_VALIDATION.md)** - Pre-release checklist
 

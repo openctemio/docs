@@ -18,7 +18,7 @@ Scanner Templates allow tenants to create and manage custom detection rules for 
 |---------|----------------|----------------|----------|-----------|
 | **Nuclei** | YAML | `.yaml` | 1MB | 100 |
 | **Semgrep** | YAML | `.yaml` | 512KB | 500 |
-| **Gitleaks** | TOML | `.toml` | 256KB | 1000 |
+| **Betterleaks** | TOML | `.toml` | 256KB | 1000 |
 
 ## Template Formats
 
@@ -82,9 +82,9 @@ rules:
 - `rules[].severity` - One of: ERROR, WARNING, INFO
 - `rules[].languages` - Target languages
 
-### Gitleaks Config (TOML)
+### Betterleaks Config (TOML)
 
-Gitleaks configs define secret detection patterns:
+Betterleaks configs define secret detection patterns:
 
 ```toml
 title = "Custom Secret Detection Rules"
@@ -306,7 +306,7 @@ result, err := scanner.Scan(ctx, target, opts)
 Validators check for potentially dangerous patterns:
 - Nuclei: Code injection in requests
 - Semgrep: Overly permissive patterns
-- Gitleaks: Invalid regex that could cause ReDoS
+- Betterleaks: Invalid regex that could cause ReDoS
 
 ## API Reference
 

@@ -554,7 +554,7 @@ Endpoints for pushing scan results and findings into OpenCTEM.
 
 **Supported SARIF Tools:**
 - **SAST:** Semgrep, CodeQL, Bandit, Gosec, ESLint, SonarQube
-- **Secrets:** Gitleaks, TruffleHog, Detect-secrets
+- **Secrets:** Betterleaks, TruffleHog, Detect-secrets
 - **IaC:** Trivy, Checkov, TFSec, Terrascan, KICS
 - **Web3:** Slither, Mythril, Securify, Manticore, Aderyn
 

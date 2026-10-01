@@ -185,7 +185,7 @@ curl -X POST /api/v1/scan-profiles \
     "tools_config": {
       "semgrep": {"enabled": true},
       "trivy": {"enabled": true},
-      "gitleaks": {"enabled": true}
+      "betterleaks": {"enabled": true}
     },
     "quality_gate": {
       "enabled": true,

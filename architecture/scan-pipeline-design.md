@@ -35,7 +35,7 @@ Scan Pipelines allow tenants to define multi-step scanning workflows. Each step 
 │     ↓                                                            │
 │  Step 2: SCA Scan (trivy)                                       │
 │     ↓                                                            │
-│  Step 3: Secret Scan (gitleaks)                                 │
+│  Step 3: Secret Scan (betterleaks)                                 │
 │     ↓                                                            │
 │  Step 4: DAST Scan (nuclei) [if: has_web_assets]               │
 └─────────────────────────────────────────────────────────────────┘
@@ -107,7 +107,7 @@ steps:
   - id: "secrets"
     name: "Secret Detection"
     order: 3
-    tool: "gitleaks"
+    tool: "betterleaks"
     capabilities: ["secrets"]
     timeout: "10m"
     depends_on: []  # Can run parallel
@@ -188,7 +188,7 @@ step_runs:
     status: "completed"
     started_at: "2024-01-15T10:00:00Z"
     completed_at: "2024-01-15T10:05:00Z"
-    worker_id: "worker-gitleaks-01"
+    worker_id: "worker-betterleaks-01"
     findings_count: 1
 
   - step_id: "dast"
@@ -541,7 +541,7 @@ description: "Complete security assessment for repositories"
 steps:
   - sast (semgrep)
   - sca (trivy)
-  - secrets (gitleaks)
+  - secrets (betterleaks)
   - iac (checkov)
   - dast (nuclei) [conditional]
 ```

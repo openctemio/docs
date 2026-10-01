@@ -459,7 +459,7 @@ The SDK includes comprehensive security controls for platform agents:
 
 #### Template Security
 - Path traversal prevention in template names
-- Template type whitelist (nuclei, semgrep, gitleaks)
+- Template type whitelist (nuclei, semgrep, betterleaks)
 - Size limits (1MB per template, 50 per command)
 - Content hash verification
 

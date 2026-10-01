@@ -135,7 +135,7 @@ This document provides a comprehensive overview of how all major components in t
 | **Scan Profile** | Reusable scan configuration | Tools config, quality gate, template mode |
 | **Command** | Work queue entry for agents | Pending work to be executed |
 | **Agent** | Scan executor (tenant or platform) | Has capabilities, tools, executes commands |
-| **Scanner Template** | Custom template (Nuclei, Semgrep, Gitleaks) | Used in scan profiles |
+| **Scanner Template** | Custom template (Nuclei, Semgrep, Betterleaks) | Used in scan profiles |
 
 ### Tool & Capability Layer
 
@@ -287,7 +287,7 @@ This matrix shows which components interact with each other:
 │   │   - semgrep     │    M:N   │   - sast        │                         │
 │   │   - trivy       │  junction│   - sca         │                         │
 │   │   - nuclei      │  table   │   - secrets     │                         │
-│   │   - gitleaks    │          │   - dast        │                         │
+│   │   - betterleaks    │          │   - dast        │                         │
 │   └────────┬────────┘          └─────────────────┘                         │
 │            │                             │                                  │
 │            │                             │ used for                         │
@@ -310,7 +310,7 @@ This matrix shows which components interact with each other:
 │   │Scanner Templates│  (per-tool custom rules)                             │
 │   │   - nuclei YAML │                                                       │
 │   │   - semgrep YAML│                                                       │
-│   │   - gitleaks TOML                                                       │
+│   │   - betterleaks TOML                                                       │
 │   └─────────────────┘                                                       │
 │                                                                             │
 └────────────────────────────────────────────────────────────────────────────┘
@@ -462,7 +462,7 @@ This matrix shows which components interact with each other:
 │   Template Types                                                            │
 │   ├─ Nuclei (YAML) ─── Web vulnerability templates                         │
 │   ├─ Semgrep (YAML) ── Static analysis rules                               │
-│   └─ Gitleaks (TOML) ─ Secret detection patterns                           │
+│   └─ Betterleaks (TOML) ─ Secret detection patterns                           │
 │                                                                             │
 │   ┌─────────────────────────────────────────────────────────────────────┐  │
 │   │                    TEMPLATE LIFECYCLE                                │  │

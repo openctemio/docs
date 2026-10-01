@@ -15,7 +15,7 @@ Complete guide to managing security scans in OpenCTEM.
 
 Scan Management in OpenCTEM includes:
 
-- **Tools**: Security scanners (Semgrep, Trivy, Gitleaks, etc.)
+- **Tools**: Security scanners (Semgrep, Trivy, Betterleaks, etc.)
 - **Tool Categories**: SAST, SCA, DAST, Secrets, IaC, Container, Recon, OSINT
 - **Scan Profiles**: Reusable scan configurations
 - **Scans**: Scheduled or on-demand scan jobs
@@ -34,7 +34,7 @@ These are pre-configured tools available to all tenants:
 |------|----------|-------------|
 | Semgrep | SAST | Code pattern analysis with dataflow tracking |
 | Trivy | SCA | Vulnerability scanning for dependencies |
-| Gitleaks | Secrets | Secret and credential detection |
+| Betterleaks | Secrets | Secret and credential detection |
 | Trivy Config | IaC | Infrastructure as Code scanning |
 | Checkov | IaC | Cloud infrastructure scanning |
 | Nuclei | DAST | Web vulnerability scanning |
@@ -114,10 +114,10 @@ Scan profiles save reusable configurations.
 
 | Profile | Tools | Use Case |
 |---------|-------|----------|
-| Full Security | Semgrep, Trivy, Gitleaks | Comprehensive scanning |
+| Full Security | Semgrep, Trivy, Betterleaks | Comprehensive scanning |
 | Quick SAST | Semgrep | Fast code review |
 | Dependency Audit | Trivy | Dependency vulnerability check |
-| Secret Scan | Gitleaks | Credential detection only |
+| Secret Scan | Betterleaks | Credential detection only |
 
 ### Using Scan Profiles
 
@@ -242,7 +242,7 @@ Pipelines orchestrate multi-step scan workflows.
 │                                                                  │
 │  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │
 │  │  Step 1  │───▶│  Step 2  │───▶│  Step 3  │───▶│  Step 4  │  │
-│  │ Semgrep  │    │  Trivy   │    │ Gitleaks │    │ Aggregate │  │
+│  │ Semgrep  │    │  Trivy   │    │ Betterleaks │    │ Aggregate │  │
 │  └──────────┘    └──────────┘    └──────────┘    └──────────┘  │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
