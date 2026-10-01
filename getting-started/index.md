@@ -45,11 +45,12 @@ After completing the getting started guides:
 | **Add team members** | [Multi-Tenancy Guide](../guides/multi-tenancy) |
 | **Build custom tools** | [SDK Development Guide](../guides/sdk-development) |
 | **Deploy to production** | [Production Deployment](../operations/PRODUCTION_DEPLOYMENT) |
+| **Expose it on one HTTPS port** | [One HTTPS port](../operations/single-https-port) |
 
 ---
 
 ## Need Help?
 
 - **Documentation**: Browse the sections in the left sidebar
-- **API Reference**: [api.your-domain.com/docs](https://api.your-domain.com/docs)
+- **API Reference**: [your-domain.com/docs](https://your-domain.com/docs)
 - **GitHub Issues**: [github.com/openctemio](https://github.com/openctemio)

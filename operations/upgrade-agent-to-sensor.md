@@ -289,7 +289,10 @@ them as soon as the agent is replaced.
 Point `API_URL` at the **API**, never the web UI: the UI's `/api/v1` proxy does
 not forward the sensor's key. A current UI answers sensor requests with
 `421 WRONG_ENDPOINT`; an older one answers `401 API key required`, which a
-sensor reports as an invalid key.
+sensor reports as an invalid key. Behind the built-in gateway this is simply
+`API_URL=https://<host>`, the same address as the UI: the gateway sends sensor
+paths to the API. See [Exposing OpenCTEM: one HTTPS port](single-https-port.md#connecting-sensors),
+including how a sensor trusts the internal CA.
 
 The image's default command is `-platform` self-registration with a bootstrap
 token. The open-source API does not serve `/api/v1/platform/register`, so a
