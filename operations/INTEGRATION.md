@@ -67,7 +67,7 @@ go install github.com/openctemio/sensor@latest
 agent -tools semgrep,trivy,betterleaks \
       -target . \
       -push \
-      -api-url https://api.your-domain.com \
+      -api-url https://your-domain.com \
       -api-key $API_KEY
 ```
 
@@ -85,7 +85,7 @@ import (
 func main() {
     // Initialize client
     c := client.New(&client.Config{
-        BaseURL:  "https://api.your-domain.com",
+        BaseURL:  "https://your-domain.com",
         APIKey:   os.Getenv("OPENCTEM_API_KEY"),
         WorkerID: "my-integration-001",
     })
@@ -108,7 +108,7 @@ func main() {
 Call the REST API directly.
 
 ```bash
-curl -X POST https://api.your-domain.com/api/v1/agent/ingest \
+curl -X POST https://your-domain.com/api/v1/agent/ingest \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -200,7 +200,7 @@ security-scan:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `API_URL` / `OPENCTEM_API_URL` | Yes | Platform API URL |
+| `API_URL` / `OPENCTEM_API_URL` | Yes | OpenCTEM URL: the single HTTPS address, e.g. `https://ctem.example.com` (no `:8080`). See [one HTTPS port](single-https-port.md) |
 | `API_KEY` / `OPENCTEM_API_KEY` | Yes | API authentication key |
 | `WORKER_ID` | No | Custom worker identifier |
 | `GRPC_ADDR` | No | gRPC server address |
@@ -231,6 +231,6 @@ security-scan:
 ## Support
 
 - **Documentation**: https://docs.openctem.io
-- **API Reference**: https://api.your-domain.com/docs
+- **API Reference**: https://your-domain.com/docs
 - **SDK Source**: https://github.com/openctemio/sdk-go
 {% endraw %}

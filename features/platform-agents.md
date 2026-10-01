@@ -136,7 +136,7 @@ agent:
   renew_interval: 20s
 
 api:
-  base_url: "https://api.your-domain.com"
+  base_url: "https://your-domain.com"
 
 executors:
   recon:
