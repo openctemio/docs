@@ -99,6 +99,12 @@ docker run --rm \
   -tools semgrep,betterleaks,trivy -target /scan -push
 ```
 
+{: .note }
+This example targets the **local development stack** (API on `localhost:8080`).
+On a production server behind the built-in gateway, use
+`API_URL=https://<your-host>` (no port) and, with the internal CA, mount the root
+certificate and set `SSL_CERT_DIR`. See [Connecting sensors](../operations/single-https-port.md#connecting-sensors).
+
 ---
 
 ## Common Commands
@@ -119,7 +125,7 @@ make status    # Check health
 |------|-------|
 | Run first scan | [First Scan Tutorial](./first-scan.md) |
 | Understand architecture | [System Overview](../architecture/overview.md) |
-| Deploy to production | [Production Guide](../operations/PRODUCTION_guides/getting-started.md) |
+| Deploy to production | [Production Guide](../operations/PRODUCTION_DEPLOYMENT.md) |
 | Build custom tools | [SDK Development](../guides/sdk-development.md) |
 
 ---

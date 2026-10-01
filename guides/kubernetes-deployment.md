@@ -306,6 +306,16 @@ ingress:
 
 Path routing directs `/` to the Next.js UI and `/api` plus `/metrics` to the Go API. Both services run behind `ClusterIP` services and are only reachable through the Ingress.
 
+{: .note }
+Chart 0.7.0 and later replace these rules with the single-origin routing of the
+built-in gateway: sensor, SCIM, MCP, webhook, SAML and WebSocket paths and
+token-authenticated `/api` calls go to the API, browser calls go to the UI, and
+`/metrics`, `/ready` and `/debug/*` are not exposed. An optional bundled-Caddy
+mode is available for clusters without an ingress controller. See
+[Exposing OpenCTEM: one HTTPS port](../operations/single-https-port.md#routing)
+and the [chart README](https://github.com/openctemio/helm-charts/tree/main/charts/openctem#readme).
+Sensors use `API_URL=https://openctem.example.com`.
+
 ### 3.7 migrations
 
 ```yaml

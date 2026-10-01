@@ -110,6 +110,12 @@ docker run --rm \
 
 Replace `your-api-key-here` with the key from step 4a.
 
+{: .note }
+This example targets the **local development stack** (API on `localhost:8080`).
+On a production server behind the built-in gateway, use
+`API_URL=https://<your-host>` (no port) and, with the internal CA, mount the root
+certificate and set `SSL_CERT_DIR`. See [Connecting sensors](operations/single-https-port.md#connecting-sensors).
+
 This scans the current directory for:
 - **semgrep** - Code vulnerabilities (SAST)
 - **betterleaks** - Exposed secrets
@@ -139,7 +145,7 @@ This scans the current directory for:
 
 | Topic | Guide |
 |-------|-------|
-| **Kubernetes** | [Production Deployment](./operations/PRODUCTION_guides/getting-started.md) |
+| **Kubernetes** | [Production Deployment](./operations/PRODUCTION_DEPLOYMENT.md) |
 | **Environment Config** | [Environment Variables](./ui/ops/ENVIRONMENT_VARIABLES.md) |
 | **Security Hardening** | [Production Checklist](./ui/ops/PRODUCTION_CHECKLIST.md) |
 

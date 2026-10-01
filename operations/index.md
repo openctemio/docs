@@ -18,8 +18,9 @@ Guides for developers and operators.
 
 ## Deployment
 
-- **[Staging Deployment](./STAGING_guides/getting-started.md)** - Deploy to staging
-- **[Production Deployment](./PRODUCTION_guides/getting-started.md)** - Production setup
+- **[Staging Deployment](./STAGING_DEPLOYMENT.md)** - Deploy to staging
+- **[Production Deployment](./PRODUCTION_DEPLOYMENT.md)** - Production setup
+- **[Exposing OpenCTEM: one HTTPS port](./single-https-port.md)** - Built-in gateway: UI, API, sensors, SCIM and MCP on 443; TLS modes; migrating from the two-port setup
 
 ## Platform Operations
 
