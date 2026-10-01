@@ -178,6 +178,13 @@ ingress:
         - your-domain.com
 ```
 
+{: .important }
+An Ingress that sends `/` only to the UI breaks sensors, API-key clients, SCIM
+and MCP. Chart 0.7.0 and later render the single-origin path rules of the
+[gateway](./single-https-port.md#routing) (or bundle the same Caddy gateway);
+see the [chart README](https://github.com/openctemio/helm-charts/tree/main/charts/openctem#readme)
+for the values instead of the simplified `ingress` block above.
+
 ---
 
 ### Step 4: Install Helm Chart
@@ -287,196 +294,21 @@ kubectl exec -it deployment/openctem-api --namespace openctem -- \
 
 ## Option 2: Docker Compose Deployment
 
-### Prerequisites
+Docker Compose installs run behind the built-in gateway, which exposes **one
+HTTPS port (443)** for the web UI, the REST API, sensors, SCIM, MCP and
+webhooks. Follow **[Exposing OpenCTEM: one HTTPS port](./single-https-port.md)**:
+it covers the compose files in the api repository's `deploy/` directory, the
+four TLS modes (internal CA, Let's Encrypt, your own certificate, behind your
+own proxy), sensor configuration and migration from older two-port installs.
 
-- Docker Engine 24+
-- Docker Compose v2
-- Domain with DNS access
-- SSL certificate (or use Certbot)
-
----
-
-### Step 1: Create Production Compose File
-
-Create `docker-compose.prod.yml`:
-
-```yaml
-version: "3.8"
-
-services:
-  postgres:
-    image: postgres:17-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: openctem
-      POSTGRES_USER: openctem
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U openctem"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 10s
-
-  api:
-    image: openctemio/api:latest
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: openctem
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: openctem
-      REDIS_ADDR: redis:6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-      AUTH_JWT_SECRET: ${JWT_SECRET}
-      CSRF_SECRET: ${CSRF_SECRET}
-      CORS_ALLOWED_ORIGINS: https://your-domain.com
-      NEXT_PUBLIC_APP_URL: https://your-domain.com
-      LOG_LEVEL: info
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  ui:
-    image: openctemio/ui:latest
-    restart: unless-stopped
-    depends_on:
-      - api
-    environment:
-      BACKEND_API_URL: http://api:8080
-      NEXT_PUBLIC_APP_URL: https://your-domain.com
-      CSRF_SECRET: ${CSRF_SECRET}
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
-      interval: 30s
-
-  nginx:
-    image: nginx:alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - ui
-      - api
-
-volumes:
-  postgres_data:
-  redis_data:
-```
-
----
-
-### Step 2: Configure Nginx
-
-Create `nginx.conf`:
-
-```nginx
-upstream ui {
-    server ui:3000;
-}
-
-upstream api {
-    server api:8080;
-}
-
-server {
-    listen 80;
-    server_name your-domain.com;
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name your-domain.com;
-
-    ssl_certificate /etc/nginx/ssl/fullchain.pem;
-    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-
-    # UI
-    location / {
-        proxy_pass http://ui;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # Health check
-    location /health {
-        proxy_pass http://api/health;
-    }
-}
-```
-
----
-
-### Step 3: Generate SSL Certificate
-
-Using Let's Encrypt:
-
-```bash
-# Install certbot
-sudo apt install certbot
-
-# Generate certificate
-sudo certbot certonly --standalone \
-  -d your-domain.com \
-  --email admin@openctem.io \
-  --agree-tos
-
-# Copy certificates
-sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ./ssl/
-sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ./ssl/
-```
-
----
-
-### Step 4: Deploy
-
-```bash
-# Create .env file
-cat > .env.prod <<EOF
-DB_PASSWORD=$(openssl rand -base64 32)
-REDIS_PASSWORD=$(openssl rand -base64 32)
-JWT_SECRET=$(openssl rand -base64 64)
-CSRF_SECRET=$(openssl rand -base64 32)
-EOF
-
-# Start services
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
-
-# Check status
-docker compose -f docker-compose.prod.yml ps
-```
+{: .warning }
+Earlier versions of this page shipped a hand-written `docker-compose.prod.yml`
+with an nginx proxy that sent every path to the web UI. That configuration
+breaks sensors (the web UI answers sensor requests with `421 WRONG_ENDPOINT`),
+API-key clients and SCIM. Replace it with the gateway; see
+[Migrating from the two-port setup](./single-https-port.md#migrating-from-the-two-port-setup).
+If you must keep your own reverse proxy, run the gateway in `http` mode behind
+it and forward **all** paths to the gateway instead of splitting them yourself.
 
 ---
 
@@ -538,19 +370,19 @@ Deploy with:
 
 ### Health Checks
 
-All services expose health endpoints:
+The API's liveness endpoint is public on the single origin; readiness and
+metrics are internal only (the gateway answers 404):
 
 ```bash
-# API
-curl https://your-domain.com/api/health
-
-# UI (via proxy)
-curl https://your-domain.com/api/health
+curl https://your-domain.com/health
 ```
+
+See [Health checks](./single-https-port.md#health-checks).
 
 ### Metrics (Prometheus)
 
-API exposes metrics at `/metrics`:
+API exposes metrics at `/metrics`, reachable only from inside the cluster or
+Docker network:
 
 ```yaml
 # prometheus.yml
