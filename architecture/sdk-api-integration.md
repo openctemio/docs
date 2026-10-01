@@ -189,7 +189,7 @@ server:
 scanners:
   - name: semgrep
     enabled: true
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
 
 targets:
@@ -309,7 +309,7 @@ Fingerprint deduplication check. Returns which findings already exist.
   "memory_percent": 62.1,
   "active_jobs": 3,
   "region": "us-east-1",
-  "scanners": ["semgrep", "gitleaks"],
+  "scanners": ["semgrep", "betterleaks"],
   "uptime_seconds": 3600,
   "total_scans": 100
 }

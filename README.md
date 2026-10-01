@@ -76,7 +76,7 @@ OpenCTEM is an enterprise-grade **Continuous Threat Exposure Management (CTEM)**
 │   ┌─────────────────────────────────────────────────────────────────────┐  │
 │   │                        Agent / SDK Integration                       │  │
 │   │  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────────────┐ │  │
-│   │  │  Semgrep  │  │   Trivy   │  │ Gitleaks  │  │   Custom Tools    │ │  │
+│   │  │  Semgrep  │  │   Trivy   │  │ Betterleaks  │  │   Custom Tools    │ │  │
 │   │  │   (SAST)  │  │   (SCA)   │  │ (Secrets) │  │   (SDK-built)     │ │  │
 │   │  └───────────┘  └───────────┘  └───────────┘  └───────────────────┘ │  │
 │   └─────────────────────────────────────────────────────────────────────┘  │

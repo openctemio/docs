@@ -22,7 +22,7 @@ When agents (CI/CD runners or daemon workers) send scan results to the API, they
 
  Agent Scan         CTIS Report            API Ingest             Database
     │                   │                     │                     │
-    │  gitleaks scan    │                     │                     │
+    │  betterleaks scan    │                     │                     │
     ├──────────────────▶│                     │                     │
     │                   │  report.Assets=[]   │                     │
     │                   │  report.Findings=[..]│                     │
@@ -289,18 +289,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
+      - name: Run Betterleaks
+        uses: betterleaks/betterleaks-action@v2
         with:
           format: json
-          report: gitleaks-report.json
+          report: betterleaks-report.json
 
       - name: Push to OpenCTEM
         env:
           OPENCTEM_API_URL: ${{ secrets.OPENCTEM_API_URL }}
           OPENCTEM_API_KEY: ${{ secrets.OPENCTEM_API_KEY }}
         run: |
-          openctem-agent push --scanner gitleaks --file gitleaks-report.json
+          openctem-agent push --scanner betterleaks --file betterleaks-report.json
 ```
 
 The agent automatically:

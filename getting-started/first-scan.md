@@ -38,7 +38,7 @@ This tutorial walks you through:
 | **Name** | my-first-agent | Display name |
 | **Execution Mode** | Standalone | Single run and exit |
 | **Capabilities** | SAST, SCA, Secrets | What this agent can do |
-| **Tools** | Semgrep, Trivy, Gitleaks | Enabled scanners |
+| **Tools** | Semgrep, Trivy, Betterleaks | Enabled scanners |
 
 ### 1.3 Copy the API Key
 
@@ -66,7 +66,7 @@ docker run --rm \
   -e API_URL=http://host.docker.internal:8080 \
   -e API_KEY=oc_live_your_key_here \
   openctemio/agent:latest \
-  -tools semgrep,gitleaks,trivy \
+  -tools semgrep,betterleaks,trivy \
   -target /scan \
   -push \
   -verbose
@@ -92,7 +92,7 @@ chmod +x agent-linux-amd64
 ./agent-linux-amd64 \
   -api-url http://localhost:8080 \
   -api-key oc_live_your_key_here \
-  -tools semgrep,gitleaks,trivy \
+  -tools semgrep,betterleaks,trivy \
   -target . \
   -push
 ```
@@ -144,7 +144,7 @@ agent -check-tools
 
 # Output:
 #   ✓ semgrep      SAST scanner with dataflow/taint tracking (installed: 1.90.0)
-#   ✓ gitleaks     Secret detection scanner (installed: 8.28.0)
+#   ✓ betterleaks     Secret detection scanner (installed: 1.9.0)
 #   ✓ trivy        SCA/Container/IaC scanner (installed: 0.67.2)
 #   ✗ nuclei       Vulnerability scanner (DAST) (NOT INSTALLED)
 ```
@@ -163,7 +163,7 @@ agent -install-tools
 |------|------|-----------------|
 | **Semgrep** | SAST | Code vulnerabilities, injection flaws |
 | **Trivy** | SCA | Package vulnerabilities, outdated deps |
-| **Gitleaks** | Secrets | API keys, passwords, tokens |
+| **Betterleaks** | Secrets | API keys, passwords, tokens |
 | **Trivy-Config** | IaC | Infrastructure misconfigurations |
 | **Trivy-Image** | Container | Container image vulnerabilities |
 | **Nuclei** | DAST | Web vulnerabilities, CVEs |
@@ -175,11 +175,11 @@ agent -install-tools
 Successful scan output:
 
 ```
-[INFO] Starting scan with tools: semgrep, gitleaks, trivy
+[INFO] Starting scan with tools: semgrep, betterleaks, trivy
 [INFO] Target: /scan
 [INFO] Running semgrep...
 [INFO] Found 12 findings (2 high, 5 medium, 5 low)
-[INFO] Running gitleaks...
+[INFO] Running betterleaks...
 [INFO] Found 3 secrets
 [INFO] Running trivy...
 [INFO] Found 28 vulnerabilities (4 critical, 8 high)

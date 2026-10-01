@@ -72,7 +72,7 @@ server:
 scanners:
   - name: semgrep
     enabled: true
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
   - name: trivy
     enabled: true
@@ -133,7 +133,7 @@ advanced:
 | Scanner | Type | Description |
 |---------|------|-------------|
 | `semgrep` | SAST | Static analysis with dataflow/taint tracking |
-| `gitleaks` | Secret | Secret and credential detection |
+| `betterleaks` | Secret | Secret and credential detection |
 | `trivy` | SCA | Dependency vulnerability scanning |
 | `trivy-config` | IaC | Infrastructure as Code scanning |
 | `trivy-image` | Container | Container image scanning |
@@ -150,10 +150,10 @@ scanners:
       exclude: ["*_test.go"]
       dataflow_traces: true  # Enable taint tracking (default: true)
 
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
     config:
-      config_path: ".gitleaks.toml"
+      config_path: ".betterleaks.toml"
 
   - name: trivy
     enabled: true
@@ -240,7 +240,7 @@ server:
 agent -config agent.yaml -target ./src
 
 # Override scanners
-agent -config agent.yaml -tools semgrep,gitleaks -target .
+agent -config agent.yaml -tools semgrep,betterleaks -target .
 
 # Push results to platform
 agent -config agent.yaml -target . -push
@@ -272,7 +272,7 @@ docker run --rm \
   -e API_URL=https://api.your-domain.com \
   -e API_KEY=your-key \
   openctemio/agent:latest \
-  -tools semgrep,gitleaks,trivy -target /scan -push
+  -tools semgrep,betterleaks,trivy -target /scan -push
 ```
 
 ---

@@ -50,7 +50,7 @@ import (
 func main() {
     ctx := context.Background()
 
-    // Create a preset scanner (semgrep, trivy-fs, gitleaks, slither, etc.)
+    // Create a preset scanner (semgrep, trivy-fs, betterleaks, slither, etc.)
     scanner, _ := core.NewPresetScanner("semgrep")
 
     // Check if installed
@@ -90,7 +90,7 @@ for _, name := range core.ListPresetScanners() {
 | `semgrep` | Semgrep | sast, secret |
 | `trivy-fs` | Trivy (filesystem) | vulnerability, secret |
 | `trivy-config` | Trivy (IaC) | misconfiguration |
-| `gitleaks` | Gitleaks | secret |
+| `betterleaks` | Betterleaks | secret |
 | `slither` | Slither | web3 |
 | `checkov` | Checkov | misconfiguration |
 | `bandit` | Bandit | sast |
@@ -494,8 +494,8 @@ func main() {
     semgrep, _ := core.NewPresetScanner("semgrep")
     agent.AddScanner(semgrep)
 
-    gitleaks, _ := core.NewPresetScanner("gitleaks")
-    agent.AddScanner(gitleaks)
+    betterleaks, _ := core.NewPresetScanner("betterleaks")
+    agent.AddScanner(betterleaks)
 
     // Add collectors
     ghCollector := core.NewGitHubCollector(&core.GitHubCollectorConfig{
@@ -557,7 +557,7 @@ server:
 scanners:
   - name: semgrep
     enabled: true
-  - name: gitleaks
+  - name: betterleaks
     enabled: true
   - name: trivy-fs
     enabled: true
@@ -875,8 +875,8 @@ func main() {
     semgrep, _ := core.NewPresetScanner("semgrep")
     executor.AddScanner(semgrep)
 
-    gitleaks, _ := core.NewPresetScanner("gitleaks")
-    executor.AddScanner(gitleaks)
+    betterleaks, _ := core.NewPresetScanner("betterleaks")
+    executor.AddScanner(betterleaks)
 
     // Create command poller
     poller := core.NewCommandPoller(apiClient, executor, &core.CommandPollerConfig{
@@ -959,7 +959,7 @@ result, err := processor.Process(ctx, scanner, &core.ProcessOptions{
 // Process multiple scanners in parallel
 scanners := []core.Scanner{
     semgrep,
-    gitleaks,
+    betterleaks,
     trivy,
 }
 results, err := processor.ProcessBatch(ctx, scanners, opts)
@@ -1457,21 +1457,21 @@ for _, f := range report.Findings {
 }
 ```
 
-### Gitleaks Scanner
+### Betterleaks Scanner
 
 ```go
 import (
     "github.com/openctemio/sdk-go/pkg/scanners"
-    "github.com/openctemio/sdk-go/pkg/scanners/gitleaks"
+    "github.com/openctemio/sdk-go/pkg/scanners/betterleaks"
 )
 
 // Create scanner with defaults
-scanner := scanners.Gitleaks()
+scanner := scanners.Betterleaks()
 scanner.Verbose = true
 
 // Or with custom configuration
-scanner := scanners.GitleaksWithConfig(scanners.GitleaksOptions{
-    ConfigFile: ".gitleaks.toml", // Custom rules
+scanner := scanners.BetterleaksWithConfig(scanners.BetterleaksOptions{
+    ConfigFile: ".betterleaks.toml", // Custom rules
     Timeout:    30 * time.Minute,
     Verbose:    true,
 })
@@ -1489,7 +1489,7 @@ for _, s := range result.Secrets {
 
 // Or use generic scan for CTIS parsing
 genericResult, _ := scanner.GenericScan(ctx, "/path/to/project", nil)
-parser := &gitleaks.Parser{}
+parser := &betterleaks.Parser{}
 report, _ := parser.Parse(ctx, genericResult.RawOutput, nil)
 ```
 
@@ -1621,7 +1621,7 @@ import "github.com/openctemio/sdk-go/pkg/scanners"
 registry := scanners.NewRegistry()
 
 // Get scanners by type
-secretScanner := registry.GetSecretScanner("gitleaks")
+secretScanner := registry.GetSecretScanner("betterleaks")
 sastScanner := registry.GetSASTScanner("semgrep")
 scaScanner := registry.GetSCAScanner("trivy")
 
@@ -2415,7 +2415,7 @@ The SDK provides Docker images for easy deployment. See the [Docker Deployment G
 ```bash
 # Run scan with Docker
 docker run --rm -v $(pwd):/scan ghcr.io/openctemio/agent:latest \
-    -tools semgrep,gitleaks,trivy -target /scan -verbose
+    -tools semgrep,betterleaks,trivy -target /scan -verbose
 
 # Check tools
 docker run --rm ghcr.io/openctemio/agent:latest -check-tools

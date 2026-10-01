@@ -23,10 +23,10 @@ System profiles are pre-configured by the platform and available to all tenants.
 |---------|----------|-------|--------------|
 | **Quick Discovery** | Fast recon | subfinder, httpx | Disabled |
 | **Full SAST** | Code analysis | semgrep | MaxCritical: 0, MaxHigh: 5 |
-| **Secret Detection** | Find secrets | gitleaks, trufflehog | FailOnCritical |
+| **Secret Detection** | Find secrets | betterleaks, trufflehog | FailOnCritical |
 | **Container Security** | Image scanning | trivy | MaxCritical: 0 |
 | **Web Vulnerability** | Web app testing | nuclei | MaxCritical: 0, MaxHigh: 10 |
-| **CI/CD Strict** | Pipeline gates | semgrep, gitleaks, trivy | FailOnCritical, FailOnHigh |
+| **CI/CD Strict** | Pipeline gates | semgrep, betterleaks, trivy | FailOnCritical, FailOnHigh |
 | **Compliance Scan** | Regulatory | all tools | MaxTotal: 0 |
 
 ### Tenant Profiles (User-Created)
@@ -107,7 +107,7 @@ Quality Gates enable CI/CD pass/fail decisions based on finding thresholds.
 
 ## Template Modes
 
-Scan profiles support three template modes for tools that use templates (Nuclei, Semgrep, Gitleaks):
+Scan profiles support three template modes for tools that use templates (Nuclei, Semgrep, Betterleaks):
 
 ### Default Templates Only
 Use the tool's built-in/official templates.
@@ -153,7 +153,7 @@ Content-Type: application/json
       "template_mode": "both",
       "custom_template_ids": []
     },
-    "gitleaks": {
+    "betterleaks": {
       "enabled": true,
       "template_mode": "default"
     }

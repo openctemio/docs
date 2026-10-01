@@ -392,7 +392,7 @@ CTIS can convert SARIF output from popular tools:
 - SonarQube
 
 **Supported Secret Scanners:**
-- Gitleaks
+- Betterleaks
 - TruffleHog
 - Detect-secrets
 
@@ -535,10 +535,10 @@ curl -X POST https://api.your-domain.com/api/v1/agent/ingest/sarif \
   -d "{\"sarif\": $(cat results.sarif)}"
 ```
 
-**Gitleaks:**
+**Betterleaks:**
 ```bash
-# Run Gitleaks with SARIF output
-gitleaks detect --report-format sarif --report-path results.sarif
+# Run Betterleaks with SARIF output
+betterleaks dir . --report-format sarif --report-path results.sarif
 
 # Push to OpenCTEM
 curl -X POST https://api.your-domain.com/api/v1/agent/ingest/sarif \

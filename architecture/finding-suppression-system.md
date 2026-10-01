@@ -23,8 +23,8 @@ This document describes the architecture for managing false positive suppression
 |------|--------|------|
 | Semgrep | `// nosemgrep: rule-id` comments | Dev can add anywhere |
 | Semgrep | `.semgrepignore` file | Committed to repo, anyone can edit |
-| Gitleaks | `.gitleaks.toml` allowlist | Committed to repo |
-| Gitleaks | `.gitleaksignore` file | Committed to repo |
+| Betterleaks | `.betterleaks.toml` allowlist | Committed to repo |
+| Betterleaks | `.betterleaksignore` file | Committed to repo |
 | Trivy | `.trivyignore` file | Committed to repo |
 | Trivy | `--ignore-policy` OPA file | Can be manipulated |
 
@@ -119,7 +119,7 @@ rules:
     expires_at: "2026-06-01T00:00:00Z"
 
   - id: "supp-002"
-    rule_id: "gitleaks.generic-api-key"
+    rule_id: "betterleaks.generic-api-key"
     path_pattern: "docs/examples/**"
     justification: "Example API keys in documentation"
     approved_by: "security@company.com"
@@ -258,7 +258,7 @@ CREATE TABLE finding_suppressions (
     asset_id UUID REFERENCES assets(id),
 
     -- Matching criteria (at least one required)
-    tool_name VARCHAR(50),              -- e.g., "semgrep", "gitleaks"
+    tool_name VARCHAR(50),              -- e.g., "semgrep", "betterleaks"
     rule_id VARCHAR(255),               -- e.g., "sql-injection", supports wildcards
     path_pattern VARCHAR(500),          -- e.g., "tests/**", "*.test.go"
     finding_hash VARCHAR(64),           -- Exact match for specific finding
@@ -497,7 +497,7 @@ func runOnce(...) {
 | Tool Name | Description |
 |-----------|-------------|
 | `semgrep` | Semgrep SAST findings |
-| `gitleaks` | Gitleaks secret findings |
+| `betterleaks` | Betterleaks secret findings |
 | `trivy` | Trivy SCA findings |
 | `trivy-config` | Trivy IaC findings |
 | `nuclei` | Nuclei DAST findings |
