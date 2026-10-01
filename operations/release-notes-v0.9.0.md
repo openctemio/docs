@@ -49,6 +49,9 @@ agents to sensors in the database.
 ### Breaking changes
 
 - `AUTH_ALLOW_REGISTRATION` now defaults to `false`. #562
+- `AUTH_COOKIE_SECURE` now defaults to `true` outside `APP_ENV=development`, and
+  production refuses `false` for OIDC-only deployments too. A staging stack on
+  plain `http://` must set it to `false`. #625
 - Admin API keys, `X-Admin-API-Key`, `POST /admin/users`,
   `POST /admin/users/{id}/rotate-key` and the `openctem-admin` CLI are removed.
   Migration 000227 revokes every key and deactivates every v0.8 administrator.
