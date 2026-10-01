@@ -99,7 +99,7 @@ docker pull openctemio/agent:ci      # CI/CD optimized (~1.2GB)
 
 ```bash
 # Set credentials
-export API_URL=https://api.your-domain.com
+export API_URL=https://your-domain.com
 export API_KEY=rdw_your_api_key_here
 
 # Run a scan and push results
@@ -298,7 +298,8 @@ To view the SBOM for an asset, use the API endpoint:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `API_URL` | Yes* | Platform API URL |
+| `API_URL` | Yes* | OpenCTEM URL: the single HTTPS address, e.g. `https://ctem.example.com` (no `:8080`). See [one HTTPS port](../operations/single-https-port.md) |
+| `SSL_CERT_DIR` | No | Directory holding the platform's root CA certificate when the server uses its internal CA ([details](../operations/single-https-port.md#trusting-the-internal-ca)) |
 | `API_KEY` | Yes* | Agent API key |
 | `AGENT_ID` | No | Agent UUID for tracking |
 | `GITHUB_TOKEN` | Auto | GitHub token (for PR comments) |
@@ -321,7 +322,7 @@ agent:
 
 # Platform connection
 server:
-  base_url: "https://api.your-domain.com"
+  base_url: "https://your-domain.com"
   api_key: "rdw_your_api_key"
   agent_id: ""  # Auto-generated if empty
   timeout: 30s
@@ -988,7 +989,7 @@ docker run --rm openctemio/agent:nuclei \
 ```bash
 docker run --rm \
     -v $(pwd):/scan \
-    -e API_URL=https://api.your-domain.com \
+    -e API_URL=https://your-domain.com \
     -e API_KEY=rdw_your_api_key \
     openctemio/agent:latest \
     -tools semgrep,betterleaks,trivy \
@@ -1208,7 +1209,7 @@ Platform mode enables the agent to be managed by the OpenCTEM platform, receivin
 ```bash
 # First-time registration
 ./agent -platform \
-  -api-url https://api.your-domain.com \
+  -api-url https://your-domain.com \
   -bootstrap-token abc123.xxxxxxxx \
   -region us-east-1 \
   -enable-recon \
@@ -1216,7 +1217,7 @@ Platform mode enables the agent to be managed by the OpenCTEM platform, receivin
 
 # Subsequent runs (uses stored credentials)
 ./agent -platform \
-  -api-url https://api.your-domain.com \
+  -api-url https://your-domain.com \
   -region us-east-1
 ```
 
@@ -1225,7 +1226,7 @@ Platform mode enables the agent to be managed by the OpenCTEM platform, receivin
 ```yaml
 # platform-agent.yaml
 platform:
-  api_url: https://api.your-domain.com
+  api_url: https://your-domain.com
   credentials_file: ~/.openctem/agent-credentials.json
   region: us-east-1
   max_concurrent: 5

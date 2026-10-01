@@ -20,7 +20,7 @@ cp agent.yaml.template agent.yaml
 2. Update with your settings:
 ```yaml
 server:
-  base_url: "https://api.your-domain.com"
+  base_url: "https://your-domain.com"
   api_key: "your-api-key"
 ```
 
@@ -40,7 +40,7 @@ agent:
   name: "My Scanner"
 
 server:
-  base_url: "https://api.your-domain.com"
+  base_url: "https://your-domain.com"
   api_key: "your-api-key"
 
 scanners:
@@ -61,7 +61,7 @@ agent:
 
 # Platform Connection
 server:
-  base_url: "https://api.your-domain.com"
+  base_url: "https://your-domain.com"
   api_key: "your-api-key"
   worker_id: ""  # Auto-generated if empty
   timeout: 30s
@@ -223,7 +223,8 @@ server:
 
 | Variable | Description |
 |----------|-------------|
-| `API_URL` | Platform API URL |
+| `API_URL` | OpenCTEM URL: the single HTTPS address, e.g. `https://ctem.example.com` (no `:8080`). See [one HTTPS port](../operations/single-https-port.md) |
+| `SSL_CERT_DIR` | Directory holding the platform's root CA certificate when the server uses its internal CA ([details](../operations/single-https-port.md#trusting-the-internal-ca)) |
 | `API_KEY` | API key for authentication |
 | `WORKER_ID` | Worker identifier |
 | `GITHUB_TOKEN` | GitHub token for PR comments |
@@ -269,7 +270,7 @@ docker run --rm \
 # With environment variables
 docker run --rm \
   -v $(pwd):/scan \
-  -e API_URL=https://api.your-domain.com \
+  -e API_URL=https://your-domain.com \
   -e API_KEY=your-key \
   openctemio/agent:latest \
   -tools semgrep,betterleaks,trivy -target /scan -push

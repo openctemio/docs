@@ -106,6 +106,12 @@ docker run --rm \
 - `your-api-key-here` with the API key from Step 2
 - `/scan` maps your current directory into the container
 
+{: .note }
+This example targets the **local development stack** (API on `localhost:8080`).
+On a production server behind the built-in gateway, use
+`API_URL=https://<your-host>` (no port) and, with the internal CA, mount the root
+certificate and set `SSL_CERT_DIR`. See [Connecting sensors](../operations/single-https-port.md#connecting-sensors).
+
 ---
 
 ### Option B: Binary (If Installed)
@@ -153,7 +159,7 @@ jobs:
 ```
 
 **Required Secrets:**
-- `OPENCTEM_API_URL` - Your API endpoint
+- `OPENCTEM_API_URL` - Your OpenCTEM URL, the single HTTPS address (e.g. `https://ctem.example.com`, no `:8080`)
 - `OPENCTEM_API_KEY` - Agent API key from Step 2
 
 ---
@@ -302,7 +308,7 @@ agent:
   heartbeat_interval: 1m
 
 server:
-  base_url: https://api.your-domain.com
+  base_url: https://your-domain.com
   api_key: your-api-key
 
 scanners:
@@ -371,7 +377,7 @@ func main() {
 
     // Push to platform
     apiClient := client.New(&client.Config{
-        BaseURL: "https://api.your-domain.com",
+        BaseURL: "https://your-domain.com",
         APIKey:  os.Getenv("API_KEY"),
     })
 
@@ -432,7 +438,7 @@ docker run --network=host ...
 
 ## Next Steps
 
-- **[Production Deployment](../operations/PRODUCTION_guides/getting-started.md)** - Deploy to Kubernetes/Cloud
+- **[Production Deployment](../operations/PRODUCTION_DEPLOYMENT.md)** - Deploy to Kubernetes/Cloud
 - **[Agent Configuration](https://github.com/openctemio/sensor#configuration)** - Advanced agent.yaml options
 - **[API Reference](../backend/api-reference.md)** - Full API documentation
 - **[SDK Guide](https://github.com/openctemio/sdk-go#readme)** - Build custom tools

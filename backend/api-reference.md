@@ -9,7 +9,7 @@ nav_order: 2
 
 Complete API reference for OpenCTEM CTEM Platform.
 
-**Base URL:** `http://localhost:8080` (development) | `https://api.your-domain.com` (production)
+**Base URL:** `http://localhost:8080` (development) | `https://your-domain.com` (production)
 
 ---
 

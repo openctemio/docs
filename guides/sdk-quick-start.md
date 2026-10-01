@@ -69,7 +69,7 @@ func main() {
 
     // 4. Push to OpenCTEM platform
     apiClient := client.New(&client.Config{
-        BaseURL: "https://api.your-domain.com",
+        BaseURL: "https://your-domain.com",
         APIKey:  os.Getenv("API_KEY"),
     })
 
@@ -150,7 +150,7 @@ result, err := scanner.Scan(ctx, target, &core.ScanOptions{
 import "github.com/openctemio/sdk-go/pkg/client"
 
 apiClient := client.New(&client.Config{
-    BaseURL:  "https://api.your-domain.com",
+    BaseURL:  "https://your-domain.com",
     APIKey:   os.Getenv("API_KEY"),
     WorkerID: "worker-uuid",  // Optional: for tracking
     Timeout:  30 * time.Second,
@@ -236,7 +236,7 @@ security-scan:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `API_URL` | Yes* | Platform API URL |
+| `API_URL` | Yes* | OpenCTEM URL: the single HTTPS address, e.g. `https://ctem.example.com` (no `:8080`). See [one HTTPS port](../operations/single-https-port.md) |
 | `API_KEY` | Yes* | API key from Worker |
 | `WORKER_ID` | No | Worker UUID for tracking |
 | `GITHUB_TOKEN` | Auto | GitHub token for PR comments |

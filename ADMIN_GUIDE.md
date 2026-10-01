@@ -7,7 +7,8 @@ For platform administrators, DevOps, and SRE teams.
 - [Getting Started (Full Guide)](guides/getting-started.md) — Complete deployment walkthrough
 - [Docker Deployment](guides/docker-deployment.md) — Docker Compose setup
 - [Kubernetes Deployment](guides/kubernetes-deployment.md) — Helm chart setup
-- [Production Deployment](operations/PRODUCTION_guides/getting-started.md) — Production checklist
+- [Production Deployment](operations/PRODUCTION_DEPLOYMENT.md) — Production checklist
+- [Exposing OpenCTEM: one HTTPS port](operations/single-https-port.md) — Built-in gateway, TLS modes, sensor URL, migration from two ports
 - [Deployment Architecture](guides/getting-started.md) — Infrastructure overview
 
 ## Configuration

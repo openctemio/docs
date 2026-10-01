@@ -400,6 +400,20 @@ OAUTH_GOOGLE_CLIENT_SECRET=your-client-secret
 
 ---
 
+## Gateway and Sensor Connection Issues
+
+Production installs expose one HTTPS port through the built-in gateway. The
+common failures and fixes are in
+[Exposing OpenCTEM: one HTTPS port](./single-https-port.md#troubleshooting). In
+short:
+
+| Symptom | Fix |
+|---------|-----|
+| Sensor gets `421 WRONG_ENDPOINT` (or `401 API key required` from an older UI) | `API_URL` points at the web UI port; set it to `https://<host>`. |
+| `x509: certificate signed by unknown authority` | Trust the internal CA ([how](./single-https-port.md#trusting-the-internal-ca)). |
+| Live updates never connect | `OPENCTEM_PUBLIC_URL` must match the browser's origin, including the port. |
+| Gateway cannot bind port 443 | Another service holds it: `sudo ss -ltnp 'sport = :443'`. |
+
 ## Scan Issues
 
 ### Scan Creation Failed
