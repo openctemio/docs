@@ -262,6 +262,41 @@ move to it:
 | Helm values `agent.*` | `sensor.*` — the old block is mapped, with a notice in `helm upgrade` output |
 | `API_URL`, `API_KEY`, `BOOTSTRAP_TOKEN` | unchanged |
 
+### How the sensor connects: agent v0.2.2 → sensor v0.3.0
+
+Measured end to end on 2026-10-01 with `ghcr.io/openctemio/agent:v0.2.2-default`
+(sdk-go v0.6.0) and `ghcr.io/openctemio/sensor:v0.3.0-default` (sdk-go v0.7.3)
+against the open-source API:
+
+| Situation | agent v0.2.2 | sensor v0.3.0 | What to do when you upgrade |
+|---|---|---|---|
+| API on loopback (`http://127.0.0.1:8080`) | refused, `ssrf guard: blocked IP 127.0.0.1`, unless `OPENCTEM_SDK_HTTPSEC_ALLOW_LOOPBACK=1` (`..._ALLOW_PRIVATE` does not help) | connects | remove `OPENCTEM_SDK_HTTPSEC_ALLOW_LOOPBACK` |
+| API on a private IP, a Docker network name (`http://api:8080`) or a Kubernetes service | refused unless `OPENCTEM_SDK_HTTPSEC_ALLOW_PRIVATE=1` | connects | remove `OPENCTEM_SDK_HTTPSEC_ALLOW_PRIVATE` (and `OPENCTEM_HTTPSEC_ALLOW_PRIVATE`) |
+| `HTTPS_PROXY` / `HTTP_PROXY` / `NO_PROXY` | **ignored** for platform traffic (only nuclei's own downloads used it); fails on a proxy-only egress network | honoured; HTTPS goes through `CONNECT` | keep the proxy variables; set `NO_PROXY` for an in-cluster API |
+| Private CA | `SSL_CERT_FILE` works | `SSL_CERT_FILE`, `SSL_CERT_DIR` or a mount into `/etc/ssl/certs/` | unchanged |
+| Plain `http://` to a non-loopback API | silent | one warning per start: the key is sent in clear text | use `https://` outside a private network |
+| Default behaviour of `-daemon` | "Hybrid": also scans its working directory every hour | runs only the scans the platform dispatches | add `-target` if you relied on the hourly self-scan |
+| Polling | fixed 30 s | on the heartbeat doorbell (immediate poll when work is pending, safety poll every 5 min) | nothing |
+| Code scans dispatched for a repository asset | fail (`DNS lookup failed for scanner target "<name>"`) | resolved inside `SENSOR_SCAN_ROOTS` | set `SENSOR_SCAN_ROOTS` and mount repositories there (read-write for gitleaks and semgrep in v0.3.0) |
+| `SENSOR_ALLOW_PRIVATE_TARGETS=true` | silently ignored | refuses to start with a clear message | use `1` |
+| Deactivated sensor | 401 on every call (and `Invalid API key` at start) | while running: heartbeats, logs `paused by platform`, takes no jobs, resumes on reactivation. A v0.3.0 sensor **started** while deactivated still exits with `Invalid API key` (its connection test does not announce the doorbell; fixed in openctemio/sensor#72) | reactivate a sensor before restarting it |
+
+Both versions complete dispatched jobs. v0.2.2 polls on a fixed interval over
+protocol v1, which the platform keeps serving. The `OPENCTEM_SDK_HTTPSEC_ALLOW_*`
+variables also widen what the old agent's scan targets may reach, so remove
+them as soon as the agent is replaced.
+
+Point `API_URL` at the **API**, never the web UI: the UI's `/api/v1` proxy does
+not forward the sensor's key. A current UI answers sensor requests with
+`421 WRONG_ENDPOINT`; an older one answers `401 API key required`, which a
+sensor reports as an invalid key.
+
+The image's default command is `-platform` self-registration with a bootstrap
+token. The open-source API does not serve `/api/v1/platform/register`, so a
+container started without arguments exits with `failed to register sensor`.
+Run it with `-daemon -enable-commands -tools <scanners>` and an API key. That is
+what the Helm chart's default `sensor.mode: daemon` does.
+
 ## Step 4 — Custom sensors built with the SDK
 
 Sensors built with `github.com/openctemio/sdk-go` keep working **without
