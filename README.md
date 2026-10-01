@@ -177,7 +177,7 @@ docker compose up -d
 | [api](https://github.com/openctemio/api) | Backend REST API (Go) |
 | [ui](https://github.com/openctemio/ui) | Frontend Application (Next.js) |
 | [sdk](https://github.com/openctemio/sdk-go) | Go SDK for building tools |
-| [agent](https://github.com/openctemio/agent) | Security scanning agent |
+| [agent](https://github.com/openctemio/sensor) | Security scanning agent |
 | [setup](https://github.com/openctemio/setup) | Deployment & Docker Compose |
 | [schemas](https://github.com/openctemio/schemas) | CTIS JSON Schemas |
 | [docs](https://github.com/openctemio/docs) | Documentation (this repo) |

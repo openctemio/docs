@@ -61,7 +61,7 @@ Use the OpenCTEM Agent binary for quick integration.
 
 ```bash
 # Install
-go install github.com/openctemio/agent@latest
+go install github.com/openctemio/sensor@latest
 
 # Run scan
 agent -tools semgrep,trivy,gitleaks \
