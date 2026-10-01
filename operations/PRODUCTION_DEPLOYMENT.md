@@ -690,7 +690,7 @@ kubectl exec -it deployment/openctem-ui --namespace openctem -- curl http://open
 
 - [Architecture Overview](../architecture/overview.md)
 - [End-to-End Workflow](../guides/END_TO_END_WORKFLOW.md)
-- [Agent Quick Start](https://github.com/openctemio/agent#quick-start)
+- [Agent Quick Start](https://github.com/openctemio/sensor#quick-start)
 
 ---
 
