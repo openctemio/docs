@@ -370,7 +370,7 @@ When a request has findings but **no assets**, the system will automatically cre
     "source_type": "scanner"
   },
   "tool": {
-    "name": "gitleaks",
+    "name": "betterleaks",
     "version": "8.18.0",
     "capabilities": ["secret_detection"]
   },
@@ -2237,7 +2237,7 @@ POST /api/v1/agent/heartbeat
   "version": "2.5.0",
   "hostname": "scanner-pod-abc123-xyz",
   "message": "Processing 3 scan jobs",
-  "scanners": ["semgrep", "trivy", "codeql", "gitleaks", "checkov"],
+  "scanners": ["semgrep", "trivy", "codeql", "betterleaks", "checkov"],
   "collectors": ["github", "gitlab", "bitbucket"],
   "uptime_seconds": 604800,
   "total_scans": 15234,
@@ -2633,7 +2633,7 @@ func main() {
             Timestamp: time.Now(),
         },
         Tool: &ctis.Tool{
-            Name:         "gitleaks",
+            Name:         "betterleaks",
             Version:      "8.18.0",
             Capabilities: []string{"secret_detection"},
         },
@@ -3539,7 +3539,7 @@ func (a *Agent) sendHeartbeat() {
         Version:       "2.5.0",
         Hostname:      hostname,
         Message:       a.getMessage(),
-        Scanners:      []string{"semgrep", "trivy", "codeql", "gitleaks"},
+        Scanners:      []string{"semgrep", "trivy", "codeql", "betterleaks"},
         Collectors:    []string{"github", "gitlab"},
         UptimeSeconds: int64(time.Since(a.startTime).Seconds()),
         TotalScans:    a.totalScans,

@@ -22,7 +22,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 |---------|-------------|--------|
 | [Platform Agents](platform-agents.md) | Shared scanning infrastructure managed by OpenCTEM | ✅ Implemented |
 | [Scan Profiles](scan-profiles.md) | Reusable scan configs with Quality Gates | ✅ Implemented |
-| [Scanner Templates](scanner-templates.md) | Custom detection rules for Nuclei, Semgrep, Gitleaks | ✅ Implemented |
+| [Scanner Templates](scanner-templates.md) | Custom detection rules for Nuclei, Semgrep, Betterleaks | ✅ Implemented |
 | [Quality Gates](quality-gates.md) | CI/CD pass/fail decisions based on finding thresholds | ✅ Implemented |
 | [Finding Lifecycle](finding-lifecycle.md) | Branch-aware auto-resolve and feature branch expiry | ✅ Implemented |
 | [Finding Types & Fingerprinting](finding-types.md) | Polymorphic findings with type-aware deduplication | ✅ Implemented |
@@ -43,7 +43,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | [SSO Authentication](sso-authentication.md) | SAML and OIDC single sign-on with automatic provisioning | ✅ Implemented |
 | [Backup & Disaster Recovery](backup-disaster-recovery.md) | Automated backups with tiered retention, off-site storage, and PITR | ✅ Implemented |
 | [Observability & Monitoring](observability.md) | OpenTelemetry tracing, Grafana dashboards, AlertManager, structured logging | ✅ Implemented |
-| [SDK Scanner Adapters](sdk-scanner-adapters.md) | Pre-built adapters for Trivy, Semgrep, Nuclei, Gitleaks, SARIF | ✅ Implemented |
+| [SDK Scanner Adapters](sdk-scanner-adapters.md) | Pre-built adapters for Trivy, Semgrep, Nuclei, Betterleaks, SARIF | ✅ Implemented |
 | [Real-Time WebSocket](real-time-websocket.md) | WebSocket-based live updates for scans, findings, triage, notifications | ✅ Implemented |
 | [Kubernetes & Helm](kubernetes-helm.md) | Production-ready Helm chart with HPA, Ingress, TLS, StatefulSet | ✅ Implemented |
 
@@ -59,7 +59,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | **[Kubernetes & Helm](kubernetes-helm.md)** | Production-ready Helm chart with HPA, Ingress, TLS |
 | **[Observability & Monitoring](observability.md)** | OpenTelemetry, Grafana dashboards, AlertManager |
 | **[Real-Time WebSocket](real-time-websocket.md)** | WebSocket-based live updates with cookie auth |
-| **[SDK Scanner Adapters](sdk-scanner-adapters.md)** | Trivy, Semgrep, Nuclei, Gitleaks, SARIF adapters |
+| **[SDK Scanner Adapters](sdk-scanner-adapters.md)** | Trivy, Semgrep, Nuclei, Betterleaks, SARIF adapters |
 | **Storage Service** | Multi-tenant storage with BYOB support |
 | **[Backup & Disaster Recovery](backup-disaster-recovery.md)** | Automated pg_dump backups with tiered retention and cloud off-site storage |
 
@@ -70,7 +70,7 @@ Documentation for major features in the OpenCTEM CTEM Platform.
 | **[Scan Configurations](scan-configs.md)** | Bind assets with scanners/pipelines, scheduling |
 | **[Scan Pipelines](pipelines.md)** | Multi-step automated scanning workflows |
 | **Scan Profiles** | Reusable configurations with Quality Gates and Template Modes |
-| **Scanner Templates** | Custom templates for Nuclei, Semgrep, Gitleaks |
+| **Scanner Templates** | Custom templates for Nuclei, Semgrep, Betterleaks |
 | **Capabilities Registry** | Normalized tool capability management |
 | **Quality Gates** | CI/CD pass/fail decisions based on finding thresholds |
 

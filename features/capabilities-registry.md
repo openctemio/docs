@@ -152,7 +152,7 @@ GET /api/v1/capabilities/{id}/usage-stats
 
 {
   "tool_count": 5,
-  "tool_names": ["semgrep", "trivy", "gitleaks", "checkov", "zap"],
+  "tool_names": ["semgrep", "trivy", "betterleaks", "checkov", "zap"],
   "agent_count": 3,
   "agent_names": ["security-scanner", "vulnerability-checker", "code-analyzer"]
 }

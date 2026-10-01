@@ -238,7 +238,7 @@ type Agent struct {
     Status             AgentStatus    // active, disabled, revoked
     Health             AgentHealth    // unknown, online, offline, error
     Capabilities       []string       // sast, sca, dast, iac, secrets, container
-    Tools              []string       // semgrep, trivy, nuclei, gitleaks, etc.
+    Tools              []string       // semgrep, trivy, nuclei, betterleaks, etc.
     Labels             map[string]string
     MaxConcurrentJobs  int
     // Metrics
@@ -410,7 +410,7 @@ The system automatically categorizes findings based on tool:
 | SCA | trivy, grype, snyk, dependabot |
 | DAST | zap, burp, nuclei, arachni |
 | IaC | tfsec, checkov, terrascan, kics |
-| Secrets | gitleaks, trufflehog, detect-secrets |
+| Secrets | betterleaks, trufflehog, detect-secrets |
 | Container | clair, anchore, aqua |
 
 ### Key Files
