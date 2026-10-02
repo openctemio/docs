@@ -111,10 +111,9 @@ Frontend application documentation:
 - Deployment
 
 ### [Admin UI](./admin-ui/)
-Platform administration console:
-- Agent management
-- Job monitoring
-- Bootstrap tokens
+The separate Admin UI application of v0.8 and older. Since v0.9.0, platform
+administration is the admin console at `/admin` in the main web UI; see the
+[Platform Administration Guide](./guides/platform-admin.md).
 
 ---
 

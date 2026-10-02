@@ -30,60 +30,68 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 
 ## 5-Minute Quickstart
 
-### Step 1: Clone Workspace
+### Step 1: Get the Compose Files
 
 ```bash
-# Clone the meta-repository
-git clone https://github.com/openctemio/openctemio.git
-cd openctemio
-
-# Initialize all sub-repositories (api, agent, ui, sdk)
-make init-prod
+git clone https://github.com/openctemio/api.git
+cd api/deploy
+cp .env.example .env
 ```
 
-This clones the API, Agent, UI, and SDK repositories into your workspace.
+Edit `.env`: set `OPENCTEM_VERSION`, `OPENCTEM_HOSTNAME`, `OPENCTEM_PUBLIC_URL`,
+`OPENCTEM_TLS_MODE` and the generated secrets. See
+[Exposing OpenCTEM: one HTTPS port](operations/single-https-port.md#quick-start-docker-compose)
+for the minimum settings.
 
 ---
 
 ### Step 2: Start the Platform
 
 ```bash
-# Start all services (PostgreSQL, Redis, API, UI)
-make prod-up
-
-# View logs (optional)
-make logs
+docker compose up -d
+docker compose ps -a
 ```
 
 **Services Starting:**
-- 🗄️ PostgreSQL (database)
-- 🔴 Redis (cache & queues)
-- 🔧 API (backend at `localhost:8080`)
-- 🎨 UI (frontend at `localhost:3000`)
-- 🛡️ Admin UI (admin console at `localhost:3001`) - Optional
+- 🔐 Gateway (the only published port: `https://<OPENCTEM_HOSTNAME>`)
+- 🎨 Web UI and 🔧 API (behind the gateway; the API is under `/api/v1`)
+- 🗄️ PostgreSQL and 🔴 Redis (internal only)
+- 🧱 `migrate` (runs the database migrations, then exits 0; the API waits for it)
 
 Wait ~30 seconds for services to be healthy.
 
 ---
 
-### Step 3: Access the UI
+### Step 3: Create the First Administrator and Organization
 
-Open your browser:
-
-**URL:** [http://localhost:3000](http://localhost:3000)
-
-**Create the first admin account** — there is no seeded default account. Create the
-first admin manually with the `bootstrap-admin` CLI, then log in with those
-credentials:
+There is no seeded default account and no default organization. Create the
+platform administrator, its break-glass backup and the first organization with
+the `bootstrap-admin` command in the API container:
 
 ```bash
-cd setup
-make bootstrap-admin-prod email=admin@yourcompany.com
+docker compose exec api /app/bootstrap-admin \
+  -email=admin@yourcompany.com \
+  -backup-email=breakglass@yourcompany.com \
+  -org-name="Your Company" \
+  -org-owner-email=owner@yourcompany.com
 ```
 
-The command prints the new admin's email and a one-time API key (save it). See the
-[Getting Started guide](guides/getting-started.md#create-the-first-admin-account)
-for the Kubernetes command and the registration-based alternative.
+Use three different addresses: a platform administrator belongs to no
+organization, so it cannot be the organization owner. The command prints each
+administrator's temporary password once, and the owner's one-time set-password
+link (emailed instead when SMTP is configured). Then:
+
+1. The administrator signs in at `https://<your-host>/login` with the
+   temporary password, sets a new one, and enrolls an authenticator app (TOTP)
+   when the admin console (`/admin`) opens. Store the break-glass credentials
+   offline.
+2. The owner opens the set-password link (valid 24 hours), chooses a password
+   and signs in to the organization.
+3. The owner adds users under **Settings → Members**; the administrator creates
+   more organizations and per-organization SSO in the console.
+
+See [First-Time Setup](guides/getting-started.md#2-first-time-setup) for every
+flag, the Helm values and the self-service alternative.
 
 ---
 
@@ -91,7 +99,7 @@ for the Kubernetes command and the registration-based alternative.
 
 #### 4a. Create an Agent
 
-1. Login to the UI
+1. Sign in to the UI as the organization owner
 2. Navigate to **Settings > Agents**
 3. Click **"Create Agent"**
 4. Choose type: **Runner** (for CI/CD one-shot scans)
@@ -102,7 +110,7 @@ for the Kubernetes command and the registration-based alternative.
 ```bash
 docker run --rm \
   -v $(pwd):/scan \
-  -e API_URL=http://localhost:8080 \
+  -e API_URL=https://ctem.example.com \
   -e API_KEY=your-api-key-here \
   openctemio/agent:latest \
   -tools semgrep,betterleaks,trivy -target /scan -push -verbose
@@ -111,10 +119,9 @@ docker run --rm \
 Replace `your-api-key-here` with the key from step 4a.
 
 {: .note }
-This example targets the **local development stack** (API on `localhost:8080`).
-On a production server behind the built-in gateway, use
-`API_URL=https://<your-host>` (no port) and, with the internal CA, mount the root
-certificate and set `SSL_CERT_DIR`. See [Connecting sensors](operations/single-https-port.md#connecting-sensors).
+`API_URL` is the gateway URL (your `OPENCTEM_PUBLIC_URL`, no `:8080`). With the
+internal CA (`OPENCTEM_TLS_MODE=internal`), also mount the root certificate and
+set `SSL_CERT_DIR`. See [Connecting sensors](operations/single-https-port.md#connecting-sensors).
 
 This scans the current directory for:
 - **semgrep** - Code vulnerabilities (SAST)
@@ -153,8 +160,8 @@ This scans the current directory for:
 
 | Topic | Guide |
 |-------|-------|
-| **Admin UI** | [Admin UI Documentation](./admin-ui/index.md) |
-| **Platform Admin CLI** | [Platform Admin Guide](./guides/platform-admin.md) |
+| **Admin console & bootstrap** | [Platform Admin Guide](./guides/platform-admin.md) |
+| **Organizations** | [Multi-Tenancy](./guides/multi-tenancy.md#who-can-create-organizations) |
 | **Platform Agents** | [Shared Agent Architecture](./features/platform-agents.md) |
 
 ### Integrate CI/CD

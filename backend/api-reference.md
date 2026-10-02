@@ -65,7 +65,7 @@ Authorization: Bearer <access_token>
 | POST | `/verify-email` | ❌ | Verify email with token |
 | POST | `/forgot-password` | ❌ | Request password reset |
 | POST | `/reset-password` | ❌ | Reset password with token |
-| POST | `/create-first-team` | ❌* | Create first team for new user |
+| POST | `/create-first-team` | ❌* | Create first team for new user (only when `TENANT_CREATION_MODE=self_service`; 403 under the default `admin_only`) |
 
 *Uses refresh_token from cookie
 

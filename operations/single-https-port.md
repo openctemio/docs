@@ -126,8 +126,9 @@ docker compose ps                        # gateway, web, api, postgres, redis up
 curl --cacert ca/openctem-root-ca.crt https://ctem.example.com/health
 ```
 
-Then open `https://ctem.example.com` and
-[create the first admin account](../guides/getting-started.md#create-the-first-admin-account).
+Then [create the first administrator and organization](../guides/getting-started.md#2-first-time-setup)
+with `docker compose exec api /app/bootstrap-admin …` and sign in at
+`https://ctem.example.com/login`.
 
 ### Postgres and Redis
 

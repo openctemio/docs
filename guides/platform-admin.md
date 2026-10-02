@@ -6,7 +6,9 @@ nav_order: 20
 ---
 # Platform Administration Guide
 
-This guide covers how to set up and manage the OpenCTEM platform, including bootstrapping admin credentials, managing platform agents, and using the admin CLI.
+This guide covers how to set up and manage the OpenCTEM platform: bootstrapping
+the platform administrators and the first organization, and running the
+installation from the admin console.
 
 ---
 
@@ -16,8 +18,13 @@ The OpenCTEM platform has two types of administration:
 
 | Type | Purpose | Tools |
 |------|---------|-------|
-| **Tenant Admin** | Manage assets, scans, users within a tenant | Web UI, Tenant API |
-| **Platform Admin** | Manage platform infrastructure, agents, quotas | Admin CLI, Admin API |
+| **Organization (tenant) admin** | Owners and admins of one organization: assets, scans, findings, members, roles, SCIM | Web UI (**Settings**), tenant API |
+| **Platform admin** | Runs the installation: organizations, per-organization SSO, administrators, system logs, platform sign-in | Admin console at `/admin` in the web UI, `bootstrap-admin` |
+
+A platform administrator is a normal sign-in account that **belongs to no
+organization** and does not see organization data. It signs in on `/login` like
+everyone else and opens the console with an authenticator (TOTP) code.
+Administrators have no API keys.
 
 This guide focuses on **Platform Administration**.
 
@@ -25,190 +32,156 @@ This guide focuses on **Platform Administration**.
 
 ## Initial Setup (Bootstrap)
 
-When deploying OpenCTEM for the first time, you need to create the first admin user. This is done using the `bootstrap-admin` tool which connects directly to the database.
+A new install has no accounts and no organizations. The `bootstrap-admin`
+command, shipped in the API image at `/app/bootstrap-admin`, creates in one
+run:
+
+- the **platform administrator**,
+- a **break-glass** backup super admin (required unless `-no-backup`): a local
+  account for when the identity provider or the primary administrator is
+  unavailable; every sign-in with it is audited and alerted,
+- optionally, the **first organization** and its **owner**.
+
+It connects to the database directly, using `-db`, `DATABASE_URL`, or the
+`DB_HOST` / `DB_PORT` / `DB_USER` / `DB_PASSWORD` / `DB_NAME` / `DB_SSLMODE`
+variables the API container already has.
 
 ### Prerequisites
 
-1. Database migrations have been applied
-2. API container running (or direct database access)
+1. Database migrations applied (Docker Compose and Helm run them
+   automatically before the API starts)
+2. Three different email addresses: administrator, break-glass administrator,
+   organization owner. The owner cannot be an administrator's address, because
+   a platform administrator cannot be an organization member.
 
-### Bootstrap First Admin
+### Docker Compose
 
-The `bootstrap-admin` tool is included in the API Docker image. Since it needs database access, you run it from within the API container.
-
-#### Option 1: Using Setup Makefile (Recommended)
-
-If you're using the `setup/` deployment:
-
-```bash
-cd setup
-
-# Staging environment
-make bootstrap-admin-staging email=admin@yourcompany.com
-
-# Production environment
-make bootstrap-admin-prod email=admin@yourcompany.com
-
-# With specific role
-make bootstrap-admin-staging email=ops@yourcompany.com role=ops_admin
-```
-
-#### Option 2: Using docker-compose exec
+From the `api/deploy` directory of a running stack:
 
 ```bash
-# Run bootstrap-admin from within the API container
-# The container already has DB_HOST, DB_USER, etc. configured
-docker-compose exec api ./bootstrap-admin \
-  -email "admin@yourcompany.com" \
-  -role "super_admin"
-
-# Note: The service name may be 'api' or 'app' depending on your compose file
+docker compose exec api /app/bootstrap-admin \
+  -email=admin@yourcompany.com \
+  -backup-email=breakglass@yourcompany.com \
+  -org-name="Your Company" \
+  -org-owner-email=owner@yourcompany.com
 ```
 
-#### Option 3: Using docker exec
+### Kubernetes (Helm)
 
-```bash
-# If using plain docker (not compose)
-docker exec -it openctem-api ./bootstrap-admin \
-  -email "admin@yourcompany.com" \
-  -role "super_admin"
-```
-
-#### Option 4: Using standalone admin-cli image
-
-```bash
-# For environments where API container isn't accessible
-# Must have network access to the database
-docker run --rm \
-  --network your-network \
-  --entrypoint /usr/local/bin/bootstrap-admin \
-  -e DATABASE_URL="postgres://user:pass@db:5432/openctem?sslmode=disable" \
-  -e ADMIN_EMAIL="admin@yourcompany.com" \
-  openctemio/admin-cli:latest
-```
-
-#### Option 5: Kubernetes Job (Recommended for K8s)
+Set the values before `helm install`; the chart runs the command in a
+post-install Job after the migrations:
 
 ```yaml
-# bootstrap-admin-job.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: bootstrap-admin-config
-  namespace: openctem
-type: Opaque
-stringData:
-  ADMIN_EMAIL: "admin@yourcompany.com"
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: bootstrap-admin
-  namespace: openctem
-spec:
-  ttlSecondsAfterFinished: 300  # Clean up after 5 minutes
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: bootstrap-admin
-          image: openctemio/api:latest
-          command: ["./bootstrap-admin"]
-          args: ["-role", "super_admin"]
-          env:
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: openctem-db-credentials
-                  key: host
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: openctem-db-credentials
-                  key: username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: openctem-db-credentials
-                  key: password
-            - name: DB_NAME
-              value: openctem
-            - name: DB_SSLMODE
-              value: require
-            - name: ADMIN_EMAIL
-              valueFrom:
-                secretKeyRef:
-                  name: bootstrap-admin-config
-                  key: ADMIN_EMAIL
+api:
+  tenantCreationMode: admin_only        # the default
+  bootstrapAdmin:
+    enabled: true
+    email: admin@yourcompany.com
+    backupEmail: breakglass@yourcompany.com
+    org:
+      name: Your Company
+      ownerEmail: owner@yourcompany.com
 ```
+
+The completed Job is kept so you can read the one-time credentials. Read them,
+store them, then delete the Job (release `openctem`; the name is
+`<fullname>-api-bootstrap-admin`):
 
 ```bash
-# Apply the job
-kubectl apply -f bootstrap-admin-job.yaml
-
-# Watch for completion and get the API key from logs
-kubectl logs -f job/bootstrap-admin -n openctem
-
-# Clean up (or wait for ttlSecondsAfterFinished)
-kubectl delete job bootstrap-admin -n openctem
+kubectl logs -n openctem job/openctem-api-bootstrap-admin
+kubectl delete -n openctem job/openctem-api-bootstrap-admin
 ```
 
-#### Option 6: kubectl exec (Quick method for K8s)
+A failed Job fails the install. The Job receives `api.extraEnv` and
+`api.extraEnvFrom`, so `SMTP_*` settings there let it email the owner's link.
+On an existing release (the Job runs on install only), run the command in the
+API pod instead:
 
 ```bash
-# If API pod is already running
-kubectl exec -it deploy/openctem-api -n openctem -- \
-  ./bootstrap-admin -email "admin@yourcompany.com" -role "super_admin"
+kubectl exec -n openctem deploy/openctem-api -- /app/bootstrap-admin \
+  -email=admin@yourcompany.com -backup-email=breakglass@yourcompany.com
 ```
 
-#### Option 7: Using Binary (development)
+### Flags
 
-```bash
-# Only for local development with direct DB access
-./bootstrap-admin \
-  -db "postgres://user:pass@localhost:5432/openctem?sslmode=disable" \
-  -email "admin@yourcompany.com" \
-  -role "super_admin"
-```
+| Flag | Environment variable | Meaning |
+|------|----------------------|---------|
+| `-email` | `ADMIN_EMAIL` | Platform administrator (required). |
+| `-name` | `ADMIN_NAME` | Display name (default: the part of the email before `@`). |
+| `-role` | | `super_admin` (default), `ops_admin` or `readonly`. |
+| `-backup-email` | `ADMIN_BACKUP_EMAIL` | Break-glass backup super admin. Required unless `-no-backup`. |
+| `-backup-name` | `ADMIN_BACKUP_NAME` | Its display name. |
+| `-no-backup` | | Skip the break-glass administrator (not recommended; prints a warning). |
+| `-org-name` | `ORG_NAME` | First organization's name. Goes with `-org-owner-email`. |
+| `-org-slug` | `ORG_SLUG` | Its URL slug (default: derived from the name). |
+| `-org-owner-email` | `ORG_OWNER_EMAIL` | The organization owner. Goes with `-org-name`. |
+| `-org-owner-name` | `ORG_OWNER_NAME` | The owner's display name. |
+| `-link` | | Give an administrator created by v0.8 or older a sign-in account and reactivate it (keeps role and authenticator). |
+| `-force` | | Delete and re-create an existing administrator with the same email. |
+| `-db` | `DATABASE_URL` | Database URL, when the `DB_*` variables are not set. |
 
-### Bootstrap Output
+### What it prints
 
-```
-=== Bootstrap Admin Created ===
-  ID:    550e8400-e29b-41d4-a716-446655440000
-  Email: admin@yourcompany.com
-  Role:  super_admin
+Once, and never again:
 
-API Key (save this, it won't be shown again):
-  oc-admin-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+- a **temporary password** for each new administrator, and
+- the organization owner's **one-time set-password link** (valid 24 hours),
+  unless SMTP is configured, in which case the link is emailed to the owner.
 
-Configure the CLI:
-  export OPENCTEM_API_KEY=oc-admin-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
-  export OPENCTEM_API_URL=https://your-domain.com
+Store the break-glass credentials offline. Running the command again is safe:
+existing administrators are reported and left unchanged, and an organization
+with the same slug is skipped. The organization is created through the normal,
+audited organization service.
 
-  # Or save to config file:
-  openctem-admin config set-context prod --api-url=https://your-domain.com --api-key=oc-admin-...
-  openctem-admin config use-context prod
+### First sign-in
 
-Test the connection:
-  openctem-admin cluster-info
-```
+1. Each administrator signs in on `/login` with the temporary password, sets a
+   new password (required before anything else) and signs in again.
+2. The console (`/admin`) asks them to scan a QR code with an authenticator app
+   and enter the code. The console asks for a code at every sign-in.
+3. The organization owner opens the set-password link, chooses a password,
+   signs in, and adds users under **Settings → Members** (*Add user* or
+   *Invite user*).
 
-> **Important**: Save the API key immediately! It cannot be retrieved later.
+The full walkthrough is in [Getting Started](getting-started.md#2-first-time-setup).
 
 ### Admin Roles
 
 | Role | Permissions |
 |------|-------------|
-| `super_admin` | Full access: manage admins, agents, tokens, all operations |
-| `ops_admin` | Manage agents and tokens, view queue stats |
-| `viewer` | Read-only access to platform status |
+| `super_admin` | Full access: administrators, organizations, per-organization SSO, platform sign-in settings |
+| `ops_admin` | Operations: create organizations and organization users, day-to-day platform operations |
+| `readonly` | Read-only access to the console |
+
+### Organizations
+
+By default only the platform administrator creates organizations
+(`TENANT_CREATION_MODE=admin_only`, Helm `api.tenantCreationMode`). In the
+console, **Organizations → Create** takes the organization name and the owner's
+email; a new owner account gets a one-time set-password link (emailed with
+SMTP, otherwise shown once). Per-organization SSO (OIDC, SAML, verified
+domains, enforcement) is under **Organizations** → the organization →
+**Single sign-on**. `TENANT_CREATION_MODE=self_service` lets any signed-in user
+create organizations; use it only for SaaS or trial installs. See
+[Multi-Tenancy](multi-tenancy.md#who-can-create-organizations).
+
+{: .note }
+`bootstrap-tenant` and the Helm `api.bootstrapTenant` values were removed. Use
+the `-org-*` flags (Helm `api.bootstrapAdmin.org.*`) or the console.
 
 ---
 
 ## Admin CLI (openctem-admin)
+
+{: .warning }
+**Removed in v0.9.0.** The `openctem-admin` CLI, admin API keys
+(`X-Admin-API-Key`) and `POST /api/v1/admin/users` no longer exist (migration
+000227 revoked every key). The sections from here to
+[Development Environment Setup](#development-environment-setup) describe that
+older interface and are kept only for installations still on v0.8. Use the
+admin console at `/admin` instead; see
+[Upgrading from v0.8 to v0.9](../operations/upgrade-to-v0.9.md#2-platform-administrators-are-people-admin-api-keys-are-removed).
+
 
 The `openctem-admin` CLI provides kubectl-style commands for platform management.
 
@@ -1057,279 +1030,28 @@ cat manifest.yaml | openctem-admin apply -f -  # Apply from stdin
 
 ## Development Environment Setup
 
-This section covers how to set up admin access in a local development environment.
-
-### Prerequisites
-
-1. PostgreSQL database running with migrations applied
-2. API server running (either via Docker or directly)
-
-### Method 1: Using bootstrap-admin Binary (Recommended for Dev)
-
-Build and run the bootstrap-admin tool directly:
+Local development uses the same `bootstrap-admin` command, built from the api
+repository and pointed at your development database (migrations applied):
 
 ```bash
 cd api
-
-# Build the bootstrap-admin binary
 go build -o ./bin/bootstrap-admin ./cmd/bootstrap-admin
 
-# Run with database connection
 ./bin/bootstrap-admin \
   -db "postgres://openctem:openctem@localhost:5432/openctem?sslmode=disable" \
-  -email "admin@localhost" \
-  -name "Dev Admin" \
-  -role "super_admin"
+  -email admin@localhost \
+  -backup-email breakglass@localhost \
+  -org-name "Dev Org" \
+  -org-owner-email owner@localhost
 ```
 
-**Output:**
-```
-=== Bootstrap Admin Created ===
-  ID:    550e8400-e29b-41d4-a716-446655440000
-  Email: admin@localhost
-  Name:  Dev Admin
-  Role:  super_admin
-
-API Key (save this, it won't be shown again):
-  oc-admin-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
-
-Use this key to authenticate with the Admin UI or API.
-```
-
-### Method 2: Using Docker Compose (setup folder)
-
-If you're using the `setup/` deployment with docker-compose:
-
-```bash
-cd setup
-
-# For staging environment
-make bootstrap-admin-staging email=admin@localhost
-
-# For production environment
-make bootstrap-admin-prod email=admin@localhost
-
-# With custom role and name
-make bootstrap-admin-staging email=ops@localhost role=ops_admin name="Ops User"
-```
-
-### Method 3: Direct Docker Exec
-
-If API container is already running:
-
-```bash
-# Find your API container name
-docker ps | grep api
-
-# Execute bootstrap-admin inside the container
-docker exec -it <container_name> /app/bootstrap-admin \
-  -email "admin@localhost" \
-  -role "super_admin"
-```
-
-### Method 4: Using psql (Emergency/Manual)
-
-If the bootstrap-admin tool is unavailable, you can insert directly via SQL:
-
-```bash
-# Generate a bcrypt hash for your API key
-# Use this Go snippet or an online bcrypt generator:
-# echo -n "oc-admin-your-secret-key-here" | htpasswd -bnBC 12 "" - | tr -d ':\n'
-
-# Or generate a secure random key:
-openssl rand -base64 48
-```
-
-```sql
--- Connect to database
-psql -h localhost -U openctem -d openctem
-
--- Insert admin user
-INSERT INTO admin_users (
-  id, email, name, role, api_key_hash, api_key_prefix, is_active, created_at, updated_at
-) VALUES (
-  gen_random_uuid(),
-  'admin@localhost',
-  'Dev Admin',
-  'super_admin',
-  '$2a$12$your-bcrypt-hash-here',  -- bcrypt hash of your API key
-  'oc-admin-testsecr...',          -- first 20 chars of your key
-  true,
-  NOW(),
-  NOW()
-);
-```
-
-**Warning**: This method is not recommended. Use bootstrap-admin when possible.
-
-### Using the Admin API Key
-
-Once you have the API key, you can use it in several ways:
-
-#### 1. Admin UI Login
-
-1. Open Admin UI at `http://localhost:3001` (or your configured port)
-2. Enter the API key in the login form
-3. Click "Sign In"
-
-#### 2. API Requests with curl
-
-```bash
-# Set your API key
-export ADMIN_API_KEY="oc-admin-your-key-here"
-
-# Validate the key
-curl -X GET http://localhost:8080/api/v1/admin/auth/validate \
-  -H "X-Admin-API-Key: $ADMIN_API_KEY"
-
-# List platform agents
-curl -X GET http://localhost:8080/api/v1/admin/platform-agents \
-  -H "X-Admin-API-Key: $ADMIN_API_KEY"
-
-# Get agent stats
-curl -X GET http://localhost:8080/api/v1/admin/platform-agents/stats \
-  -H "X-Admin-API-Key: $ADMIN_API_KEY"
-
-# List bootstrap tokens
-curl -X GET http://localhost:8080/api/v1/admin/bootstrap-tokens \
-  -H "X-Admin-API-Key: $ADMIN_API_KEY"
-```
-
-#### 3. Admin CLI (openctem-admin)
-
-```bash
-# Set environment variables
-export OPENCTEM_API_URL=http://localhost:8080
-export OPENCTEM_API_KEY=oc-admin-your-key-here
-
-# Or create a config context
-openctem-admin config set-context local \
-  --api-url=http://localhost:8080 \
-  --api-key=oc-admin-your-key-here
-
-openctem-admin config use-context local
-
-# Now use commands
-openctem-admin get agents
-openctem-admin get tokens
-```
-
-### Environment Variables for Development
-
-Create a `.env.local` file for easy development:
-
-```bash
-# .env.local
-ADMIN_API_KEY=oc-admin-your-key-here
-ADMIN_API_URL=http://localhost:8080
-```
-
-Then source it:
-
-```bash
-source .env.local
-curl -X GET $ADMIN_API_URL/api/v1/admin/auth/validate \
-  -H "X-Admin-API-Key: $ADMIN_API_KEY"
-```
-
-### Admin UI Development Configuration
-
-For the Admin UI, set the API URL in `.env.local`:
-
-```bash
-# admin-ui/.env.local
-NEXT_PUBLIC_API_URL=http://localhost:8080
-```
-
-### Troubleshooting Development Setup
-
-#### "Invalid admin API key" error
-
-1. Check if the key was copied correctly (no extra spaces)
-2. Verify the admin user exists in database:
-   ```sql
-   SELECT id, email, role, is_active, api_key_prefix FROM admin_users;
-   ```
-3. Check if the key prefix matches what's stored
-
-#### "CORS error" in Admin UI
-
-Ensure your API has CORS configured for localhost:
-
-```bash
-# In .env.api.local or environment
-CORS_ALLOWED_ORIGINS=*
-# Or specific origins:
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
-CORS_ALLOWED_HEADERS=Accept,Authorization,Content-Type,X-Request-ID,X-Admin-API-Key
-```
-
-Then restart the API server.
-
-#### "404 Not Found" on /api/v1/admin/auth/validate
-
-1. Ensure API server was rebuilt after adding admin routes
-2. Check that admin routes are registered:
-   ```bash
-   # If API has route listing
-   ./server -routes | grep admin
-   ```
-
-#### Database connection failed in bootstrap-admin
-
-Check your connection string format:
-```bash
-# Correct format
--db "postgres://user:pass@host:5432/dbname?sslmode=disable"
-
-# Common mistakes:
-# - Missing sslmode parameter
-# - Wrong port (default is 5432)
-# - Password with special characters needs URL encoding
-```
-
-### Quick Start Script
-
-Create a `scripts/dev-setup-admin.sh` for convenience:
-
-```bash
-#!/bin/bash
-# scripts/dev-setup-admin.sh
-
-set -e
-
-DB_URL="${DB_URL:-postgres://openctem:openctem@localhost:5432/openctem?sslmode=disable}"
-ADMIN_EMAIL="${ADMIN_EMAIL:-admin@localhost}"
-ADMIN_ROLE="${ADMIN_ROLE:-super_admin}"
-
-echo "Building bootstrap-admin..."
-cd api
-go build -o ./bin/bootstrap-admin ./cmd/bootstrap-admin
-
-echo "Creating admin user..."
-./bin/bootstrap-admin \
-  -db "$DB_URL" \
-  -email "$ADMIN_EMAIL" \
-  -role "$ADMIN_ROLE"
-
-echo ""
-echo "Done! Save the API key above."
-echo ""
-echo "To use with Admin UI:"
-echo "  1. Open http://localhost:3001"
-echo "  2. Enter the API key"
-echo ""
-echo "To use with curl:"
-echo "  export ADMIN_API_KEY='oc-admin-...'"
-echo "  curl -H 'X-Admin-API-Key: \$ADMIN_API_KEY' http://localhost:8080/api/v1/admin/auth/validate"
-```
-
-Make it executable and run:
-
-```bash
-chmod +x scripts/dev-setup-admin.sh
-./scripts/dev-setup-admin.sh
-```
+Without SMTP the owner's set-password link is printed. Sign in on the UI's
+`/login` as described in [First sign-in](#first-sign-in). If the API runs in
+Docker, use `docker compose exec api /app/bootstrap-admin …` instead (the
+service is `app` in some development compose files).
+
+There is no admin API key or separate admin UI: the console is `/admin` in the
+main web UI, and the API authenticates administrators with the console session.
 
 ---
 

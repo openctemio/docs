@@ -7,6 +7,16 @@ nav_order: 16
 
 # Admin System Architecture
 
+{: .warning }
+**Superseded in v0.9.0** by the platform admin console
+([RFC-022](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-022-platform-admin-console.md)).
+Administrators are sign-in accounts that belong to no organization; they sign in
+on `/login` and open the console at `/admin` in the main web UI with a TOTP code,
+in server-side sessions. Admin API keys, `X-Admin-API-Key` and the separate
+Admin UI were removed (migration 000227). The [Bootstrap Process](#bootstrap-process)
+section is current; the API-key sections describe v0.8 and older. See the
+[Platform Administration Guide](../guides/platform-admin.md).
+
 ## Overview
 
 The Admin System provides platform-level administration capabilities for managing OpenCTEM infrastructure. It includes:
@@ -273,35 +283,56 @@ Query Parameters:
 
 ### CLI Tool
 
-```bash
-# Create first super admin
-./bootstrap-admin \
-  -db=postgres://user:pass@localhost.openctem \
-  -email=admin@example.com \
-  -role=super_admin
+`bootstrap-admin` (in the API image at `/app/bootstrap-admin`) writes directly
+to the database. It creates the platform administrator and a break-glass backup
+super admin, each with a new sign-in account and a temporary password printed
+once, and optionally the first organization with its owner.
 
-# With specific API key
+```bash
+# Administrators + first organization
 ./bootstrap-admin \
   -db=$DATABASE_URL \
   -email=admin@example.com \
-  -api-key=$BOOTSTRAP_ADMIN_KEY
+  -backup-email=breakglass@example.com \
+  -org-name="Example Org" \
+  -org-owner-email=owner@example.com
 
 # Environment variables
 DATABASE_URL=postgres://... \
 ADMIN_EMAIL=admin@example.com \
+ADMIN_BACKUP_EMAIL=breakglass@example.com \
+ORG_NAME="Example Org" ORG_OWNER_EMAIL=owner@example.com \
 ./bootstrap-admin
 ```
+
+The organization is created through the audited organization service
+(`TenantService`), not raw SQL, and the owner gets a one-time set-password link
+(24 h), emailed when SMTP is configured, otherwise printed once. The run is
+idempotent: existing administrators and an organization with the same slug are
+skipped. The owner cannot be an administrator (a database trigger, migration
+000226, keeps administrators out of organizations).
 
 ### Flags
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-db` | Database URL | `$DATABASE_URL` |
+| `-db` | Database URL | `$DATABASE_URL`, or built from `DB_*` |
 | `-email` | Admin email | `$ADMIN_EMAIL` (required) |
 | `-name` | Display name | Email prefix |
-| `-api-key` | Specific key | Random generated |
-| `-role` | Admin role | `super_admin` |
-| `-force` | Overwrite existing | `false` |
+| `-role` | Admin role: `super_admin`, `ops_admin`, `readonly` | `super_admin` |
+| `-backup-email` | Break-glass backup super admin | `$ADMIN_BACKUP_EMAIL` (required unless `-no-backup`) |
+| `-backup-name` | Its display name | Email prefix |
+| `-no-backup` | Skip the break-glass admin | `false` |
+| `-org-name` | First organization (with `-org-owner-email`) | `$ORG_NAME` |
+| `-org-slug` | Organization slug | `$ORG_SLUG`, derived from the name |
+| `-org-owner-email` | Organization owner (with `-org-name`) | `$ORG_OWNER_EMAIL` |
+| `-org-owner-name` | Owner's display name | `$ORG_OWNER_NAME` |
+| `-link` | Link a v0.8 administrator to a new sign-in account and reactivate it | `false` |
+| `-force` | Delete and re-create an existing admin | `false` |
+
+`bootstrap-tenant` (raw-SQL first tenant) was removed; the Helm chart's
+`api.bootstrapAdmin` values (with `org.*`) run this command as a post-install
+Job.
 
 ---
 
