@@ -62,8 +62,8 @@ flowchart LR
 ```
 
 The gateway is [Caddy](https://caddyserver.com/) with a fixed configuration. Its
-files live in the `deploy/` directory of the
-[api repository](https://github.com/openctemio/api/tree/develop/deploy):
+files live in the `api/deploy/` directory of the
+[openctem repository](https://github.com/openctemio/openctem/tree/main/api/deploy):
 
 | File | Purpose |
 |------|---------|
@@ -96,8 +96,8 @@ Requirements: Docker Engine 24+ with Compose v2, port 443 free on the host, and
 the DNS name or IP address clients will use.
 
 ```bash
-git clone https://github.com/openctemio/api.git
-cd api/deploy
+git clone https://github.com/openctemio/openctem.git
+cd openctem/api/deploy
 cp .env.example .env
 ```
 
@@ -414,7 +414,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SSL_CERT_DIR=/etc/openctem/ca \
   -e API_URL=https://ctem.example.com \
   -e API_KEY=<sensor-api-key> \
-  ghcr.io/openctemio/agent:latest \
+  ghcr.io/openctemio/sensor:latest \
   -daemon -enable-commands -tools nuclei,trivy
 ```
 
@@ -587,7 +587,7 @@ maintenance window: the UI and API restart once.
 
 ### 2. Deploy the gateway stack on the same data
 
-1. Get `deploy/` (see [Quick start](#quick-start-docker-compose)) and copy the
+1. Get `api/deploy/` (see [Quick start](#quick-start-docker-compose)) and copy the
    **existing** secrets into the new `.env`: `DB_PASSWORD`, `REDIS_PASSWORD`,
    `AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`, `CSRF_SECRET`. A new
    `APP_ENCRYPTION_KEY` makes stored integration credentials unreadable. If the
@@ -656,7 +656,7 @@ port that is still published in a compose file stays reachable even after a
 
 ### Rollback
 
-1. `docker compose down` in the new `deploy/` directory (no `-v`: the
+1. `docker compose down` in the new `api/deploy/` directory (no `-v`: the
    `gateway-data` volume holds the internal CA and certificates, the database
    volume your data).
 2. Start the old stack with its saved compose file and `.env`.

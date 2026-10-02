@@ -63,7 +63,7 @@ docker compose exec redis redis-cli ping
 
 **Solution:**
 ```bash
-cd ui
+cd web
 
 # Remove existing modules
 rm -rf node_modules package-lock.json
@@ -626,7 +626,7 @@ SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;
 If you can't resolve the issue:
 
 1. **Search existing issues:**
-   - [GitHub Issues](https://github.com/openctemio/api/issues)
+   - [GitHub Issues](https://github.com/openctemio/openctem/issues)
 
 2. **Create a new issue with:**
    - OS and version

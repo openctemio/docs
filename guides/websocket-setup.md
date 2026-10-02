@@ -302,7 +302,7 @@ volumes:
 ### Environment Variables
 
 ```bash
-# ui/.env.local
+# web/.env.local
 
 # Backend API URL (server-side rendering)
 BACKEND_API_URL=http://api:8080

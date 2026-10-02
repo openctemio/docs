@@ -173,11 +173,11 @@ function SCMConnectionsBanner() {
 - `api/internal/domain/licensing/module.go`
 
 **Frontend:**
-- `ui/src/features/licensing/components/index.ts`
-- `ui/src/features/licensing/index.ts`
-- `ui/src/app/(dashboard)/settings/integrations/scm/page.tsx`
-- `ui/src/features/scm-connections/components/scm-connections-section.tsx`
-- `ui/src/app/(dashboard)/(discovery)/assets/repositories/page.tsx`
+- `web/src/features/licensing/components/index.ts`
+- `web/src/features/licensing/index.ts`
+- `web/src/app/(dashboard)/settings/integrations/scm/page.tsx`
+- `web/src/features/scm-connections/components/scm-connections-section.tsx`
+- `web/src/app/(dashboard)/(discovery)/assets/repositories/page.tsx`
 
 ## Access Control Flow
 

@@ -190,10 +190,10 @@ The `openctem-admin` CLI provides kubectl-style commands for platform management
 #### Binary Installation
 
 ```bash
-# Download from releases
-curl -LO https://github.com/openctemio/api/releases/latest/download/openctem-admin-linux-amd64
-chmod +x openctem-admin-linux-amd64
-sudo mv openctem-admin-linux-amd64 /usr/local/bin/openctem-admin
+# v0.8.0 was the last release with this CLI
+curl -sSL https://github.com/openctemio/openctem/releases/download/v0.8.0/openctem-admin-v0.8.0-linux-amd64.tar.gz | tar xz
+chmod +x openctem-admin
+sudo mv openctem-admin /usr/local/bin/openctem-admin
 
 # Verify installation
 openctem-admin version
@@ -207,7 +207,7 @@ alias openctem-admin='docker run --rm -it \
   -e OPENCTEM_API_URL=$OPENCTEM_API_URL \
   -e OPENCTEM_API_KEY=$OPENCTEM_API_KEY \
   -v ~/.openctem:/root/.openctem \
-  openctemio/admin-cli:latest'
+  ghcr.io/openctemio/admin-cli:v0.8.0'
 
 # Use normally
 openctem-admin get agents
@@ -804,7 +804,7 @@ helm uninstall platform-agent -n openctem
 kubectl delete pvc -l app.kubernetes.io/instance=platform-agent -n openctem
 ```
 
-For full documentation, see the [Helm chart README](https://github.com/openctemio/charts/tree/main/charts/platform-agent).
+For full documentation, see the [Helm chart README](https://github.com/openctemio/helm-charts/tree/main/charts/openctem#readme).
 
 ---
 
@@ -1030,11 +1030,12 @@ cat manifest.yaml | openctem-admin apply -f -  # Apply from stdin
 
 ## Development Environment Setup
 
-Local development uses the same `bootstrap-admin` command, built from the api
-repository and pointed at your development database (migrations applied):
+Local development uses the same `bootstrap-admin` command, built from `api/`
+in the [openctem repository](https://github.com/openctemio/openctem) and pointed
+at your development database (migrations applied):
 
 ```bash
-cd api
+cd openctem/api
 go build -o ./bin/bootstrap-admin ./cmd/bootstrap-admin
 
 ./bin/bootstrap-admin \
@@ -1044,6 +1045,12 @@ go build -o ./bin/bootstrap-admin ./cmd/bootstrap-admin
   -org-name "Dev Org" \
   -org-owner-email owner@localhost
 ```
+
+From v0.9.0 every release also attaches prebuilt binaries,
+`bootstrap-admin-<version>-<os>-<arch>.tar.gz` (`.zip` for Windows), with
+`checksums-sha256.txt`, on the
+[openctem releases page](https://github.com/openctemio/openctem/releases), and
+the `ghcr.io/openctemio/admin-cli` image runs the same command.
 
 Without SMTP the owner's set-password link is printed. Sign in on the UI's
 `/login` as described in [First sign-in](#first-sign-in). If the API runs in

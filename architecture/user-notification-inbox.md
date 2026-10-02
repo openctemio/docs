@@ -687,7 +687,7 @@ r.Route("/api/v1/me/notification-preferences", func(r chi.Router) {
 
 ### 7.1 Types
 
-#### File: `ui/src/features/notifications/types/user-notification.types.ts`
+#### File: `web/src/features/notifications/types/user-notification.types.ts`
 
 ```typescript
 export interface UserNotification {
@@ -752,7 +752,7 @@ export interface EventPreference {
 
 ### 7.2 API Hooks
 
-#### File: `ui/src/features/notifications/api/use-user-notifications.ts`
+#### File: `web/src/features/notifications/api/use-user-notifications.ts`
 
 ```typescript
 import useSWR from 'swr'
@@ -806,7 +806,7 @@ export function useMarkSingleAsRead(notificationId: string) {
 
 ### 7.3 Components
 
-#### File: `ui/src/components/notification-bell.tsx`
+#### File: `web/src/components/notification-bell.tsx`
 
 ```typescript
 'use client'
@@ -917,7 +917,7 @@ export function NotificationBell() {
 }
 ```
 
-#### File: `ui/src/components/notification-item.tsx`
+#### File: `web/src/components/notification-item.tsx`
 
 ```typescript
 'use client'
@@ -1068,7 +1068,7 @@ export function NotificationItem({ notification, onRead }: NotificationItemProps
 ### 8.3 Frontend WebSocket Hook
 
 ```typescript
-// ui/src/features/notifications/hooks/use-notification-socket.ts
+// web/src/features/notifications/hooks/use-notification-socket.ts
 import { useEffect } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 import { mutate } from 'swr'

@@ -293,7 +293,7 @@ Update handler to populate sub_modules.
 
 ### Phase 6: Frontend Types
 
-**File**: `ui/src/features/integrations/api/use-tenant-modules.ts`
+**File**: `web/src/features/integrations/api/use-tenant-modules.ts`
 
 Update interface:
 ```typescript
@@ -341,7 +341,7 @@ export function useTenantModules() {
 
 ### Phase 7: Frontend Sidebar Integration
 
-**File**: `ui/src/components/layout/nav-group.tsx`
+**File**: `web/src/components/layout/nav-group.tsx`
 
 Update to filter items based on sub-modules:
 ```typescript
@@ -461,9 +461,9 @@ ORDER BY display_order;
 - [x] `api/internal/infra/http/handler/licensing_handler.go`
 
 ### Frontend
-- [x] `ui/src/features/integrations/api/use-tenant-modules.ts`
-- [x] `ui/src/components/layout/nav-group.tsx`
-- [x] `ui/src/config/sidebar-data.ts` (already has assetModuleKey)
+- [x] `web/src/features/integrations/api/use-tenant-modules.ts`
+- [x] `web/src/components/layout/nav-group.tsx`
+- [x] `web/src/config/sidebar-data.ts` (already has assetModuleKey)
 
 ### Cleanup (after implementation)
-- [ ] `ui/src/config/asset-modules.ts` (can be removed - replaced by database)
+- [ ] `web/src/config/asset-modules.ts` (can be removed - replaced by database)

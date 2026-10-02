@@ -19,13 +19,13 @@ Complete guide to deploy and configure OpenCTEM for first-time use.
 
 ### Option A: Docker Compose (Recommended for getting started)
 
-The production compose stack lives in the `deploy/` directory of the
-[api repository](https://github.com/openctemio/api/tree/develop/deploy). It
+The production compose stack lives in `api/deploy/` of the
+[openctem repository](https://github.com/openctemio/openctem/tree/main/api/deploy). It
 publishes a single HTTPS port through the built-in gateway.
 
 ```bash
-git clone https://github.com/openctemio/api.git
-cd api/deploy
+git clone https://github.com/openctemio/openctem.git
+cd openctem/api/deploy
 cp .env.example .env
 # Edit .env: OPENCTEM_VERSION, OPENCTEM_HOSTNAME, OPENCTEM_PUBLIC_URL,
 # OPENCTEM_TLS_MODE and the generated secrets (see the guide linked below)
@@ -60,7 +60,7 @@ datastores and ingress.
 ### Verify deployment
 
 ```bash
-# Docker Compose (from api/deploy; add --cacert ca/openctem-root-ca.crt with the internal CA)
+# Docker Compose (from openctem/api/deploy; add --cacert ca/openctem-root-ca.crt with the internal CA)
 curl https://ctem.example.com/health
 docker compose ps -a        # migrate and datastore-tls exited 0, the rest up
 
@@ -101,7 +101,7 @@ Both deployment methods run them for you:
 
 ### Step 2: Create the administrators and the first organization
 
-**Docker Compose** (from `api/deploy`, after `docker compose up -d`):
+**Docker Compose** (from `openctem/api/deploy`, after `docker compose up -d`):
 
 ```bash
 docker compose exec api /app/bootstrap-admin \
@@ -473,16 +473,15 @@ kubectl exec -it statefulset/openctem-postgres -n openctem -- \
 If a migration fails:
 
 ```bash
-# Docker Compose
-docker run --rm --network openctemio_openctem-network \
-  openctemio/migrations:latest \
+# Docker Compose (from openctem/api/deploy; uses the stack's migrations image)
+docker compose run --rm migrate \
   -path=/migrations \
-  -database "postgres://openctem:PASSWORD@postgres:5432/openctem?sslmode=disable" \
+  -database "postgres://openctem:PASSWORD@postgres:5432/openctem?sslmode=require" \
   force <previous-version>
 
 # Kubernetes
 kubectl run migrate-fix --rm -it --restart=Never -n openctem \
-  --image=openctemio/migrations:latest -- \
+  --image=ghcr.io/openctemio/migrations:<version> -- \
   -path=/migrations \
   -database "postgresql://openctem:PASSWORD@openctem-postgres:5432/openctem?sslmode=disable" \
   force <previous-version>

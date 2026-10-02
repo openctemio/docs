@@ -203,7 +203,7 @@ Cache-Control: public, max-age=3600
 ### Go (Backend)
 
 ```go
-import "github.com/openctemio/api/internal/domain/vulnerability"
+import "github.com/openctemio/openctem/api/internal/domain/vulnerability"
 
 // Use constants for type safety
 finding.SetSource(vulnerability.FindingSourceSAST)

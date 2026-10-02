@@ -1255,7 +1255,7 @@ services:
 ### Frontend Environment
 
 ```bash
-# ui/.env.local
+# web/.env.local
 BACKEND_API_URL=http://localhost:8080
 
 # For WebSocket connection (leave empty for same-origin)

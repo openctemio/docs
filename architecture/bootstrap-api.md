@@ -168,8 +168,8 @@ Individual hooks (`useTenantSubscription`, `useTenantModules`) still work as dir
 |------|-------------|
 | `api/internal/infra/http/handler/bootstrap_handler.go` | Bootstrap endpoint handler |
 | `api/internal/infra/http/routes/misc.go` | Route registration |
-| `ui/src/context/bootstrap-provider.tsx` | Frontend provider with SWR |
-| `ui/src/features/core/api/use-bootstrap.ts` | Bootstrap API hook |
+| `web/src/context/bootstrap-provider.tsx` | Frontend provider with SWR |
+| `web/src/features/core/api/use-bootstrap.ts` | Bootstrap API hook |
 
 ## Related Documentation
 

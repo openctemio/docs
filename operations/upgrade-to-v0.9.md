@@ -6,7 +6,7 @@
 > Coming from an older release? Read [Skipping versions](#skipping-versions) first.
 >
 > This page lists only what is specific to v0.9.0. The generic procedure
-> (image tags, `.env.versions`, Helm hooks, maintenance window template) is in
+> (image names and tags, Helm hooks, maintenance window template) is in
 > the [Upgrade Guide](upgrade-guide.md). The agent → sensor rename has its own
 > page, [Upgrading to the Sensor release](upgrade-agent-to-sensor.md); this page
 > links to it instead of repeating it.
@@ -42,7 +42,7 @@ items need a decision from you or from organization owners.
 
 - **Platform admin console** at `/admin` on the UI: organizations, per-organization
   SSO, administrators, system logs, admin sign-in settings
-  ([RFC-022](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-022-platform-admin-console.md)).
+  ([RFC-022](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-022-platform-admin-console.md)).
   A platform administrator is a normal account that belongs to no organization;
   it signs in on `/login` and opens the console with an authenticator code.
   **Break-glass** administrators and an optional **platform identity provider**
@@ -50,11 +50,11 @@ items need a decision from you or from organization owners.
 - **Two-factor authentication for users** (TOTP + recovery codes) under
   *My account → Security*, and the organization setting *Require two-factor
   authentication* is now enforced
-  ([RFC-024](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-024-user-two-factor-authentication.md)).
+  ([RFC-024](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-024-user-two-factor-authentication.md)).
   Signing out a session now takes effect on the next request.
 - **Administrators create users** (*Settings → Members → Add user*, or from the
   console), with a one-time set-password link; no open self-registration
-  ([RFC-025](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-025-user-onboarding.md)).
+  ([RFC-025](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-025-user-onboarding.md)).
 - **Agents are now sensors** across the database, API, permissions, audit, logs,
   metrics and UI. Deployed agents keep working unchanged
   ([details](upgrade-agent-to-sensor.md)).
@@ -606,8 +606,9 @@ you normally call compose, for example:
 ```bash
 cd /opt/openctem
 DC="docker compose -f docker-compose.prod.yml --env-file .env.versions.prod"
-# (the api repository's docker-compose.prod.yml names the API service `app`;
+# (the API's docker-compose.prod.yml names the API service `app`;
 #  replace `api` with `app` below if you use it)
+# (that file is api/docker-compose.prod.yml in the openctem repository now)
 ```
 
 **1. Set the new versions and configuration.**
@@ -622,6 +623,15 @@ UI_VERSION=v0.9.0
 
 Apply the [configuration changes](#configuration-changes) to your API and UI
 env files.
+
+{: .note }
+v0.9.0 is the first release from the merged
+[openctemio/openctem](https://github.com/openctemio/openctem) repository, and
+its images have new names: `ghcr.io/openctemio/openctem-api` and
+`ghcr.io/openctemio/openctem-web`. The old names `ghcr.io/openctemio/api` and
+`ghcr.io/openctemio/ui` still receive identical copies of v0.9.0 and the next
+release, so a compose file that uses them keeps working; switch to the new
+names during this upgrade (see [Images](upgrade-guide.md#images)).
 
 **2. Pull the images** (no downtime yet; v0.9.0 images are about 700 MB in total):
 
@@ -914,7 +924,7 @@ v0.9.0 works, but you take every older release's breaking changes at once.
   run first. The inventory queries are written for the v0.8 schema; they are
   read-only, so run them anyway and treat a query that errors as not applicable.
 - **From v0.6.x or older:** read each release's notes. Run
-  `scripts/preflight-migrate.sh --check-only` from the api repository against
+  `api/scripts/preflight-migrate.sh --check-only` from the openctem repository against
   the database first: migrations 000170 and 000171 validate existing data and
   fail half-way on violations. `000194_widen_epss_percentile` rewrites a large
   table under an exclusive lock; size the window for it.

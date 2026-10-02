@@ -8,10 +8,16 @@ nav_order: 3
 # Backend API Service
 
 [![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://go.dev)
-[![License](https://img.shields.io/badge/License-GPL-blue.svg)](LICENSE)
-[![Docker](https://img.shields.io/badge/Docker-Hub-2496ED?logo=docker)](https://hub.docker.com/r/openctemio/api)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://github.com/openctemio/openctem/blob/main/LICENSE)
+[![Image](https://img.shields.io/badge/ghcr.io-openctem--api-2496ED?logo=docker)](https://github.com/openctemio/openctem/pkgs/container/openctem-api)
 
 Unified Exposure Management platform built with Clean Architecture in Go.
+
+The API lives in the `api/` directory of the
+[openctemio/openctem](https://github.com/openctemio/openctem) repository
+(Go module `github.com/openctemio/openctem/api`), next to the web console in
+`web/`. Both are released together under one `vX.Y.Z` tag; the API image is
+`ghcr.io/openctemio/openctem-api` (v0.8.0 and earlier: `ghcr.io/openctemio/api`).
 
 ## 📚 Documentation
 
@@ -46,7 +52,7 @@ Unified Exposure Management platform built with Clean Architecture in Go.
 ## Project Structure
 
 ```
-openctem/
+openctem/api/
 ├── cmd/server/              # Application entry point
 ├── internal/
 │   ├── domain/              # Core business logic (entities, value objects)
@@ -91,8 +97,8 @@ openctem/
 
 ```bash
 # Clone
-git clone https://github.com/openctemio/api.git
-cd api
+git clone https://github.com/openctemio/openctem.git
+cd openctem/api
 
 # Setup environment
 cp .env.example .env
@@ -116,6 +122,9 @@ export CORS_ALLOWED_ORIGINS=https://your-domain.com
 # Start production environment
 make docker-prod
 ```
+
+For a real deployment use the gateway stack in `api/deploy/` (one HTTPS port);
+see [Exposing OpenCTEM: one HTTPS port](../operations/single-https-port).
 
 ### Verify
 

@@ -67,8 +67,8 @@ Implement a 4-phase hardening plan:
 | `api/internal/infra/http/handler/scope_handler.go` | Pass tenantID, RunScheduleNow handler, Swagger docs |
 | `api/internal/infra/http/routes/assets.go` | Register RunScheduleNow route |
 | `api/tests/unit/scope_service_test.go` | Update mocks for new Delete signatures |
-| `ui/src/features/scope/api/use-scope-api.ts` | Add `runScheduleNow` function |
-| `ui/src/app/(dashboard)/(scoping)/scope-config/page.tsx` | Wire Run Now, fix edit target payload |
+| `web/src/features/scope/api/use-scope-api.ts` | Add `runScheduleNow` function |
+| `web/src/app/(dashboard)/(scoping)/scope-config/page.tsx` | Wire Run Now, fix edit target payload |
 
 ### Security Pattern (Delete)
 
