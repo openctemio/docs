@@ -79,9 +79,12 @@ make staging-up-seed
 # 5. Access application
 open http://localhost:3000
 
-# There is no seeded default account. Create the first admin manually:
-#   make bootstrap-admin-prod email=admin@yourcompany.com
-# then log in with that account (the command prints a one-time API key).
+# There is no seeded default account or organization. Create the platform
+# admin, its break-glass backup and the first organization:
+#   docker compose -f docker-compose.staging.yml exec api /app/bootstrap-admin \
+#     -email=admin@yourcompany.com -backup-email=breakglass@yourcompany.com \
+#     -org-name="Staging Org" -org-owner-email=owner@yourcompany.com
+# It prints the admins' temporary passwords and the owner's set-password link.
 ```
 
 ---
@@ -268,10 +271,11 @@ docker compose exec postgres psql -U openctem -d openctem -c \
 
 ### Test Credentials
 
-No accounts are seeded. Create the first admin with `bootstrap-admin`
-(`make bootstrap-admin-prod email=admin@yourcompany.com`), then invite or register
-additional test users from the UI. Use throwaway passwords in staging and never
-reuse production credentials.
+No accounts or organizations are seeded. Create the platform administrator and
+the first organization with `bootstrap-admin` (see
+[First-Time Setup](../guides/getting-started.md#2-first-time-setup)), then have
+the organization owner add or invite test users under **Settings → Members**.
+Use throwaway passwords in staging and never reuse production credentials.
 
 ---
 

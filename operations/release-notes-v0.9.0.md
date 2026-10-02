@@ -51,6 +51,20 @@ agents to sensors in the database.
 ### Breaking changes
 
 - `AUTH_ALLOW_REGISTRATION` now defaults to `false`. #562
+- **Behaviour change:** `TENANT_CREATION_MODE` now defaults to `admin_only`, on
+  new installs and on upgrades. Only the platform administrator creates
+  organizations (console *Organizations → Create*, or `bootstrap-admin`).
+  `POST /tenants` and `/auth/create-first-team` return 403, and a user with no
+  organization is told to ask the administrator. Existing organizations are
+  unaffected. To keep self-service organization creation, set
+  `TENANT_CREATION_MODE=self_service` (Helm: `api.tenantCreationMode=self_service`).
+- `bootstrap-admin` can create the first organization: `-org-name`,
+  `-org-owner-email` (together), optional `-org-slug` and `-org-owner-name`.
+  The owner gets a one-time set-password link (24 h), emailed with SMTP or
+  printed once. `bootstrap-tenant` is removed from the image; the Helm chart
+  drops `api.bootstrapTenant` (rendering fails if it is enabled) in favour of
+  `api.bootstrapAdmin.org.*`, and keeps the bootstrap Job after success so its
+  one-time credentials can be read, then deleted.
 - `AUTH_COOKIE_SECURE` now defaults to `true` outside `APP_ENV=development`, and
   production refuses `false` for OIDC-only deployments too. A staging stack on
   plain `http://` must set it to `false`. #625
@@ -145,7 +159,7 @@ image now contains only `bootstrap-admin`.
   recovery codes), the session list with sign-out, and password change. Login
   asks for a code step and, where required, forced enrollment. The members list
   has a *2FA* column. #510 #511
-- **Admin-created users**: *Settings → Users → Add user* gives a one-time
+- **Admin-created users**: *Settings → Members → Add user* gives a one-time
   set-password link, plus `/set-password`. *Sign up* is hidden when
   registration is off, and invitation pages offer *Create your account*. The
   security settings show *Your current IP* and explain the lockout guard. #509

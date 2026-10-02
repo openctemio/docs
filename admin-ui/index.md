@@ -7,6 +7,15 @@ nav_order: 6
 
 # Platform Admin UI Documentation
 
+{: .warning }
+**Replaced in v0.9.0.** The separate Admin UI application (port 3001, API-key
+sign-in) no longer exists. Platform administration is the **admin console** at
+`/admin` in the main web UI: administrators sign in on `/login` with their
+password and an authenticator (TOTP) code. Admin API keys were removed
+(migration 000227). See the [Platform Administration Guide](../guides/platform-admin.md)
+and [First-Time Setup](../guides/getting-started.md#2-first-time-setup). The rest
+of this page describes the old application and is kept for v0.8 installations.
+
 The Platform Admin UI is a Next.js 16 application for managing platform agents, jobs, tokens, and administrators.
 
 ---
