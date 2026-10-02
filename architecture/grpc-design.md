@@ -78,7 +78,7 @@ syntax = "proto3";
 
 package.openctem.v1;
 
-option go_package = "github.com/openctemio/api/api/proto/v1";
+option go_package = "github.com/openctemio/openctem/api/api/proto/v1";
 
 import "google/protobuf/timestamp.proto";
 
@@ -132,7 +132,7 @@ syntax = "proto3";
 
 package.openctem.v1;
 
-option go_package = "github.com/openctemio/api/api/proto/v1";
+option go_package = "github.com/openctemio/openctem/api/api/proto/v1";
 
 import "google/protobuf/timestamp.proto";
 import "common.proto";
@@ -217,7 +217,7 @@ syntax = "proto3";
 
 package.openctem.v1;
 
-option go_package = "github.com/openctemio/api/api/proto/v1";
+option go_package = "github.com/openctemio/openctem/api/api/proto/v1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
@@ -309,7 +309,7 @@ syntax = "proto3";
 
 package.openctem.v1;
 
-option go_package = "github.com/openctemio/api/api/proto/v1";
+option go_package = "github.com/openctemio/openctem/api/api/proto/v1";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";

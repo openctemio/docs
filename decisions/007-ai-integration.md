@@ -544,10 +544,10 @@ api/internal/app/finding_service.go             # Hook auto-triage
 
 **Files:**
 ```
-ui/src/features/ai-triage/api/use-ai-triage.ts
-ui/src/features/ai-triage/components/ai-triage-button.tsx
-ui/src/features/ai-triage/components/ai-triage-result.tsx
-ui/src/features/settings/components/ai-settings-panel.tsx
+web/src/features/ai-triage/api/use-ai-triage.ts
+web/src/features/ai-triage/components/ai-triage-button.tsx
+web/src/features/ai-triage/components/ai-triage-result.tsx
+web/src/features/settings/components/ai-settings-panel.tsx
 ```
 
 ### Phase 4: Advanced Features

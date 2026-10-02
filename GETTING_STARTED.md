@@ -33,8 +33,8 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 ### Step 1: Get the Compose Files
 
 ```bash
-git clone https://github.com/openctemio/api.git
-cd api/deploy
+git clone https://github.com/openctemio/openctem.git
+cd openctem/api/deploy
 cp .env.example .env
 ```
 
@@ -112,7 +112,7 @@ docker run --rm \
   -v $(pwd):/scan \
   -e API_URL=https://ctem.example.com \
   -e API_KEY=your-api-key-here \
-  openctemio/agent:latest \
+  ghcr.io/openctemio/sensor:latest \
   -tools semgrep,betterleaks,trivy -target /scan -push -verbose
 ```
 
@@ -146,15 +146,15 @@ This scans the current directory for:
 | **Architecture** | [System Overview](./architecture/overview.md) |
 | **End-to-End Workflow** | [Complete Scan Workflow](./guides/END_TO_END_WORKFLOW.md) |
 | **API Reference** | [API Endpoints](./backend/api-reference.md) |
-| **Agent Guide** | [Agent Quick Start](../agent/docs/QUICK_START.md) |
+| **Sensor Guide** | [Sensor Quick Start](https://github.com/openctemio/sensor/blob/main/docs/QUICK_START.md) |
 
 ### Deploy to Production
 
 | Topic | Guide |
 |-------|-------|
 | **Kubernetes** | [Production Deployment](./operations/PRODUCTION_DEPLOYMENT.md) |
-| **Environment Config** | [Environment Variables](./ui/ops/ENVIRONMENT_VARIABLES.md) |
-| **Security Hardening** | [Production Checklist](./ui/ops/PRODUCTION_CHECKLIST.md) |
+| **Environment Config** | [Configuration](./operations/configuration.md) |
+| **Security Hardening** | [Security Guide](./guides/SECURITY.md) |
 
 ### Platform Administration
 
@@ -168,32 +168,25 @@ This scans the current directory for:
 
 | Platform | Example |
 |----------|---------|
-| **GitHub Actions** | [Agent README](../agent/README.md#github-actions) |
-| **GitLab CI** | [Agent README](../agent/README.md#gitlab-ci) |
-| **Custom** | [SDK Documentation](../sdk-go/README.md) |
+| **GitHub Actions** | [Sensor README](https://github.com/openctemio/sensor#github-actions) |
+| **GitLab CI** | [Sensor README](https://github.com/openctemio/sensor#gitlab-ci) |
+| **Custom** | [SDK Documentation](https://github.com/openctemio/sdk-go#readme) |
 
 ---
 
 ## Common Commands
 
+Run from `openctem/api/deploy`:
+
 ```bash
-# Start platform
-make prod-up
+docker compose up -d        # Start platform
+docker compose down         # Stop platform (keeps the data volumes)
+docker compose logs -f api  # View logs
+docker compose ps -a        # Check status
+docker compose restart      # Restart services
 
-# Stop platform
-make prod-down
-
-# View logs
-make logs
-
-# Update all repositories
-make pull-all
-
-# Check status
-make status
-
-# Restart services
-make restart
+# Upgrade: set the new OPENCTEM_VERSION in .env, then
+docker compose pull && docker compose up -d
 ```
 
 ---
@@ -234,7 +227,7 @@ Expected response: `{"status":"ok"}`
 
 - 📚 **Documentation:** [docs.openctem.io](https://docs.openctem.io)
 - 💬 **Discord:** [discord.gg/openctemio](https://discord.gg/openctemio)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/openctemio/openctemio/issues)
+- 🐛 **Issues:** [GitHub Issues](https://github.com/openctemio/openctem/issues)
 
 ---
 

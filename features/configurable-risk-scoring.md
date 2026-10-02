@@ -402,13 +402,13 @@ RiskScoringProvider (dashboard-providers.tsx)
 
 | File | Description |
 |------|-------------|
-| `ui/src/features/organization/types/settings.types.ts` | TypeScript interfaces |
-| `ui/src/features/organization/api/use-risk-scoring-settings.ts` | SWR hooks for all endpoints |
-| `ui/src/app/(dashboard)/settings/scoring/page.tsx` | Settings page UI |
-| `ui/src/context/risk-scoring-provider.tsx` | `RiskScoringProvider` context |
-| `ui/src/features/shared/components/risk-score-badge.tsx` | Risk score display components |
-| `ui/src/features/shared/lib/risk-level.ts` | `getRiskLevel()` with threshold support |
-| `ui/src/lib/api/endpoints.ts` | API endpoint constants |
+| `web/src/features/organization/types/settings.types.ts` | TypeScript interfaces |
+| `web/src/features/organization/api/use-risk-scoring-settings.ts` | SWR hooks for all endpoints |
+| `web/src/app/(dashboard)/settings/scoring/page.tsx` | Settings page UI |
+| `web/src/context/risk-scoring-provider.tsx` | `RiskScoringProvider` context |
+| `web/src/features/shared/components/risk-score-badge.tsx` | Risk score display components |
+| `web/src/features/shared/lib/risk-level.ts` | `getRiskLevel()` with threshold support |
+| `web/src/lib/api/endpoints.ts` | API endpoint constants |
 
 ### Tests
 
@@ -417,10 +417,10 @@ RiskScoringProvider (dashboard-providers.tsx)
 | `api/tests/unit/risk_scoring_test.go` | 30+ | Settings validation, presets, engine calculation |
 | `api/tests/unit/asset_service_scoring_test.go` | 15+ | Config cache, batch recalculation, preview |
 | `api/tests/unit/settings_handler_scoring_test.go` | 27+ | API endpoint handlers |
-| `ui/src/features/organization/api/__tests__/use-risk-scoring-settings.test.ts` | 12 | SWR hooks |
-| `ui/src/features/shared/__tests__/risk-level.test.ts` | 15 | `getRiskLevel()` function |
-| `ui/src/features/shared/__tests__/risk-score-badge.test.tsx` | 9 | Score display components |
-| `ui/src/context/__tests__/risk-scoring-provider.test.tsx` | 3 | Context provider |
+| `web/src/features/organization/api/__tests__/use-risk-scoring-settings.test.ts` | 12 | SWR hooks |
+| `web/src/features/shared/__tests__/risk-level.test.ts` | 15 | `getRiskLevel()` function |
+| `web/src/features/shared/__tests__/risk-score-badge.test.tsx` | 9 | Score display components |
+| `web/src/context/__tests__/risk-scoring-provider.test.tsx` | 3 | Context provider |
 
 ## Related Documentation
 

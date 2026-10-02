@@ -104,11 +104,10 @@ API service documentation:
 - JWT Structure
 - Database Schema
 
-### [UI](./ui/)
-Frontend application documentation:
-- Architecture
-- Feature guides
-- Deployment
+### [Web Console](./ui/)
+The Next.js web console (`web/` in the openctem repository):
+- Where its developer docs live (`web/docs/`)
+- Account settings, custom endpoints, release readiness
 
 ### [Admin UI](./admin-ui/)
 The separate Admin UI application of v0.8 and older. Since v0.9.0, platform

@@ -35,8 +35,8 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 ## Step 1: Get the Compose Files
 
 ```bash
-git clone https://github.com/openctemio/api.git
-cd api/deploy
+git clone https://github.com/openctemio/openctem.git
+cd openctem/api/deploy
 cp .env.example .env
 ```
 
@@ -104,12 +104,12 @@ See **[First Scan Tutorial](./first-scan.md)** for detailed instructions.
 **Quick version:**
 
 ```bash
-# Run agent with Docker
+# Run the sensor with Docker
 docker run --rm \
   -v $(pwd):/scan \
   -e API_URL=https://ctem.example.com \
   -e API_KEY=your-api-key \
-  openctemio/agent:latest \
+  ghcr.io/openctemio/sensor:latest \
   -tools semgrep,betterleaks,trivy -target /scan -push
 ```
 

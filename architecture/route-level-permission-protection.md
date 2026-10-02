@@ -134,14 +134,14 @@ DashboardLayout
 
 | File | Purpose |
 |------|---------|
-| `ui/src/config/route-permissions.ts` | Route-to-permission mapping configuration |
-| `ui/src/components/route-guard.tsx` | RouteGuard component that enforces access |
-| `ui/src/app/(dashboard)/layout.tsx` | Dashboard layout that wraps children with RouteGuard |
+| `web/src/config/route-permissions.ts` | Route-to-permission mapping configuration |
+| `web/src/components/route-guard.tsx` | RouteGuard component that enforces access |
+| `web/src/app/(dashboard)/layout.tsx` | Dashboard layout that wraps children with RouteGuard |
 
 ### 4.2 Route Permission Configuration
 
 ```typescript
-// ui/src/config/route-permissions.ts
+// web/src/config/route-permissions.ts
 
 export interface RoutePermissionConfig {
   /** Required permission (RBAC layer) */
@@ -184,7 +184,7 @@ The route matcher supports:
 ### 4.4 RouteGuard Component
 
 ```typescript
-// ui/src/components/route-guard.tsx
+// web/src/components/route-guard.tsx
 
 export function RouteGuard({ children }: RouteGuardProps) {
   const pathname = usePathname()

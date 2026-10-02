@@ -210,7 +210,7 @@ Repository listing previously executed `2 + (2 * N)` queries (42 for 20 repos).
 ## File Structure
 
 ```
-ui/src/features/assets/
+web/src/features/assets/
 ├── types/
 │   └── page-config.types.ts          # AssetPageConfig + sub-types (142 LOC)
 ├── hooks/

@@ -503,9 +503,9 @@ Progress % = Resolved / Total (only scanner-verified counts).
 | `api/internal/infra/http/routes/finding_lifecycle.go` | Route registration |
 | `api/pkg/domain/vulnerability/finding_lifecycle_test.go` | 38 unit tests |
 | `api/migrations/000096_fix_applied_status.up.sql` | Migration (column + 3 indexes + permissions) |
-| `ui/src/features/findings/components/finding-groups-tab.tsx` | Groups tab UI |
-| `ui/src/features/findings/components/mark-fixed-dialog.tsx` | Mark Fixed dialog |
-| `ui/src/features/findings/components/pending-review-tab.tsx` | Pending Review tab |
+| `web/src/features/findings/components/finding-groups-tab.tsx` | Groups tab UI |
+| `web/src/features/findings/components/mark-fixed-dialog.tsx` | Mark Fixed dialog |
+| `web/src/features/findings/components/pending-review-tab.tsx` | Pending Review tab |
 
 ---
 

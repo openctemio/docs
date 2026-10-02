@@ -9,7 +9,7 @@ nav_order: 16
 
 {: .warning }
 **Superseded in v0.9.0** by the platform admin console
-([RFC-022](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-022-platform-admin-console.md)).
+([RFC-022](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-022-platform-admin-console.md)).
 Administrators are sign-in accounts that belong to no organization; they sign in
 on `/login` and open the console at `/admin` in the main web UI with a TOTP code,
 in server-side sessions. Admin API keys, `X-Admin-API-Key` and the separate

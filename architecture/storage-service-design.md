@@ -1185,7 +1185,7 @@ func (f *Factory) GetProvider(ctx context.Context, config *StorageConfig) (Provi
 ### 9.1 Feature Structure
 
 ```
-ui/src/features/storage/
+web/src/features/storage/
 ├── api/
 │   ├── use-storage.ts            # Upload/download hooks
 │   ├── use-storage-config.ts     # Config management hooks
