@@ -347,7 +347,7 @@ X-Tenant-ID: <tenant_id>
 The frontend uses `useFilteredSidebarData()` hook which combines:
 
 ```typescript
-// File: ui/src/lib/permissions/use-filtered-sidebar.ts
+// File: web/src/lib/permissions/use-filtered-sidebar.ts
 
 export function useFilteredSidebarData(sidebarData: SidebarData) {
   const { can, tenantRole } = usePermissions()

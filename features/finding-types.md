@@ -455,7 +455,7 @@ The finding detail page renders source-specific context panels and tab ordering 
 findingType / source → SourceLayoutConfig → { sourcePanel, tabOrder, hiddenTabs }
 ```
 
-Config-driven registry in `ui/src/features/findings/config/`:
+Config-driven registry in `web/src/features/findings/config/`:
 - `source-layout.ts` — registry with `getSourceLayout()` lookup
 - `register-layouts.ts` — wires panels to types/sources
 
@@ -475,7 +475,7 @@ Config-driven registry in `ui/src/features/findings/config/`:
 
 | File | Purpose |
 |------|---------|
-| `ui/src/features/findings/config/source-layout.ts` | Layout registry |
-| `ui/src/features/findings/config/register-layouts.ts` | Panel registration |
-| `ui/src/features/findings/components/detail/source-panels/` | 6 source panels + metadata viewer |
-| `ui/src/features/findings/components/detail/pentest-details-tab.tsx` | Pentest tab |
+| `web/src/features/findings/config/source-layout.ts` | Layout registry |
+| `web/src/features/findings/config/register-layouts.ts` | Panel registration |
+| `web/src/features/findings/components/detail/source-panels/` | 6 source panels + metadata viewer |
+| `web/src/features/findings/components/detail/pentest-details-tab.tsx` | Pentest tab |

@@ -51,6 +51,6 @@ For contributors, plugin developers, and anyone building on OpenCTEM.
 
 ## Frontend
 
-- [UI Architecture](ui/architecture.md) — Next.js 16 app structure
-- [Asset API Integration](ui/guides/ASSETS_API_INTEGRATION.md) — Frontend-backend integration
-- [Type Customization](ui/guides/CUSTOMIZE_TYPES_GUIDE.md) — TypeScript types
+- [UI Architecture](https://github.com/openctemio/openctem/blob/main/web/docs/ARCHITECTURE.md) — Next.js 16 app structure
+- [Asset API Integration](https://github.com/openctemio/openctem/blob/main/web/docs/guides/ASSETS_API_INTEGRATION.md) — Frontend-backend integration
+- [Type Customization](https://github.com/openctemio/openctem/blob/main/web/docs/guides/CUSTOMIZE_TYPES_GUIDE.md) — TypeScript types

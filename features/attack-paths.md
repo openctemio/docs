@@ -45,5 +45,5 @@ Attack paths traverse these relationship types:
 
 ## Key Files
 
-- `ui/src/app/(dashboard)/(prioritization)/attack-paths/page.tsx`
+- `web/src/app/(dashboard)/(prioritization)/attack-paths/page.tsx`
 - `api/internal/infra/http/handler/attack_path_handler.go`

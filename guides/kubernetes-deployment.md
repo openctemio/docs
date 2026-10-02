@@ -159,8 +159,8 @@ global:
 api:
   replicaCount: 2                      # Ignored when autoscaling.enabled is true
   image:
-    repository: openctemio/api         # Container image for the Go API server
-    tag: "latest"                      # Image tag; pin to a release in production
+    repository: ghcr.io/openctemio/openctem-api  # Go API server (v0.8.x and earlier: ghcr.io/openctemio/api)
+    tag: "v0.9.0"                      # Pin a release; keep it equal to ui.image.tag
     pullPolicy: IfNotPresent           # IfNotPresent, Always, or Never
   service:
     type: ClusterIP                    # Service type (ClusterIP for internal access via Ingress)
@@ -242,8 +242,8 @@ the chart refuses to render with `api.bootstrapTenant.enabled=true`.
 ui:
   replicaCount: 2
   image:
-    repository: openctemio/ui
-    tag: "latest"
+    repository: ghcr.io/openctemio/openctem-web  # web console (v0.8.x and earlier: ghcr.io/openctemio/ui)
+    tag: "v0.9.0"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP

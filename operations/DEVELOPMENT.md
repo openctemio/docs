@@ -7,67 +7,93 @@ nav_order: 10
 
 # Development Guide
 
-This guide details the workflow for developing on the OpenCTEM platform.
+This guide covers the development workflow for the OpenCTEM platform.
 
-## Architecture Overview
+## Repositories
 
-OpenCTEM follows a Polyrepo structure managed via a central Workspace (Meta-Repo).
+The API and the web console live in one repository and ship together; the
+other components are released on their own.
 
-*   **API**: Core business logic and REST endpoints.
-*   **Agent**: Distributed security scanner that runs on customer infrastructure/CI.
-*   **UI**: Web management console.
-*   **SDK**: Shared libraries used by API and Agent.
+| Repository | Contents | Released as |
+|------------|----------|-------------|
+| [openctem](https://github.com/openctemio/openctem) | `api/` (Go API server, migrations, `bootstrap-admin`; module `github.com/openctemio/openctem/api`) and `web/` (Next.js web console) | One `vX.Y.Z` tag: images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one) |
+| [sensor](https://github.com/openctemio/sensor) | Scanning sensor (formerly "agent") that runs on your infrastructure or in CI | `openctemio-sensor` binaries, `ghcr.io/openctemio/sensor` |
+| [sdk-go](https://github.com/openctemio/sdk-go) | Go SDK used by the API and the sensor | Go module tags |
+| [ctis](https://github.com/openctemio/ctis) | CTIS ingest schema (the shared contract) | Schema tags |
+| [helm-charts](https://github.com/openctemio/helm-charts) | Kubernetes chart | Chart releases |
+| [docs](https://github.com/openctemio/docs) | This documentation site | GitHub Pages |
 
-## Workspace Management
+`openctemio/openctem` was `openctemio/api` before the merge; old links to it
+redirect. The web console's earlier history is in the archived
+[openctemio/ui](https://github.com/openctemio/ui) repository and is imported
+under `web/` (its tags as `ui/v*`, which are history only and never released).
 
-We avoid Git Submodules in favor of a simpler "Meta-Repo" approach handling by `setup-workspace.sh`.
-
-### Directory Layout
+### Layout of the main repository
 
 ```
-openctemio/               # Root Workspace (Meta-Repo)
-├── Makefile             # Global orchestration
-├── go.work              # Go Workspace config
-├── setup-workspace.sh   # Ops script
-├── api/                 # -> git@github.com:openctemio/api.git
-├── agent/               # -> git@github.com:openctemio/agent.git
-├── sdk/                 # -> git@github.com:openctemio/sdk.git
-└── ...
+openctem/
+├── Makefile          # thin root targets that delegate to api/ and web/
+├── .githooks/        # git hooks, enabled by `make setup` / `make hooks`
+├── api/              # Go API (own Makefile, go.mod, docs/, deploy/)
+│   └── deploy/       # production Docker Compose stack + gateway
+├── web/              # Next.js web console (own package.json, docs/)
+└── deploy/allinone/  # all-in-one image (API + web + gateway)
 ```
 
-## Daily Workflow
-
-### 1. Syncing Code
-
-Start your day by syncing all repositories:
+## Getting the code
 
 ```bash
-make pull-all
+git clone https://github.com/openctemio/openctem.git
+cd openctem
+make setup     # go mod download, npm ci, enable the git hooks
 ```
 
-This iterates through every subdirectory and runs `git pull`.
+Pull requests target the `develop` branch.
 
-### 2. Cross-Module Development (Go)
+## Daily workflow
 
-If you need to add a feature to `sdk` and use it in `api`:
+From the repository root:
 
-1.  Modify `sdk/pkg/newfeature.go`.
-2.  In `api/go.mod`, **DO NOT** use `replace` directive.
-3.  Because `go.work` exists in root, the `api` build will automatically use your local `sdk` code.
-    ```go
-    // In api/main.go
-    import "github.com/openctemio/sdk-go/pkg/newfeature" // Works immediately!
-    ```
-4.  **Commit Sequence:**
-    *   Commit & Push `sdk` first.
-    *   Get the new `sdk` version/commit hash.
-    *   Update `api/go.mod` to use the new `sdk` version:
+```bash
+make dev-api   # API with hot reload (air); needs Postgres and Redis, see below
+make dev-web   # web console on http://localhost:3000
+make lint      # what CI gates on, both components
+make test      # unit tests, both components
+make check     # API contract checks (OpenAPI spec and generated web types)
+```
 
-        ```bash
-        cd api
-        go get github.com/openctemio/sdk-go@latest
-        ```
-    *   Commit & Push `api`.
+`make api-<target>` runs any `api/Makefile` target (for example
+`make api-migrate-up`), and `make web-<script>` runs any `web/package.json`
+script (for example `make web-format`).
+
+### API contract changes
+
+`api/api/openapi/swagger.yaml` is generated from the handler annotations, and
+the web wire types (`web/src/lib/api/generated/api.types.ts`) are generated from
+it. Change both in one pull request:
+
+```bash
+make -C api swagger
+make api-types
+```
+
+### Working on the SDK
+
+The API and the sensor consume `github.com/openctemio/sdk-go` as a normal Go
+module dependency (the API builds with `GOWORK=off`). To use an unreleased SDK
+change:
+
+1. Change and release `sdk-go` first (merge and tag).
+2. In the consumer, bump the dependency:
+
+   ```bash
+   cd api   # or the sensor repository
+   GOWORK=off go get github.com/openctemio/sdk-go@<version>
+   GOWORK=off go mod tidy
+   ```
+
+For local experiments only, a `replace github.com/openctemio/sdk-go => ../../sdk-go`
+line in `api/go.mod` works; never commit it.
 
 ## IDE Setup
 
@@ -78,9 +104,8 @@ If you need to add a feature to `sdk` and use it in `api`:
 *   **Go**: `golang.go`
 *   **Frontend**: `dbaeumer.vscode-eslint`, `esbenp.prettier-vscode`
 
-#### Workspace Settings
-
-It is recommended to have a `.vscode/settings.json` in your workspace focusing on `go.lintTool: "golangci-lint"`.
+Open `api/` (or the repository root with `go.useLanguageServer` pointed at
+`api/`) so gopls finds `api/go.mod`. Use `golangci-lint` as the lint tool.
 
 ### JetBrains (GoLand)
 
@@ -93,14 +118,16 @@ It is recommended to have a `.vscode/settings.json` in your workspace focusing o
 
 ```bash
 cd api
-make install-tools  # Install golangci-lint, air, migrate
-make dev           # Run with hot reload
-make run           # Run normally
+make install-tools                 # golangci-lint, air, migrate
+docker compose up -d postgres redis
+make dev                           # run with hot reload
+make run                           # run normally
 ```
 
 ### Database Migrations
 
 ```bash
+cd api
 make migrate-create name=add_users_table
 make migrate-up
 make migrate-down
@@ -109,20 +136,25 @@ make migrate-down
 ### Testing
 
 ```bash
+cd api
 make test
 make test-coverage
 ```
 
-## Frontend Development (UI)
+## Frontend Development (web)
 
 ### Setup & Run
 
 ```bash
-cd ui
-npm install
+cd web
+npm ci
 npm run dev        # Dev mode with Turbopack
-npm run lint -- --fix
+npm run lint:fix
 ```
+
+Developer documentation for the web console (architecture, API integration,
+type customization, deployment) lives with the code in
+[`web/docs/`](https://github.com/openctemio/openctem/tree/main/web/docs).
 
 ## Environment Variables
 
@@ -136,29 +168,24 @@ openssl rand -base64 48
 openssl rand -base64 32
 ```
 
-### Docker Development
+### Production-like stack
 
-Use the root Makefile to spin up the full stack:
-
-```bash
-make up        # Start Postgres, Redis, etc.
-make logs      # View logs
-make down      # Stop everything
-```
+The Docker Compose stack in `api/deploy/` runs the gateway, web, API, Postgres
+and Redis behind one HTTPS port; see
+[Exposing OpenCTEM: one HTTPS port](single-https-port.md).
 
 ## Troubleshooting
 
 ### Go Module Issues
 
-If VSCode complains about modules:
-1.  Open the **Root Folder** (`openctemio/`).
-2.  Run `go work sync`.
-3.  Restart VSCode/Go Language Server.
+The API is built with `GOWORK=off`. If a stray `go.work` in a parent directory
+changes which module versions the editor or `go build` resolves, set
+`GOWORK=off` (or delete that `go.work`) and restart the Go language server.
 
 ### Docker Issues
 
 ```bash
-# Clean everything
+# Clean everything (deletes the data volumes)
 docker compose down -v
 docker system prune -a
 ```
@@ -224,7 +251,7 @@ err = permissionService.PreloadUserPermissionsToCache(ctx, userID, tenantID)
 #### Frontend: Permission Checks in Components
 
 ```typescript
-// File: ui/src/components/AssetActions.tsx
+// File: web/src/components/AssetActions.tsx
 import { usePermissions } from '@/lib/permissions/hooks'
 
 function AssetActions() {
@@ -243,7 +270,7 @@ function AssetActions() {
 #### Frontend: Permission Gate
 
 ```typescript
-// File: ui/src/components/ProtectedSection.tsx
+// File: web/src/components/ProtectedSection.tsx
 import { PermissionGate } from '@/components/permission-gate'
 
 function AdminPanel() {
@@ -260,7 +287,7 @@ function AdminPanel() {
 Permissions are automatically fetched after login:
 
 ```typescript
-// File: ui/src/stores/auth-store.ts
+// File: web/src/stores/auth-store.ts
 login: (accessToken: string) => {
   set({ accessToken, status: 'authenticated' })
   

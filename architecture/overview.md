@@ -953,5 +953,5 @@ CREATE TABLE scan_sessions (
 ## Related Documentation
 
 - [Backend Architecture](./)
-- [Frontend Architecture](../ui/.claude/architecture.md)
-- [API Documentation](../api/docs/api/)
+- [Frontend Architecture](https://github.com/openctemio/openctem/blob/main/web/docs/ARCHITECTURE.md)
+- [API Reference](../backend/api-reference.md)
