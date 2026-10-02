@@ -91,48 +91,48 @@ OpenCTEM is an enterprise-grade **Continuous Threat Exposure Management (CTEM)**
 ### Getting Started
 | Guide | Description |
 |-------|-------------|
-| [Quick Start](./getting-started/quick-start) | Get up and running in 10 minutes |
-| [First Scan](./getting-started/first-scan) | Run your first security scan |
-| [Configuration](./operations/configuration) | Environment variables |
+| [Quick Start](./getting-started/quick-start.md) | Get up and running in 10 minutes |
+| [First Scan](./getting-started/first-scan.md) | Run your first security scan |
+| [Configuration](./operations/configuration.md) | Environment variables |
 
 ### Guides
 | Guide | Description |
 |-------|-------------|
-| [Authentication](./guides/authentication) | Login flow, JWT, sessions |
-| [Multi-tenancy](./guides/multi-tenancy) | Teams, tenant switching |
-| [Permissions](./guides/permissions) | Role-based access control |
-| [Notification Integrations](./guides/notification-integrations) | Slack, Teams, Telegram, Email alerts |
-| [Running Agents](./guides/running-agents) | Setup and run scanning agents |
-| [SDK Development](./guides/sdk-development) | Build custom scanners |
-| [Building Ingestion Tools](./guides/building-ingestion-tools) | Custom data collectors |
+| [Authentication](./guides/authentication.md) | Login flow, JWT, sessions |
+| [Multi-tenancy](./guides/multi-tenancy.md) | Teams, tenant switching |
+| [Permissions](./guides/permissions.md) | Role-based access control |
+| [Notification Integrations](./guides/notification-integrations.md) | Slack, Teams, Telegram, Email alerts |
+| [Running Agents](./guides/running-agents.md) | Setup and run scanning agents |
+| [SDK Development](./guides/sdk-development.md) | Build custom scanners |
+| [Building Ingestion Tools](./guides/building-ingestion-tools.md) | Custom data collectors |
 
 ### Architecture
 | Document | Description |
 |----------|-------------|
-| [Overview](./architecture/overview) | System design |
-| [Deployment Modes](./architecture/deployment-modes) | Standalone, distributed |
-| [Server-Agent Communication](./architecture/server-agent-command) | Command & control |
-| [Agent Key Management](./architecture/agent-key-management) | API keys, registration tokens |
-| [Scan Pipeline Design](./architecture/scan-pipeline-design) | Workflow execution |
-| [Notification System](./architecture/notification-system) | Real-time alerts, async patterns |
+| [Overview](./architecture/overview.md) | System design |
+| [Deployment Modes](./architecture/deployment-modes.md) | Standalone, distributed |
+| [Server-Agent Communication](./architecture/server-agent-command.md) | Command & control |
+| [Agent Key Management](./architecture/agent-key-management.md) | API keys, registration tokens |
+| [Scan Pipeline Design](./architecture/scan-pipeline-design.md) | Workflow execution |
+| [Notification System](./architecture/notification-system.md) | Real-time alerts, async patterns |
 
 ### Security
 | Document | Description |
 |----------|-------------|
-| [Security Guide](./guides/SECURITY) | Security features and best practices |
-| [Agent Configuration](./guides/agent-configuration) | Secure agent configuration |
+| [Security Guide](./guides/SECURITY.md) | Security features and best practices |
+| [Agent Configuration](./guides/agent-configuration.md) | Secure agent configuration |
 
 ### Reference
 | Document | Description |
 |----------|-------------|
-| [API Reference](./backend/api-reference) | Complete API endpoints |
+| [API Reference](./backend/api-reference.md) | Complete API endpoints |
 | [CTIS Schema](https://github.com/openctemio/ctis) | CTEM Ingest Schema |
 
 ### Operations
 | Document | Description |
 |----------|-------------|
-| [Troubleshooting](./operations/troubleshooting) | Common issues |
-| [Docker Deployment](./guides/docker-deployment) | Container deployment |
+| [Troubleshooting](./operations/troubleshooting.md) | Common issues |
+| [Docker Deployment](./guides/docker-deployment.md) | Container deployment |
 
 ---
 
@@ -149,7 +149,7 @@ docker compose up -d
 ```
 
 Then create the first administrator and organization: see the
-[Quick Start](./getting-started/quick-start). For Kubernetes, use the
+[Quick Start](./getting-started/quick-start.md). For Kubernetes, use the
 [Helm chart](https://github.com/openctemio/helm-charts).
 
 | Service | Address |
@@ -160,7 +160,7 @@ Then create the first administrator and organization: see the
 
 To develop on the platform, clone the same repository and run `make setup`,
 then `make dev-api` and `make dev-web`; see the
-[Development Guide](./operations/DEVELOPMENT).
+[Development Guide](./operations/DEVELOPMENT.md).
 
 ---
 
