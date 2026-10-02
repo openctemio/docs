@@ -13,8 +13,9 @@ OpenCTEM là một nền tảng **Continuous Threat Exposure Management (CTEM)**
 ### Đăng nhập
 
 - Truy cập trang `/login`. Bạn có thể đăng nhập bằng **email + mật khẩu** hoặc qua **SSO** với `Google`, `GitHub` hoặc `Microsoft`.
-- Người dùng **đầu tiên** chưa thuộc tenant nào sẽ được chuyển tới luồng onboarding `/onboarding/create-team` để **tạo một team/tenant mới**. Sau khi tạo xong, bạn sẽ vào thẳng Dashboard.
-- Luồng tổng quát: `Chưa đăng nhập → /login → Chưa có tenant → /onboarding/create-team → Dashboard`.
+- Tổ chức (tenant) do **quản trị viên nền tảng** tạo (mặc định `TENANT_CREATION_MODE=admin_only`): khi cài đặt bằng `bootstrap-admin`, hoặc trong admin console (`/admin` → **Organizations** → **Create**). Người dùng được đưa vào tổ chức qua lời mời, tài khoản do owner/admin tạo, SSO hoặc SCIM.
+- Người dùng chưa thuộc tenant nào sẽ thấy trang yêu cầu **liên hệ quản trị viên**. Chỉ khi bật `TENANT_CREATION_MODE=self_service` (cài đặt SaaS/dùng thử), họ mới được chuyển tới `/onboarding/create-team` để **tự tạo team/tenant mới**.
+- Luồng tổng quát: `Chưa đăng nhập → /login → (1 tenant) Dashboard | (nhiều tenant) chọn tenant → Dashboard`.
 
 ### Giao diện chung (global chrome)
 
