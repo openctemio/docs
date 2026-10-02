@@ -11,10 +11,10 @@ search_exclude: true
 
 Unified Attack Surface Management & Vulnerability Management
 
-[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://github.com/openctemio/api)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://github.com/openctemio/ui)
-[![Docker](https://img.shields.io/badge/Docker-Hub-2496ED?logo=docker)](https://hub.docker.com/u/openctemio)
-[![License](https://img.shields.io/badge/License-GPL-blue.svg)](LICENSE)
+[![Go Version](https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go)](https://github.com/openctemio/openctem/tree/main/api)
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js)](https://github.com/openctemio/openctem/tree/main/web)
+[![Images](https://img.shields.io/badge/Images-GHCR-2496ED?logo=docker)](https://github.com/orgs/openctemio/packages)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://github.com/openctemio/openctem/blob/main/LICENSE)
 
 [Website](https://openctem.io) | [GitHub](https://github.com/openctemio) | [Getting Started](./guides/getting-started.md)
 
@@ -126,7 +126,7 @@ OpenCTEM is an enterprise-grade **Continuous Threat Exposure Management (CTEM)**
 | Document | Description |
 |----------|-------------|
 | [API Reference](./backend/api-reference) | Complete API endpoints |
-| [CTIS Schema](https://github.com/openctemio/schemas) | CTEM Ingest Schema |
+| [CTIS Schema](https://github.com/openctemio/ctis) | CTEM Ingest Schema |
 
 ### Operations
 | Document | Description |
@@ -138,24 +138,29 @@ OpenCTEM is an enterprise-grade **Continuous Threat Exposure Management (CTEM)**
 
 ## 🚀 Quick Start
 
+Run the released images with Docker Compose. The stack publishes one HTTPS
+port (a gateway in front of the web console and the API):
+
 ```bash
-# Clone repository
 git clone https://github.com/openctemio/openctem.git
-cd openctem
-
-# Configure
-cd api && cp .env.example .env && cd ..
-cd ui && cp .env.example .env.local && cd ..
-
-# Start with Docker
+cd openctem/api/deploy
+cp .env.example .env   # set OPENCTEM_VERSION, OPENCTEM_HOSTNAME, OPENCTEM_TLS_MODE, secrets
 docker compose up -d
 ```
 
-| Service | Local | Production |
-|---------|-------|------------|
-| Frontend | http://localhost:3000 | https://your-domain.com |
-| Backend API | http://localhost:8080 | https://your-domain.com |
-| API Docs | http://localhost:8080/docs | https://your-domain.com/docs |
+Then create the first administrator and organization: see the
+[Quick Start](./getting-started/quick-start). For Kubernetes, use the
+[Helm chart](https://github.com/openctemio/helm-charts).
+
+| Service | Address |
+|---------|---------|
+| Web console | `https://<OPENCTEM_HOSTNAME>` |
+| API | `https://<OPENCTEM_HOSTNAME>/api/v1` |
+| API docs | `https://<OPENCTEM_HOSTNAME>/docs` |
+
+To develop on the platform, clone the same repository and run `make setup`,
+then `make dev-api` and `make dev-web`; see the
+[Development Guide](./operations/DEVELOPMENT).
 
 ---
 
@@ -174,13 +179,33 @@ docker compose up -d
 
 | Repository | Description |
 |------------|-------------|
-| [api](https://github.com/openctemio/api) | Backend REST API (Go) |
-| [ui](https://github.com/openctemio/ui) | Frontend Application (Next.js) |
-| [sdk](https://github.com/openctemio/sdk-go) | Go SDK for building tools |
-| [agent](https://github.com/openctemio/sensor) | Security scanning agent |
-| [setup](https://github.com/openctemio/setup) | Deployment & Docker Compose |
-| [schemas](https://github.com/openctemio/schemas) | CTIS JSON Schemas |
+| [openctem](https://github.com/openctemio/openctem) | The platform: `api/` (Go API) and `web/` (Next.js web console), released together, plus the Docker Compose stack (`api/deploy/`) |
+| [sensor](https://github.com/openctemio/sensor) | Security scanning sensor (formerly "agent") |
+| [sdk-go](https://github.com/openctemio/sdk-go) | Go SDK for building tools |
+| [ctis](https://github.com/openctemio/ctis) | CTIS JSON Schemas (the ingest contract) |
+| [helm-charts](https://github.com/openctemio/helm-charts) | Kubernetes Helm chart |
 | [docs](https://github.com/openctemio/docs) | Documentation (this repo) |
+
+`openctemio/openctem` was named `openctemio/api` until the API and the web
+console were merged into one repository; old links redirect. The former
+`openctemio/ui` repository is archived.
+
+### Images
+
+One `vX.Y.Z` tag releases every image from the same commit, all on GHCR:
+
+| Image | Contents |
+|-------|----------|
+| `ghcr.io/openctemio/openctem-api` | API server |
+| `ghcr.io/openctemio/openctem-web` | Web console |
+| `ghcr.io/openctemio/openctem` | All-in-one: API + web + gateway |
+| `ghcr.io/openctemio/migrations`, `seed`, `admin-cli` | Database migrations, demo data, admin CLI |
+| `ghcr.io/openctemio/sensor` | Scanning sensor (released from the sensor repository) |
+
+The `openctem-api`, `openctem-web` and `openctem` names start with v0.9.0.
+v0.8.0 and earlier are published as `ghcr.io/openctemio/api` and
+`ghcr.io/openctemio/ui`, and those names keep receiving identical copies for
+two more releases.
 
 ---
 
@@ -188,9 +213,8 @@ docker compose up -d
 
 We welcome contributions! Please see:
 
-- [Contributing Guide](https://github.com/openctemio/api/blob/main/CONTRIBUTING.md)
-- [Code of Conduct](https://github.com/openctemio/api/blob/main/CODE_OF_CONDUCT.md)
-- [Security Policy](https://github.com/openctemio/api/blob/main/SECURITY.md)
+- [Contributing Guide](https://github.com/openctemio/openctem/blob/main/CONTRIBUTING.md)
+- [Security Policy](https://github.com/openctemio/openctem/blob/main/SECURITY.md)
 
 ---
 
@@ -216,4 +240,4 @@ If you find OpenCTEM useful, consider supporting the project:
 
 ## 📄 License
 
-GPL License - see [LICENSE](https://github.com/openctemio/api/blob/main/LICENSE)
+GPL-3.0 License - see [LICENSE](https://github.com/openctemio/openctem/blob/main/LICENSE)

@@ -164,11 +164,11 @@ User has no way to:
 **Files to create:**
 
 ```
-ui/src/app/(dashboard)/(scoping)/capabilities/
+web/src/app/(dashboard)/(scoping)/capabilities/
 ├── page.tsx                    # Main page
 └── layout.tsx                  # Optional module gate
 
-ui/src/features/capabilities/
+web/src/features/capabilities/
 ├── components/
 │   ├── capabilities-section.tsx    # Main section component
 │   ├── capability-list.tsx         # List with grouping
@@ -178,7 +178,7 @@ ui/src/features/capabilities/
 └── index.ts
 ```
 
-**Sidebar update** (`ui/src/config/sidebar-data.ts`):
+**Sidebar update** (`web/src/config/sidebar-data.ts`):
 ```typescript
 // In Settings > Scanning group, after Tools:
 {
@@ -289,14 +289,14 @@ Already implemented in backend:
 
 | Component | Status | File |
 |-----------|--------|------|
-| Page route | ✅ | `ui/src/app/(dashboard)/(scoping)/capabilities/page.tsx` |
-| Main section | ✅ | `ui/src/features/capabilities/components/capabilities-section.tsx` |
-| Card view | ✅ | `ui/src/features/capabilities/components/capability-card.tsx` |
-| Table view | ✅ | `ui/src/features/capabilities/components/capability-table.tsx` |
-| Create dialog | ✅ | `ui/src/features/capabilities/components/create-capability-dialog.tsx` |
-| Edit dialog | ✅ | `ui/src/features/capabilities/components/edit-capability-dialog.tsx` |
-| Sidebar nav | ✅ | `ui/src/config/sidebar-data.ts` |
-| Route permissions | ✅ | `ui/src/config/route-permissions.ts` |
+| Page route | ✅ | `web/src/app/(dashboard)/(scoping)/capabilities/page.tsx` |
+| Main section | ✅ | `web/src/features/capabilities/components/capabilities-section.tsx` |
+| Card view | ✅ | `web/src/features/capabilities/components/capability-card.tsx` |
+| Table view | ✅ | `web/src/features/capabilities/components/capability-table.tsx` |
+| Create dialog | ✅ | `web/src/features/capabilities/components/create-capability-dialog.tsx` |
+| Edit dialog | ✅ | `web/src/features/capabilities/components/edit-capability-dialog.tsx` |
+| Sidebar nav | ✅ | `web/src/config/sidebar-data.ts` |
+| Route permissions | ✅ | `web/src/config/route-permissions.ts` |
 
 ### Features Implemented
 

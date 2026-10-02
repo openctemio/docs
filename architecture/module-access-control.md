@@ -148,7 +148,7 @@ func registerAssetRoutes(
 The `ModuleGate` component wraps UI pages to check module access:
 
 ```tsx
-// ui/src/features/licensing/components/module-gate.tsx
+// web/src/features/licensing/components/module-gate.tsx
 
 export function ModuleGate({ module, children, fallback }: ModuleGateProps) {
   const { moduleIds, isLoading } = useTenantModules()
@@ -172,7 +172,7 @@ export function ModuleGate({ module, children, fallback }: ModuleGateProps) {
 Module checks are applied at the layout level for route groups:
 
 ```tsx
-// ui/src/app/(dashboard)/(discovery)/assets/layout.tsx
+// web/src/app/(dashboard)/(discovery)/assets/layout.tsx
 
 export default function AssetsLayout({ children }) {
   return <ModuleGate module="assets">{children}</ModuleGate>

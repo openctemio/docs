@@ -117,9 +117,9 @@ GET /api/v1/ws
 
 | File | Purpose |
 |------|---------|
-| `ui/src/context/websocket-provider.tsx` | Global WebSocket connection provider |
-| `ui/src/lib/websocket/client.ts` | WebSocket client with reconnection logic |
-| `ui/src/hooks/use-websocket.ts` | React hooks for channel subscriptions |
+| `web/src/context/websocket-provider.tsx` | Global WebSocket connection provider |
+| `web/src/lib/websocket/client.ts` | WebSocket client with reconnection logic |
+| `web/src/hooks/use-websocket.ts` | React hooks for channel subscriptions |
 
 ### Provider
 

@@ -376,11 +376,11 @@ Each scan config row has a dropdown menu with:
 
 | File | Description |
 |------|-------------|
-| `ui/src/app/(dashboard)/(discovery)/scans/page.tsx` | Main scan page with tabs |
-| `ui/src/features/scans/components/new-scan/new-scan-dialog.tsx` | Create wizard |
-| `ui/src/features/scans/components/edit-scan-dialog.tsx` | Edit wizard |
-| `ui/src/features/scans/components/quick-scan-dialog.tsx` | Quick scan dialog |
-| `ui/src/features/scans/__tests__/scan-utils.test.ts` | 40 utility tests |
+| `web/src/app/(dashboard)/(discovery)/scans/page.tsx` | Main scan page with tabs |
+| `web/src/features/scans/components/new-scan/new-scan-dialog.tsx` | Create wizard |
+| `web/src/features/scans/components/edit-scan-dialog.tsx` | Edit wizard |
+| `web/src/features/scans/components/quick-scan-dialog.tsx` | Quick scan dialog |
+| `web/src/features/scans/__tests__/scan-utils.test.ts` | 40 utility tests |
 
 ## Best Practices
 

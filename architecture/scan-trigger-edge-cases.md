@@ -250,7 +250,7 @@ API receives: asset_group_id: "GroupA"  ← GroupB and GroupC lost!
 
 **API Changes**:
 ```typescript
-// ui/src/lib/api/scan-types.ts
+// web/src/lib/api/scan-types.ts
 interface CreateScanConfigRequest {
   asset_group_id?: string;      // Primary (legacy, optional)
   asset_group_ids?: string[];   // Multiple groups (NEW)
@@ -277,8 +277,8 @@ WHERE asset_group_id IS NOT NULL;
 - `api/internal/infra/postgres/scan_repository.go`
 - `api/internal/infra/http/handler/scan_handler.go`
 - `api/internal/app/scan_service.go`
-- `ui/src/lib/api/scan-types.ts`
-- `ui/src/features/scans/components/new-scan/new-scan-dialog.tsx`
+- `web/src/lib/api/scan-types.ts`
+- `web/src/features/scans/components/new-scan/new-scan-dialog.tsx`
 
 ---
 
@@ -410,7 +410,7 @@ func (s *ScanService) triggerWorkflow(ctx context.Context, sc *scan.Scan, ...) (
 
 **Implementation**:
 ```typescript
-// ui/src/features/scans/components/new-scan/new-scan-dialog.tsx
+// web/src/features/scans/components/new-scan/new-scan-dialog.tsx
 catch (triggerError) {
   toast.error(
     `Scan "${formData.name}" was created but failed to start: ${errorMsg}`,
@@ -429,7 +429,7 @@ catch (triggerError) {
 ```
 
 **Files Modified**:
-- `ui/src/features/scans/components/new-scan/new-scan-dialog.tsx`
+- `web/src/features/scans/components/new-scan/new-scan-dialog.tsx`
 
 ---
 
@@ -526,7 +526,7 @@ cd api && go test ./tests/integration/... -v -run "TestRecoverStuck\|TestFailExh
 cd api && go test ./tests/unit -v -run TestScan
 
 # Run frontend type check
-cd ui && npm run type-check
+cd web && npm run type-check
 ```
 
 ---

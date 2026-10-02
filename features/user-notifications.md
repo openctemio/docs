@@ -349,7 +349,7 @@ api/
 ## Frontend File Structure
 
 ```
-ui/src/
+web/src/
 ├── features/notifications/
 │   └── api/
 │       └── use-notification-api.ts    # All hooks, mutations, cache utils, types

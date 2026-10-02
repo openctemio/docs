@@ -1,9 +1,9 @@
 # Upgrading to the Sensor Release (agents → sensors)
 
 > **Applies to** the release that renames *agents* to *sensors*
-> ([RFC-023 §9.5](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-023-scan-zones-and-scanners.md),
+> ([RFC-023 §9.5](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-023-scan-zones-and-scanners.md),
 > database migration **000230**). The complete list of API changes is the
-> [sensor rename contract](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-023-sensor-rename-contract.md).
+> [sensor rename contract](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-023-sensor-rename-contract.md).
 
 OpenCTEM used to call every runtime that scans, collects or reports for the
 platform an **agent**. From this release the umbrella term is **sensor**, with

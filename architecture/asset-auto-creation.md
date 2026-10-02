@@ -49,7 +49,7 @@ Assets are identified by their **canonical name** which includes the provider do
 
 | Provider | Format | Example |
 |----------|--------|---------|
-| GitHub | `github.com/{owner}/{repo}` | `github.com/openctemio/api` |
+| GitHub | `github.com/{owner}/{repo}` | `github.com/openctemio/openctem` |
 | GitHub Enterprise | `github.mycompany.com/{owner}/{repo}` | `github.mycompany.com/team/project` |
 | GitLab | `gitlab.com/{namespace}/{project}` | `gitlab.com/myorg/myrepo` |
 | GitLab Self-hosted | `gitlab.mycompany.com/{namespace}/{project}` | `gitlab.mycompany.com/team/project` |

@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Release Readiness
-parent: UI Operations
+parent: Web Console
 nav_order: 5
 ---
 
@@ -68,6 +68,6 @@ Pre-release checklist for OpenCTEM UI deployments.
 
 ## Related Documentation
 
-- [Production Checklist](./PRODUCTION_CHECKLIST.md) — Comprehensive production checklist
-- [Deployment Guide](./guides/getting-started.md) — Deployment procedures
-- [Environment Variables](./ENVIRONMENT_VARIABLES.md) — Configuration reference
+- [Production Checklist](https://github.com/openctemio/openctem/blob/main/web/docs/ops/PRODUCTION_CHECKLIST.md) — Comprehensive production checklist
+- [Deployment Guide](../../guides/getting-started.md) — Deployment procedures
+- [Environment Variables](https://github.com/openctemio/openctem/blob/main/web/docs/ops/ENVIRONMENT_VARIABLES.md) — Configuration reference

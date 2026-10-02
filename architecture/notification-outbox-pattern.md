@@ -1047,9 +1047,9 @@ Result: SUCCESS - Notification was processed and sent
 - [x] Link from notifications page
 
 **Key UI Files:**
-- `ui/src/app/(dashboard)/settings/integrations/notifications/outbox/page.tsx` - Main page
-- `ui/src/features/notifications/api/use-notification-outbox-api.ts` - API hooks
-- `ui/src/features/notifications/types/notification-outbox.types.ts` - Types
+- `web/src/app/(dashboard)/settings/integrations/notifications/outbox/page.tsx` - Main page
+- `web/src/features/notifications/api/use-notification-outbox-api.ts` - API hooks
+- `web/src/features/notifications/types/notification-outbox.types.ts` - Types
 
 ### Admin System (Future - Separate Backend)
 

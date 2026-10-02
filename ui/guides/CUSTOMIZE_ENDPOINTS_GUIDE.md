@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Customize API Endpoints
-parent: UI Guides
+parent: Web Console
 nav_order: 5
 ---
 
@@ -39,7 +39,7 @@ export interface MyEntityListResponse {
 }
 ```
 
-See [Customize Types Guide](./CUSTOMIZE_TYPES_GUIDE.md) for detailed type customization patterns.
+See [Customize Types Guide](https://github.com/openctemio/openctem/blob/main/web/docs/guides/CUSTOMIZE_TYPES_GUIDE.md) for detailed type customization patterns.
 
 ---
 
@@ -132,6 +132,6 @@ try {
 
 ## Related Documentation
 
-- [API Integration Guide](./API_INTEGRATION.md) — API client configuration
-- [Customize Types Guide](./CUSTOMIZE_TYPES_GUIDE.md) — TypeScript type patterns
-- [Assets API Integration](./ASSETS_API_INTEGRATION.md) — Real-world example
+- [API Integration Guide](https://github.com/openctemio/openctem/blob/main/web/docs/guides/API_INTEGRATION.md) — API client configuration
+- [Customize Types Guide](https://github.com/openctemio/openctem/blob/main/web/docs/guides/CUSTOMIZE_TYPES_GUIDE.md) — TypeScript type patterns
+- [Assets API Integration](https://github.com/openctemio/openctem/blob/main/web/docs/guides/ASSETS_API_INTEGRATION.md) — Real-world example

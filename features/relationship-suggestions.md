@@ -91,5 +91,5 @@ Unique constraint: `(tenant_id, source_asset_id, target_asset_id, relationship_t
 - `api/pkg/domain/relationship/suggestion.go`
 
 **Frontend:**
-- `ui/src/app/(dashboard)/(discovery)/relationships/suggestions/page.tsx`
-- `ui/src/features/relationships/api/use-relationship-suggestions.ts`
+- `web/src/app/(dashboard)/(discovery)/relationships/suggestions/page.tsx`
+- `web/src/features/relationships/api/use-relationship-suggestions.ts`

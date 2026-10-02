@@ -55,5 +55,5 @@ Column `is_crown_jewel` on `assets` table + `crown_jewel_reason` text field.
 - `api/internal/infra/http/handler/business_unit_handler.go`
 
 **Frontend:**
-- `ui/src/app/(dashboard)/(scoping)/business-units/page.tsx`
-- `ui/src/app/(dashboard)/(scoping)/crown-jewels/page.tsx`
+- `web/src/app/(dashboard)/(scoping)/business-units/page.tsx`
+- `web/src/app/(dashboard)/(scoping)/crown-jewels/page.tsx`
