@@ -37,6 +37,7 @@ Configure and run security scans.
 | Guide | Description |
 |-------|-------------|
 | [Running Agents](running-agents.md) | Setup and deploy scanning agents |
+| [Asset Collector](asset-collector.md) | Collect assets from GCP DNS, vCenter, LDAP/AD, Splunk and PRTG as a collector sensor |
 | [Agent Configuration](agent-configuration.md) | Agent config reference |
 | [Agent Usage](agent-usage.md) | CLI agent for scanning |
 | [Agent Usage: CI/CD Integration](agent-usage.md#cicd-integration) | GitHub Actions, GitLab CI templates |
