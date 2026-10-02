@@ -75,22 +75,32 @@ If you didn't save the API key:
 
 ## Step 3: Install the OpenCTEM Agent
 
+The agent is released as the **sensor** from the
+[openctemio/sensor](https://github.com/openctemio/sensor/releases) repository.
+The examples on this page call the binary `./agent`.
+
 ### Option A: Download Pre-built Binary
 ```bash
-# Download latest release
-curl -L https://github.com/openctemio/api/releases/latest/download/agent-linux-amd64 -o agent
+# Pick a version from https://github.com/openctemio/sensor/releases
+VERSION=0.6.4
+curl -sSL "https://github.com/openctemio/sensor/releases/download/v${VERSION}/openctemio-sensor_${VERSION}_linux_amd64.tar.gz" | tar xz
+mv openctemio-sensor agent
 chmod +x agent
 ```
 
+Archives exist for linux, darwin and windows (amd64, arm64); verify them with
+`checksums.txt` on the release page.
+
 ### Option B: Build from Source
 ```bash
-cd sdk
-go build -o agent ./cmd/agent
+git clone https://github.com/openctemio/sensor.git
+cd sensor
+go build -o agent .
 ```
 
 ### Option C: Docker
 ```bash
-docker pull openctemio/agent:latest
+docker pull ghcr.io/openctemio/sensor:latest
 ```
 
 ---

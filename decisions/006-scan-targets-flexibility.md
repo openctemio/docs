@@ -82,9 +82,9 @@ However, this constraint was **artificial** - scheduling and profiles are indepe
 
 | File | Changes |
 |------|---------|
-| `ui/src/lib/api/scan-types.ts` | Make asset_group_id optional, add targets[] |
-| `ui/src/features/scans/components/new-scan/targets-step.tsx` | RadioGroup → Collapsible multi-select |
-| `ui/src/features/scans/components/new-scan/new-scan-dialog.tsx` | Update validation, combine targets |
+| `web/src/lib/api/scan-types.ts` | Make asset_group_id optional, add targets[] |
+| `web/src/features/scans/components/new-scan/targets-step.tsx` | RadioGroup → Collapsible multi-select |
+| `web/src/features/scans/components/new-scan/new-scan-dialog.tsx` | Update validation, combine targets |
 
 ---
 
@@ -341,9 +341,9 @@ This allows:
 - Scan Repository: `api/internal/infra/postgres/scan_repository.go`
 
 ### Frontend
-- Frontend Types: `ui/src/lib/api/scan-types.ts`
-- Targets Step: `ui/src/features/scans/components/new-scan/targets-step.tsx`
-- New Scan Dialog: `ui/src/features/scans/components/new-scan/new-scan-dialog.tsx`
+- Frontend Types: `web/src/lib/api/scan-types.ts`
+- Targets Step: `web/src/features/scans/components/new-scan/targets-step.tsx`
+- New Scan Dialog: `web/src/features/scans/components/new-scan/new-scan-dialog.tsx`
 
 ### Documentation
 - API Reference: `docs/backend/api-reference.md`

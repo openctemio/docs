@@ -1,13 +1,16 @@
 # OpenCTEM v0.9.0 release notes (draft)
 
-> **Draft for the release owner.** The api and ui repositories publish their
-> notes as GitHub releases. The tag workflow writes the image list and appends
-> the generated PR list, and the curated text goes in the release PR body
+> **Draft for the release owner.** v0.9.0 is the first release from the
+> merged [openctemio/openctem](https://github.com/openctemio/openctem)
+> repository (formerly `openctemio/api`; the web console moved there from
+> `openctemio/ui` under `web/`). One `v0.9.0` tag publishes one GitHub release
+> and every image. The tag workflow writes the image list and appends the
+> generated PR list, and the curated text goes in the release PR body
 > (`Release v0.9.0: develop → main`). The two sections below can be pasted
 > there as they are. Nothing here is tagged or released.
 
-**Components:** api `v0.9.0`, ui `v0.9.0` (released together; they must be
-deployed together); sdk-go `v0.7.3` (released); the sensor (formerly agent
+**Components:** API and web console `v0.9.0` (one tag, one release; deploy
+them together); sdk-go `v0.7.3` (released); the sensor (formerly agent
 `v0.2.2`) gets its first release under the new name, `ghcr.io/openctemio/sensor`
 (proposed `v0.3.0`, see [Sensor and SDK](#sensor-and-sdk)). Helm chart: a chart
 with `appVersion: v0.9.0` is needed. Until one is published, pin the image tags
@@ -19,7 +22,7 @@ agents to sensors in the database.
 
 ---
 
-## api v0.9.0
+## API v0.9.0
 
 ### Highlights
 
@@ -141,12 +144,16 @@ v0.8.0 data.
 
 ### Images
 
-`ghcr.io/openctemio/{api,migrations,seed,admin-cli}:v0.9.0`. The `admin-cli`
-image now contains only `bootstrap-admin`.
+`ghcr.io/openctemio/{openctem-api,migrations,seed,admin-cli}:v0.9.0`, plus the
+all-in-one `ghcr.io/openctemio/openctem:v0.9.0` (API + web + gateway). The
+`admin-cli` image now contains only `bootstrap-admin`, and the release attaches
+`bootstrap-admin-v0.9.0-<os>-<arch>.tar.gz` binaries (`.zip` for Windows).
+The API image is also copied to the old name `ghcr.io/openctemio/api:v0.9.0`
+for a two-release transition window.
 
 ---
 
-## ui v0.9.0
+## Web console v0.9.0
 
 ### Highlights
 
@@ -184,7 +191,8 @@ image now contains only `bootstrap-admin`.
 
 ### Images
 
-`ghcr.io/openctemio/ui:v0.9.0`.
+`ghcr.io/openctemio/openctem-web:v0.9.0`, also copied to the old name
+`ghcr.io/openctemio/ui:v0.9.0` for a two-release transition window.
 
 ---
 

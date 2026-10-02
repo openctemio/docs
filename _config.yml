@@ -122,7 +122,7 @@ defaults:
   - scope:
       path: "ui"
     values:
-      parent: "UI Documentation"
+      parent: "Web Console"
   - scope:
       path: "admin-ui"
     values:

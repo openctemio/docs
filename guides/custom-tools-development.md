@@ -502,4 +502,4 @@ func TestMyParser_Parse(t *testing.T) {
 - **[SDK Quick Start](sdk-quick-start.md)** - Basic SDK usage
 - **[Agent Usage](agent-usage.md)** - Run as continuous scanner
 - **[Building Ingestion Tools](building-ingestion-tools.md)** - Detailed guide
-- **[CTIS Schema Reference](https://github.com/openctemio/schemas)** - Full schema documentation
+- **[CTIS Schema Reference](https://github.com/openctemio/ctis)** - Full schema documentation

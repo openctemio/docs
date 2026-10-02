@@ -54,7 +54,7 @@ Users create scans through a 4-step wizard in the UI.
 ### Key Files
 
 ```
-ui/src/features/scans/components/new-scan/
+web/src/features/scans/components/new-scan/
 ├── new-scan-dialog.tsx    # Main dialog component
 ├── basic-info-step.tsx    # Step 1
 ├── targets-step.tsx       # Step 2
@@ -503,9 +503,9 @@ The UI uses SWR polling for live updates:
 ### Key Files
 
 ```
-ui/src/app/(dashboard)/(discovery)/scans/page.tsx
-ui/src/features/scans/api/use-scan-configs.ts
-ui/src/features/scans/components/
+web/src/app/(dashboard)/(discovery)/scans/page.tsx
+web/src/features/scans/api/use-scan-configs.ts
+web/src/features/scans/components/
 ```
 
 ---

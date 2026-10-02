@@ -280,6 +280,6 @@ Components are classified by ecosystem via PURL (Package URL):
 - `api/internal/infra/http/handler/component_handler.go` — HTTP endpoints
 
 **Frontend:**
-- `ui/src/app/(dashboard)/(discovery)/components/` — All component pages
-- `ui/src/features/components/api/use-components-api.ts` — SWR hooks
-- `ui/src/features/components/lib/transform-api.ts` — Data transformers
+- `web/src/app/(dashboard)/(discovery)/components/` — All component pages
+- `web/src/features/components/api/use-components-api.ts` — SWR hooks
+- `web/src/features/components/lib/transform-api.ts` — Data transformers

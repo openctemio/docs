@@ -249,7 +249,7 @@ func (c *Client) GenerateTenantScopedAccessToken(
 ### Frontend: Token Storage
 
 ```typescript
-// File: ui/src/stores/auth-store.ts
+// File: web/src/stores/auth-store.ts
 
 interface AuthState {
   accessToken: string | null  // JWT access token (memory only)

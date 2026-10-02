@@ -563,11 +563,11 @@ SET capabilities = COALESCE(
 
 | File | Description |
 |------|-------------|
-| `ui/src/lib/api/capability-types.ts` | TypeScript interfaces |
-| `ui/src/lib/api/capability-hooks.ts` | SWR hooks (including usage stats) |
-| `ui/src/lib/api/endpoints.ts` | API endpoint definitions |
-| `ui/src/lib/api/index.ts` | Public exports |
-| `ui/src/features/capabilities/` | Capabilities management UI components |
+| `web/src/lib/api/capability-types.ts` | TypeScript interfaces |
+| `web/src/lib/api/capability-hooks.ts` | SWR hooks (including usage stats) |
+| `web/src/lib/api/endpoints.ts` | API endpoint definitions |
+| `web/src/lib/api/index.ts` | Public exports |
+| `web/src/features/capabilities/` | Capabilities management UI components |
 
 ---
 
