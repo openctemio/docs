@@ -105,7 +105,8 @@ postgres://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_NAME?sslmode=DB_SSLMODE
 | `AUTH_MAX_LOGIN_ATTEMPTS` | No | `5` | Max failed login attempts |
 | `AUTH_LOCKOUT_DURATION` | No | `15m` | Account lockout duration |
 | `AUTH_MAX_ACTIVE_SESSIONS` | No | `10` | Max concurrent sessions |
-| `AUTH_ALLOW_REGISTRATION` | No | `true` | Allow new user registration |
+| `AUTH_ALLOW_REGISTRATION` | No | `false` | Allow public self-registration. An invitation still lets its recipient register when this is off |
+| `TENANT_CREATION_MODE` | No | `admin_only` | Who may create organizations. `admin_only`: only the platform administrator (admin console, or `bootstrap-admin -org-name … -org-owner-email …`). `self_service`: any signed-in user (SaaS / trial installs). Existing organizations are unaffected. An invalid value fails startup. Helm: `api.tenantCreationMode` |
 | `AUTH_REQUIRE_EMAIL_VERIFICATION` | No | `false` | Require email verification |
 
 #### Authentication Provider

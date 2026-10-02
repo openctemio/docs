@@ -23,7 +23,9 @@ For platform administrators, DevOps, and SRE teams.
 
 - [Authentication](guides/authentication.md) — Auth providers (Local, OAuth, OIDC, SSO)
 - [Permissions](guides/permissions.md) — RBAC permission system
-- [Platform Admin](guides/platform-admin.md) — Admin console
+- [Platform Admin](guides/platform-admin.md) — Admin console, `bootstrap-admin`
+- [First-Time Setup](guides/getting-started.md#2-first-time-setup) — First administrators and organization
+- [Multi-Tenancy](guides/multi-tenancy.md#who-can-create-organizations) — Who creates organizations (`TENANT_CREATION_MODE`)
 
 ## Scanning Infrastructure
 

@@ -7,6 +7,16 @@ nav_order: 1
 
 # Admin UI User Guide
 
+{: .warning }
+**Replaced in v0.9.0.** The separate Admin UI application (port 3001, API-key
+sign-in) no longer exists. Platform administration is the **admin console** at
+`/admin` in the main web UI: administrators sign in on `/login` with their
+password and an authenticator (TOTP) code. Admin API keys were removed
+(migration 000227). See the [Platform Administration Guide](../guides/platform-admin.md)
+and [First-Time Setup](../guides/getting-started.md#2-first-time-setup).
+[Getting Started](#getting-started) below is current; the other sections
+describe the old application and are kept for v0.8 installations.
+
 Complete guide for using the OpenCTEM Platform Admin UI to manage platform agents, jobs, tokens, and administrators.
 
 ---
@@ -48,60 +58,35 @@ The Admin UI is a web-based management console for platform administrators. It p
 
 ## Getting Started
 
-### Accessing the Admin UI
+### Accessing the admin console
 
-1. Navigate to your Admin UI URL (e.g., `https://admin.openctem.io`)
-2. Enter your API key on the login page
-3. Click "Sign In"
+1. Open `https://<your-host>/login` and sign in with your administrator email
+   and password.
+2. On the first sign-in, set a new password (the temporary one from
+   `bootstrap-admin` or from the administrator who created you), then sign in
+   again.
+3. You are taken to `/admin`. Enter the code from your authenticator app; the
+   first time, scan the QR code to enroll it.
 
-### Obtaining an API Key
+### Getting an administrator account
 
-API keys are created when bootstrapping an admin account. Choose one method:
-
-**Method 1: Using Setup Makefile (Recommended)**
-
-```bash
-cd setup
-
-# Staging
-make bootstrap-admin-staging email=admin@yourcompany.com
-
-# Production
-make bootstrap-admin-prod email=admin@yourcompany.com
-
-# With specific role
-make bootstrap-admin-staging email=ops@yourcompany.com role=ops_admin
-```
-
-**Method 2: Using Docker Compose**
+The first administrators (a primary and a break-glass backup) are created with
+`bootstrap-admin`, which prints a temporary password for each, once:
 
 ```bash
-# From the API directory
-docker compose exec api ./bootstrap-admin \
-  -email "admin@yourcompany.com" \
-  -role "super_admin"
+# Docker Compose (from api/deploy)
+docker compose exec api /app/bootstrap-admin \
+  -email=admin@yourcompany.com \
+  -backup-email=breakglass@yourcompany.com
+
+# Kubernetes
+kubectl exec -n openctem deploy/openctem-api -- /app/bootstrap-admin \
+  -email=admin@yourcompany.com -backup-email=breakglass@yourcompany.com
 ```
 
-**Method 3: Using Admin CLI**
-
-```bash
-# Create admin via CLI (requires existing admin API key)
-openctem-admin create admin --email=you@company.com --role=ops_admin
-```
-
-**Output:**
-
-```
-=== Bootstrap Admin Created ===
-  ID:    550e8400-e29b-41d4-a716-446655440000
-  Email: admin@yourcompany.com
-  Role:  super_admin
-
-API Key (save this, it won't be shown again):
-  oc-admin-a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
-```
-
-> **Important**: API keys are shown only once. Store them securely.
+Add `-org-name` and `-org-owner-email` to create the first organization at the
+same time. Further administrators are added by a super admin in the console
+(**Administrators**). See [First-Time Setup](../guides/getting-started.md#2-first-time-setup).
 
 ---
 

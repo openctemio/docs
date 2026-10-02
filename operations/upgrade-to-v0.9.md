@@ -12,7 +12,8 @@
 > links to it instead of repeating it.
 
 v0.9.0 is the biggest behaviour change since v0.4: **who can get in, and how,
-changes**. Self-registration is off, platform administrators become people with
+changes**. Self-registration is off, only the platform administrator creates
+organizations, platform administrators become people with
 two-factor sign-in, SSO set-up moves to a platform admin console, organization
 access policies that were only stored are now enforced, and *agents* become
 *sensors* everywhere. Plan a maintenance window of about 30 minutes, and do the
@@ -51,7 +52,7 @@ items need a decision from you or from organization owners.
   authentication* is now enforced
   ([RFC-024](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-024-user-two-factor-authentication.md)).
   Signing out a session now takes effect on the next request.
-- **Administrators create users** (*Settings → Users → Add user*, or from the
+- **Administrators create users** (*Settings → Members → Add user*, or from the
   console), with a one-time set-password link; no open self-registration
   ([RFC-025](https://github.com/openctemio/api/blob/develop/docs/rfcs/RFC-025-user-onboarding.md)).
 - **Agents are now sensors** across the database, API, permissions, audit, logs,
@@ -80,7 +81,7 @@ which of them apply to your installation.
 v0.8). `POST /api/v1/auth/register` answers **403 "Registration is not
 available"** and the UI hides *Sign up*. People still get in by:
 
-- an administrator creating them (*Settings → Users → Add user*, or the console);
+- an administrator creating them (*Settings → Members → Add user*, or the console);
 - an **invitation** — invited people can register even with registration off;
 - their organization's **SSO** (see [item 5](#5-sso-just-in-time-provisioning-needs-a-dns-verified-domain)).
 
@@ -91,9 +92,8 @@ really run an open instance, set `AUTH_ALLOW_REGISTRATION=true` explicitly.
 **After:** nothing, unless you chose to keep it open. Registration is checked
 in [verification](#verification-checklist).
 
-Related: `TENANT_CREATION_MODE` (`self_service` default, `admin_only`) decides
-who may create organizations; `admin_only` refuses both `POST /tenants` and
-onboarding's *create your first team*. Unchanged default.
+Related: who may create *organizations* also changes; see
+[item 13](#13-only-the-platform-administrator-creates-organizations).
 
 ### 2. Platform administrators are people: admin API keys are removed
 
@@ -325,6 +325,45 @@ call returns **400** (not 401).
 | Password reset e-mails link to `/reset-password` (was a non-existent `/auth/reset-password`) | — |
 | Members (not owners/admins) may get 403 on sensor routes for up to 5 minutes after the migration unless the permission cache is flushed | Handled by the procedure |
 
+### 13. Only the platform administrator creates organizations
+
+`TENANT_CREATION_MODE` now defaults to **`admin_only`**, on new installs and on
+upgrades. Only the platform administrator creates organizations: in the console
+(*Organizations → Create*) or with `bootstrap-admin -org-name … -org-owner-email …`.
+`POST /api/v1/tenants` and `POST /api/v1/auth/create-first-team` answer **403**,
+the UI no longer offers *Create team*, and a signed-in user who belongs to no
+organization sees *ask your administrator* instead of the *Create Team* page.
+Existing organizations, their owners and members are not affected.
+
+`self_service` (the v0.8 behaviour: any signed-in user may create organizations
+and becomes their owner) is now an explicit opt-in for SaaS and trial installs.
+
+**Affected:** installations where users create their own organizations or
+teams, and scripts that call `POST /tenants` or `/auth/create-first-team`.
+**Before:** decide. To keep self-service creation, set
+`TENANT_CREATION_MODE=self_service` (Helm: `api.tenantCreationMode: self_service`).
+**After:** nothing, unless you kept self-service.
+
+The first-organization tooling changes with it:
+
+- `bootstrap-admin` gains optional `-org-name`, `-org-slug`, `-org-owner-email`
+  and `-org-owner-name` (or `ORG_NAME`, `ORG_SLUG`, `ORG_OWNER_EMAIL`,
+  `ORG_OWNER_NAME`). Name and owner email go together. The organization is
+  created through the audited organization service; its owner gets a one-time
+  set-password link (valid 24 hours), emailed when SMTP is configured,
+  otherwise printed once. Re-running skips existing administrators and an
+  existing organization with the same slug. The owner must not be a platform
+  administrator's address.
+- `bootstrap-tenant` (raw SQL, no audit, ignored `TENANT_CREATION_MODE`) is
+  **removed** from the API image.
+- Helm: `api.bootstrapTenant` is **removed**, and the chart refuses to render
+  with `api.bootstrapTenant.enabled=true`; use `api.bootstrapAdmin.org.*`. New
+  value `api.tenantCreationMode` (default `admin_only`). The bootstrap-admin Job
+  is now kept after it succeeds so its one-time credentials can be read
+  (`kubectl logs job/<fullname>-api-bootstrap-admin`, then `kubectl delete` it),
+  a failed Job fails the install instead of being ignored, and the Job gets
+  `api.extraEnv` / `api.extraEnvFrom` (for `SMTP_*`).
+
 ## Configuration changes
 
 ### API
@@ -334,15 +373,15 @@ call returns **400** (not 401).
 | `AUTH_ALLOW_REGISTRATION` | default `true` | default **`false`** | Set `true` only for an open instance. **If your env file sets `true` explicitly (many copies of the old examples do), registration stays open** — remove or change it. |
 | `SERVER_TRUSTED_PROXIES` | optional | **recommended**: the UI's address/network | Without it the API sees the UI's IP for every browser request: login rate limits (5/min) become one bucket for everyone, the IP allowlist cannot work, audit logs record the UI's IP. |
 | `APP_ENCRYPTION_KEY` | required in production | required; also encrypts TOTP secrets | Keep the same value. |
-| `TENANT_CREATION_MODE` | — | new, `self_service` (default) or `admin_only` | Optional. An invalid value fails startup. |
+| `TENANT_CREATION_MODE` | — (behaved as `self_service`) | new, default **`admin_only`**; or `self_service` | Set `self_service` only to keep users creating organizations ([item 13](#13-only-the-platform-administrator-creates-organizations)). Helm: `api.tenantCreationMode`. An invalid value fails startup. |
 | `SSO_ENTRA_DEFAULT_ROLE` | default `member` | default **`viewer`** | Set it if JIT users should be members. |
 | `AGENT_CONFIG_TEMPLATES_DIR`, `AGENT_PUBLIC_API_URL`, `AGENT_KEY_TTL`, `AGENT_LB_*` | | renamed `SENSOR_*` | Old names still work with `WARN deprecated configuration`; the API refuses to start only if old and new are both set and differ. Rename when convenient — table in [the sensor guide](upgrade-agent-to-sensor.md#step-1--upgrade-the-platform). |
 | `CORS_ALLOWED_HEADERS` default | included `X-Admin-API-Key` | no longer does | Remove it if you set the list yourself. |
 | `AUTH_COOKIE_SECURE` | default `false` | default **`true`** unless `APP_ENV=development`; production refuses `false` for every auth provider (v0.8 only refused it for local/hybrid) | Nothing to do behind HTTPS. **A non-development stack served over plain `http://` must set `false`**, or browsers drop the session cookies and nobody can stay signed in. All session, CSRF, tenant, admin console and 2FA cookies follow it. |
 
 No new variable is required: a v0.8 env file starts v0.9.0 as is, apart from the
-registration default and, for a staging stack on plain `http://`,
-`AUTH_COOKIE_SECURE=false`.
+registration and organization-creation defaults and, for a staging stack on
+plain `http://`, `AUTH_COOKIE_SECURE=false`.
 
 ### UI
 
@@ -358,6 +397,7 @@ registration default and, for a staging stack on plain `http://`,
 | `POST /api/v1/admin/users` (create admin by key) | `POST /api/v1/admin/administrators` (console, super admin) or `bootstrap-admin` |
 | `POST /api/v1/admin/users/{id}/rotate-key` | — (no keys) |
 | `openctem-admin` CLI (binary, release assets, CI build) | Admin console; the `admin-cli` image now contains only `bootstrap-admin` |
+| `bootstrap-tenant` CLI (`/app/bootstrap-tenant`) and the Helm `api.bootstrapTenant` Job | `bootstrap-admin -org-name … -org-owner-email …` / Helm `api.bootstrapAdmin.org.*`, or *Organizations → Create* in the console |
 | `/api/v1/settings/saml` (GET, PUT) | `/api/v1/admin/tenants/{tenantId}/sso/saml` |
 | `/api/v1/settings/identity-providers` (+ `/{id}`) | `/api/v1/admin/tenants/{tenantId}/sso/identity-providers` |
 | `/api/v1/settings/verified-domains` (+ `/{id}/verify`) | `/api/v1/admin/tenants/{tenantId}/sso/verified-domains` |
@@ -531,6 +571,10 @@ df -h /var/lib/docker .     # keep >= 20 % free: Postgres stops if the disk fill
 
 - Decide registration (`AUTH_ALLOW_REGISTRATION`); check your env file does not
   set `true` by accident.
+- Decide organization creation: keep the new `admin_only` default, or set
+  `TENANT_CREATION_MODE=self_service` if users must keep creating organizations.
+- Helm: remove `api.bootstrapTenant` from your values (the chart no longer
+  renders with it enabled).
 - Staging or test stacks served over plain `http://` (not `APP_ENV=development`):
   set `AUTH_COOKIE_SECURE=false`, otherwise sign-in silently fails.
 - If any organization uses an IP allowlist, set up the proxy chain
@@ -665,6 +709,7 @@ api:
   extraEnv:
     - name: AUTH_ALLOW_REGISTRATION   # only for an open, self-signup instance
       value: "true"
+  # tenantCreationMode: self_service  # only to keep users creating organizations (default admin_only)
     - name: SERVER_TRUSTED_PROXIES    # the UI pods' network
       value: "10.42.0.0/16"
 ui:
@@ -707,7 +752,8 @@ kubectl -n $NS exec $FN-redis-master-0 -- sh -c 'redis-cli --no-auth-warning -a 
 The chart's bootstrap-admin Job is a **post-install** hook: it does not run on
 `helm upgrade`. Create the administrators by hand ([Step A](#step-a--create-the-platform-administrators)).
 On new installs the Job now needs `api.bootstrapAdmin.backupEmail` (or
-`noBackup: true`).
+`noBackup: true`), can create the first organization (`api.bootstrapAdmin.org.*`),
+and is kept after it succeeds: read its log, then delete it.
 
 ## After the upgrade
 
@@ -774,6 +820,9 @@ Run as an owner, a member and a viewer of one organization:
       → `403` (unless you kept it open), and `/login` shows no *Sign up*.
 - [ ] Administrators sign in on `/login` and reach `/admin` after the TOTP step;
       *Administrators* lists both, one marked break-glass.
+- [ ] Organization creation matches your choice: with `admin_only` (default),
+      `POST /api/v1/tenants` as an organization owner returns `403` and only
+      *Organizations → Create* in the console works.
 - [ ] A user can enroll 2FA in *My account → Security*.
 - [ ] Organizations with an IP allowlist: an owner is not refused, and
       *Settings → Security* shows their real IP.

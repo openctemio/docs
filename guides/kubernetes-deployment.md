@@ -104,18 +104,37 @@ kubectl create secret generic openctem-redis-secrets \
   --namespace openctem \
   --from-literal=password="$REDIS_PASSWORD"
 
-# 4. Install the chart from local source
-helm install openctem ./setup/kubernetes/helm/openctem \
+# 4. Install the chart, with the first administrators and organization
+helm repo add openctem https://openctemio.github.io/helm-charts
+helm repo update
+helm install openctem openctem/openctem \
   --namespace openctem \
   --set ingress.hosts[0].host=openctem.example.com \
   --set ingress.tls[0].hosts[0]=openctem.example.com \
+  --set api.bootstrapAdmin.enabled=true \
+  --set api.bootstrapAdmin.email=admin@example.com \
+  --set api.bootstrapAdmin.backupEmail=breakglass@example.com \
+  --set-string api.bootstrapAdmin.org.name="Example Org" \
+  --set api.bootstrapAdmin.org.ownerEmail=owner@example.com \
   --wait --timeout 10m
 
 # 5. Verify
 kubectl get pods --namespace openctem
+
+# 6. Read the one-time credentials, store them, then delete the Job
+kubectl logs -n openctem job/openctem-api-bootstrap-admin
+kubectl delete -n openctem job/openctem-api-bootstrap-admin
 ```
 
 When all pods show `Running` and `READY 1/1`, the platform is up. Point your DNS at the Ingress external IP and open `https://openctem.example.com`.
+
+The bootstrap Job (step 6) prints a temporary password for the platform
+administrator and the break-glass administrator, and the organization owner's
+one-time set-password link (emailed instead when SMTP is configured). The
+administrator signs in at `/login`, changes the password and enrolls TOTP in the
+admin console; the owner sets a password with the link and signs in to the
+organization. See [First-Time Setup](getting-started.md#2-first-time-setup) for
+the full walkthrough.
 
 ---
 
@@ -165,7 +184,7 @@ api:
     RATE_LIMIT_BURST: "200"            # Burst allowance above RPS
     AUTH_PROVIDER: local               # "local", "oidc", or "hybrid" (per-tenant SSO: Entra ID / Okta / Google)
     AUTH_REQUIRE_EMAIL_VERIFICATION: "false"
-    AUTH_ALLOW_REGISTRATION: "true"    # Set "false" for invite-only
+    AUTH_ALLOW_REGISTRATION: "false"   # Default. "true" only for an open, self-signup instance
   envFromSecret: openctem-api-secrets  # Secret name containing sensitive vars
   readinessProbe:                      # Used by K8s to determine if pod can receive traffic
     httpGet:
@@ -185,9 +204,37 @@ api:
     maxReplicas: 10                    # Maximum pod count
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
+  tenantCreationMode: admin_only       # Who creates organizations (TENANT_CREATION_MODE): admin_only (default) or self_service
+  bootstrapAdmin:                      # First platform admins + first organization (post-install Job)
+    enabled: false
+    email: ""                          # Platform administrator
+    name: ""
+    role: super_admin                  # super_admin, ops_admin or readonly
+    backupEmail: ""                    # Break-glass backup super admin (required unless noBackup)
+    backupName: ""
+    noBackup: false
+    org:                               # Optional first organization; set name and ownerEmail together
+      name: ""
+      slug: ""                         # Optional, derived from the name
+      ownerEmail: ""                   # Organization owner; must not be an administrator's address
+      ownerName: ""
 ```
 
 When `autoscaling.enabled` is `true`, the `replicaCount` field is ignored and the HPA manages replica count.
+
+`tenantCreationMode: admin_only` means only the platform administrator creates
+organizations (admin console, or `bootstrapAdmin.org`). `self_service` lets any
+signed-in user create organizations; use it only for SaaS or trial installs. A
+`TENANT_CREATION_MODE` entry in `api.extraEnv` takes precedence.
+
+`bootstrapAdmin` runs `/app/bootstrap-admin` once, as a post-install hook after
+the migrations; a failure fails the install. The completed Job is kept so you
+can read the one-time credentials with
+`kubectl logs job/<fullname>-api-bootstrap-admin`; delete it afterwards with
+`kubectl delete job/<fullname>-api-bootstrap-admin`. The Job receives
+`api.extraEnv` and `api.extraEnvFrom`, so `SMTP_*` settings there let it email
+the owner's set-password link. The former `bootstrapTenant` values are removed:
+the chart refuses to render with `api.bootstrapTenant.enabled=true`.
 
 ### 3.3 ui
 
@@ -909,7 +956,7 @@ api:
     LOG_LEVEL: debug
     LOG_FORMAT: text
     RATE_LIMIT_ENABLED: "false"
-    AUTH_ALLOW_REGISTRATION: "true"
+    AUTH_ALLOW_REGISTRATION: "false"
   autoscaling:
     enabled: false
 
@@ -1000,6 +1047,7 @@ api:
     RATE_LIMIT_BURST: "400"
     AUTH_ALLOW_REGISTRATION: "false"
     AUTH_REQUIRE_EMAIL_VERIFICATION: "true"
+  tenantCreationMode: admin_only
   autoscaling:
     enabled: true
     minReplicas: 3
@@ -1389,6 +1437,8 @@ Complete every item before considering the deployment production-ready.
 - [ ] Database password uses at least 32 random characters
 - [ ] Secrets are managed via External Secrets Operator or sealed-secrets (not plain `kubectl create`)
 - [ ] `AUTH_ALLOW_REGISTRATION` set to `"false"` (invite-only)
+- [ ] `api.tenantCreationMode` is `admin_only` (the default): only the platform administrator creates organizations
+- [ ] The `bootstrap-admin` Job was deleted after its credentials were stored; the break-glass administrator's credentials are kept offline
 - [ ] `AUTH_REQUIRE_EMAIL_VERIFICATION` set to `"true"`
 
 ### TLS and Networking
