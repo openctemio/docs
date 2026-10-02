@@ -41,7 +41,7 @@ New to OpenCTEM? Start here:
 | [SDK Quick Start](./guides/sdk-quick-start.md) | Build custom security tools |
 | [API Reference](./backend/api-reference.md) | REST API documentation |
 | [Custom Tools Development](./guides/custom-tools-development.md) | Create custom scanners |
-| [SDK Security Guide](../sdk-go/docs/SECURITY.md) | Security best practices |
+| [SDK Security Guide](https://github.com/openctemio/sdk-go/blob/main/docs/SECURITY.md) | Security best practices |
 
 ### For Operators
 
@@ -120,9 +120,10 @@ administration is the admin console at `/admin` in the main web UI; see the
 
 | Component | Documentation |
 |-----------|---------------|
-| **Agent** | [Agent Quick Start](../agent/docs/QUICK_START.md) \| [Full README](../agent/README.md) |
-| **SDK** | [SDK README](../sdk-go/README.md) \| [Security Guide](../sdk-go/docs/SECURITY.md) |
-| **Schemas** | [CTIS Format](../schemas/README.md) |
+| **Platform (API + web)** | [openctem README](https://github.com/openctemio/openctem#readme) \| [Web console docs](./ui/) |
+| **Sensor** | [Sensor Quick Start](https://github.com/openctemio/sensor/blob/main/docs/QUICK_START.md) \| [Full README](https://github.com/openctemio/sensor#readme) |
+| **SDK** | [SDK README](https://github.com/openctemio/sdk-go#readme) \| [Security Guide](https://github.com/openctemio/sdk-go/blob/main/docs/SECURITY.md) |
+| **Schemas** | [CTIS Format](https://github.com/openctemio/ctis#readme) |
 
 ---
 
@@ -144,7 +145,7 @@ See our [Feature Roadmap](./ROADMAP.md) for planned features and CTEM phase cove
 
 ## 🤝 Contributing
 
-Please refer to the [Contributing Guide](../CONTRIBUTING.md) for contribution guidelines.
+Please refer to the [Contributing Guide](https://github.com/openctemio/openctem/blob/main/CONTRIBUTING.md) for contribution guidelines.
 
 ---
 
