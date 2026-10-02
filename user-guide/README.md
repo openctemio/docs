@@ -25,7 +25,7 @@ Cộng với: [01 — Bắt đầu & Dashboard](01-getting-started-dashboard.md)
 ## Bắt đầu nhanh (Quickstart)
 
 1. Mở ứng dụng → trang **Sign in**. Đăng nhập bằng email + mật khẩu, hoặc SSO (**Google / GitHub / Microsoft**).
-2. Người dùng mới: sau khi đăng ký (`/register`) → **onboarding** tạo team/tổ chức (`/onboarding/create-team`) → vào Dashboard.
+2. Người dùng mới: nhận lời mời hoặc liên kết đặt mật khẩu từ owner/admin của tổ chức (hoặc đăng nhập qua SSO) → vào Dashboard của tổ chức. Tổ chức do quản trị viên nền tảng tạo; chỉ ở chế độ `self_service` người dùng mới tự tạo team (`/onboarding/create-team`).
 3. Giao diện chung: **sidebar** nhóm theo pha CTEM · **Search/Cmd+K** (command palette) · chuông **Notifications** · nút **đổi theme** (light/dark) · **bộ chuyển tenant** · menu tài khoản.
 4. Dữ liệu (tài sản, findings…) được sinh ra khi **chạy scan** — phần lớn trang danh sách hiển thị *empty state* trung thực cho tới khi có scan/ingest.
 

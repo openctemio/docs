@@ -128,6 +128,19 @@ api:
     CORS_ALLOWED_ORIGINS: "https://your-domain.com"
     LOG_LEVEL: info
 
+  # Only the platform administrator creates organizations (the default)
+  tenantCreationMode: admin_only
+
+  # First logins: platform admin + break-glass backup, and the first
+  # organization with its owner (a different address from both admins)
+  bootstrapAdmin:
+    enabled: true
+    email: admin@yourcompany.com
+    backupEmail: breakglass@yourcompany.com
+    org:
+      name: Your Company
+      ownerEmail: owner@yourcompany.com
+
 ui:
   replicaCount: 2
   image:
@@ -191,11 +204,11 @@ for the values instead of the simplified `ingress` block above.
 
 ```bash
 # Add OpenCTEM Helm repository
-helm repo add openctemio https://charts.openctem.io
+helm repo add openctem https://openctemio.github.io/helm-charts
 helm repo update
 
 # Install
-helm install openctem openctemio/openctem \
+helm install openctem openctem/openctem \
   --namespace openctem \
   --values values.yaml \
   --wait --timeout 10m
@@ -231,37 +244,12 @@ kubectl get ingress --namespace openctem
 
 ---
 
-### Step 6: Run Database Migrations
+### Step 6: Database Migrations
 
-```bash
-# Run migrations job
-kubectl apply -f - <<EOF
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: openctem-migrate
-  namespace: openctem
-spec:
-  template:
-    spec:
-      containers:
-      - name: migrate
-        image: openctemio/api:latest
-        command: ["migrate", "-path", "/app/migrations", "-database", "\$(DATABASE_URL)", "up"]
-        env:
-        - name: DATABASE_URL
-          value: "postgres://openctem:\$(DB_PASSWORD)@openctem-postgresql:5432/openctem?sslmode=disable"
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: openctem-secrets
-              key: db-password
-      restartPolicy: OnFailure
-EOF
-
-# Wait for completion
-kubectl wait --for=condition=complete job/openctem-migrate --namespace openctem --timeout=5m
-```
+Nothing to do: the chart runs the migrations in a Job, as a post-install hook
+(and pre-upgrade on `helm upgrade`), before the bootstrap Job. Check it with
+`helm status openctem --namespace openctem` or the Job's log if the install
+fails.
 
 ---
 
@@ -284,11 +272,27 @@ kubectl exec -it deployment/openctem-api --namespace openctem -- \
 
 2. Navigate to your domain: `https://your-domain.com`
 
-3. Create the first admin account — there is no seeded default account:
+3. There is no seeded default account or organization. The `bootstrapAdmin`
+   values from Step 3 created them. Read the one-time credentials, store them,
+   then delete the Job:
    ```bash
-   make bootstrap-admin-prod email=admin@yourcompany.com
+   kubectl logs job/openctem-api-bootstrap-admin --namespace openctem
+   kubectl delete job/openctem-api-bootstrap-admin --namespace openctem
    ```
-   The command prints a one-time API key. Log in with that admin account.
+   The log has a temporary password for each administrator and, unless SMTP is
+   configured (then it is emailed), the organization owner's one-time
+   set-password link (valid 24 hours).
+
+4. The administrator signs in at `https://your-domain.com/login`, changes the
+   temporary password and enrolls an authenticator (TOTP) in the admin console
+   (`/admin`). Store the break-glass credentials offline.
+
+5. The owner sets a password with the link, signs in, and adds users under
+   **Settings → Members**. The administrator creates further organizations and
+   per-organization SSO in the console.
+
+See [First-Time Setup](../guides/getting-started.md#2-first-time-setup) for the
+full walkthrough and the Docker Compose commands.
 
 ---
 
