@@ -32,54 +32,68 @@ OpenCTEM is a **Continuous Threat Exposure Management (CTEM)** platform that hel
 
 ---
 
-## Step 1: Clone the Platform
+## Step 1: Get the Compose Files
 
 ```bash
-# Clone the meta-repository
-git clone https://github.com/openctemio/openctem-platform.git
-cd openctemio
-
-# Initialize all sub-repositories
-make setup
+git clone https://github.com/openctemio/api.git
+cd api/deploy
+cp .env.example .env
 ```
 
-This clones API, Agent, UI, and SDK repositories.
+Edit `.env`: set `OPENCTEM_VERSION`, `OPENCTEM_HOSTNAME`, `OPENCTEM_PUBLIC_URL`,
+`OPENCTEM_TLS_MODE` and the generated secrets. See
+[Exposing OpenCTEM: one HTTPS port](../operations/single-https-port.md#quick-start-docker-compose)
+for the minimum settings.
 
 ---
 
 ## Step 2: Start Services
 
 ```bash
-# Start all services
-make up
-
-# Watch logs (optional)
-make logs
+docker compose up -d
+docker compose ps -a
 ```
 
 **Services starting:**
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| API | http://localhost:8080 | Backend REST API |
-| UI | http://localhost:3000 | Tenant dashboard |
-| Admin UI | http://localhost:3001 | Platform admin (optional) |
-| PostgreSQL | localhost:5432 | Database |
-| Redis | localhost:6379 | Cache & queues |
+| Service | Address | Purpose |
+|---------|---------|---------|
+| gateway | `https://<OPENCTEM_HOSTNAME>` | The only published port: web UI, API (`/api/v1`), sensors |
+| web | internal | Web UI, including the admin console at `/admin` |
+| api | internal | Backend REST API |
+| migrate | one-shot | Runs the database migrations, then exits 0; the API waits for it |
+| postgres, redis | internal | Database, cache and queues |
 
 Wait ~30 seconds for all services to be healthy.
 
 ---
 
-## Step 3: Login
+## Step 3: Create the First Administrator and Organization
 
-**URL:** [http://localhost:3000](http://localhost:3000)
+There are **no default credentials** and no default organization. Create the
+platform administrator, its break-glass backup and the first organization with
+its owner (three different addresses):
 
-**Default credentials:**
+```bash
+docker compose exec api /app/bootstrap-admin \
+  -email=admin@yourcompany.com \
+  -backup-email=breakglass@yourcompany.com \
+  -org-name="Your Company" \
+  -org-owner-email=owner@yourcompany.com
 ```
-Email: admin@openctem.io
-Password: Admin123!
-```
+
+The command prints each administrator's temporary password once, and the
+owner's one-time set-password link (emailed instead when SMTP is configured).
+
+1. The administrator signs in at `https://<your-host>/login`, sets a new
+   password and enrolls an authenticator (TOTP) in the admin console (`/admin`).
+   Store the break-glass credentials offline.
+2. The owner opens the set-password link (valid 24 hours), chooses a password
+   and signs in to the organization.
+3. The owner adds users under **Settings → Members**.
+
+Details, Helm values and the self-service alternative:
+[First-Time Setup](../guides/getting-started.md#2-first-time-setup).
 
 ---
 
@@ -93,28 +107,29 @@ See **[First Scan Tutorial](./first-scan.md)** for detailed instructions.
 # Run agent with Docker
 docker run --rm \
   -v $(pwd):/scan \
-  -e API_URL=http://host.docker.internal:8080 \
+  -e API_URL=https://ctem.example.com \
   -e API_KEY=your-api-key \
   openctemio/agent:latest \
   -tools semgrep,betterleaks,trivy -target /scan -push
 ```
 
 {: .note }
-This example targets the **local development stack** (API on `localhost:8080`).
-On a production server behind the built-in gateway, use
-`API_URL=https://<your-host>` (no port) and, with the internal CA, mount the root
-certificate and set `SSL_CERT_DIR`. See [Connecting sensors](../operations/single-https-port.md#connecting-sensors).
+`API_URL` is the gateway URL (your `OPENCTEM_PUBLIC_URL`, no `:8080`). With the
+internal CA (`OPENCTEM_TLS_MODE=internal`), also mount the root certificate and
+set `SSL_CERT_DIR`. See [Connecting sensors](../operations/single-https-port.md#connecting-sensors).
 
 ---
 
 ## Common Commands
 
+Run from `api/deploy`:
+
 ```bash
-make up        # Start platform
-make down      # Stop platform
-make logs      # View logs
-make restart   # Restart services
-make status    # Check health
+docker compose up -d       # Start platform
+docker compose down        # Stop platform (keeps the data volumes)
+docker compose logs -f api # View logs
+docker compose restart     # Restart services
+docker compose ps -a       # Check status
 ```
 
 ---

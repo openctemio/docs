@@ -39,8 +39,10 @@ This guide walks you through a **complete security scan workflow** from creating
 
 Navigate to [http://localhost:3000](http://localhost:3000)
 
-Log in with the admin account you created via `bootstrap-admin` (there is no seeded
-default account — see [Getting Started](getting-started.md#create-the-first-admin-account)).
+Log in as the organization owner (or a member of the organization). There is no
+seeded default account: the first organization and its owner are created with
+`bootstrap-admin`, see [First-Time Setup](getting-started.md#2-first-time-setup).
+The platform administrator account opens the admin console, not an organization.
 
 ### 1.2 Add a Repository
 

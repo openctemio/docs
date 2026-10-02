@@ -40,7 +40,6 @@ OpenCTEM publishes the following images to Docker Hub:
 |-------|-------------|
 | `openctemio/api:<version>` | Backend API (Go) |
 | `openctemio/ui:<version>` | Frontend UI (Next.js) |
-| `openctemio/admin-ui:<version>` | Admin console (Next.js) |
 | `openctemio/migrations:<version>` | Database migration runner |
 | `openctemio/seed:<version>` | Test/demo data seeder |
 

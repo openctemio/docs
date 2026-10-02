@@ -58,9 +58,16 @@ Details: [Permissions Matrix](./permissions.md)
 
 ### Case 1: No Tenants (New User)
 
+What happens depends on [who may create organizations](#who-can-create-organizations):
+
 ```
-Login → No tenants → Redirect to Create Team → Team created → Dashboard
+admin_only (default):  Login → No tenants → "Ask your administrator" page
+self_service:          Login → No tenants → Redirect to Create Team → Team created → Dashboard
 ```
+
+Under `admin_only` a user gets into an organization only by being added to one:
+an invitation, an account created by an organization owner or admin, SSO
+just-in-time provisioning, or SCIM.
 
 ### Case 2: Single Tenant
 
@@ -76,9 +83,23 @@ Login → Multiple tenants → Show selector → User picks → Exchange token �
 
 ---
 
+## Who Can Create Organizations
+
+`TENANT_CREATION_MODE` (API environment variable; Helm value
+`api.tenantCreationMode`) decides who may create an organization:
+
+| Mode | Who creates organizations |
+|------|---------------------------|
+| `admin_only` **(default)** | Only the platform administrator: in the admin console (`/admin` → **Organizations** → **Create**), or with the `bootstrap-admin` organization flags at install time. `POST /api/v1/auth/create-first-team` and `POST /api/v1/tenants` return 403. |
+| `self_service` | Any signed-in user. A user with no organization gets the Create Team page; a user who already belongs to one can create more. The creator becomes the **Owner**. Use it only for SaaS or trial installs. |
+
+Changing the mode does not affect existing organizations. An invalid value stops
+the API at startup. See [Getting Started](./getting-started.md#2-first-time-setup)
+for how the first organization is created on a new install.
+
 ## Create First Team
 
-New users registering without a team use this flow:
+Only in `self_service` mode. A signed-in user without a team uses this flow:
 
 ```
 POST /api/v1/auth/create-first-team
@@ -256,8 +277,10 @@ https://your-domain.com/{tenant-slug}/dashboard
 https://your-domain.com/{tenant-slug}/assets
 ```
 
-### 3. Default Tenant
-Store last selected tenant for faster access.
+### 3. Last Selected Tenant
+Store the last selected tenant for faster access. There is no seeded "default"
+tenant: every organization is created by the platform administrator (or, in
+`self_service` mode, by a user).
 
 ### 4. Membership Check
 Always validate membership before operations:
