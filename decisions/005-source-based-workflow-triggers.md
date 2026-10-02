@@ -193,8 +193,8 @@ interface FindingCreatedTriggerConfig {
 | `api/internal/domain/workflow/node.go` | Add constant |
 | `api/internal/app/workflow_executor.go` | Add source matching |
 | `api/internal/app/workflow_config_validator.go` | Validate source codes |
-| `ui/src/lib/api/workflow-types.ts` | Add TypeScript types |
-| `ui/src/features/workflows/components/trigger-config-form.tsx` | Add source filter UI |
+| `web/src/lib/api/workflow-types.ts` | Add TypeScript types |
+| `web/src/features/workflows/components/trigger-config-form.tsx` | Add source filter UI |
 | `docs/features/workflows.md` | Update documentation |
 
 ---

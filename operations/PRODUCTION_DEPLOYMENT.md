@@ -114,8 +114,8 @@ global:
 api:
   replicaCount: 3
   image:
-    repository: openctemio/api
-    tag: latest
+    repository: ghcr.io/openctemio/openctem-api   # v0.8.x and earlier: ghcr.io/openctemio/api
+    tag: v0.9.0                                   # same version for api and ui
   resources:
     requests:
       memory: "512Mi"
@@ -144,8 +144,8 @@ api:
 ui:
   replicaCount: 2
   image:
-    repository: openctemio/ui
-    tag: latest
+    repository: ghcr.io/openctemio/openctem-web   # v0.8.x and earlier: ghcr.io/openctemio/ui
+    tag: v0.9.0
   resources:
     requests:
       memory: "256Mi"

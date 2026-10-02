@@ -149,10 +149,10 @@ Performance indexes for scope rule queries (tenant + active + group, asset group
 
 | File | Purpose |
 |------|---------|
-| `ui/src/features/access-control/types/scope-rule.types.ts` | TypeScript types |
-| `ui/src/features/access-control/api/use-scope-rules.ts` | SWR hooks |
-| `ui/src/features/access-control/components/group-detail-sheet/scope-rules-tab.tsx` | Rules list UI |
-| `ui/src/features/access-control/components/group-detail-sheet/scope-rule-dialog.tsx` | Create/edit dialog |
+| `web/src/features/access-control/types/scope-rule.types.ts` | TypeScript types |
+| `web/src/features/access-control/api/use-scope-rules.ts` | SWR hooks |
+| `web/src/features/access-control/components/group-detail-sheet/scope-rules-tab.tsx` | Rules list UI |
+| `web/src/features/access-control/components/group-detail-sheet/scope-rule-dialog.tsx` | Create/edit dialog |
 
 ### Tests
 

@@ -392,8 +392,8 @@ import (
     "fmt"
     "time"
 
-    "github.com/openctemio/api/internal/infra/redis"
-    "github.com/openctemio/api/pkg/logger"
+    "github.com/openctemio/openctem/api/internal/infra/redis"
+    "github.com/openctemio/openctem/api/pkg/logger"
 )
 
 // PermissionVersionService manages permission version tracking in Redis.
@@ -494,9 +494,9 @@ import (
     "fmt"
     "time"
 
-    "github.com/openctemio/api/internal/domain/role"
-    "github.com/openctemio/api/internal/infra/redis"
-    "github.com/openctemio/api/pkg/logger"
+    "github.com/openctemio/openctem/api/internal/domain/role"
+    "github.com/openctemio/openctem/api/internal/infra/redis"
+    "github.com/openctemio/openctem/api/pkg/logger"
 )
 
 // PermissionCacheService provides cached access to user permissions.
@@ -707,10 +707,10 @@ import (
     "slices"
     "strconv"
 
-    "github.com/openctemio/api/internal/app"
-    "github.com/openctemio/api/internal/domain/permission"
-    "github.com/openctemio/api/pkg/apierror"
-    "github.com/openctemio/api/pkg/logger"
+    "github.com/openctemio/openctem/api/internal/app"
+    "github.com/openctemio/openctem/api/internal/domain/permission"
+    "github.com/openctemio/openctem/api/pkg/apierror"
+    "github.com/openctemio/openctem/api/pkg/logger"
 )
 
 // PermissionMiddleware handles permission checking using Redis cache.
@@ -940,10 +940,10 @@ import (
     "strconv"
     "strings"
 
-    "github.com/openctemio/api/internal/app"
-    "github.com/openctemio/api/internal/infra/http/middleware"
-    "github.com/openctemio/api/pkg/apierror"
-    "github.com/openctemio/api/pkg/logger"
+    "github.com/openctemio/openctem/api/internal/app"
+    "github.com/openctemio/openctem/api/internal/infra/http/middleware"
+    "github.com/openctemio/openctem/api/pkg/apierror"
+    "github.com/openctemio/openctem/api/pkg/logger"
 )
 
 // PermissionHandler handles permission-related HTTP requests.
@@ -1078,7 +1078,7 @@ r.Route("/me", func(r chi.Router) {
 
 #### 5.3.1 Permission Storage Utility
 
-**File:** `ui/src/lib/permission-storage.ts`
+**File:** `web/src/lib/permission-storage.ts`
 
 ```typescript
 /**
@@ -1200,7 +1200,7 @@ export const permissionStorage = {
 
 #### 5.3.2 Permission Provider
 
-**File:** `ui/src/context/permission-provider.tsx`
+**File:** `web/src/context/permission-provider.tsx`
 
 ```typescript
 /**
@@ -1599,7 +1599,7 @@ export function usePermissionsLoading(): boolean {
 
 #### 5.3.3 API Client Interceptor
 
-**File:** `ui/src/lib/api/api-client.ts` (addition)
+**File:** `web/src/lib/api/api-client.ts` (addition)
 
 ```typescript
 // Add to existing API client configuration
@@ -1647,7 +1647,7 @@ apiClient.interceptors.response.use(
 
 #### 5.3.4 Permission Gate Component
 
-**File:** `ui/src/components/permission-gate.tsx`
+**File:** `web/src/components/permission-gate.tsx`
 
 ```typescript
 /**
@@ -1803,7 +1803,7 @@ export function ResourceGate({
 
 #### 5.4.1 Update App Providers
 
-**File:** `ui/src/app/providers.tsx`
+**File:** `web/src/app/providers.tsx`
 
 ```typescript
 import { PermissionProvider } from '@/context/permission-provider'
@@ -1826,7 +1826,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
 #### 5.4.2 Update Auth Actions
 
-**File:** `ui/src/features/auth/actions/local-auth-actions.ts`
+**File:** `web/src/features/auth/actions/local-auth-actions.ts`
 
 ```typescript
 // After successful login, fetch and store permissions
@@ -1859,7 +1859,7 @@ export async function logoutAction() {
 
 #### 5.4.3 Update Tenant Switching
 
-**File:** `ui/src/context/tenant-provider.tsx`
+**File:** `web/src/context/tenant-provider.tsx`
 
 ```typescript
 const switchTeam = async (tenantId: string) => {
@@ -2129,18 +2129,18 @@ All phases have been implemented:
 
 | File | Action | Description |
 |------|--------|-------------|
-| `ui/src/lib/permission-storage.ts` | ✅ Created | localStorage utility with TTL |
-| `ui/src/context/permission-provider.tsx` | ✅ Created | Permission context with polling |
-| `ui/src/components/permission-gate.tsx` | ✅ Created | Permission gate and hooks |
+| `web/src/lib/permission-storage.ts` | ✅ Created | localStorage utility with TTL |
+| `web/src/context/permission-provider.tsx` | ✅ Created | Permission context with polling |
+| `web/src/components/permission-gate.tsx` | ✅ Created | Permission gate and hooks |
 
 ### Integration (Completed)
 
 | File | Action | Description |
 |------|--------|-------------|
-| `ui/src/lib/api/client.ts` | ✅ Modified | X-Permission-Stale header detection |
-| `ui/src/components/layout/dashboard-providers.tsx` | ✅ Modified | Added PermissionProvider |
-| `ui/src/stores/auth-store.ts` | ✅ Modified | Clear permissions on logout/clearAuth |
-| `ui/src/context/tenant-provider.tsx` | ✅ Modified | Clear old tenant permissions on switch |
+| `web/src/lib/api/client.ts` | ✅ Modified | X-Permission-Stale header detection |
+| `web/src/components/layout/dashboard-providers.tsx` | ✅ Modified | Added PermissionProvider |
+| `web/src/stores/auth-store.ts` | ✅ Modified | Clear permissions on logout/clearAuth |
+| `web/src/context/tenant-provider.tsx` | ✅ Modified | Clear old tenant permissions on switch |
 
 ---
 

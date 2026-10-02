@@ -238,15 +238,15 @@ brokered by the backend and configured there (social) or per tenant (SSO). Set
 
 ```
 api/.env              # Backend development config
-ui/.env.local         # Frontend development config
+web/.env.local        # Frontend development config
 ```
 
 ### Production
 
 ```
 api/.env.production   # Backend production config
-ui/.env.production    # Frontend production config (build-time)
-ui/.env.production.local  # Frontend production secrets
+web/.env.production   # Frontend production config (build-time)
+web/.env.production.local # Frontend production secrets
 ```
 
 ---
@@ -273,7 +273,7 @@ openssl rand -base64 32
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 
 # Using npm script
-cd ui && npm run generate-secret
+cd web && npm run generate-secret
 ```
 
 ### Database Password

@@ -75,7 +75,7 @@ External-Unauthenticated, External-with-Stolen-Credentials, Malicious-Insider,
 Supply-Chain-Compromise. Handler: `internal/infra/http/handler/attacker_profile_handler.go`
 (direct SQL, no DDD layer yet); routes `/api/v1/attacker-profiles` in
 `internal/infra/http/routes/ctem.go`; UI
-`ui/src/app/(dashboard)/(scoping)/attacker-profiles/page.tsx`.
+`web/src/app/(dashboard)/(scoping)/attacker-profiles/page.tsx`.
 
 > RFC-017 confirms Attacker Profiles are **CRUD-only — zero readers** in
 > prioritization. This RFC is their first real consumer.
@@ -126,11 +126,11 @@ needed.** The engine has **no MITRE linkage today** — the
   mitre_technique_name` (`migrations/000120`).
 - **Threat actors:** `threat_actors.mitre_group_id` + technique array
   (`migrations/000121`).
-- **UI dataset:** `ui/src/features/pentest/lib/mitre-attack.ts` — the 14
+- **UI dataset:** `web/src/features/pentest/lib/mitre-attack.ts` — the 14
   enterprise **tactics** (`MITRE_TACTICS`) plus **~93 curated techniques**
   (`MitreTechnique{ id, name, tacticId, description }`). **No mitigations
   (M-series). No technique↔asset-type applicability.**
-- **Heatmap:** `ui/src/app/(dashboard)/(validation)/pentest/mitre-coverage/page.tsx`
+- **Heatmap:** `web/src/app/(dashboard)/(validation)/pentest/mitre-coverage/page.tsx`
   builds a tactic × technique **coverage matrix** from findings'
   `mitre_technique_id` (covered / detected / bypassed + coverage %). This is the
   ATT&CK-Navigator-style component we reuse.
@@ -424,7 +424,7 @@ New **Threat Model** surface (under Scoping or Insights; one route per scope) �
    techniques with a status chip (open/mitigated/covered) and the mapped
    mitigation. Every open threat deep-links to its evidence finding.
 2. **Coverage heatmap** — an ATT&CK-Navigator-style tactic × technique matrix,
-   **reusing** `ui/src/features/pentest/lib/mitre-attack.ts` +
+   **reusing** `web/src/features/pentest/lib/mitre-attack.ts` +
    the mitre-coverage page's matrix component, colored by threat status for this
    scope (open = hot, covered = cool). Export as a Navigator layer JSON.
 3. **Scope picker + coverage %** — pick crown jewel / BU / group; show the

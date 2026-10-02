@@ -518,7 +518,8 @@ npm audit
 npm audit fix
 
 # Docker images
-trivy image openctemio/api:latest
+trivy image ghcr.io/openctemio/openctem-api:<version>
+trivy image ghcr.io/openctemio/openctem-web:<version>
 ```
 
 ### Automated Dependency Updates

@@ -24,57 +24,56 @@ This guide covers upgrading OpenCTEM across Docker Compose and Kubernetes/Helm d
 
 ## Version Management
 
-### Semantic Versioning
+### One version for the whole platform
+
+The API and the web console are developed in one repository,
+[openctemio/openctem](https://github.com/openctemio/openctem), and released
+together: one `vX.Y.Z` tag builds every image from the same commit. Always run
+the API, the web console and the migrations image at the **same** version.
 
 OpenCTEM follows semantic versioning (`MAJOR.MINOR.PATCH`):
 
 - **MAJOR** (e.g., v1.0.0 to v2.0.0): Breaking changes, schema incompatibilities, required data migrations. Always read the upgrade notes.
-- **MINOR** (e.g., v0.2.0 to v0.3.0): New features, non-breaking schema changes. Review release notes for new migration steps.
-- **PATCH** (e.g., v0.2.0 to v0.2.1): Bug fixes, security patches. Generally safe to apply without review.
+- **MINOR** (e.g., v0.8.0 to v0.9.0): New features, schema changes. Read the release notes and any upgrade page for that release.
+- **PATCH** (e.g., v0.9.0 to v0.9.1): Bug fixes, security patches. Generally safe to apply without review.
 
-### Docker Image Tags
+The sensor (scanning agent) is released separately from
+[openctemio/sensor](https://github.com/openctemio/sensor) with its own version
+numbers; the platform tells each sensor the minimum and latest versions it
+supports.
 
-OpenCTEM publishes the following images to Docker Hub:
+### Images
+
+All images are published to GitHub Container Registry, multi-arch
+(amd64, arm64), signed with cosign, with SBOMs attached to the release:
 
 | Image | Description |
 |-------|-------------|
-| `openctemio/api:<version>` | Backend API (Go) |
-| `openctemio/ui:<version>` | Frontend UI (Next.js) |
-| `openctemio/migrations:<version>` | Database migration runner |
-| `openctemio/seed:<version>` | Test/demo data seeder |
+| `ghcr.io/openctemio/openctem-api:<version>` | Backend API (Go) |
+| `ghcr.io/openctemio/openctem-web:<version>` | Web console (Next.js) |
+| `ghcr.io/openctemio/openctem:<version>` | All-in-one: API + web + gateway (Postgres and Redis external) |
+| `ghcr.io/openctemio/migrations:<version>` | Database migration runner |
+| `ghcr.io/openctemio/seed:<version>` | Test/demo data seeder |
+| `ghcr.io/openctemio/admin-cli:<version>` | Admin CLI |
 
-Tag conventions:
+{: .note }
+The `openctem-api`, `openctem-web` and `openctem` names start with **v0.9.0**.
+v0.8.0 and earlier exist only as `ghcr.io/openctemio/api` and
+`ghcr.io/openctemio/ui`. Those legacy names keep receiving identical copies of
+each release for two releases after the rename, then stop: switch to the new
+names when you upgrade. Images are not published to Docker Hub.
 
-- `v0.2.0` -- pinned release version (recommended for production)
-- `latest` -- latest stable release (default for production)
-- `staging-latest` -- latest staging build (default for staging)
-
-### The `.env.versions` File
-
-Version tags are controlled via `.env.versions.prod` or `.env.versions.staging`:
-
-```bash
-# .env.versions.prod
-API_VERSION=v0.3.0
-UI_VERSION=v0.3.0
-ADMIN_UI_VERSION=v0.3.0
-MIGRATIONS_VERSION=v0.3.0
-```
-
-The `MIGRATIONS_VERSION` should always match `API_VERSION` to ensure schema compatibility between the database and the API.
+Pin an exact release tag (`v0.9.0`) in production.
 
 ### Checking the Current Version
 
-**Docker Compose:**
+**Docker Compose** (from `openctem/api/deploy`):
 ```bash
 # Show running image tags
-docker compose -f docker-compose.prod.yml ps --format "table {{.Service}}\t{{.Image}}\t{{.Status}}"
+{% raw %}docker compose ps --format "table {{.Service}}\t{{.Image}}\t{{.Status}}"{% endraw %}
 
-# Check the versions env file
-cat .env.versions.prod
-
-# Check API version via health endpoint
-curl -s http://localhost:8080/health | jq .version
+# The configured version
+grep OPENCTEM_VERSION .env
 ```
 
 **Kubernetes:**
@@ -98,22 +97,20 @@ Complete every item before proceeding with an upgrade.
 Run a full backup before any upgrade. See the [Backup & Restore Runbook](backup-restore.md) for details.
 
 ```bash
-# Docker Compose -- manual backup
-docker compose exec postgres pg_dump -U openctem -d openctem --format=custom -f /tmp/backup.dump
-docker compose cp postgres:/tmp/backup.dump ./backups/pre-upgrade-$(date +%Y%m%d).dump
+# Docker Compose (from openctem/api/deploy)
+mkdir -p backups
+docker compose exec -T postgres pg_dump -U openctem -d openctem --format=custom \
+  > ./backups/pre-upgrade-$(date +%Y%m%d).dump
 
-# Or use the backup script
-./setup/backup/backup.sh --type full
-```
-
-Verify the backup is valid:
-```bash
-./setup/backup/restore.sh ./backups/pre-upgrade-$(date +%Y%m%d).dump --verify
+# Verify the dump is readable
+pg_restore --list ./backups/pre-upgrade-$(date +%Y%m%d).dump > /dev/null && echo OK
 ```
 
 ### 2. Review the Changelog and Release Notes
 
-Before upgrading, review the release notes for every version between your current version and the target version. Pay attention to:
+Read the [release notes](https://github.com/openctemio/openctem/releases) for
+every version between your current version and the target version. Pay
+attention to:
 
 - Breaking API changes
 - New required environment variables
@@ -122,32 +119,20 @@ Before upgrading, review the release notes for every version between your curren
 
 ### 3. Check Migration Compatibility
 
-Verify the target migration version is compatible with your current schema:
-
 ```bash
 # Check current migration version
 docker compose exec postgres psql -U openctem -d openctem -c \
   "SELECT version, dirty FROM schema_migrations;"
 ```
 
-If the target release includes migrations, confirm:
-- No gap between your current migration number and the next one in the release
-- The release notes do not flag any manual migration steps
+`dirty` must be `false` before you upgrade. If it is `true`, fix that first
+([Migration Stuck or Dirty](#migration-stuck-or-dirty)).
 
 ### 4. Test in Staging First
 
-Always deploy to staging before production:
-
-```bash
-# Update staging versions
-vi .env.versions.staging   # Set target versions
-
-# Deploy to staging
-make staging-up
-
-# Run your test suite against staging
-# Verify all features work as expected
-```
+Deploy the target version to a staging copy of the stack (see
+[Staging Deployment](STAGING_DEPLOYMENT.md)) and run your smoke tests there
+before production.
 
 ### 5. Notify Users of Maintenance Window
 
@@ -161,14 +146,10 @@ See the [Maintenance Window Template](#maintenance-window-template) at the end o
 
 ### 6. Record Current State
 
-Save the current state so you can roll back if needed:
-
 ```bash
-# Save current versions
-cp .env.versions.prod .env.versions.prod.backup-$(date +%Y%m%d)
-
-# Record running container digests
-docker compose -f docker-compose.prod.yml images > pre-upgrade-images-$(date +%Y%m%d).txt
+# Save the current settings and the running image digests
+cp .env .env.backup-$(date +%Y%m%d)
+docker compose images > pre-upgrade-images-$(date +%Y%m%d).txt
 ```
 
 ---
@@ -177,78 +158,50 @@ docker compose -f docker-compose.prod.yml images > pre-upgrade-images-$(date +%Y
 
 ### Step-by-Step Procedure
 
-All commands below assume you are in the `setup/` directory.
+The production stack is `api/deploy/docker-compose.yml` in the
+[openctem repository](https://github.com/openctemio/openctem/tree/main/api/deploy)
+(see [Exposing OpenCTEM: one HTTPS port](single-https-port.md)). All commands
+below run in `openctem/api/deploy`.
 
-#### 1. Update Version Tags
+#### 1. Update the Compose files and the version
 
 ```bash
-# Edit the versions file with your target versions
-vi .env.versions.prod
+git pull                       # newer compose file and gateway config
+vi .env                        # OPENCTEM_VERSION=v0.9.0
 ```
 
-Example change:
-```bash
-# Before
-API_VERSION=v0.2.0
-UI_VERSION=v0.2.0
-ADMIN_UI_VERSION=v0.2.0
-MIGRATIONS_VERSION=v0.2.0
+`OPENCTEM_VERSION` sets the API, web and migrations images together.
+`API_VERSION` and `UI_VERSION` override it per service; leave them unset
+unless you are told otherwise. Compare `.env` with the new `.env.example` for
+new settings.
 
-# After
-API_VERSION=v0.3.0
-UI_VERSION=v0.3.0
-ADMIN_UI_VERSION=v0.3.0
-MIGRATIONS_VERSION=v0.3.0
+To pin the image names explicitly (for example to move off the legacy names
+while the compose file still defaults to them), set:
+
+```bash
+API_IMAGE=ghcr.io/openctemio/openctem-api
+UI_IMAGE=ghcr.io/openctemio/openctem-web
 ```
 
 #### 2. Pull New Images
 
-Pull images before restarting to minimize downtime:
+Pull before restarting to minimize downtime:
 
 ```bash
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  pull
-```
-
-Or use the Makefile shortcut (which pulls and starts in one step):
-```bash
-make prod-up
+docker compose pull
 ```
 
 #### 3. Restart Services
 
-The `make prod-up` command handles pulling and restarting in one step. If you prefer manual control:
-
 ```bash
-# Stop current services
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  down
-
-# Start with new versions
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  up -d
+docker compose up -d
 ```
 
 #### 4. Migrations Run Automatically
 
-The `migrate` service runs automatically on startup. It:
+The `migrate` service runs on every `docker compose up`. It:
 1. Waits for PostgreSQL to be healthy
-2. Runs all pending migrations via `migrate -path=/migrations -database "$DATABASE_URL" up`
+2. Runs all pending migrations (`migrate -path=/migrations -database ... up`)
 3. Exits with success when complete
 
 The `api` service depends on `migrate` completing successfully (`condition: service_completed_successfully`), so the API will not start until migrations finish.
@@ -256,36 +209,17 @@ The `api` service depends on `migrate` completing successfully (`condition: serv
 #### 5. Verify Health After Upgrade
 
 ```bash
-# Check all services are running
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  ps
+# Every service up; migrate (and datastore-tls) exited 0
+docker compose ps -a
 
-# Check API health
-curl -s http://localhost:8080/health | jq .
+# Through the gateway (add --cacert ca/openctem-root-ca.crt with the internal CA)
+curl -s https://<OPENCTEM_HOSTNAME>/health
 
-# Check UI health
-curl -s http://localhost:3000/api/health
+# Migration logs
+docker compose logs migrate
 
-# Review logs for errors
-make prod-logs s=api
-make prod-logs s=migrate
-```
-
-#### 6. Verify Migration Status
-
-```bash
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  exec postgres psql -U openctem -d openctem -c \
+# Database migration state
+docker compose exec postgres psql -U openctem -d openctem -c \
   "SELECT version, dirty FROM schema_migrations;"
 ```
 
@@ -295,6 +229,11 @@ The `dirty` column must be `false`. The `version` should match the latest migrat
 
 ## Kubernetes/Helm Upgrade
 
+The chart is published from
+[openctemio/helm-charts](https://github.com/openctemio/helm-charts). Its
+`appVersion` is the platform version it was tested with; `api.image.tag` and
+`ui.image.tag` default to it.
+
 ### Step-by-Step Procedure
 
 #### 1. Preview Changes with `helm diff`
@@ -302,17 +241,20 @@ The `dirty` column must be `false`. The `version` should match the latest migrat
 Install the `helm-diff` plugin if you have not already:
 ```bash
 helm plugin install https://github.com/databus23/helm-diff
+helm repo update
 ```
 
 Preview what will change:
 ```bash
-helm diff upgrade openctem ./setup/kubernetes/helm/openctem \
+helm diff upgrade openctem openctem/openctem \
   -n openctem \
-  --set api.image.tag=v0.3.0 \
-  --set ui.image.tag=v0.3.0
+  -f values-production.yaml \
+  --set api.image.tag=v0.9.0 \
+  --set ui.image.tag=v0.9.0
 ```
 
 Review the diff carefully, especially changes to:
+- Image repositories and tags
 - Resource limits
 - Environment variables
 - Volume mounts
@@ -321,25 +263,17 @@ Review the diff carefully, especially changes to:
 #### 2. Run the Upgrade
 
 ```bash
-helm upgrade openctem ./setup/kubernetes/helm/openctem \
+helm upgrade openctem openctem/openctem \
   -n openctem \
-  --set api.image.tag=v0.3.0 \
-  --set ui.image.tag=v0.3.0 \
+  -f values-production.yaml \
+  --set api.image.tag=v0.9.0 \
+  --set ui.image.tag=v0.9.0 \
   --wait \
   --timeout 10m
 ```
 
-Or update `values.yaml` and apply:
-```bash
-# Edit values.yaml with new image tags
-vi setup/kubernetes/helm/openctem/values.yaml
-
-helm upgrade openctem ./setup/kubernetes/helm/openctem \
-  -n openctem \
-  -f setup/kubernetes/helm/openctem/values.yaml \
-  --wait \
-  --timeout 10m
-```
+Or put the tags in your values file and apply it with `-f`. Keep the API and
+web tags equal.
 
 The `--wait` flag ensures Helm waits for all pods to be ready before marking the release as successful.
 
@@ -367,7 +301,7 @@ kubectl get pods -n openctem
 kubectl describe pods -n openctem -l app.kubernetes.io/name=openctem
 
 # Test API health through the ingress
-curl -s https://openctem.example.com/api/health | jq .
+curl -s https://openctem.example.com/health
 ```
 
 ---
@@ -379,42 +313,27 @@ curl -s https://openctem.example.com/api/health | jq .
 By default, migrations run automatically:
 
 - **Docker Compose**: The `migrate` service runs before the API starts. The API depends on `migrate` completing successfully.
-- **Kubernetes**: A migration Job runs as a Helm pre-upgrade hook before new pods deploy.
+- **Kubernetes**: A migration Job runs as a Helm hook (post-install, pre-upgrade) before new pods deploy.
 
 ### Manual Migration Execution
 
-If you need to run migrations manually:
-
 ```bash
-# Docker Compose -- staging
-make migrate-staging
-
-# Docker Compose -- production
-make migrate-prod
-
-# Direct execution
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  up migrate
+# Docker Compose (from openctem/api/deploy): re-run the one-shot service
+docker compose up migrate
 ```
 
 ### Checking Migration Status
 
 ```bash
-# Query the schema_migrations table
 docker compose exec postgres psql -U openctem -d openctem -c \
   "SELECT version, dirty FROM schema_migrations;"
 ```
 
-Expected output for a healthy state:
+Expected output for a healthy state (the number depends on the release):
 ```
  version | dirty
 ---------+-------
-      53 | f
+     256 | f
 ```
 
 ### What to Do If a Migration Fails
@@ -423,7 +342,7 @@ If a migration fails, the `dirty` flag will be set to `true` and the migration v
 
 1. **Check the migration logs:**
    ```bash
-   make prod-logs s=migrate
+   docker compose logs migrate
    ```
 
 2. **Identify and fix the issue** (e.g., constraint violation, missing data).
@@ -436,23 +355,24 @@ If a migration fails, the `dirty` flag will be set to `true` and the migration v
 
 4. **Re-run migrations:**
    ```bash
-   make migrate-prod
+   docker compose up migrate
    ```
 
-5. **If the migration is partially applied**, you may need to manually undo the partial changes before retrying. Check the specific `.up.sql` file to understand what ran and what did not.
+5. **If the migration is partially applied**, you may need to manually undo the partial changes before retrying. Check the specific `.up.sql` file (in `api/migrations/` of the openctem repository) to understand what ran and what did not.
 
 ### Rolling Back Migrations
 
-Each migration has a corresponding `.down.sql` file. Use the `migrate` tool to roll back:
+Each migration has a corresponding `.down.sql` file. Run the migrations image
+with a different command:
 
 ```bash
 # Roll back the last migration
-docker compose exec migrate \
-  migrate -path=/migrations -database "$DATABASE_URL" down 1
+docker compose run --rm migrate \
+  -path=/migrations -database "postgres://openctem:PASSWORD@postgres:5432/openctem?sslmode=require" down 1
 
 # Roll back to a specific version
-docker compose exec migrate \
-  migrate -path=/migrations -database "$DATABASE_URL" goto <version>
+docker compose run --rm migrate \
+  -path=/migrations -database "postgres://openctem:PASSWORD@postgres:5432/openctem?sslmode=require" goto <version>
 ```
 
 **Warning:** Down migrations may cause data loss. Always back up before rolling back.
@@ -463,39 +383,17 @@ docker compose exec migrate \
 
 ### Docker Compose Rollback
 
-#### 1. Revert Version Tags
+#### 1. Revert the Version
 
 ```bash
-# Restore the backup versions file
-cp .env.versions.prod.backup-YYYYMMDD .env.versions.prod
-
-# Or manually edit to previous versions
-vi .env.versions.prod
+cp .env.backup-YYYYMMDD .env     # or set OPENCTEM_VERSION back by hand
 ```
 
-#### 2. Pull and Restart with Previous Versions
+#### 2. Pull and Restart with the Previous Version
 
 ```bash
-make prod-up
-```
-
-Or manually:
-```bash
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  pull
-
-docker compose -f docker-compose.prod.yml \
-  --env-file .env.db.prod \
-  --env-file .env.api.prod \
-  --env-file .env.ui.prod \
-  --env-file .env.nginx.prod \
-  --env-file .env.versions.prod \
-  up -d
+docker compose pull
+docker compose up -d
 ```
 
 #### 3. Roll Back the Database If Needed
@@ -536,36 +434,14 @@ Do not use `migrate down` when:
 In these cases, restore the full database from the pre-upgrade backup:
 
 ```bash
-./setup/backup/restore.sh ./backups/pre-upgrade-YYYYMMDD.dump
+docker compose stop api web
+docker compose exec -T postgres pg_restore -U openctem -d openctem --clean --if-exists \
+  < ./backups/pre-upgrade-YYYYMMDD.dump
 ```
 
 ---
 
 ## Zero-Downtime Upgrades
-
-### Blue-Green Deployment (Docker Compose)
-
-For critical production environments where downtime is unacceptable:
-
-1. **Spin up a parallel stack** with the new version:
-   ```bash
-   # Create a separate project with new versions
-   API_VERSION=v0.3.0 UI_VERSION=v0.3.0 ADMIN_UI_VERSION=v0.3.0 \
-     docker compose -f docker-compose.prod.yml -p openctem-green \
-     --env-file .env.db.prod \
-     --env-file .env.api.prod \
-     --env-file .env.ui.prod \
-     --env-file .env.nginx.prod \
-     up -d
-   ```
-
-2. **Run migrations against the database** (ensure they are backward-compatible).
-
-3. **Test the green environment** by pointing a test domain or direct port access to it.
-
-4. **Switch traffic** by updating nginx upstream configuration or DNS.
-
-5. **Tear down the old (blue) stack** once the green stack is confirmed healthy.
 
 ### Rolling Update Strategy (Kubernetes)
 
@@ -573,18 +449,21 @@ Kubernetes handles rolling updates natively. The Helm chart configures:
 
 - **Pod Disruption Budget**: `minAvailable: 1` ensures at least one pod is always running.
 - **Readiness probes**: New pods must pass the `/health` check before receiving traffic.
-- **Autoscaling**: The API scales between 2 and 10 replicas based on CPU/memory.
+- **Autoscaling**: The API can scale on CPU/memory.
 
 The default rolling update strategy replaces pods one at a time, waiting for each new pod to be ready before terminating the old one.
 
 ```yaml
-# values.yaml defaults
+# values.yaml
 api:
   replicaCount: 2
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
 ```
+
+The single-host Docker Compose stack restarts the API and web containers in
+place; plan a short maintenance window for it.
 
 ### Database Backward Compatibility
 
@@ -613,7 +492,7 @@ If `dirty = true`:
 
 1. Review the migration logs to find the error:
    ```bash
-   make prod-logs s=migrate
+   docker compose logs migrate
    ```
 
 2. Fix the underlying issue (e.g., constraint violation, missing data).
@@ -624,24 +503,25 @@ If `dirty = true`:
      "UPDATE schema_migrations SET dirty = false;"
    ```
 
-4. Restart the migrate service:
+4. Re-run the migrate service:
    ```bash
-   make migrate-prod
+   docker compose up migrate
    ```
 
 ### Service Will Not Start After Upgrade
 
-**Symptom:** API or UI container enters a restart loop.
+**Symptom:** The API or web container enters a restart loop.
 
 1. **Check logs:**
    ```bash
-   make prod-logs s=api
-   make prod-logs s=ui
+   docker compose logs --tail=200 api
+   docker compose logs --tail=200 web
    ```
 
 2. **Common causes:**
    - Missing environment variable introduced in the new version. Check release notes for new required variables.
    - Migration did not complete. Verify `schema_migrations` status.
+   - An image tag that does not exist under the configured image name (for example `ghcr.io/openctemio/openctem-api` with a version older than v0.9.0). `docker compose pull` reports `manifest unknown`.
    - Port conflict or resource exhaustion.
 
 3. **Check container health:**
@@ -651,14 +531,15 @@ If `dirty = true`:
 
 ### Version Mismatch Between Services
 
-**Symptom:** API returns unexpected errors. UI shows "incompatible API version" or similar.
+**Symptom:** API returns unexpected errors. The web console shows errors on pages that worked before.
 
-Ensure all version tags are aligned:
+Make sure the API, web and migrations images run the same version:
 ```bash
-cat .env.versions.prod
+docker compose images
 ```
 
-All OpenCTEM components (`API_VERSION`, `UI_VERSION`, `ADMIN_UI_VERSION`, `MIGRATIONS_VERSION`) should be on the same release version. Mixing versions across a major or minor boundary is unsupported.
+Leave `API_VERSION` and `UI_VERSION` unset so `OPENCTEM_VERSION` applies to all
+of them. Mixing versions is unsupported.
 
 ### Cache Invalidation After Upgrade
 
@@ -673,7 +554,7 @@ All OpenCTEM components (`API_VERSION`, `UI_VERSION`, `ADMIN_UI_VERSION`, `MIGRA
 
 3. **Restart the API** to clear any in-memory caches:
    ```bash
-   make prod-restart s=api
+   docker compose restart api
    ```
 
 ---
@@ -716,13 +597,12 @@ Questions? Contact <support contact>.
 5. [ ] Stop services (or begin rolling update)
 6. [ ] Run/verify migrations
 7. [ ] Start services with new versions
-8. [ ] Verify API health: curl http://localhost:8080/health
-9. [ ] Verify UI health: curl http://localhost:3000/api/health
-10. [ ] Verify Admin UI health
-11. [ ] Run smoke tests (login, list assets, view dashboard)
-12. [ ] Check for errors in logs: make prod-logs s=api
-13. [ ] Verify migration version matches expected
-14. [ ] Send "maintenance complete" notification
+8. [ ] Verify health: curl https://<OPENCTEM_HOSTNAME>/health
+9. [ ] Verify the web console and the admin console (/admin) load
+10. [ ] Run smoke tests (login, list assets, view dashboard)
+11. [ ] Check for errors in logs: docker compose logs --tail=200 api
+12. [ ] Verify migration version matches expected
+13. [ ] Send "maintenance complete" notification
 ```
 
 ### Post-Maintenance Verification
@@ -744,13 +624,11 @@ If the upgrade causes issues that cannot be resolved within the maintenance wind
 1. **First 15 minutes:** Attempt to diagnose and fix. Check logs, migration status, service health.
 2. **After 15 minutes:** If unresolved, initiate rollback:
    ```bash
-   cp .env.versions.prod.backup-YYYYMMDD .env.versions.prod
-   make prod-up
+   cp .env.backup-YYYYMMDD .env
+   docker compose pull && docker compose up -d
    ```
 3. **If rollback fails or database is incompatible:** Restore from the pre-upgrade database backup:
-   ```bash
-   ./setup/backup/restore.sh ./backups/pre-upgrade-YYYYMMDD.dump
-   make prod-up
-   ```
+   restore it as in [When NOT to Roll Back](#when-not-to-roll-back), then
+   `docker compose up -d`.
 4. **Communicate status:** Notify users that the upgrade has been rolled back and the platform is restored. Schedule a follow-up maintenance window after the issue is resolved.
 5. **Post-incident:** Document what went wrong, root cause, and preventive measures.

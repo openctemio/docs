@@ -186,12 +186,12 @@ Re-enables all modules (deletes all tenant_modules overrides).
 
 | File | Purpose |
 |------|---------|
-| `ui/src/features/settings/api/use-tenant-modules-api.ts` | SWR hooks (GET, PATCH, POST reset) |
-| `ui/src/features/settings/types/tenant-module.types.ts` | TypeScript types |
-| `ui/src/app/(dashboard)/settings/modules/page.tsx` | Module Management page |
-| `ui/src/config/sidebar-data.ts` | "Modules" sidebar entry (Settings > Organization) |
-| `ui/src/lib/permissions/use-filtered-sidebar.ts` | Sidebar module filtering |
-| `ui/src/components/layout/nav-group.tsx` | `useFilteredSubItems()` for sub-module visibility |
+| `web/src/features/settings/api/use-tenant-modules-api.ts` | SWR hooks (GET, PATCH, POST reset) |
+| `web/src/features/settings/types/tenant-module.types.ts` | TypeScript types |
+| `web/src/app/(dashboard)/settings/modules/page.tsx` | Module Management page |
+| `web/src/config/sidebar-data.ts` | "Modules" sidebar entry (Settings > Organization) |
+| `web/src/lib/permissions/use-filtered-sidebar.ts` | Sidebar module filtering |
+| `web/src/components/layout/nav-group.tsx` | `useFilteredSubItems()` for sub-module visibility |
 
 ## Sub-Module Filtering
 

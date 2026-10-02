@@ -1,8 +1,7 @@
 ---
 layout: default
 title: Account Settings
-parent: UI Features
-grand_parent: UI Documentation
+parent: Web Console
 nav_order: 3
 ---
 
@@ -40,7 +39,7 @@ Routes:
 ### File Structure
 
 ```
-ui/src/features/account/
+web/src/features/account/
 ├── api/
 │   ├── use-profile.ts        # Profile CRUD hooks
 │   ├── use-security.ts       # Password, 2FA hooks
@@ -51,7 +50,7 @@ ui/src/features/account/
 │   └── account.types.ts      # Type definitions
 └── index.ts
 
-ui/src/app/(dashboard)/account/
+web/src/app/(dashboard)/account/
 ├── layout.tsx                # Tab navigation layout
 ├── page.tsx                  # Profile page
 ├── security/page.tsx         # Security page
@@ -323,8 +322,8 @@ try {
 ## Related Documentation
 
 - [Authentication](../../guides/authentication.md) - Auth flows and providers (local JWT, OAuth social, enterprise SSO)
-- [Access Control](./ACCESS_CONTROL.md) - Permissions system
-- [API Integration Guide](../guides/API_INTEGRATION.md) - API client usage
+- [Access Control](https://github.com/openctemio/openctem/blob/main/web/docs/features/ACCESS_CONTROL.md) - Permissions system
+- [API Integration Guide](https://github.com/openctemio/openctem/blob/main/web/docs/guides/API_INTEGRATION.md) - API client usage
 
 ---
 

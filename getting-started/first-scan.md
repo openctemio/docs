@@ -65,7 +65,7 @@ docker run --rm \
   -v $(pwd):/scan \
   -e API_URL=http://host.docker.internal:8080 \
   -e API_KEY=oc_live_your_key_here \
-  openctemio/agent:latest \
+  ghcr.io/openctemio/sensor:latest \
   -tools semgrep,betterleaks,trivy \
   -target /scan \
   -push \
@@ -90,12 +90,14 @@ certificate and set `SSL_CERT_DIR`. See [Connecting sensors](../operations/singl
 ### Option B: Binary
 
 ```bash
-# Download the agent binary
-curl -LO https://github.com/openctemio/sensor/releases/latest/download/agent-linux-amd64
-chmod +x agent-linux-amd64
+# Download the sensor binary (pick a version from
+# https://github.com/openctemio/sensor/releases)
+VERSION=0.6.4
+curl -sSL "https://github.com/openctemio/sensor/releases/download/v${VERSION}/openctemio-sensor_${VERSION}_linux_amd64.tar.gz" | tar xz
+chmod +x openctemio-sensor
 
 # Run scan
-./agent-linux-amd64 \
+./openctemio-sensor \
   -api-url http://localhost:8080 \
   -api-key oc_live_your_key_here \
   -tools semgrep,betterleaks,trivy \
