@@ -70,7 +70,7 @@ Pin an exact release tag (`v0.9.0`) in production.
 **Docker Compose** (from `openctem/api/deploy`):
 ```bash
 # Show running image tags
-docker compose ps --format "table {{.Service}}\t{{.Image}}\t{{.Status}}"
+{% raw %}docker compose ps --format "table {{.Service}}\t{{.Image}}\t{{.Status}}"{% endraw %}
 
 # The configured version
 grep OPENCTEM_VERSION .env
