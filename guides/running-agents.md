@@ -398,7 +398,7 @@ curl -X POST https://your-domain.com/api/v1/commands \
 |------|-------------|----------|
 | **Scanner** | Runs security scanning tools | SAST, SCA, secrets detection |
 | **Agent** | Full-featured daemon | Enterprise continuous scanning |
-| **Collector** | Pulls data from external sources | GitHub/GitLab alerts aggregation |
+| **Collector** | Pulls data from external sources | GitHub/GitLab alerts aggregation; asset inventory with the [Asset Collector](asset-collector.md) |
 | **Worker** | General purpose | Custom integrations |
 
 ---
