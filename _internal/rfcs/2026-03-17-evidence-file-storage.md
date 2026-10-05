@@ -21,17 +21,13 @@ Without a file storage service, pentesters must manually host files elsewhere an
 
 ---
 
-## Industry Research
+## Requirements
 
-| Platform | Storage | Upload Method | Max Size |
-|----------|---------|--------------|----------|
-| PlexTrac | S3 | Direct upload + presigned URL | 50MB |
-| Cobalt | S3 | API upload → process → store | 25MB |
-| HackerOne | S3 | Drag-drop + paste (clipboard) | 25MB |
-| Bugcrowd | S3 | Multi-file upload | 20MB |
-| DefectDojo | Local/S3 configurable | API upload | Configurable |
-
-**Common pattern:** S3-compatible storage, presigned URLs for direct upload, thumbnails for images.
+- S3-compatible storage, with local storage as a configurable alternative.
+- Direct upload through presigned URLs, so large files do not pass through the API.
+- Drag-and-drop, clipboard paste and multi-file upload in the UI.
+- A per-file size limit (20-50MB is enough for screenshots, videos and request/response captures), configurable.
+- Thumbnails for images.
 
 ---
 

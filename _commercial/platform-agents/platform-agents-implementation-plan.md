@@ -241,9 +241,9 @@ OpenCTEM currently only supports **Tenant Agents** - agents deployed and managed
 
 ### 3.2 Chosen Approach: API Key + Command Token
 
-Similar to HashiCorp Vault's AppRole pattern:
-- **API Key (`rda_p_xxx`)** = role_id (long-lived, identifies agent)
-- **Command Token** = secret_id (short-lived, authorizes specific action)
+Two credentials, each with one job:
+- **API Key (`rda_p_xxx`)**: long-lived, identifies the agent
+- **Command Token**: short-lived, authorizes one specific action
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -3777,22 +3777,22 @@ curl /admin/api/v1/platform-agents/stats
 
 **Rationale**: Using a system tenant allows platform agents to follow the same ownership model as tenant agents, simplifying queries and maintaining referential integrity.
 
-### 18.9 Industry Comparison
+### 18.9 Design Patterns Used
 
-| System | Pattern | Our Equivalent |
-|--------|---------|----------------|
-| **HashiCorp Vault AppRole** | role_id + secret_id | API Key + Command Token |
-| **AWS STS** | IAM credentials + session token | Similar concept |
-| **GitHub Actions OIDC** | JWT with job context | Command contains tenant context |
-| **Kubernetes** | ServiceAccount + namespace | Agent + command binding |
-| **AWS Lambda** | Auto-provisioned workers | Auto-allocated platform agents |
-| **GitHub Actions runners** | Shared pool, job-level isolation | Similar architecture |
-| **AWS SQS** | Queue with visibility timeout | Global queue with dispatch lock |
-| **Celery** | Task queue with worker pool | Similar pull-based model |
-| **Kubernetes kubeadm** | Bootstrap token for node join | Bootstrap token for agent join (v3.2) |
-| **Redis Sentinel** | Heartbeat TTL for liveness | Agent heartbeat with TTL (v3.2) |
+| Pattern | Our Implementation |
+|---------|--------------------|
+| Role credential + secret credential pair | API Key + Command Token |
+| Long-lived identity + short-lived session token | API Key + per-command token |
+| Job-scoped identity token carrying job context | Command contains tenant context |
+| Service identity bound to a namespace | Agent + command binding |
+| Auto-provisioned worker pool | Auto-allocated platform agents |
+| Shared runner pool with job-level isolation | Shared platform agent pool with job-level isolation |
+| Queue with visibility timeout | Global queue with dispatch lock |
+| Pull-based task queue with worker pool | Agents pull work from the queue |
+| Bootstrap token for node join (Kubernetes kubeadm) | Bootstrap token for agent join (v3.2) |
+| Heartbeat TTL for liveness | Agent heartbeat with TTL (v3.2) |
 
-Our approach aligns with industry best practices for managed compute resources and job queuing systems.
+These are established patterns for managed compute resources and job queuing.
 
 ### 18.10 Why Redis Instead of etcd for Agent State? (v3.2)
 
@@ -3911,11 +3911,6 @@ Admin creates token → Agent uses token → API validates → Agent gets API ke
 - [Scan Flow Documentation](./scan-flow.md)
 - [Authentication Architecture](./authentication.md)
 - [Licensing System](./licensing.md)
-- [HashiCorp Vault AppRole](https://www.vaultproject.io/docs/auth/approle)
-- [AWS Lambda Execution Model](https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html)
-- [GitHub Actions Runners](https://docs.github.com/en/actions/using-github-hosted-runners)
-- [AWS SQS Visibility Timeout](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html)
-- [Celery Task Queue](https://docs.celeryproject.org/en/stable/userguide/tasks.html)
 
 ---
 
