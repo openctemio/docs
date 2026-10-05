@@ -12,7 +12,7 @@ nav_order: 5
 
 ## Overview
 
-This document outlines the architecture for managing agents (scanners, collectors, runners) and their API keys in OpenCTEM, based on best practices from enterprise security tools like Snyk, SonarQube, Datadog, and HashiCorp Vault.
+This document outlines the architecture for managing agents (scanners, collectors, runners) and their API keys in OpenCTEM.
 
 ## Design Principles
 
@@ -501,10 +501,3 @@ See [SDK Security Guide](/sdk/docs/SECURITY.md) for implementation details.
 1. Add scope checking to middleware
 2. Update existing keys with default scopes
 3. Implement scope validation
-
-## References
-
-- [Snyk Service Accounts](https://docs.snyk.io/enterprise-setup/service-accounts)
-- [SonarQube Token Management](https://docs.sonarsource.com/sonarqube-server/user-guide/managing-tokens)
-- [Datadog API Keys](https://docs.datadoghq.com/account_management/api-app-keys/)
-- [HashiCorp Vault AppRole](https://developer.hashicorp.com/vault/tutorials/auth-methods/approle-best-practices)

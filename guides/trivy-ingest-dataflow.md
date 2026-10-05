@@ -233,15 +233,13 @@ The system uses two different terms for the same concept, each term appropriate 
 - Global, unique by PURL
 - Follows SBOM standards (CycloneDX, SPDX)
 
-### Industry Standards Comparison
+### Terminology Mapping
 
 | Tool/Standard | Input Term | Storage Term |
 |---------------|------------|--------------|
 | CycloneDX | - | `components` |
 | SPDX | - | `packages` |
 | Trivy | `packages` | - |
-| Snyk | `dependencies` | - |
-| GitHub Dependabot | `dependencies` | - |
 | **OpenCTEM** | `dependencies` | `components` |
 
 ### Design Benefits
