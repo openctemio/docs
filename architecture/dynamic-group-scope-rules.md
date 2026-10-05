@@ -234,7 +234,5 @@ POST /api/v1/groups/{id}/assets { "asset_id": "..." }
 
 ## References
 
-- [CrowdStrike Falcon Policy Management](https://www.crowdstrike.com/blog/tech-center/policy-management-remote-systems/)
-- [Azure Entra ID Dynamic Groups](https://learn.microsoft.com/en-us/azure/active-directory/enterprise-users/groups-dynamic-membership)
 - [Kubernetes Labels & Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/)
 - Related RFCs: `2026-01-21-group-access-control.md`, `2026-03-12-asset-ownership.md`

@@ -56,8 +56,7 @@ System font stack: `-apple-system, system-ui, "Segoe UI", Inter, sans-serif`.
 
 Wordmark is set lowercase (`openctem`) at weight 600 with letter-spacing
 `-1` to feel compact and dev-tool-like. No webfont dependency, no licence
-to manage, native rendering everywhere. Same approach as Linear, Vercel,
-Resend, Cursor.
+to manage, native rendering everywhere.
 
 ## Honest caveats (read these before launch)
 

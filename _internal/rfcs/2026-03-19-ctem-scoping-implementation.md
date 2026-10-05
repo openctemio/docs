@@ -69,31 +69,27 @@ RFC này hoàn thiện Scoping bằng 3 capabilities:
 
 ---
 
-## 3. Nghiên Cứu Industry
+## 3. Yêu Cầu Thiết Kế
 
-### 3.1 Tenable One — Asset Criticality Rating (ACR)
-
-```
-Tenable ACR (1-10):
-  - Tự động tính dựa trên: business purpose, asset type, location,
-    connectivity, capabilities, third-party data
-  - Crown Jewels = assets có ACR ≥ 7
-  - Top Attack Path Matrix hiển thị paths dẫn đến Crown Jewels
-  - Business-aligned Cyber Exposure Score per business service
-```
-
-### 3.2 Wiz — Business Context
+### 3.1 Asset criticality và business context
 
 ```
-Wiz cung cấp:
-  - Business unit assignment cho cloud resources
+Criticality:
+  - Điểm criticality (1-10) tính từ: business purpose, asset type, location,
+    connectivity, capabilities, dữ liệu bên thứ ba
+  - Crown Jewels = assets có criticality ≥ 7
+  - Attack paths dẫn đến Crown Jewels được ưu tiên hiển thị
+  - Exposure score theo từng business service
+
+Business context:
+  - Gán business unit cho asset (kể cả cloud resources)
   - Data classification (sensitive, PII, financial)
   - Owner identification (infrastructure, app, BU, developer)
-  - Compliance tags per resource
-  - Context-enriched findings (BU + sensitivity + exposure)
+  - Compliance tags theo asset
+  - Findings được làm giàu context (BU + sensitivity + exposure)
 ```
 
-### 3.3 Gartner CTEM Scoping Guidance
+### 3.2 Gartner CTEM Scoping Guidance
 
 ```
 Gartner khuyến nghị:
@@ -924,11 +920,3 @@ Cắt bớt: bỏ compliance auto-mapping phức tạp (để Phase sau), thay b
 
 Sources:
 - [Gartner CTEM Framework](https://ctem.org/docs/what-is-continuous-threat-exposure-management)
-- [Prelude Security: Building a CTEM Program](https://www.preludesecurity.com/blog/continuous-threat-exposure-management-ctem-program)
-- [Tenable ACR & Crown Jewels](https://docs.tenable.com/quick-reference/scoring-explained/Content/Overview.htm)
-- [Wiz Business Context](https://www.wiz.io/blog/introducing-wiz-asm)
-- [Wiz CTEM Overview](https://www.wiz.io/academy/cloud-security/continuous-threat-exposure-management-ctem)
-- [XM Cyber: Why CTEM](https://xmcyber.com/ctem/why-ctem/)
-- [Palo Alto: CTEM](https://www.paloaltonetworks.com/cyberpedia/ctem-continuous-threat-exposure-management)
-- [Rapid7: Attack Surface Management](https://www.rapid7.com/blog/post/2025/03/10/seeing-the-whole-picture-a-better-way-to-manage-your-attack-surface/)
-- [Splunk CTEM Guide](https://www.splunk.com/en_us/blog/learn/continuous-threat-exposure-management-ctem.html)

@@ -15,7 +15,7 @@
 - Short, professional URLs
 - Clear separation between OSS and Commercial
 - Community-friendly for OSS
-- Common pattern (HashiCorp, Grafana)
+- Established open-core layout
 
 ### Repository Structure
 

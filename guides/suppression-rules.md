@@ -19,8 +19,6 @@ OpenCTEM provides two key features for managing finding lifecycle:
 1. **Suppression Rules**: Mark findings as false positives, accepted risks, or "won't fix" centrally
 2. **Auto-Resolve**: Automatically close findings when they're fixed in code
 
-Both features are designed based on industry best practices from [SonarQube](https://docs.sonarsource.com/sonarqube-server/10.4/user-guide/issues), [Semgrep](https://semgrep.dev/docs/semgrep-code/findings), [GitHub Advanced Security](https://docs.github.com/en/code-security/code-scanning/managing-code-scanning-alerts/resolving-code-scanning-alerts), and [DefectDojo](https://docs.defectdojo.com/en/working_with_findings/finding_deduplication/about_deduplication/).
-
 ### Why Platform-Controlled?
 
 Traditional approaches like `.semgrepignore` files or `// nosemgrep` comments have significant drawbacks:
@@ -457,27 +455,17 @@ ORDER BY created_at DESC;
 
 ---
 
-## Industry Comparison
+## Feature Summary
 
-How OpenCTEM compares to other platforms:
-
-| Feature | OpenCTEM | SonarQube | Semgrep | GitHub GHAS | DefectDojo |
-|---------|---------|-----------|---------|-------------|------------|
-| Auto-resolve when fixed | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Auto-reopen when reappears | ✅ | ✅ | ✅ | Manual | Configurable |
-| Platform-controlled suppression | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Approval workflow | ✅ | ✅ | ✅ | - | - |
-| Expiration support | ✅ | - | - | - | - |
-| In-code suppression | ❌ Disabled | `//NOSONAR` | `nosemgrep` | - | - |
-| Cross-scanner dedup | Planned | - | - | - | ✅ |
-
-### Key Differences
-
-- **SonarQube**: Allows `//NOSONAR` but recommends against it
-- **Semgrep**: Uses platform triage, in-code suppression optional
-- **GitHub**: SARIF-based suppression sync available
-- **DefectDojo**: Most configurable, supports cross-scanner deduplication
-- **OpenCTEM**: Disables in-code suppression by default for maximum governance
+| Feature | OpenCTEM |
+|---------|---------|
+| Auto-resolve when fixed | ✅ |
+| Auto-reopen when reappears | ✅ |
+| Platform-controlled suppression | ✅ |
+| Approval workflow | ✅ |
+| Expiration support | ✅ |
+| In-code suppression | ❌ Disabled by default, for governance: every suppression is reviewed, approved and audited in the platform |
+| Cross-scanner dedup | Planned |
 
 ---
 

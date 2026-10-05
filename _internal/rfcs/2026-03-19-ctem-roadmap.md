@@ -498,31 +498,21 @@ ROI theo phase:
 
 ---
 
-## 5. Competitive Positioning Theo Từng Giai Đoạn
+## 5. Năng Lực Theo Từng Giai Đoạn
 
 ```
 Hiện tại (Q1 2026):
-  OpenCTEM ≈ DefectDojo + extras (workflows, agents, risk scoring)
-  Vượt: DefectDojo, Dependency-Track
-  Thua: Tenable, Rapid7, Qualys, Wiz (ở Phase 4-5)
+  Finding management + workflows, agents, risk scoring
 
 Sau Q2 (Mobilization done):
-  OpenCTEM ≈ Rapid7 InsightVM (remediation projects) + Snyk (SCA)
-  Vượt: DefectDojo, Dependency-Track, basic VM tools
-  Ngang: Wiz (cloud focus), Snyk (SCA focus)
-  Thua: Tenable, Rapid7 (ở Phase 3-4)
+  + Remediation projects, SCA
 
 Sau Q3 (Validation + Prioritization):
-  OpenCTEM ≈ Tenable (threat intel + remediation) + pentest
-  Vượt: Tất cả open-source
-  Ngang: Tenable (VM), Wiz (cloud)
-  Chỉ thua: Full Tenable One, CrowdStrike Falcon (ở scale + data)
+  + Threat intel gắn với remediation, pentest
 
 Sau Q4 (Full CTEM):
-  OpenCTEM = Full CTEM platform — unique positioning
-  Không có open-source nào cover 5 phases đầy đủ
-  Cạnh tranh trực tiếp với Tenable One, CrowdStrike, Wiz Enterprise
-  Differentiator: Open-source core + enterprise edition (Exploop)
+  Đủ 5 phase CTEM trên một nền tảng
+  Open-source core + enterprise edition (Exploop)
 ```
 
 ---
