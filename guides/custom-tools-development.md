@@ -9,6 +9,8 @@ nav_order: 11
 
 Build custom security scanners, parsers, and collectors using the OpenCTEM SDK.
 
+> **New tools:** start with [Write a Tool in 30 Minutes](write-a-tool-in-30-minutes.md). A tool is a `tool.yaml` descriptor that implements capabilities of the OpenCTEM taxonomy (Tool Contract v1); most scanners need no code.
+
 ---
 
 ## Overview
