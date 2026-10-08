@@ -7,7 +7,8 @@ Scans every *.md file under each ROOT (default: the current directory) and fails
   - a relative link or image points to a file or directory that does not exist,
     or to a heading anchor that does not exist in the target Markdown file;
   - the text contains Vietnamese letters (documentation is English only);
-  - the text contains a private IPv4 address (RFC 1918) or an internal host name.
+  - the text contains a private IPv4 host address (RFC 1918) or an internal host name.
+    Network ranges in CIDR notation (for example a pod CIDR 10.244.0.0/16) are allowed.
     Use example.com and the documentation ranges 192.0.2.0/24, 198.51.100.0/24,
     203.0.113.0/24 and 2001:db8::/32 instead.
 
@@ -24,13 +25,14 @@ SKIP_FILES = {"CHANGELOG.md"}
 
 VIETNAMESE = re.compile(r"[ăđơưĂĐƠƯẠ-ỹ]")
 PRIVATE_IP = re.compile(
-    r"(?<![\d.])(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?![\d.])"
+    r"(?<![\d.])(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?![\d.]|/\d)"
 )
 INTERNAL_HOSTS = re.compile(r"manhnv\.com|\.internal\.openctem|\.lan\b", re.IGNORECASE)
 ALLOW_PRIVATE = "docs-check: allow-private"
 
 LINK = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
 REF_DEF = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)", re.MULTILINE)
+SPLIT_LINK = re.compile(r"^[^\[`]*\]\((?!\s)[^)\s]+\)")
 FENCE = re.compile(r"^\s*(```|~~~)")
 
 
@@ -46,6 +48,7 @@ def slugify(heading):
 def anchors_of(path, cache={}):
     if path not in cache:
         found = set()
+        seen = {}
         in_fence = False
         try:
             with open(path, encoding="utf-8") as fh:
@@ -57,7 +60,10 @@ def anchors_of(path, cache={}):
                         continue
                     m = re.match(r"^#{1,6}\s+(.*?)\s*#*\s*$", line)
                     if m:
-                        found.add(slugify(m.group(1)))
+                        slug = slugify(m.group(1))
+                        n = seen.get(slug, 0)
+                        seen[slug] = n + 1
+                        found.add(slug if n == 0 else f"{slug}-{n}")
                     for a in re.findall(r"""(?:id|name)=["']([^"']+)["']""", line):
                         found.add(a)
                     for a in re.findall(r"\{:\s*#([\w-]+)\s*\}", line):
@@ -103,6 +109,8 @@ def check_file(path, errors):
             continue
         if in_fence:
             continue
+        if SPLIT_LINK.search(line):
+            errors.append(f"{path}:{lineno}: link text spans lines (keep [text](target) on one line)")
         targets = [m.group(1) for m in LINK.finditer(line)]
         targets += [m.group(1) for m in REF_DEF.finditer(line)]
         for target in targets:
