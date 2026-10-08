@@ -201,7 +201,8 @@ delete your comments and add reactions. Posting needs `findings:write`.
 
 ### Status workflow
 
-Automated findings use:
+Every finding, whatever its source (scanner, import, CI or pentest), takes its
+status from one set:
 
 **New → Confirmed → In Progress → Fix Applied → Resolved**, plus **Validated
 Fixed**, **Not Observed** (set by the platform when a finding is no longer
@@ -235,6 +236,8 @@ stateDiagram-v2
     new --> duplicate
     confirmed --> duplicate
 
+    new --> resolved: covered scan or source<br/>says it is gone (platform)
+    fix_applied --> validated_fixed: retest passed (platform)
     resolved --> confirmed: seen again<br/>(regression)
     accepted --> confirmed: acceptance expired
     false_positive --> confirmed: reopened
@@ -251,14 +254,23 @@ stateDiagram-v2
 | `resolved` | closed | A person with the verify permission, a passing retest (when the retest settles findings automatically), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; off by default). |
 | `false_positive`, `accepted` | closed | An approved request. |
 | `duplicate` | closed | A person. |
+| `draft`, `in_review` | open, hidden | Pentest findings before publication; left out of dashboards and the open findings list. |
+
+How a finding was closed is recorded as its resolution method, not as a status:
+`scan_verified`, `retest_verified`, `security_reviewed`, `admin_direct`,
+`source_mitigated`, `source_retired` or `vex_not_affected`. The API refuses an
+unknown status, in a status change and in a list filter, with `400`.
 
 A finding that was resolved and is reported again is reopened as
 `confirmed` and flagged as a **regression** (its reopen count goes up),
 unless it was closed as a false positive, an accepted risk or a duplicate.
 
-Pentest findings use: **Draft → In Review → Confirmed → Remediation → Retest →
-Verified**, plus **False Positive** and **Accepted Risk**. Their status is
-managed in the pentest workflow (see [Validation](07-validation.md)).
+Pentest findings use the same statuses plus **Draft** and **In Review**:
+**Draft → In Review → Confirmed → In Progress → Fix Applied → Resolved**. A
+pentest finding is closed as fixed only through a retest, and is then
+`resolved` with the resolution method `retest_verified`; a resolved finding goes
+back to In Progress when the fix stops holding. Campaign roles decide who may
+make each move (see [Validation](07-validation.md)).
 
 ```mermaid
 stateDiagram-v2
@@ -267,19 +279,18 @@ stateDiagram-v2
     draft --> in_review
     draft --> confirmed
     in_review --> confirmed
-    confirmed --> remediation
-    remediation --> retest: fix reported
-    retest --> verified: retest passed
-    retest --> remediation: retest failed
-    verified --> [*]
+    confirmed --> in_progress
+    in_progress --> fix_applied: fix reported
+    fix_applied --> resolved: retest passed
+    fix_applied --> in_progress: retest failed
+    resolved --> in_progress: regression
 ```
 
-From any of these steps a pentest finding can also be marked
-`false_positive` or `accepted_risk` (with approval), and either can be
-reopened to `draft` or `confirmed`.
+From any step before Resolved a pentest finding can also be marked
+`false_positive` or `accepted` (with approval), and either can be reopened to
+`draft` or `confirmed`.
 
-- **False Positive**, **Risk Accepted** and **Accepted Risk** always need
-  approval. Choosing them opens **Request Status Approval**: enter a
+- **False Positive** and **Risk Accepted** always need approval. Choosing them opens **Request Status Approval**: enter a
   justification (up to 2,000 characters) and, for Risk Accepted, an optional
   expiry date, then **Submit for Approval**. When an approved acceptance expires,
   the finding reopens as Confirmed.
