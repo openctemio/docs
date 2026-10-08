@@ -68,6 +68,14 @@ organization token on admin routes, and so on.
   Redis; without Redis, access tokens stay valid until they expire).
 - Cookies are `Secure` (required in production) and `SameSite=Lax` by default. Cookie-authenticated
   requests need a double-submit CSRF token.
+- The web console checks every state-changing request it answers, signed in or not (sign-in,
+  registration, password reset, invitations, MFA, team selection, SSO start): the request must
+  come from the console's own origin (`Sec-Fetch-Site`, `Origin` or `Referer`), and the
+  `X-CSRF-Token` header must equal the `csrf_token` cookie, which the console sets on every page.
+  Anything else is `403` before the API is called. The API's own sign-in and other pre-session
+  `POST`s also refuse writes a browser sent for another site, for installations where browsers
+  can reach the API directly. Together these stop login CSRF (a foreign page signing
+  a visitor into an attacker's account).
 - Session tokens, refresh tokens and reset, verification and invitation tokens are stored only as
   hashes.
 
