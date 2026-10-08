@@ -59,7 +59,7 @@ Read the release notes and the upgrade notes of the release.
 
    ```bash
    openssl rand -hex 64   # AUTH_JWT_SECRET
-   openssl rand -hex 32   # APP_ENCRYPTION_KEY, CSRF_SECRET, METRICS_TOKEN
+   openssl rand -hex 32   # APP_ENCRYPTION_KEY, METRICS_TOKEN
    openssl rand -hex 24   # database and Redis passwords
    ```
 

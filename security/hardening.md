@@ -50,7 +50,6 @@ start-up in every environment, with a message naming the variable.
 | `AUTH_JWT_SECRET` | `openssl rand -hex 64` | At least 64 characters in production. Changing it signs everyone out. |
 | `DB_PASSWORD`, `DB_MIGRATE_PASSWORD`, `DB_SUPERUSER_PASSWORD` | `openssl rand -hex 24` | All three different. The API does not check database password strength. |
 | `REDIS_PASSWORD` | `openssl rand -hex 24` | At least 32 characters in production. |
-| `CSRF_SECRET` (web) | `openssl rand -hex 32` | Required by the compose file. |
 | `METRICS_TOKEN` | `openssl rand -hex 32` | Only if you scrape `/metrics` (section 9). |
 | `OAUTH_STATE_SECRET` | `openssl rand -hex 32` | Only if you enable a social login provider. |
 
