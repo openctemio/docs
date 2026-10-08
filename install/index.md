@@ -31,6 +31,125 @@ All three expose the platform on one HTTPS port through the same gateway: see
 Sensors, the components that run scans in your networks, are installed
 separately: see [Sensors](../sensors/index.md).
 
+## Deployment topologies
+
+### Single host with Docker Compose
+
+Everything on one host; only the gateway publishes a port.
+
+```mermaid
+flowchart LR
+    C["Browsers, sensors,<br/>API clients"] -->|"HTTPS 443"| GW
+    subgraph host["One Docker host"]
+        GW["gateway<br/>(Caddy)"] --> WEB["web<br/>:3000"]
+        GW --> API["api<br/>:8080"]
+        WEB --> API
+        API -->|TLS| PG[("postgres<br/>:5432")]
+        API -->|TLS| RD[("redis<br/>:6379")]
+        MIG["migrate, db-roles,<br/>datastore-tls<br/>(one-shot jobs)"] -.-> PG
+    end
+```
+
+### All-in-one container
+
+One container runs the gateway, the web console and the API; PostgreSQL and
+Redis are yours (managed or self-hosted).
+
+```mermaid
+flowchart LR
+    C["Browsers, sensors,<br/>API clients"] -->|"HTTPS 443"| GW
+    subgraph aio["ghcr.io/openctemio/openctem"]
+        GW["gateway"] --> WEB["web<br/>127.0.0.1:3000"]
+        GW --> API["api<br/>127.0.0.1:8080"]
+        WEB --> API
+    end
+    API -->|TLS| PG[("Your PostgreSQL")]
+    API -->|TLS| RD[("Your Redis")]
+```
+
+### Kubernetes with Helm
+
+The chart runs the API, the web console and the migrations, and exposes them
+through one entry point: its own Caddy gateway, an Ingress or a Gateway API
+HTTPRoute (`gateway.mode`). PostgreSQL and Redis are external in production.
+
+```mermaid
+flowchart LR
+    C["Browsers, sensors,<br/>API clients"] -->|HTTPS| ENT
+    subgraph k8s["Kubernetes cluster"]
+        ENT["Entry point:<br/>Caddy gateway, Ingress<br/>or HTTPRoute"] --> WEB["web<br/>(Deployment)"]
+        ENT --> API["api<br/>(Deployment, 1 replica)"]
+        WEB --> API
+        MIG["migrations Job"]
+        BS["bundled sensor<br/>(optional)"] -->|"in-cluster"| API
+    end
+    API -->|TLS| PG[("Managed PostgreSQL")]
+    API -->|TLS| RD[("Managed Redis")]
+    MIG -.-> PG
+```
+
+### Sensors in customer networks
+
+Whichever way the platform is installed, sensors run next to their targets and
+only connect out. No inbound port is opened in the scanned networks.
+
+```mermaid
+flowchart LR
+    subgraph op["Operator network"]
+        P["OpenCTEM platform<br/>(gateway :443)"]
+    end
+    subgraph dc["Data centre"]
+        S1["Sensor"] --> T1["Internal hosts"]
+    end
+    subgraph cloud["Cloud VPC"]
+        S2["Sensor"] --> T2["Cloud workloads"]
+    end
+    subgraph dmz["Internet-facing scanner"]
+        S3["Sensor"] --> T3["Public names<br/>and addresses"]
+    end
+    S1 -->|"outbound HTTPS"| P
+    S2 -->|"outbound HTTPS"| P
+    S3 -->|"outbound HTTPS"| P
+```
+
+Group the sensors that can reach the same address ranges into
+[scan zones](../sensors/zones.md); see the
+[network requirements](../sensors/network.md).
+
+### One installation for many organizations
+
+A single installation can serve several organizations, for example a service
+provider or a central security team hosting business units. Each organization
+has its own members, SSO, sensors and data; platform administrators run the
+installation without seeing organization data.
+
+```mermaid
+flowchart TB
+    subgraph plat["One OpenCTEM installation"]
+        ADM["Platform administrators<br/>(admin console)"]
+        OA["Organization A<br/>SSO: Entra ID"]
+        OB["Organization B<br/>SSO: SAML"]
+        OC["Organization C<br/>password and 2FA"]
+        PSEN["Platform sensors<br/>(shared, optional)"]
+    end
+    SA["Sensors of A<br/>(A's network)"] --> OA
+    SB["Sensors of B<br/>(B's network)"] --> OB
+    ADM --> OA
+    ADM --> OB
+    ADM --> OC
+    ADM --> PSEN
+```
+
+- `TENANT_CREATION_MODE=admin_only` (the default): only platform
+  administrators create organizations. `self_service`: any signed-in user can
+  create one ([First administrator](first-admin.md#self-service-organizations)).
+- Organization sensors take only their own organization's work. Platform
+  sensors are shared capacity run by the operator; in the current release no
+  organization can send scans to them yet (see [Sensors](../sensors/index.md#organization-sensors-and-platform-sensors)).
+- With `self_service`, active probes on shared platform sensors need a
+  verified domain by default (`SCOPE_ACTIVE_PROOF`; see
+  [Scope](../scanning/scope.md#platform-guardrails)).
+
 ## Images
 
 Every release tag `vX.Y.Z` publishes these images to the GitHub Container

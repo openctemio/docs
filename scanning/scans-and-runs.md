@@ -6,8 +6,20 @@ nav_order: 3
 
 # Scans and scan runs
 
-```
-Scan (definition) --fires--> Scan run --has--> Steps --cut into--> Tasks (claimed by sensors)
+A **scan** says what to scan, with which tool or scan workflow, and when. Each
+time it fires, it creates a **scan run**; the run is split into **steps** (one
+per tool or workflow step), and each step is cut into **tasks** that sensors
+claim and run. Results flow back into the inventory, and the next steps take
+what the earlier ones found.
+
+```mermaid
+flowchart LR
+    SC["Scan<br/>(definition)"] -->|"fires"| RUN["Scan run"]
+    RUN -->|"has"| ST["Steps"]
+    ST -->|"cut into"| TK["Tasks"]
+    TK -->|"claimed by"| SEN["Sensors"]
+    SEN -->|"results"| INV["Assets, findings,<br/>exposures"]
+    INV -->|"outputs feed<br/>the next step"| ST
 ```
 
 | Term | Meaning | API |
@@ -66,6 +78,42 @@ zones and cut into tasks. If nothing can run, the trigger is refused before a
 run exists, for example `NO_TARGETS`, `ALL_TARGETS_EXCLUDED`,
 `NO_ZONE_COVERAGE`, `ZONE_SPLIT_REQUIRED`, `NO_SENSOR_FOR_TOOL`,
 `TOOL_DISABLED` or `SCAN_FREEZE_ACTIVE`.
+
+The whole path of a run, from the trigger to its final status:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Person, schedule or automation
+    participant API as API
+    participant DB as PostgreSQL
+    participant S as Sensors of the zone
+    participant W as Ingest worker
+    U->>API: trigger the scan
+    API->>API: scan active? tools enabled? a sensor online for each tool?
+    API->>API: resolve targets (direct targets, asset group members)
+    API->>API: scope gate: exclusions, attribution, scope entries,<br/>tier, the actor's data scope
+    API->>API: route targets to scan zones, check freeze windows
+    alt nothing can run
+        API->>DB: scan run with status blocked and the refusal code
+        API-->>U: refused (for example NO_TARGETS, SCAN_FREEZE_ACTIVE)
+    else
+        API->>DB: scan run (pinned workflow version) and its steps
+        API->>DB: first steps: targets filtered, cut into tasks
+        API-->>U: run pending
+        loop each task
+            S->>API: claim the task (lease)
+            S->>S: local policy, run the tool
+            S->>API: report (CTIS), complete
+            API->>W: report queued
+            W->>DB: assets, findings and exposures (de-duplicated),<br/>step outputs
+        end
+        API->>API: step finished: plan the next steps from its outputs,<br/>every new target through the scope gate again
+        API->>DB: tasks of the next steps
+        API->>DB: all steps settled: completed, partial or failed
+    end
+    Note over API,DB: Separately, controllers time out runs past their deadline,<br/>fail runs no sensor claimed, and requeue tasks whose lease expired.
+```
 
 - **One run per occurrence.** Each scheduled occurrence creates at most one
   run, however many API replicas are running.
