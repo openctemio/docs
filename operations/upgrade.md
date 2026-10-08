@@ -57,7 +57,9 @@ recovery are in
    docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version, dirty FROM schema_migrations"'
    ```
 
-3. **Read the release notes** for new required settings and removed ones.
+3. **Read the release notes** for new required settings and removed ones. After an upgrade
+   that tightens the console's CSRF checks, a browser tab opened before the upgrade gets one
+   `403` on its first write; reloading the page fixes it.
 4. **Verify the images** of the new release with the `cosign` commands in its
    release notes ([Verify a release](versioning.md#verify-a-release)).
 5. **Rehearse** large upgrades on a copy of production.

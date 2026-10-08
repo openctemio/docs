@@ -160,7 +160,9 @@ stored secrets (AES-256-GCM), and keys the hashes of API keys, SCIM tokens and s
 | `TRUST_PROXY_HEADERS` (web) | `false` | `true` only when a proxy that overwrites `X-Forwarded-For` sits in front of the console (as in the compose file). Never when browsers reach the console directly. |
 
 Cookie-authenticated requests carry a double-submit CSRF token (`csrf_token` cookie and
-`X-CSRF-Token` header). Requests with a bearer token or API key need none.
+`X-CSRF-Token` header). Requests with a bearer token or API key need none. Every write to the web
+console (pre-login forms included) must also be same-origin: keep the gateway passing the
+original `Host` (or `X-Forwarded-Host`) to the console, or the console refuses its own forms.
 
 ## Rate limits and lockout
 
