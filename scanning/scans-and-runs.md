@@ -106,6 +106,7 @@ sequenceDiagram
         API-->>U: run pending
         loop each task
             S->>API: claim the task (lease)
+            API->>API: re-check the targets against the scope gate
             S->>S: local policy, run the tool
             S->>API: report (CTIS), complete
             API->>W: report queued
@@ -165,6 +166,17 @@ its tasks by state, and the findings it produced. The run page offers:
 ![A completed scan run: findings, tasks, duration, stages and the task timeline]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
 *Figure: A completed run: each stage with its tool, inputs and planned targets, and the timeline of its tasks.*
 
+When a sensor claims a task, the platform runs the scope gate again on the
+task's targets, with the same inputs the run was dispatched with (tier, act
+scope of the person who triggered it, scan zone). A task can wait in the queue
+while scope changes: an exclusion is added, an entry is removed or lowered, an
+asset is marked "Not ours", a zone shrinks, or the person loses access. Targets
+that are now refused are removed from the task before the sensor receives it.
+A task left with no target is not handed out: it fails with `SCOPE_CHANGED`,
+naming each removed target and its refusal code, and its step fails with the
+same code (not retried). If the check itself cannot run, the task stays queued
+for a later claim.
+
 A task is claimed by a sensor under a lease that the sensor's heartbeats
 renew. If a sensor goes silent, its tasks go back to the queue about a minute
 after the lease runs out (3 minutes by default) and another sensor of the
@@ -172,8 +184,8 @@ zone takes them.
 
 ### Failures and retries
 
-- Permanent failures (refused targets, invalid settings, missing tools) are
-  never retried.
+- Permanent failures (refused targets, `SCOPE_CHANGED`, invalid settings,
+  missing tools) are never retried.
 - Lost work and timeouts are retried twice, with a backoff.
 - Other failures follow the scan's retry setting.
 
