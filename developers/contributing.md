@@ -13,7 +13,7 @@ repositories (sensor, sdk-go, ctis, ci, helm-charts, docs) use the same commit a
 conventions, but their pull requests target `main`; check their own `CONTRIBUTING.md` where
 there is one.
 
-Security issues are not contributions: report them privately to security@openctem.io (see
+Security issues are not contributions: report them privately to <!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off--> (see
 [Vulnerability disclosure](../security/vulnerability-disclosure.md)).
 
 ## Branches
