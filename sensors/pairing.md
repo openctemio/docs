@@ -59,6 +59,9 @@ Owners and administrators hold all of them.
 
 ## Pair with a code shown by the sensor
 
+![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+*Figure: Approving a pairing request: compare the fingerprint with the sensor's console.*
+
 1. Install the sensor without `API_KEY` ([Docker](deploy-docker.md),
    [Kubernetes](deploy-kubernetes.md), [binary](deploy-binary.md)) and keep
    its state directory on persistent storage.
@@ -103,6 +106,9 @@ Use this when you prepare the console first:
 
 3. The sensor prints its fingerprint; the console shows the fingerprint it
    received as soon as the sensor connects. Compare and approve as above.
+
+![The Expect a sensor tab with a single-use code (blurred) and the command to run]({{ site.baseurl }}/assets/images/sensors/pair-expect.png)
+*Figure: Expecting a sensor: the code is blurred here.*
 
 ## The `pair` command
 
