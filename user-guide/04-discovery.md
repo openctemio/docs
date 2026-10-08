@@ -516,14 +516,14 @@ their licenses. It is the basis of supply-chain security.
 
 **Export SBOM** (`/components/sbom-export`, with the SBOM export module):
 
-1. Choose the **SBOM Format** (CycloneDX or SPDX) and the **Output Format** (JSON
-   or XML).
-2. Under **Include in Export**, choose **Vulnerability Information**, **License
-   Information** and **Document Metadata**.
-3. Click **Export SBOM**; the file downloads in your browser.
+1. Choose the **SBOM Format**: CycloneDX (CycloneDX 1.6 JSON) or SPDX (SPDX 2.3
+   JSON).
+2. Click **Export SBOM**. The server builds the document from the components
+   you may see and your browser saves it (`sbom-<date>.cdx.json` or
+   `sbom-<date>.spdx.json`).
 
-{: .note }
-The exported file is a simplified, CycloneDX-style list of components (name,
-version, package URL, license, vulnerability count). It is not yet a complete
-CycloneDX or SPDX document; validate it before handing it to tools that require
-the full specification.
+The document lists each component with its package URL, licenses (SPDX
+identifiers where the license is one), ecosystem and vulnerability count. The
+API is `GET /api/v1/components/sbom?format=cyclonedx|spdx`, with an optional
+`asset_id` for one asset (permission `components:read`). An inventory of more
+than 10,000 components is refused: export one asset at a time.
