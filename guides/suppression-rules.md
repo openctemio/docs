@@ -512,5 +512,4 @@ After platform rules are active:
 ## Related Documentation
 
 - [Agent Usage: CI/CD Integration](agent-usage.md#cicd-integration)
-- [Finding Lifecycle RFC](../_internal/rfcs/2026-01-28-finding-lifecycle-auto-resolve.md)
 - [Security Gate Configuration](agent-usage.md#security-gate-cicd-pipeline-control)

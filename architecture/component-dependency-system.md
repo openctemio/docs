@@ -351,7 +351,6 @@ ON CONFLICT (purl) DO UPDATE SET
 
 - [Scan Flow](./scan-flow.md)
 - [SDK API Integration](./sdk-api-integration.md)
-- [Finding Type System](../_internal/finding-type-system.md)
 
 ---
 
