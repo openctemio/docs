@@ -76,8 +76,8 @@ go back.
    - Click **Start Scan** or **Schedule Scan**. If the scan is saved but cannot
      start, it stays saved and you can trigger it later from **View Scan**.
 
-When you trigger a scan, the platform may stop it and explain why: a [scan
-freeze window](10-settings-and-integrations.md#scan-freeze-windows) is active, a
+When you trigger a scan, the platform may stop it and explain why:
+a [scan freeze window](10-settings-and-integrations.md#scan-freeze-windows) is active, a
 run of the same targets is already in progress (the sensor runs them one after
 the other), or the scope check refused some targets.
 

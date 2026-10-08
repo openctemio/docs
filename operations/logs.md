@@ -53,7 +53,7 @@ development), `warn` or `error`. Production refuses `debug`.
 Each HTTP request writes one `http request` line after it completes:
 
 ```json
-{"time":"2026-10-08T07:30:24.413037991Z","level":"WARN","msg":"http request","method":"GET","path":"/api/v1/assets","status":401,"duration":820294,"request_id":"4af35544-ddcb-4e9a-bda4-0645bb34062e","remote_addr":"172.30.80.10:50446","user_agent":"curl/8.5.0"}
+{"time":"2026-10-08T07:30:24.413037991Z","level":"WARN","msg":"http request","method":"GET","path":"/api/v1/assets","status":401,"duration":820294,"request_id":"4af35544-ddcb-4e9a-bda4-0645bb34062e","remote_addr":"198.51.100.10:50446","user_agent":"curl/8.5.0"}
 ```
 
 | Field | Meaning |
