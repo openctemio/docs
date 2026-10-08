@@ -121,3 +121,153 @@ rules). Content older than its limit makes the sensor `degraded` with
 `content_stale`; a failed refresh keeps the previous version and raises
 `content_refresh_failed`. **Refresh content** on the sensor, or
 **Settings > Scanning > Scanner content**, asks for a refresh now.
+
+## Setup check reference
+
+Each problem under **Setup & health** links to its entry here. The fix
+snippets in the console are filled in for the sensor (its paths, tool names
+and settings); the entries below explain the check.
+
+### Scanner installed
+{: #tool-binary }
+
+`tool.<name>.binary`. The sensor runs each scanner it offers to check its
+version. `not_installed`: the image does not contain the scanner, so the
+platform sends it no jobs for it. `broken`: the scanner is present but exits
+with an error; the console shows what it printed. Use an image that ships the
+scanner (the default `ghcr.io/openctemio/sensor` image, or a per-tool image),
+pull a fresh image, or remove the scanner from `SENSOR_TOOLS`.
+
+### Scanner offered
+{: #tool-selection }
+
+`tool.<name>.selection`. `not_selected`: the scanner is installed but not in
+`SENSOR_TOOLS` (Helm: `sensor.tools`); add it to offer it. `policy_excluded`:
+the [sensor-local policy](network.md#sensor-local-policy) does not allow it.
+Only the network owner can change the policy on the sensor host.
+
+### Scanner registration
+{: #tool-registration }
+
+`tool.<name>.registration` `register_failed`: the sensor found the scanner but
+could not register it, so it is not offered. The console shows the sensor's
+message; check the start-up log ([Read the logs](#read-the-logs)).
+
+### Scanners available
+{: #tools-available }
+
+`tools.available` `none`: no scanner is both installed and allowed, so the
+platform cannot send the sensor any scan. Fix `SENSOR_TOOLS`, use an image
+with scanners, or ask the network owner to allow them in the local policy.
+
+### State directory on a volume
+{: #identity-state-persistent }
+
+`identity.state_persistent`. The sensor keeps its identity and its renewed
+API key in the state directory (`SENSOR_STATE_DIR`, by default
+`/var/lib/openctem/state`). When it is not on a mounted volume, recreating the
+container loses it and the sensor starts again with a retired key. Mount a
+named volume there (Docker: `-v openctem-sensor-state:/var/lib/openctem/state`;
+Helm: `sensor.state.persistence.enabled: true`). See
+[Volumes](deploy-docker.md#volumes).
+
+### API key renewal
+{: #identity-key-renewal }
+
+`identity.key_renewal`. A key-based sensor renews its API key before it
+expires when `PLATFORM_KEY_AUTORENEW=true` (Helm: `sensor.keyAutoRenew`).
+`off_not_persistent`: the sensor turned renewal off because a renewed key
+would be lost; mount a state volume (see
+[State directory on a volume](#identity-state-persistent)). `disabled` or
+`start_failed`: rotate the key yourself before it expires, or
+[pair the sensor](pairing.md).
+
+### Scanner proxy
+{: #network-scan-proxy }
+
+`network.scan_proxy_inherit` `inherits_proxy`: the host sets proxy variables
+(such as `HTTPS_PROXY`) and scanners inherit them, so scan traffic goes
+through that proxy, which may block it or see every target. Set
+`SENSOR_SCAN_PROXY=direct`, or `SENSOR_SCAN_PROXY=inherit` to keep it on
+purpose. The connection to the platform keeps its own proxy setting. See
+[Proxies](network.md#proxies).
+
+### OOM protection
+{: #runtime-oom-protect }
+
+`runtime.oom_protect`. Under memory pressure the sensor asks the kernel to
+stop a scanner before the sensor itself. `no_permission`: add the
+`SYS_RESOURCE` capability (Docker: `--cap-add SYS_RESOURCE`; Compose:
+`cap_add: [SYS_RESOURCE]`; Helm: `sensor.securityContext.capabilities.add`).
+`unsupported`: the host does not allow it.
+
+### Job polling
+{: #runtime-command-poller }
+
+`runtime.command_poller` `stopped`: the loop that fetches jobs from the
+platform stopped with an error, so the sensor runs nothing. Restart the
+sensor and check its log ([Read the logs](#read-the-logs)).
+
+### Renamed setting
+{: #config-alias-deprecated }
+
+`config.alias_deprecated`: a setting still works under its old name but is
+deprecated. Rename it to the name the check gives.
+
+### Unknown environment variable
+{: #config-env-unknown }
+
+`config.env_unknown`: the sensor does not read this variable, so it has no
+effect. It is often a typo; the check suggests the closest name.
+
+### Unknown key in the config file
+{: #config-file-unknown-key }
+
+`config.file_unknown_key`: the config file has a key the sensor does not
+know, so it is ignored. Remove or rename it.
+
+### Unset variable in the config file
+{: #config-file-unset-var }
+
+`config.file_unset_var`: the config file refers to an environment variable
+that is not set, so the value became empty. Set the variable in the sensor's
+environment, or remove the reference.
+
+### Daemon without jobs
+{: #config-commands-disabled }
+
+`config.commands_disabled`: the sensor was started with `-daemon` but without
+`-enable-commands`, so it heartbeats but never runs a job. Start it with both
+flags (the default image's command; Helm: `sensor.mode: daemon`).
+
+### Retired scanner name
+{: #config-tool-retired }
+
+`config.tool_retired`: a name in `SENSOR_TOOLS` was replaced by another
+scanner, which the sensor runs instead. Update the list.
+
+### Platform TLS trust
+{: #platform-tls }
+
+`platform.tls`: `SSL_CERT_FILE`, `SSL_CERT_DIR` or `SENSOR_CA_CERT_FILE`
+points at a file or directory the sensor cannot read, so TLS connections to
+the platform fail with an unknown-authority error. Mount the CA certificate
+read-only at that path. See
+[Trust a private certificate authority](deploy-docker.md#trust-a-private-certificate-authority).
+
+### Sensor-local policy
+{: #policy-local }
+
+`policy.local` `absent`: no local policy is installed on the sensor host, so
+the sensor accepts any target outside its built-in deny list. The network
+owner installs one (`SENSOR_LOCAL_POLICY`, mounted read-only; Helm:
+`sensor.localPolicy.enabled: true`). See
+[Sensor-local policy](network.md#sensor-local-policy).
+
+### Template signing keys
+{: #policy-template-keys }
+
+`policy.template_keys` `missing`: the local policy allows custom templates,
+but `SENSOR_TEMPLATE_SIGNING_KEYS` is not set, so the sensor refuses every
+custom template. Pin the organization's template signing public key. See
+[Custom templates](../scanning/tools.md#custom-templates).
