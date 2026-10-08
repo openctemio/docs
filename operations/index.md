@@ -1,40 +1,31 @@
 ---
-layout: default
 title: Operations
-nav_order: 6
+nav_order: 5
 has_children: true
-permalink: /operations
+permalink: /operations/
 ---
 
-# Operations & Development
+# Operations
 
-Guides for developers and operators.
+Running an OpenCTEM installation day to day: upgrades, backups, monitoring,
+capacity and diagnosis. Installing is covered in [Install](../install/index.md),
+settings in [Configuration](../configuration/index.md).
 
-## Development
+| Page | Covers |
+|---|---|
+| [Upgrading](upgrade.md) | The upgrade procedure for Compose, the all-in-one image and Helm, release-specific guides, rollback. |
+| [Versioning and releases](versioning.md) | Version numbers, the release train, hotfixes, where changes are recorded, sensor and chart compatibility. |
+| [Backup and restore](backup-restore.md) | What to back up (database, secrets, volumes) and tested backup and restore commands. |
+| [Monitoring](monitoring.md) | Health endpoints, Prometheus metrics, the monitoring stack and alerts. |
+| [Scaling](scaling.md) | What scales how, and the knobs that matter. |
+| [Troubleshooting](troubleshooting.md) | Start-up failures, migrations, sign-in, refused requests, disk. |
+| [Log reference](logs.md) | Where each component logs, log formats, request IDs, notable messages. |
 
-- **[Development Guide](./DEVELOPMENT.md)** - Local development setup
-- **[Integration Guide](./INTEGRATION.md)** - Integration testing
-- **[Configuration Reference](./configuration.md)** - Environment variables
+## Routine checklist
 
-## Deployment
-
-- **[Production Deployment](./PRODUCTION_DEPLOYMENT.md)** - Production setup
-- **[Exposing OpenCTEM: one HTTPS port](./single-https-port.md)** - Built-in gateway: UI, API, sensors, SCIM and MCP on 443; TLS modes; migrating from the two-port setup
-
-## Platform Operations
-
-- **[Platform Agent Runbook](./platform-agent-runbook.md)** - Manage platform agents
-- **[Monitoring Guide](./MONITORING.md)** - Observability setup
-- **[Troubleshooting](./troubleshooting.md)** - Common issues and fixes
-
-## Maintenance
-
-- **[Upgrade Guide](./upgrade-guide.md)** - Version upgrades, rollbacks, zero-downtime deployments
-- **[Upgrading from v0.8 to v0.9](./upgrade-to-v0.9.md)** - Breaking changes, inventory queries, rehearsed Compose/Helm procedure and rollback for v0.9.0
-- **[Upgrading to the Sensor release](./upgrade-agent-to-sensor.md)** - Agents become sensors: what is migrated automatically, what to update, in which order
-- **[Upgrading: gitleaks → Betterleaks](./upgrade-gitleaks-to-betterleaks.md)** - The secret scanner changes: migration 000241, upgrade order, what changes in your findings
-- **[Backup & Restore](./backup-restore.md)** - Backup strategy, off-site storage, restore procedures
-
-## Configuration
-
-- **[Redis Setup](./redis-setup.md)** - Redis configuration
+| How often | Task |
+|---|---|
+| Daily | Check that backups ran and that alerts are being delivered. |
+| Weekly | Review WARN and ERROR volume in the API log; check disk space and offline sensors. |
+| Each release | Read the release notes; upgrade the platform, then sensors when the release asks for it. |
+| Quarterly | Test a restore on a separate host; review platform administrators and the break-glass account. |
