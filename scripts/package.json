@@ -1,0 +1,15 @@
+{
+  "name": "openctem-docs-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Demo data seed and screenshot capture for the documentation site",
+  "scripts": {
+    "seed": "tsx demo-seed/seed.ts",
+    "capture": "tsx capture-screenshots.ts"
+  },
+  "devDependencies": {
+    "playwright": "1.64.0",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15"
+  }
+}

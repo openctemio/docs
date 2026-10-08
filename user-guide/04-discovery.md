@@ -29,6 +29,9 @@ schedules), **Runs** (every run they produced) and **Workflows** (the scan
 workflows a scan can run). The header has **Quick scan** and **New scan** (both
 need the scan write permission). See also [Scans and scan runs](../scanning/scans-and-runs.md).
 
+![The Scans page listing three scheduled and manual scans with their last run and success rate]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
+*Figure: Discovery, Scans.*
+
 ### Quick scan
 
 **Quick scan** runs a scanner on a few targets now, without saving anything.
@@ -43,6 +46,9 @@ need the scan write permission). See also [Scans and scan runs](../scanning/scan
 **New scan** opens a four-step wizard: **Basic Info → Targets → Options →
 Schedule**. Each step is checked before you can go on; click a completed step to
 go back.
+
+![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
+*Figure: The New scan wizard.*
 
 1. **Basic Info**
    - **Scan Name** (required), for example "Production Security Scan".
@@ -103,6 +109,9 @@ scanner), schedule and next run, last run and run count.
 The **Runs** tab (`/scans/runs`) lists every run: from scans, quick scans and
 retests.
 
+![A running scan run: stages, tasks and the timeline]({{ site.baseurl }}/assets/images/scanning/scan-run.png)
+*Figure: A scan run in progress.*
+
 - Filter by status (Running, Pending, Completed, Partial, Failed, Timed out,
   Canceled, Blocked) and by kind, and **Export CSV**.
 - Open a run to see its key numbers (findings, tasks, duration), its **Stages**
@@ -118,6 +127,9 @@ A **scan workflow** chains several scan steps (for example subdomain discovery,
 then HTTP probing, then vulnerability scanning) into one repeatable graph with
 dependencies between steps. Scans run either one scanner or one workflow. See
 [Scan workflows](../scanning/scan-workflows.md).
+
+![The scan workflow builder showing five chained steps]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
+*Figure: The scan workflow builder.*
 
 **Discovery › Scans › Workflows** (`/scans/workflows`):
 
@@ -156,6 +168,9 @@ and copy its install command and key) or **Pair a sensor** (the sensor makes its
 own key; you approve it by comparing a fingerprint), group sensors into **Scan
 zones**, and edit, disable, rotate the key of, revoke or delete a sensor.
 
+![The Sensors page with two online sensors, their version, jobs and tools]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
+*Figure: Discovery, Sensors.*
+
 Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
 
 ## CI/CD
@@ -166,6 +181,9 @@ repository coverage, with guides for GitHub Actions and GitLab CI. Its **Trust a
 gate** tab is the same as
 [Settings › Scanning › CI/CD integration](10-settings-and-integrations.md#cicd-integration).
 See [CI integration](../scanning/ci-integration.md).
+
+![The CI/CD page listing two GitHub Actions pipelines with their gate status]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
+*Figure: Discovery, CI/CD: one row per CI pipeline.*
 
 ## Attack surface
 
@@ -239,6 +257,9 @@ changed**, **Web surface** and **Suggestions**.
 ### Inventory
 
 **Inventory** (`/assets`) opens on the full, filterable list of assets.
+
+![The asset inventory with repositories, subdomains and IP addresses, their criticality, exposure and owner]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
+*Figure: The asset inventory.*
 
 - The cards: **All assets**, **Critical**, **Internet-facing**, **Unowned** and
   **With findings**.
@@ -318,6 +339,9 @@ one layout:
   repository (or **Scan Selected** and **Sync Selected**). A repository opens its
   own page with its branches and findings.
 
+![The Domains and Subdomains page with DNS, classification, labels, findings and risk per name]({{ site.baseurl }}/assets/images/user-guide/assets-domains.png)
+*Figure: The page of one asset type: domains and subdomains.*
+
 The add and edit form sets the type's fields, the **Criticality**, **Scope**,
 **Exposure**, the **Business Impact (CIA)** ratings (see
 [Scoping](03-scoping.md#how-business-context-raises-criticality)), an **Owner
@@ -343,6 +367,9 @@ Clicking an asset in a list opens its detail panel:
   timeline, technical details and **Identity history** (the merges that formed
   this asset).
 
+![The details of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
+*Figure: Asset details.*
+
 The asset page (`/assets/{id}`) summarizes criticality, risk score, exposure and
 findings, with its properties and identity.
 
@@ -351,6 +378,9 @@ findings, with its properties and identity.
 **Groups** (`/assets/groups`) organizes assets into logical groups by
 environment and criticality, to track risk and findings per group and to use as
 scan targets and team scopes.
+
+![The Asset groups page with six groups, their environment, criticality and risk score]({{ site.baseurl }}/assets/images/user-guide/asset-groups.png)
+*Figure: Asset groups.*
 
 1. The cards: **Groups**, **Critical groups**, **Assets in groups** and
    **Average risk score**.
@@ -459,6 +489,9 @@ add, edit or delete them by hand.
 **Discovery › Components** (`/components`) is your software bill of materials:
 the packages your repositories and images depend on, their vulnerabilities and
 their licenses. It is the basis of supply-chain security.
+
+![The Components page with totals, vulnerable components, ecosystems and licenses]({{ site.baseurl }}/assets/images/user-guide/components.png)
+*Figure: Software components.*
 
 - The overview: **Total components** (direct and transitive), **Vulnerabilities**
   (critical and high), **License risks** and **Outdated**, with cards for

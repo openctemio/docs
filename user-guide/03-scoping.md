@@ -37,6 +37,9 @@ ready** and links to the page that fixes it:
 - Attacker profiles chosen for the cycle
 - Threat model for each crown jewel
 
+![The Scoping overview with the readiness checklist for a CTEM cycle]({{ site.baseurl }}/assets/images/user-guide/scoping-overview.png)
+*Figure: Scoping overview: what a cycle needs before it starts.*
+
 A row is hidden when its module is turned off.
 
 ## CTEM cycles (start here)
@@ -231,6 +234,9 @@ becomes critical too.
 is out of scope, and an exclusion always wins. See also
 [Scope and authorization to scan](../scanning/scope.md).
 
+![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+*Figure: Scope: the entries in effect.*
+
 The cards **In scope**, **Out of scope** and **Waiting for approval** also switch
 tabs. The tabs are **In scope**, **Out of scope**, **Approvals** and **Domain
 proof**. **Policy** opens the scope policy.
@@ -295,6 +301,9 @@ exclusions ("Puts out of scope"). Click **Approve** or **Reject**, or select
 several and **Approve selected**. You can never approve your own request, and
 approving widening entries can require a fresh identity check.
 
+![The Approvals tab of the Scope page with a cloud account and an exclusion waiting for a second administrator]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
+*Figure: Scope changes waiting for another administrator's approval.*
+
 ### Domain proof
 
 The **Domain proof** tab proves that you control a domain with a DNS TXT record:
@@ -302,6 +311,9 @@ enter the **Domain**, click **Prove a domain**, publish the record and click
 **Check**. Proof does not put anything in scope; scope entries do. Depending on
 the platform's settings, active probes from platform sensors need a proved
 domain.
+
+![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
+*Figure: Domain proof: two domains verified, one waiting for its DNS TXT record.*
 
 ### Scope policy
 
