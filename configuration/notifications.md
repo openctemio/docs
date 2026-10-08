@@ -105,9 +105,10 @@ result per channel.
 The API sends notifications itself, so it needs outbound HTTPS to
 `hooks.slack.com`, your Teams webhook host, `api.telegram.org`, your webhook
 receivers and SMTP to your relay. URLs and SMTP hosts that resolve to private
-addresses are refused unless the operator sets
-`OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1`; loopback, link-local and cloud metadata
-addresses are always refused.
+addresses are refused unless the operator lists their private range in
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` (for example `10.20.0.0/16`); loopback,
+link-local and cloud metadata addresses are always refused. See
+[Environment variables](environment-variables.md#integrations).
 
 ## Operator alerts
 
