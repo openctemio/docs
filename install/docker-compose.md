@@ -43,6 +43,7 @@ cd api/deploy
 | `docker-compose.http-redirect.yml` | Overlay: also publish port 80, redirecting to HTTPS. |
 | `docker-compose.plain-http.yml` | Overlay: plain HTTP behind your own TLS proxy (TLS mode `http`). |
 | `.env.example` | Settings template. |
+| `backup.sh` | Backup, restore check and restore (see [Backup and restore](../operations/backup-restore.md)). |
 | `gateway/` | Gateway configuration (Caddyfile, TLS modes, entrypoint). |
 | `postgres/least-privilege-roles.sql` | Creates the database roles the stack uses. |
 
@@ -97,6 +98,20 @@ unset runs everything as `DB_USER` instead.
 
 ## 3. Start the stack
 
+Check the configuration first. `-check-config` validates the API settings from
+`.env` the way the API does at start-up, prints the first problem or a one-line
+summary (never a secret value) and exits `0` (valid) or `1`, without connecting
+to anything:
+
+```bash
+docker compose run --rm --no-deps api -check-config
+```
+
+A secret that still holds example text (`openssl rand -hex 32`, `<CHANGE_ME...>`,
+`changeme`) is refused with a message naming the variable.
+
+Then start it:
+
 ```bash
 docker compose up -d
 docker compose ps
@@ -139,7 +154,7 @@ rotated at 50 MB with 5 files kept.
 
 | Volume | Holds | Back up |
 |---|---|---|
-| `postgres-data` | The database. | Yes, with `pg_dump` (see [Backup and restore](../operations/backup-restore.md)). |
+| `postgres-data` | The database. | Yes, with `backup.sh` (see [Backup and restore](../operations/backup-restore.md)). |
 | `api-data` | Uploaded attachments and finding evidence (`/app/data`). | Yes. |
 | `gateway-data` | Certificates, the ACME account and the internal CA's private key. | Yes, in TLS mode `internal`: losing it creates a new CA that sensors and browsers do not trust. |
 | `gateway-config` | Caddy's runtime configuration. | No. |
@@ -154,27 +169,31 @@ The `api` service passes a fixed list of variables from `.env` to the API:
 `APP_ENV`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`,
 `DB_SSLMODE`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_DB`, `REDIS_PASSWORD`,
 `REDIS_TLS_ENABLED`, `REDIS_TLS_CA_FILE`, `LOG_LEVEL`, `LOG_FORMAT`,
-`AUTH_PROVIDER`, `AUTH_JWT_SECRET`, `AUTH_ALLOW_REGISTRATION`,
-`APP_ENCRYPTION_KEY`, `APP_ENCRYPTION_KEY_PREVIOUS`, `APP_TEMPLATE_SIGNING_KEY`,
+`AUTH_PROVIDER`, `AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`,
+`APP_ENCRYPTION_KEY_PREVIOUS`, `APP_TEMPLATE_SIGNING_KEY`,
 `TENANT_CREATION_MODE`, `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
-`SMTP_PASSWORD`, `SMTP_FROM` and the `SENSOR_*VERSION` variables. It derives
-`CORS_ALLOWED_ORIGINS`, `APP_URL` and `SMTP_BASE_URL` from `OPENCTEM_PUBLIC_URL`.
+`SMTP_PASSWORD`, `SMTP_FROM`, `METRICS_TOKEN` (empty: `/metrics` off) and the
+`SENSOR_*VERSION` variables. It derives `CORS_ALLOWED_ORIGINS`, `APP_URL`,
+`SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
+(`<OPENCTEM_PUBLIC_URL>/auth/callback`, where SSO sign-ins land) from
+`OPENCTEM_PUBLIC_URL`.
 
 Any other [API variable](../configuration/environment-variables.md) goes in a
 `docker-compose.override.yml` next to `docker-compose.yml`, which Compose reads
-automatically. For example, to enable the metrics endpoint and name the email
-sender:
+automatically. For example, to name the email sender:
 
 ```yaml
 services:
   api:
     environment:
-      METRICS_TOKEN: ${METRICS_TOKEN:?set METRICS_TOKEN in .env}
       SMTP_FROM_NAME: "Example Security"
 ```
 
-Put the values in `.env` (`METRICS_TOKEN=` plus `openssl rand -hex 32`), then
-apply with `docker compose up -d`.
+Then apply with `docker compose up -d`.
+
+Memory limits default to 2 GB for the API, 1 GB for the web console and 512 MB
+for the gateway; change them with `API_MEMORY_LIMIT`, `WEB_MEMORY_LIMIT` and
+`GATEWAY_MEMORY_LIMIT` in `.env`.
 
 ## Managed PostgreSQL or Redis
 
