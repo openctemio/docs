@@ -31,7 +31,6 @@ is maintained there. This site no longer keeps a copy.
 | Production checklist | [ops/PRODUCTION_CHECKLIST.md](https://github.com/openctemio/openctem/blob/main/web/docs/ops/PRODUCTION_CHECKLIST.md) |
 | Make targets | [MAKEFILE.md](https://github.com/openctemio/openctem/blob/main/web/docs/MAKEFILE.md) |
 | Style contract | [ui-style-contract.md](https://github.com/openctemio/openctem/blob/main/web/docs/ui-style-contract.md) |
-| Roadmap | [ROADMAP.md](https://github.com/openctemio/openctem/blob/main/web/docs/ROADMAP.md) |
 
 ## Developing the web console
 

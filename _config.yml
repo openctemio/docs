@@ -25,14 +25,10 @@ search:
   button: true
 
 # Footer
-footer_content: "Copyright &copy; 2026 OpenCTEM. <a href=\"https://openctem.io\">openctem.io</a> | <a href=\"mailto:openctemio@gmail.com\">Contact</a>"
+footer_content: "Copyright &copy; 2026 OpenCTEM. <a href=\"https://openctem.io\">openctem.io</a> | <a href=\"mailto:info@openctem.io\">Contact</a>"
 
 # Header links
 aux_links:
-  "Platform":
-    - "https://app.openctem.io"
-  "API Docs":
-    - "https://api.openctem.io/docs"
   "GitHub":
     - "https://github.com/openctemio"
 
@@ -40,11 +36,8 @@ aux_links_new_tab: true
 
 # Navigation
 nav_external_links:
-  - title: Platform
-    url: https://app.openctem.io
-    opens_in_new_tab: true
-  - title: API
-    url: https://api.openctem.io/docs
+  - title: openctem.io
+    url: https://openctem.io
     opens_in_new_tab: true
 
 # Back to top link
@@ -70,12 +63,15 @@ callouts:
     title: Important
     color: yellow
 
+# Publish dot-directories (security.txt)
+include:
+  - ".well-known"
+
 # Exclude from build
 exclude:
   - node_modules/
   - Gemfile
   - Gemfile.lock
-  - _internal/
   - vendor/
   - .git/
   - .github/
@@ -86,11 +82,6 @@ defaults:
       path: ""
     values:
       layout: "default"
-  - scope:
-      path: "_internal"
-    values:
-      nav_exclude: true
-      search_exclude: true
   - scope:
       path: "getting-started"
     values:
