@@ -42,8 +42,10 @@ is not read.
 
 ## Production checks
 
-With `APP_ENV=production` the API refuses to start unless all of the following
-hold. The error names the variable.
+With `APP_ENV=production`, which is also what an unset `APP_ENV` means, the API
+refuses to start unless all of the following hold. The error names the variable.
+A container or binary started without configuration therefore refuses to start;
+set `APP_ENV=development` explicitly only for a local or trial setup.
 
 - `AUTH_COOKIE_SECURE=true`.
 - `CORS_ALLOWED_ORIGINS` does not contain `*`.
@@ -66,9 +68,42 @@ In every environment other than `development` the API also refuses to start
 without `APP_ENCRYPTION_KEY`, and refuses the development defaults published in
 the repository for `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`.
 
-On every start the API checks that the database schema matches the binary: it
-refuses to start when the schema is behind, dirty, or older than the migration
-baseline (see [Upgrading](../operations/upgrade.md)).
+In every environment, `development` included, the API refuses a secret that still
+holds the placeholder text of an example file: a value in angle brackets
+(`<CHANGE_ME...>`) or one containing `openssl rand`, `changeme`, `change_me`,
+`replace-me`, `replace_me` or `your-super-secret`. This applies to
+`APP_ENCRYPTION_KEY` (and each `APP_ENCRYPTION_KEY_PREVIOUS` entry),
+`APP_TEMPLATE_SIGNING_KEY`, `AUTH_JWT_SECRET`, `DB_PASSWORD`, `REDIS_PASSWORD`,
+`OAUTH_STATE_SECRET`, `SENSOR_KEY_PEPPER` and `METRICS_TOKEN`. The message names
+the variable and never prints the value.
+
+On every start the API also checks that the database schema matches the binary: it refuses to start
+when the schema is behind, dirty, or older than the migration baseline (see
+[Upgrading](../operations/upgrade.md)).
+
+### Check the configuration without starting
+
+`server -check-config` loads and validates the configuration from the
+environment exactly as a start would, then exits: `0` with a one-line summary when
+it is valid, `1` with the first problem when it is not. It connects to nothing and
+never prints a secret value. Run it before a deploy or as an init step:
+
+```bash
+# API image (the entrypoint is the server binary)
+docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:v0.9.0 -check-config
+# Docker Compose, in api/deploy
+docker compose run --rm --no-deps api -check-config
+# All-in-one image
+docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
+  ghcr.io/openctemio/openctem:v0.9.0 -check-config
+```
+
+```text
+configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only SCOPE_ACTIVE_PROOF=off
+```
+
+With `APP_ENV=development` it adds a note that the production checks were
+skipped.
 
 ## API server
 
@@ -76,7 +111,7 @@ baseline (see [Upgrading](../operations/upgrade.md)).
 
 | Variable | Default | Required | Secret | Description |
 |---|---|---|---|---|
-| `APP_ENV` | `development` | yes |  | Environment name. `production` turns on the production checks listed under [Production checks](#production-checks). Any value other than `development` requires `APP_ENCRYPTION_KEY`, refuses the published development secrets and defaults `AUTH_COOKIE_SECURE` to `true`. The Compose stack sets `production`. |
+| `APP_ENV` | `production` |  |  | Environment name. `production` (also when unset) turns on the production checks listed under [Production checks](#production-checks). Any value other than `development` requires `APP_ENCRYPTION_KEY`, refuses the published development secrets and defaults `AUTH_COOKIE_SECURE` to `true`. Set `development` explicitly for a local or trial setup without TLS to the datastores. Up to v0.8.0 an unset value meant `development`. |
 | `APP_NAME` | `openctem` |  |  | Application name used in logs and in email templates. |
 | `APP_DEBUG` | `false` |  |  | Debug mode. Must be `false` in production. |
 | `APP_URL` | empty | production |  | Public origin of the platform (`https://ctem.example.com`). SAML service-provider URLs and sensor install snippets are built from it. The Compose stack sets it to `OPENCTEM_PUBLIC_URL`. |
@@ -163,7 +198,7 @@ baseline (see [Upgrading](../operations/upgrade.md)).
 
 | Variable | Default | Required | Secret | Description |
 |---|---|---|---|---|
-| `AUTH_PROVIDER` | `oidc` | yes |  | `local` (built-in email and password), `oidc` (an external Keycloak realm) or `hybrid` (both). The Compose stack and the Helm chart set `local`; set it explicitly everywhere else. |
+| `AUTH_PROVIDER` | `local` |  |  | `local` (built-in email and password), `oidc` (an external Keycloak realm) or `hybrid` (both). Up to v0.8.0 the default was `oidc`: an installation that relied on that must now set `AUTH_PROVIDER=oidc`. |
 | `AUTH_JWT_SECRET` | empty | yes | yes | HMAC secret that signs session tokens. Required with `local` or `hybrid`; at least 32 characters, 64 in production: `openssl rand -hex 64`. Changing it signs every user out. |
 | `AUTH_JWT_ISSUER` | `api` |  |  | `iss` claim of issued tokens. |
 | `AUTH_ACCESS_TOKEN_DURATION` | `15m` |  |  | Access token lifetime. |
@@ -285,7 +320,7 @@ baseline (see [Upgrading](../operations/upgrade.md)).
 | `SENSOR_IMAGE` | `ghcr.io/openctemio/sensor` |  |  | Sensor image the install snippets run. The tag is `SENSOR_LATEST_VERSION`, never `latest`. |
 | `SENSOR_CA_CERT_FILE` | empty |  |  | Private CA certificate (PEM) the install snippets install on the sensor host. Set it with the gateway in TLS mode `internal` (the Compose stack points it at the exported root CA). |
 | `SENSOR_LATEST_VERSION` | the sensor release in `versions.yaml` when the API was built |  |  | Newest sensor release: older sensors show "update available" and the install snippets pin this tag. `none` or `off` turns the comparison off. |
-| `SENSOR_MIN_VERSION` | empty (no minimum) |  |  | Oldest supported sensor release; a heartbeating sensor below it is shown as degraded. |
+| `SENSOR_MIN_VERSION` | the minimum in `versions.yaml` when the API was built (`v0.9.0`) |  |  | Oldest supported sensor release; a heartbeating sensor below it is shown as degraded. `none` or `off` turns the check off. |
 | `SENSOR_SDK_LATEST_VERSION` | the SDK release in `versions.yaml` when the API was built |  |  | Newest SDK release; sensors built with an older SDK are shown as outdated. `none` or `off` turns it off. |
 | `SENSOR_SDK_MIN_VERSION` | empty (no minimum) |  |  | Oldest supported SDK; sensors built with an older one are shown as degraded. |
 | `SENSOR_KEY_TTL` | `2160h` (90 days) |  |  | Validity of a sensor API key renewed by the sensor itself. `0`: renewed keys never expire. Keys created or regenerated by an administrator never expire. |
@@ -485,7 +520,7 @@ variables it passes through, listed in [Docker Compose](../install/docker-compos
 | Variable | Default | Required | Secret | Description |
 |---|---|---|---|---|
 | `OPENCTEM_VERSION` | none | yes | | Release tag of the API, web and migrations images, for example `v0.9.0`. |
-| `OPENCTEM_PUBLIC_URL` | none | yes | | Exact origin browsers use, with the port when it is not 443. Sets the API's `CORS_ALLOWED_ORIGINS`, `APP_URL` and `SMTP_BASE_URL`. |
+| `OPENCTEM_PUBLIC_URL` | none | yes | | Exact origin browsers use, with the port when it is not 443. Sets the API's `CORS_ALLOWED_ORIGINS`, `APP_URL`, `SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL` (`<OPENCTEM_PUBLIC_URL>/auth/callback`). |
 | `OPENCTEM_HOSTNAME` | none | yes | | See [Gateway](#gateway). |
 | `API_IMAGE` / `UI_IMAGE` / `MIGRATIONS_IMAGE` | `ghcr.io/openctemio/api` / `ghcr.io/openctemio/ui` / `ghcr.io/openctemio/migrations` | | | Image repositories. Set `API_IMAGE=ghcr.io/openctemio/openctem-api` and `UI_IMAGE=ghcr.io/openctemio/openctem-web` for v0.9.0 and later. |
 | `API_VERSION` / `UI_VERSION` | `OPENCTEM_VERSION` | | | Per-image tag override. Leave unset. |
@@ -499,6 +534,7 @@ variables it passes through, listed in [Docker Compose](../install/docker-compos
 | `DB_SUPERUSER` / `DB_SUPERUSER_PASSWORD` | `DB_USER` / `DB_PASSWORD` | | yes | PostgreSQL superuser, used only by `initdb` and the `db-roles` job. |
 | `DB_MIGRATE_USER` / `DB_MIGRATE_PASSWORD` | unset | | yes | Schema-owner role the migrations run as. Set to turn on the least-privilege layout. |
 | `CSRF_SECRET` | none | yes | yes | See [Web console](#web-console). |
+| `API_MEMORY_LIMIT` / `WEB_MEMORY_LIMIT` / `GATEWAY_MEMORY_LIMIT` | `2g` / `1g` / `512m` | | | Memory limits of the `api`, `web` and `gateway` containers. |
 
 ---
 

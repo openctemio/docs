@@ -1,6 +1,6 @@
 ---
 title: API
-nav_order: 11
+nav_order: 12
 has_children: true
 permalink: /api/
 ---
@@ -89,11 +89,12 @@ The API server also serves the document and an interactive reference:
 | `GET /openapi.yaml` | the spec file, with `host` rewritten to the address you called |
 | `GET /docs` | an interactive API reference that loads `/openapi.yaml` |
 
-The server reads the spec from `api/openapi/swagger.yaml` relative to its working directory, so
-these paths work when the API runs from a source checkout where the spec was generated (for
-example the development setup). The published container images do not include the spec file, so
-on an image-based installation `/openapi.yaml` answers `404 OpenAPI spec not found`; generate the
-document from the source of the release you run instead.
+The release images generate the spec at build time and ship it next to the server binary, so on
+an installation from the `openctem-api` or all-in-one image (from v0.9.0) both paths work as is,
+also through the gateway: `https://<host>/openapi.yaml` and `https://<host>/docs`. The document
+always matches the running release. The server reads the spec from `api/openapi/swagger.yaml`
+relative to its working directory; in a source checkout, run `make -C api swagger` first, or
+`/openapi.yaml` answers `404 OpenAPI spec not found`.
 
 The sensor protocol (`/api/v2/sensor`) is described separately by a hand-maintained OpenAPI 3.1
 document, [`api/api/openapi/sensor-protocol-v2.yaml`](https://github.com/openctemio/openctem/blob/develop/api/api/openapi/sensor-protocol-v2.yaml),

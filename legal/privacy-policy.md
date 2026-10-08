@@ -208,8 +208,8 @@ For privacy-related questions:
 
 - **Platform administrators**: Contact your organization's IT/security team
 - **Data protection inquiries**: Contact your organization's Data Protection Officer (DPO)
-- **Open-source project**: [info@openctem.io](mailto:info@openctem.io)
-- **Security vulnerabilities**: [security@openctem.io](mailto:security@openctem.io) (see [Vulnerability disclosure](../security/vulnerability-disclosure.md))
+- **Open-source project**: <!--email_off-->[info@openctem.io](mailto:info@openctem.io)<!--/email_off-->
+- **Security vulnerabilities**: <!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off--> (see [Vulnerability disclosure](../security/vulnerability-disclosure.md))
 
 ---
 

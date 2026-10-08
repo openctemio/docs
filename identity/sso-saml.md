@@ -35,7 +35,9 @@ Requirements:
   from the request host and trusted forwarding headers.
 - **Set `OAUTH_FRONTEND_CALLBACK_URL`** to an URL on the console origin (for example
   `https://app.example.com/auth/callback`). After a successful SAML sign-in the browser is sent to that
-  origin; its default is `http://localhost:3000`.
+  origin; its default is `http://localhost:3000`. The Compose deployment sets it to
+  `<OPENCTEM_PUBLIC_URL>/auth/callback`; set it yourself in the all-in-one env file or, with Helm, in
+  `api.extraEnv`.
 
 ## Attributes
 

@@ -25,7 +25,7 @@ search:
   button: true
 
 # Footer
-footer_content: "Copyright &copy; 2026 OpenCTEM. <a href=\"https://openctem.io\">openctem.io</a> | <a href=\"mailto:info@openctem.io\">Contact</a>"
+footer_content: "Copyright &copy; 2026 OpenCTEM. <a href=\"https://openctem.io\">openctem.io</a> | <!--email_off--><a href=\"mailto:info@openctem.io\">info@openctem.io</a><!--/email_off-->"
 
 # Header links
 aux_links:

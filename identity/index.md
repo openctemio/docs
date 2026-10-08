@@ -1,6 +1,6 @@
 ---
 title: Identity and access
-nav_order: 7
+nav_order: 8
 has_children: true
 permalink: /identity/
 ---
@@ -32,6 +32,49 @@ again on later requests.
 | Organization SSO with OpenID Connect: Microsoft Entra ID, Okta, Google Workspace | platform administrator, approved by the organization owner | one organization | [Entra ID](sso-entra-id.md), [Google](sso-google.md), [OIDC and Okta](sso-oidc.md) |
 | Organization SSO with SAML 2.0 | platform administrator, approved by the organization owner | one organization | [SAML 2.0](sso-saml.md) |
 | Social sign-in: Google, GitHub, Microsoft | operator, with environment variables | the installation (does not join anyone to an organization) | [Google](sso-google.md#social-sign-in-with-google), [Entra ID](sso-entra-id.md#social-sign-in-with-microsoft) |
+
+### Organization SSO sign-in, step by step
+
+The identity provider is chosen by the organization in the sign-in link
+(`/login?org=<organization-slug>`), never by the email address. The diagram
+shows OpenID Connect; SAML 2.0 follows the same checks with the assertion posted
+to `/api/v1/auth/saml/{org}/acs`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User (browser)
+    participant W as Web console
+    participant API as API
+    participant IdP as Organization's identity provider
+    U->>W: /login?org=example-security, choose the provider
+    W->>API: GET /api/v1/auth/sso/{provider}/authorize?org=...
+    API-->>W: IdP authorization URL (signed state, nonce, PKCE)
+    W-->>U: redirect to the IdP
+    U->>IdP: sign in
+    IdP-->>W: redirect with an authorization code
+    W->>API: POST /api/v1/auth/sso/{provider}/callback (code, state)
+    API->>IdP: exchange the code (PKCE)
+    IdP-->>API: ID token
+    API->>API: verify signature, issuer (Entra: pinned tid), audience, nonce,<br/>verified email, allowed domains
+    alt known identity or existing member
+        API->>API: sign in the existing account
+    else new person, JIT conditions hold
+        Note over API: auto-provision on, email domain verified for SSO<br/>by this organization, inside the allowed domains
+        API->>API: create the account and the membership<br/>(provider default role: member or viewer)
+    else otherwise
+        API-->>W: refused (not a member: invite the person)
+    end
+    API-->>W: session tokens (kept in HttpOnly cookies)
+    W->>API: POST /api/v1/auth/token (refresh token, organization)
+    API->>API: membership, SSO enforcement and 2FA policy of the organization
+    API-->>W: access token for this organization
+```
+
+An existing password account is never taken over by an SSO sign-in with the
+same email: its owner signs in with the password first and links the identity
+provider. SSO never grants the owner or admin role. Details:
+[Verified domains and just-in-time provisioning](sign-up-and-invitations.md#verified-domains-and-just-in-time-provisioning).
 
 ## Ways into an organization
 

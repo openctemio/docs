@@ -145,7 +145,7 @@ These Terms shall be governed by and construed in accordance with the laws of th
 
 ## 14. Contact
 
-For questions about these Terms, please contact the platform administrator. For questions about the OpenCTEM project, email [info@openctem.io](mailto:info@openctem.io). Report security vulnerabilities to [security@openctem.io](mailto:security@openctem.io) (see [Vulnerability disclosure](../security/vulnerability-disclosure.md)).
+For questions about these Terms, please contact the platform administrator. For questions about the OpenCTEM project, email <!--email_off-->[info@openctem.io](mailto:info@openctem.io)<!--/email_off-->. Report security vulnerabilities to <!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off--> (see [Vulnerability disclosure](../security/vulnerability-disclosure.md)).
 
 ---
 
