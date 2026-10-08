@@ -13,6 +13,38 @@ sensor's console and the browser show the same fingerprint. From then on the
 sensor signs every request with its key (HTTP Message Signatures,
 RFC 9421), and the platform stores only the public key.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant S as Sensor
+    participant P as Platform (API)
+    actor A as Administrator (console)
+    S->>S: create an Ed25519 key and a secret nonce
+    S->>P: POST /api/v2/sensor/pairings (public key, nonce commitment, host facts)
+    P-->>S: pairing id, code, platform key and nonce, platform signature (valid 10 min)
+    S->>S: check the platform signature (and the pinned platform key, if set)
+    S->>P: PUT /pairings/{id}/nonce (reveal the sensor nonce)
+    Note over S,P: Both sides now derive the same fingerprint<br/>(three digits and three words)
+    S->>S: print the code and the fingerprint
+    A->>P: POST /api/v1/sensor-pairings/lookup (code)
+    P-->>A: fingerprint, host name, system, version, source address
+    A->>A: compare the fingerprint with the sensor's console
+    A->>P: POST /api/v1/sensor-pairings/{id}/approve<br/>(name, type, zones, grant profile, re-authentication)
+    loop every 3 s until approved, denied or expired
+        S->>P: GET /pairings/{id}
+    end
+    P-->>S: approved: sensor id, organization, key id
+    S->>P: POST /pairings/{id}/complete (confirmation signed with the new key)
+    P-->>S: key active, sensor at trust level New
+    Note over S,P: From now on every request is signed with the sensor's key (RFC 9421).<br/>The sensor starts its heartbeat and work loop.
+```
+
+With **Expect a sensor** (below) the order of the first steps changes: the
+console creates the code first, and the sensor sends it in its first request
+(`openctemio-sensor pair <CODE>`); the administrator then sees the
+fingerprint on the expectation and approves it the same way. The work loop that
+follows is described in [How work reaches a sensor](index.md#how-work-reaches-a-sensor).
+
 Design: [RFC-052](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-052-sensor-pairing-and-authorization.md).
 
 ## Who can pair
