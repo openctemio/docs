@@ -47,7 +47,7 @@ sequenceDiagram
     participant W as Web console
     participant API as API
     participant IdP as Organization's identity provider
-    U->>W: /login?org=example-security, choose the provider
+    U->>W: /login?org=example-corp, choose the provider
     W->>API: GET /api/v1/auth/sso/{provider}/authorize?org=...
     API-->>W: IdP authorization URL (signed state, nonce, PKCE)
     W-->>U: redirect to the IdP
