@@ -58,6 +58,9 @@ Each entry has a status and a tier ceiling:
 | T1 | Non-intrusive active checks | port scans, HTTP probes, crawling, nuclei templates (intrusive, DoS, fuzzing and brute-force templates are always excluded) |
 | T2 | Intrusive | DAST. Needs a verified domain and a T2 entry; derived targets are never fed to it |
 
+![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+*Figure: Scope entries in effect.*
+
 ## Widening needs approval
 
 Creating, activating, extending or raising the tier of an entry, and removing
@@ -67,6 +70,9 @@ or shortening an exclusion, **widen** scope. They need:
 - approval by other approvers: the organization's approval count, by default
   one when the organization has two or more administrators (and always at
   least one for a T2 entry). Until then the entry is `pending`.
+
+![Scope changes waiting for a second administrator's approval]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
+*Figure: A cloud account and an exclusion waiting for approval.*
 
 Every widening that takes effect notifies all owners and administrators and
 is audited. Members with `attack_surface:scope:write` only **request** a
@@ -102,6 +108,9 @@ needed when:
 - a probe is intrusive (T2): always;
 - the platform operator requires it for shared platform sensors or for every
   active probe (below).
+
+![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
+*Figure: Domain proof.*
 
 To verify a domain, open **Scoping > Scope > Domain proof** (needs the Attack
 surface module and `attack_surface:scope:write`), add the domain and publish the TXT record

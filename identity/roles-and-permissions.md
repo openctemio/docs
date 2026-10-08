@@ -21,6 +21,9 @@ A request must pass all three. The full route-by-route matrix is in
 
 Every organization has four system roles. They cannot be edited or deleted.
 
+![The Roles settings page with the four system roles]({{ site.baseurl }}/assets/images/identity/roles.png)
+*Figure: The built-in roles.*
+
 | Role | Level | Sees all data | Summary |
 |---|---|---|---|
 | Owner | 100 | yes | Everything, including deleting the organization, approving suppressions, approving SSO changes, minting SCIM tokens and changing administrators. |

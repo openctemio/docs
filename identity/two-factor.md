@@ -22,6 +22,9 @@ In **Account > Security**:
 2. Enter your current password and a code from the app.
 3. Save the **10 recovery codes** shown. Each works once. They are shown only now.
 
+![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
+*Figure: Setting up an authenticator app (QR code and key blurred).*
+
 Turning 2FA on signs out every other session of your account.
 
 From then on, sign-in asks for a code after the password. A recovery code can be used instead of a
@@ -61,6 +64,9 @@ Then:
   through this organization's SSO.
 - Owners and admins see each member's 2FA status in the members list (`enabled`, `disabled`, or
   `idp` for SSO users).
+
+![The Authentication settings with the switches that require two-factor authentication]({{ site.baseurl }}/assets/images/identity/authentication.png)
+*Figure: Settings, Authentication.*
 
 ## Recovery
 

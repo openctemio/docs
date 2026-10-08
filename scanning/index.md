@@ -36,6 +36,9 @@ flowchart LR
 
 ## Your first scan
 
+![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
+*Figure: The New scan wizard.*
+
 1. **Install and pair a sensor** where it can reach your targets
    ([Docker](../sensors/deploy-docker.md), [Pairing](../sensors/pairing.md)).
    Promote it to **Trusted** so it may run active checks.

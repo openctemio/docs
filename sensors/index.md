@@ -142,6 +142,9 @@ takes work; `stale` and `offline` sensors do not, and their pending work is
 released to the rest of the zone. Each sensor's drawer shows its setup
 checklist, tools and content, grant, local policy state and activity.
 
+![The Sensors page with two online sensors, fleet health and zone coverage]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
+*Figure: The Sensors page.*
+
 ## Next
 
 - Install: [Docker](deploy-docker.md), [Kubernetes](deploy-kubernetes.md) or
