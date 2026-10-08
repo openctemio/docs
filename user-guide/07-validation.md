@@ -42,6 +42,9 @@ proven and what is waiting to be re-tested:
 - **Recent activity** across pentest findings, simulation runs and control tests.
 - Cards linking to each validation area (shown when its module is on).
 
+![The Validation overview with coverage by priority and recent validation activity]({{ site.baseurl }}/assets/images/user-guide/validation.png)
+*Figure: The Validation overview.*
+
 ## Re-verify a finding
 
 On an automated finding (not pentest, bug bounty, red team or manual), the
@@ -180,6 +183,9 @@ Every campaign's reports are also listed under **Insights › Reports › Pentes
 **Validation › Retest queue** (`/validation/retests`) lists findings that were
 fixed and need re-verification, across campaigns. It is the "prove it again"
 step: after the developers report a fix, a tester checks that the issue is gone.
+
+![The Retest queue listing pentest findings waiting for re-verification]({{ site.baseurl }}/assets/images/user-guide/retest-queue.png)
+*Figure: The Retest queue.*
 
 1. The cards: **Pending**, **Retested** and **Success rate**.
 2. Search, and filter by severity and campaign (or **All campaigns**).

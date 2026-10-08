@@ -36,6 +36,9 @@ workbench for every finding in the organization, whatever its source (static
 analysis, dependency scanning, dynamic scanning, secrets, infrastructure as
 code, containers, attack-surface scanning, pentest, imports, manual).
 
+![The findings list with severity, priority, source, location and status, KEV and EPSS badges]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
+*Figure: The findings list.*
+
 ### Header and metrics
 
 - **Approvals** opens the [approval requests](#approval-requests).
@@ -143,6 +146,12 @@ the title, with:
 - The **⋯** menu: **Copy link**, **Create ticket** and **Mark as duplicate**
   (search a finding on the same asset; comments, retests, evidence and tickets
   move to the original).
+
+![The full page of a critical finding in CISA KEV: SLA warning, why it matters, fix and details]({{ site.baseurl }}/assets/images/user-guide/finding-detail-kev.png)
+*Figure: A finding on its own page.*
+
+![The Evidence tab of a finding with the reproduction request and response captured by the scanner]({{ site.baseurl }}/assets/images/user-guide/finding-evidence.png)
+*Figure: The Evidence tab: the request and response that proved the finding.*
 
 **Properties rail.** Status, Severity, Priority, Assignee, SLA due, Asset, Found
 by, First seen, Last seen, Occurrences, Resolved, Tickets, Tags and ID. For
@@ -281,6 +290,9 @@ reopened to `draft` or `confirmed`.
 **Approval Requests** (`/findings/approvals`, from the **Approvals** button) is
 the queue of requests to move findings to false positive or accepted risk.
 
+![The Approval requests page with a risk acceptance and a false positive waiting for review]({{ site.baseurl }}/assets/images/user-guide/finding-approvals.png)
+*Figure: Approval requests.*
+
 - Cards and tabs: **Pending**, **Approved**, **Rejected**, **Canceled** and
   **All**; search by justification.
 - Columns: status, finding, requested status, justification, created, expires.
@@ -294,6 +306,9 @@ the queue of requests to move findings to false positive or accepted risk.
 
 **Discovery › Exposures** has five tabs: **Overview**, **Vulnerabilities**,
 **Secrets**, **Code weaknesses** and **Misconfigurations**.
+
+![The Exposures overview listing misconfigurations, secrets and names seen in Certificate Transparency]({{ site.baseurl }}/assets/images/user-guide/exposures.png)
+*Figure: Exposures.*
 
 ### Overview: exposure events
 

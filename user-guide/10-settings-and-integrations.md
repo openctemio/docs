@@ -42,6 +42,9 @@ to your permissions. Administrative changes usually need the **Owner** or
   `https://minio.example.com:9000`), access key and secret key. Only
   administrators can change it.
 
+![The General settings of the organization: name, URL slug and website]({{ site.baseurl }}/assets/images/user-guide/settings-general.png)
+*Figure: Settings, General.*
+
 The page has one **Save** for the active tab. Without permission the fields are
 locked and say why.
 
@@ -196,6 +199,9 @@ source control and ticketing store their own credentials on their own pages.
 **Tools** (`/settings/scanning/tools`) lists the tools your sensors report, and
 whether a scan with each can run now.
 
+![The Tools settings page listing the tools the sensors report, their status and versions]({{ site.baseurl }}/assets/images/scanning/tools.png)
+*Figure: Settings, Scanning, Tools.*
+
 - Filter by readiness (**Ready**, **Offline only**, **No sensor**, **Outdated**,
   **Disabled**, **Updates available**), category and type (built-in or custom);
   **Show full catalog** includes tools no sensor has yet.
@@ -222,6 +228,9 @@ sensors that use it and asks you to confirm.
 Bitbucket Pipelines, CircleCI, Jenkins) send results with their own identity
 instead of a stored API key, and decides what fails a pipeline. Changing it needs
 an owner or admin. See [CI integration](../scanning/ci-integration.md).
+
+![The CI/CD integration settings with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
+*Figure: Settings, Scanning, CI/CD integration.*
 
 - **Require OIDC for CI**: CI jobs must use their OIDC identity; when off, CI
   sensor API keys are still accepted.
@@ -323,6 +332,9 @@ security alerts to **Slack**, **Microsoft Teams**, **Telegram**, **custom
 webhooks** and **email (SMTP)** for the whole organization. Your personal in-app
 notifications are set under
 [My account › Notifications](01-getting-started.md#notifications-1).
+
+![The Notification channels page with a connected Slack channel]({{ site.baseurl }}/assets/images/user-guide/notification-channels.png)
+*Figure: Settings, Integrations, Notification channels.*
 
 1. Click **Add channel** and pick the provider: a webhook URL for Slack, Teams
    and custom webhooks; a bot token and chat ID for Telegram; SMTP server

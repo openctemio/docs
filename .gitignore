@@ -94,3 +94,6 @@ internal/
 research/
 reviews/
 marketing/
+
+# Screenshot tooling: demo account TOTP secrets of the scratch stack
+scripts/demo-seed/.state.json

@@ -66,6 +66,9 @@ link to the full log.
 installation with its owner, member count, single sign-on setup and creation
 date. Search by name or slug.
 
+![The Organizations page of the admin console]({{ site.baseurl }}/assets/images/user-guide/admin-organizations.png)
+*Figure: Admin console, Organizations.*
+
 **Create an organization** (operations admin or above):
 
 1. Click **New organization**.
@@ -101,6 +104,9 @@ Open an organization for its tabs:
 **Administrators** (`/admin/administrators`, super admin only) lists the people
 who administer the installation, with their role, how they sign in, when a
 break-glass account was last tested, their status and last activity.
+
+![The Administrators page of the admin console with the platform and break-glass administrators]({{ site.baseurl }}/assets/images/user-guide/admin-administrators.png)
+*Figure: Admin console, Administrators.*
 
 - **New administrator**: name, email (an address that is not a member of any
   organization) and role. If an account had to be created, its temporary password
@@ -141,6 +147,9 @@ are emailed. Existing organizations, users and sessions are not changed.
 **System logs** (`/admin/system-logs`) records every action taken by platform
 administrators, including sign-ins and refused attempts. Filter by action (for
 example `console.login`) and administrator email.
+
+![The System logs page of the admin console listing administrator actions]({{ site.baseurl }}/assets/images/operations/admin-system-logs.png)
+*Figure: Admin console, System logs.*
 
 ## Target mappings
 

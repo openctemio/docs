@@ -39,6 +39,29 @@ docker run --rm -it -p 4000:4000 -v "$PWD":/site -w /site ruby:3.3 \
 
 Then open http://localhost:4000.
 
+## Screenshots
+
+The console screenshots in `assets/images/<section>/` come from a scratch installation
+filled with the fictional organization Example Corp, and are regenerated for each
+release:
+
+1. Start a scratch stack (API, web console, PostgreSQL, Redis) from the
+   [openctem](https://github.com/openctemio/openctem) release, with an empty database.
+   Never use a real installation.
+2. Seed it: see [scripts/demo-seed/README.md](scripts/demo-seed/README.md).
+3. Capture (headless Chromium, 1440×900):
+
+   ```bash
+   cd scripts
+   npm install && npx playwright install chromium
+   OPENCTEM_WEB_URL=http://localhost:3000 OPENCTEM_API_URL=http://127.0.0.1:8080 \
+     npx tsx capture-screenshots.ts            # or a filter: capture-screenshots.ts 'scanning/'
+   ```
+
+   The script signs in as the demo accounts, blurs anything that looks like a
+   credential, and writes palette PNGs (WebP above 300 KB). Review every image before
+   committing it.
+
 ## Contributing
 
 Open a pull request against `main`. Write in English, check every command, flag and
