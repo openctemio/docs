@@ -42,5 +42,5 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | Attachment storage | `STORAGE_PROVIDER` | `local` |
 
 Generate every secret (`AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`, database and
-Redis passwords, `CSRF_SECRET`) once, store it in a secret store, and back it up
+Redis passwords) once, store it in a secret store, and back it up
 with the database.

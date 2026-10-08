@@ -121,7 +121,7 @@ Problems:
 ## Web console
 
 The Next.js server writes plain-text lines: its start-up banner (`Ready in ...`),
-configuration warnings (for example when `CSRF_SECRET` is missing or short), and
+configuration warnings, and
 errors from its API proxy. It has no request log; the gateway's access log and
 the API's request log cover requests.
 
