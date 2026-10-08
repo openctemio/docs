@@ -52,6 +52,18 @@ token is `403`. `GET`, `HEAD` and `OPTIONS` are exempt. Requests authenticated b
 (`Authorization: Bearer ...`, `X-API-Key`) need no CSRF token, because a cross-site page cannot
 set those headers.
 
+The web console's server (the console origin, as opposed to the API) applies a stricter rule to
+every write it answers, signed in or not: the request must be same-origin (`Sec-Fetch-Site`
+`same-origin` or `none`, and `Origin` or else `Referer` naming the console's host), and
+`X-CSRF-Token` must equal the `csrf_token` cookie, which must be present. The console sets that
+cookie on every page it serves. A script that posts to the console instead of the API must send
+an `Origin` header and the cookie/header pair; scripts that call the API with a bearer token or an
+API key are not affected. The API's pre-session endpoints (`/api/v1/auth/login`, `/register`,
+`/token`, `/refresh`, MFA, password reset, email verification, the OAuth and SSO callbacks, and
+the admin console sign-in steps) refuse a write that a browser sent for another site: an `Origin`
+that is neither the request's host nor listed in `CORS_ALLOWED_ORIGINS`, `Origin: null`, or no
+`Origin` with a cross-site `Sec-Fetch-Site`. A request with neither header (a script) passes.
+
 ### Step-up for sensitive actions
 
 Some actions (for example creating or deleting an API key, creating a CI gate override) require a
