@@ -139,7 +139,7 @@ administration is the admin console at `/admin` in the main web UI; see the
 
 ## 🗺️ Roadmap
 
-See our [Feature Roadmap](./ROADMAP.md) for planned features and CTEM phase coverage.
+Release history is in the [changelog](https://github.com/openctemio/openctem/blob/develop/api/CHANGELOG.md).
 
 ---
 
