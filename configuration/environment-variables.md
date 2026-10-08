@@ -472,7 +472,6 @@ reads these variables at run time:
 | Variable | Default | Required | Secret | Description |
 |---|---|---|---|---|
 | `BACKEND_API_URL` | `http://localhost:8080` | yes | | Internal URL of the API. The console proxies the browser's `/api/v1` calls and the WebSocket upgrade to it. Compose: `http://api:8080`. |
-| `CSRF_SECRET` | empty | yes | yes | Required by the Compose file and the Helm chart; the console warns at start when it is missing or shorter than 32 characters. Generate it once: `openssl rand -hex 32`. |
 | `SECURE_COOKIES` | `true` | | | `Secure` flag on the cookies the console sets. Only `false` turns it off (local `http://` development). |
 | `TRUST_PROXY_HEADERS` | `false` | | | Forward `X-Real-IP` / `X-Forwarded-For` to the API. Set `true` only when a proxy in front of the console overwrites those headers (the gateway does), otherwise a browser could choose its own address. |
 | `COOKIE_MAX_AGE` | `604800` | | | Lifetime in seconds of the session cookies the console sets. |
@@ -536,7 +535,6 @@ variables it passes through, listed in [Docker Compose](../install/docker-compos
 | `CADDY_VERSION` / `POSTGRES_VERSION` / `REDIS_VERSION` | `2.11.4-alpine` / `17` / `7-alpine` | | | Image tags of the bundled gateway, PostgreSQL and Redis. |
 | `DB_SUPERUSER` / `DB_SUPERUSER_PASSWORD` | `DB_USER` / `DB_PASSWORD` | | yes | PostgreSQL superuser, used only by `initdb` and the `db-roles` job. |
 | `DB_MIGRATE_USER` / `DB_MIGRATE_PASSWORD` | unset | | yes | Schema-owner role the migrations run as. Set to turn on the least-privilege layout. |
-| `CSRF_SECRET` | none | yes | yes | See [Web console](#web-console). |
 | `API_MEMORY_LIMIT` / `WEB_MEMORY_LIMIT` / `GATEWAY_MEMORY_LIMIT` | `2g` / `1g` / `512m` | | | Memory limits of the `api`, `web` and `gateway` containers. |
 
 ---
