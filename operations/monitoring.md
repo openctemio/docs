@@ -48,7 +48,7 @@ it only when port 8080 is reachable from a private scrape network alone.
 
 | Deployment | How to set `METRICS_TOKEN` |
 |---|---|
-| Docker Compose | Add it to the `api` service in `docker-compose.override.yml` (see [Setting other variables](../install/docker-compose.md#setting-other-variables)) and to `.env`. The `api` service does not pass it on by default. |
+| Docker Compose | `METRICS_TOKEN=...` in `.env`; the `api` service passes it on (empty: metrics off). |
 | All-in-one | `METRICS_TOKEN=...` in the env file. |
 | Helm | `monitoring.enabled: true` generates it into a Secret, optionally with a `ServiceMonitor` and a `PrometheusRule` (`monitoring.serviceMonitor.enabled`, `monitoring.prometheusRule.enabled`). |
 
@@ -90,36 +90,51 @@ dashboard. It publishes nothing on a public interface: the UIs bind to
 under 1 GB of memory.
 
 It joins the OpenCTEM Compose network to scrape the API. For the production
-stack in `api/deploy` (project `openctem`), set in the `.env` you pass to it:
+stack in `api/deploy` (project `openctem`), add the overlay
+`deploy/observability/docker-compose.openctem.yml`: it sets that stack's
+network (`openctem_openctem`), the `web` service, PostgreSQL with
+`sslmode=require`, and Redis over TLS (`rediss://`) verified against the stack's
+datastore CA, mounted read-only from the `openctem_datastore-tls` volume. Every
+value can still be overridden from the environment.
+
+Set in the `.env` you pass to it (the stack's own `api/deploy/.env` already holds
+`METRICS_TOKEN` and `REDIS_PASSWORD`):
 
 ```bash
-OBS_APP_NETWORK=openctem_openctem
-OBS_API_UPSTREAM=api:8080
-OBS_WEB_UPSTREAM=web:3000
 OBS_PUBLIC_URL=https://ctem.example.com
 OBS_PUBLIC_PROBE_MODULE=http_2xx_internal_ca   # http_2xx with a publicly trusted certificate
+OBS_PG_MONITOR_PASSWORD=...                    # openssl rand -hex 24
 ```
 
-plus `METRICS_TOKEN`, the receivers (`ALERT_TELEGRAM_BOT_TOKEN` and
-`ALERT_TELEGRAM_CHAT_ID`, or `ALERT_SLACK_WEBHOOK_URL`) and
-`OBS_PG_MONITOR_PASSWORD`. Create the exporter's PostgreSQL role (`pg_monitor`
-only, no table access) as the superuser, from `api/deploy`:
+plus the receivers (`ALERT_TELEGRAM_BOT_TOKEN` and `ALERT_TELEGRAM_CHAT_ID`, or
+`ALERT_SLACK_WEBHOOK_URL`). Create the exporter's PostgreSQL role as the
+superuser, from `api/deploy`. It gets `pg_monitor` and `CONNECT` on the
+database only, no table access (the least-privilege roles revoke `CONNECT` from
+`PUBLIC`):
 
 ```bash
+export OBS_PG_MONITOR_PASSWORD=...   # the value from .env
 docker compose exec -T postgres psql -U postgres -d openctem \
   -v pw="$OBS_PG_MONITOR_PASSWORD" -f - < ../../deploy/observability/postgres/monitor-role.sql
 ```
 
+The script is idempotent: re-run it to change the password, or after upgrading
+from a release whose script did not grant `CONNECT` (the exporter then reports
+`pg_up` 0).
+
 Start it from the repository root:
 
 ```bash
-docker compose -p openctemio-obs --env-file api/deploy/.env \
-  -f deploy/observability/docker-compose.yml --profile observability up -d
+docker compose -p openctem-obs --env-file api/deploy/.env \
+  -f deploy/observability/docker-compose.yml \
+  -f deploy/observability/docker-compose.openctem.yml \
+  --profile observability up -d
 ```
 
-{: .note }
-The Redis exporter in this stack connects without TLS, so it cannot scrape the
-TLS-only Redis of the production Compose stack.
+For the `BackupStale` and `BackupFailed` alerts, run
+[`backup.sh`](backup-restore.md#back-up-docker-compose) with
+`METRICS_TEXTFILE_DIR` set to the node-exporter textfile directory
+(`OBS_TEXTFILE_DIR`, default `/var/lib/node_exporter/textfile`).
 
 The variables, the alert list and a runbook per alert (API down, error bursts,
 schema behind or dirty, sensors offline, stuck queues, audit chain breaks, disk,

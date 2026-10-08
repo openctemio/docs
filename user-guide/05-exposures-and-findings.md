@@ -203,13 +203,80 @@ delete your comments and add reactions. Posting needs `findings:write`.
 
 Automated findings use:
 
-**New → Confirmed → In Progress → Fix Applied → Resolved**, plus **Not
-Observed** (set by the platform when a finding is no longer seen), **Duplicate**,
-**False Positive** and **Risk Accepted**.
+**New → Confirmed → In Progress → Fix Applied → Resolved**, plus **Validated
+Fixed**, **Not Observed** (set by the platform when a finding is no longer
+seen), **Duplicate**, **False Positive** and **Risk Accepted**.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> new: first reported
+    new --> confirmed: triage
+    confirmed --> in_progress: work starts
+    in_progress --> confirmed
+    in_progress --> fix_applied: fix deployed
+    fix_applied --> resolved: fix verified
+    fix_applied --> in_progress: verify rejected or<br/>retest still vulnerable
+
+    new --> validated_fixed: validation finds it gone
+    confirmed --> validated_fixed
+    in_progress --> validated_fixed
+    validated_fixed --> resolved: a person closes it
+    validated_fixed --> confirmed: seen again
+
+    confirmed --> resolved: closed by a verifier
+    confirmed --> not_observed: no longer seen<br/>(platform only)
+    not_observed --> confirmed: seen again
+    not_observed --> resolved
+
+    new --> false_positive: approval
+    confirmed --> false_positive: approval
+    confirmed --> accepted: approval
+    new --> duplicate
+    confirmed --> duplicate
+
+    resolved --> confirmed: seen again<br/>(regression)
+    accepted --> confirmed: acceptance expired
+    false_positive --> confirmed: reopened
+    duplicate --> confirmed: reopened
+```
+
+| Status | Group | Set by |
+|---|---|---|
+| `new` | open | The first report from a scan, an import or an integration. |
+| `confirmed` | open | A person; or the platform when a closed, validated-fixed or not-observed finding is seen again, a retest finds it still vulnerable, or an accepted risk expires. |
+| `in_progress`, `fix_applied` | in progress | A person, or a Jira or GitHub issue linked to the finding. |
+| `validated_fixed` | in progress | A validation re-check that no longer reproduces the finding. Not closed: a person with the verify permission resolves it. |
+| `not_observed` | in progress | The platform only: a later scan with the same coverage no longer reports it, or a branch-only finding expired. Nobody can choose it. |
+| `resolved` | closed | A person with the verify permission, a passing retest (when the retest settles findings automatically), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; off by default). |
+| `false_positive`, `accepted` | closed | An approved request. |
+| `duplicate` | closed | A person. |
+
+A finding that was resolved and is reported again is reopened as
+`confirmed` and flagged as a **regression** (its reopen count goes up),
+unless it was closed as a false positive, an accepted risk or a duplicate.
 
 Pentest findings use: **Draft → In Review → Confirmed → Remediation → Retest →
 Verified**, plus **False Positive** and **Accepted Risk**. Their status is
 managed in the pentest workflow (see [Validation](07-validation.md)).
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> draft
+    draft --> in_review
+    draft --> confirmed
+    in_review --> confirmed
+    confirmed --> remediation
+    remediation --> retest: fix reported
+    retest --> verified: retest passed
+    retest --> remediation: retest failed
+    verified --> [*]
+```
+
+From any of these steps a pentest finding can also be marked
+`false_positive` or `accepted_risk` (with approval), and either can be
+reopened to `draft` or `confirmed`.
 
 - **False Positive**, **Risk Accepted** and **Accepted Risk** always need
   approval. Choosing them opens **Request Status Approval**: enter a

@@ -13,7 +13,7 @@ repositories (sensor, sdk-go, ctis, ci, helm-charts, docs) use the same commit a
 conventions, but their pull requests target `main`; check their own `CONTRIBUTING.md` where
 there is one.
 
-Security issues are not contributions: report them privately to security@openctem.io (see
+Security issues are not contributions: report them privately to <!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off--> (see
 [Vulnerability disclosure](../security/vulnerability-disclosure.md)).
 
 ## Branches
@@ -108,6 +108,11 @@ Six checks are required on `main` and `develop`: **API CI OK**, **Web CI OK**, *
   branch adds (`make -C api lint-ci` locally); ESLint, Prettier and `tsc` for the web.
 - **Security gates**: secret scanning of your commits, tenant-scope analysis, govulncheck, Trivy,
   Semgrep, CodeQL.
+- **Dependency Review** (pull requests only, not a required check): fails when a Go module, npm
+  package or GitHub Action that the pull request adds or upgrades has a known high or critical
+  advisory in the GitHub Advisory Database. Treat a red result as a blocker unless a maintainer
+  agrees otherwise; dependencies already on `develop` are covered by govulncheck, `npm audit` and
+  Trivy.
 - **Contract report**: for an API change, CI comments on the pull request with the operations,
   parameters and route permissions that changed. Breaking changes are reported, and a reviewer
   decides whether they are intended.

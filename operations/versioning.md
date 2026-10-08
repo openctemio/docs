@@ -29,6 +29,33 @@ the maintainers' working reference is
   cosign and with SBOMs on the GitHub Release.
 - Run all platform images at the same version.
 
+## Verify a release
+
+Every image is signed with [cosign](https://github.com/sigstore/cosign) keyless
+signing (Sigstore, the GitHub OIDC identity of the `docker-publish.yml` workflow
+on a `v` tag), and its SPDX SBOM is attached to the image digest as a signed
+attestation, so you can check where the SBOM came from as well as download it.
+The release notes of each version carry these commands with the tag filled in:
+
+```bash
+TAG=v0.9.0
+IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v'
+ISSUER=https://token.actions.githubusercontent.com
+
+# The signature of the image
+cosign verify "ghcr.io/openctemio/openctem-api:$TAG" \
+  --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER"
+
+# The signed SBOM attestation
+cosign verify-attestation --type spdxjson "ghcr.io/openctemio/openctem-api:$TAG" \
+  --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER"
+```
+
+Run the same for every image you deploy (`openctem-web`, `openctem`,
+`migrations`). The SBOM files are also attached to the GitHub Release as
+`sbom-<image>-<version>.spdx.json`. Signed SBOM attestations start with the first
+release after v0.8.0.
+
 ## Version numbers
 
 Versions follow semantic versioning. The next version is proposed from the
@@ -85,6 +112,10 @@ repository and compiled into each API release as defaults:
 | `chart.version` | The newest chart whose `appVersion` is the platform release. | |
 
 After each platform release, the chart's `appVersion` is bumped to it.
+
+For v0.9.0 the entries are: newest sensor v0.11.0, oldest supported sensor
+v0.9.0 (sensor protocol v1 is removed, so older sensors cannot connect at all),
+newest SDK v0.18.0.
 
 ## Which version is running
 

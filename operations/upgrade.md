@@ -50,6 +50,7 @@ recovery are in
 
 1. **Back up** the database, the secrets and the volumes
    ([Backup and restore](backup-restore.md)), and check the dump is readable.
+   With Docker Compose: `./backup.sh && ./backup.sh verify` in `api/deploy`.
 2. **Check the migration state.** `dirty` must be `f`:
 
    ```bash
@@ -57,7 +58,9 @@ recovery are in
    ```
 
 3. **Read the release notes** for new required settings and removed ones.
-4. **Rehearse** large upgrades on a copy of production.
+4. **Verify the images** of the new release with the `cosign` commands in its
+   release notes ([Verify a release](versioning.md#verify-a-release)).
+5. **Rehearse** large upgrades on a copy of production.
 
 ## Docker Compose
 
@@ -70,13 +73,20 @@ git checkout "$NEW_VERSION"
 diff <(grep -o '^[A-Z_]*=' .env | sort) <(grep -o '^[A-Z_]*=' .env.example | sort)
 sed -i "s|^OPENCTEM_VERSION=.*|OPENCTEM_VERSION=$NEW_VERSION|" .env
 docker compose pull
+docker compose run --rm --no-deps api -check-config
 docker compose up -d
 docker compose ps
 ```
 
 The `diff` lists settings the new `.env.example` adds (and ones you set
-yourself). Add any new required setting before `up`. `migrate` must exit with
-code 0 before the API starts; then check `https://<host>/health` and sign in.
+yourself). Add any new required setting before `up`; `-check-config` reports the
+first setting the new release refuses, without starting anything. On `up`, the
+one-shot `migrate` service applies the database migrations and must exit with
+code 0 before the API starts (the API refuses to start on an older schema); then
+check `https://<host>/health` and sign in.
+
+`OPENCTEM_VERSION` sets the tag of every platform image in the stack. Leave the
+per-image `API_VERSION` and `UI_VERSION` overrides unset.
 
 If you use overlays, pass the same `-f` files to every command.
 
