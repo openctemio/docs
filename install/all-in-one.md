@@ -104,7 +104,6 @@ APP_ENV=production
 AUTH_PROVIDER=local
 AUTH_JWT_SECRET=$(openssl rand -hex 64)
 APP_ENCRYPTION_KEY=$(openssl rand -hex 32)
-CSRF_SECRET=$(openssl rand -hex 32)
 
 DB_HOST=db.example.com
 DB_PORT=5432
