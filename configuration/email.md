@@ -76,10 +76,12 @@ gateway settings set `SMTP_BASE_URL` for you.
 ## Relays on a private network
 
 The API refuses to connect to an SMTP host that resolves to a private address
-(RFC 1918 or IPv6 ULA) unless `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` is set, and
-never connects to loopback or link-local addresses. For a relay on a private
-address, set that variable (it also allows private addresses for webhook
-and integration URLs). A relay on the Docker host itself must be reached through
+(RFC 1918 or IPv6 ULA) unless that range is listed in
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`, and never connects to loopback or
+link-local addresses. For a relay on a private address, list the smallest range
+that holds it, for example `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS=10.20.30.0/24`.
+The list applies to every outbound connection of the API, for every
+organization: webhook and integration URLs in that range become reachable too. A relay on the Docker host itself must be reached through
 an address other than `127.0.0.1`.
 
 ## Check that it works
