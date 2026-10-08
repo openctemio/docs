@@ -104,10 +104,6 @@ defaults:
     values:
       parent: "Architecture"
   - scope:
-      path: "operations"
-    values:
-      parent: "Operations"
-  - scope:
       path: "features"
     values:
       parent: "Features"

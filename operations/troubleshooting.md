@@ -1,650 +1,151 @@
 ---
-layout: default
-title: Troubleshooting Guide
-nav_order: 8
+title: Troubleshooting
+parent: Operations
+nav_order: 7
 ---
-# Troubleshooting Guide
 
-Common issues and their solutions for OpenCTEM development and deployment.
+# Troubleshooting
+{: .no_toc }
 
-## Quick Diagnosis
+Start with the state of the services and the API log; most start-up problems
+name the setting at fault. Commands assume the Compose stack in `api/deploy`;
+see [Log reference](logs.md) for the other deployments.
+
+1. TOC
+{:toc}
+
+---
+
+## First checks
 
 ```bash
-# Check all services status
-docker compose ps
-
-# Check service logs
-docker compose logs -f [service_name]
-
-# Backend health
-curl http://localhost:8080/health
-
-# Database connection
-docker compose exec postgres pg_isready -U openctem
-
-# Redis connection
-docker compose exec redis redis-cli ping
-```
-
----
-
-## Installation Issues
-
-### Docker Compose Fails to Start
-
-**Symptom:** `docker compose up` fails with errors
-
-**Solutions:**
-
-1. **Check Docker is running:**
-   ```bash
-   docker info
-   ```
-
-2. **Check port conflicts:**
-   ```bash
-   # Find processes using required ports
-   lsof -i :3000   # Frontend
-   lsof -i :8080   # Backend
-   lsof -i :5432   # PostgreSQL
-   lsof -i :6379   # Redis
-   ```
-
-3. **Clean Docker resources:**
-   ```bash
-   docker compose down -v
-   docker system prune -f
-   docker compose up -d
-   ```
-
-### Node Modules Issues
-
-**Symptom:** `npm install` fails or `node_modules` corrupted
-
-**Solution:**
-```bash
-cd web
-
-# Remove existing modules
-rm -rf node_modules package-lock.json
-
-# Clear npm cache
-npm cache clean --force
-
-# Fresh install
-npm install
-```
-
-### Go Module Issues
-
-**Symptom:** `go build` fails with module errors
-
-**Solution:**
-```bash
-cd api
-
-# Clear module cache
-go clean -modcache
-
-# Re-download dependencies
-go mod download
-
-# Tidy modules
-go mod tidy
-```
-
----
-
-## Backend Issues
-
-### Database Connection Failed
-
-**Symptom:**
-```
-failed to connect to database: dial tcp 127.0.0.1:5432: connect: connection refused
-```
-
-**Solutions:**
-
-1. **Check PostgreSQL is running:**
-   ```bash
-   docker compose ps postgres
-   docker compose logs postgres
-   ```
-
-2. **Verify connection settings:**
-   ```bash
-   # In .env file
-   DB_HOST=localhost      # Use 'postgres' if running in Docker network
-   DB_PORT=5432
-   DB_USER=openctem
-   DB_PASSWORD=secret
-   DB_NAME=openctem
-   ```
-
-3. **Test connection manually:**
-   ```bash
-   docker compose exec postgres psql -U openctem -d openctem -c "SELECT 1"
-   ```
-
-4. **Restart PostgreSQL:**
-   ```bash
-   docker compose restart postgres
-   ```
-
-### Redis Connection Failed
-
-**Symptom:**
-```
-redis: connection refused
-```
-
-**Solutions:**
-
-1. **Check Redis is running:**
-   ```bash
-   docker compose ps redis
-   docker compose logs redis
-   ```
-
-2. **Test connection:**
-   ```bash
-   docker compose exec redis redis-cli ping
-   # Expected: PONG
-   ```
-
-3. **Verify settings:**
-   ```bash
-   REDIS_HOST=localhost   # Use 'redis' if running in Docker network
-   REDIS_PORT=6379
-   ```
-
-### Migration Failed
-
-**Symptom:**
-```
-migration failed: error executing migration
-```
-
-**Solutions:**
-
-1. **Check migration status:**
-   ```bash
-   make migrate-status
-   ```
-
-2. **Force version (if stuck):**
-   ```bash
-   migrate -path migrations -database "$DATABASE_URL" force <version>
-   ```
-
-3. **Drop and recreate (development only):**
-   ```bash
-   docker compose exec postgres psql -U openctem -c "DROP DATABASE openctem; CREATE DATABASE openctem;"
-   make migrate-up
-   ```
-
-### JWT Validation Failed
-
-**Symptom:**
-```
-invalid token: token signature is invalid
-```
-
-**Solutions:**
-
-1. **Check JWT secret matches:**
-   - Backend: `AUTH_JWT_SECRET`
-   - Must be same value used when token was generated
-
-2. **Check token expiration:**
-   - Access tokens expire after `AUTH_ACCESS_TOKEN_DURATION`
-   - Refresh tokens expire after `AUTH_REFRESH_TOKEN_DURATION`
-
-3. **Regenerate JWT secret:**
-   ```bash
-   openssl rand -base64 48
-   # Update AUTH_JWT_SECRET in .env
-   # Restart backend
-   ```
-
-### CORS Errors
-
-**Symptom:**
-```
-Access to fetch at 'http://localhost:8080' from origin 'http://localhost:3000' has been blocked by CORS policy
-```
-
-**Solutions:**
-
-1. **Check CORS settings:**
-   ```bash
-   # In api/.env
-   CORS_ALLOWED_ORIGINS=http://localhost:3000
-   ```
-
-2. **For multiple origins:**
-   ```bash
-   CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
-   ```
-
-3. **Restart backend after changes:**
-   ```bash
-   make dev
-   # or
-   docker compose restart app
-   ```
-
----
-
-## Frontend Issues
-
-### API Connection Failed
-
-**Symptom:** Network errors when calling API, or login response shows:
-```
-{"success":false,"error":"fetch failed"}
-```
-
-This means the **Next.js server** (UI container) cannot reach the **backend API**.
-There is only ONE env var: `BACKEND_API_URL` (server-side only). Client-side
-requests are proxied through Next.js at `/api/v1/*`.
-
-**Solutions:**
-
-1. **Verify backend is running and reachable from UI container:**
-   ```bash
-   docker exec -it <ui-container> wget -qO- $BACKEND_API_URL/health
-   # Should return: {"status":"healthy"}
-   ```
-
-2. **Check environment variable inside UI container:**
-   ```bash
-   docker exec -it <ui-container> printenv | grep BACKEND_API_URL
-   ```
-
-   Common correct values:
-   | Setup | Value |
-   |-------|-------|
-   | docker-compose (service name `api`) | `http://api:8080` |
-   | Kubernetes (default namespace) | `http://api:8080` |
-   | Kubernetes (cross-namespace) | `http://api.openctem.svc.cluster.local:8080` |
-   | Local dev (UI in container, API on host) | `http://host.docker.internal:8080` |
-   | Local dev (both on host) | `http://localhost:8080` |
-
-3. **Common pitfalls:**
-   - Helm chart was setting `BACKEND_URL` instead of `BACKEND_API_URL` (fixed in
-     latest chart). If you see this on an old deployment, upgrade the chart.
-   - `localhost` from inside a container points to the container itself, not the
-     host. Use the service name or `host.docker.internal`.
-   - HTTPS with self-signed certs: Node.js rejects them. Use HTTP for the
-     internal URL or install the cert into the container's trust store.
-
-4. **Restart frontend after env changes:**
-   ```bash
-   docker restart <ui-container>
-   ```
-
-### Authentication Not Working
-
-**Symptom:** Login fails or user not authenticated
-
-**Solutions:**
-
-1. **Check AUTH_PROVIDER matches:**
-   ```bash
-   # Frontend (.env.local)
-   NEXT_PUBLIC_AUTH_PROVIDER=local
-
-   # Backend (.env)
-   AUTH_PROVIDER=local
-   ```
-
-2. **Clear browser cookies:**
-   - Open DevTools > Application > Cookies
-   - Delete all cookies for localhost
-
-3. **Check cookie settings:**
-   ```bash
-   # In .env.local
-   NEXT_PUBLIC_AUTH_COOKIE_NAME=auth_token
-   SECURE_COOKIES=false  # Must be false for localhost
-   ```
-
-### Build Errors
-
-**Symptom:** `npm run build` fails
-
-**Solutions:**
-
-1. **Check for TypeScript errors:**
-   ```bash
-   npx tsc --noEmit
-   ```
-
-2. **Check for ESLint errors:**
-   ```bash
-   npm run lint
-   ```
-
-3. **Check missing environment variables:**
-   - All `NEXT_PUBLIC_*` variables must be set at build time
-
-4. **Clear Next.js cache:**
-   ```bash
-   rm -rf .next
-   npm run build
-   ```
-
-### Hydration Errors
-
-**Symptom:**
-```
-Hydration failed because the initial UI does not match what was rendered on the server
-```
-
-**Solutions:**
-
-1. **Check for browser-only code in Server Components:**
-   - Move `window`, `document`, `localStorage` usage to Client Components
-
-2. **Use dynamic imports for client-only components:**
-   ```tsx
-   import dynamic from 'next/dynamic'
-   const ClientComponent = dynamic(() => import('./ClientComponent'), { ssr: false })
-   ```
-
-3. **Check for date/time mismatches:**
-   - Server and client may have different timezones
-   - Use `suppressHydrationWarning` for date displays
-
----
-
-## SSO / Social Login Issues
-
-OpenCTEM has no Keycloak. Authentication is local JWT plus OAuth social login
-(Google/GitHub/Microsoft) and per-tenant enterprise SSO (SAML / OIDC, including
-Microsoft Entra ID). Most sign-in failures are redirect-URI or credential
-mismatches at the identity provider.
-
-### SSO Sign-in Redirect Fails
-
-**Symptom:** After authenticating at the IdP, the browser errors on return.
-
-**Solutions:**
-
-1. **Verify the redirect URI includes the provider segment.** The callback route is
-   `/auth/sso/callback/{provider}` — a missing segment breaks the callback:
-   ```
-   https://your-domain.com/auth/sso/callback/entra_id
-   ```
-   Register this exact URI in the IdP (Entra ID / Okta / Google Workspace), including
-   scheme and host.
-
-2. **Check the tenant's SSO configuration** in the platform admin UI (client ID,
-   client secret / SAML metadata, and issuer/tenant ID) match the IdP.
-
-3. **Confirm `AUTH_PROVIDER`** is `oidc` or `hybrid` on the backend (and
-   `NEXT_PUBLIC_AUTH_PROVIDER` matches on the frontend) so SSO is enabled.
-
-### OAuth Social Login Not Offered
-
-**Symptom:** The Google/GitHub/Microsoft button is missing.
-
-**Solution:** Enable the provider and set its credentials on the backend, e.g.:
-```bash
-OAUTH_GOOGLE_ENABLED=true
-OAUTH_GOOGLE_CLIENT_ID=your-client-id
-OAUTH_GOOGLE_CLIENT_SECRET=your-client-secret
-```
-
----
-
-## Gateway and Sensor Connection Issues
-
-Production installs expose one HTTPS port through the built-in gateway. The
-common failures and fixes are in
-[Exposing OpenCTEM: one HTTPS port](./single-https-port.md#troubleshooting). In
-short:
-
-| Symptom | Fix |
-|---------|-----|
-| Sensor gets `421 WRONG_ENDPOINT` (or `401 API key required` from an older UI) | `API_URL` points at the web UI port; set it to `https://<host>`. |
-| `x509: certificate signed by unknown authority` | Trust the internal CA ([how](./single-https-port.md#trusting-the-internal-ca)). |
-| Live updates never connect | `OPENCTEM_PUBLIC_URL` must match the browser's origin, including the port. |
-| Gateway cannot bind port 443 | Another service holds it: `sudo ss -ltnp 'sport = :443'`. |
-
-## Scan Issues
-
-### Scan Creation Failed
-
-**Symptom:** Cannot create new scan, error message displayed
-
-**Common Error Messages and Solutions:**
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `scanner 'xyz' not found in tool registry` | Tool doesn't exist | Check tool name spelling, ensure tool is registered |
-| `scanner 'xyz' is disabled` | Tool is inactive | Enable the tool in Tool Management |
-| `pipeline step 'step_key' uses tool 'xyz' which is not found` | Workflow uses missing tool | Update pipeline to use existing tools |
-| `No agents available. Deploy a tenant agent or upgrade your plan` | No agents can execute scan | Deploy a tenant agent or upgrade for platform agents |
-| `No tenant agent available. Deploy an agent or enable platform agents` | Tenant-only mode with no agents | Deploy a tenant agent |
-
-**Troubleshooting Steps:**
-
-1. **Check available tools:**
-   ```bash
-   curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8080/api/v1/tools | jq '.data[].name'
-   ```
-
-2. **Check agent status:**
-   ```bash
-   curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8080/api/v1/agents
-   ```
-
-3. **For workflow scans, verify pipeline steps:**
-   ```bash
-   curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8080/api/v1/pipelines/{id}/steps
-   ```
-
-### Scan Created but Not Running
-
-**Symptom:** Scan is created but stays in "pending" status
-
-**Solutions:**
-
-1. **Check agent is online:**
-   - View Agents page in UI
-   - Ensure at least one agent shows "Online" status
-
-2. **Check scan configuration:**
-   - Verify schedule is set correctly
-   - Check if scan is in "active" status (not paused/disabled)
-
-3. **Check agent capabilities:**
-   - Agent must support the scanner tool
-   - Check agent's registered capabilities
-
-### Target Validation Errors
-
-**Symptom:** Custom targets rejected during scan creation
-
-**Common Errors:**
-
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `internal IP addresses are not allowed (SSRF protection)` | Private IP blocked | Use public IPs or enable internal IPs for tenant |
-| `localhost addresses are not allowed` | Localhost blocked | Use actual domain/IP |
-| `contains invalid characters` | Shell metacharacters | Remove `;`, `&`, `\|`, etc. |
-| `invalid domain format` | Malformed domain | Check domain syntax |
-| `CIDR range too large` | Range > 65536 hosts | Use smaller CIDR (e.g., /16 max) |
-
----
-
-## Performance Issues
-
-### Slow API Responses
-
-**Solutions:**
-
-1. **Enable query logging:**
-   ```bash
-   LOG_LEVEL=debug
-   ```
-
-2. **Check database indexes:**
-   ```sql
-   EXPLAIN ANALYZE SELECT * FROM assets WHERE ...;
-   ```
-
-3. **Check connection pool:**
-   ```bash
-   DB_MAX_OPEN_CONNS=25
-   DB_MAX_IDLE_CONNS=5
-   ```
-
-### High Memory Usage
-
-**Solutions:**
-
-1. **Backend (Go):**
-   ```bash
-   # Profile memory
-   go tool pprof http://localhost:8080/debug/pprof/heap
-   ```
-
-2. **Frontend (Next.js):**
-   ```bash
-   # Analyze bundle size
-   npm run analyze
-   ```
-
-### Slow Frontend Build
-
-**Solutions:**
-
-1. **Use Turbopack (default in dev):**
-   ```bash
-   npm run dev  # Uses Turbopack automatically
-   ```
-
-2. **Check for large dependencies:**
-   ```bash
-   npx depcheck
-   ```
-
----
-
-## Docker Issues
-
-### Container Keeps Restarting
-
-**Solution:**
-```bash
-# Check logs
-docker compose logs [service]
-
-# Check exit code
 docker compose ps -a
-
-# Increase memory limits if OOM
-docker compose up -d --scale app=1
+docker compose logs --tail=100 api
+curl --cacert ca/openctem-root-ca.crt https://ctem.example.com/health
+docker compose exec api wget -qO- localhost:8080/ready
 ```
 
-### Volume Permission Issues
+- The one-shot jobs `datastore-tls`, `db-roles` and `migrate` must show
+  `Exited (0)`. A non-zero exit stops everything after it: read its log.
+- `/ready` reports the database and Redis checks separately.
+- Every API response carries `X-Request-ID`; search the API log for it to find
+  the lines of one request.
 
-**Symptom:** Permission denied errors
+## The API does not start
 
-**Solution:**
-```bash
-# Fix ownership
-sudo chown -R $(id -u):$(id -g) ./data
+| Log message | Cause | Fix |
+|---|---|---|
+| `failed to load configuration` with `... is required` or `... must be ...` | A missing or invalid setting. In production several settings are enforced. | Fix the variable named in `error`. See [Production checks](../configuration/environment-variables.md#production-checks). |
+| `retired environment variables are set and no longer read: AGENT_...` | A pre-sensor variable name. | Rename it as the message says (`AGENT_` to `SENSOR_`). |
+| `AUTH_JWT_SECRET is a known development default` / `APP_ENCRYPTION_KEY is the docker-compose default` | A published example secret outside `APP_ENV=development`. | Generate real values (`openssl rand -hex 64` / `openssl rand -hex 32`). Changing the encryption key on an existing database needs a [key rotation](backup-restore.md#rotating-the-encryption-key). |
+| `KEYCLOAK_BASE_URL must be set in production` | `AUTH_PROVIDER` is unset (default `oidc`) or `oidc`/`hybrid` without Keycloak. | Set `AUTH_PROVIDER=local` unless you use Keycloak. |
+| `database schema check failed — refusing to start` | Migrations did not run, failed (dirty), or the database predates the migration baseline. | See [Migrations](#migrations). |
+| `failed to connect to database` | Host, credentials, or TLS (`DB_SSLMODE`). | Check `DB_*`; production refuses `DB_SSLMODE=disable`. |
+| `failed to connect to redis` | Host, password, or TLS. | Check `REDIS_*`; production requires TLS and a 32+ character password. |
+| `jira webhook preflight failed` | Production, a connected Jira integration without a webhook secret. | Set the organization's Jira webhook secret, or `JIRA_WEBHOOK_SECRET`. |
 
-# Or use named volumes
-docker volume create app_data
-```
+## Migrations
 
-### Network Issues Between Containers
-
-**Solution:**
-```bash
-# Use service names, not localhost
-DB_HOST=postgres  # Not localhost
-REDIS_HOST=redis  # Not localhost
-```
-
----
-
-## Debugging Tools
-
-### Backend
+Read the migration state:
 
 ```bash
-# Enable debug logging
-LOG_LEVEL=debug
-
-# Access pprof
-curl http://localhost:8080/debug/pprof/
-
-# View goroutines
-curl http://localhost:8080/debug/pprof/goroutine?debug=2
+docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version, dirty FROM schema_migrations"'
+docker compose logs migrate
 ```
 
-### Frontend
+- **Behind** (`version` lower than the release's newest migration): run
+  `docker compose up -d` again; the `migrate` job applies them before the API.
+- **Dirty** (`dirty = t`): a migration failed midway. The `migrate` log names the
+  version and the error, usually data that violates a new constraint. Fix the
+  cause, then mark the last cleanly applied version and run the migrations again.
+  `force` only rewrites the version marker; it runs no SQL:
+
+  ```bash
+  set -a; . ./.env; set +a
+  DBURL="postgres://${DB_MIGRATE_USER:-$DB_USER}:${DB_MIGRATE_PASSWORD:-$DB_PASSWORD}@postgres:5432/${DB_NAME:-openctem}?sslmode=${DB_SSLMODE:-require}"
+  docker compose run --rm migrate -path=/migrations -database "$DBURL" version
+  docker compose run --rm migrate -path=/migrations -database "$DBURL" force <last-good-version>
+  docker compose up -d
+  ```
+
+  If the failed migration created objects outside its transaction, remove them by
+  hand first. When in doubt, restore the pre-upgrade backup.
+- **Older than the baseline**: the database is from a release before the
+  migration baseline. Upgrade in two steps as described in the release's
+  [upgrade guide](upgrade.md#release-specific-guides).
+
+Never set `SKIP_SCHEMA_CHECK=true` to get past these: the API would serve
+requests against a schema it does not match.
+
+## `permission denied` (SQLSTATE 42501) in the API log
+
+The API's role (`openctem_app`) lacks a grant, usually after a restore or after
+a migration was applied as another role. Re-run the roles job, which repairs
+ownership and grants:
 
 ```bash
-# Enable verbose logging
-DEBUG=* npm run dev
-
-# Check React DevTools
-# Install React Developer Tools browser extension
-
-# Check Network tab
-# Open DevTools > Network > Filter by XHR
+docker compose run --rm db-roles
+docker compose restart api
 ```
 
-### Database
+## Cannot sign in
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| The sign-in page loops back, or the session is lost at once | Cookies are `Secure` and the browser is on `http://`. | Use the HTTPS URL. |
+| Live updates never connect; `websocket upgrade rejected: origin not allowed` in the API log | `OPENCTEM_PUBLIC_URL` (or `CORS_ALLOWED_ORIGINS`) differs from the browser's origin, often by the port. | Set it to the exact origin and restart. |
+| `401 Session has expired` soon after sign-in | Clock skew between hosts, or a short `SESSION_TIMEOUT_MINUTES`. | Sync time (NTP); check the setting. |
+| An account is locked | `AUTH_MAX_LOGIN_ATTEMPTS` failures within the lockout window. | Wait for `AUTH_LOCKOUT_DURATION` (default 15 minutes). |
+| No user can sign in on a new install | No accounts exist yet. | Create them with [`bootstrap-admin`](../install/first-admin.md). |
+| A platform administrator lost the authenticator or password | The admin console requires the password and a TOTP code. | Another platform administrator (for example the break-glass one) resets the credentials in the admin console, under **Administrators**. |
+
+## Users see no assets or findings
+
+A member sees only the assets of their access groups and explicit grants; a
+member in no group sees nothing. Owners, administrators and roles with full data
+access see everything. Add the user to a group that holds the assets: see
+[Roles, groups and permissions](../identity/roles-and-permissions.md).
+
+## Email is not delivered
+
+The API logs `email service not configured` at start when system SMTP is off.
+See [Email (SMTP)](../configuration/email.md#troubleshooting).
+
+## Gateway and TLS
+
+Certificate errors, port conflicts, `413` on uploads and wrong client addresses
+are covered in [TLS and the gateway](../install/tls-and-gateway.md#troubleshooting).
+
+## Sensors
+
+Offline sensors, rejected keys and certificate errors on sensor hosts are covered
+in [Sensors: troubleshooting](../sensors/troubleshooting.md).
+
+## Requests refused
+
+| Status | Cause |
+|---|---|
+| `429` | Rate limit: `RATE_LIMIT_RPS` / `RATE_LIMIT_BURST` per client, `RATE_LIMIT_READ_PER_MIN` per user for reads, stricter limits on sign-in. In `INGEST_MODE=async`, an organization's ingest queue is full (`INGEST_MAX_PENDING_PER_TENANT`). |
+| `503 Server at capacity, please retry later` | More than `MAX_CONCURRENT_REQUESTS` requests in progress. |
+| `413` | Body larger than the route's limit or the gateway's `GATEWAY_MAX_BODY_SIZE`. |
+| `404` on `/metrics` | No `METRICS_TOKEN` set or the wrong token, or the request went through the gateway (which never serves it). |
+
+## Disk full
+
+PostgreSQL stops accepting writes when its disk fills, and the API then fails
+every request that writes. Free space first (old container logs, images with
+`docker image prune`, old backups on the same disk), then check that
+`postgres` is healthy. Watch disk space with the
+[monitoring stack](monitoring.md) (`HostDiskLow`, `HostDiskFillingFast`).
+
+## Collecting information for a report
 
 ```bash
-# Connect to database
-docker compose exec postgres psql -U openctem -d openctem
-
-# View active connections
-SELECT * FROM pg_stat_activity;
-
-# View slow queries
-SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10;
+docker compose ps -a > report-ps.txt
+docker compose images > report-images.txt
+docker compose logs --since 1h api web gateway migrate > report-logs.txt
 ```
 
----
-
-## Getting Help
-
-If you can't resolve the issue:
-
-1. **Search existing issues:**
-   - [GitHub Issues](https://github.com/openctemio/openctem/issues)
-
-2. **Create a new issue with:**
-   - OS and version
-   - Docker/Node/Go versions
-   - Steps to reproduce
-   - Expected vs actual behavior
-   - Relevant logs (sanitize secrets!)
-   - Environment (development/staging/production)
-
-3. **Include diagnostics:**
-   ```bash
-   # System info
-   uname -a
-   docker --version
-   docker compose version
-   node --version
-   go version
-
-   # Service status
-   docker compose ps
-   ```
+Review the files before sharing them: logs contain email addresses, host names
+and IP addresses. Never share `.env`. Report security issues privately, as
+described in [Vulnerability disclosure](../security/vulnerability-disclosure.md).
