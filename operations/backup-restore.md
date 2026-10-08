@@ -1,189 +1,129 @@
-# OpenCTEM Database Backup & Restore Runbook
+---
+title: Backup and restore
+parent: Operations
+nav_order: 4
+---
 
-## Overview
+# Backup and restore
+{: .no_toc }
 
-OpenCTEM uses `pg_dump` for logical backups with a tiered retention policy:
-- **Daily backups**: retained for 30 days
-- **Weekly backups**: retained for 12 weeks (Sunday snapshots)
-- **Monthly backups**: retained for 12 months (1st of month snapshots)
+1. TOC
+{:toc}
 
-WAL archiving provides point-in-time recovery (PITR) between base backups.
+---
 
-## Quick Reference
+## What to back up
 
-```bash
-# Run a manual backup
-./setup/backup/backup.sh --type full
+| What | Where | Why |
+|---|---|---|
+| The database | PostgreSQL database `openctem` (`DB_NAME`) | Everything: organizations, users, assets, findings, scans, audit logs, integrations. |
+| The secrets | `.env` (Compose), the env file (all-in-one), or the Kubernetes Secrets | `APP_ENCRYPTION_KEY` decrypts the credentials stored in the database (integration tokens, SMTP passwords, identity-provider secrets). A database backup without it restores everything except those credentials. `AUTH_JWT_SECRET` keeps sessions valid. |
+| Attachments | `api-data` volume (Compose), `/data` (all-in-one), the attachments volume or bucket (Helm) | Uploaded files and finding evidence. Not in the database. |
+| Gateway data | `gateway-data` volume (Compose), `/data` (all-in-one) | The internal CA's private key (TLS mode `internal`) and ACME account. Without it a new CA is created and sensors stop trusting the gateway. |
+| Audit archives | `AUDIT_ARCHIVE_DIR`, when set | Archived audit-log entries, which are deleted from the database after archiving. |
 
-# List available backups
-./setup/backup/restore.sh --list
+Redis holds caches, rate-limit counters and queued background jobs. It does not
+need a backup; restarting with an empty Redis loses only queued work.
 
-# Verify a backup
-./setup/backup/restore.sh /var/backups/openctem/daily/openctem_full_20260306_020000.dump --verify
+Store backups off the host, encrypt them, and keep the secrets separate from
+the database dumps. Test a restore regularly.
 
-# Restore a backup
-./setup/backup/restore.sh /var/backups/openctem/daily/openctem_full_20260306_020000.dump
+## Back up (Docker Compose)
 
-# Restore to a different database (safe testing)
-./setup/backup/restore.sh backup.dump --target openctem_restored
-
-# Check WAL archiving status
-./setup/backup/wal-archive.sh status
-```
-
-## Setup
-
-### 1. Install Cron Schedule
+Run these in `api/deploy`. The project is named `openctem`, so volumes are
+called `openctem_<name>`.
 
 ```bash
-# Create log directory
-sudo mkdir -p /var/log/openctem
+mkdir -p backups
+stamp=$(date +%Y%m%d-%H%M%S)
 
-# Create environment file
-sudo tee /etc/openctem/backup.env << 'EOF'
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=openctem
-DB_NAME=openctem
-DB_PASSWORD=<your-password>
-BACKUP_DIR=/var/backups/openctem
-EOF
-sudo chmod 600 /etc/openctem/backup.env
+# Database: a consistent logical dump in custom format, taken as the
+# PostgreSQL superuser inside the postgres container
+docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' \
+  > "backups/openctem-$stamp.dump"
 
-# Install crontab
-crontab setup/backup/crontab
+# Attachments and gateway data
+for v in api-data gateway-data; do
+  docker run --rm -v "openctem_$v:/data:ro" -v "$PWD/backups:/backup" alpine:3.22 \
+    tar czf "/backup/$v-$stamp.tgz" -C /data .
+done
+
+# Secrets
+cp .env "backups/env-$stamp"
+chmod 600 "backups/env-$stamp"
 ```
 
-### 2. Configure WAL Archiving (for PITR)
-
-Add to `postgresql.conf`:
-```ini
-wal_level = replica
-archive_mode = on
-archive_command = 'cp %p /var/backups/openctem/wal/%f'
-archive_timeout = 300
-```
-
-Restart PostgreSQL, then verify:
-```bash
-./setup/backup/wal-archive.sh status
-```
-
-### 3. Docker Environment
-
-For Docker deployments, run backup inside the container:
-```bash
-docker compose exec postgres pg_dump -U openctem -d openctem --format=custom -f /tmp/backup.dump
-docker compose cp postgres:/tmp/backup.dump ./backups/
-```
-
-## Point-in-Time Recovery
-
-1. Identify the target recovery time
-2. Find the most recent base backup before that time
-3. Run restore with WAL replay:
+`pg_dump` runs while the platform is up. Check that a dump is readable:
 
 ```bash
-./setup/backup/wal-archive.sh restore-command '2026-03-06 14:30:00'
+docker run --rm -i postgres:17 pg_restore --list < "backups/openctem-$stamp.dump" | tail -3
 ```
 
-Follow the printed instructions to complete PITR.
+To schedule it, put the commands in a script run by cron or a systemd timer.
+The [monitoring stack](monitoring.md) can alert on stale backups if the script
+reports its result (see the `BackupStale` runbook in the monitoring guide).
 
-## Off-site Backup (Cloud Storage)
+### Managed PostgreSQL and Kubernetes
 
-The backup script supports uploading to S3, GCS, or Azure Blob Storage for disaster recovery.
+Use your provider's snapshots or point-in-time recovery, or run `pg_dump -Fc`
+against the database as a role that can read every table (the superuser or the
+schema owner, `openctem_migrator`). Back up the attachments volume or bucket and
+the Secrets that hold `APP_ENCRYPTION_KEY` and `AUTH_JWT_SECRET` the same way.
 
-### Configuration
+## Restore (Docker Compose)
 
-Add to `/etc/openctem/backup.env`:
+Restore into the same release that made the backup, or an older backup into a
+newer release (the migrations then bring the schema forward). Never restore a
+newer dump into an older release.
 
 ```bash
-# --- Off-site backup ---
-OFFSITE_ENABLED=true
-OFFSITE_PROVIDER=s3          # s3 | gcs | azure
-OFFSITE_BUCKET=my-backup-bucket
-OFFSITE_PREFIX=openctem/backups   # object key prefix
-OFFSITE_RETENTION_DAYS=90         # cloud retention (default: 90)
+# 1. Stop everything that uses the database
+docker compose stop gateway web api
+
+# 2. Recreate the database empty
+docker compose exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
+
+# 3. Restore the dump (ownership and grants are repaired in step 4)
+docker compose exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges' \
+  < backups/openctem-20261008-020000.dump
+
+# 4. Re-apply the least-privilege roles: schema owner and app grants
+docker compose run --rm db-roles
+
+# 5. Start again (migrations run first)
+docker compose up -d
 ```
 
-### Provider Setup
-
-**AWS S3:**
-```bash
-# Install AWS CLI
-apt-get install -y awscli
-
-# Set credentials
-AWS_ACCESS_KEY_ID=AKIA...
-AWS_SECRET_ACCESS_KEY=...
-AWS_DEFAULT_REGION=us-east-1
-
-# For S3-compatible storage (MinIO, etc.)
-S3_ENDPOINT=https://minio.example.com
-```
-
-**Google Cloud Storage:**
-```bash
-# Install gsutil
-apt-get install -y google-cloud-cli
-
-# Set credentials
-GOOGLE_APPLICATION_CREDENTIALS=/etc/openctem/gcs-service-account.json
-```
-
-**Azure Blob Storage:**
-```bash
-# Install Azure CLI
-apt-get install -y azure-cli
-
-# Set credentials
-AZURE_STORAGE_ACCOUNT=mystorageaccount
-AZURE_STORAGE_KEY=...
-```
-
-### Verify Off-site Backup
+Restore the volumes before step 5 when needed:
 
 ```bash
-# S3: list uploaded backups
-aws s3 ls s3://my-backup-bucket/openctem/backups/daily/ --human-readable
-
-# GCS: list uploaded backups
-gsutil ls -l gs://my-backup-bucket/openctem/backups/daily/
-
-# Azure: list uploaded backups
-az storage blob list --container-name my-backup-bucket --prefix openctem/backups/daily/ --output table
+docker run --rm -v openctem_api-data:/data -v "$PWD/backups:/backup:ro" alpine:3.22 \
+  tar xzf /backup/api-data-20261008-020000.tgz -C /data
 ```
 
-### Restore from Cloud
+Then check `docker compose ps`, `curl https://<host>/health`, and that the API
+log has no `permission denied` errors.
 
-```bash
-# S3: download and restore
-aws s3 cp s3://my-backup-bucket/openctem/backups/daily/openctem_full_20260311.dump /tmp/
-./setup/backup/restore.sh /tmp/openctem_full_20260311.dump
+### Restoring to a new host
 
-# GCS: download and restore
-gsutil cp gs://my-backup-bucket/openctem/backups/daily/openctem_full_20260311.dump /tmp/
-./setup/backup/restore.sh /tmp/openctem_full_20260311.dump
-```
+1. Set up the stack as in [Docker Compose](../install/docker-compose.md), but
+   copy the backed-up `.env` instead of generating new secrets. A new
+   `APP_ENCRYPTION_KEY` leaves the restored credentials unreadable.
+2. Start only the database: `docker compose up -d postgres`.
+3. Follow steps 2 to 5 above, restoring the `api-data` and `gateway-data`
+   volumes before step 5.
 
-## Monitoring
+### Outside Compose
 
-Check backup freshness:
-```bash
-# Latest backup age
-stat -c '%Y' /var/backups/openctem/daily/$(ls -t /var/backups/openctem/daily/ | head -1) | \
-  xargs -I {} bash -c 'echo $(( ($(date +%s) - {}) / 3600 )) hours ago'
+The same order applies to any PostgreSQL: restore as a superuser into an empty
+database with `--no-owner --no-privileges`, then run
+[`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/api/deploy/postgres/least-privilege-roles.sql)
+again to give the schema to `openctem_migrator` and the grants to
+`openctem_app`, then start the platform.
 
-# Backup sizes over time
-ls -lhtr /var/backups/openctem/daily/openctem_full_* | grep -v sha256
-```
+## Rotating the encryption key
 
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| pg_dump: connection refused | Check DB_HOST, DB_PORT, firewall rules |
-| pg_dump: authentication failed | Verify DB_PASSWORD or .pgpass file |
-| Restore fails with "database in use" | Disconnect all clients first: `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'openctem' AND pid <> pg_backend_pid();` |
-| Backup too large | Use `COMPRESSION=zstd` for better compression ratio |
-| WAL archive filling disk | Reduce `WAL_RETENTION_DAYS` or increase disk space |
+Rotating `APP_ENCRYPTION_KEY` re-encrypts the stored credentials with a tool
+and keeps the old key in `APP_ENCRYPTION_KEY_PREVIOUS` during the change. Follow
+[encryption-key-rotation.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/encryption-key-rotation.md),
+and take a backup (with the old key) first.

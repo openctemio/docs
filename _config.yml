@@ -63,10 +63,6 @@ callouts:
     title: Important
     color: yellow
 
-# Publish dot-directories (security.txt)
-include:
-  - ".well-known"
-
 # Exclude from build
 exclude:
   - README.md
