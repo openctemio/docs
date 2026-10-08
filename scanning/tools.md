@@ -47,6 +47,9 @@ sensors:
 | `no_sensor` | Enabled, but no sensor that may run it reports it |
 | `disabled` | Switched off for your organization |
 
+![The Tools page with each tool's status, sensors, version and last report]({{ site.baseurl }}/assets/images/scanning/tools.png)
+*Figure: Tool availability.*
+
 The **Sensors** column shows how many sensors may run the tool and how many
 are online; a sensor that has the tool but may not run it (its
 [grant](../sensors/pairing.md#grants-and-trust) or its local policy refuses
