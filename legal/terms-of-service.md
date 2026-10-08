@@ -1,3 +1,9 @@
+---
+title: Terms of service
+parent: Legal
+nav_order: 3
+---
+
 # Terms of Service
 
 **Last Updated: April 2026**
@@ -139,7 +145,7 @@ These Terms shall be governed by and construed in accordance with the laws of th
 
 ## 14. Contact
 
-For questions about these Terms, please contact the platform administrator or open an issue at the project repository.
+For questions about these Terms, please contact the platform administrator. For questions about the OpenCTEM project, email [info@openctem.io](mailto:info@openctem.io). Report security vulnerabilities to [security@openctem.io](mailto:security@openctem.io) (see [Vulnerability disclosure](../security/vulnerability-disclosure.md)).
 
 ---
 
