@@ -91,10 +91,11 @@ findings downgraded, are shown on
 
 A pentest finding is also a finding of your organization: it appears in
 **Findings** (`/findings`) next to scanner results, with the source **Pentest**.
-Pentest findings use their own statuses (Draft → In Review → Confirmed →
-Remediation → Retest → Verified, plus False Positive and Accepted Risk); Draft
-and In Review are work in progress and hidden from the findings list unless you
-filter on them.
+Pentest findings use the shared finding statuses plus Draft and In Review
+(Draft → In Review → Confirmed → In Progress → Fix Applied → Resolved, plus
+False Positive and Risk Accepted); a passed retest resolves the finding with the
+resolution method `retest_verified`. Draft and In Review are work in progress
+and hidden from the findings list unless you filter on them.
 
 ### The campaign list
 
@@ -151,8 +152,8 @@ If you are not on a campaign's team you have view-only access.
 ### Findings of a campaign
 
 The **Findings** view lists the campaign's findings (most severe first), with
-the cards **All findings**, **Critical**, **High**, **Medium**, **In remediation**
-and **Verified**, search by title, CWE or CVE, and filters.
+the cards **All findings**, **Critical**, **High**, **Medium**, **In progress**
+and **Resolved**, search by title, CWE or CVE, and filters.
 
 - **New finding** (needs `pentest:write`) opens the finding form. Pick a
   template from the finding library to pre-fill it.
@@ -200,9 +201,10 @@ step: after the developers report a fix, a tester checks that the issue is gone.
 
 What happens next:
 
-- **Passed** by a lead or reviewer: the finding becomes **Verified**. Passed by a
-  tester: it stays in **Retest** until a reviewer confirms.
-- **Failed**: the finding goes back to **Remediation** for the developers.
+- **Passed** by a lead or reviewer: the finding becomes **Resolved**, with the
+  resolution method `retest_verified`. Passed by a tester: it stays in **Fix
+  Applied** until a reviewer confirms.
+- **Failed**: the finding goes back to **In Progress** for the developers.
 - **Partial**: recorded as a partial fix.
 
 ## ATT&CK coverage
