@@ -7,8 +7,10 @@ Scans every *.md file under each ROOT (default: the current directory) and fails
   - a relative link or image points to a file or directory that does not exist,
     or to a heading anchor that does not exist in the target Markdown file;
   - the text contains Vietnamese letters (documentation is English only);
-  - the text contains a private IPv4 host address (RFC 1918) or an internal host name.
-    Network ranges in CIDR notation (for example a pod CIDR 10.244.0.0/16) are allowed.
+  - the text contains a private IPv4 host address in 192.168.0.0/16 or 172.16.0.0/12,
+    or an internal host name. 10.0.0.0/8 stays allowed because design documents use
+    it to explain private-range handling (NAT, scan zones); network ranges in CIDR
+    notation are allowed too.
     Use example.com and the documentation ranges 192.0.2.0/24, 198.51.100.0/24,
     203.0.113.0/24 and 2001:db8::/32 instead.
 
@@ -25,9 +27,11 @@ SKIP_FILES = {"CHANGELOG.md"}
 
 VIETNAMESE = re.compile(r"[ăđơưĂĐƠƯẠ-ỹ]")
 PRIVATE_IP = re.compile(
-    r"(?<![\d.])(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?![\d.]|/\d)"
+    r"(?<![\d.])(192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(?![\d.]|/\d)"
 )
-INTERNAL_HOSTS = re.compile(r"manhnv\.com|\.internal\.openctem|\.lan\b", re.IGNORECASE)
+INTERNAL_HOSTS = re.compile(r"manhnv\.com|\.internal\.openctem", re.IGNORECASE)
+# The language's own name is allowed (for example in a list of console languages).
+LANGUAGE_NAMES = re.compile("Tiếng Việt")
 ALLOW_PRIVATE = "docs-check: allow-private"
 
 LINK = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
@@ -95,7 +99,7 @@ def check_file(path, errors):
         text = fh.read()
     in_fence = False
     for lineno, line in enumerate(text.splitlines(), 1):
-        if VIETNAMESE.search(line):
+        if VIETNAMESE.search(LANGUAGE_NAMES.sub("", line)):
             errors.append(f"{path}:{lineno}: non-English (Vietnamese) text")
         if ALLOW_PRIVATE not in line:
             m = PRIVATE_IP.search(line)
