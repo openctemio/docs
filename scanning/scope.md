@@ -169,11 +169,11 @@ flowchart TD
     E -- no --> R5["no_entry, entry_pending,<br/>entry_expired, entry_inactive"]
     E -- yes --> P["6. Proof needed and missing?"]
     P -- yes --> R6["proof_required"]
-    P -- no --> TI["7. Tool tier above the entry's tier?"]
-    TI -- yes --> R7["tier_exceeds"]
-    TI -- no --> DS["8. Outside the person's data scope?"]
-    DS -- yes --> R8["out_of_data_scope, not_an_asset"]
-    DS -- no --> Z["9. Routed to a zone with sensors?"]
+    P -- no --> DS["7. Outside the person's data scope?"]
+    DS -- yes --> R7["out_of_data_scope, not_an_asset"]
+    DS -- no --> TI["8. Tool tier above the entry's tier?"]
+    TI -- yes --> R8["tier_exceeds"]
+    TI -- no --> Z["9. Routed to a zone with sensors?"]
     Z -- no --> R9["zone_none, zone_no_sensor,<br/>zone_sensor_mismatch"]
     Z -- yes --> OK(["Queued for the zone's sensors"])
     OK --> SG["On claim: the sensor's grant, zone and freeze windows;<br/>then the sensor's local policy and target guard"]
@@ -188,9 +188,11 @@ flowchart TD
 5. Only `active` entries authorize.
 6. A T2 probe always needs a verified domain; `SCOPE_ACTIVE_PROOF` can require
    one for more ([Proof of control](#proof-of-control)).
-7. Each entry's highest tier caps the probes it allows.
-8. The person who triggered the run (or the scan owner, for scheduled runs)
-   must be allowed to act on the asset.
+7. The person who triggered the run (or the scan owner, for scheduled runs)
+   must be allowed to act on the asset. This check comes before the tier check,
+   so a target the person may not scan is reported as out of their data scope
+   and reveals nothing about the scope entries that cover it.
+8. Each entry's highest tier caps the probes it allows.
 9. See [Scan zones](../sensors/zones.md#how-a-target-is-routed).
 
 The gate runs when a scan is created or edited, when a run is triggered, for
