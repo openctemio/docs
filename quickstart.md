@@ -93,7 +93,7 @@ Full guide: [Docker Compose](install/docker-compose.md). TLS choices:
 docker compose exec api /app/bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
-  -org-name="Example Security" \
+  -org-name="Example Corp" \
   -org-owner-email=owner@example.com
 ```
 
@@ -114,9 +114,11 @@ Full guide: [First administrator](install/first-admin.md).
 Open the set-password link, choose a password, and sign in at
 `https://ctem.example.com/login`. With TLS mode `internal`, the browser warns
 until you import `ca/openctem-root-ca.crt`. You land on the dashboard of
-**Example Security**; lists are empty until the first scan.
+**Example Corp**; lists are empty until the first scan.
 
-<!-- screenshot: quickstart/dashboard-empty -->
+![The OpenCTEM dashboard of an organization after its first scans: active exposure, priority classes and the five CTEM stages]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+
+*Figure: the dashboard, here for an organization that already has scan results. A new organization shows empty lists until its first scan.*
 
 Enroll an authenticator app under your account's **Security** settings while
 you are here ([Two-factor authentication](identity/two-factor.md)).
@@ -143,7 +145,9 @@ organization covers it.
    Then choose **Check now**. Proof is not authorization (the scope entry
    is), but intrusive checks, and some installations, require it.
 
-<!-- screenshot: quickstart/scope-entry -->
+![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+
+*Figure: scope entries. Each entry names what the organization may actively probe.*
 
 Details: [Scope and authorization to scan](scanning/scope.md).
 
@@ -178,7 +182,9 @@ The log shows a pairing **code** and a **fingerprint**. In the console:
 4. Open the sensor and choose **Promote to Trusted**. A new sensor receives only
    passive work (subdomain discovery, DNS resolution) until it is trusted.
 
-<!-- screenshot: quickstart/pair-sensor -->
+![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+
+*Figure: approving a pairing request. Compare the fingerprint with the one the sensor printed.*
 
 The sensor shows as `online` within a few seconds. Details:
 [Pairing and enrollment](sensors/pairing.md).
@@ -194,7 +200,9 @@ The sensor shows as `online` within a few seconds. Details:
    step has a sensor that can run it.
 5. Save, then **Run now**.
 
-<!-- screenshot: quickstart/new-scan-preview -->
+![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
+
+*Figure: the New scan wizard.*
 
 Follow the run under **Discovery > Scans > Runs**: each step, its tasks, the
 sensor that claimed them and their logs. A run ends `completed`, or `partial`
@@ -212,7 +220,9 @@ when part of the work could not be done. Details:
 - **Discovery > Exposures**: attack-surface changes such as new subdomains,
   open ports or expiring certificates.
 
-<!-- screenshot: quickstart/findings-list -->
+![The findings list with severity, priority, source, location and status, KEV and EPSS badges]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
+
+*Figure: the findings list after the first scans.*
 
 ## Next
 

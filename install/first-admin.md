@@ -40,7 +40,7 @@ organization through the normal, audited organization service.
 docker compose exec api /app/bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
-  -org-name="Example Security" \
+  -org-name="Example Corp" \
   -org-owner-email=owner@example.com
 ```
 
@@ -50,7 +50,7 @@ docker compose exec api /app/bootstrap-admin \
 docker exec openctem /opt/openctem/api/bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
-  -org-name="Example Security" \
+  -org-name="Example Corp" \
   -org-owner-email=owner@example.com
 ```
 

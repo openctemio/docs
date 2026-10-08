@@ -186,7 +186,7 @@ automatically. For example, to name the email sender:
 services:
   api:
     environment:
-      SMTP_FROM_NAME: "Example Security"
+      SMTP_FROM_NAME: "Example Corp"
 ```
 
 Then apply with `docker compose up -d`.

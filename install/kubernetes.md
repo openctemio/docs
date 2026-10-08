@@ -108,7 +108,7 @@ api:
     email: admin@example.com
     backupEmail: breakglass@example.com
     org:
-      name: Example Security
+      name: Example Corp
       ownerEmail: owner@example.com
 
 ui:

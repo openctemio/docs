@@ -181,7 +181,7 @@ tool is in the image:
 ```bash
 docker exec openctem /opt/openctem/api/bootstrap-admin \
   -email=admin@example.com -backup-email=breakglass@example.com \
-  -org-name="Example Security" -org-owner-email=owner@example.com
+  -org-name="Example Corp" -org-owner-email=owner@example.com
 ```
 
 It reads the database settings from the container's environment.
