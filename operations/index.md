@@ -18,7 +18,6 @@ Guides for developers and operators.
 
 ## Deployment
 
-- **[Staging Deployment](./STAGING_DEPLOYMENT.md)** - Deploy to staging
 - **[Production Deployment](./PRODUCTION_DEPLOYMENT.md)** - Production setup
 - **[Exposing OpenCTEM: one HTTPS port](./single-https-port.md)** - Built-in gateway: UI, API, sensors, SCIM and MCP on 443; TLS modes; migrating from the two-port setup
 
@@ -32,11 +31,9 @@ Guides for developers and operators.
 
 - **[Upgrade Guide](./upgrade-guide.md)** - Version upgrades, rollbacks, zero-downtime deployments
 - **[Upgrading from v0.8 to v0.9](./upgrade-to-v0.9.md)** - Breaking changes, inventory queries, rehearsed Compose/Helm procedure and rollback for v0.9.0
-- **[v0.9.0 release notes](./release-notes-v0.9.0.md)** - What changed in v0.9.0 (API and web console)
 - **[Upgrading to the Sensor release](./upgrade-agent-to-sensor.md)** - Agents become sensors: what is migrated automatically, what to update, in which order
 - **[Upgrading: gitleaks → Betterleaks](./upgrade-gitleaks-to-betterleaks.md)** - The secret scanner changes: migration 000241, upgrade order, what changes in your findings
 - **[Backup & Restore](./backup-restore.md)** - Backup strategy, off-site storage, restore procedures
-- **[Release Validation](./RELEASE_VALIDATION.md)** - Pre-release checklist
 
 ## Configuration
 

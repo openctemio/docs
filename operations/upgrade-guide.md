@@ -131,7 +131,7 @@ docker compose exec postgres psql -U openctem -d openctem -c \
 ### 4. Test in Staging First
 
 Deploy the target version to a staging copy of the stack (see
-[Staging Deployment](STAGING_DEPLOYMENT.md)) and run your smoke tests there
+a staging installation) and run your smoke tests there
 before production.
 
 ### 5. Notify Users of Maintenance Window
