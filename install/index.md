@@ -238,8 +238,8 @@ Nothing else is published. Internally the API listens on 8080, the web console o
 | Integration endpoints | Jira, GitHub or GitLab, Slack, Teams, Telegram, webhook channels, identity providers, AI providers. | Per integration. |
 
 Webhook and integration URLs that resolve to private addresses (RFC 1918) are
-refused unless `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` is set; loopback, link-local and
-cloud metadata addresses are always refused.
+refused unless their range is listed in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`;
+loopback, link-local and cloud metadata addresses are always refused.
 
 ### DNS
 
