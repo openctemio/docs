@@ -176,7 +176,7 @@ flowchart TD
     TI -- no --> Z["9. Routed to a zone with sensors?"]
     Z -- no --> R9["zone_none, zone_no_sensor,<br/>zone_sensor_mismatch"]
     Z -- yes --> OK(["Queued for the zone's sensors"])
-    OK --> SG["On claim: the sensor's grant, zone and freeze windows;<br/>then the sensor's local policy and target guard"]
+    OK --> SG["On claim: this gate again (SCOPE_CHANGED if nothing is left),<br/>the sensor's grant, zone and freeze windows;<br/>then the sensor's local policy and target guard"]
 ```
 
 1. Malformed, loopback, link-local and metadata addresses are invalid;
@@ -198,9 +198,12 @@ flowchart TD
 The gate runs when a scan is created or edited, when a run is triggered, for
 every target a workflow step derives from an earlier step, for validation and
 retest jobs, and for `POST /api/v1/scope/check` (which dispatches nothing).
-When a sensor claims a task, the platform checks the sensor's grant, its zone
-and the freeze windows, and the sensor then applies its own local policy and
-target guard before any tool starts.
+When a sensor claims a task, the platform runs this gate again on the task's
+targets with the inputs recorded at dispatch: targets that left scope since the
+task was queued are removed, and a task with none left fails with
+`SCOPE_CHANGED` ([Scans and scan runs](scans-and-runs.md)). It also checks the
+sensor's grant, its zone and the freeze windows, and the sensor then applies
+its own local policy and target guard before any tool starts.
 
 ## Check before you scan
 
