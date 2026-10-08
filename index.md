@@ -51,6 +51,6 @@ Each release is described in the
 free software: the platform, sensor, SDK and CI integration are licensed under the GNU GPL v3.0,
 the CTIS schema and the Helm charts under the Apache License 2.0 (see [Legal](legal/)).
 
-To report a security vulnerability, email **security@openctem.io** and see the
+To report a security vulnerability, email **<!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off-->** and see the
 [vulnerability disclosure policy](security/vulnerability-disclosure.md). For anything
-else, write to info@openctem.io or open an issue in the relevant repository.
+else, write to <!--email_off-->[info@openctem.io](mailto:info@openctem.io)<!--/email_off--> or open an issue in the relevant repository.

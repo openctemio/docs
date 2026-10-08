@@ -1,0 +1,53 @@
+name: Live site link check
+
+# Crawls the PUBLISHED site (https://docs.openctem.io) after every deploy and
+# once a day, checks every internal link, anchor and external link, and opens
+# (or updates) an issue labelled "broken-links" when something is broken.
+
+on:
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types: [completed]
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: live-link-check
+  cancel-in-progress: true
+
+jobs:
+  crawl:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Wait for the CDN to pick up a fresh deploy
+        if: github.event_name == 'workflow_run'
+        run: sleep 90
+      - name: Crawl docs.openctem.io
+        id: crawl
+        run: python3 scripts/crawl_site.py https://docs.openctem.io/ --report report.md
+      - name: Open or update the broken-links issue
+        if: failure() && steps.crawl.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "The live site link check found broken links (run: $RUN_URL)."
+            echo
+            cat report.md
+          } > body.md
+          gh label create broken-links --color B60205 --description "Broken links on docs.openctem.io" 2>/dev/null || true
+          number=$(gh issue list --label broken-links --state open --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file body.md
+          else
+            gh issue create --title "Broken links on docs.openctem.io" --label broken-links --body-file body.md
+          fi
