@@ -70,6 +70,9 @@ In the console: **Settings > API keys > Generate API key**. Choose a name, an ex
 90 days or 1 year) and the scopes. The secret (`oct_...`) is shown **once**; store it in your
 secret manager.
 
+![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
+*Figure: Settings, API keys.*
+
 **Settings > AI access (MCP)** creates a key with the scopes the MCP tools need; see
 [MCP server](mcp.md).
 

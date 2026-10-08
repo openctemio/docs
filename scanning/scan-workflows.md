@@ -29,6 +29,9 @@ steps, so they run on whichever implementation your sensors have:
 | Network | scan ports, probe HTTP, then vulnerability templates |
 | Code / CI | secrets, SAST, dependency and IaC scans of a repository, in parallel |
 
+![The Workflows tab listing the organization's workflows and the built-in starter workflows]({{ site.baseurl }}/assets/images/scanning/workflows.png)
+*Figure: Scan workflows.*
+
 System workflows cannot be edited; clone one to change it.
 
 The **Discover + Vuln** graph, as an example. Each arrow carries the assets the
@@ -99,6 +102,9 @@ applies today:
 |---|---|
 | naabu | `ports`, `top_ports`, `exclude_ports`, `rate`, `retries`. Port lists only (`80,443,8000-8100`, `top-100`, `top-1000`, `full`); `rate` can only lower the sensor's rate |
 | nuclei | `tags`, `exclude_tags`, `severity`, and `rate_limit`, `concurrency`, `bulk_size` up to the sensor's ceilings. `dos`, `fuzz`, `fuzzing` and `intrusive` are refused as tags; `exclude_tags` only adds to the sensor's exclusions |
+
+![The workflow builder with five chained steps and the tool palette]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
+*Figure: The workflow builder.*
 
 A value the tool's settings schema refuses fails the step at save time
 (`INVALID_STEP_SETTING`) and again on the sensor.

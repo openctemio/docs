@@ -81,6 +81,12 @@ by the organization's own admins:
    sees the change and is notified in the app and by email. Pending changes expire after 7 days. An
    organization with no owner yet gets the change applied directly.
 
+![The Single sign-on tab of an organization in the admin console with a change waiting for the owner's approval]({{ site.baseurl }}/assets/images/identity/admin-organization-sso.png)
+*Figure: Admin console, organization, Single sign-on.*
+
+![The SSO approvals page where the organization owner approves or rejects the proposed identity provider]({{ site.baseurl }}/assets/images/identity/sso-approvals.png)
+*Figure: The owner approves the change under Settings, SSO approvals.*
+
 Users then sign in at `https://<console>/login?org=<organization-slug>` and choose the provider.
 
 ### Who is admitted

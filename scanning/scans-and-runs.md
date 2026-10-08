@@ -55,6 +55,9 @@ A scan has:
 - **Status**: `active`, `paused` or `disabled`. Only active scans run on
   their schedule.
 
+![The Scans page listing three scans with their workflow, last run, success rate and schedule]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
+*Figure: Scans.*
+
 Creating or editing a scan runs the [scope gate](scope.md) on its direct
 targets: a target your organization may not probe refuses the whole request
 (`TARGET_OUT_OF_SCOPE`, each target with its reason).
@@ -128,6 +131,9 @@ sequenceDiagram
 
 ## Scan runs
 
+![The Runs tab listing nine runs: running, completed, partial and failed]({{ site.baseurl }}/assets/images/scanning/scan-runs.png)
+*Figure: Scan runs.*
+
 | Status | Meaning | Final |
 |---|---|---|
 | `pending` | Created; no task claimed yet | no |
@@ -155,6 +161,9 @@ its tasks by state, and the findings it produced. The run page offers:
 - **Map**: the run drawn on the workflow version it executes.
 - **Stages**: per step, how many targets came from the seeds or from earlier
   steps, and how many were skipped and why.
+
+![A completed scan run: findings, tasks, duration, stages and the task timeline]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
+*Figure: A completed run: each stage with its tool, inputs and planned targets, and the timeline of its tasks.*
 
 A task is claimed by a sensor under a lease that the sensor's heartbeats
 renew. If a sensor goes silent, its tasks go back to the queue about a minute

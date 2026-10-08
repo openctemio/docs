@@ -37,6 +37,9 @@ In OpenCTEM, open **Discovery > CI/CD**, tab **Trust and gate**, then
 **Add trust** (also under **Settings > Scanning > CI/CD integration**). You
 need `scans:ci:write` (owners and administrators).
 
+![The CI/CD integration settings with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
+*Figure: A trust configuration for GitHub Actions.*
+
 - **Provider**: GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket
   Pipelines, CircleCI or Jenkins, with what names your CI organization. For
   self-managed GitLab or Jenkins, enter its issuer URL.
@@ -196,6 +199,9 @@ pipeline shows as Running, Fresh, Stale, Failing, Degraded, or inactive
 (Archived, Revoked, Never); it is never "offline". Disabling or deleting a
 trust configuration revokes its pipelines and stops the upload tokens of their
 running jobs.
+
+![The CI/CD page listing two pipelines with their freshness and default-branch gate]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
+*Figure: CI pipelines.*
 
 ## Upload a file you already have
 

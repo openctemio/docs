@@ -78,6 +78,9 @@ how to run a workflow scan on targets that would otherwise need splitting.
 
 ## Preview and coverage
 
+![The Scan zones tab with one zone, its ranges, sensors and the coverage summary]({{ site.baseurl }}/assets/images/sensors/scan-zones.png)
+*Figure: Scan zones and coverage.*
+
 - **Routing preview** (`POST /api/v1/scan-zones/preview`) runs the trigger's
   target resolution, scope exclusions, routing and batching for a scan about
   to be created, without creating anything. The new-scan screen shows it.
