@@ -37,6 +37,9 @@ findings: who owns it, where it stands and when it is due. Each task is a
 **remediation campaign**: it can group many findings and shows how many are
 linked and resolved.
 
+![The Remediation tasks page with two campaigns, their priority, status and assignee]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
+*Figure: Remediation tasks.*
+
 1. The header has **Refresh**, **Export** (**Export as CSV** or **Export as
    JSON**) and **New task**.
 2. The quick filters **All tasks**, **Open**, **In progress**, **In review**,
@@ -69,6 +72,9 @@ with the actions **Activate**, **Pause**, **Resume**, **Start Validation**,
 **Complete** and **Cancel**. It shows the description, priority, progress (it
 auto-completes when all its findings are resolved), start and due dates, owner,
 validator, risk reduction and tags.
+
+![A remediation campaign page with its progress, dates and owner]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
+*Figure: A remediation campaign.*
 
 - **Resolve open findings** applies one outcome to all of the campaign's open
   findings: **Fix applied — pending rescan verification (recommended)** or

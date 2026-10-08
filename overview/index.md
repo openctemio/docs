@@ -15,6 +15,9 @@ It is multi-tenant: one installation serves several organizations, each isolated
 from the others. The code is under the GPL-3.0 licence at
 [github.com/openctemio](https://github.com/openctemio).
 
+![The OpenCTEM dashboard of the Example Corp organization: active exposure, priority classes over time and the five CTEM stages]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+*Figure: The dashboard: what is exploitable now, how the priority classes trend, and where each CTEM stage stands.*
+
 ## The CTEM loop
 
 ```mermaid

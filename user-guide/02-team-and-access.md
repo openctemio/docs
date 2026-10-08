@@ -25,6 +25,9 @@ For the full model see [Roles, groups and permissions](../identity/roles-and-per
 **Settings › Access › Members** (`/settings/members`) lists the people in the
 organization, their roles and pending invitations.
 
+![The Members settings page with five members, their roles, two-factor status and a pending invitation]({{ site.baseurl }}/assets/images/identity/members.png)
+*Figure: Settings, Members.*
+
 ### Add people
 
 There are two ways:
@@ -84,6 +87,9 @@ Protections:
 
 OpenCTEM uses **allow-only, role-based access control**: a member's abilities are
 the union of the permissions their roles grant. There are no deny rules.
+
+![The Roles settings page with the four system roles]({{ site.baseurl }}/assets/images/identity/roles.png)
+*Figure: Settings, Roles: the built-in roles and their permission counts.*
 
 **Settings › Access › Roles** (`/settings/roles`) lists the roles. The cards
 **Roles**, **System roles** and **Custom roles** also act as filters. Columns:
@@ -170,6 +176,9 @@ Rules can be **Active** or **Inactive**, edited and deleted.
 **Settings › Access › Authentication** (`/settings/authentication`) holds the
 organization's sign-in rules. Changing them needs an owner or admin.
 
+![The Authentication settings page with the two-factor and sensor identity switches]({{ site.baseurl }}/assets/images/identity/authentication.png)
+*Figure: Settings, Authentication.*
+
 - **Require two-factor authentication**: members who sign in with a password
   must set up an authenticator app at their next sign-in. Members who sign in
   through SSO use their identity provider's two-factor settings.
@@ -209,6 +218,9 @@ The cards show **Total tokens**, **Active tokens** and **Revoked tokens**. See
 **Settings › Access › API keys** (`/settings/api-keys`) creates keys for scripts
 and tools that call the API.
 
+![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
+*Figure: Settings, API keys.*
+
 1. Click **Generate API key**.
 2. Enter a **Name** and an optional description.
 3. Tick the **Scopes** the key needs (for example `assets:read`,
@@ -238,6 +250,9 @@ See [MCP server](../api/mcp.md).
 **Settings › Organization › Audit log** (`/settings/audit-log`) records who did
 what, when and with what result. Reading it needs the audit permission; without
 it the page shows **Access denied**.
+
+![The Audit log page listing recent actions with actor, resource, result and severity]({{ site.baseurl }}/assets/images/security/audit-log.png)
+*Figure: Settings, Audit log.*
 
 - Cards for the last seven days: **Events (7 days)**, **Successful**, **Failed**
   and **Denied**.

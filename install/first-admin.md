@@ -78,6 +78,12 @@ in the output.
 
 ## Sign in
 
+![The sign-in page with email and password fields]({{ site.baseurl }}/assets/images/install/sign-in.png)
+*Figure: The sign-in page at `/login`.*
+
+![The set-password page a new account owner reaches from the one-time link]({{ site.baseurl }}/assets/images/install/set-password.png)
+*Figure: The page the one-time set-password link opens.*
+
 1. Each administrator signs in at `https://<host>/login` with the email and the
    temporary password, opens the admin console, changes the password and enrolls
    an authenticator app (TOTP). The console requires a TOTP code.
@@ -115,6 +121,9 @@ organization and becomes its owner. Use it for a trial or SaaS-style
 installation; the default, `admin_only`, suits a self-hosted install where the
 operator decides which organizations exist. Further organizations in
 `admin_only` mode: admin console, **Organizations**, **Create**.
+
+![The Organizations list of the admin console with Example Corp and its owner]({{ site.baseurl }}/assets/images/user-guide/admin-organizations.png)
+*Figure: Admin console, Organizations: every organization of the installation.*
 
 Users never sign up on their own by default: accounts come from an organization
 owner or administrator (direct creation or invitation) or from the
