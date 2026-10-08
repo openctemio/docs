@@ -25,43 +25,58 @@ nav_order: 4
 Redis holds caches, rate-limit counters and queued background jobs. It does not
 need a backup; restarting with an empty Redis loses only queued work.
 
-Store backups off the host, encrypt them, and keep the secrets separate from
-the database dumps. Test a restore regularly.
+Store backups off the host and encrypted, and test a restore regularly. Where
+you can, keep the secrets separate from the database dumps: a dump together with
+`APP_ENCRYPTION_KEY` gives back every stored credential.
 
 ## Back up (Docker Compose)
 
-Run these in `api/deploy`. The project is named `openctem`, so volumes are
-called `openctem_<name>`.
+`api/deploy/backup.sh` backs up a running Compose stack. Run it in
+`api/deploy` of your checkout:
 
 ```bash
-mkdir -p backups
-stamp=$(date +%Y%m%d-%H%M%S)
-
-# Database: a consistent logical dump in custom format, taken as the
-# PostgreSQL superuser inside the postgres container
-docker compose exec -T postgres sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' \
-  > "backups/openctem-$stamp.dump"
-
-# Attachments and gateway data
-for v in api-data gateway-data; do
-  docker run --rm -v "openctem_$v:/data:ro" -v "$PWD/backups:/backup" alpine:3.22 \
-    tar czf "/backup/$v-$stamp.tgz" -C /data .
-done
-
-# Secrets
-cp .env "backups/env-$stamp"
-chmod 600 "backups/env-$stamp"
+./backup.sh            # back up now
+./backup.sh verify     # prove the newest backup restores
 ```
 
-`pg_dump` runs while the platform is up. Check that a dump is readable:
+Each run writes one directory, `backups/<UTC time>/` (directory mode `0700`,
+files `0600`):
+
+| File | Holds |
+|---|---|
+| `openctem.dump` | `pg_dump -Fc` of the database, taken while the platform runs and checked with `pg_restore --list`. |
+| `api-data.tar.gz` | The `api-data` volume: uploaded attachments and finding evidence. |
+| `gateway-data.tar.gz` | The `gateway-data` volume: certificates, the ACME account and the internal CA. |
+| `env` | A copy of `.env`, with every secret. |
+| `VERSION` | The `OPENCTEM_VERSION` of the stack that was backed up. |
+
+Because a backup holds `.env`, and with it `APP_ENCRYPTION_KEY`, it is as
+sensitive as the database plus every stored credential. Backups land on the same
+host, so they protect against a bad upgrade or deleted data, not against losing
+the host: copy the backup directory elsewhere, encrypted (for example with `age`
+or your backup tool's encryption).
+
+Settings, as environment variables:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `BACKUP_DIR` | `./backups` | Where backups are written. |
+| `KEEP` | `14` | How many backups are kept; older ones are deleted after a successful run. |
+| `METRICS_TEXTFILE_DIR` | unset | A node-exporter textfile directory. When set, each run writes `openctem_backup.prom` (`openctem_backup_last_exit_code`, `openctem_backup_last_success_timestamp_seconds`), which the `BackupStale` and `BackupFailed` alerts of the [monitoring stack](monitoring.md) read. |
+
+`COMPOSE_FILE` and `COMPOSE_PROJECT_NAME` work as for `docker compose`. Schedule a
+daily run with cron or a systemd timer, for example:
 
 ```bash
-docker run --rm -i postgres:17 pg_restore --list < "backups/openctem-$stamp.dump" | tail -3
+# /etc/cron.d/openctem-backup
+15 2 * * * root METRICS_TEXTFILE_DIR=/var/lib/node_exporter/textfile /opt/openctem/api/deploy/backup.sh >> /var/log/openctem-backup.log 2>&1
 ```
 
-To schedule it, put the commands in a script run by cron or a systemd timer.
-The [monitoring stack](monitoring.md) can alert on stale backups if the script
-reports its result (see the `BackupStale` runbook in the monitoring guide).
+`./backup.sh verify [<dir>]` restores the newest backup (or the one given) into
+a throwaway PostgreSQL container with no network, compares the row count of
+every table with the running database (rows written since the backup show as
+differences, which is expected), and checks that the volume archives are
+readable. Run it at least monthly.
 
 ### Managed PostgreSQL and Kubernetes
 
@@ -74,44 +89,32 @@ the Secrets that hold `APP_ENCRYPTION_KEY` and `AUTH_JWT_SECRET` the same way.
 
 Restore into the same release that made the backup, or an older backup into a
 newer release (the migrations then bring the schema forward). Never restore a
-newer dump into an older release.
+newer dump into an older release. `restore` warns when the backup's `VERSION`
+differs from the running `OPENCTEM_VERSION`.
 
 ```bash
-# 1. Stop everything that uses the database
-docker compose stop gateway web api
-
-# 2. Recreate the database empty
-docker compose exec -T postgres sh -c 'dropdb -U "$POSTGRES_USER" "$POSTGRES_DB" && createdb -U "$POSTGRES_USER" "$POSTGRES_DB"'
-
-# 3. Restore the dump (ownership and grants are repaired in step 4)
-docker compose exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges' \
-  < backups/openctem-20261008-020000.dump
-
-# 4. Re-apply the least-privilege roles: schema owner and app grants
-docker compose run --rm db-roles
-
-# 5. Start again (migrations run first)
-docker compose up -d
+./backup.sh restore backups/20261008T021500Z --yes
 ```
 
-Restore the volumes before step 5 when needed:
+Without `--yes` it refuses. It stops `gateway`, `web` and `api`, restores the
+database with `pg_restore --clean`, re-runs the `db-roles` job so the
+least-privilege roles get their grants on the restored schema, replaces the
+contents of the `api-data` and `gateway-data` volumes, and starts the stack
+again (migrations run first). It does not touch `.env`: put the backed-up `env`
+file back yourself if the secrets changed since the backup.
 
-```bash
-docker run --rm -v openctem_api-data:/data -v "$PWD/backups:/backup:ro" alpine:3.22 \
-  tar xzf /backup/api-data-20261008-020000.tgz -C /data
-```
-
-Then check `docker compose ps`, `curl https://<host>/health`, and that the API
-log has no `permission denied` errors.
+Then check `docker compose ps`, `curl https://<host>/health`, sign in, and look
+for `permission denied` errors in the API log.
 
 ### Restoring to a new host
 
-1. Set up the stack as in [Docker Compose](../install/docker-compose.md), but
-   copy the backed-up `.env` instead of generating new secrets. A new
-   `APP_ENCRYPTION_KEY` leaves the restored credentials unreadable.
-2. Start only the database: `docker compose up -d postgres`.
-3. Follow steps 2 to 5 above, restoring the `api-data` and `gateway-data`
-   volumes before step 5.
+1. Set up the stack as in [Docker Compose](../install/docker-compose.md), at the
+   backup's `OPENCTEM_VERSION`, but copy the backed-up `env` file to `.env`
+   instead of generating new secrets. A new `APP_ENCRYPTION_KEY` leaves the
+   restored credentials unreadable.
+2. Start it once (`docker compose up -d`) so the volumes and the database exist.
+3. Copy the backup directory to the new host and run
+   `./backup.sh restore <dir> --yes`.
 
 ### Outside Compose
 
