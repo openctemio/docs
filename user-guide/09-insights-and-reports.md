@@ -60,6 +60,9 @@ Use it to tell whether the attack surface is scanned often enough.
 **Insights › Executive Summary** (`/insights/executive`) is the leadership view
 of risk posture, remediation performance and process health.
 
+![The Executive summary with risk score, findings resolved, SLA compliance and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
+*Figure: The Executive summary.*
+
 1. Choose the **Period**: Last 30 days, Last 90 days or Last year.
 2. The headline cards: **Risk score** (with the change from the previous period),
    **Findings resolved**, **SLA compliance**, **P0 open**, **P1 open**, **Crown
@@ -96,6 +99,9 @@ maturity data yet": activate a cycle, work it and close it.
 ## Reports
 
 **Insights › Reports** (`/reports`) has two tabs.
+
+![The Reports page with the executive summary export and two scheduled reports]({{ site.baseurl }}/assets/images/user-guide/reports.png)
+*Figure: Reports.*
 
 ### Program
 

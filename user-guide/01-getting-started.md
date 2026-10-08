@@ -24,6 +24,9 @@ organization's. The console is organized around the five CTEM stages:
 
 Open the console and go to **Sign in** (`/login`).
 
+![The sign-in page with email and password fields]({{ site.baseurl }}/assets/images/install/sign-in.png)
+*Figure: The sign-in page.*
+
 1. Enter your **Email** and **Password** and click **Sign in**. The
    **Forgot password?** link sits next to the password label.
 2. Below the form, under **Or continue with**, you may see icon buttons for
@@ -73,6 +76,9 @@ you. You then receive a one-time setup link that opens **Set your password**.
 Choose a password, confirm it and click **Set password**, then sign in. Setup
 links work once and expire; if yours no longer works, ask your administrator for
 a new one.
+
+![The Set your password page with the password and confirmation fields]({{ site.baseurl }}/assets/images/install/set-password.png)
+*Figure: Choosing a password from the one-time link.*
 
 ## Create an account
 
@@ -161,6 +167,9 @@ From left to right:
   Preferences, Notifications, Activity), **All settings**, **Language** (English
   or Vietnamese) and **Sign out**.
 
+![The dashboard in the dark theme]({{ site.baseurl }}/assets/images/overview/dashboard-dark.png)
+*Figure: The dark theme, chosen with the theme switch in the header.*
+
 ### Permissions in the console
 
 Many buttons are hidden or disabled depending on your permissions. A disabled
@@ -184,6 +193,9 @@ this guide, you most likely do not have the permission, or the module is off.
 **Dashboard** (`/`) gives you the state of exposure in the current organization:
 what is exploitable now and what to do about it. The header has **Refresh**, a
 view switcher and an **Options** menu.
+
+![The CTEM view of the dashboard: active exposure, priority classes over time, the CTEM loop and the Fix next list]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+*Figure: The CTEM view of the dashboard.*
 
 ### The CTEM view (default)
 
@@ -242,6 +254,9 @@ appears with **Retry**.
 
 You can build personal dashboards next to the built-in views.
 
+![The Dashboards page with the built-in templates and a saved dashboard]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
+*Figure: Dashboards: start from a template or a blank canvas.*
+
 - Open the view switcher and choose **Manage dashboards…**, or **Options › New
   dashboard**. This opens **Dashboards** (`/dashboards`).
 - **Start from a template** (Executive, SOC / Triage, Vulnerability Management,
@@ -261,6 +276,9 @@ custom dashboard opens, and otherwise the CTEM view.
 
 **My Work** (`/my-work`) is your personal triage queue: findings assigned to you
 or on assets you own.
+
+![The My work page listing the findings assigned to the signed-in user]({{ site.baseurl }}/assets/images/user-guide/my-work.png)
+*Figure: My work: the findings assigned to you or on assets you own.*
 
 - The metric strip shows **Open · assigned to me**, **Critical / high** and
   **Overdue (SLA)**; each opens the findings list with that filter.
@@ -304,6 +322,9 @@ provider and the creation and update dates.
 ### Security
 
 **Security** (`/account/security`) has three cards.
+
+![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
+*Figure: Setting up two-factor authentication (the QR code and key are blurred here).*
 
 - **Password** (password accounts): **Change password** opens a dialog for the
   **Current password**, the **New password** and its confirmation. Changing your
