@@ -29,6 +29,6 @@ To call the API from your own code, start with the [API](../api/index.md) sectio
   change keeps tenant isolation (the organization always comes from the credential, every query
   is scoped by it), authorization on every route, and untrusted input (scan output, imported
   files, webhook bodies) treated as hostile. A new route without an authorization gate fails CI.
-- **Report vulnerabilities privately** to security@openctem.io, never in a public issue. See
+- **Report vulnerabilities privately** to <!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off-->, never in a public issue. See
   [Vulnerability disclosure](../security/vulnerability-disclosure.md).
 - **Keep it simple.** Prefer the smallest design that meets today's need.
