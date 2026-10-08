@@ -96,6 +96,12 @@ Both pages read the relationships between assets, so they fill in as discovery
 and relationship suggestions build the asset graph. With no relationships yet,
 they say so and link to the assets.
 
+![The Exposure chains page ranking chains from internet-facing entry points to assets with KEV findings]({{ site.baseurl }}/assets/images/user-guide/exposure-chains.png)
+*Figure: Exposure chains.*
+
+![The Attack paths page ranking assets by how many public entry points reach them]({{ site.baseurl }}/assets/images/user-guide/attack-paths.png)
+*Figure: Attack paths.*
+
 - **Exposure Chains** (`/exposure-chains`): attack paths from internet-facing
   entry points to assets with KEV or critical findings, ranked by urgency. Each
   chain is the shortest path from a public entry point to such an asset. Hover to
@@ -111,6 +117,9 @@ they say so and link to the assets.
 **Threat Intel** (`/threat-intel`) brings in external signal: exploit likelihood
 (EPSS), known-exploited CVEs (CISA KEV) and tracked threat actors. It feeds the
 KEV and EPSS badges you see across the console. **Refresh** reloads the data.
+
+![The Threat intelligence page with EPSS and CISA KEV statistics]({{ site.baseurl }}/assets/images/user-guide/threat-intel.png)
+*Figure: Threat intelligence.*
 
 Tabs:
 
@@ -195,6 +204,9 @@ percentage is shown in the reason ("Compensating controls present (reduction:
 **Priority Rules** (`/priority-rules`) overrides the computed priority class with
 your organization's policy, for example "anything in KEV on a crown jewel is
 P0".
+
+![The Priority rules page with three rules, their conditions, target class and evaluation order]({{ site.baseurl }}/assets/images/user-guide/priority-rules.png)
+*Figure: Priority rules.*
 
 How evaluation works:
 
