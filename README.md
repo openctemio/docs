@@ -233,7 +233,7 @@ If you find OpenCTEM useful, consider supporting the project:
 ## 📧 Contact
 
 - **Website:** https://openctem.io
-- **Email:** openctemio@gmail.com
+- **Email:** info@openctem.io
 - **GitHub:** https://github.com/openctemio
 
 ---
