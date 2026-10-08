@@ -20,6 +20,7 @@ reachable; sensors connect out to the platform, so nothing has to reach into you
 
 | If you want to | Read |
 |---|---|
+| Try it in 15 minutes | [Quickstart](quickstart.md): install, pair a sensor, run a first scan |
 | Understand what OpenCTEM does and how it is built | [Overview](overview/) and [Architecture](overview/architecture.md) |
 | Install it | [Install](install/): Docker Compose, the all-in-one image, or Kubernetes with Helm |
 | Configure it | [Configuration](configuration/) and the [environment variables reference](configuration/environment-variables.md) |
