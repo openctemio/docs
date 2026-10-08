@@ -66,9 +66,6 @@ kubectl -n openctem create secret generic openctem-api-secrets \
   --from-literal=APP_ENCRYPTION_KEY="$(openssl rand -hex 32)" \
   --from-literal=AUTH_JWT_SECRET="$(openssl rand -hex 64)"
 
-kubectl -n openctem create secret generic openctem-ui-secrets \
-  --from-literal=CSRF_SECRET="$(openssl rand -hex 32)"
-
 kubectl -n openctem create secret generic openctem-db \
   --from-literal=DB_USER=openctem_app \
   --from-literal=DB_PASSWORD='the openctem_app password'
@@ -111,9 +108,6 @@ api:
       name: Example Corp
       ownerEmail: owner@example.com
 
-ui:
-  secret:
-    existingSecret: openctem-ui-secrets
     createSecret: false
 
 postgresql:
