@@ -13,8 +13,14 @@ applies most of them; the checklist tells you what to confirm.
 
 ## Run in production mode
 
-Set `APP_ENV=production`. The API's code default is `development`, and the production checks
-below run **only** when the value is exactly `production`. The bundled compose file sets it.
+Keep `APP_ENV=production`. It is also the API's default when the variable is unset, so an image
+started without configuration runs the checks below and refuses to start until they pass. The
+checks run **only** when the value is `production` (or unset): any other value, such as `staging`,
+skips them, and `development` also accepts the published development secrets. The bundled compose
+file and the Helm chart set `production`.
+
+Run `server -check-config` before each deploy to see the first problem without starting the API
+(see [Check the configuration without starting](../configuration/environment-variables.md#check-the-configuration-without-starting)).
 
 In production mode the API refuses to start when:
 
@@ -34,7 +40,9 @@ A failed start prints the reason; fix the setting rather than working around the
 
 ## Generate the secrets
 
-Generate every secret fresh for each installation. Never reuse the example values.
+Generate every secret fresh for each installation. Never reuse the example values. A secret that
+still holds example-file text (`openssl rand -hex 32`, `<CHANGE_ME...>`, `changeme`) is refused at
+start-up in every environment, with a message naming the variable.
 
 | Secret | Generate with | Notes |
 |---|---|---|
@@ -179,9 +187,9 @@ proxy, do not strip these headers.
 ## Metrics and logs
 
 - `/metrics` is off unless `METRICS_TOKEN` is set (or `METRICS_PUBLIC=true`, which you should not use
-  on an exposed port). Scrapers send `Authorization: Bearer <token>`. The bundled compose file does not
-  pass `METRICS_TOKEN` to the API by default: add it to the API service environment when you deploy
-  monitoring.
+  on an exposed port). Scrapers send `Authorization: Bearer <token>`. In the bundled compose file,
+  set `METRICS_TOKEN` in `.env`; the gateway never routes `/metrics`, so scrape `api:8080` from inside
+  the Compose network.
 - Keep `LOG_LEVEL` at `info` or above. Logs contain email addresses and IP addresses of users
   (see [Data handling](data-handling.md#personal-data-in-logs)); ship them to a store with access
   control and retention.
@@ -199,7 +207,7 @@ proxy, do not strip these headers.
 
 ## Backups
 
-OpenCTEM has no built-in backup job. Back up:
+The platform does not back itself up: schedule a backup job. Back up:
 
 - PostgreSQL (`pg_dump -Fc` or your platform's snapshots), encrypted and stored off the host;
 - the `api-data` volume (uploaded evidence and attachments when stored locally);
@@ -207,8 +215,14 @@ OpenCTEM has no built-in backup job. Back up:
 - the gateway's `gateway-data` volume (it holds the internal CA in `internal` TLS mode);
 - your `.env` or secret store, **separately** from the database backups.
 
-The monitoring rules include `BackupStale` and `BackupFailed` alerts that read a metric your backup
-job writes. Test a restore regularly. See [Backup and restore](../operations/backup-restore.md).
+For the Compose deployment, `api/deploy/backup.sh` does all of this except the audit archive,
+the encryption and the off-host copy, writes its files with mode `0600`, and has a `verify` command that restores the
+newest backup into a throwaway PostgreSQL. A backup it makes holds `.env`, so it is as sensitive as
+the database plus every stored credential: encrypt it before it leaves the host.
+
+The monitoring rules include `BackupStale` and `BackupFailed` alerts that read a metric the backup
+job writes (`backup.sh` writes it when `METRICS_TEXTFILE_DIR` is set). Test a restore regularly. See
+[Backup and restore](../operations/backup-restore.md).
 
 ## Upgrades
 
@@ -216,6 +230,8 @@ job writes. Test a restore regularly. See [Backup and restore](../operations/bac
   database is behind or a migration is dirty. Migrations run as a separate step (the compose `migrate`
   service, the Helm pre-upgrade job, or the all-in-one image's start-up) with the migrator role.
 - Back up before every upgrade. Read the release notes for upgrade steps.
+- Verify the image signatures and SBOM attestations before you deploy a release (see
+  [Verify a release](../operations/versioning.md#verify-a-release)), and pin exact tags.
 - Subscribe to security advisories on the GitHub repositories and upgrade promptly when one is
   published. See [Upgrading](../operations/upgrade.md).
 

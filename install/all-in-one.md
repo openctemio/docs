@@ -42,9 +42,24 @@ The image is published from v0.9.0, for `linux/amd64` and `linux/arm64`.
 - Redis 7 with TLS and a password of at least 32 characters.
 - A volume for `/data`.
 
-The API runs with `APP_ENV=production` in the example below, which refuses a
-database or Redis connection without TLS. See
+The image runs in production mode unless you say otherwise: an unset `APP_ENV`
+means `production`, so a container started without configuration refuses to
+start until the production checks pass. In particular it needs:
+
+- `DB_SSLMODE=require` or `verify-full` (the default `disable` is refused);
+- `REDIS_PASSWORD` of at least 32 characters and `REDIS_TLS_ENABLED=true`, plus
+  `REDIS_TLS_CA_FILE` when the Redis certificate comes from a private CA;
+- `AUTH_JWT_SECRET` of at least 64 characters and an `APP_ENCRYPTION_KEY`.
+
+A secret that still holds example text (`openssl rand -hex 32`, `<CHANGE_ME...>`,
+`changeme`) is refused in every mode. The full list is in
 [Production checks](../configuration/environment-variables.md#production-checks).
+
+{: .note }
+For a short, non-production trial without TLS to the datastores, set
+`APP_ENV=development` explicitly. Never use it for real data: development mode
+skips the checks above, accepts the development secrets published in the
+repository and sends no HSTS header.
 
 ## 1. Prepare the database roles
 
@@ -107,8 +122,8 @@ REDIS_TLS_ENABLED=true
 EOF
 ```
 
-Set `AUTH_PROVIDER` and `APP_ENV` explicitly as above: the API's own defaults
-(`oidc`, `development`) are not meant for a production install.
+`APP_ENV=production` and `AUTH_PROVIDER=local` are also what the API uses when
+the variables are unset; the file sets them so the intent is visible.
 
 If the Redis certificate is not publicly trusted, mount its CA certificate
 (`-v /etc/openctem/redis-ca.crt:/etc/openctem/redis-ca.crt:ro`) and add
@@ -118,7 +133,30 @@ If the Redis certificate is not publicly trusted, mount its CA certificate
 Back up `openctem.env`. `APP_ENCRYPTION_KEY` is needed to read the credentials
 stored in the database, and `AUTH_JWT_SECRET` signs sessions.
 
-## 3. Run the container
+## 3. Check the configuration
+
+Validate the env file before the first start. `-check-config` loads the
+configuration the way the API does, prints the first problem or a one-line
+summary (never a secret value), exits `0` (valid) or `1` (invalid), and connects
+to nothing:
+
+```bash
+docker run --rm --env-file openctem.env \
+  --entrypoint /opt/openctem/api/server \
+  ghcr.io/openctemio/openctem:v0.9.0 -check-config
+```
+
+```text
+configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only SCOPE_ACTIVE_PROOF=off
+```
+
+A refusal names the setting, for example
+`configuration INVALID: database SSL must be enabled in production (use 'require' or 'verify-full')`.
+
+To verify the image signature before you run it, see
+[Verify a release](../operations/versioning.md#verify-a-release).
+
+## 4. Run the container
 
 ```bash
 docker volume create openctem-data
@@ -192,6 +230,8 @@ Migrations run on start. See [Upgrading](../operations/upgrade.md).
 ```bash
 NEW_VERSION=v0.9.1   # the release you upgrade to
 docker pull ghcr.io/openctemio/openctem:$NEW_VERSION
+docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
+  ghcr.io/openctemio/openctem:$NEW_VERSION -check-config
 docker rm -f openctem
 docker run -d --name openctem --restart unless-stopped \
   -p 443:443 -v openctem-data:/data --env-file openctem.env \
