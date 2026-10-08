@@ -50,8 +50,8 @@ value comes from the `TENANT_CREATION_MODE` setting (`admin_only` by default, or
    temporary password** before anything else. Changing it signs you out
    everywhere; sign in again with the new password.
 
-If the installation has an identity provider for administrators (see [Admin
-sign-in](#admin-sign-in)), the console sign-in page also offers **Sign in with
+If the installation has an identity provider for administrators
+(see [Admin sign-in](#admin-sign-in)), the console sign-in page also offers **Sign in with
 {provider}**. Password sign-in then remains for break-glass accounts.
 
 ## Overview
