@@ -97,7 +97,7 @@ for the admin console.
 | `oidc` | The API accepts only access tokens issued by one Keycloak realm. |
 | `hybrid` | Both. |
 
-The code default is `oidc`; set `AUTH_PROVIDER=local` (or `hybrid`) explicitly. The web console signs
+The default is `local` (up to v0.8.0 it was `oidc`). The web console signs
 in through the built-in accounts only, so the external mode is for API clients that obtain tokens from
 your realm.
 
