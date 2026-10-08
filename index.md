@@ -1,152 +1,55 @@
 ---
-layout: default
 title: Home
 nav_order: 1
 permalink: /
 ---
 
-# OpenCTEM Documentation
+# OpenCTEM documentation
 
-Welcome to the **OpenCTEM Platform** documentation - a Continuous Threat Exposure Management (CTEM) platform that runs the full five-stage loop: **Scoping** (attack surface + business context), **Discovery** (assets & exposures), **Prioritization** (a transparent composite score with EPSS/KEV/reachability), **Validation** (a safe-check Re-verify engine that confirms or downgrades findings), and **Mobilization** (engineering-grade tickets, remediation groups, SLA tracking, and a scope-refinement loop back to Scoping).
+OpenCTEM is an open-source platform for Continuous Threat Exposure Management (CTEM).
+It keeps an inventory of what an organization exposes, finds and correlates the weaknesses
+in it, ranks them by real risk, confirms them, and drives them to remediation. It runs the
+five CTEM stages as one loop: **scoping**, **discovery**, **prioritization**, **validation**
+and **mobilization**.
 
----
+OpenCTEM is self-hosted and multi-tenant: one installation serves many organizations, each
+isolated from the others. Scanning runs in **sensors** that you place where the targets are
+reachable; sensors connect out to the platform, so nothing has to reach into your networks.
 
-## 🚀 Getting Started
+## Start here
 
-New to OpenCTEM? Start here:
+| If you want to | Read |
+|---|---|
+| Understand what OpenCTEM does and how it is built | [Overview](overview/) and [Architecture](overview/architecture.md) |
+| Install it | [Install](install/): Docker Compose, the all-in-one image, or Kubernetes with Helm |
+| Configure it | [Configuration](configuration/) and the [environment variables reference](configuration/environment-variables.md) |
+| Run it in production | [Operations](operations/): upgrades, backups, monitoring, troubleshooting |
+| Understand its security model or report a vulnerability | [Security](security/) |
+| Connect your identity provider | [Identity and access](identity/) |
+| Scan your environment | [Sensors](sensors/) and [Scanning](scanning/) |
+| Use the console day to day | [User guide](user-guide/) |
+| Automate it or integrate with it | [API](api/) |
+| Contribute or write a tool | [Developers](developers/) |
 
-| Guide | Description |
-|-------|-------------|
-| **[Quick Start](./getting-started/quick-start.md)** | Get the platform running in 5 minutes |
-| **[First Scan Tutorial](./getting-started/first-scan.md)** | Run your first security scan |
+## Components
 
----
+| Component | Repository | Image |
+|---|---|---|
+| API server and web console | [openctemio/openctem](https://github.com/openctemio/openctem) | `ghcr.io/openctemio/openctem-api`, `ghcr.io/openctemio/openctem-web`, `ghcr.io/openctemio/openctem` (all-in-one) |
+| Sensor | [openctemio/sensor](https://github.com/openctemio/sensor) | `ghcr.io/openctemio/sensor` |
+| CI integration | [openctemio/ci](https://github.com/openctemio/ci) | |
+| Go SDK and tool contract | [openctemio/sdk-go](https://github.com/openctemio/sdk-go) | |
+| CTEM Ingest Schema (CTIS) | [openctemio/ctis](https://github.com/openctemio/ctis) | |
+| Helm charts | [openctemio/helm-charts](https://github.com/openctemio/helm-charts) | |
 
-## 📚 Documentation by Audience
+## Releases and license
 
-### For Users
+Each release is described in the
+[changelog](https://github.com/openctemio/openctem/blob/develop/api/CHANGELOG.md); see
+[Versioning and releases](operations/versioning.md) for the release policy. OpenCTEM is
+free software: the platform, sensor, SDK and CI integration are licensed under the GNU GPL v3.0,
+the CTIS schema and the Helm charts under the Apache License 2.0 (see [Legal](legal/)).
 
-| Topic | Description |
-|-------|-------------|
-| [CTEM User Guide (5-stage walkthrough)](./user-guide/README.md) | Feature-by-feature guide across Scoping → Discovery → Prioritization → Validation → Mobilization |
-| [End-to-End Workflow](./guides/END_TO_END_WORKFLOW.md) | Complete scan workflow walkthrough |
-| [Scan Management](./guides/scan-management.md) | Configure and run scans |
-| [Notification Integrations](./guides/notification-integrations.md) | Slack, Teams, Email alerts |
-| [Authentication](./guides/authentication.md) | Login and SSO setup |
-
-### For Developers
-
-| Topic | Description |
-|-------|-------------|
-| [SDK Quick Start](./guides/sdk-quick-start.md) | Build custom security tools |
-| [API Reference](./backend/api-reference.md) | REST API documentation |
-| [Custom Tools Development](./guides/custom-tools-development.md) | Create custom scanners |
-| [SDK Security Guide](https://github.com/openctemio/sdk-go/blob/main/docs/SECURITY.md) | Security best practices |
-
-### For Operators
-
-| Topic | Description |
-|-------|-------------|
-| [Production Deployment](./operations/PRODUCTION_DEPLOYMENT.md) | Kubernetes/Docker/Cloud |
-| [One HTTPS port](./operations/single-https-port.md) | Built-in gateway: UI, API and sensors on 443 |
-| [Configuration Reference](./operations/configuration.md) | Environment variables |
-| [Monitoring Guide](./operations/MONITORING.md) | Observability setup |
-| [Troubleshooting](./operations/troubleshooting.md) | Common issues |
-
-### For Architects
-
-| Topic | Description |
-|-------|-------------|
-| [System Overview](./architecture/overview.md) | High-level architecture |
-| [Scan Pipeline Design](./architecture/scan-pipeline-design.md) | Scan engine internals |
-| [Workflow Executor](./architecture/workflow-executor.md) | Automation system |
-| [Access Control](./architecture/access-control-flows-and-data.md) | 3-layer security model |
-
----
-
-## 📖 Documentation Sections
-
-### [Getting Started](./getting-started/)
-Quick start guides and tutorials for new users.
-
-### [Platform Guides](./guides/)
-Comprehensive how-to guides for all platform features:
-- Authentication & SSO
-- Multi-tenancy
-- Scanning & findings
-- Agent configuration
-- SDK development
-
-### [Architecture](./architecture/)
-System design and technical architecture:
-- Component interactions
-- Data flows
-- Security design
-- Integration patterns
-
-### [Operations](./operations/)
-Deployment and operational guides:
-- Development setup
-- Staging/Production deployment
-- Monitoring & alerting
-- Troubleshooting
-
-### [Features](./features/)
-Feature-specific documentation:
-- Platform Agents
-- Scan Profiles
-- Capabilities Registry
-- Asset Modules
-
-### [Backend](./backend/)
-API service documentation:
-- API Reference
-- JWT Structure
-- Database Schema
-
-### [Web Console](./ui/)
-The Next.js web console (`web/` in the openctem repository):
-- Where its developer docs live (`web/docs/`)
-- Account settings, custom endpoints, release readiness
-
-### [Admin UI](./admin-ui/)
-The separate Admin UI application of v0.8 and older. Since v0.9.0, platform
-administration is the admin console at `/admin` in the main web UI; see the
-[Platform Administration Guide](./guides/platform-admin.md).
-
----
-
-## 🔧 Component Documentation
-
-| Component | Documentation |
-|-----------|---------------|
-| **Platform (API + web)** | [openctem README](https://github.com/openctemio/openctem#readme) \| [Web console docs](./ui/) |
-| **Sensor** | [Sensor Quick Start](https://github.com/openctemio/sensor/blob/main/docs/QUICK_START.md) \| [Full README](https://github.com/openctemio/sensor#readme) |
-| **SDK** | [SDK README](https://github.com/openctemio/sdk-go#readme) \| [Security Guide](https://github.com/openctemio/sdk-go/blob/main/docs/SECURITY.md) |
-| **Schemas** | [CTIS Format](https://github.com/openctemio/ctis#readme) |
-
----
-
-## 🔗 External Links
-
-| Link | Description |
-|------|-------------|
-| [Platform](https://your-domain.com) | Live platform |
-| [API Docs](https://your-domain.com/docs) | Interactive API explorer |
-| [GitHub](https://github.com/openctemio) | Source code |
-
----
-
-## 🗺️ Roadmap
-
-Release history is in the [changelog](https://github.com/openctemio/openctem/blob/develop/api/CHANGELOG.md).
-
----
-
-## 🤝 Contributing
-
-Please refer to the [Contributing Guide](https://github.com/openctemio/openctem/blob/main/CONTRIBUTING.md) for contribution guidelines.
-
----
-
-**Questions?** Browse the sidebar or visit [docs.openctem.io](https://docs.openctem.io)
+To report a security vulnerability, email **security@openctem.io** and see the
+[vulnerability disclosure policy](security/vulnerability-disclosure.md). For anything
+else, write to info@openctem.io or open an issue in the relevant repository.

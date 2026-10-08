@@ -1,5 +1,5 @@
 title: OpenCTEM Documentation
-description: Continuous Threat Exposure Management (CTEM) Platform Documentation
+description: Documentation for OpenCTEM, the open-source Continuous Threat Exposure Management platform
 baseurl: ""
 url: "https://docs.openctem.io"
 
@@ -65,12 +65,17 @@ callouts:
 
 # Exclude from build
 exclude:
-  - node_modules/
+  - README.md
   - Gemfile
   - Gemfile.lock
+  - node_modules/
   - vendor/
-  - .git/
   - .github/
+  - scripts/
+
+# Publish /.well-known/security.txt
+include:
+  - .well-known
 
 # Default front matter
 defaults:
@@ -78,42 +83,6 @@ defaults:
       path: ""
     values:
       layout: "default"
-  - scope:
-      path: "getting-started"
-    values:
-      parent: "Getting Started"
-  - scope:
-      path: "guides"
-    values:
-      parent: "Platform Guides"
-  - scope:
-      path: "architecture"
-    values:
-      parent: "Architecture"
-  - scope:
-      path: "operations"
-    values:
-      parent: "Operations"
-  - scope:
-      path: "features"
-    values:
-      parent: "Features"
-  - scope:
-      path: "backend"
-    values:
-      parent: "Backend"
-  - scope:
-      path: "database"
-    values:
-      parent: "Database"
-  - scope:
-      path: "ui"
-    values:
-      parent: "Web Console"
-  - scope:
-      path: "admin-ui"
-    values:
-      parent: "Admin UI"
 
 # Mermaid diagrams support (if needed)
 mermaid:

@@ -1,6 +1,5 @@
 source "https://rubygems.org"
 
-gem "jekyll", "~> 4.3"
-gem "jekyll-remote-theme"
-gem "jekyll-seo-tag"
-gem "jekyll-include-cache"
+# Same gem set as the GitHub Pages build (actions/jekyll-build-pages).
+gem "github-pages", group: :jekyll_plugins
+gem "jekyll-include-cache", group: :jekyll_plugins
