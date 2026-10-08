@@ -66,7 +66,9 @@ set `APP_ENV=development` explicitly only for a local or trial setup.
 
 In every environment other than `development` the API also refuses to start
 without `APP_ENCRYPTION_KEY`, and refuses the development defaults published in
-the repository for `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`.
+the repository for `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`, and
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` (list ranges in
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` instead).
 
 In every environment, `development` included, the API refuses a secret that still
 holds the placeholder text of an example file: a value in angle brackets
@@ -384,7 +386,8 @@ skipped.
 | Variable | Default | Required | Secret | Description |
 |---|---|---|---|---|
 | `JIRA_WEBHOOK_SECRET` | empty |  | yes | Platform-wide fallback HMAC secret for inbound Jira webhooks. Organizations normally have their own secret. In production the API refuses to start when a connected Jira integration has neither. |
-| `OPENCTEM_HTTPSEC_ALLOW_PRIVATE` | unset |  |  | `1` lets outbound integration calls (webhook channels, self-hosted Jira or GitLab) reach private RFC 1918 / ULA addresses. Loopback, link-local and cloud metadata addresses stay blocked. |
+| `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` | empty |  |  | Comma-separated private ranges that outbound calls of the API (webhook and notification channels, self-hosted Jira or GitLab, an SMTP relay) may reach, for example `10.20.0.0/16`. Each entry must be a CIDR inside `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16` or `fc00::/7`, otherwise the API refuses to start. The list applies to every organization, so name only the subnets of your own services. Loopback, link-local, CGNAT and cloud metadata addresses stay blocked whatever the list says. |
+| `OPENCTEM_HTTPSEC_ALLOW_PRIVATE` | unset |  |  | `1` opens every private range. Honored only with `APP_ENV=development`: with any other `APP_ENV` (or none) the API refuses to start, because it would open the platform's own network to every organization. Use `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` instead. Any value other than empty, `0` or `1` is refused. |
 
 ### Metrics
 

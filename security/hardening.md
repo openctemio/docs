@@ -89,6 +89,10 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
   only status.
 - The API reference (`/docs`, `/openapi.yaml`) is always served and reachable through the gateway.
   It contains no data, but block it at your edge if you do not want to publish the API surface.
+- Outbound calls of the API (webhooks, integrations, SMTP) cannot reach private addresses unless you
+  list a range in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. List only the subnets of the services you
+  integrate with: the list applies to every organization. `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` (every
+  private range) stops the API outside `APP_ENV=development`.
 - Sensors only make outbound connections to the platform; they need no inbound access. See
   [Network requirements](../sensors/network.md).
 - Restrict SSH and management access to the host, and keep the container runtime and host OS
