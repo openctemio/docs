@@ -141,6 +141,56 @@ Private addresses and internal names are not authorized by scope entries but
 by [scan zones](../sensors/zones.md): a private target is accepted only when
 one of your zones covers it, and is scanned only by that zone's sensors.
 
+## The gate, check by check
+
+Every target goes through the same ordered checks before a sensor may receive
+it. The first check that fails refuses the target with its code (table below).
+
+```mermaid
+flowchart TD
+    T(["Target: name, address, URL or asset"]) --> V["1. Valid target?"]
+    V -- no --> R1["invalid_target"]
+    V -- yes --> X["2. Matches an exclusion?"]
+    X -- yes --> R2["excluded"]
+    X -- no --> D["3. On the platform deny list?"]
+    D -- yes --> R3["deny_list"]
+    D -- no --> A["4. Attribution allows active probes?"]
+    A -- no --> R4["rejected, needs_review, candidate,<br/>dependency, monitor_only"]
+    A -- yes --> E["5. An active scope entry covers it?"]
+    E -- no --> R5["no_entry, entry_pending,<br/>entry_expired, entry_inactive"]
+    E -- yes --> P["6. Proof needed and missing?"]
+    P -- yes --> R6["proof_required"]
+    P -- no --> TI["7. Tool tier above the entry's tier?"]
+    TI -- yes --> R7["tier_exceeds"]
+    TI -- no --> DS["8. Outside the person's data scope?"]
+    DS -- yes --> R8["out_of_data_scope, not_an_asset"]
+    DS -- no --> Z["9. Routed to a zone with sensors?"]
+    Z -- no --> R9["zone_none, zone_no_sensor,<br/>zone_sensor_mismatch"]
+    Z -- yes --> OK(["Queued for the zone's sensors"])
+    OK --> SG["On claim: the sensor's grant, zone and freeze windows;<br/>then the sensor's local policy and target guard"]
+```
+
+1. Malformed, loopback, link-local and metadata addresses are invalid;
+   private addresses are valid only inside one of your scan zones.
+2. Exclusions always win.
+3. The operator's guardrails (below).
+4. Names marked "Not ours", awaiting review, dependencies and monitor-only
+   names are never actively probed ([Ownership](#ownership-of-discovered-names)).
+5. Only `active` entries authorize.
+6. A T2 probe always needs a verified domain; `SCOPE_ACTIVE_PROOF` can require
+   one for more ([Proof of control](#proof-of-control)).
+7. Each entry's highest tier caps the probes it allows.
+8. The person who triggered the run (or the scan owner, for scheduled runs)
+   must be allowed to act on the asset.
+9. See [Scan zones](../sensors/zones.md#how-a-target-is-routed).
+
+The gate runs when a scan is created or edited, when a run is triggered, for
+every target a workflow step derives from an earlier step, for validation and
+retest jobs, and for `POST /api/v1/scope/check` (which dispatches nothing).
+When a sensor claims a task, the platform checks the sensor's grant, its zone
+and the freeze windows, and the sensor then applies its own local policy and
+target guard before any tool starts.
+
 ## Check before you scan
 
 `POST /api/v1/scope/check` (`attack_surface:scope:read`) runs the whole gate for up to 200

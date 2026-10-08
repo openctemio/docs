@@ -31,6 +31,22 @@ steps, so they run on whichever implementation your sensors have:
 
 System workflows cannot be edited; clone one to change it.
 
+The **Discover + Vuln** graph, as an example. Each arrow carries the assets the
+earlier step found, and every new target passes the scope gate before the next
+step probes it:
+
+```mermaid
+flowchart LR
+    SEED(["Seeds: your domains"]) --> SUB["discover.subdomains<br/>(T0, subfinder)"]
+    SUB -->|"names"| DNS["resolve.dns<br/>(T0, dnsx)"]
+    DNS -->|"names, addresses"| PORT["scan.ports<br/>(T1, naabu)"]
+    DNS -->|"names, addresses"| HTTP["probe.http<br/>(T1, httpx)"]
+    PORT -->|"open ports"| HTTP
+    PORT -->|"network services"| VULN["vuln.templates<br/>(T1, nuclei)"]
+    HTTP -->|"web services"| VULN
+    VULN --> F(["Findings"])
+```
+
 ## Capabilities
 
 The platform's capability catalogue decides which steps exist, what each one
