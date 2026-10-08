@@ -73,21 +73,29 @@ receive identical copies of `openctem-api` and `openctem-web`.
 
 - Every image is signed with [cosign](https://github.com/sigstore/cosign) keyless signing (Sigstore,
   GitHub OIDC identity of the `docker-publish.yml` workflow on a `v` tag).
-- Every image gets an SPDX JSON SBOM (generated with syft), attached to the GitHub Release as
-  `sbom-<image>-<version>.spdx.json`.
+- Every image gets an SPDX JSON SBOM (generated with syft), attached to the image digest as a
+  signed attestation (`cosign attest --type spdxjson`, same identity as the signature) and to the
+  GitHub Release as `sbom-<image>-<version>.spdx.json`.
 - Every GitHub Action in the workflows is pinned to a full commit SHA; workflow tokens are
   read-only unless a job needs more.
 
-Verify an image before you deploy it:
+Verify an image and its SBOM before you deploy it:
 
 ```bash
 cosign verify ghcr.io/openctemio/openctem:vX.Y.Z \
   --certificate-identity-regexp '^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
+cosign verify-attestation --type spdxjson ghcr.io/openctemio/openctem:vX.Y.Z \
+  --certificate-identity-regexp '^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
-**Release** creates the GitHub Release with the generated notes, the image pull lines and the
-`bootstrap-admin` binaries for linux (amd64, arm64), macOS (amd64, arm64) and Windows (amd64),
+**Release** creates the GitHub Release. Its notes start with a header: the image pull lines, these
+two `cosign` commands for the release's tag, and the upgrade steps (back up the database and the
+`api-data` volume, set `OPENCTEM_VERSION`, run `docker compose pull && docker compose up -d`, where
+the one-shot `migrate` service applies the migrations before the API starts); the generated notes
+follow. GitHub API calls in the release scripts are retried with backoff, and the publish step is
+safe to rerun. The release also carries the `bootstrap-admin` binaries for linux (amd64, arm64), macOS (amd64, arm64) and Windows (amd64),
 published as `bootstrap-admin-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows) with
 `checksums-sha256.txt`.
 

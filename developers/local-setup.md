@@ -44,10 +44,11 @@ cp .env.example .env
 
 Edit `api/.env`:
 
-- `APP_ENCRYPTION_KEY`: the example file holds a placeholder. Replace it with the output of
-  `openssl rand -hex 32`, or remove the line (only `APP_ENV=development` may run without a key).
-- `AUTH_JWT_SECRET`: replace the example value with a random secret. The minimum is 32 characters
-  (64 in production); `openssl rand -hex 32` gives 64.
+- `APP_ENV=development` must stay: an unset `APP_ENV` means `production`, which refuses to start
+  without TLS to PostgreSQL and Redis.
+- `APP_ENCRYPTION_KEY` and `AUTH_JWT_SECRET` hold public development values that work as they
+  are. The API refuses them whenever `APP_ENV` is not `development`; for anything else generate
+  your own (`openssl rand -hex 32`, `openssl rand -hex 64`).
 - `DB_*` and `REDIS_*` already match the development Compose file (`openctem` / `secret` on
   `localhost`).
 
