@@ -1,6 +1,6 @@
 ---
 title: Sensors
-nav_order: 8
+nav_order: 9
 has_children: true
 permalink: /sensors/
 ---
@@ -51,15 +51,34 @@ is not released.
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant S as Sensor
-    participant P as Platform
-    S->>P: heartbeat (tools, load, outbox state)
-    P-->>S: pending_jobs, next heartbeat, actions
-    S->>P: poll commands
-    P-->>S: commands this sensor may run (claimed under a lease)
-    S->>S: check local policy, run the tool in a sandbox
-    S->>P: results (CTIS), complete
+    participant P as Platform (API)
+    participant T as Targets
+    loop every 30 s idle, every 5 s while work waits
+        S->>P: POST /api/v2/sensor/heartbeat (running command ids, load)
+        P-->>S: pending_jobs, next_heartbeat_seconds, actions, cancel_command_ids
+    end
+    S->>P: GET /api/v2/sensor/commands (poll)
+    P-->>S: commands this sensor may run (tool, zone, free slot, grant)
+    S->>P: POST /commands/{id}/claim
+    P-->>S: claimed under a lease (3 min, renewed by each heartbeat)
+    S->>S: check the local policy and the target guard
+    S->>P: POST /commands/{id}/start
+    S->>T: run the tool in a sandbox
+    S->>P: POST /commands/{id}/logs
+    S->>S: write the report to the encrypted outbox
+    S->>P: PUT /commands/{id}/results/{report_id}, then commit
+    P-->>S: 202 queued
+    P->>P: ingest worker: validate, bind to the task's organization, apply or quarantine
+    S->>P: POST /commands/{id}/complete (or fail, release)
+    Note over S,P: A sensor that stops heartbeating loses its lease, and the<br/>platform returns the command to the queue for another sensor of the zone.
 ```
+
+A **command** is the sensor-side name of a [scan run's task](../scanning/scans-and-runs.md#steps-and-tasks).
+The paths above are under `/api/v2/sensor`. A sensor that paired signs every
+request with its own key ([Pairing](pairing.md)); there is no separate lease
+renewal call, because the heartbeat lists the commands the sensor is running.
 
 1. **Heartbeat.** About every 30 seconds while idle, every 5 seconds while work
    is waiting. The answer says whether work is waiting (the "doorbell"); it
