@@ -26,12 +26,19 @@ bottom, and so does this guide.
 
 ```mermaid
 flowchart LR
-  S[Scoping<br/>what is in scope,<br/>what matters] --> D[Discovery<br/>assets, exposures,<br/>findings]
-  D --> P[Prioritization<br/>rank by real risk]
-  P --> V[Validation<br/>is it really<br/>exploitable?]
-  V --> M[Mobilization<br/>fix it, track it,<br/>enforce SLAs]
-  M -->|lessons and scope refinement| S
+    S["<b>Scoping</b><br/>what is in scope,<br/>what matters<br/><br/>Overview, Cycles,<br/>Business context,<br/>Scope, Threat model"]
+    D["<b>Discovery</b><br/>assets, exposures,<br/>findings<br/><br/>Scans, Sensors, CI/CD,<br/>Attack surface, Assets,<br/>Exposures, Credential leaks,<br/>Components, Findings"]
+    P["<b>Prioritization</b><br/>rank by real risk<br/><br/>Exposure chains,<br/>Attack paths, Threat intel,<br/>Business impact,<br/>Compensating controls,<br/>Priority rules"]
+    V["<b>Validation</b><br/>is it really<br/>exploitable?<br/><br/>Overview, Pentest campaigns,<br/>Attack simulation,<br/>Control testing,<br/>Retest queue, ATT&CK coverage"]
+    M["<b>Mobilization</b><br/>fix it, track it,<br/>enforce SLAs<br/><br/>Remediation,<br/>SLA compliance,<br/>Exceptions, Automations"]
+    S --> D --> P --> V --> M
+    M -->|"lessons and<br/>scope refinement"| S
+    I["<b>Insights</b>: Program health, Data quality, Executive summary,<br/>CTEM maturity, Reports, Compliance"]
+    M ~~~ I
 ```
+
+Each box lists the sidebar entries of that stage. **Findings** sits at the top of
+the sidebar, next to the dashboard and **My work**, because every stage uses it.
 
 | Stage | Goal | Chapter |
 |---|---|---|
