@@ -14,7 +14,13 @@ Access inside an organization is decided by three independent checks:
 | Data scope | *Which assets* (and the findings and other records linked to them) may they see and act on? | Groups and direct asset grants |
 | Modules | Is this *feature* enabled for the organization at all? | Organization module settings |
 
-A request must pass all three. The full route-by-route matrix is in
+A request must pass all three. The [authorization reference](authorization/index.md)
+is generated from the source:
+- the [role and permission matrix](authorization/roles-matrix.md), with the role templates;
+- [personas](authorization/personas.md), with the roles, team and data scope recommended for each;
+- one permissions page per feature.
+
+The design rules are in
 [authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/authorization-matrix.md).
 
 ## Built-in roles
