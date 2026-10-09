@@ -1,0 +1,98 @@
+name: Authorization reference
+
+# Regenerates identity/authorization/ (role and permission matrix, personas,
+# per-feature permissions) from the newest openctem release, or from the ref
+# given on a manual run, and opens or updates a pull request when the pages
+# changed. The pages are generated from the API source (cmd/gen-authz-docs);
+# never edit them by hand.
+
+on:
+  schedule:
+    - cron: "41 5 * * *"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "openctem tag or branch to generate from (default: the newest release)"
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: authz-reference
+  cancel-in-progress: true
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Pick the openctem ref
+        id: ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          ref="$INPUT_REF"
+          if [ -z "$ref" ]; then
+            ref="$(gh api repos/openctemio/openctem/releases/latest --jq .tag_name)"
+          fi
+          case "$ref" in
+            *[!A-Za-z0-9._/-]*|"") echo "unusable ref: $ref" >&2; exit 1 ;;
+          esac
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: openctemio/openctem
+          ref: ${{ steps.ref.outputs.ref }}
+          path: openctem
+          persist-credentials: false
+
+      - name: Skip a release that has no generator
+        id: has
+        run: |
+          if [ -f openctem/api/cmd/gen-authz-docs/main.go ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::openctem ${{ steps.ref.outputs.ref }} does not ship cmd/gen-authz-docs yet"
+          fi
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        if: steps.has.outputs.ok == 'true'
+        with:
+          go-version-file: openctem/api/go.mod
+          cache-dependency-path: openctem/api/go.sum
+
+      - name: Generate
+        if: steps.has.outputs.ok == 'true'
+        run: bash scripts/regen-authz-reference.sh openctem
+
+      - name: Check the pages
+        if: steps.has.outputs.ok == 'true'
+        run: python3 scripts/docs_check.py .
+
+      - name: Open or update the pull request
+        if: steps.has.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF: ${{ steps.ref.outputs.ref }}
+        run: |
+          if git diff --quiet -- identity/authorization && [ -z "$(git status --porcelain -- identity/authorization)" ]; then
+            echo "authorization reference unchanged"
+            exit 0
+          fi
+          branch=docs/authz-reference-regen
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add identity/authorization
+          git commit -m "docs(identity): regenerate the authorization reference from openctem $REF"
+          git push --force origin "$branch"
+          if ! gh pr view "$branch" --json number >/dev/null 2>&1; then
+            gh pr create --base main --head "$branch" \
+              --title "docs(identity): regenerate the authorization reference" \
+              --body "Generated from openctem \`$REF\` by \`cmd/gen-authz-docs\` (scripts/regen-authz-reference.sh). Do not edit these pages by hand."
+          fi
