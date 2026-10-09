@@ -1,7 +1,7 @@
 ---
 title: Google
 parent: Identity and access
-nav_order: 5
+nav_order: 6
 ---
 
 # Single sign-on with Google
