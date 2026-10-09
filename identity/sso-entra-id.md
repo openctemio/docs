@@ -1,7 +1,7 @@
 ---
 title: Microsoft Entra ID
 parent: Identity and access
-nav_order: 4
+nav_order: 5
 ---
 
 # Single sign-on with Microsoft Entra ID

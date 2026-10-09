@@ -1,7 +1,7 @@
 ---
 title: Two-factor authentication
 parent: Identity and access
-nav_order: 3
+nav_order: 4
 ---
 
 # Two-factor authentication and step-up
