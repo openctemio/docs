@@ -40,6 +40,7 @@ proxies in [Network](network.md#proxies).
 | <span id="SENSOR_ADAPTER_DIRS"></span>`SENSOR_ADAPTER_DIRS` | string |  |  |  | Directories of operator-installed tools (tool.yaml with its program), separated by the OS path list separator. |
 | <span id="SENSOR_TEMPLATE_SIGNING_KEYS"></span>`SENSOR_TEMPLATE_SIGNING_KEYS` | list |  |  |  | The platform's template-signing public keys (base64 Ed25519); needed for custom templates. |
 | <span id="SENSOR_LOCAL_POLICY"></span>`SENSOR_LOCAL_POLICY` | path |  | `/etc/openctem/sensor-policy.yaml` |  | The sensor-local policy file the network owner installs. |
+| <span id="SENSOR_REQUIRE_LOCAL_POLICY"></span>`SENSOR_REQUIRE_LOCAL_POLICY` | bool |  | `auto` |  | true: without a local policy, refuse every job with network targets, custom templates and callbacks; false: legacy behavior. Unset: true for a sensor paired by an SDK that fails closed, false for older identities and API-key sensors. |
 | <span id="SENSOR_ALLOWED_RANGES"></span>`SENSOR_ALLOWED_RANGES` | list |  |  |  | Shorthand local policy: allowed target ranges. |
 | <span id="SENSOR_ALLOWED_PORTS"></span>`SENSOR_ALLOWED_PORTS` | list |  |  |  | Shorthand local policy: allowed ports. |
 | <span id="SENSOR_KILL_SWITCH_FILE"></span>`SENSOR_KILL_SWITCH_FILE` | path |  |  |  | A file whose presence stops every job. |
