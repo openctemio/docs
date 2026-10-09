@@ -178,6 +178,15 @@ See [Scope and authorization to scan](../scanning/scope.md).
 The design goal is mutual distrust: a compromised sensor must not be able to attack the platform, and
 a compromised platform must not be able to turn sensors into weapons. The current controls:
 
+**Outbound-only.** Sensors never accept inbound connections. A sensor connects out to the platform and
+receives all its work and control over that connection: polling, the control stream, pairing. It
+opens no port on its host, and its health and diagnostics stay local. This is a fixed rule of the
+design, for three reasons:
+
+- it works behind NAT and default-deny firewalls;
+- the platform never holds a way to dial into customer networks;
+- whatever the platform sends is checked by the sensor before anything runs.
+
 **Identity.** A paired sensor holds an Ed25519 private key that never leaves its host; every request is
 signed (HTTP Message Signatures, RFC 9421) with a nonce and a body digest. Pairing is approved by an
 organization admin with step-up after comparing a short code. An organization can require key-bound
@@ -188,29 +197,57 @@ and takes back its queued work. See [Pairing and enrollment](../sensors/pairing.
 checked against it, and a missing grant withholds every job. Widening a grant needs step-up and is
 notified to admins.
 
+**Hostile input.** Everything a sensor sends is treated as untrusted:
+
+- Size, nesting depth and item counts are checked before a body is decoded.
+- The sensor endpoints are rate-limited per address, per sensor and per organization, before
+  authentication as well as after it.
+- Report data that will never be applied (abandoned, expired or failed uploads) is purged on a schedule.
+
 **Results.** The organization always comes from the sensor's identity. A report is bound to a job when
 it names a job assigned to that sensor, and a bound report can change only the existing assets its
 job covers. Unsolicited reports are accepted from collector and CI roles; from other sensors they are
 quarantined for review (the default for new organizations) or applied with limits and audited, by
 organization policy. Unsolicited reports never reopen findings a person resolved and never close
-findings. Sensor-supplied text is length-capped and rendered as text.
+findings. A scan closes findings by coverage only on the assets its job covered. Sensor-supplied text is
+length-capped, and it is rendered as text in the console, in exports, in tickets (including ticket
+comments) and in notifications.
 
-**Sensor-local policy.** The owner of the scanned network can install a read-only policy file on the
+**Sensor-local policy.** The owner of the scanned network installs a read-only policy file on the
 sensor host that lists allowed and denied ranges, ports, tools, job types and switches for custom
 templates and out-of-band callbacks, plus a kill switch. The sensor refuses any job outside it, even
 one the platform sends, and the platform cannot change it. The sensor always refuses loopback,
 link-local and cloud metadata addresses, and private ranges unless explicitly allowed. An organization
-can require an enforced local policy before private targets are dispatched. See the sensor's
+can require an enforced local policy before private targets are dispatched.
+
+Today a sensor without a policy runs any target the platform sends outside its built-in deny list, so
+install one on every sensor. **From the next sensor release, newly paired sensors fail closed without a
+policy:** they refuse network jobs until a policy file (or an allowed-ranges setting) is in place.
+Sensors paired earlier keep working, and the Sensors page flags them so their owners can add a policy. See the sensor's
 [local policy reference](https://github.com/openctemio/sensor/blob/main/docs/LOCAL_POLICY.md).
+
+**Platform identity on the sensor.** A sensor should trust only the platform it was paired with.
+
+- **Today:** set `SENSOR_CA_FINGERPRINT` to the fingerprint shown on the Sensors page. The sensor then
+  refuses any other certificate, including one from a TLS-inspecting proxy. Without it, the sensor
+  trusts the system's certificate authorities.
+- **From the next sensor release:** pairing stores the pin, install snippets carry the fingerprint, and
+  sensors without a pin are flagged.
 
 **Declarative jobs.** Jobs name a registered tool and its targets; there is no job type that runs a
 shell command, and dangerous tool flags are refused. Custom scanner templates sent by the platform are
 signed per command (Ed25519, DSSE envelope, one-hour expiry) and verified by the sensor against the
 organization key its operator pinned.
 
-**Limits.** Signing of every job by a signing service separate from the API, a separate sensor gateway
-process, and two-person approval for every scope widening are **planned** (RFC-040). Today the API
-process that serves sensors also serves users. The engineering status is in
+**Limits.** Three controls are **planned** (RFC-040):
+
+- signing of every job by a signing service separate from the API, which sensors verify before running
+  anything;
+- a separate sensor gateway process;
+- two-person approval for every scope widening.
+
+Today the API process that serves sensors also serves users. Until job signing ships, a sensor's local
+policy and its pinned platform identity are what stop a compromised platform from directing it. The engineering status is in
 [sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sensor-platform-trust.md).
 
 ## Secrets
