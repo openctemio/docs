@@ -1,7 +1,7 @@
 ---
 title: SAML 2.0
 parent: Identity and access
-nav_order: 7
+nav_order: 8
 ---
 
 # Single sign-on with SAML 2.0
