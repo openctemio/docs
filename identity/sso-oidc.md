@@ -1,7 +1,7 @@
 ---
 title: Generic OIDC
 parent: Identity and access
-nav_order: 6
+nav_order: 7
 ---
 
 # OpenID Connect: Okta and other providers
