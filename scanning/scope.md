@@ -45,6 +45,9 @@ Each entry has a status and a tier ceiling:
 - **Permanent or one-off.** A one-off entry has an expiry (default 7 days, at
   most the organization's maximum, never more than 30) and a reason. It stops
   authorizing the moment it expires.
+- **Intrusive (T2) entries** follow their own limit, set by an owner: 7, 30
+  (default), 90 or 365 days, or permanent. Long and permanent T2 entries are
+  confirmed periodically (see below).
 - **Highest tier** (`max_tier`): `t0` passive only, `t1` non-intrusive active
   checks (the default), `t2` intrusive. A probe above an entry's tier is
   refused with `tier_exceeds`.
@@ -71,6 +74,22 @@ or shortening an exclusion, **widen** scope. They need:
   one when the organization has two or more administrators (and always at
   least one for a T2 entry). Until then the entry is `pending`.
 
+A pending entry shows how many approvals it still needs and who can give
+them (owners, administrators and members with the scope approval
+permission, never the person who asked). They are told in-app, by email and
+on the organization's notification channels; **Remind approvers** sends the
+request again, at most once an hour. When nobody else can approve (an
+organization with a single owner), the owner who asked may approve the
+entry themselves with a reason and a code from their authenticator app.
+This is recorded in the audit log and every administrator is told; nothing
+is ever approved automatically.
+
+Your platform administrator decides how much of this applies: approvals
+required (the default), decided by your organization's owner for every tier,
+or disabled. The Scope settings page shows which. Re-authentication,
+ownership proof, the platform deny list, audit and notifications apply in
+every case.
+
 ![Scope changes waiting for a second administrator's approval]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
 *Figure: A cloud account and an exclusion waiting for approval.*
 
@@ -79,6 +98,15 @@ is audited. Members with `attack_surface:scope:write` only **request** a
 one-off entry for one name or address, with a reason; an approver decides it
 on the **Approvals** tab. Narrowing (deactivating, deleting, an earlier
 expiry, a lower tier) is always one step.
+
+### Confirming intrusive (T2) entries
+
+A T2 entry that lasts longer than the confirmation period (every 90 days by
+default; an owner sets 30 to 180) is confirmed by an approver: "Keep T2 for
+<pattern>?" arrives in-app, by email and on the channels, and the
+**Approvals** tab offers **Keep T2**. Without a confirmation within 14 days
+the entry falls back to non-intrusive (T1) probes. It is not removed;
+raising it to T2 again needs an approval.
 
 ### Scope policy settings
 
@@ -89,6 +117,8 @@ expiry, a lower tier) is always one step.
 | Maximum days for a one-off entry | 1-30 | 7 |
 | Approvals for widening | default, 0, 1, 2 | default: `min(1, administrators - 1)` |
 | Default tier of new entries | `t0`, `t1` | `t1` |
+| Longest intrusive (T2) entry (owners only) | 7, 30, 90, 365 days, permanent | 30 days |
+| Confirm long T2 entries every (owners only) | 30-180 days | 90 days |
 
 ## Ownership of discovered names
 
