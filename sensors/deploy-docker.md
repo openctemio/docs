@@ -57,9 +57,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   --stop-timeout 45 \
   -e API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
-  -v openctem-state:/var/lib/openctem/state \
-  -v openctem-outbox:/var/lib/openctem/outbox \
-  -v openctem-content:/var/lib/openctem/content \
+  -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0
 ```
 
@@ -79,15 +77,13 @@ services:
       # SENSOR_ALLOW_PRIVATE_TARGETS: "1"           # to scan RFC 1918 / ULA ranges
       # SENSOR_CA_CERT_FILE: /certs/openctem-ca.pem # platform with its own CA
     volumes:
-      - state:/var/lib/openctem/state       # the sensor's key: keep and back up
-      - outbox:/var/lib/openctem/outbox     # undelivered results: keep
-      - content:/var/lib/openctem/content   # scanner content cache
+      # state/ (the sensor's key), outbox/ (undelivered results) and
+      # content/ (scanner cache): keep it and back it up
+      - data:/var/lib/openctem
       # - ./openctem-root-ca.crt:/certs/openctem-ca.pem:ro
     stop_grace_period: 45s
 volumes:
-  state:
-  outbox:
-  content:
+  data:
 ```
 
 - The image's default command is `-daemon -enable-commands -verbose`. Without
@@ -96,13 +92,13 @@ volumes:
   with `docker logs openctem-sensor` and approve it as described in
   [Pairing](pairing.md).
 - To prepare the console first instead, create a code with **Expect a
-  sensor** and run the `pair` command once, with the same state volume and CA
+  sensor** and run the `pair` command once, with the same data volume and CA
   settings, before you start the daemon:
 
   ```bash
   docker run --rm -it \
     -e API_URL=https://openctem.example.com \
-    -v openctem-state:/var/lib/openctem/state \
+    -v openctem-sensor-data:/var/lib/openctem \
     ghcr.io/openctemio/sensor:v0.14.0 pair K7QM-4ZTD
   ```
 
@@ -117,13 +113,66 @@ a policy file instead of `SENSOR_ALLOWED_RANGES`:
 
 ## Volumes
 
+Mount **one** volume at `/var/lib/openctem`. The sensor keeps three
+directories on it and creates them on a fresh volume (`state/` and `outbox/`
+`0700`, owned by the sensor's user):
+
+| Directory | Holds | Keep it? |
+|---|---|---|
+| `state/` | The sensor's identity (`identity/`: its private key, client certificate and pinned CAs) and other local state | **Yes.** It is the sensor's only credential: back it up encrypted and never share it. Without it the sensor must be paired again. |
+| `outbox/` | Results not yet accepted by the platform (encrypted) | **Yes.** Without it, results queued during an outage or an upgrade are lost. One sensor per outbox: a second process refuses to start. |
+| `content/` | Scanner content (nuclei templates and, on per-tool images, the trivy database and semgrep rules) | Optional. A cache: it can be deleted and is downloaded again. |
+
+The image declares no `VOLUME`: an unnamed volume is lost with the
+container, and the sensor warns at start when its state or outbox is not on a
+mounted volume. `SENSOR_STATE_DIR`, `SENSOR_OUTBOX_DIR` and
+`SENSOR_CONTENT_DIR` move a directory elsewhere (for example the content
+cache to other storage).
+
+Other mounts:
+
 | Mount | Holds | Keep it? |
 |---|---|---|
-| `/var/lib/openctem/state` | The sensor's identity (`identity/`: its private key, client certificate and pinned CAs) and other local state | **Yes.** It is the sensor's only credential: back it up encrypted and never share it. Without it the sensor must be paired again. The image does not declare it a volume, so an unnamed mount is lost with the container. |
-| `/var/lib/openctem/outbox` | Results not yet accepted by the platform (encrypted) | **Yes.** Without it, results queued during an outage or an upgrade are lost. One sensor per outbox: a second process refuses to start. |
-| `/var/lib/openctem/content` | Scanner content (nuclei templates and, on per-tool images, the trivy database and semgrep rules) | Optional. A cache: it can be deleted and is downloaded again. |
 | `/scan` | Repositories for code scanners (per-tool images only) | Mount read-only. Targets of code scans must resolve inside `SENSOR_SCAN_ROOTS` (default `/scan`). |
 | `/etc/openctem` | The sensor-local policy and the kill switch file | Mount read-only. See [Network](network.md#sensor-local-policy). |
+
+### Back up
+
+Back up the whole volume, or leave out the cache:
+
+```bash
+docker run --rm -v openctem-sensor-data:/data:ro -v "$PWD":/backup alpine \
+  tar -C /data --exclude=./content -czf /backup/openctem-sensor-data.tgz .
+```
+
+The archive holds the sensor's private key: store it encrypted.
+
+### Move from three volumes to one
+
+Sensors installed with a volume on each of `/var/lib/openctem/state`,
+`/var/lib/openctem/outbox` and `/var/lib/openctem/content` keep working
+unchanged. To move one to a single volume (sensor v0.16.0 or later; an older
+image puts unnamed volumes on `outbox/` and `content/` on top of it):
+
+```bash
+docker stop openctem-sensor                 # or: docker compose stop sensor
+docker volume create openctem-sensor-data
+for d in state outbox content; do
+  docker run --rm -v openctem-$d:/from:ro -v openctem-sensor-data:/to alpine \
+    sh -c "mkdir -p /to/$d && cp -a /from/. /to/$d/"
+done
+docker run --rm -v openctem-sensor-data:/to alpine \
+  sh -c 'chown "$(stat -c %u:%g /to/state)" /to'
+```
+
+Then replace the three mounts with `-v openctem-sensor-data:/var/lib/openctem`
+(Compose: `- openctem-sensor-data:/var/lib/openctem` with
+`volumes: {openctem-sensor-data: {external: true}}`; Compose prefixes the
+names of volumes it created with the project name, see
+`docker volume ls`), recreate the container and check its log: the same
+`transport:` line, no new pairing code, and the same sensor online under
+**Settings → Sensors**. Remove the old volumes only after that. Copying
+`content` is optional: it is downloaded again.
 
 ## Trust a private certificate authority
 

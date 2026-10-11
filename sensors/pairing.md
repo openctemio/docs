@@ -165,13 +165,13 @@ pairing. The old key is revoked at once, the sensor keeps its history, and it
 returns to trust level **New**. A sensor whose identity directory is gone has
 nothing to re-pair: pair it as a new sensor and delete the old one.
 
-With Docker, run it with the sensor's state volume while the daemon is
+With Docker, run it with the sensor's data volume while the daemon is
 stopped:
 
 ```bash
 docker stop openctem-sensor
 docker run --rm -it -e API_URL=https://openctem.example.com \
-  -v openctem-state:/var/lib/openctem/state \
+  -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0 pair -repair
 docker start openctem-sensor
 ```

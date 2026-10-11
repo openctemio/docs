@@ -157,9 +157,7 @@ On the host in the network you want to scan:
 ```bash
 docker run -d --name openctem-sensor --restart unless-stopped \
   -e API_URL=https://ctem.example.com \
-  -v openctem-outbox:/var/lib/openctem/outbox \
-  -v openctem-state:/var/lib/openctem/state \
-  -v openctem-content:/var/lib/openctem/content \
+  -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.11.0
 docker logs openctem-sensor
 ```
