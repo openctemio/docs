@@ -154,7 +154,7 @@ rotated at 50 MB with 5 files kept.
 | Volume | Holds | Back up |
 |---|---|---|
 | `postgres-data` | The database. | Yes, with `backup.sh` (see [Backup and restore](../operations/backup-restore.md)). |
-| `api-data` | Uploaded attachments and finding evidence (`/app/data`). | Yes. |
+| `api-data` | Uploaded attachments, finding evidence and the sensor CA that signs sensor gRPC certificates (`/app/data`). | Yes. Losing the sensor CA makes sensors on gRPC stop until they get a certificate from the new one (see [Sensor transport](../sensors/transport.md#platform-side-the-sensor-ca)). |
 | `gateway-data` | Certificates, the ACME account and the internal CA's private key. | Yes, in TLS mode `internal`: losing it creates a new CA that sensors and browsers do not trust. |
 | `gateway-config` | Caddy's runtime configuration. | No. |
 | `datastore-tls` | The private CA and certificates of PostgreSQL and Redis. | No (re-issued when missing). |
@@ -218,7 +218,13 @@ docker compose -f docker-compose.yml -f docker-compose.http-redirect.yml up -d
 
 # TLS mode http, behind your own TLS proxy
 docker compose -f docker-compose.yml -f docker-compose.plain-http.yml up -d
+
+# Sensor gRPC on the same port 443 (builds the gateway with the layer-4 module)
+docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d --build
 ```
+
+The sensor overlay is described in
+[Sensor transport](../sensors/transport.md#grpc-on-port-443-docker-compose).
 
 Use the same `-f` list for every later `docker compose` command.
 
@@ -229,4 +235,4 @@ Use the same `-f` list for every later `docker compose` command.
   resets are delivered.
 - [Set up backups](../operations/backup-restore.md) and
   [monitoring](../operations/monitoring.md).
-- Connect a sensor: see [Sensors](../sensors/index.md).
+- Connect a sensor: see the [sensor quickstart](../sensors/index.md#quickstart-a-working-sensor-in-five-minutes).

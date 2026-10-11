@@ -11,7 +11,7 @@ and no route from the platform into your network.
 
 | Traffic | From the sensor to | Needed for |
 |---|---|---|
-| Control | The platform URL, HTTPS (443 with the built-in gateway) | Pairing, heartbeats, jobs, results |
+| Control | The platform URL on TCP 443 (HTTPS; gRPC on the same port when the platform offers it, or the [dedicated sensor host name or port](transport.md#a-dedicated-sensor-host-name) if one is set up) | Pairing, heartbeats, jobs, results |
 | Content | `github.com` and `api.github.com` (nuclei templates); `mirror.gcr.io` and `ghcr.io` (trivy database, per-tool trivy image); `semgrep.dev` (semgrep rule sets, only when configured) | Keeping scanner content current. Optional: mirrors and local files work, see below |
 | DNS | The resolvers in `/etc/resolv.conf`, or `SENSOR_DNS_RESOLVERS` | Resolving targets; dnsx, naabu and subfinder never use their built-in public resolver lists |
 | Scan | Your targets | The scans themselves |
@@ -21,7 +21,7 @@ and no route from the platform into your network.
 `API_URL` is the platform's API base URL. With the built-in gateway this is
 the single public address of the platform (for example
 `https://openctem.example.com`): the gateway sends the sensor paths
-(`/api/v2/sensor/*`) straight to the API. Without the gateway, point the
+(`/api/v2/sensor/*`, `/api/v3/sensor/*`) straight to the API. Without the gateway, point the
 sensor at the API service itself (the address whose `/health` answers), not
 at the web UI: the web UI does not forward the sensor's credentials and
 answers sensor requests with `421 WRONG_ENDPOINT`. The sensor refuses
@@ -55,9 +55,26 @@ The sensor separates its three kinds of traffic:
   `inherit` explicitly to keep it (the start-up warning then stops).
 - Content downloads check the destination address before using the proxy,
   so a proxy cannot be used to reach private or metadata addresses.
-- Behind a TLS-inspecting proxy, set `SENSOR_CA_CERT_FILE` to the proxy's CA;
-  it is trusted for the platform and for content. Scanners read
-  `SSL_CERT_FILE`.
+- gRPC to the platform also goes through the control proxy, as a `CONNECT`
+  tunnel. A proxy that does not carry HTTP/2 makes the sensor use HTTPS
+  (`http2_refused`).
+
+### TLS-inspecting proxies
+
+A proxy that decrypts and re-encrypts TLS presents its own certificate:
+
+- Trust its CA: `SENSOR_CA_CERT_FILE` (platform and content downloads);
+  scanners read `SSL_CERT_FILE`.
+- Pair the sensor through the proxy. Pairing pins the CA the sensor sees; a
+  sensor paired elsewhere and moved behind the proxy refuses it
+  (`platform certificate does not match the pin stored at pairing`).
+- Set `SENSOR_TRANSPORT=https`. For gRPC the sensor trusts only the platform's
+  sensor CA, so an inspected gRPC connection is refused
+  (`platform_certificate_refused`) and, by design, not answered with a
+  fallback: without this setting the sensor stops sending, heartbeats
+  included, as soon as the platform offers gRPC.
+- Better: exempt the platform host from inspection. Then nothing above is
+  needed and the sensor can use gRPC.
 
 A network segment that is reachable only through a proxy is best served by
 its own sensor inside it, in its own [scan zone](zones.md).
@@ -114,9 +131,26 @@ cannot point the sensor at networks, ports or tools the owner did not allow.
 
 The sensor reads `-local-policy`, `SENSOR_LOCAL_POLICY`, or
 `/etc/openctem/sensor-policy.yaml` when it exists. A policy that does not
-load stops the sensor (exit code 2). Without a policy the sensor reports
-`local_policy: absent` and logs a warning; new installs should always ship
-one.
+load stops the sensor (exit code 2).
+
+**Without a policy**, a sensor paired by sensor v0.12.0 or later fails
+closed: it refuses every job with network targets, custom templates or
+callbacks (`refused by local policy: no_local_policy: ...`) and logs
+`Local policy mode: fail closed (paired by this SDK)`. Older identities and
+API-key sensors accept any target outside the built-in deny list and log a
+warning. `SENSOR_REQUIRE_LOCAL_POLICY=true` or `false` overrides either.
+
+The quickest policy is the shorthand, without a file:
+
+```bash
+-e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
+-e SENSOR_ALLOWED_PORTS='80,443,8000-8999'     # optional
+```
+
+Private ranges in the list also need `SENSOR_ALLOW_PRIVATE_TARGETS=1`; the
+sensor refuses to start otherwise and says so. The shorthand refuses custom
+templates and out-of-band callbacks; write a file for those, or for tool and
+rate limits and a kill switch. The two cannot be combined.
 
 ```yaml
 apiVersion: openctem.io/sensor-policy/v1
