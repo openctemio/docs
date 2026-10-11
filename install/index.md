@@ -148,7 +148,7 @@ flowchart TB
   create one ([First administrator](first-admin.md#self-service-organizations)).
 - Organization sensors take only their own organization's work. Platform
   sensors are shared capacity run by the operator; in the current release no
-  organization can send scans to them yet (see [Sensors](../sensors/index.md#organization-sensors-and-platform-sensors)).
+  organization can send scans to them yet (see [Sensors](../sensors/how-it-works.md#organization-sensors-and-platform-sensors)).
 - With `self_service`, active probes on shared platform sensors need a
   verified domain by default (`SCOPE_ACTIVE_PROOF`; see
   [Scope](../scanning/scope.md#platform-guardrails)).
