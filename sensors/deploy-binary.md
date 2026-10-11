@@ -28,7 +28,7 @@ Archives are named `openctemio-sensor_<version>_<os>_<arch>.tar.gz` (and
 `.zip`), with the version without the leading `v`:
 
 ```bash
-VERSION=0.11.0
+VERSION=0.14.0
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/openctemio-sensor_${VERSION}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/checksums.txt"
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/checksums.txt.sigstore.json"
@@ -80,6 +80,7 @@ Group=openctem
 StateDirectory=openctem/state openctem/outbox openctem/content
 StateDirectoryMode=0700
 Environment=API_URL=https://openctem.example.com
+Environment=SENSOR_ALLOWED_RANGES=203.0.113.0/24,*.example.com
 Environment=SENSOR_STATE_DIR=/var/lib/openctem/state
 Environment=SENSOR_OUTBOX_DIR=/var/lib/openctem/outbox
 Environment=SENSOR_CONTENT_DIR=/var/lib/openctem/content
@@ -100,10 +101,12 @@ sudo systemctl enable --now openctem-sensor
 journalctl -u openctem-sensor -f       # read the code and fingerprint here
 ```
 
-Approve the sensor as described in [Pairing](pairing.md). A sensor-local
-policy goes in `/etc/openctem/sensor-policy.yaml`, owned by root and not
+Approve the sensor as described in [Pairing](pairing.md).
+`SENSOR_ALLOWED_RANGES` limits what it may scan; a newly paired sensor without
+it (or a policy file) refuses every job with network targets. A sensor-local
+policy file goes in `/etc/openctem/sensor-policy.yaml`, owned by root and not
 writable by the sensor's user (see [Network](network.md#sensor-local-policy));
-reload it with `systemctl kill -s HUP openctem-sensor`.
+it replaces `SENSOR_ALLOWED_RANGES`, which must then be removed. Reload it with `systemctl kill -s HUP openctem-sensor`.
 
 ## Build from source
 

@@ -53,7 +53,12 @@ sensors: turn off **Require key-bound sensor identity** in
 | `sensor.netRaw` | `false` | Add `NET_RAW` (naabu SYN scans) |
 | `sensor.terminationGracePeriodSeconds` | `45` | Time to drain on shutdown |
 
-The chart's README lists every value.
+The chart's README lists every value. The chart pins its own sensor tag
+(`sensor.image.tag`). With a tag of v0.13.0 or later the bundled sensor binds
+its own signing key at start and the platform retires its API key (see
+[Bearer keys](pairing.md#bearer-keys-legacy)); keep
+`sensor.state.persistence.enabled` on, or set `SENSOR_KEY_BIND=off` through
+`sensor.extraEnv`.
 
 ## Option B: plain manifests (pairing)
 
@@ -123,7 +128,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: sensor
-          image: ghcr.io/openctemio/sensor:v0.11.0
+          image: ghcr.io/openctemio/sensor:v0.14.0
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -131,6 +136,10 @@ spec:
           env:
             - name: API_URL
               value: https://openctem.example.com
+            # What this sensor may scan. Without it (or a policy file) a newly
+            # paired sensor refuses every job with network targets.
+            - name: SENSOR_ALLOWED_RANGES
+              value: "203.0.113.0/24,*.example.com"
             # - name: SENSOR_CA_FINGERPRINT
             #   value: "<SHA-256 of the platform CA>"
             # - name: SENSOR_ALLOW_PRIVATE_TARGETS
@@ -202,6 +211,27 @@ containers:
 
 To stop all jobs, set `kill_switch: true` in the policy and restart the pod.
 The policy format is described in [Network](network.md#sensor-local-policy).
+
+## Transport on Kubernetes
+
+A sensor in or outside the cluster uses the **HTTPS** transport through any
+ingress or load balancer in front of the platform, with nothing to configure.
+Keep response buffering off and the idle timeout above 30 seconds on the
+ingress for `/api/v3/sensor/*`: the platform pushes jobs over a long-lived
+response.
+
+gRPC on port 443 needs a layer-4 path to the API's mTLS listener. An ingress
+controller that routes by SNI only (ssl-passthrough) cannot use the routing id
+of the [Compose setup](transport.md#grpc-on-port-443-docker-compose), so on
+Kubernetes it takes a dedicated sensor host name passed through by SNI. Chart
+support for the automatic transport of the current platform is **coming**;
+until then sensors use HTTPS.
+
+{: .warning }
+Do not set `api.sensorTransport.enabled` (charts 0.16.0 and 0.17.0) with a
+current platform: the chart sets `SENSOR_TRANSPORT_V3_ENABLED`, a retired
+variable the API refuses at start (`retired environment variables are set and
+no longer read`). The platform serves protocol v3 without it.
 
 ## One job per pod
 

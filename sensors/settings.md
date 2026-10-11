@@ -14,8 +14,12 @@ each one, whether it is set and valid, never its value; a secret is only ever
 reported as present or absent. A `SENSOR_*` variable that is not listed here is
 reported as unknown (often a typo).
 
-Common settings with examples are in [Deploy with Docker](deploy-docker.md#common-settings);
-proxies in [Network](network.md#proxies).
+Most sensors need only `API_URL` and `SENSOR_ALLOWED_RANGES`, plus
+`SENSOR_CA_CERT_FILE` when the platform uses its own CA (see the
+[quickstart](index.md#quickstart-a-working-sensor-in-five-minutes)). Common
+settings with examples are in [Deploy with Docker](deploy-docker.md#common-settings);
+proxies in [Network](network.md#proxies); the transport in
+[Transport](transport.md#settings).
 
 | Setting | Type | Required | Default | Secret | Description |
 |---|---|---|---|---|---|
