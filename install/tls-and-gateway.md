@@ -265,10 +265,11 @@ The audit log, rate limits and IP allowlists use the client's address.
   reaches the API through its proxy. This is safe only because the console is
   not published.
 
-The Compose stack also sets the API's `CORS_ALLOWED_ORIGINS`, `APP_URL` and
-`SMTP_BASE_URL` to `OPENCTEM_PUBLIC_URL`. It must be the exact origin browsers
+The Compose stack passes the public origin to the API as `APP_URL`
+(`OPENCTEM_PUBLIC_URL`, else `https://<OPENCTEM_HOSTNAME>`); the API derives its
+CORS allow-list and e-mail links from it. It must be the exact origin browsers
 use, including a non-default port: the API checks the WebSocket `Origin` against
-it.
+it. Set `OPENCTEM_PUBLIC_URL` when the port is not 443.
 
 ## Limits and headers
 
