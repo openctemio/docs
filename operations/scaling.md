@@ -8,7 +8,7 @@ nav_order: 6
 {: .no_toc }
 
 Where load goes in an OpenCTEM installation and which knobs move it. Start from
-the tiers in [Requirements and sizing](../install/index.md#sizing) and use the
+the sizes in [Sizing](../install/sizing.md) and use the
 [metrics](monitoring.md) to decide what to grow.
 
 1. TOC

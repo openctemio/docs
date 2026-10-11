@@ -50,6 +50,10 @@ characters, an encryption key and secure cookies. See
   [`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/api/deploy/postgres/least-privilege-roles.sql)
   once as a superuser (see [All-in-one image](all-in-one.md#1-prepare-the-database-roles)
   for the command). It creates `openctem_migrator` and `openctem_app`.
+- Cluster capacity for the size you install, and a PostgreSQL instance class to
+  match: see [Sizing](sizing.md). The chart's `values-small.yaml`,
+  `values-medium.yaml` and `values-large.yaml` presets set requests, limits and
+  replicas; layer one over your production values with a second `-f`.
 
 ## 1. Create the secrets
 
