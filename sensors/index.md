@@ -124,19 +124,20 @@ Paired: sensor "sensor-scan01" (...) in organization .... Identity saved in /var
 ```
 
 In the console, **Discovery > Sensors** lists it as `online`. Its detail
-sheet shows **Transport:** and, when it is not gRPC, the reason:
+sheet shows **Transport:** and, when it is not gRPC, the reason in plain words
+(hover it for the reason code):
 
 | `Transport:` line in the log | In the console | Meaning |
 |---|---|---|
 | `grpc` | gRPC, mutual TLS | Best case: gRPC with mutual TLS, jobs pushed at once. |
-| `https (platform_without_grpc)` | HTTPS (fallback) | Working. The platform offers only HTTPS; see [Choose your setup](#choose-your-setup) to get gRPC. |
-| `https (<other reason>)` | HTTPS (fallback) | Working. Something between the sensor and the platform blocks gRPC; the sensor tries it again later. |
+| `https (platform_without_grpc)` | HTTPS | Working. The platform offers only HTTPS; see [Choose your setup](#choose-your-setup) to get gRPC. |
+| `https (<other reason>)` | HTTPS | Working. Something between the sensor and the platform blocks gRPC; the sensor tries it again later. |
 | `v2 (platform_without_v3)` | Protocol v2 | Working. The platform does not serve protocol v3. |
 | `Transport: ...` followed by an error | | Not working. Look the reason up in [Troubleshooting](troubleshooting.md#transport). |
 
-All three transports run every scan; gRPC only delivers jobs faster. The
-**Sensors** page also says, above the list, which transport the platform
-offers and why gRPC is not offered.
+All three transports run every scan; gRPC only delivers jobs faster. Platform
+admins see which transport the platform offers, and why gRPC is not offered,
+on Console > Operations ([What the platform offers](transport.md#what-the-platform-offers)).
 
 ### 5. Let it run active scans
 
