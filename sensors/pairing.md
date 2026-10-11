@@ -62,7 +62,7 @@ Owners and administrators hold all of them.
 ![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 *Figure: Approving a pairing request: compare the fingerprint with the sensor's console.*
 
-1. Install the sensor without `API_KEY` ([Docker](deploy-docker.md),
+1. Install the sensor without `SENSOR_API_KEY` ([Docker](deploy-docker.md),
    [Kubernetes](deploy-kubernetes.md), [binary](deploy-binary.md)) and keep
    its state directory on persistent storage.
 2. Start it (or run `openctemio-sensor pair`). It prints a code, a
@@ -118,10 +118,10 @@ has neither an API key nor an identity.
 
 | Flag | Environment | Meaning |
 |---|---|---|
-| `-api-url` | `API_URL` | The platform URL (required) |
+| `-api-url` | `SENSOR_API_URL` | The platform URL (required) |
 | `-state-dir` | `SENSOR_STATE_DIR` | Where the identity is kept (`<dir>/identity`); default `/var/lib/openctem/state` |
 | `-name` | `SENSOR_NAME` | The name to propose |
-| `-ca-fingerprint` | `SENSOR_CA_FINGERPRINT` | SHA-256 of the platform's CA. With it, `API_URL` must name the platform by the host name in its certificate, not an IP address |
+| `-ca-fingerprint` | `SENSOR_CA_FINGERPRINT` | SHA-256 of the platform's CA. With it, `SENSOR_API_URL` must name the platform by the host name in its certificate, not an IP address |
 | `-platform-key` | `SENSOR_PLATFORM_KEY` | Thumbprint of the platform's pairing key; a pairing signed by another key is refused |
 | `-repair` | | Replace this sensor's key (see below) |
 
@@ -170,7 +170,7 @@ stopped:
 
 ```bash
 docker stop openctem-sensor
-docker run --rm -it -e API_URL=https://openctem.example.com \
+docker run --rm -it -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0 pair -repair
 docker start openctem-sensor
@@ -239,7 +239,7 @@ From sensor v0.13.0 a key-based sensor moves to its own signing key by itself
 when the platform offers it: it makes a key, binds it once with its API key
 (the platform retires the API key; the sensor keeps its id, grant and
 history), and logs `This sensor is now key-bound: ...`. From then on its state
-directory is its only credential, as for a paired sensor; remove `API_KEY`
+directory is its only credential, as for a paired sensor; remove `SENSOR_API_KEY`
 from its configuration. `SENSOR_KEY_BIND=off` keeps the API key. When the
 organization turned on **Require approval of sensor keys**, the bind is
 refused (`Key bind refused: the organization requires an administrator to
