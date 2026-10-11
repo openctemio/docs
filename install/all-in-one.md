@@ -41,6 +41,9 @@ The image is published from v0.9.0, for `linux/amd64` and `linux/arm64`.
   available, reachable over TLS.
 - Redis 7 with TLS and a password of at least 32 characters.
 - A volume for `/data`.
+- About 1 vCPU and 2 GB for the container at the Evaluation size, 2.5 vCPU and
+  3 GB at Small; PostgreSQL and Redis are sized separately (see
+  [Sizing](sizing.md#all-in-one-image)).
 
 The image runs in production mode unless you say otherwise: an unset `APP_ENV`
 means `production`, so a container started without configuration refuses to
