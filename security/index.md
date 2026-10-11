@@ -16,6 +16,7 @@ Related pages:
 
 - [Production hardening](hardening.md): the checklist for operators.
 - [Vulnerability disclosure](vulnerability-disclosure.md): how to report a security issue.
+- [Acknowledgements](acknowledgements.md): the people who reported vulnerabilities to us.
 - [Data handling and privacy](data-handling.md): what is stored, for how long, and how it is deleted.
 - [Audit log](audit-log.md): what is recorded and how tampering is detected.
 - [Identity and access](../identity/index.md): configuring sign-in, SSO, SCIM and roles.
