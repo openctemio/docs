@@ -46,9 +46,8 @@ sensors: turn off **Require key-bound sensor identity** in
 | `sensor.apiUrl` | the in-cluster API service | Override `API_URL` |
 | `sensor.tools` | `nuclei` | Scanners passed with `-tools` |
 | `sensor.allowPrivateTargets` | empty | `"1"` sets `SENSOR_ALLOW_PRIVATE_TARGETS=1`; any other value fails the render |
-| `sensor.state.persistence.enabled` | `true` | PVC for `/var/lib/openctem/state` (the renewed key). Needs `replicaCount: 1` |
-| `sensor.content.persistence.enabled` | `true` | PVC (5Gi) for the scanner content cache |
-| `sensor.outbox.persistence.enabled` | `false` | PVC for the outbox. Off, it is an `emptyDir`: results queued when the pod is deleted or rescheduled are lost. Turn it on |
+| `sensor.data.persistence.enabled` | `true` | One PVC (8Gi) at `/var/lib/openctem`: the sensor's identity (`state/`), undelivered results (`outbox/`) and the scanner content cache (`content/`). Needs `replicaCount: 1` |
+| `sensor.storageLayout` | empty | `data` (one volume) or `split` (a volume per directory: `sensor.state`, `sensor.outbox`, `sensor.content`, the layout before chart 0.19.0). Empty keeps `split` for a release that already has those PVCs. Under GitOps set it explicitly: see the chart README, "Upgrading to 0.19.0" |
 | `sensor.localPolicy.enabled` | `false` | Mount a sensor-local policy from a ConfigMap at `/etc/openctem/sensor-policy.yaml`. Turn it on and replace the example range |
 | `sensor.netRaw` | `false` | Add `NET_RAW` (naabu SYN scans) |
 | `sensor.terminationGracePeriodSeconds` | `45` | Time to drain on shutdown |
@@ -57,7 +56,7 @@ The chart's README lists every value. The chart pins its own sensor tag
 (`sensor.image.tag`). With a tag of v0.13.0 or later the bundled sensor binds
 its own signing key at start and the platform retires its API key (see
 [Bearer keys](pairing.md#bearer-keys-legacy)); keep
-`sensor.state.persistence.enabled` on, or set `SENSOR_KEY_BIND=off` through
+`sensor.data.persistence.enabled` on, or set `SENSOR_KEY_BIND=off` through
 `sensor.extraEnv`.
 
 ## Option B: plain manifests (pairing)
@@ -66,38 +65,18 @@ These manifests run one paired sensor. They use only the sensor's documented
 settings; change the namespace, the URL and the storage sizes to suit.
 
 ```yaml
+# One volume for the sensor's data: state/ (its identity), outbox/
+# (undelivered results) and content/ (scanner cache, re-downloadable).
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: openctem-sensor-state
+  name: openctem-sensor-data
   namespace: openctem-sensor
 spec:
   accessModes: ["ReadWriteOnce"]
   resources:
     requests:
-      storage: 128Mi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: openctem-sensor-outbox
-  namespace: openctem-sensor
-spec:
-  accessModes: ["ReadWriteOnce"]
-  resources:
-    requests:
-      storage: 2Gi
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: openctem-sensor-content
-  namespace: openctem-sensor
-spec:
-  accessModes: ["ReadWriteOnce"]
-  resources:
-    requests:
-      storage: 5Gi
+      storage: 8Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -145,22 +124,12 @@ spec:
             # - name: SENSOR_ALLOW_PRIVATE_TARGETS
             #   value: "1"
           volumeMounts:
-            - name: state
-              mountPath: /var/lib/openctem/state
-            - name: outbox
-              mountPath: /var/lib/openctem/outbox
-            - name: content
-              mountPath: /var/lib/openctem/content
+            - name: data
+              mountPath: /var/lib/openctem
       volumes:
-        - name: state
+        - name: data
           persistentVolumeClaim:
-            claimName: openctem-sensor-state
-        - name: outbox
-          persistentVolumeClaim:
-            claimName: openctem-sensor-outbox
-        - name: content
-          persistentVolumeClaim:
-            claimName: openctem-sensor-content
+            claimName: openctem-sensor-data
 ```
 
 Apply it, then read the pairing code and approve it as described in

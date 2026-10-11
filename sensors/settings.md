@@ -78,7 +78,7 @@ proxies in [Network](network.md#proxies); the transport in
 | <span id="SENSOR_DNS_RESOLVERS"></span>`SENSOR_DNS_RESOLVERS` | list |  |  |  | DNS resolvers for the recon tools (default: the system resolvers). |
 | <span id="SENSOR_CONTENT"></span>`SENSOR_CONTENT` | enum |  |  |  | Managed scanner content: on (default) or off. |
 | <span id="SENSOR_TOOL_RUNTIME"></span>`SENSOR_TOOL_RUNTIME` | enum |  |  |  | How the tools ported to the tool contract (httpx, nuclei) run: out-of-process (default: the sensor re-executes itself per task in the tool sandbox) or in-process (rollback). |
-| <span id="SENSOR_CONTENT_DIR"></span>`SENSOR_CONTENT_DIR` | path |  | `$HOME/.openctem/content` |  | Where managed content is kept. Mount a persistent volume (the templates use /var/lib/openctem/content). |
+| <span id="SENSOR_CONTENT_DIR"></span>`SENSOR_CONTENT_DIR` | path |  | `$HOME/.openctem/content` |  | Where managed content is kept: on the data volume (/var/lib/openctem/content in the images); point it elsewhere to keep the cache on other storage. |
 | <span id="SENSOR_CONTENT_REFRESH_INTERVAL"></span>`SENSOR_CONTENT_REFRESH_INTERVAL` | duration |  |  |  | How often content is refreshed (10m-720h; default 6h). |
 | <span id="SENSOR_CONTENT_KEEP"></span>`SENSOR_CONTENT_KEEP` | int |  |  |  | Previous content versions kept (0-10; default 1). |
 | <span id="SENSOR_CONTENT_NUCLEI_TEMPLATES_URL"></span>`SENSOR_CONTENT_NUCLEI_TEMPLATES_URL` | url |  |  |  | nuclei templates archive URL. |

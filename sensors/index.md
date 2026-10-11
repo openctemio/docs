@@ -50,9 +50,7 @@ inside is described in [How sensors work](how-it-works.md).
 docker run -d --name openctem-sensor --restart unless-stopped \
   -e API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
-  -v openctem-state:/var/lib/openctem/state \
-  -v openctem-outbox:/var/lib/openctem/outbox \
-  -v openctem-content:/var/lib/openctem/content \
+  -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0
 ```
 
@@ -75,8 +73,8 @@ If the platform uses its own CA, add these two lines before the image name:
 ```
 
 {: .warning }
-Keep the `openctem-state` volume. After pairing it holds the sensor's private
-key, its only credential. Back it up like a password and never mount it into
+Keep the `openctem-sensor-data` volume. After pairing its `state/` directory
+holds the sensor's private key, its only credential. Back it up like a password and never mount it into
 a second sensor.
 
 ### 2. Read the pairing code
@@ -190,8 +188,9 @@ name or a port of its own, and use HTTPS otherwise.
 
 ## Before production
 
-- **Back up the state volume** (`/var/lib/openctem/state`). After pairing it
-  holds the sensor's private key, the only credential the sensor has. Keep the
+- **Back up the data volume** (`/var/lib/openctem`; the `content/` cache can be
+  left out, see [Back up](deploy-docker.md#back-up)). After pairing its `state/`
+  directory holds the sensor's private key, the only credential the sensor has. Keep the
   backup encrypted, restore it only to a host that replaces the sensor, and
   never run two sensors from one copy: the platform flags the sensor
   `identity_cloned`. See [Where the identity lives](pairing.md#where-the-identity-lives).
