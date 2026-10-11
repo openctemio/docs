@@ -43,7 +43,7 @@ With **Expect a sensor** (below) the order of the first steps changes: the
 console creates the code first, and the sensor sends it in its first request
 (`openctemio-sensor pair <CODE>`); the administrator then sees the
 fingerprint on the expectation and approves it the same way. The work loop that
-follows is described in [How work reaches a sensor](index.md#how-work-reaches-a-sensor).
+follows is described in [How work reaches a sensor](how-it-works.md#how-work-reaches-a-sensor).
 
 Design: [RFC-052](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-052-sensor-pairing-and-authorization.md).
 
@@ -130,12 +130,27 @@ a fake platform from answering the sensor's first contact.
 
 ## Where the identity lives
 
-The identity is in `<state dir>/identity/` (`signing.key`, `identity.json`):
-files with mode `0600` in a `0700` directory, owned by the user the sensor
-runs as. The sensor refuses to start when the permissions are looser and
-prints the `chmod` or `chown` that fixes it. Losing the directory means
-pairing again; anyone who copies it can act as the sensor, so protect and back
-it up like a credential.
+The identity is in `<state dir>/identity/` (`signing.key`, `identity.json`,
+and the transport's client certificate and pinned CA): files with mode `0600`
+in a `0700` directory, owned by the user the sensor runs as. The sensor
+refuses to start when the permissions are looser and prints the `chmod` or
+`chown` that fixes it.
+
+This directory is the sensor's **only credential**. The platform keeps only
+the public key.
+
+- **Back it up**, encrypted, like a password. Losing it means pairing again.
+- **Never share or copy it** to a second running sensor. Anyone who has a copy
+  can act as the sensor. Two processes with one identity are flagged
+  `identity_cloned` (critical) and every administrator sees it.
+- **Restore** it only to a host that replaces the sensor, after the old one
+  is gone.
+- If a copy may have leaked, [re-pair](#re-pair-a-sensor): the old key is
+  revoked at once.
+
+`identity.json` also records what pairing pinned: the platform's TLS identity
+(the sensor then refuses a platform certificate from another CA) and the
+platform's job-signing keys (the sensor then runs only signed jobs).
 
 ## Re-pair a sensor
 
@@ -149,6 +164,32 @@ The sensor creates a new key and an administrator approves it like a new
 pairing. The old key is revoked at once, the sensor keeps its history, and it
 returns to trust level **New**. A sensor whose identity directory is gone has
 nothing to re-pair: pair it as a new sensor and delete the old one.
+
+With Docker, run it with the sensor's state volume while the daemon is
+stopped:
+
+```bash
+docker stop openctem-sensor
+docker run --rm -it -e API_URL=https://openctem.example.com \
+  -v openctem-state:/var/lib/openctem/state \
+  ghcr.io/openctemio/sensor:v0.14.0 pair -repair
+docker start openctem-sensor
+```
+
+## Revoke a sensor or a key
+
+Disable, revoke or delete a sensor from the **⋯** menu of its sheet under
+**Discovery > Sensors**; revoke a single key with
+`POST /api/v1/sensors/{id}/keys/{key_id}/revoke` (see [API](#api)):
+
+- The platform refuses the sensor's next request. Open gRPC streams are told
+  at once and end within seconds.
+- The sensor never answers a refusal by trying a weaker transport. It logs
+  the refusal, keeps sending only its heartbeat (reason `identity_refused`)
+  and waits.
+- A **disabled** sensor keeps heartbeating, logs `paused by platform` and
+  takes no jobs until it is activated again. A revoked key or sensor does not
+  come back: re-pair the host, or pair it as a new sensor.
 
 ## Grants and trust
 
@@ -192,7 +233,18 @@ then also offers **Install sensor**, which creates a sensor and shows its key
 once, with ready-made install snippets.
 
 A key-based sensor keeps a renewed key in its state directory
-(`sensor-credentials.json`), so keep that volume too. The bundled sensor of
+(`sensor-credentials.json`), so keep that volume too.
+
+From sensor v0.13.0 a key-based sensor moves to its own signing key by itself
+when the platform offers it: it makes a key, binds it once with its API key
+(the platform retires the API key; the sensor keeps its id, grant and
+history), and logs `This sensor is now key-bound: ...`. From then on its state
+directory is its only credential, as for a paired sensor; remove `API_KEY`
+from its configuration. `SENSOR_KEY_BIND=off` keeps the API key. When the
+organization turned on **Require approval of sensor keys**, the bind is
+refused (`Key bind refused: the organization requires an administrator to
+approve this sensor's key; ...`) and the sensor keeps its API key until it is
+re-paired. The bundled sensor of
 the Helm chart currently uses a key; see
 [Kubernetes](deploy-kubernetes.md#option-a-the-bundled-sensor-of-the-openctem-chart).
 
@@ -215,6 +267,7 @@ the Helm chart currently uses a key; see
 | The console says the code is not found | It expired (10 minutes), was used, or was mistyped. Start the pairing again on the sensor. |
 | The sensor keeps waiting after you created an expectation | The code typed on the sensor was wrong; run `pair` again with the code from the console. |
 | `certificate chain does not contain the pinned CA` | `SENSOR_CA_FINGERPRINT` does not match the CA the platform presents, or a TLS-inspecting proxy sits in between. |
+| `platform certificate does not match the pin stored at pairing` | The platform now presents a certificate from another CA than at pairing (a changed CA, or a TLS-inspecting proxy added since). Re-pair, or set `SENSOR_CA_FINGERPRINT` to the new CA after a deliberate change. |
 | The sensor stops at start with an identity permission error | Run the `chmod` or `chown` it printed. On Kubernetes see [the fsGroup note](deploy-kubernetes.md#identity-files-and-fsgroup). |
 | The container exits during pairing with `connection refused` | The platform was not reachable. The restart policy starts it again; check [Network requirements](network.md). |
 | The sensor is online but gets no nuclei or port scans | It is still **New**. Promote it to Trusted. |

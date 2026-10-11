@@ -190,7 +190,7 @@ fails when the two disagree.
 
 | Request | Goes to |
 |---|---|
-| `/api/v2/sensor/*` | API: sensors (protocol v2) |
+| `/api/v2/sensor/*`, `/api/v3/sensor/*` | API: sensors (protocol v2, and the HTTPS transport of protocol v3) |
 | `/api/v1/webhooks/incoming/*` (and `/hooks/*`, reserved for inbound webhooks) | API: inbound Jira and GitHub webhooks (HMAC-verified) |
 | `/scim/v2/*` | API: SCIM provisioning |
 | `/api/v1/mcp` | API: MCP server (`oct_` API key) |
@@ -217,7 +217,18 @@ A sensor's API URL is the gateway URL, with no port and no path:
 `https://ctem.example.com`. With `acme`, or `files` and a publicly trusted
 certificate, nothing else is needed. With `internal` (or a private CA) the sensor
 host must trust the root certificate: see
-[Network requirements](../sensors/network.md) for the sensor settings.
+[Trust a private certificate authority](../sensors/deploy-docker.md#trust-a-private-certificate-authority).
+
+Sensors use the HTTPS transport through the gateway in every TLS mode. For
+sensor gRPC on the same port 443, start the stack with the override
+`docker-compose.sensor-passthrough.yml`: it builds the gateway with the
+layer-4 module and sets `OPENCTEM_SENSOR_GATEWAY=alpn`, so a TLS connection
+that offers the sensor routing id is passed through, untouched, to the API's
+mutual-TLS listener, and every other connection is served as before. It works
+with an IP address or one host name and needs no extra port, DNS name or
+certificate. It does not work in mode `http` (the gateway must see the TLS
+handshake) nor in the all-in-one image (no layer-4 module). See
+[Sensor transport](../sensors/transport.md#grpc-on-port-443-docker-compose).
 
 Test from a sensor host before starting the sensor:
 
@@ -282,6 +293,9 @@ it.
 | The console loads but live updates never connect | `OPENCTEM_PUBLIC_URL` differs from the origin in the browser (often the port). | Set it to the exact origin, then `docker compose up -d`. |
 | `bind: address already in use` on 443 | Another service holds the port. | Stop it, or set `GATEWAY_HTTPS_PORT=8443` and add `:8443` to `OPENCTEM_PUBLIC_URL`. |
 | The gateway exits with `openctem-gateway: ...` | A setting is missing. | The message names the variable. |
+| `openctem-gateway: OPENCTEM_SENSOR_GATEWAY=alpn needs the gateway image with the layer4 module` | The sensor routing is set on the stock image. | Start with `docker-compose.sensor-passthrough.yml` and `--build`, or unset `OPENCTEM_SENSOR_GATEWAY`. |
+| `openctem-gateway: OPENCTEM_SENSOR_GATEWAY=alpn needs a TLS mode` | The sensor routing is set in mode `http`. | Sensors use HTTPS behind your proxy; unset `OPENCTEM_SENSOR_GATEWAY`. |
+| The Sensors page says sensors use HTTPS (`foreign_certificate`) | The gateway terminates TLS for sensor connections (the stock image). | Expected. For gRPC see [Sensor transport](../sensors/transport.md#grpc-on-port-443-docker-compose). |
 | `ca/openctem-root-ca.crt` is missing | Not mode `internal`, or the CA was not created within 120 s. | Check `docker compose logs gateway`; restart the gateway. |
 | `Pool overlaps with other one on this space` | The internal `/24` collides with another network. | Set `OPENCTEM_NET_PREFIX` to a free prefix, for example `172.31.90`. |
 | A script with a Bearer token gets 401 | It also sends the `auth_token` cookie. | Do not send the session cookie with a token. |
