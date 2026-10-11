@@ -18,7 +18,7 @@ and no route from the platform into your network.
 
 ## The platform URL
 
-`API_URL` is the platform's API base URL. With the built-in gateway this is
+`SENSOR_API_URL` is the platform's API base URL. With the built-in gateway this is
 the single public address of the platform (for example
 `https://openctem.example.com`): the gateway sends the sensor paths
 (`/api/v2/sensor/*`, `/api/v3/sensor/*`) straight to the API. Without the gateway, point the
