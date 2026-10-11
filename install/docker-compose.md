@@ -70,7 +70,7 @@ API_IMAGE=ghcr.io/openctemio/openctem-api
 UI_IMAGE=ghcr.io/openctemio/openctem-web
 
 OPENCTEM_HOSTNAME=ctem.example.com          # DNS name or IP clients use
-OPENCTEM_PUBLIC_URL=https://ctem.example.com  # add :port when it is not 443
+# OPENCTEM_PUBLIC_URL=https://ctem.example.com:8443  # only when browsers use a port other than 443
 OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
@@ -172,10 +172,10 @@ The `api` service passes a fixed list of variables from `.env` to the API:
 `APP_ENCRYPTION_KEY_PREVIOUS`, `APP_TEMPLATE_SIGNING_KEY`,
 `TENANT_CREATION_MODE`, `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
 `SMTP_PASSWORD`, `SMTP_FROM`, `METRICS_TOKEN` (empty: `/metrics` off) and the
-`SENSOR_*VERSION` variables. It derives `CORS_ALLOWED_ORIGINS`, `APP_URL`,
-`SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
-(`<OPENCTEM_PUBLIC_URL>/auth/callback`, where SSO sign-ins land) from
-`OPENCTEM_PUBLIC_URL`.
+`SENSOR_*VERSION` variables. It passes the public origin to the API as `APP_URL`
+(`OPENCTEM_PUBLIC_URL`, else `https://<OPENCTEM_HOSTNAME>`), and the API derives
+`CORS_ALLOWED_ORIGINS`, `SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
+(`<APP_URL>/auth/callback`, where SSO sign-ins land) from it.
 
 Any other [API variable](../configuration/environment-variables.md) goes in a
 `docker-compose.override.yml` next to `docker-compose.yml`, which Compose reads

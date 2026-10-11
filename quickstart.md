@@ -67,7 +67,6 @@ OPENCTEM_VERSION=v0.9.0
 API_IMAGE=ghcr.io/openctemio/openctem-api
 UI_IMAGE=ghcr.io/openctemio/openctem-web
 OPENCTEM_HOSTNAME=ctem.example.com
-OPENCTEM_PUBLIC_URL=https://ctem.example.com
 OPENCTEM_TLS_MODE=internal     # the gateway's own CA; acme for Let's Encrypt
 ```
 
