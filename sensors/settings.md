@@ -25,6 +25,7 @@ proxies in [Network](network.md#proxies).
 | <span id="SENSOR_NAME"></span>`SENSOR_NAME` | string |  | `sensor-&lt;hostname&gt;` |  | The sensor's name on the platform. |
 | <span id="SENSOR_PROTOCOL"></span>`SENSOR_PROTOCOL` | enum |  | `auto` |  | Sensor protocol (v2; v1 is retired and refused). |
 | <span id="SENSOR_TRANSPORT"></span>`SENSOR_TRANSPORT` | enum |  | `auto` |  | Transport of sensor protocol v3 for a paired (key-bound) sensor: auto tries gRPC over mutual TLS, then HTTPS on a network that blocks it, then protocol v2; grpc, https and v2 force one. |
+| <span id="SENSOR_KEY_BIND"></span>`SENSOR_KEY_BIND` | enum |  | `auto` |  | A sensor started with an API key replaces it with a signing key it makes itself when the platform offers it (one way: the API key is retired); off keeps the API key. |
 | <span id="SENSOR_CA_CERT_FILE"></span>`SENSOR_CA_CERT_FILE` | path |  |  |  | PEM file with the platform's private CA (or a TLS-inspecting proxy's CA). |
 | <span id="SENSOR_CA_FINGERPRINT"></span>`SENSOR_CA_FINGERPRINT` | string |  |  |  | SHA-256 fingerprint of the platform's CA certificate (from the install snippet); pins platform TLS to it. API_URL must then use a host name, not an IP address. |
 | <span id="SENSOR_PLATFORM_KEY"></span>`SENSOR_PLATFORM_KEY` | string |  |  |  | Thumbprint of the platform's pairing key (from the install snippet); pairing refuses another key. |
