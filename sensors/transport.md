@@ -83,14 +83,12 @@ that a sensor can reach the gRPC listener:
    Only the mTLS listener holds one, so the probe passes only when the path
    through the gateway really reaches it.
 
-The **Sensors** page states the result above the list:
-
-| Message | Meaning |
-|---|---|
-| Sensors connect over gRPC with mutual TLS at `<endpoint>`. | gRPC is offered. |
-| Checking whether sensors can reach the gRPC binding; they use HTTPS meanwhile. | The first probe has not finished. |
-| Sensors connect over HTTPS: the gRPC binding is not reachable through the platform address (`<reason>`) | gRPC is not offered; the reason is below. |
-| Sensor protocol v3 is off: sensors use protocol v2. | `SENSOR_TRANSPORT_V3=off`. |
+Platform admins see the result on **Console > Operations**, in the Sensor
+fleet card: a *Sensor connection* row (gRPC and HTTPS, HTTPS, Checking, or
+Protocol v2) and, when gRPC is not offered for a reason an operator can
+change, a short note on what would let sensors use it, with the reason code.
+HTTPS is a normal, signed transport, not a fault. Organization members do not
+see this installation detail.
 
 | Platform reason | Cause | Fix |
 |---|---|---|
@@ -105,8 +103,8 @@ The **Sensors** page states the result above the list:
 | `probe_pending` | The first probe has not finished. | Wait a minute. |
 | `transport_off` | `SENSOR_TRANSPORT_V3=off`. | Unset it. |
 
-The same state is in `GET /api/v1/sensors/transport` (permission
-`sensors:read`), in the metrics `openctem_sensor_transport_grpc_advertised`
+The same state is in `GET /api/v1/admin/operations` (field
+`sensor_transport`, platform admins), in the metrics `openctem_sensor_transport_grpc_advertised`
 and `openctem_sensor_transport_grpc_probe_total{result}`, and in one API log
 line per change, for example
 `sensor protocol v3 gRPC binding reachable: advertised to sensors`.
