@@ -22,7 +22,8 @@ work). A failed or warning check also makes an online sensor `degraded`.
 
 | Check | Meaning | Usual fix |
 |---|---|---|
-| `identity.state_persistent` | The state directory is not on a persistent volume | Mount a volume at `/var/lib/openctem/state` (Helm: `sensor.state.persistence.enabled: true`) |
+| `identity.state_persistent` | The state directory is not on a persistent volume | Mount the data volume at `/var/lib/openctem` (Helm: `sensor.data.persistence.enabled: true`) |
+| `storage.outbox_persistent` | The outbox (results not yet accepted) is not on a persistent volume | Mount the data volume at `/var/lib/openctem` (Helm: `sensor.data.persistence.enabled: true`) |
 | `tool.<name>.binary` | A scanner is missing, or installed but fails to start | Use an image that ships it, or remove it from `SENSOR_TOOLS` |
 | `tools.available` `none` | No scanner is installed and allowed: the sensor gets no scans | Fix `SENSOR_TOOLS`, or use an image with scanners |
 | `network.scan_proxy_inherit` | Scanners inherit `HTTPS_PROXY` and send scan traffic through it | Set `SENSOR_SCAN_PROXY=direct`, or `inherit` to keep it on purpose |
@@ -59,7 +60,7 @@ started still has a log with the reason.
 | `x509: certificate signed by unknown authority` | The platform uses a private CA. [Trust it](deploy-docker.md#trust-a-private-certificate-authority). |
 | `http 421 ... WRONG_ENDPOINT` or `API key required` | `API_URL` points at the web UI, or at a proxy that strips the `Authorization` header. Point it at the platform gateway or the API. |
 | `platform certificate does not match the pin stored at pairing` | The platform presents a certificate from another CA than at pairing (a changed CA, or a TLS-inspecting proxy added since). Re-pair, or set `SENSOR_CA_FINGERPRINT` to the new CA after a deliberate change. |
-| `This sensor is now key-bound: ...` | Not an error: a key-based sensor bound its own key. Back up its state volume and remove `API_KEY` from its configuration ([Bearer keys](pairing.md#bearer-keys-legacy)). |
+| `This sensor is now key-bound: ...` | Not an error: a key-based sensor bound its own key. Back up its data volume and remove `API_KEY` from its configuration ([Bearer keys](pairing.md#bearer-keys-legacy)). |
 | `certificate chain does not contain the pinned CA` | `SENSOR_CA_FINGERPRINT` does not match the CA the platform presents, or a TLS-inspecting proxy is in between. |
 | An identity permission error at start | Run the `chmod` / `chown` it prints. On Kubernetes see [fsGroup](deploy-kubernetes.md#identity-files-and-fsgroup). |
 | `the platform rejected the API key (HTTP 401 ...)` | A key-based sensor whose key was revoked, regenerated or expired, or whose sensor was deleted. The sensor stays up and checks again (30 s, doubling to 10 min). Regenerate the key, or pair the sensor. |
@@ -155,17 +156,17 @@ were refused for good, or were dropped by the size or age cap.
 With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
-docker run --rm -v openctem-outbox:/var/lib/openctem/outbox \
+docker run --rm -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0 -outbox-status
 # after fixing the cause of dead letters:
-docker run --rm -v openctem-outbox:/var/lib/openctem/outbox \
+docker run --rm -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0 -outbox-requeue-dead
 ```
 
 ## Cloned identity
 
 If two running processes use the same identity or key (for example a copied
-state volume, or two replicas), the sensor is flagged `identity_cloned`
+data volume, or two replicas), the sensor is flagged `identity_cloned`
 (critical) and every administrator sees it in the audit log. Run one process
 per identity. If the copy was not yours, [re-pair](pairing.md#re-pair-a-sensor)
 the sensor and revoke the old key.
@@ -223,10 +224,24 @@ with scanners, or ask the network owner to allow them in the local policy.
 `identity.state_persistent`. The sensor keeps its identity and its renewed
 API key in the state directory (`SENSOR_STATE_DIR`, by default
 `/var/lib/openctem/state`). When it is not on a mounted volume, recreating the
-container loses it and the sensor starts again with a retired key. Mount a
-named volume there (Docker: `-v openctem-sensor-state:/var/lib/openctem/state`;
-Helm: `sensor.state.persistence.enabled: true`). See
-[Volumes](deploy-docker.md#volumes).
+container loses it and the sensor starts again with a retired key (a paired
+sensor would have to pair again). Mount the data volume at its parent
+(Docker: `-v openctem-sensor-data:/var/lib/openctem`; Helm:
+`sensor.data.persistence.enabled: true`); a volume on the state directory
+itself counts too, since the sensor judges a directory by its nearest mount.
+See [Volumes](deploy-docker.md#volumes).
+
+### Outbox on a volume
+{: #storage-outbox-persistent }
+
+`storage.outbox_persistent`. The sensor writes every result to its outbox
+(`SENSOR_OUTBOX_DIR`, by default `/var/lib/openctem/outbox`) before sending
+it and deletes it once the platform accepted it. When the outbox is not on a
+mounted volume, recreating the container during an outage loses the results
+still queued. Mount the data volume at `/var/lib/openctem` (Helm:
+`sensor.data.persistence.enabled: true`). Sensor images before v0.16.0
+declared the outbox an unnamed volume of its own; from v0.16.0 they declare
+none, so mount it.
 
 ### API key renewal
 {: #identity-key-renewal }
@@ -234,7 +249,7 @@ Helm: `sensor.state.persistence.enabled: true`). See
 `identity.key_renewal`. A key-based sensor renews its API key before it
 expires when `PLATFORM_KEY_AUTORENEW=true` (Helm: `sensor.keyAutoRenew`).
 `off_not_persistent`: the sensor turned renewal off because a renewed key
-would be lost; mount a state volume (see
+would be lost; mount the data volume (see
 [State directory on a volume](#identity-state-persistent)). `disabled` or
 `start_failed`: rotate the key yourself before it expires, or
 [pair the sensor](pairing.md).
