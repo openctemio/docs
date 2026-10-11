@@ -60,7 +60,9 @@ ones you want this sensor to run, or narrow the list with `SENSOR_TOOLS`.
 ## Run as a systemd service
 
 Create a dedicated user and let systemd create the state, outbox and content
-directories with mode `0700`:
+directories with mode `0700`. Everything the sensor keeps is under
+`/var/lib/openctem`: back that directory up (`content/` is a cache that is
+downloaded again):
 
 ```bash
 sudo useradd --system --home-dir /var/lib/openctem --shell /usr/sbin/nologin openctem
