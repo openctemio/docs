@@ -18,7 +18,7 @@ port (443) for browsers, sensors and API clients.
 
 ## Before you start
 
-- A Linux host sized as in [Requirements and sizing](index.md).
+- A Linux host sized as in [Sizing](sizing.md).
 - Docker Engine with the Compose plugin, version 2.24 or later
   (`docker compose version`).
 - Port 443 free on the host, and the DNS name or IP address clients will use.
@@ -192,7 +192,9 @@ Then apply with `docker compose up -d`.
 
 Memory limits default to 2 GB for the API, 1 GB for the web console and 512 MB
 for the gateway; change them with `API_MEMORY_LIMIT`, `WEB_MEMORY_LIMIT` and
-`GATEWAY_MEMORY_LIMIT` in `.env`.
+`GATEWAY_MEMORY_LIMIT` in `.env`. The bundled PostgreSQL's memory settings follow the
+`PG_*` variables in `.env.example`. [Sizing](sizing.md#docker-compose) has
+values for each installation size.
 
 ## Managed PostgreSQL or Redis
 
