@@ -81,7 +81,7 @@ User=openctem
 Group=openctem
 StateDirectory=openctem/state openctem/outbox openctem/content
 StateDirectoryMode=0700
-Environment=API_URL=https://openctem.example.com
+Environment=SENSOR_API_URL=https://openctem.example.com
 Environment=SENSOR_ALLOWED_RANGES=203.0.113.0/24,*.example.com
 Environment=SENSOR_STATE_DIR=/var/lib/openctem/state
 Environment=SENSOR_OUTBOX_DIR=/var/lib/openctem/outbox
