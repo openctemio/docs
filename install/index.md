@@ -191,28 +191,26 @@ managed services usually provide it. See
 
 ## Sizing
 
-OpenCTEM's load grows with the number of assets and findings and with how often
-scan results arrive, not with the number of users. The figures below are
-starting points for the host or cluster running the platform, not measured
-benchmarks: watch the metrics in [Monitoring](../operations/monitoring.md) and
-grow from there. Sensors run elsewhere and are sized separately.
+OpenCTEM's load grows with the number of findings and assets per organization
+and with how often scan results arrive, more than with the number of users. The
+[sizing guide](sizing.md) has per-component figures (API, web console, gateway,
+PostgreSQL, Redis, sensors, monitoring, backups) for four sizes, growth per row,
+and the order in which to scale. In short:
 
-| Tier | Typical use | CPU | Memory | Disk |
-|---|---|---|---|---|
-| Evaluation | One organization, a few thousand assets, trial data | 2 vCPU | 4 GB | 20 GB |
-| Small production | A few organizations, tens of thousands of findings | 4 vCPU | 8 GB | 100 GB SSD |
-| Larger production | Many organizations, hundreds of thousands of findings | 8 vCPU or more | 16 GB or more | 250 GB SSD or more; consider managed PostgreSQL |
+| Size | Typical use | Platform host(s) |
+|---|---|---|
+| Evaluation | ≤ 5 users, ≤ 1,000 assets | 2 vCPU, 4 GB, 20 GB SSD |
+| Small | ≤ 50 users, ≤ 10,000 assets, 1-3 sensors | 4 vCPU, 8 GB, 100 GB SSD |
+| Medium | ≤ 500 users, ≤ 100,000 assets, ≤ 20 sensors | 8-12 vCPU, 24-32 GB, 250 GB SSD; managed PostgreSQL recommended |
+| Large | ≤ 5,000 users, ≤ 1,000,000 assets, ≤ 200 sensors | Kubernetes, managed PostgreSQL with 16+ vCPU and 64 GB+ |
 
-- The API and the web console are light; PostgreSQL takes most of the memory and
-  disk. The Helm chart's production example requests 250m CPU and 512 MiB for the
-  API (limit 2 CPU, 1 GiB) and 100m CPU and 256 MiB per web console replica
-  (limit 1 CPU, 512 MiB).
-- Disk holds the database, uploaded attachments and evidence, container logs
-  (Compose rotates them at 50 MB with 5 files per container) and backups. Keep at
-  least 20% free: PostgreSQL stops when its disk fills.
+- PostgreSQL takes most of the CPU, memory and disk; the API and the web console
+  are light. Run one API instance: see [Scaling](../operations/scaling.md).
+- Disk holds the database, attachments and evidence, container logs (Compose
+  rotates them at 50 MB with 5 files per container) and backups. Keep at least
+  20% free: PostgreSQL stops when its disk fills.
 - The optional [monitoring stack](../operations/monitoring.md) needs about 1 GB of
   memory more.
-- Run one API instance: see [Scaling](../operations/scaling.md).
 
 ## Network
 
