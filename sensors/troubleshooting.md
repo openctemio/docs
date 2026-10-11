@@ -58,6 +58,8 @@ started still has a log with the reason.
 | The container exits during pairing with `connection refused` or a TLS error | The platform URL is not reachable from the sensor, or its certificate is not trusted. Check the URL from the host (`curl https://openctem.example.com/health` with the built-in gateway) and [trust the CA](deploy-docker.md#trust-a-private-certificate-authority). |
 | `x509: certificate signed by unknown authority` | The platform uses a private CA. [Trust it](deploy-docker.md#trust-a-private-certificate-authority). |
 | `http 421 ... WRONG_ENDPOINT` or `API key required` | `API_URL` points at the web UI, or at a proxy that strips the `Authorization` header. Point it at the platform gateway or the API. |
+| `platform certificate does not match the pin stored at pairing` | The platform presents a certificate from another CA than at pairing (a changed CA, or a TLS-inspecting proxy added since). Re-pair, or set `SENSOR_CA_FINGERPRINT` to the new CA after a deliberate change. |
+| `This sensor is now key-bound: ...` | Not an error: a key-based sensor bound its own key. Back up its state volume and remove `API_KEY` from its configuration ([Bearer keys](pairing.md#bearer-keys-legacy)). |
 | `certificate chain does not contain the pinned CA` | `SENSOR_CA_FINGERPRINT` does not match the CA the platform presents, or a TLS-inspecting proxy is in between. |
 | An identity permission error at start | Run the `chmod` / `chown` it prints. On Kubernetes see [fsGroup](deploy-kubernetes.md#identity-files-and-fsgroup). |
 | `the platform rejected the API key (HTTP 401 ...)` | A key-based sensor whose key was revoked, regenerated or expired, or whose sensor was deleted. The sensor stays up and checks again (30 s, doubling to 10 min). Regenerate the key, or pair the sensor. |
@@ -66,27 +68,82 @@ started still has a log with the reason.
 | A second sensor refuses to start on the same outbox | Each sensor needs its own outbox volume. |
 | `-platform mode has been removed` | An old command line. Use `-daemon -enable-commands` (the default image's command). |
 
+## Transport
+
+The sensor prints its transport at start and on every change:
+
+```
+  Transport: https (platform_without_grpc)      # start-up line: binding (reason)
+transport: grpc                                 # a later change
+transport: no binding, sending nothing (platform_certificate_refused): ...
+```
+
+The console shows the same on the sensor's sheet (**Transport:**), and above
+the list what the platform offers. A sensor on `https` or `v2` works fully;
+only the lines marked **stops** need action.
+
+| Reason | Transport | Cause | Fix |
+|---|---|---|---|
+| (none) | `grpc` | Best case. | |
+| `platform_without_grpc` | `https` | The platform offers no gRPC endpoint this sensor can use. The Sensors page says why (for example `foreign_certificate`: the stock gateway). A sensor older than v0.15.0 also gets this when the platform offers gRPC only on its own port. | Optional: [gRPC on port 443](transport.md#grpc-on-port-443-docker-compose), or a [dedicated host name](transport.md#a-dedicated-sensor-host-name) for older sensors. |
+| `grpc_unreachable` | `https` | The sensor cannot connect to the gRPC endpoint (DNS, firewall, timeout), although the platform's own probe can. | Allow TCP 443 (or the sensor port) from the sensor to the endpoint. Retried after 30 min, then up to every 4 h. |
+| `handshake_failed` | `https` | TLS to the gRPC endpoint failed on the sensor's path. | A device on the path terminates or alters TLS. |
+| `http2_refused` | `https` | Something on the path (often an HTTP proxy) does not carry HTTP/2. | Let the proxy tunnel HTTP/2, or accept HTTPS. |
+| `stream_reset` | `https` | An intermediary resets HTTP/2 streams. | As above. |
+| `grpc_unimplemented`, `grpc_failed` | `https` | The endpoint answered, but not as the platform's gRPC service. | Check that the endpoint routes to the API's mTLS listener. |
+| `certificates_unavailable` | `https` | The sensor could not get a client certificate. | Usually temporary (issuance is rate-limited); retried within 10 minutes. With `protocol v3: the platform sent another gRPC CA bundle over an unpinned channel`, see [sensor CA replaced](#platform-certificate-refused). |
+| `https_binding_unavailable` | `v2` | The HTTPS transport failed at the network level. | Check that the proxy in front of the platform forwards `/api/v3/sensor/*` to the API. |
+| `platform_without_v3` | `v2` | The platform does not serve protocol v3 (an older platform, or `SENSOR_TRANSPORT_V3=off`). | Nothing, or upgrade the platform. |
+| `not_key_bound` | `v2` | The sensor uses an API key. | It binds its own key by itself from sensor v0.13.0 ([Bearer keys](pairing.md#bearer-keys-legacy)). |
+| `forced_by_config` | as set | `SENSOR_TRANSPORT` forces a transport. | Unset it for `auto`. |
+| `identity_refused` | **stops** (heartbeat only) | The platform refused the sensor's identity: key revoked, sensor disabled, revoked or deleted. Logged as `protocol v3: the platform refused the sensor's identity`. | Activate the sensor, or [re-pair](pairing.md#re-pair-a-sensor). |
+| `platform_certificate_refused` | **stops** (sends nothing) | See below. | See below. |
+
+### `platform_certificate_refused`
+{: #platform-certificate-refused }
+
+The gRPC endpoint presented a certificate that is not from the platform's
+sensor CA. The sensor sends nothing at all, not even heartbeats, so the
+console shows it `late`, then `offline`. It negotiates again about every
+minute and recovers by itself once the cause is gone. Log:
+`protocol v3: the gRPC endpoint's certificate does not verify against the pinned platform CA; no other binding is tried`.
+
+| Cause | Fix |
+|---|---|
+| A TLS-inspecting proxy between the sensor and the platform | Exempt the platform host from inspection, or set `SENSOR_TRANSPORT=https` on the sensor ([TLS-inspecting proxies](network.md#tls-inspecting-proxies)). |
+| The gateway stopped routing sensor connections (the override was dropped from `docker compose`) | Put the override back. The platform withdraws the endpoint within a minute, and the sensor moves to HTTPS at its next negotiation. |
+| The platform's sensor CA was replaced (the `api-data` volume was lost) | Stop the sensor, delete `transport-v3-client.pem` and `transport-v3-platform-ca.pem` from its `identity/` directory, start it. See [the sensor CA](transport.md#platform-side-the-sensor-ca). |
+
+`SENSOR_TRANSPORT=grpc` also stops the sensor (`protocol v3 gRPC binding
+unavailable (<reason>) and SENSOR_TRANSPORT=grpc: not falling back`) whenever
+gRPC is unavailable; use it only to test.
+
 ## Online, but it gets no work
 
 Check, in this order:
 
-1. **Trust level.** A newly paired sensor is **New** and receives passive
+1. **Local policy.** A sensor paired by sensor v0.12.0 or later refuses every
+   job with network targets until it has a local policy; tasks fail with
+   `refused by local policy: no_local_policy: ...`. Set
+   `SENSOR_ALLOWED_RANGES` or install a policy file
+   ([Sensor-local policy](network.md#sensor-local-policy)).
+2. **Trust level.** A newly paired sensor is **New** and receives passive
    (T0) work only: no port scans, HTTP probes or templates. Promote it to
    Trusted ([Pairing](pairing.md#grants-and-trust)).
-2. **Tools.** The scan's tool must be reported installed by the sensor. Check
+3. **Tools.** The scan's tool must be reported installed by the sensor. Check
    the sensor's tool list, or **Settings > Scanning > Tools**, where a tool
    with no runnable sensor says why (`no_sensor`, `offline_only`,
    `outdated`, excluded by the grant or the local policy). A trigger with no
    sensor for a tool is refused with `NO_SENSOR_FOR_TOOL`.
-3. **Zones.** Work routed to a zone goes only to that zone's sensors. Check
+4. **Zones.** Work routed to a zone goes only to that zone's sensors. Check
    the run's warnings for uncovered targets and the zone's sensor list.
-4. **Local policy.** A refusal is reported on the task as `refused by local
+5. **Local policy rules.** A refusal is reported on the task as `refused by local
    policy: <rule>: <detail>`. Check with
    `openctemio-sensor policy explain <file> -target <target> -tool <tool>`.
-5. **Freeze window.** Active work is held during a freeze window.
-6. **Kill switch.** The sensor heartbeats `paused by local policy` while the
+6. **Freeze window.** Active work is held during a freeze window.
+7. **Kill switch.** The sensor heartbeats `paused by local policy` while the
    kill switch file exists.
-7. **Disabled.** A disabled sensor heartbeats, logs `paused by platform` and
+8. **Disabled.** A disabled sensor heartbeats, logs `paused by platform` and
    takes no jobs until it is activated again.
 
 ## Results do not arrive
@@ -99,10 +156,10 @@ With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
 docker run --rm -v openctem-outbox:/var/lib/openctem/outbox \
-  ghcr.io/openctemio/sensor:v0.11.0 -outbox-status
+  ghcr.io/openctemio/sensor:v0.14.0 -outbox-status
 # after fixing the cause of dead letters:
 docker run --rm -v openctem-outbox:/var/lib/openctem/outbox \
-  ghcr.io/openctemio/sensor:v0.11.0 -outbox-requeue-dead
+  ghcr.io/openctemio/sensor:v0.14.0 -outbox-requeue-dead
 ```
 
 ## Cloned identity
