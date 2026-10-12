@@ -223,7 +223,13 @@ docker compose -f docker-compose.yml -f docker-compose.plain-http.yml up -d
 
 # Sensor gRPC on the same port 443 (builds the gateway with the layer-4 module)
 docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d --build
+
+# Malware scanning of uploaded files with ClamAV (about 1.5 GB of memory)
+docker compose -f docker-compose.yml -f docker-compose.clamav.yml up -d
 ```
+
+File storage (a local volume or an S3-compatible bucket), retention and
+malware scanning are described in [File storage](../configuration/file-storage.md).
 
 The sensor overlay is described in
 [Sensor transport](../sensors/transport.md#grpc-on-port-443-docker-compose).
