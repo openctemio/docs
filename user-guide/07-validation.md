@@ -276,3 +276,9 @@ tabs.
     **Duplicate**, and for custom templates **Edit** and **Delete**.
   - Select templates to **Export** them or delete them. Built-in templates cannot
     be edited or deleted.
+- **Report templates** (`/settings/pentest/report-templates`): your
+  organization's Word layouts for campaign reports. Download a starter
+  (standard, executive one-pager or detailed technical), open the **Tag
+  reference**, upload a template (it is checked at once, with every problem
+  and its fix listed) and preview it with sample data. See the
+  [Report template guide](../pentest/report-templates.md).
