@@ -75,6 +75,8 @@ Besides the Go runtime and process metrics, the API exposes among others:
 | `openctem_panics_recovered_total{where}` | Recovered panics. |
 | `openctem_auth_login_failures_total{reason}` | Refused password sign-ins. |
 | `openctem_automation_runs_total`, `openctem_automations_auto_paused_total` | Automation runs and automations paused after repeated failures. |
+| `openctem_storage_operations_total{op,backend,result}`, `openctem_storage_operation_seconds`, `openctem_storage_bytes_written_total` | File storage uploads, downloads, deletes and signed links, on the server storage or organizations' own buckets ([File storage](../configuration/file-storage.md)). |
+| `openctem_storage_events_total{event}` | Quota rejections, retention purges and malware scan results. |
 
 Metric labels never carry organization, user, sensor or target identifiers, so
 alerts can be sent to chat tools safely.
