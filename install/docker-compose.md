@@ -49,7 +49,12 @@ cd api/deploy
 
 ## 2. Create `.env`
 
-Copy the template and fill in a value for every secret. The commands below
+`./setup.sh ctem.example.com` writes `.env` (mode 600) with the host name and
+freshly generated secrets; add `--acme you@example.com` for a Let's Encrypt
+certificate. It never overwrites an existing `.env`. Then set the release and
+image names below.
+
+To do it by hand instead, copy the template and fill in a value for every secret. The commands below
 generate them; `.env` does not run commands itself.
 
 ```bash
@@ -74,11 +79,12 @@ OPENCTEM_HOSTNAME=ctem.example.com          # DNS name or IP clients use
 OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
-{: .note }
-The Compose file still defaults to the image names used up to v0.8.0
-(`ghcr.io/openctemio/api`, `ghcr.io/openctemio/ui`), which receive identical
-copies of each release for a transition period. Set `API_IMAGE` and `UI_IMAGE` as
-above to use the current names.
+{: .warning }
+Set all three of `OPENCTEM_VERSION`, `API_IMAGE` and `UI_IMAGE` for v0.9.0. The
+v0.9.0 files still default to `v0.8.0` (in `.env.example`, and so in the `.env`
+that `setup.sh` writes) and to the image names used up to v0.8.0
+(`ghcr.io/openctemio/api`, `ghcr.io/openctemio/ui`). There is no
+`ghcr.io/openctemio/ui:v0.9.0`, so without `UI_IMAGE` the pull fails.
 
 {: .warning }
 Back up `.env`. `APP_ENCRYPTION_KEY` encrypts the credentials stored in the
@@ -113,11 +119,11 @@ Then start it:
 
 ```bash
 docker compose up -d
-docker compose ps
+docker compose ps -a
 ```
 
-The one-shot jobs `datastore-tls`, `db-roles` and `migrate` run first and exit
-with code 0; `gateway`, `web`, `api`, `postgres` and `redis` stay up. The first
+The one-shot jobs `datastore-tls`, `db-roles`, `migrate` and `gateway-init` run
+first and exit with code 0; `gateway`, `web`, `api`, `postgres` and `redis` stay up. The first
 start takes a minute or two while PostgreSQL initialises and the migrations run.
 
 Check the platform from the host:
@@ -135,7 +141,8 @@ Next: [create the first administrator and organization](first-admin.md).
 
 | Service | Image | Role |
 |---|---|---|
-| `gateway` | `caddy:2.11.4-alpine` | The only published service: TLS and routing on port 443. |
+| `gateway-init` | `openctem-gateway` | Gives the gateway's volumes to its user (uid 1000), then exits. |
+| `gateway` | `openctem-gateway` | The only published service: TLS and routing on port 443. Caddy with the layer-4 module, non-root. |
 | `web` | `openctem-web` | Web console (Next.js), internal port 3000. |
 | `api` | `openctem-api` | API (Go), internal port 8080. Runs the background jobs too. |
 | `migrate` | `migrations` | Applies database migrations, then exits. |
@@ -170,22 +177,23 @@ The `api` service passes a fixed list of variables from `.env` to the API:
 `REDIS_TLS_ENABLED`, `REDIS_TLS_CA_FILE`, `LOG_LEVEL`, `LOG_FORMAT`,
 `AUTH_PROVIDER`, `AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`,
 `APP_ENCRYPTION_KEY_PREVIOUS`, `APP_TEMPLATE_SIGNING_KEY`,
-`TENANT_CREATION_MODE`, `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
-`SMTP_PASSWORD`, `SMTP_FROM`, `METRICS_TOKEN` (empty: `/metrics` off) and the
-`SENSOR_*VERSION` variables. It passes the public origin to the API as `APP_URL`
+`APP_CONTENT_SIGNING_KEY`, `TENANT_CREATION_MODE`, `METRICS_TOKEN` (empty:
+`/metrics` off) and the `SENSOR_*VERSION` variables. Platform email (SMTP) is
+not an environment variable: set it in the admin console, **System > E-mail**
+(see [Email](../configuration/email.md)). It passes the public origin to the API as `APP_URL`
 (`OPENCTEM_PUBLIC_URL`, else `https://<OPENCTEM_HOSTNAME>`), and the API derives
 `CORS_ALLOWED_ORIGINS`, `SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
 (`<APP_URL>/auth/callback`, where SSO sign-ins land) from it.
 
 Any other [API variable](../configuration/environment-variables.md) goes in a
 `docker-compose.override.yml` next to `docker-compose.yml`, which Compose reads
-automatically. For example, to name the email sender:
+automatically. For example, to require email verification at sign-up:
 
 ```yaml
 services:
   api:
     environment:
-      SMTP_FROM_NAME: "Example Corp"
+      AUTH_REQUIRE_EMAIL_VERIFICATION: "true"
 ```
 
 Then apply with `docker compose up -d`.

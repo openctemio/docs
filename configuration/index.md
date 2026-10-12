@@ -36,7 +36,7 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | Who creates organizations | `TENANT_CREATION_MODE` | `admin_only` |
 | When active scans need a verified domain | `SCOPE_ACTIVE_PROOF` | `off` (`platform_sensors` with self-service organizations) |
 | Ranges and names no organization may scan | `SCOPE_DENY_EXTRA` | none (built-in deny list only) |
-| System email | `SMTP_*` | off |
+| System email | Admin console, **System > E-mail** (`BOOTSTRAP_SMTP_*` for headless installs) | off |
 | Metrics | `METRICS_TOKEN` | off |
 | Audit log retention | `AUDIT_RETENTION_DAYS`, `AUDIT_ARCHIVE_DIR`, `ADMIN_AUDIT_RETENTION_*` | keep everything; admin audit pruning in dry run |
 | Attachment storage | `STORAGE_PROVIDER` | `local` |
