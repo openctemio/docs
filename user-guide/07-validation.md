@@ -93,7 +93,7 @@ A pentest finding is also a finding of your organization: it appears in
 **Findings** (`/findings`) next to scanner results, with the source **Pentest**.
 Pentest findings use the shared finding statuses plus Draft and In Review
 (Draft → In Review → Confirmed → In Progress → Fix Applied → Resolved, plus
-False Positive and Risk Accepted); a passed retest resolves the finding with the
+False Positive, Risk Accepted and Duplicate); a passed retest resolves the finding with the
 resolution method `retest_verified`. Draft and In Review are work in progress:
 they are hidden from the findings list unless you filter on them, and a campaign
 client never sees them. A finding is **published** once it reaches Confirmed.
@@ -103,17 +103,18 @@ client never sees them. A finding is **published** once it reaches Confirmed.
 **Validation › Pentest campaigns** (`/pentest/campaigns`) plans, runs and tracks
 penetration-testing engagements.
 
-1. The metrics: **All campaigns**, **In progress**, **Planning**, **Completed**,
-   **Critical findings** and **Findings**.
+1. The metrics: **All campaigns**, **Planning**, **Testing**, **Reporting**,
+   **Remediation**, **Critical findings** and **Findings**. A planning campaign
+   whose readiness checks pass shows **Ready to start**.
 2. Search, and filter by **Status** and by what is tested (**Targets**). Archived
    campaigns are listed only when you filter on them.
 3. **My campaigns** shows only the campaigns you are on. If you are on none, the
    page says so and offers **Show all campaigns**.
-4. A row's menu: **View details**, **Duplicate**, the next status step (**Start
-   campaign**, **Put on hold**, **Complete campaign**, **Resume**, **Archive**,
-   **Unarchive**), **Export findings (CSV)**, **Export findings (Excel)** and
-   **Delete**. Status steps are offered to the campaign lead and to organization
-   owners and administrators.
+4. A row's menu: **View details**, **Duplicate**, the phase actions (see
+   [The campaign page](#the-campaign-page)), **Export findings (CSV)**,
+   **Export findings (Excel)** and **Delete**. Phase actions are offered to the
+   campaign lead and to organization owners and administrators who are members
+   of the campaign.
 
 ![The pentest campaign list with targets, status, TLP and progress per campaign]({{ site.baseurl }}/assets/images/user-guide/pentest-campaigns.png)
 *Figure: The campaign list.*
@@ -139,7 +140,7 @@ campaign** works from any step; everything else can be filled in later.
    [Test credentials](#test-credentials).
 3. **Team and sign-off**: you are the lead; add testers, reviewers, observers and
    client contacts, and set the optional
-   [completion sign-off](#complete-a-campaign).
+   [completion sign-off](#deliver-the-report).
 
 ![Step 1 of the New campaign wizard: engagement details, targets, approach, environment and TLP]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign-wizard.png)
 *Figure: The creation wizard, step 1.*
@@ -185,22 +186,38 @@ holds the profile, which the lead can edit:
 
 A campaign's page (`/pentest/campaigns/{id}`) has the tabs **Overview**,
 **Findings**, **Retests**, **Report**, **Scope**, **Team**, **Checklist** and
-**Rules**. The header carries the status actions (for example **Put on hold**
-and **Complete campaign**), **Export** and **Import**.
+**Rules**. The header carries the phase actions (the next step first, for
+example **Finish testing**), **Export** and **Import**.
 
-A **status stepper** under the header shows where the campaign is and what comes
-next:
+A **status stepper** under the header shows the campaign's phase and the next
+action in words:
 
-| Step | Campaign status | What happens |
-|---|---|---|
-| Planning | Planning | Scope, team and rules are prepared. Findings can already be written. |
-| Testing | In progress (or On hold) | Testers add findings. On hold, findings can be updated but not added. |
-| Remediation | Completed | Testing is over. Findings are fixed, retested and closed; no new findings. |
-| Archived | Archived | Read-only. Unarchive returns it to Completed. |
+| Step | Campaign status | Who adds findings | Next action |
+|---|---|---|---|
+| Planning | Planning | nobody yet | **Start testing** |
+| Testing | In progress | the lead and testers | **Finish testing** |
+| Reporting | Reporting | the lead and reviewers (late additions, audited) | **Deliver report** |
+| Remediation | Completed | nobody: findings are fixed, retested and closed | **Close campaign** |
+| Closed | Archived | nobody: read-only | **Unarchive** returns it to Remediation |
 
-A canceled campaign is marked on the step it interrupted; it can be moved back
-to planning or archived. Every status change except start, resume and unarchive
-asks for confirmation first.
+- **Planning**: scope, rules, the authorization letter and the team are
+  prepared. Under the stepper, **Ready to start** appears once the dates, the
+  authorization letter, a lead and a tester, and the scope are set; otherwise
+  the missing items are listed. When your organization requires an
+  authorization letter, testing cannot start without one.
+- **Reporting**: testing is over. The lead and reviewers decide every draft
+  (confirm, reject, mark as duplicate), write the report and collect the
+  [completion sign-offs](#deliver-the-report). **Back to testing** returns to
+  testing and clears the sign-offs.
+- **On hold** pauses testing or reporting: no new findings, existing ones can
+  be updated, and **Resume** returns to the phase it was paused in.
+- A canceled campaign is marked on the step it interrupted; it can be moved
+  back to planning or closed.
+
+Only the campaign lead changes the phase, or an organization owner or
+administrator who is a member of the campaign. Every change is audited and the
+campaign's members are notified. Starting, resuming and unarchiving run at
+once; the other changes ask first.
 
 ![A campaign page with its status stepper, header badges and the Findings view]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign.png)
 *Figure: A campaign in testing, with its status stepper.*
@@ -232,14 +249,16 @@ skips a campaign rule asks them for a reason and is audited.
 |---|---|---|---|---|---|
 | See drafts and findings in review | yes | yes | yes | yes | no |
 | See published findings | yes | yes | yes | yes | yes |
-| Create and edit findings | yes | own | edit | no | no |
+| Add findings | testing, reporting | testing | reporting | no | no |
+| Edit findings | yes | own | yes | no | no |
+| Mark a draft as a duplicate | yes | no | yes | no | no |
 | Publish a finding | yes | no | yes | no | no |
 | Request a retest | yes | own | yes | no | yes |
 | Record a retest result | yes | own (cannot resolve) | yes | no | no |
 | Accept the risk, mark a false positive | yes | no | yes | no | no |
 | Generate and deliver reports | yes | no | no | no | no |
-| Change the status, manage the team, links and sign-off policy | yes | no | no | no | no |
-| Sign off completion | if the policy names the role | no | if named | no | if named |
+| Change the phase, manage the team, links and sign-off policy | yes | no | no | no | no |
+| Sign off the report | if the policy names the role | no | if named | no | if named |
 | List, add and reveal test credentials | yes | yes | list and reveal | no | no |
 
 "Own" means findings the tester created or is assigned. The client role is for
@@ -297,11 +316,19 @@ and **Resolved**, search by title, CWE or CVE, and filters.
   **Delete**.
 - Select findings to **Request retest** for all of them at once.
 
-Findings can be added while the campaign is in planning or testing, by the lead
-and testers (and organization owners and administrators). A **completed**
-campaign takes no new findings and no content edits; fixing, retesting and
-closing its published findings continue. Canceled and archived campaigns accept
-neither. Deleting a campaign deletes its findings too and cannot be undone.
+Who can add a finding depends on the phase: the lead and testers while
+testing, the lead and reviewers while reporting (organization owners and
+administrators act as the lead). In planning, on hold, after the report is
+delivered, and on canceled or closed campaigns nobody can. When you cannot,
+**New finding** is replaced by a note that says why, with the phase action
+(for example **Start testing** or **Reopen testing**) for those who may take
+it. After delivery, fixing, retesting and closing published findings
+continue. Deleting a campaign deletes its findings too and cannot be undone.
+
+**Duplicate**: in a finding's **Status** menu, the lead or a reviewer marks a
+draft or a finding in review as a duplicate of another finding of the same
+campaign, chosen in a list. The duplicate keeps its history and is never
+published; **Draft** in the same menu takes it back.
 
 ### Write a finding
 
@@ -361,34 +388,36 @@ A retest is recorded with **Retest** in either place. Each retest keeps the
 finding's status before and after it, so the retest history and the retest
 report show, for example, "Fix Applied → Resolved".
 
-### Complete a campaign
+### Deliver the report
 
-**Complete campaign** (the lead) ends testing. The dialog lists what completing
-means: findings still in draft or review (they would never reach the client),
-published findings that stay open for remediation and retest, reports generated
-and delivered, and the sign-offs. Findings in draft or review block completion
-unless the lead gives a reason, which is audited.
+**Deliver report** (the lead, during reporting) moves the campaign to
+remediation. The dialog lists what delivering means: findings still in draft
+or review, published findings that stay open for remediation and retest,
+reports generated and delivered, and the sign-offs. Findings in draft or
+review block delivery: confirm, reject, mark as duplicate or delete them
+first.
 
 **Completion sign-off** (off by default) asks a number of people (0 to 5) from
-chosen roles (lead, reviewer, client) to agree that the campaign is done before
-it can be completed. Set it in the wizard or on the **Completion sign-off**
-card on the campaign.
+chosen roles (lead, reviewer, client) to agree with the report before it is
+delivered. Set it in the wizard or on the **Completion sign-off** card on the
+campaign.
 
 - Each person counts once. With two or more sign-offs required, the lead cannot
   meet the policy alone.
 - Members with a named role use **Sign off** on the completion card while the
-  campaign is in testing or on hold, and can **Withdraw my sign-off**.
-- The lead can raise the policy at any time before completion, but lower it only
+  campaign is in reporting, and can **Withdraw my sign-off**.
+- The lead can raise the policy at any time before delivery, but lower it only
   during planning; after that only an organization owner or administrator can
   lower it.
-- An organization owner or administrator can complete without the sign-offs by
+- An organization owner or administrator can deliver without the sign-offs by
   giving a reason (audited at high severity); a lead cannot.
-- Reopening a completed campaign clears its sign-offs.
+- Going back to testing clears the sign-offs.
 
-A completed campaign shows **Testing complete, remediation open** with the
-number of findings awaiting a fix or a retest. Archive it when remediation is
-over: archiving makes it read-only, stops retests and deletes its test
-credentials.
+A delivered campaign shows **Report delivered, remediation open** with the
+number of findings awaiting a fix or a retest. **Reopen testing** takes it back
+to testing; it asks for a reason, which is audited. **Close campaign** when
+remediation is over: closing makes it read-only, stops retests and deletes its
+test credentials.
 
 ### Reports
 
@@ -426,7 +455,7 @@ step: after the developers report a fix, a tester checks that the issue is gone.
    the finding's status before and after it.
 4. **Retest** (needs the retest write permission) opens **Record retest
    result**:
-   - **Result**: **Passed**, **Failed** or **Partial**.
+   - **Result**: **Passed**, **Failed**, **Partial** or **Unable to verify**.
    - **Test environment**: Production, Staging, QA or Development.
    - Notes (required; Markdown supported) and optional **Evidence**
      (screenshots, HAR files).
@@ -439,8 +468,12 @@ What happens next:
 - **Failed**: the finding goes back to **In Progress** for the developers.
 - **Partial**: the partial fix is recorded and the status stays unchanged; the
   lead or a reviewer decides what happens next.
+- **Unable to verify**: the fix could not be checked (for example the
+  environment is down or the credentials expired). The notes must say why (at
+  least 10 characters); the finding stays in **Fix Applied** and can be
+  retested.
 
-Retests continue after a campaign is completed; an archived campaign must be
+Retests continue after the report is delivered; a closed campaign must be
 unarchived first.
 
 ## ATT&CK coverage
