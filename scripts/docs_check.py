@@ -6,6 +6,10 @@ Usage: python3 scripts/docs_check.py [ROOT ...]
 Scans every *.md file under each ROOT (default: the current directory) and fails when:
   - a relative link or image points to a file or directory that does not exist,
     or to a heading anchor that does not exist in the target Markdown file;
+  - a table is followed directly by a line of text (kramdown then renders the
+    whole table as a paragraph of raw pipes: end every table with a blank line);
+  - a table cell has a code span with an escaped pipe (kramdown prints the
+    backslash; a pipe inside a code span needs no escape);
   - the text contains Vietnamese letters (documentation is English only);
   - the text contains a private IPv4 host address in 192.168.0.0/16 or 172.16.0.0/12,
     or an internal host name. 10.0.0.0/8 stays allowed because design documents use
@@ -37,6 +41,7 @@ ALLOW_PRIVATE = "docs-check: allow-private"
 LINK = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+\"[^\"]*\")?\s*\)")
 REF_DEF = re.compile(r"^\s*\[[^\]]+\]:\s*(\S+)", re.MULTILINE)
 SPLIT_LINK = re.compile(r"^[^\[`]*\]\((?!\s)[^)\s]+\)")
+CODE_SPAN = re.compile(r"`[^`]*`")
 FENCE = re.compile(r"^\s*(```|~~~)")
 
 
@@ -98,7 +103,14 @@ def check_file(path, errors):
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     in_fence = False
+    prev = ""
     for lineno, line in enumerate(text.splitlines(), 1):
+        if (not in_fence and prev.lstrip().startswith("|") and line.strip()
+                and not line.lstrip().startswith(("|", "{:", "{%"))):
+            errors.append(f"{path}:{lineno}: a table must end with a blank line (it renders as raw text)")
+        prev = line
+        if not in_fence and line.lstrip().startswith("|") and any("\\|" in c for c in CODE_SPAN.findall(line)):
+            errors.append(f"{path}:{lineno}: escaped pipe in a code span prints the backslash (write | without the backslash)")
         if VIETNAMESE.search(LANGUAGE_NAMES.sub("", line)):
             errors.append(f"{path}:{lineno}: non-English (Vietnamese) text")
         if ALLOW_PRIVATE not in line:
