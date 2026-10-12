@@ -149,7 +149,7 @@ docker run --rm --env-file openctem.env \
 ```
 
 ```text
-configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only SCOPE_ACTIVE_PROOF=off
+configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only
 ```
 
 A refusal names the setting, for example
@@ -169,6 +169,25 @@ docker run -d --name openctem --restart unless-stopped \
   ghcr.io/openctemio/openctem:v0.9.0
 docker logs -f openctem
 ```
+
+To run it locked down, add a read-only root filesystem, drop every capability
+except the one that lets the gateway bind port 443, and forbid privilege
+escalation:
+
+```bash
+docker run -d --name openctem --restart unless-stopped \
+  -p 443:443 \
+  -v openctem-data:/data \
+  --read-only --tmpfs /tmp \
+  --cap-drop ALL --cap-add NET_BIND_SERVICE \
+  --security-opt no-new-privileges:true \
+  --memory 3g --log-opt max-size=50m --log-opt max-file=5 \
+  --env-file openctem.env \
+  ghcr.io/openctemio/openctem:v0.9.0
+```
+
+Keep `NET_BIND_SERVICE`: with `--cap-drop ALL` alone the gateway cannot start
+(`caddy: Operation not permitted`).
 
 Wait for the API's `application started` line, then check:
 

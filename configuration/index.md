@@ -34,9 +34,10 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | Public origin | `OPENCTEM_PUBLIC_URL` (Compose) or `APP_URL`, `CORS_ALLOWED_ORIGINS`, `SMTP_BASE_URL` | none |
 | TLS mode | `OPENCTEM_TLS_MODE` | `internal` |
 | Who creates organizations | `TENANT_CREATION_MODE` | `admin_only` |
-| When active scans need a verified domain | `SCOPE_ACTIVE_PROOF` | `off` (`platform_sensors` with self-service organizations) |
+| Whether platform sensors need a verified domain | Admin console, **System > Platform scanning** | off |
+| Whether scans need approval | Admin console, **System > Scan approval** (each organization decides by default) | off |
 | Ranges and names no organization may scan | `SCOPE_DENY_EXTRA` | none (built-in deny list only) |
-| System email | `SMTP_*` | off |
+| System email | Admin console, **System > E-mail** (`BOOTSTRAP_SMTP_*` for headless installs) | off |
 | Metrics | `METRICS_TOKEN` | off |
 | Audit log retention | `AUDIT_RETENTION_DAYS`, `AUDIT_ARCHIVE_DIR`, `ADMIN_AUDIT_RETENTION_*` | keep everything; admin audit pruning in dry run |
 | Attachment storage ([File storage](file-storage.md)) | `STORAGE_PROVIDER`, `STORAGE_SSE`, `STORAGE_CLAMD_ADDRESS` | `local`, bucket default, no malware scan |
