@@ -19,7 +19,7 @@ so the threat-intelligence enrichment has something to show.
 | Area | Data |
 |---|---|
 | People | Alex Morgan (owner), Jordan Patel (administrator), Sam Lee and Casey Kim (members), Riley Chen (viewer), a pending invitation, the platform administrator `admin@example.com` |
-| Scope | Domains, address ranges, the repositories and the cloud account, one exclusion, approvals by a second administrator, domain proof requests |
+| Scope | Domains, address ranges, the repositories and the cloud account, one exclusion, domain proof requests |
 | Inventory | Domains, subdomains, IP addresses, hosts, services, websites, an API, repositories, cloud resources, groups, relationships, owners, crown jewels |
 | Findings | Imported from synthetic Nessus, nuclei, SARIF and Trivy exports (`fixtures.ts`): every severity, request/response evidence, components; triage, assignment, comments, approvals, resolved findings |
 | Work | Two remediation campaigns, a pentest campaign with findings waiting for retest, an SLA policy, priority rules |
@@ -72,7 +72,7 @@ authenticator code (every account has TOTP enrolled; the secrets are kept in
 | `OPENCTEM_WEB_URL` | `http://localhost:13980` | Web console URL (capture) |
 | `DEMO_PSQL` | `docker exec -i openctem-demo-pg psql -U openctem -d openctem` | psql command line of the scratch database |
 | `DEMO_PASSWORD` | `DemoPassw0rd!2026` | Password of every demo account |
-| `SENSOR_IMAGE` | `ghcr.io/openctemio/sensor:v0.11.0` | Image whose `pair` command pairs the demo sensors |
+| `SENSOR_IMAGE` | `ghcr.io/openctemio/sensor:v0.17.0` | Image whose `pair` command pairs the demo sensors |
 | `SENSOR_API_URL` | `http://127.0.0.1:18980` | API URL as the sensor container (host network) reaches it |
 | `PAIR_SENSORS` | | `0` skips pairing (no Docker) |
 | `SKIP_IMPORTS` | | `1` skips the tool imports |
