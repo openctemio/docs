@@ -40,10 +40,12 @@ characters, an encryption key and secure cookies. See
 
 ## Requirements
 
-- PostgreSQL 17 and Redis 7, external and reachable over TLS. The chart can
-  bundle Bitnami PostgreSQL and Redis subcharts, for evaluation only: they are
-  single instance, not backed up, and the bundled Redis cannot serve TLS, so it
-  never passes the production checks.
+- PostgreSQL 17 and Redis 7, external and reachable over TLS. PostgreSQL 18 is
+  not supported yet: a v0.9.0 migration stops on it. The chart can bundle
+  Bitnami PostgreSQL and Redis subcharts, for evaluation only: they are single
+  instance, not backed up, and the bundled Redis cannot serve TLS, so it never
+  passes the production checks (with `api.appEnv: production` the chart refuses
+  to render with it).
 - A default StorageClass (attachments volume, gateway data, sensor state), or
   S3-compatible storage for attachments.
 - The least-privilege database roles: run
@@ -112,8 +114,6 @@ api:
       name: Example Corp
       ownerEmail: owner@example.com
 
-    createSecret: false
-
 postgresql:
   enabled: false
 database:
@@ -151,6 +151,47 @@ gateway:
 kubeadm with flannel, `10.42.0.0/16` on k3s): only those addresses may assert a
 client IP to the API.
 
+From chart 0.22.0 the bundled gateway runs `ghcr.io/openctemio/openctem-gateway`
+at the chart's `appVersion`. It carries the sensor gRPC binding on the same port
+443 (sensors are routed by their ALPN id), so one address serves browsers, API
+clients and sensors.
+
+When your PostgreSQL or Redis certificate comes from a private CA, put the CA in
+a Secret (key `ca.crt`) and add it, with `sslMode: verify-full` (chart 0.22.0
+and later):
+
+```yaml
+api:
+  migrations:
+    sslMode: verify-full
+  redis:
+    ca:
+      existingSecret: openctem-redis-ca
+database:
+  tls:
+    ca:
+      existingSecret: openctem-db-ca
+```
+
+To have the first organization owner's set-password link e-mailed on a fresh
+install, give the bootstrap Job the relay (chart 0.22.0 and later; see
+[Email](../configuration/email.md#headless-installs)):
+
+```yaml
+api:
+  bootstrapAdmin:
+    extraEnv:
+      - name: BOOTSTRAP_SMTP_HOST
+        value: smtp.example.com
+      - name: BOOTSTRAP_SMTP_FROM
+        value: openctem@example.com
+      - name: BOOTSTRAP_SMTP_USER
+        value: openctem
+      - name: BOOTSTRAP_SMTP_PASSWORD
+        valueFrom:
+          secretKeyRef: {name: openctem-smtp, key: password}
+```
+
 ## 3. Install
 
 ```bash
@@ -159,9 +200,17 @@ helm upgrade --install openctem openctem/openctem \
 helm test openctem -n openctem
 ```
 
-The migrations run as a Job before the API starts. The gateway Service is a
-`LoadBalancer` exposing port 443; point `ctem.example.com` at its address
-(`kubectl -n openctem get svc`).
+On the first install the migrations run as a post-install Job, once the
+release's objects exist, so the API can log errors about missing tables for a
+minute until it finishes. On upgrades the Job runs before the new pods. The
+gateway Service is a `LoadBalancer` exposing port 443; point `ctem.example.com`
+at its address (`kubectl -n openctem get svc`).
+
+`helm test` checks the API's `/health` and `/ready` (PostgreSQL and Redis
+reachable) and the console's `/api/health`.
+
+Every pod runs non-root with a read-only root filesystem, no capabilities,
+seccomp `RuntimeDefault` and no service account token.
 
 ## First administrator
 
@@ -194,21 +243,25 @@ kubectl -n openctem exec deploy/openctem-api -- /app/bootstrap-admin \
 | `api.replicaCount` | `1` | Keep 1: see [Scaling](../operations/scaling.md). The chart refuses more unless `api.allowMultipleReplicas` is set. |
 | `api.tenantCreationMode` | `admin_only` | `TENANT_CREATION_MODE`. |
 | `api.attachments.storage` | `local` | `local`: a 10 GiB ReadWriteOnce volume at `/app/data`. `s3`: an S3-compatible bucket (`api.attachments.s3.*`). Encryption, retention, malware scanning and direct downloads: [File storage](../configuration/file-storage.md). |
-| `api.extraEnv` / `api.extraEnvFrom` | empty | Any other [API variable](../configuration/environment-variables.md), for example `SMTP_*` or `REDIS_TLS_CA_FILE`. |
+| `api.extraEnv` / `api.extraEnvFrom` | empty | Any other [API variable](../configuration/environment-variables.md). The chart refuses names the API removed (for example `SMTP_HOST`: the relay is set in the console). |
+| `api.bootstrapAdmin.extraEnv` | empty | Variables for the bootstrap Job only, such as `BOOTSTRAP_SMTP_*`. |
+| `database.tls.ca.existingSecret` / `api.redis.ca.existingSecret` | empty | Secrets holding the CA (`ca.crt`) of a private PostgreSQL / Redis certificate. |
+| `api.goMemLimit` / `database.maxOpenConns` | empty | `GOMEMLIMIT` and `DB_MAX_OPEN_CONNS`; the size presets set them. |
 | `ui.replicaCount` | `1` | Web console replicas; 2 or more in production. |
 | `gateway.mode` | `none` | `none`, `ingress`, `httpRoute` or `caddy`. See below. |
 | `gateway.host` / `gateway.publicUrl` | empty / `https://<host>` | Public name and origin. Sets the API's `APP_URL`, `CORS_ALLOWED_ORIGINS` and `SMTP_BASE_URL`. |
 | `gateway.caddy.tls.mode` | `internal` | `internal`, `acme`, `files` or `http`, as in [TLS and the gateway](tls-and-gateway.md). |
+| `gateway.caddy.image` | `ghcr.io/openctemio/openctem-gateway:<appVersion>` | The gateway image, with the layer4 module that routes sensor gRPC on port 443. |
 | `postgresql.enabled` / `redis.enabled` | `true` | Bundled datastores, evaluation only. Set `false` in production. |
 | `monitoring.enabled` | `false` | Sets `METRICS_TOKEN` from a generated Secret, plus optional ServiceMonitor and PrometheusRule. See [Monitoring](../operations/monitoring.md). |
-| `networkPolicy.enabled` | `false` | Default-deny ingress plus the flows the platform needs. Needs a CNI that enforces NetworkPolicy and a dedicated namespace. |
+| `networkPolicy.enabled` | `false` | Default-deny ingress for the release's pods plus the flows the platform needs. Needs a CNI that enforces NetworkPolicy; a dedicated namespace is recommended. |
 | `sensor.enabled` | `false` | Run a sensor in the cluster. See [Sensors on Kubernetes](../sensors/deploy-kubernetes.md). |
 
 ### Gateway modes
 
 | `gateway.mode` | Renders | TLS | API-key clients on any `/api/*` path |
 |---|---|---|---|
-| `caddy` | The gateway as a Deployment with a `LoadBalancer` Service and a volume for its CA and certificates. | `gateway.caddy.tls.mode` | Yes. |
+| `caddy` | The gateway as a Deployment with a `LoadBalancer` Service and a volume for its CA and certificates. Also carries sensor gRPC on port 443. | `gateway.caddy.tls.mode` | Yes. |
 | `httpRoute` | One Gateway API `HTTPRoute`. | Your Gateway's listener. | Yes (header matching). |
 | `ingress` | One `Ingress`. | Your ingress controller (cert-manager annotations supported). | Only on the dedicated API paths: an Ingress cannot match headers. |
 | `none` | Nothing; use the per-component `api.ingress` / `ui.ingress`. | | |

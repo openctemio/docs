@@ -222,6 +222,8 @@ const workflows = rows(await get('/api/v1/scan-workflows?per_page=100'))
 const runs = rows(await get('/api/v1/scan-runs?per_page=50').catch(() => ({ data: [] })))
 const campaigns = rows(await get('/api/v1/remediation/campaigns?per_page=20').catch(() => ({ data: [] })))
 const groups = rows(await get('/api/v1/asset-groups?per_page=20').catch(() => ({ data: [] })))
+const pentestCampaigns = rows(await get('/api/v1/pentest/campaigns?per_page=20').catch(() => ({ data: [] })))
+const pentestId = pentestCampaigns.find((c: any) => c.name === 'Q4 external penetration test')?.id
 const runningRun = runs.find((r: any) => r.status === 'running')?.id
 const completedRun = runs.find((r: any) => r.status === 'completed' && r.total_steps === 5)?.id
 const workflowId = workflows.find((w: any) => w.name === 'External attack surface')?.id
@@ -230,7 +232,7 @@ const workflowId = workflows.find((w: any) => w.name === 'External attack surfac
 // code it prints. stopPairing() denies the request and removes the container.
 const pairing: { name?: string; code?: string } = {}
 async function startPairing(name: string): Promise<string> {
-  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.11.0'
+  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.17.0'
   const apiUrl = process.env.SENSOR_API_URL ?? 'http://127.0.0.1:18980'
   const proc = spawn('docker', ['run', '--rm', '--name', `openctem-demo-pair-${name}`, '--network', 'host', '--hostname', name, image, 'pair', '-api-url', apiUrl, '-name', name, '-state-dir', '/tmp/state'])
   let out = ''
@@ -307,6 +309,38 @@ const shots: Shot[] = [
   // Validation and mobilization
   { section: 'user-guide', name: 'validation', route: '/validation' },
   { section: 'user-guide', name: 'retest-queue', route: '/validation/retests' },
+  { section: 'user-guide', name: 'pentest-campaigns', route: '/pentest/campaigns' },
+  {
+    section: 'user-guide',
+    name: 'pentest-campaign-wizard',
+    route: '/pentest/campaigns',
+    crop: '[role="dialog"]',
+    height: 1100,
+    open: async (page) => {
+      await page.getByRole('button', { name: /new campaign/i }).first().click()
+      await page.getByRole('dialog').first().waitFor()
+      await page.getByLabel(/campaign name/i).first().fill('Mobile banking app test')
+      await page.getByLabel(/^client/i).first().fill('Example Corp, Payments team')
+      await page.waitForTimeout(600)
+    },
+  },
+  { section: 'user-guide', name: 'pentest-campaign', route: pentestId ? `/pentest/campaigns/${pentestId}` : '/pentest/campaigns' },
+  {
+    section: 'user-guide',
+    name: 'pentest-finding-editor',
+    route: pentestId ? `/pentest/findings/new?campaign=${pentestId}` : '/pentest/findings/new',
+    height: 1300,
+    open: async (page) => {
+      await page.getByLabel(/^title/i).first().fill('Invoice download skips the ownership check')
+      await page.getByRole('radio', { name: /^high$/i }).first().click().catch(() => {})
+      const target = page.getByPlaceholder(/URL, host, IP/i).first()
+      await target.fill('https://app.example.com/invoices/{id}/pdf')
+      await target.press('Enter')
+      await page.getByPlaceholder(/login form builds/i).first().fill('GET /invoices/{id}/pdf returns the invoice of **any** customer to a signed-in user.\n\n![Invoice of another customer](evidence-invoice.png)')
+      await page.waitForTimeout(600)
+      await page.evaluate(() => window.scrollTo(0, 0))
+    },
+  },
   { section: 'user-guide', name: 'remediation', route: '/remediation' },
   { section: 'user-guide', name: 'remediation-campaign', route: campaigns[0] ? `/remediation/${campaigns[0].id}` : '/remediation' },
   { section: 'user-guide', name: 'my-work', route: '/my-work' },

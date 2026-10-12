@@ -32,20 +32,20 @@ is the reference behind it.
 Use a released version, never `latest` in production:
 
 ```bash
-docker pull ghcr.io/openctemio/sensor:v0.14.0
+docker pull ghcr.io/openctemio/sensor:v0.17.0
 ```
 
 The default image runs nuclei and the recon tools (subfinder, dnsx, naabu,
 httpx, katana). For code scanning on a daemon, use a per-tool image such as
-`ghcr.io/openctemio/sensor:v0.14.0-semgrep`. See
+`ghcr.io/openctemio/sensor:v0.17.0-semgrep`. See
 [What runs inside](how-it-works.md#what-runs-inside).
 
 Release images are signed with cosign (keyless). Verify before you run:
 
 ```bash
-cosign verify ghcr.io/openctemio/sensor:v0.14.0 \
+cosign verify ghcr.io/openctemio/sensor:v0.17.0 \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity https://github.com/openctemio/sensor/.github/workflows/docker-publish.yml@refs/tags/v0.14.0
+  --certificate-identity https://github.com/openctemio/sensor/.github/workflows/docker-publish.yml@refs/tags/v0.17.0
 ```
 
 ## 2. Start it
@@ -58,7 +58,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.14.0
+  ghcr.io/openctemio/sensor:v0.17.0
 ```
 
 Or with Docker Compose (`compose.yaml`, then `docker compose up -d`):
@@ -66,7 +66,7 @@ Or with Docker Compose (`compose.yaml`, then `docker compose up -d`):
 ```yaml
 services:
   sensor:
-    image: ghcr.io/openctemio/sensor:v0.14.0
+    image: ghcr.io/openctemio/sensor:v0.17.0
     container_name: openctem-sensor
     restart: unless-stopped
     environment:
@@ -99,7 +99,7 @@ volumes:
   docker run --rm -it \
     -e SENSOR_API_URL=https://openctem.example.com \
     -v openctem-sensor-data:/var/lib/openctem \
-    ghcr.io/openctemio/sensor:v0.14.0 pair K7QM-4ZTD
+    ghcr.io/openctemio/sensor:v0.17.0 pair K7QM-4ZTD
   ```
 
 - `--stop-timeout` / `stop_grace_period` give running scans time to finish on
@@ -238,6 +238,6 @@ Arguments after the image replace the default command, so the same image can
 run a single scan and print the results:
 
 ```bash
-docker run --rm ghcr.io/openctemio/sensor:v0.14.0 \
+docker run --rm ghcr.io/openctemio/sensor:v0.17.0 \
   -standalone -tool nuclei -target https://app.example.com
 ```

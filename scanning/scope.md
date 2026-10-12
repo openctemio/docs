@@ -13,8 +13,11 @@ not an asset being in the inventory, not a person confirming an asset as
 yours. There is no switch that turns scope off.
 
 Manage scope under **Scoping > Scope**, with the tabs **In scope** (entries),
-**Out of scope** (exclusions), **Approvals** and **Domain proof**. The
-organization's rules are in **Settings > Policies > Scope policy**.
+**Out of scope** (exclusions), **Domain proof** and **Networks** (the last two
+with the Attack surface module). An **Approvals** tab appears only while the
+organization's scan approval is **Strict** or a change still waits for a
+decision. The organization's rules are in **Settings > Policies > Scope
+policy**.
 
 Design: [RFC-054](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-054-scope-model.md).
 
@@ -40,8 +43,8 @@ probe on every path.
 
 Each entry has a status and a tier ceiling:
 
-- **Status.** `pending` (waiting for approval; authorizes nothing), `active`,
-  `inactive` or `expired`.
+- **Status.** `active`, `inactive` or `expired`, and `pending` (waiting for
+  approval, only under Strict scan approval; authorizes nothing).
 - **Permanent or one-off.** A one-off entry has an expiry (default 7 days, at
   most the organization's maximum, never more than 30) and a reason. It stops
   authorizing the moment it expires.
@@ -49,8 +52,11 @@ Each entry has a status and a tier ceiling:
   (default), 90 or 365 days, or permanent. Long and permanent T2 entries are
   confirmed periodically (see below).
 - **Highest tier** (`max_tier`): `t0` passive only, `t1` non-intrusive active
-  checks (the default), `t2` intrusive. A probe above an entry's tier is
-  refused with `tier_exceeds`.
+  checks (the default), `t2` intrusive. The tier is a ceiling only while the
+  organization's scan approval is **Strict**: then a probe above an entry's
+  tier is refused with `tier_exceeds`. In **Off** (the default) and **On** an
+  entry is a list of targets, and how hard a target is probed is the scan's
+  choice (its intensity and the approval rules).
 - **Discovery.** A permanent domain entry with discovery on is a root for
   [attack surface monitoring](easm.md): Certificate Transparency and DNS
   checks watch it, and names found under it join the inventory.
@@ -59,23 +65,32 @@ Each entry has a status and a tier ceiling:
 |---|---|---|
 | T0 | No traffic to the target beyond DNS | subdomain discovery, DNS resolution, code and dependency analysis |
 | T1 | Non-intrusive active checks | port scans, HTTP probes, crawling, nuclei templates (intrusive, DoS, fuzzing and brute-force templates are always excluded) |
-| T2 | Intrusive | DAST. Needs a verified domain and a T2 entry; derived targets are never fed to it |
+| T2 | Intrusive | DAST. Derived targets are never fed to it. Needs a verified domain when the platform requires proof, and a T2 entry under Strict |
 
 ![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope entries in effect.*
 
-## Widening needs approval
+## Widening scope
 
 Creating, activating, extending or raising the tier of an entry, and removing
-or shortening an exclusion, **widen** scope. They need:
+or shortening an exclusion, **widen** scope. Every widening needs the scope
+write permission (`attack_surface:scope:write`) and a fresh identity check
+(re-authentication), takes effect only through the scope service, is audited
+and notifies every owner and administrator. Narrowing (deactivating, deleting,
+an earlier expiry, a lower tier) is always one step.
 
-- the scope approval permission (`attack_surface:scope:approve`) and re-authentication;
-- approval by other approvers: the organization's approval count, by default
-  one when the organization has two or more administrators (and always at
-  least one for a T2 entry). Until then the entry is `pending`.
+Whether a second person must agree follows the organization's **scan
+approval** setting (**Settings > Scanning > Scan approval**, owner only), or
+the platform administrator's policy when the platform forces one:
 
-A pending entry shows how many approvals it still needs and who can give
-them (owners, administrators and members with the scope approval
+| Scan approval | Scope changes |
+|---|---|
+| **Off** (default) | A widening takes effect at once. No requests, no approvals, no tier ceilings. |
+| **On** | The same for scope. Approval rules apply to **scans** (for example intrusive scans, or active scans of production assets), not to scope entries. |
+| **Strict** | A widening waits for approval by other approvers (the organization's approval count; by default one when the organization has two or more administrators, and always at least one for a T2 entry). Members only **request** a one-off entry. New exclusions wait for another approver. Entry tiers are ceilings. |
+
+Under Strict, a pending entry shows how many approvals it still needs and who
+can give them (owners, administrators and members with the scope approval
 permission, never the person who asked). They are told in-app, by email and
 on the organization's notification channels; **Remind approvers** sends the
 request again, at most once an hour. When nobody else can approve (an
@@ -84,20 +99,12 @@ entry themselves with a reason and a code from their authenticator app.
 This is recorded in the audit log and every administrator is told; nothing
 is ever approved automatically.
 
-Your platform administrator decides how much of this applies: approvals
-required (the default), decided by your organization's owner for every tier,
-or disabled. The Scope settings page shows which. Re-authentication,
-ownership proof, the platform deny list, audit and notifications apply in
-every case.
-
 ![Scope changes waiting for a second administrator's approval]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
-*Figure: A cloud account and an exclusion waiting for approval.*
+*Figure: Under Strict scan approval: a cloud account and an exclusion waiting for approval.*
 
-Every widening that takes effect notifies all owners and administrators and
-is audited. Members with `attack_surface:scope:write` only **request** a
-one-off entry for one name or address, with a reason; an approver decides it
-on the **Approvals** tab. Narrowing (deactivating, deleting, an earlier
-expiry, a lower tier) is always one step.
+When an organization leaves Strict, entries and exclusions still pending are
+put into effect by an hourly job, audited as a system decision, and the
+administrators are told once.
 
 ### Confirming intrusive (T2) entries
 
@@ -106,16 +113,17 @@ default; an owner sets 30 to 180) is confirmed by an approver: "Keep T2 for
 <pattern>?" arrives in-app, by email and on the channels, and the
 **Approvals** tab offers **Keep T2**. Without a confirmation within 14 days
 the entry falls back to non-intrusive (T1) probes. It is not removed;
-raising it to T2 again needs an approval.
+raising it to T2 again is a widening. These limits apply to entries marked T2
+under every scan approval setting.
 
 ### Scope policy settings
 
 | Setting | Values | Default |
 |---|---|---|
 | Discovered names join the inventory | on, off | on |
-| Who adds one-off entries | administrators; administrators and requests; nobody | administrators and requests |
+| Who adds one-off entries (requests: Strict only) | administrators; administrators and requests; nobody | administrators and requests |
 | Maximum days for a one-off entry | 1-30 | 7 |
-| Approvals for widening | default, 0, 1, 2 | default: `min(1, administrators - 1)` |
+| Approvals for widening (Strict only) | default, 0, 1, 2 | default: `min(1, administrators - 1)` |
 | Default tier of new entries | `t0`, `t1` | `t1` |
 | Longest intrusive (T2) entry (owners only) | 7, 30, 90, 365 days, permanent | 30 days |
 | Confirm long T2 entries every (owners only) | 30-180 days | 90 days |
@@ -133,11 +141,16 @@ wait in the review queue under **Attack surface > Review**. See
 
 A **verified domain** proves that your organization controls a domain's DNS.
 It is proof, not authorization: a scope entry is still required. Proof is
-needed when:
+needed only when the platform administrator turns on **Require a verified
+domain before platform sensors scan a target** (admin console, **System >
+Platform scanning**; off by default). Then:
 
-- a probe is intrusive (T2): always;
-- the platform operator requires it for shared platform sensors or for every
-  active probe (below).
+- a job goes to shared platform sensors only when every target is at or under
+  a verified domain;
+- an intrusive (T2) probe needs one on any sensor.
+
+The **In effect now** section of the scope policy shows whether the platform
+requires proof.
 
 ![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
 *Figure: Domain proof.*
@@ -163,7 +176,8 @@ The platform operator sets these; no organization can change them.
 
 | Setting | Effect |
 |---|---|
-| `SCOPE_ACTIVE_PROOF` | `off`: no proof needed (except T2). `platform_sensors`: a job on shared platform sensors needs every target at or under a verified domain. `all`: every active probe of an internet target needs one. Unset: `platform_sensors` when `TENANT_CREATION_MODE=self_service`, otherwise `off`. |
+| Require a verified domain before platform sensors scan a target | Admin console, **System > Platform scanning**. Off by default. On: platform sensors scan only targets at or under a verified domain of the organization, and intrusive (T2) probes need one on any sensor. Changing it needs a super administrator, a fresh authenticator code and a reason; it is audited and the other platform administrators are emailed. (The environment variable `SCOPE_ACTIVE_PROOF` of earlier releases is retired: the API refuses to start while it is set.) |
+| Scan approval policy | Admin console, **System > Scan approval**: the platform default or a per-organization override (`tenant_controlled`, `off`, `on`, `strict`). |
 | Public suffixes | No entry may be, or wildcard, a public suffix (`*.com`, `*.co.uk`, `*.azurewebsites.net`) |
 | Government and military names | Refused |
 | Shared provider apexes | Refused as wildcard roots (`*.amazonaws.com`); exact names under them stay allowed |
@@ -216,13 +230,14 @@ flowchart TD
 4. Names marked "Not ours", awaiting review, dependencies and monitor-only
    names are never actively probed ([Ownership](#ownership-of-discovered-names)).
 5. Only `active` entries authorize.
-6. A T2 probe always needs a verified domain; `SCOPE_ACTIVE_PROOF` can require
-   one for more ([Proof of control](#proof-of-control)).
+6. When the platform requires proof, a job on platform sensors and a T2 probe
+   need a verified domain ([Proof of control](#proof-of-control)).
 7. The person who triggered the run (or the scan owner, for scheduled runs)
    must be allowed to act on the asset. This check comes before the tier check,
    so a target the person may not scan is reported as out of their data scope
    and reveals nothing about the scope entries that cover it.
-8. Each entry's highest tier caps the probes it allows.
+8. Under Strict scan approval, each entry's highest tier caps the probes it
+   allows.
 9. See [Scan zones](../sensors/zones.md#how-a-target-is-routed).
 
 The gate runs when a scan is created or edited, when a run is triggered, for
@@ -246,7 +261,7 @@ path carries the same codes:
 |---|---|---|
 | `no_entry` | No scope entry covers the target | Add an entry, or request a one-off |
 | `entry_pending`, `entry_expired`, `entry_inactive` | Covered only by an entry that is not in effect | Approve, renew or activate it |
-| `tier_exceeds` | Covering entries allow a lower tier | Raise the entry's tier |
+| `tier_exceeds` | Covering entries allow a lower tier (Strict only) | Raise the entry's tier |
 | `excluded` | An exclusion matches | Remove the exclusion |
 | `rejected`, `needs_review`, `candidate`, `monitor_only`, `dependency` | The asset's attribution does not allow active probes | Review the asset |
 | `proof_required` | Proof is required and the target is not under a verified domain | Verify the domain |

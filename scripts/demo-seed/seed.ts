@@ -72,6 +72,11 @@ log('signed in as alex@example.com, organization', alex.tenantId)
 // Members
 // ---------------------------------------------------------------------------
 const ROLE = { admin: '00000000-0000-0000-0000-000000000002', member: '00000000-0000-0000-0000-000000000003', viewer: '00000000-0000-0000-0000-000000000004' }
+// People are added directly only on an email domain the organization has
+// verified; a scratch stack cannot publish the DNS record, so mark it verified.
+sqlText(`INSERT INTO verified_domains (id, tenant_id, domain, verification_token, status, verified_at, purpose)
+  VALUES (gen_random_uuid(), '${alex.tenantId}', 'example.com', 'demo', 'verified', now(), 'sso')
+  ON CONFLICT (tenant_id, domain) DO UPDATE SET status = 'verified', verified_at = now()`)
 const people = [
   { email: 'sam@example.com', name: 'Sam Lee', role: ROLE.member },
   { email: 'riley@example.com', name: 'Riley Chen', role: ROLE.viewer },
@@ -355,7 +360,7 @@ if (zone?.id) st.ids.zone = zone.id
 // Sensors pair with their own key (no API key). The real sensor image runs
 // only its `pair` command, which exits once approved: it never scans.
 async function pairSensor(name: string, profile: string) {
-  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.11.0'
+  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.17.0'
   const apiUrl = process.env.SENSOR_API_URL ?? 'http://127.0.0.1:18980'
   const proc = spawn('docker', ['run', '--rm', '--name', `openctem-demo-pair-${name}`, '--network', 'host', '--hostname', name, image, 'pair', '-api-url', apiUrl, '-name', name, '-state-dir', '/tmp/state'])
   let out = ''
@@ -537,26 +542,43 @@ await step('priority rule info', () =>
 await step('pentest campaign', async () => {
   const c: any = await api('POST', '/api/v1/pentest/campaigns', {
     name: 'Q4 external penetration test', description: 'Annual test of the customer portal, the public API and the online shop.',
-    campaign_type: 'web_app', priority: 'high', methodology: 'OWASP WSTG 4.2', client_name: 'Example Corp',
+    targets: ['web_app', 'api'], approach: 'grey_box', environment: 'staging', tlp: 'amber', methodology: 'OWASP', client_name: 'Example Corp',
+    scope_items: [
+      { type: 'domain', value: 'app.example.com', in_scope: true },
+      { type: 'url', value: 'https://api.example.com/v2', in_scope: true },
+      { type: 'domain', value: 'admin.example.com', in_scope: false },
+    ],
+    rules_of_engagement: { testing_hours: 'Mon-Fri 09:00-18:00 UTC', emergency_contact: 'Jordan Patel, security on-call' },
+    completion_required_signoffs: 1, completion_signoff_roles: ['client'],
     start_date: new Date(Date.now() - 20 * 86400e3).toISOString().slice(0, 10), end_date: new Date(Date.now() + 10 * 86400e3).toISOString().slice(0, 10),
     objectives: ['Test authentication and authorization of the customer portal', 'Test the public API for broken object level authorization'],
     asset_ids: ids('https://app.example.com', 'https://api.example.com', 'https://shop.example.org'),
-    lead_user_id: st.ids.jordan, team_user_ids: [st.ids.jordan, st.ids.casey].filter(Boolean), tags: ['annual'],
+    tags: ['annual'],
   })
   const id = c.id ?? c.data?.id
   st.ids.pentest = id
+  // Alex (the creator) leads; the rest of the team has one role each.
+  for (const [user, role] of [[st.ids.jordan, 'reviewer'], [st.ids.casey, 'tester'], [st.ids.riley, 'client']] as const)
+    if (user) await api('POST', `/api/v1/pentest/campaigns/${id}/members`, { user_id: user, role }).catch((e) => log('     pentest member', e.message))
+  await api('PATCH', `/api/v1/pentest/campaigns/${id}/status`, { status: 'in_progress' }).catch((e) => log('     pentest start', e.message))
+  await api('POST', `/api/v1/pentest/campaigns/${id}/secrets`, {
+    label: 'Staging customer account', kind: 'password', username: 'pentest-customer@example.com', value: 'demo-not-a-real-password',
+  }).catch((e) => log('     pentest credential', e.message))
+  // Published findings move through the shared finding statuses.
   const walk: Record<string, string[]> = {
-    remediation: ['in_review', 'confirmed', 'remediation'],
-    retest: ['in_review', 'confirmed', 'remediation', 'retest'],
-    verified: ['in_review', 'confirmed', 'remediation', 'retest', 'verified'],
+    draft: [],
+    in_review: ['in_review'],
+    in_progress: ['in_review', 'confirmed', 'in_progress'],
+    fix_applied: ['in_review', 'confirmed', 'in_progress', 'fix_applied'],
+    resolved: ['in_review', 'confirmed', 'in_progress', 'fix_applied', 'resolved'],
   }
   const pf = async (body: { status: string } & Record<string, unknown>) => {
-    const f: any = await api('POST', `/api/v1/pentest/campaigns/${id}/findings`, body)
+    const f: any = await api('POST', `/api/v1/pentest/campaigns/${id}/findings`, { ...body, status: 'draft' })
     for (const status of walk[body.status] ?? [])
       await api('PATCH', `/api/v1/pentest/findings/${f.id ?? f.data?.id}/status`, { status }).catch((e) => log('     pentest status', e.message))
   }
   await pf({
-    title: 'Order API returns other customers’ orders (BOLA)', severity: 'high', status: 'retest', asset_id: A('https://api.example.com'),
+    title: 'Order API returns other customers’ orders (BOLA)', severity: 'high', status: 'fix_applied', asset_id: A('https://api.example.com'),
     cwe_id: 'CWE-639', owasp_category: 'API1:2023 Broken Object Level Authorization', cvss_score: 8.1, cvss_version: '3.1',
     cvss_vector: 'CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N',
     description: 'GET /v2/orders/{id} returns any order when the caller is signed in, whoever owns it.',
@@ -564,16 +586,21 @@ await step('pentest campaign', async () => {
     business_impact: 'Disclosure of customer addresses and order history.', remediation_guidance: 'Check that the order belongs to the caller before returning it.',
   })
   await pf({
-    title: 'Session cookie without SameSite attribute', severity: 'low', status: 'remediation', asset_id: A('https://app.example.com'),
+    title: 'Session cookie without SameSite attribute', severity: 'low', status: 'in_progress', asset_id: A('https://app.example.com'),
     cwe_id: 'CWE-1275', description: 'The session cookie of the customer portal is set without SameSite.', remediation_guidance: 'Set SameSite=Lax on the session cookie.',
   })
   await pf({
-    title: 'Password reset token reusable', severity: 'medium', status: 'retest', asset_id: A('https://shop.example.org'),
+    title: 'Password reset token reusable', severity: 'medium', status: 'fix_applied', asset_id: A('https://shop.example.org'),
     cwe_id: 'CWE-640', description: 'A password reset link can be used more than once within its validity.', remediation_guidance: 'Invalidate the token after the first use.',
   })
   await pf({
-    title: 'Verbose error discloses framework version', severity: 'info', status: 'verified', asset_id: A('https://shop.example.org'),
+    title: 'Verbose error discloses framework version', severity: 'info', status: 'resolved', asset_id: A('https://shop.example.org'),
     description: 'Stack traces were returned on malformed input; fixed and verified.',
+  })
+  await pf({
+    title: 'Stored XSS in the support ticket subject', severity: 'medium', status: 'in_review', asset_id: A('https://app.example.com'),
+    cwe_id: 'CWE-79', owasp_category: 'A03:2021', description: 'The ticket subject is rendered without encoding on the agent dashboard.',
+    remediation_guidance: 'Encode the subject when rendering it.',
   })
 })
 
