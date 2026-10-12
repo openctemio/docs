@@ -11,7 +11,9 @@ Desktop, Claude Code or any MCP client) can answer questions about your organiza
 natural language: "which KEV findings are open on internet-facing assets?", "why is this finding
 P0?", "draft the executive summary for this pentest campaign".
 
-It reuses the same tenant-scoped read services as the REST API. It cannot change anything.
+It reuses the same tenant-scoped read services as the REST API. The one tool that changes data
+(adding a comment) runs only for a person's OAuth connection, after the person confirms the exact
+comment in OpenCTEM; API keys cannot change anything.
 
 ## Endpoint
 
@@ -70,33 +72,59 @@ cannot call.
 
 ## Tools
 
-All tools are read-only and confined to the key's organization. None takes an organization
-argument.
+Every tool is confined to the key's organization; none takes an organization argument. Every tool
+carries MCP annotations: the read tools are marked `readOnlyHint: true`, and no tool is
+destructive, so assistants that auto-approve read-only tools do not ask on every read.
 
 | Tool | Arguments | Returns | Needs |
 |---|---|---|---|
 | `list_findings` | `severity`, `status`, `source`, `search`, `limit` (default 25, max 100) | findings | `findings:read` |
-| `get_finding` | `id` | one finding | `findings:read` |
+| `get_finding` | `finding_id` | one finding | `findings:read` |
 | `finding_stats` | none | totals by severity and status, KEV, EPSS and SLA roll-ups | `findings:read` |
 | `list_active_cves` | `kev_only`, `min_epss` (0 to 1), `severity`, `limit` | CVEs active in the organization, ordered by KEV and EPSS | `findings:read` |
-| `explain_finding_priority` | `id` | why a finding has its priority (KEV, EPSS, reachability, severity weighting) | `findings:read` |
+| `explain_finding_priority` | `finding_id` | why a finding has its priority (KEV, EPSS, reachability, severity weighting) | `findings:read` |
 | `get_exposure_chains` | none | shortest attack paths from public entry points to KEV or crown-jewel assets | `assets:read` |
 | `list_remediation_groups` | none | remediation groups (findings fixed by the same solution) | `findings:read` |
 | `list_assets` | `exposure` (`public`, `private`, `unknown`), `criticality`, `search`, `limit` | assets | `assets:read` |
 | `compliance_posture` | none | framework and control totals, overdue controls | `compliance:frameworks:read` |
-| `get_campaign` | `id` | a pentest campaign's report context | `pentest:campaigns:read` |
-| `list_campaign_findings` | `campaign_id`, `severity`, `status`, `limit` | a campaign's findings with report fields | `pentest:findings:read` |
-| `get_pentest_finding` | `id` | one pentest finding with full report fields | `pentest:findings:read` |
-| `list_retests` | `campaign_id` | retests of a campaign | `pentest:retests:read` |
+| `list_campaigns` | `phase`, `role`, `search`, `include_archived`, `page`, `limit` (max 50) | your pentest campaigns with your role, the phase, TLP, dates, finding counts and the next action for your role | `pentest:campaigns:read` |
+| `my_work` | `page`, `limit` | your active campaigns that need something from you: your drafts, findings assigned to you, reviews, retests (for a client: published findings still open) | `pentest:campaigns:read` |
+| `get_campaign` | `campaign_id` | a pentest campaign's report context; the emergency contact and escalation details only for the campaign lead | `pentest:campaigns:read` |
+| `list_campaign_findings` | `campaign_id`, `severity`, `status`, `search`, `page`, `limit` (max 50) | a campaign's findings with report fields, filtered before paging (`total`, `has_more`, `next_page`) | `pentest:findings:read` |
+| `get_pentest_finding` | `finding_id` | one pentest finding with full report fields (evidence as counts only) | `pentest:findings:read` |
+| `list_retests` | `campaign_id`, `page`, `limit` | retests of a campaign, newest first | `pentest:retests:read` |
 | `list_finding_templates` | `category`, `search`, `limit` | reusable finding templates | `pentest:templates:read` |
-| `campaign_report_stats` | `campaign_id` | counts by severity and status, CVSS, progress | `pentest:campaigns:read` |
+| `campaign_report_stats` | `campaign_id` | working counts by severity and status (drafts included), CVSS, progress | `pentest:campaigns:read` |
 
-Pentest tools also require the key's user to be a member of the campaign.
+Tools that took `id` now take `campaign_id` or `finding_id`; `id` is still accepted.
+
+### Pentest campaigns
+
+- Pentest tools act for the key's user, with no administrator bypass: an administrator who is not a
+  member of a campaign sees nothing of it. Start with `list_campaigns` or `my_work` to find a
+  campaign instead of pasting ids.
+- A campaign **client** sees their campaigns with published counts only and reads published
+  findings with `get_pentest_finding`; the campaign-wide tools and prompts answer `not_found` to
+  them.
+- **TLP limit.** An organization administrator sets the highest TLP sent to AI applications in
+  **Settings > AI access (MCP) > Organization policy** (default TLP:AMBER). A campaign above it
+  is refused by every pentest tool and prompt with the error `campaign_restricted`, and left out of
+  `list_campaigns`, `my_work` and `list_findings` (the lists say how many they left out, with no
+  names). A campaign lead can also tick **Keep this campaign away from AI assistants** on the
+  campaign's Engagement card. Both changes are written to the audit log.
+
+### Untrusted text
+
+Finding titles, descriptions, notes and scanner output can contain text written to manipulate an
+AI assistant. Tool results return such text under `untrusted_data`, next to a `notice` telling the
+model to treat it as data; prompts carry it in a separate, marked DATA message.
 
 ## Prompts
 
 Prompts are report-section templates, pre-filled with campaign context, that the assistant uses to
-draft text:
+draft text. `exec_summary` and `attack_narrative` use the same findings as the delivered report:
+published findings only, no drafts, findings under review, false positives or duplicates, so the
+numbers in the draft match the report.
 
 | Prompt | Arguments |
 |---|---|
@@ -114,9 +142,14 @@ draft text:
   pentest campaign membership apply.
 - **Network policy.** The organization's IP allowlist applies (`403 IP_NOT_ALLOWED` outside it).
 - **Rate limits.** A per-address limit runs before authentication, and the key's own hourly
-  limit is shared with the REST API. List tools return at most 100 rows.
-- **Errors.** A tool failure is returned as a tool result with `isError: true`. Only input
-  validation messages are shown; internal errors are reduced to "tool execution failed".
+  limit is shared with the REST API. List tools return at most 100 rows (pentest lists 50 per
+  page).
+- **Errors.** A tool failure is returned as a tool result with `isError: true` and
+  `{"error": {"code", "message", "retryable"}}`. Codes: `invalid_argument` (the message names the
+  argument), `not_found` (the item does not exist or you cannot read it: one answer for both),
+  `forbidden`, `permission_denied` (the key lacks the tool's scope), `module_disabled`,
+  `campaign_restricted` (TLP limit or the lead's switch), `unavailable` and `internal_error`
+  (retry later; no internal detail is returned).
 - **Audit.** Every `tools/call` is audit-logged with the tool name, the key, the outcome and a
   sanitized summary of the arguments (identifiers and enum filters, never free-text search terms
   or result data).
