@@ -237,14 +237,17 @@ is out of scope, and an exclusion always wins. See also
 ![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope: the entries in effect.*
 
-The cards **In scope**, **Out of scope** and **Waiting for approval** also switch
-tabs. The tabs are **In scope**, **Out of scope**, **Approvals** and **Domain
-proof**. **Policy** opens the scope policy.
+The cards **In scope** and **Out of scope** also switch tabs. The tabs are **In
+scope**, **Out of scope**, **Domain proof** and **Networks**. Under **Strict**
+scan approval (or while a change still waits), a **Waiting for approval** card
+and an **Approvals** tab appear as well. **Policy** opens the scope policy.
 
 ### Add to scope
 
-Users who can approve scope changes see **Add to scope**; members who can only
-request see **Request access**.
+Users who can approve scope changes see **Add to scope**; other members who can
+write scope see **Request access**. Outside **Strict** scan approval what they
+add takes effect at once; under Strict it is a request that waits for an
+approver.
 
 1. In **What**, type the entry. Its kind is detected for you (use **Change** to
    pick it yourself): domain (`example.com`), IP address (`203.0.113.7`), IP range
@@ -257,25 +260,25 @@ request see **Request access**.
    inventory) or **One-off** (expires after the number of **Days** you choose, up
    to the policy maximum; it authorizes scans only, and names found still need
    review).
-4. Choose the **Deepest probe allowed**: **T0 passive**, **T1 safe active** or
-   **T2 intrusive**. T2 is for approvers only and needs an expiry, an approval
-   and a verified domain.
+4. Under **Strict** scan approval only, choose the **Deepest probe allowed**:
+   **T0 passive**, **T1 safe active** or **T2 intrusive** (T2 needs an expiry
+   and an approval). Outside Strict the scan decides how hard it probes.
 5. Give a **Reason** (required for one-off entries, requests and T2; kept in the
    audit log) and an optional description.
 6. Click **Add to scope** or **Send request**.
 
-The dialog tells you whether the entry needs approvals or takes effect at once;
-you may be asked to confirm your identity first. A member's request is limited
-to one name or address (no wildcard or range), is always one-off and at most
-T1. Some targets are always refused, whatever the settings: public suffixes,
+The dialog tells you whether the entry needs approvals (Strict only) or takes
+effect at once; you are asked to confirm your identity first. Under Strict, a
+member's request is limited to one name or address (no wildcard or range), is
+always one-off and at most T1. Some targets are always refused, whatever the settings: public suffixes,
 government and military names, shared-provider apexes used as wildcard roots,
 link-local and cloud-metadata addresses, and very large public ranges.
 
 The In scope table shows each entry's kind, status (**Active**, **Pending
 approval**, **Expired**, **Inactive**, **Rejected**), deepest probe, reason and
-who added it. Row actions: **Edit**, **Deactivate**, **Activate** and **Extend**
-(both may need approval), and **Remove**. An edit that widens scope sends the
-entry back to pending.
+who added it. Row actions: **Edit**, **Deactivate**, **Activate** and **Extend**,
+and **Remove**. Under Strict, activating and extending need approval, and an
+edit that widens scope sends the entry back to pending.
 
 ### Put out of scope
 
@@ -287,16 +290,18 @@ On the **Out of scope** tab, click **Put out of scope**:
    what changes state**).
 3. Enter a **Reason** and, optionally, when it **Ends** (1 to 365 days).
 
-A new exclusion is **Pending approval** and scans still reach the target until
-someone other than you, who holds the exclusion-approve permission (owners and
-admins by default), approves it. Exclusion statuses: **Excluded**, **Pending
+A new exclusion is in effect at once. Under **Strict** scan approval it is
+**Pending approval** instead, and scans still reach the target until someone
+other than you, who holds the exclusion-approve permission (owners and admins
+by default), approves it. Exclusion statuses: **Excluded**, **Pending
 approval**, **Lifted**, **Rejected**, **Ended**. Path exclusions also have a
 **Testing mode** (**Blocked**, **Read-only** or, for at most 90 days,
 **Allowed**).
 
 ### Approvals
 
-The **Approvals** tab is one queue for both entries ("Adds to scope") and
+Shown under **Strict** scan approval, or while something still waits. The
+**Approvals** tab is one queue for both entries ("Adds to scope") and
 exclusions ("Puts out of scope"). Click **Approve** or **Reject**, or select
 several and **Approve selected**. You can never approve your own request, and
 approving widening entries can require a fresh identity check.
@@ -308,9 +313,9 @@ approving widening entries can require a fresh identity check.
 
 The **Domain proof** tab proves that you control a domain with a DNS TXT record:
 enter the **Domain**, click **Prove a domain**, publish the record and click
-**Check**. Proof does not put anything in scope; scope entries do. Depending on
-the platform's settings, active probes from platform sensors need a proved
-domain.
+**Check**. Proof does not put anything in scope; scope entries do. When the
+platform administrator requires it (off by default), scans on platform sensors
+and intrusive (T2) probes need a proved domain.
 
 ![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
 *Figure: Domain proof: two domains verified, one waiting for its DNS TXT record.*
@@ -323,15 +328,15 @@ identity, is audited and notifies every administrator.
 
 | Setting | Options | Default |
 |---|---|---|
-| **Approvals for widening** | Default (one, when there are two or more admins), None, One approver, Two approvers | Default |
-| **One-off entries** | Approvers; members request · Approvers only · Off | Approvers; members request |
+| **Approvals for widening** (applies under Strict) | Default (one, when there are two or more admins), None, One approver, Two approvers | Default |
+| **One-off entries** (requests: Strict only) | Approvers; members request · Approvers only · Off | Approvers; members request |
 | **Longest one-off entry** | 1 to 30 days | 7 |
 | **Default deepest probe** | T0 passive, T1 safe active (T2 is never a default) | T1 |
 | **Add discovered names automatically** | on or off | on |
 
 The **In effect now** section shows the resulting approval count, whether
-active probes need domain proof (set by the platform operator) and that scope
-checks are always on. When automatic adding is off, every newly discovered name
+active probes need domain proof (set by the platform operator), the scan
+approval mode and that scope checks are always on. When automatic adding is off, every newly discovered name
 waits in the attack-surface review queue.
 
 ## Threat model
