@@ -40,7 +40,7 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | System email | Admin console, **System > E-mail** (`BOOTSTRAP_SMTP_*` for headless installs) | off |
 | Metrics | `METRICS_TOKEN` | off |
 | Audit log retention | `AUDIT_RETENTION_DAYS`, `AUDIT_ARCHIVE_DIR`, `ADMIN_AUDIT_RETENTION_*` | keep everything; admin audit pruning in dry run |
-| Attachment storage | `STORAGE_PROVIDER` | `local` |
+| Attachment storage ([File storage](file-storage.md)) | `STORAGE_PROVIDER`, `STORAGE_SSE`, `STORAGE_CLAMD_ADDRESS` | `local`, bucket default, no malware scan |
 
 Generate every secret (`AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`, database and
 Redis passwords) once, store it in a secret store, and back it up

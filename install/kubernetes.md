@@ -242,7 +242,7 @@ kubectl -n openctem exec deploy/openctem-api -- /app/bootstrap-admin \
 | `api.auth.existingSecret` / `api.encryption.existingSecret` | empty | Secrets holding `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`. With `appEnv: production` the chart refuses to render without stable values for both. |
 | `api.replicaCount` | `1` | Keep 1: see [Scaling](../operations/scaling.md). The chart refuses more unless `api.allowMultipleReplicas` is set. |
 | `api.tenantCreationMode` | `admin_only` | `TENANT_CREATION_MODE`. |
-| `api.attachments.storage` | `local` | `local`: a 10 GiB ReadWriteOnce volume at `/app/data`. `s3`: an S3-compatible bucket (`api.attachments.s3.*`). |
+| `api.attachments.storage` | `local` | `local`: a 10 GiB ReadWriteOnce volume at `/app/data`. `s3`: an S3-compatible bucket (`api.attachments.s3.*`). Encryption, retention, malware scanning and direct downloads: [File storage](../configuration/file-storage.md). |
 | `api.extraEnv` / `api.extraEnvFrom` | empty | Any other [API variable](../configuration/environment-variables.md). The chart refuses names the API removed (for example `SMTP_HOST`: the relay is set in the console). |
 | `api.bootstrapAdmin.extraEnv` | empty | Variables for the bootstrap Job only, such as `BOOTSTRAP_SMTP_*`. |
 | `database.tls.ca.existingSecret` / `api.redis.ca.existingSecret` | empty | Secrets holding the CA (`ca.crt`) of a private PostgreSQL / Redis certificate. |
