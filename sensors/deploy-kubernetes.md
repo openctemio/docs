@@ -107,7 +107,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: sensor
-          image: ghcr.io/openctemio/sensor:v0.14.0
+          image: ghcr.io/openctemio/sensor:v0.17.0
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
