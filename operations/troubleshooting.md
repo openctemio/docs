@@ -42,7 +42,7 @@ docker compose exec api wget -qO- localhost:8080/ready
 | `database schema check failed — refusing to start` | Migrations did not run, failed (dirty), or the database predates the migration baseline. | See [Migrations](#migrations). |
 | `failed to connect to database` | Host, credentials, or TLS (`DB_SSLMODE`). | Check `DB_*`; production refuses `DB_SSLMODE=disable`. |
 | `failed to connect to redis` | Host, password, or TLS. | Check `REDIS_*`; production requires TLS and a 32+ character password. |
-| `jira webhook preflight failed` | Production, a connected Jira integration without a webhook secret. | Set the organization's Jira webhook secret, or `JIRA_WEBHOOK_SECRET`. |
+| `jira webhook preflight: connected Jira integrations have no webhook secret` (warning) | A connected Jira integration without a webhook secret; its inbound webhooks are refused. | The organization rotates its Jira webhook secret. |
 
 ## Migrations
 
@@ -108,7 +108,8 @@ access see everything. Add the user to a group that holds the assets: see
 
 ## Email is not delivered
 
-The API logs `email service not configured` at start when system SMTP is off.
+When no platform SMTP server is set, the API logs `email service not configured, skipping ... email`
+each time it would have sent one (verification, password reset, ...).
 See [Email (SMTP)](../configuration/email.md#troubleshooting).
 
 ## Gateway and TLS
