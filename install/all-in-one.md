@@ -149,7 +149,7 @@ docker run --rm --env-file openctem.env \
 ```
 
 ```text
-configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only SCOPE_ACTIVE_PROOF=off
+configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only
 ```
 
 A refusal names the setting, for example

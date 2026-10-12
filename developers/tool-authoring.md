@@ -16,10 +16,7 @@ The contract is **tool contract v1** (RFC-055), implemented by
 [openctemio/sdk-go](https://github.com/openctemio/sdk-go). The platform side is described in
 [tool-contract.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/tool-contract.md).
 
-{: .note }
-The tool contract, the `openctem` CLI and the capability-based builder are on the `main` branch of
-sdk-go and are not in a tagged release yet (the latest tag, v0.18.0, predates them). Until the
-next sdk-go release, install the CLI from `@main` as shown below.
+The `openctem` CLI and the capability-based builder are part of the tagged sdk-go releases (v0.23.0 at the time of writing); pin the version you install.
 
 ## Concepts
 
@@ -66,7 +63,7 @@ Capabilities marked `routed` are the ones the platform places in scan workflows 
 ## 1. Scaffold
 
 ```bash
-go install github.com/openctemio/sdk-go/cmd/openctem@main
+go install github.com/openctemio/sdk-go/cmd/openctem@v0.23.0
 openctem tool init --kind exec-json --capability scan.ports@1 --name acme-ports acme-ports
 ```
 

@@ -154,22 +154,28 @@ exists:
 
 - **Scope entries.** A target must be covered by an active, unexpired scope entry of the organization.
   `*.example.com` covers `example.com` and every name below it. Creating, extending or raising the
-  tier of an entry is **widening**: it needs the `attack_surface:scope:approve` permission, step-up,
-  and (with two or more admins) approval by another person. Others can only request one-off entries.
-  Narrowing is always one click. Every widening is audited and notified to owners and admins.
+  tier of an entry is **widening**: it needs the scope write permission and step-up, and is audited
+  and notified to owners and admins. Narrowing is always one click. A second person's approval is
+  opt-in: under the organization's **Strict** scan approval (or a platform policy that forces it), a
+  widening waits for another approver and members can only request one-off entries.
+- **Scan approval.** An organization (or the platform administrator for it) can require approval for
+  scans: **On** applies approval rules (for example intrusive scans, or active scans of production
+  assets); **Strict** asks two distinct approvers and a justification for every scan a rule catches.
+  The approval covers the scan definition, so a later change needs a new approval. Off by default.
 - **Exclusions** are checked on every dispatch.
 - **Ownership.** An asset marked as rejected, a candidate, needing review, or a third-party dependency
   is not probed.
-- **Domain proof.** An organization proves a domain with a DNS TXT record. Proof is required for
-  intrusive (tier T2) checks, for jobs on shared platform sensors (`SCOPE_ACTIVE_PROOF=platform_sensors`)
-  or for every active probe (`SCOPE_ACTIVE_PROOF=all`). When unset, the mode is `platform_sensors` if
-  organizations are self-service and `off` otherwise.
+- **Domain proof.** An organization proves a domain with a DNS TXT record. A platform setting,
+  **Require a verified domain before platform sensors scan a target** (off by default; a super
+  administrator changes it with a fresh authenticator code and a reason), makes jobs on shared platform
+  sensors and intrusive (tier T2) probes need every target at or under a verified domain. A public
+  multi-tenant service should turn it on.
 - **Platform guardrails** set by the operator: no public suffixes, government or military names,
   `0.0.0.0/0`, link-local or cloud metadata addresses, nothing in `SCOPE_DENY_EXTRA`, and public ranges
   no larger than `SCOPE_MAX_PUBLIC_CIDR_V4` (default `/16`) and `SCOPE_MAX_PUBLIC_CIDR_V6` (default
   `/32`).
-- **Tier ceilings.** Each scope entry authorizes probes up to a maximum tier; a tool whose checks are
-  more intrusive is refused for that target.
+- **Tier ceilings.** Under Strict scan approval, each scope entry authorizes probes up to a maximum
+  tier; a tool whose checks are more intrusive is refused for that target.
 - **Private addresses** are allowed only inside the organization's scan zones.
 
 See [Scope and authorization to scan](../scanning/scope.md).
@@ -221,34 +227,30 @@ one the platform sends, and the platform cannot change it. The sensor always ref
 link-local and cloud metadata addresses, and private ranges unless explicitly allowed. An organization
 can require an enforced local policy before private targets are dispatched.
 
-Today a sensor without a policy runs any target the platform sends outside its built-in deny list, so
-install one on every sensor. **From the next sensor release, newly paired sensors fail closed without a
-policy:** they refuse network jobs until a policy file (or an allowed-ranges setting) is in place.
-Sensors paired earlier keep working, and the Sensors page flags them so their owners can add a policy. See the sensor's
+A sensor paired by sensor v0.12.0 or later fails closed without a policy: it refuses network jobs
+until a policy file (or an allowed-ranges setting) is in place. Sensors paired earlier, and API-key
+sensors, run any target outside the built-in deny list; the Sensors page flags every sensor without a
+local policy so its owner can add one. See the sensor's
 [local policy reference](https://github.com/openctemio/sensor/blob/main/docs/LOCAL_POLICY.md).
 
 **Platform identity on the sensor.** A sensor should trust only the platform it was paired with.
-
-- **Today:** set `SENSOR_CA_FINGERPRINT` to the fingerprint shown on the Sensors page. The sensor then
-  refuses any other certificate, including one from a TLS-inspecting proxy. Without it, the sensor
-  trusts the system's certificate authorities.
-- **From the next sensor release:** pairing stores the pin, install snippets carry the fingerprint, and
-  sensors without a pin are flagged.
+Pairing records the platform's TLS identity, and the sensor then refuses a platform certificate from
+another CA; `SENSOR_CA_FINGERPRINT` pins it explicitly. The Sensors page flags a sensor whose platform
+CA is not pinned.
 
 **Declarative jobs.** Jobs name a registered tool and its targets; there is no job type that runs a
 shell command, and dangerous tool flags are refused. Custom scanner templates sent by the platform are
 signed per command (Ed25519, DSSE envelope, one-hour expiry) and verified by the sensor against the
 organization key its operator pinned.
 
-**Limits.** Three controls are **planned** (RFC-040):
+**Signed jobs.** A separate signing process (`openctem-signer`, its own container, reached only over
+a Unix socket) can sign every job when a sensor claims it, and signs only targets inside the scope
+recorded in its own hash-chained ledger. It is built and **off by default** (`SIGNER_SOCKET`); a
+sensor that pinned the platform's job-signing keys at pairing runs only signed jobs.
 
-- signing of every job by a signing service separate from the API, which sensors verify before running
-  anything;
-- a separate sensor gateway process;
-- two-person approval for every scope widening.
-
-Today the API process that serves sensors also serves users. Until job signing ships, a sensor's local
-policy and its pinned platform identity are what stop a compromised platform from directing it. The engineering status is in
+**Limits.** A separate sensor gateway process is **planned** (RFC-040). Today the API process that
+serves sensors also serves users; where job signing is off, a sensor's local policy and its pinned
+platform identity are what stop a compromised platform from directing it. The engineering status is in
 [sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sensor-platform-trust.md).
 
 ## Secrets

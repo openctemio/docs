@@ -144,8 +144,7 @@ Keep the override in every later `docker compose` command (or in
 `COMPOSE_FILE`), otherwise the next `up` returns to the stock gateway and
 sensors move back to HTTPS.
 
-Sensors v0.15.0 and later (not released yet; sensor
-[#207](https://github.com/openctemio/sensor/pull/207)) offer the routing id and
+Sensors v0.15.0 and later offer the routing id and
 move to gRPC at their next negotiation. Older sensors stay on HTTPS with
 `platform_without_grpc`, because the platform names this endpoint only to
 sensors that can use it; give them a [dedicated host name](#a-dedicated-sensor-host-name).
