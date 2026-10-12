@@ -20,58 +20,52 @@ set-password links are not delivered.
 
 | Level | Configured by | Used for |
 |---|---|---|
-| System SMTP | The operator, with `SMTP_*` environment variables | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
+| Platform SMTP | A platform administrator, in the admin console: **System > E-mail** | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
 | Organization SMTP | An organization administrator, as an **Email** notification channel (see [Notification channels](notifications.md#email)) | That organization's account email and its email notifications. |
 
 For account email, an organization's connected Email channel wins; otherwise
-the system SMTP is used; with neither, the email is skipped and a warning is
+the platform SMTP is used; with neither, the email is skipped and a warning is
 logged.
 
-## Configure system SMTP
+## Configure platform SMTP
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `SMTP_ENABLED` | `false` | Turn sending on. |
-| `SMTP_HOST` | empty | Relay host name. |
-| `SMTP_PORT` | `587` | Relay port. |
-| `SMTP_USER` / `SMTP_PASSWORD` | empty | Credentials, if the relay requires authentication. |
-| `SMTP_FROM` | empty | Sender address, for example `openctem@example.com`. |
-| `SMTP_FROM_NAME` | `OpenCTEM` | Sender display name. |
-| `SMTP_TLS` | `true` | Upgrade the connection with STARTTLS. |
-| `SMTP_SKIP_VERIFY` | `false` | Skip verification of the relay's certificate. Avoid. |
-| `SMTP_TIMEOUT` | `30s` | Time allowed for one delivery. |
-| `SMTP_BASE_URL` | `http://localhost:3000` | Public origin used in links, for example `https://ctem.example.com`. |
+Open the admin console (`/admin`) as a platform administrator, go to
+**System > E-mail**, enter the relay (host, port, user, password, sender
+address and name, STARTTLS) and save. Saving needs a super administrator and a
+fresh authenticator code. **Send test** sends a message to your own address.
+The setting applies to the next message, without a restart. The password is
+stored encrypted with `APP_ENCRYPTION_KEY`.
 
-Email is sent only when `SMTP_ENABLED=true` and `SMTP_HOST`, `SMTP_PORT` and
-`SMTP_FROM` are all set. The system relay connects in plain SMTP and then
-upgrades with STARTTLS (`SMTP_TLS=true`), the usual mode on port 587. A relay
-that only offers implicit TLS (port 465) is not supported at the system level;
-an organization Email channel supports both.
+The connection uses TLS 1.2 or later and always verifies the relay's
+certificate.
 
-### Docker Compose
+{: .warning }
+The `SMTP_*` environment variables of earlier releases (`SMTP_ENABLED`,
+`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`,
+`SMTP_FROM_NAME`, `SMTP_TLS`, `SMTP_SKIP_VERIFY`, `SMTP_TIMEOUT`) are gone. The
+API refuses to start while one of them is set, and says so: remove them from
+`.env`, `docker-compose.override.yml`, the all-in-one env file or the Helm
+values, and enter the relay in the console instead.
 
-The Compose `api` service passes `SMTP_ENABLED`, `SMTP_HOST`, `SMTP_PORT`,
-`SMTP_USER`, `SMTP_PASSWORD` and `SMTP_FROM` from `.env`, and sets
-`SMTP_BASE_URL` to `OPENCTEM_PUBLIC_URL`. In `.env`:
+### Headless installs
 
-```bash
-SMTP_ENABLED=true
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=openctem@example.com
-SMTP_PASSWORD=your-smtp-password
-SMTP_FROM=openctem@example.com
-```
+To have email working before anyone signs in, pass the relay to
+`bootstrap-admin` (see [First administrator](../install/first-admin.md)). It
+stores these as the platform setting when none is stored yet. Change them later
+in the console.
 
-Then `docker compose up -d`. `SMTP_FROM_NAME`, `SMTP_TLS`, `SMTP_SKIP_VERIFY`
-and `SMTP_TIMEOUT` go in `docker-compose.override.yml` (see
-[Setting other variables](../install/docker-compose.md#setting-other-variables)).
+| Variable | Meaning |
+|---|---|
+| `BOOTSTRAP_SMTP_HOST` | Relay host name. |
+| `BOOTSTRAP_SMTP_PORT` | Relay port (default 587). |
+| `BOOTSTRAP_SMTP_USER` / `BOOTSTRAP_SMTP_PASSWORD` | Credentials, if the relay requires authentication. |
+| `BOOTSTRAP_SMTP_FROM` | Sender address, for example `openctem@example.com`. |
+| `BOOTSTRAP_SMTP_FROM_NAME` | Sender display name (default `OpenCTEM`). |
+| `BOOTSTRAP_SMTP_STARTTLS` | `false` turns STARTTLS off (default on). |
 
-### All-in-one and Helm
-
-Add the variables to the env file (all-in-one) or to `api.extraEnv` /
-`api.extraEnvFrom` (Helm; keep `SMTP_PASSWORD` in a Secret). The chart's
-gateway settings set `SMTP_BASE_URL` for you.
+Links in email use the platform's public origin (`APP_URL`, which the Compose
+stack sets from `OPENCTEM_PUBLIC_URL`). Set `SMTP_BASE_URL` only when the
+console is served at a different origin.
 
 ## Relays on a private network
 
@@ -86,10 +80,9 @@ an address other than `127.0.0.1`.
 
 ## Check that it works
 
-At start the API logs `email service not configured - email features will be
-disabled` when system SMTP is off or incomplete; the line is absent when it is
-configured. To send a real message, invite a user to an organization (or use
-**Forgot password** on the sign-in page) and watch the API log:
+Use **Send test** on **System > E-mail**. To check account email end to end,
+invite a user to an organization (or use **Forgot password** on the sign-in
+page) and watch the API log:
 
 ```bash
 docker compose logs -f api | grep -i -E "email|smtp"
@@ -99,10 +92,10 @@ docker compose logs -f api | grep -i -E "email|smtp"
 
 | The API log contains | Cause |
 |---|---|
-| `email service not configured - email features will be disabled` | `SMTP_ENABLED` is not `true`, or `SMTP_HOST`, `SMTP_PORT` or `SMTP_FROM` is empty. |
+| `email service not configured, skipping ...` | No platform SMTP is saved in **System > E-mail** and the organization has no Email channel. |
 | `smtp host rejected: ...` | The host resolves to a private, loopback or link-local address. See [Relays on a private network](#relays-on-a-private-network). |
 | `failed to connect: ...` | Wrong host or port, or outbound SMTP blocked by a firewall. |
 | `failed to start TLS: ...` | The relay does not offer STARTTLS on that port, or its certificate does not match the host name. |
 
-Links in email point at `SMTP_BASE_URL`: if they show `localhost`, set it to the
-public origin.
+If links in email show `localhost`, set `OPENCTEM_PUBLIC_URL` (Compose) or
+`APP_URL` to the public origin.
