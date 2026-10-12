@@ -94,8 +94,9 @@ A pentest finding is also a finding of your organization: it appears in
 Pentest findings use the shared finding statuses plus Draft and In Review
 (Draft → In Review → Confirmed → In Progress → Fix Applied → Resolved, plus
 False Positive and Risk Accepted); a passed retest resolves the finding with the
-resolution method `retest_verified`. Draft and In Review are work in progress
-and hidden from the findings list unless you filter on them.
+resolution method `retest_verified`. Draft and In Review are work in progress:
+they are hidden from the findings list unless you filter on them, and a campaign
+client never sees them. A finding is **published** once it reaches Confirmed.
 
 ### The campaign list
 
@@ -104,50 +105,185 @@ penetration-testing engagements.
 
 1. The metrics: **All campaigns**, **In progress**, **Planning**, **Completed**,
    **Critical findings** and **Findings**.
-2. Search, and filter by **Status**, type and **Priority**.
+2. Search, and filter by **Status** and by what is tested (**Targets**). Archived
+   campaigns are listed only when you filter on them.
 3. **My campaigns** shows only the campaigns you are on. If you are on none, the
    page says so and offers **Show all campaigns**.
-4. A row's menu: **View details**, **Edit**, the next status step (**Start
-   campaign**, **Put on hold**, **Mark completed**, **Resume**), **Export findings
-   (CSV)**, **Export findings (Excel)** and **Delete**.
+4. A row's menu: **View details**, **Duplicate**, the next status step (**Start
+   campaign**, **Put on hold**, **Complete campaign**, **Resume**, **Archive**,
+   **Unarchive**), **Export findings (CSV)**, **Export findings (Excel)** and
+   **Delete**. Status steps are offered to the campaign lead and to organization
+   owners and administrators.
+
+![The pentest campaign list with targets, status, TLP and progress per campaign]({{ site.baseurl }}/assets/images/user-guide/pentest-campaigns.png)
+*Figure: The campaign list.*
 
 ### Create a campaign
 
-Click **New campaign** (needs the campaign write permission):
+**New campaign** (needs the campaign write permission) opens a wizard in three
+steps. Only the **Campaign name** and the **Client** are required, and **Create
+campaign** works from any step; everything else can be filled in later.
 
-- **Campaign name** and **Client name** (required).
-- **Description**, type and methodology (you can type a new value for either),
-  priority, **Client contact**, **Start date** and **End date**.
-- **Objectives** (one per line).
-- **Team members** (optional): search by name or email and give each a role:
-  **Lead** (full control), **Tester** (creates and manages own findings),
-  **Reviewer** (verifies findings) or **Observer** (read-only). You are added as
-  Lead automatically.
+1. **Engagement**: name, client, description, **What is tested** (one or more
+   target types from your organization's list, for example web application, API
+   and cloud), **Approach**, **Environment**, **Sharing (TLP)**, methodology,
+   start and end dates, objectives (one per line) and the
+   [methodology checklists](../pentest/checklists.md) the campaign runs
+   (preselected from the targets). Defaults: grey box,
+   staging, TLP:AMBER, your organization's first methodology, and an end date
+   two weeks from today.
+2. **Scope and rules**: targets in and out of scope (domain, URL, IP, CIDR,
+   application), and the rules of engagement: testing window, emergency contact
+   and data handling. Inventory assets and asset groups are linked on the
+   campaign afterwards. Never put passwords here: test accounts belong in
+   [Test credentials](#test-credentials).
+3. **Team and sign-off**: you are the lead; add testers, reviewers, observers and
+   client contacts, and set the optional
+   [completion sign-off](#complete-a-campaign).
 
-The available campaign types and methodologies are set under
-[Pentest methodology](#pentest-methodology-and-the-finding-library).
+![Step 1 of the New campaign wizard: engagement details, targets, approach, environment and TLP]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign-wizard.png)
+*Figure: The creation wizard, step 1.*
+
+**Duplicate** (on a campaign's row menu) starts the wizard from that campaign's
+settings, scope, rules of engagement, linked assets, tags, team and completion
+policy, under "Copy of ...". You become the lead. Findings, dates, ticket links
+and test credentials are not copied.
+
+### The campaign profile
+
+The campaign header shows what is tested, the status, the environment, the TLP
+label and the ticket links. The **Engagement** card on the **Overview** tab
+holds the profile, which the lead can edit:
+
+- **What is tested**: up to 20 target types. The list is your organization's,
+  under [Pentest methodology](#pentest-methodology-and-the-finding-library).
+- **Approach**: **Black box** (the testers get no inside information), **Grey
+  box** (some, such as a user account or documentation) or **White box** (full
+  access, such as source code and architecture).
+- **Environment**: Production, Staging, Development or Other.
+- **Sharing (TLP)**: the Traffic Light Protocol level printed on the campaign's
+  reports, which tells readers how far they may share them:
+
+  | Level | Readers may share it with |
+  |---|---|
+  | TLP:CLEAR | Anyone; no restriction. |
+  | TLP:GREEN | Their community (peers and partner organizations), not publicly. |
+  | TLP:AMBER (default) | People in their own organization, and its clients, who need to know. |
+  | TLP:AMBER+STRICT | People in their own organization only. |
+  | TLP:RED | Nobody: the named recipients only. |
+
+- **Signed authorization letter**: the signed permission to test, linked from a
+  file uploaded to the campaign. The web console picks a file already uploaded
+  to the campaign; it has no upload button for campaign files yet, so upload the
+  letter with `POST /api/v1/attachments` (`context_type=campaign`,
+  `context_id` the campaign id) first. When an owner or administrator turns on
+  **Campaigns cannot start without a signed authorization letter** (**Settings ›
+  Policies › Pentest methodology**, **Authorization letter**; off by default), a
+  campaign cannot move from planning to testing until a letter is linked.
 
 ### The campaign page
 
-A campaign's page (`/pentest/campaigns/{id}`) has the views **Findings**,
-**Retests** and **Report**, plus its details:
+A campaign's page (`/pentest/campaigns/{id}`) has the tabs **Overview**,
+**Findings**, **Retests**, **Report**, **Scope**, **Team**, **Checklist** and
+**Rules**. The header carries the status actions (for example **Put on hold**
+and **Complete campaign**), **Export** and **Import**.
 
-- **Overview**: description, timeline, methodology, tags, objectives and
-  progress.
+A **status stepper** under the header shows where the campaign is and what comes
+next:
+
+| Step | Campaign status | What happens |
+|---|---|---|
+| Planning | Planning | Scope, team and rules are prepared. Findings can already be written. |
+| Testing | In progress (or On hold) | Testers add findings. On hold, findings can be updated but not added. |
+| Remediation | Completed | Testing is over. Findings are fixed, retested and closed; no new findings. |
+| Archived | Archived | Read-only. Unarchive returns it to Completed. |
+
+A canceled campaign is marked on the step it interrupted; it can be moved back
+to planning or archived. Every status change except start, resume and unarchive
+asks for confirmation first.
+
+![A campaign page with its status stepper, header badges and the Findings view]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign.png)
+*Figure: A campaign in testing, with its status stepper.*
+
+The other tabs (Findings, Retests and Report are described below):
+
+- **Overview**: the campaign's numbers, the **Engagement** profile, **Tickets**,
+  **Test credentials**, description, timeline, methodology, tags and
+  objectives.
 - **Scope**: **Link Assets**, **Link Asset Groups** and **Manual Scope Items**
   (for targets not in the inventory, with **Bulk import**), in scope or out of
   scope.
-- **Rules**: the **Testing Schedule** (24/7, business hours, after hours,
-  weekends only, off-peak or custom), **Allowed** and **Restricted** testing
+- **Team**: add members, change their role or remove them (the lead).
+- **Checklist**: the campaign's [methodology checklists](../pentest/checklists.md)
+  (OWASP and your organization's own), with a result per item.
+- **Rules**: the **Testing Schedule**, **Allowed** and **Restricted** testing
   methods, and **Contacts & Procedures** (emergency contact, communication
   channel, escalation procedure, data handling policy).
-- **Team**: add members, change their role or remove them.
-- **Checklist**: the OWASP Testing Guide checklist (Untested, Passed, Failed,
-  N/A), with notes.
-- Actions: **Start**, **Pause**, **Resume**, **Complete campaign**, **Export**,
-  **Import findings**.
-
 If you are not on a campaign's team you have view-only access.
+
+### Campaign roles
+
+Every pentest action checks your organization permission first and your campaign
+role second. A campaign role never grants an organization permission.
+Organization owners and administrators can act on every campaign; an action that
+skips a campaign rule asks them for a reason and is audited.
+
+| | Lead | Tester | Reviewer | Observer | Client |
+|---|---|---|---|---|---|
+| See drafts and findings in review | yes | yes | yes | yes | no |
+| See published findings | yes | yes | yes | yes | yes |
+| Create and edit findings | yes | own | edit | no | no |
+| Publish a finding | yes | no | yes | no | no |
+| Request a retest | yes | own | yes | no | yes |
+| Record a retest result | yes | own (cannot resolve) | yes | no | no |
+| Accept the risk, mark a false positive | yes | no | yes | no | no |
+| Generate and deliver reports | yes | no | no | no | no |
+| Change the status, manage the team, links and sign-off policy | yes | no | no | no | no |
+| Sign off completion | if the policy names the role | no | if named | no | if named |
+| List, add and reveal test credentials | yes | yes | list and reveal | no | no |
+
+"Own" means findings the tester created or is assigned. The client role is for
+the tested organization's people: they see published findings, request retests
+when a fix is in place, and sign off when the policy asks them to.
+
+### Test credentials
+
+Test accounts and keys for the engagement go in **Test credentials** on the
+**Overview** tab, never in a description or the rules of engagement. **Add
+credential** stores a label, a kind (password, API key, token, SSH key,
+certificate, other), an optional username and the secret. The secret is
+encrypted with the installation's encryption key and never shown in a list.
+
+- **Who.** The lead and testers add credentials; the lead, testers and reviewers
+  list and reveal them. Organization owners and administrators must be on the
+  campaign team to see them, so every reveal names a team member. A credential
+  is deleted by the lead, the member who added it, or an organization
+  administrator.
+- **Reveal.** **Reveal** shows the value once and hides it again after a few
+  seconds. Every reveal is recorded in the audit log at high severity, and the
+  credential shows when it was last revealed.
+- **Limits.** At most 50 credentials per campaign, 16 KiB each.
+- **Archive.** Archiving the campaign deletes its credentials; deleting the
+  campaign does too.
+
+### Tickets and Jira
+
+**Tickets** on the **Overview** tab links the campaign to up to five https
+links, for example the engagement ticket in any tracker (**Edit links**, the
+lead). Never paste tokens or passwords into a link: credentials in a link are
+refused, and the query and fragment are dropped.
+
+With [Jira connected](10-settings-and-integrations.md), **Find a Jira issue or
+epic** searches your Jira site by key or summary, through the organization's
+integration (the credential never reaches the browser), and links the issue. A
+Jira link must be on your organization's connected Jira site.
+
+On a linked Jira epic, **Create tickets for open findings** creates a Jira
+ticket, as a child of the epic, for each open published finding (Confirmed, In
+Progress, Fix Applied; at most 100 per run) that has no ticket in the epic's
+project yet. The result says how many were created, already had one, or failed.
+Status sync then works as for any finding ticket. Link changes and ticket runs
+are audited.
 
 ### Findings of a campaign
 
@@ -155,27 +291,121 @@ The **Findings** view lists the campaign's findings (most severe first), with
 the cards **All findings**, **Critical**, **High**, **Medium**, **In progress**
 and **Resolved**, search by title, CWE or CVE, and filters.
 
-- **New finding** (needs `pentest:write`) opens the finding form. Pick a
-  template from the finding library to pre-fill it.
+- **New finding** opens the finding editor (below).
 - A row's menu: **View details**, **Edit**, **Copy ID**, **Export** (the full
   finding as JSON: proof of concept, CVSS vector, impact, references) and
   **Delete**.
+- Select findings to **Request retest** for all of them at once.
 
-Deleting a campaign deletes its findings too and cannot be undone.
+Findings can be added while the campaign is in planning or testing, by the lead
+and testers (and organization owners and administrators). A **completed**
+campaign takes no new findings and no content edits; fixing, retesting and
+closing its published findings continue. Canceled and archived campaigns accept
+neither. Deleting a campaign deletes its findings too and cannot be undone.
+
+### Write a finding
+
+The finding editor (**New finding**, or **Edit** on a finding) is one page with
+a summary card that shows what is still missing (**Ready to submit**).
+
+- **Start from the finding library**: **Use a template** searches your
+  [finding library](#pentest-methodology-and-the-finding-library) and fills the
+  description, classification, steps, impact and remediation. Fields you
+  already wrote stay; switching to another template replaces only the text the
+  previous one filled in.
+- **Title**, **Severity** (one click) and the **Campaign**.
+- **Affected targets**: URLs, hosts, endpoints or files. Type a target, or
+  search your inventory: assets in the campaign's scope come first, each with
+  why it matches (named in the campaign, in a campaign asset group, covered by a
+  scope item) or why not (excluded by an item, not in the campaign scope). One
+  target can be the **linked asset**, which counts the finding on dashboards and
+  asset risk; the link is set when the finding is created. At least one target
+  is required.
+- **Description**, **Proof of concept**, impact and remediation are Markdown.
+  Paste or drop a screenshot into any of them: it is uploaded as evidence of the
+  finding and inserted where you pasted it. Use a code block with a language for
+  requests, responses and payloads.
+- **Steps to reproduce**: one box per step. Reorder them by dragging the handle,
+  with **Move up** and **Move down**, or from the keyboard (Space on the handle,
+  then the arrow keys). Each step's menu duplicates, inserts below or deletes it
+  (with **Undo**).
+- **CVSS**: a calculator for CVSS 3.1 and 4.0. Paste a vector or pick the
+  metrics; the score is computed by the FIRST specification and suggests a
+  severity.
+- **Classification**: searchable **CWE** and **OWASP Top 10** pickers, plus CVE
+  and MITRE ATT&CK technique.
+- **Assignment and tags**, and references.
+
+A new finding is kept as a draft in your browser while you type (until you sign
+out or switch organization), and offered again with **Restore draft** next time;
+leaving the page with unsaved changes asks first. Ctrl+S (Cmd+S) saves and
+Ctrl+Enter (Cmd+Enter) runs the main action.
+
+The save buttons follow your campaign role:
+
+| Button | Result | Who |
+|---|---|---|
+| **Save draft** (or **Save draft and start another**) | Draft: only the team sees it. | Lead, tester |
+| **Submit for review** | In Review: waits for a reviewer or the lead. | Lead, tester |
+| **Publish** | Confirmed: published, visible to the client, the remediation deadline starts. | On a new finding: the lead (and organization owners and administrators). On a finding in review: the lead or a reviewer. |
+
+### Retests
+
+When a fix is in place, anyone who may request a retest (see
+[Campaign roles](#campaign-roles)) uses **Request retest** on the finding, with
+an optional note on what was fixed. The finding moves to **Fix Applied** and
+appears in the campaign's **Retests** view and the
+[Retest queue](#retest-queue). The assignee and the author are notified.
+
+A retest is recorded with **Retest** in either place. Each retest keeps the
+finding's status before and after it, so the retest history and the retest
+report show, for example, "Fix Applied → Resolved".
+
+### Complete a campaign
+
+**Complete campaign** (the lead) ends testing. The dialog lists what completing
+means: findings still in draft or review (they would never reach the client),
+published findings that stay open for remediation and retest, reports generated
+and delivered, and the sign-offs. Findings in draft or review block completion
+unless the lead gives a reason, which is audited.
+
+**Completion sign-off** (off by default) asks a number of people (0 to 5) from
+chosen roles (lead, reviewer, client) to agree that the campaign is done before
+it can be completed. Set it in the wizard or on the **Completion sign-off**
+card on the campaign.
+
+- Each person counts once. With two or more sign-offs required, the lead cannot
+  meet the policy alone.
+- Members with a named role use **Sign off** on the completion card while the
+  campaign is in testing or on hold, and can **Withdraw my sign-off**.
+- The lead can raise the policy at any time before completion, but lower it only
+  during planning; after that only an organization owner or administrator can
+  lower it.
+- An organization owner or administrator can complete without the sign-offs by
+  giving a reason (audited at high severity); a lead cannot.
+- Reopening a completed campaign clears its sign-offs.
+
+A completed campaign shows **Testing complete, remediation open** with the
+number of findings awaiting a fix or a retest. Archive it when remediation is
+over: archiving makes it read-only, stops retests and deletes its test
+credentials.
 
 ### Reports
 
-The **Report** view generates the engagement deliverable:
+The **Report** view generates the engagement deliverable (the lead):
 
-1. Click **Generate report** and choose the **Report Type**: Executive Summary,
-   Technical Report, Finding Report, Compliance Report, Remediation Report or
-   Retest Report.
-2. Choose the sections to include (executive summary, finding details, proof of
-   concept, evidence, remediation steps, timeline, appendix), filter by severity
-   and status, set the **Document Classification** (Public, Internal Use Only,
-   Confidential, Restricted) and an optional watermark.
-3. Generate. Reports are produced as HTML. When the report is **Completed**,
-   **Download**, **Preview** or **Copy link**.
+1. Click **Generate report** and choose the **Report type**: Executive summary,
+   Technical report, Findings report, Compliance report, Remediation report or
+   Retest report.
+2. Choose the **Format**: PDF, HTML, JSON or **Word (DOCX)**. Word reports use
+   your organization's own templates; see the
+   [Report template guide](../pentest/report-templates.md).
+3. Choose the content: proofs of concept, unpublished findings (left out by
+   default), severities, statuses, the **Document classification** and an
+   optional watermark. Reports carry the campaign's TLP label; the built-in
+   PDF and HTML reports also show the methodology checklist coverage.
+4. **Generate report**, then **Download**. **Mark delivered** records that the
+   report went to the client.
 
 Every campaign's reports are also listed under **Insights › Reports › Pentest**.
 
@@ -188,14 +418,16 @@ step: after the developers report a fix, a tester checks that the issue is gone.
 ![The Retest queue listing pentest findings waiting for re-verification]({{ site.baseurl }}/assets/images/user-guide/retest-queue.png)
 *Figure: The Retest queue.*
 
-1. The cards: **Pending**, **Retested** and **Success rate**.
+1. The cards: **Pending**, **Retested**, **Passed**, **Failed** and **Success
+   rate**.
 2. Search, and filter by severity and campaign (or **All campaigns**).
-3. **Pending** lists findings in Remediation or Retest; **History** lists
-   findings already retested.
+3. **Pending** lists findings being fixed (In Progress) or fixed and waiting for
+   the retest (Fix Applied); **History** lists the retests recorded, each with
+   the finding's status before and after it.
 4. **Retest** (needs the retest write permission) opens **Record retest
    result**:
    - **Result**: **Passed**, **Failed** or **Partial**.
-   - **Test environment**: Production, Staging or Development.
+   - **Test environment**: Production, Staging, QA or Development.
    - Notes (required; Markdown supported) and optional **Evidence**
      (screenshots, HAR files).
 
@@ -205,7 +437,11 @@ What happens next:
   resolution method `retest_verified`. Passed by a tester: it stays in **Fix
   Applied** until a reviewer confirms.
 - **Failed**: the finding goes back to **In Progress** for the developers.
-- **Partial**: recorded as a partial fix.
+- **Partial**: the partial fix is recorded and the status stays unchanged; the
+  lead or a reviewer decides what happens next.
+
+Retests continue after a campaign is completed; an archived campaign must be
+unarchived first.
 
 ## ATT&CK coverage
 
@@ -258,14 +494,19 @@ security controls pass their tests, framework by framework.
 
 ## Pentest methodology and the finding library
 
-**Settings › Policies › Pentest methodology** (`/settings/pentest`) has two
+**Settings › Policies › Pentest methodology** (`/settings/pentest`) has four
 tabs.
 
-- **Methodology**: the **Campaign types** (each a value and a display label, for
-  example External Pentest, Web Application, API Testing, Cloud Infrastructure)
-  and the **Methodologies** (for example OWASP Testing Guide, PTES, NIST SP
-  800-115, OSSTMM, CREST) offered when creating a campaign. **Reset to defaults**
-  restores the built-in lists; at least one campaign type is required.
+- **Methodology**: the **Target types** a campaign's **What is tested** offers
+  (each a value and a display label, for example External network, Web
+  Application, API Testing, Cloud Infrastructure), the **Methodologies** (for
+  example OWASP Testing Guide, PTES, NIST SP 800-115, OSSTMM, CREST), and
+  **Authorization letter**: **Campaigns cannot start without a signed
+  authorization letter** (off by default). **Reset to defaults** restores the
+  built-in lists; at least one target type is required.
+- **Checklists** (`/settings/pentest/checklists`): the built-in OWASP and PTES
+  checklists and your organization's own, written, cloned or imported from a
+  spreadsheet. See [Methodology checklists](../pentest/checklists.md).
 - **Finding library** (`/settings/pentest/templates`): reusable write-ups that
   pre-fill a pentest finding. Each template has a name, category, severity,
   optional OWASP category and CWE, description, steps to reproduce, business and
