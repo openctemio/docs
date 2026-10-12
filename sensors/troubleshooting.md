@@ -157,10 +157,10 @@ With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.14.0 -outbox-status
+  ghcr.io/openctemio/sensor:v0.17.0 -outbox-status
 # after fixing the cause of dead letters:
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.14.0 -outbox-requeue-dead
+  ghcr.io/openctemio/sensor:v0.17.0 -outbox-requeue-dead
 ```
 
 ## Cloned identity

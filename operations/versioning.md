@@ -113,9 +113,9 @@ repository and compiled into each API release as defaults:
 
 After each platform release, the chart's `appVersion` is bumped to it.
 
-For v0.9.0 the entries are: newest sensor v0.11.0, oldest supported sensor
+For v0.9.0 the entries are: newest sensor v0.17.0, oldest supported sensor
 v0.9.0 (sensor protocol v1 is removed, so older sensors cannot connect at all),
-newest SDK v0.18.0.
+newest SDK v0.23.0.
 
 ## Which version is running
 
