@@ -52,7 +52,8 @@ values, and enter the relay in the console instead.
 To have email working before anyone signs in, pass the relay to
 `bootstrap-admin` (see [First administrator](../install/first-admin.md)). It
 stores these as the platform setting when none is stored yet. Change them later
-in the console.
+in the console. With the Helm chart (0.22.0 and later), set them in
+`api.bootstrapAdmin.extraEnv` (see [Kubernetes](../install/kubernetes.md)).
 
 | Variable | Meaning |
 |---|---|
