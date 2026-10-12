@@ -48,7 +48,7 @@ inside is described in [How sensors work](how-it-works.md).
 
 ```bash
 docker run -d --name openctem-sensor --restart unless-stopped \
-  -e API_URL=https://openctem.example.com \
+  -e SENSOR_API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0
@@ -56,7 +56,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
 
 Change three things:
 
-- `API_URL`: your platform URL, without a path.
+- `SENSOR_API_URL`: your platform URL, without a path.
 - `SENSOR_ALLOWED_RANGES`: what this sensor may scan (CIDRs, addresses,
   `example.com`, `*.example.com`). The sensor refuses every job outside it,
   whatever the platform sends. A newly paired sensor without such a list (or a

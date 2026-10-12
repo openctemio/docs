@@ -55,12 +55,12 @@ started still has a log with the reason.
 
 | Symptom | Cause and fix |
 |---|---|
-| The container exits with code 2 and `missing: [API_URL]` | Set `API_URL`. |
+| The container exits with code 2 and `missing: [SENSOR_API_URL]` | Set `SENSOR_API_URL`. |
 | The container exits during pairing with `connection refused` or a TLS error | The platform URL is not reachable from the sensor, or its certificate is not trusted. Check the URL from the host (`curl https://openctem.example.com/health` with the built-in gateway) and [trust the CA](deploy-docker.md#trust-a-private-certificate-authority). |
 | `x509: certificate signed by unknown authority` | The platform uses a private CA. [Trust it](deploy-docker.md#trust-a-private-certificate-authority). |
-| `http 421 ... WRONG_ENDPOINT` or `API key required` | `API_URL` points at the web UI, or at a proxy that strips the `Authorization` header. Point it at the platform gateway or the API. |
+| `http 421 ... WRONG_ENDPOINT` or `API key required` | `SENSOR_API_URL` points at the web UI, or at a proxy that strips the `Authorization` header. Point it at the platform gateway or the API. |
 | `platform certificate does not match the pin stored at pairing` | The platform presents a certificate from another CA than at pairing (a changed CA, or a TLS-inspecting proxy added since). Re-pair, or set `SENSOR_CA_FINGERPRINT` to the new CA after a deliberate change. |
-| `This sensor is now key-bound: ...` | Not an error: a key-based sensor bound its own key. Back up its data volume and remove `API_KEY` from its configuration ([Bearer keys](pairing.md#bearer-keys-legacy)). |
+| `This sensor is now key-bound: ...` | Not an error: a key-based sensor bound its own key. Back up its data volume and remove `SENSOR_API_KEY` from its configuration ([Bearer keys](pairing.md#bearer-keys-legacy)). |
 | `certificate chain does not contain the pinned CA` | `SENSOR_CA_FINGERPRINT` does not match the CA the platform presents, or a TLS-inspecting proxy is in between. |
 | An identity permission error at start | Run the `chmod` / `chown` it prints. On Kubernetes see [fsGroup](deploy-kubernetes.md#identity-files-and-fsgroup). |
 | `the platform rejected the API key (HTTP 401 ...)` | A key-based sensor whose key was revoked, regenerated or expired, or whose sensor was deleted. The sensor stays up and checks again (30 s, doubling to 10 min). Regenerate the key, or pair the sensor. |
@@ -247,7 +247,7 @@ none, so mount it.
 {: #identity-key-renewal }
 
 `identity.key_renewal`. A key-based sensor renews its API key before it
-expires when `PLATFORM_KEY_AUTORENEW=true` (Helm: `sensor.keyAutoRenew`).
+expires when `SENSOR_KEY_AUTORENEW=true` (Helm: `sensor.keyAutoRenew`).
 `off_not_persistent`: the sensor turned renewal off because a renewed key
 would be lost; mount the data volume (see
 [State directory on a volume](#identity-state-persistent)). `disabled` or
