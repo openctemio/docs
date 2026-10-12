@@ -143,9 +143,9 @@ X-OpenCTEM-Signature: sha256=<hex of HMAC-SHA256(secret, timestamp + "." + raw b
   protection). It is part of the signed input, so it cannot be swapped.
 - The signature may be bare hex or prefixed with `sha256=`.
 - Bodies over 2 MiB are refused.
-- The accepted secrets are the webhook secrets of the organization's Jira integrations, plus the
-  platform-wide `JIRA_WEBHOOK_SECRET` if the operator set one. With no secret configured the
-  endpoint refuses every request.
+- The accepted secrets are the webhook secrets of the organization's Jira integrations
+  (`POST /api/v1/integrations/jira/webhook-secret/rotate` sets one). There is no platform-wide
+  secret. With no secret configured the endpoint refuses every request.
 
 A sender that cannot compute this signature itself (Jira's built-in webhooks cannot add a
 timestamped HMAC) needs a small relay that signs the body and forwards it:
