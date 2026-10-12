@@ -55,7 +55,7 @@ With `docker run`:
 ```bash
 docker run -d --name openctem-sensor --restart unless-stopped \
   --stop-timeout 45 \
-  -e API_URL=https://openctem.example.com \
+  -e SENSOR_API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
   ghcr.io/openctemio/sensor:v0.14.0
@@ -70,7 +70,7 @@ services:
     container_name: openctem-sensor
     restart: unless-stopped
     environment:
-      API_URL: https://openctem.example.com
+      SENSOR_API_URL: https://openctem.example.com
       # What this sensor may scan. Without it (or a policy file) a newly
       # paired sensor refuses every job with network targets.
       SENSOR_ALLOWED_RANGES: "203.0.113.0/24,*.example.com"
@@ -87,8 +87,8 @@ volumes:
 ```
 
 - The image's default command is `-daemon -enable-commands -verbose`. Without
-  `API_URL` the container exits with code 2 and names the missing variable.
-- Without `API_KEY` the sensor **pairs** on its first start: read the code
+  `SENSOR_API_URL` the container exits with code 2 and names the missing variable.
+- Without `SENSOR_API_KEY` the sensor **pairs** on its first start: read the code
   with `docker logs openctem-sensor` and approve it as described in
   [Pairing](pairing.md).
 - To prepare the console first instead, create a code with **Expect a
@@ -97,7 +97,7 @@ volumes:
 
   ```bash
   docker run --rm -it \
-    -e API_URL=https://openctem.example.com \
+    -e SENSOR_API_URL=https://openctem.example.com \
     -v openctem-sensor-data:/var/lib/openctem \
     ghcr.io/openctemio/sensor:v0.14.0 pair K7QM-4ZTD
   ```
@@ -186,7 +186,7 @@ run `update-ca-certificates`. Use one of:
 | Mount it into the system directory (also trusted by the scanners) | `-v /path/ca.pem:/etc/ssl/certs/openctem-ca.pem:ro` |
 | `SSL_CERT_DIR` | `-v /path/ca.pem:/certs/openctem-ca.pem:ro -e SSL_CERT_DIR=/certs` |
 | `SSL_CERT_FILE` | `-v /path/ca.pem:/certs/openctem-ca.pem:ro -e SSL_CERT_FILE=/certs/openctem-ca.pem` |
-| Pin the CA by fingerprint | `-e SENSOR_CA_FINGERPRINT=<sha256>`, with `API_URL` naming the host name in the certificate, not an IP address |
+| Pin the CA by fingerprint | `-e SENSOR_CA_FINGERPRINT=<sha256>`, with `SENSOR_API_URL` naming the host name in the certificate, not an IP address |
 
 Mounting into `/usr/local/share/ca-certificates/` does not work. To compute
 the fingerprint of a CA file:
@@ -207,7 +207,7 @@ for it, which it receives over the pinned HTTPS connection.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `API_URL` | none (required) | The platform URL. Must reach the API directly; the sensor refuses redirects. |
+| `SENSOR_API_URL` | none (required) | The platform URL. Must reach the API directly; the sensor refuses redirects. |
 | `SENSOR_ALLOWED_RANGES` | none | What the sensor may scan (a shorthand local policy). |
 | `SENSOR_ALLOW_PRIVATE_TARGETS` | off | `1` allows RFC 1918 and IPv6 ULA targets. Only `1` or `0` is accepted. Loopback, link-local, cloud metadata and CGNAT addresses stay blocked. |
 | `SENSOR_NAME` | `sensor-<hostname>` | Name the sensor proposes; the approver may change it. |

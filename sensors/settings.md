@@ -14,29 +14,42 @@ each one, whether it is set and valid, never its value; a secret is only ever
 reported as present or absent. A `SENSOR_*` variable that is not listed here is
 reported as unknown (often a typo).
 
-Most sensors need only `API_URL` and `SENSOR_ALLOWED_RANGES`, plus
+Most sensors need only `SENSOR_API_URL` and `SENSOR_ALLOWED_RANGES`, plus
 `SENSOR_CA_CERT_FILE` when the platform uses its own CA (see the
 [quickstart](index.md#quickstart-a-working-sensor-in-five-minutes)). Common
 settings with examples are in [Deploy with Docker](deploy-docker.md#common-settings);
 proxies in [Network](network.md#proxies); the transport in
 [Transport](transport.md#settings).
 
+Every sensor setting is `SENSOR_`-prefixed. A sensor refuses to start while a
+removed name is set, and its error names the replacement:
+
+| Removed | Use instead |
+|---------|-------------|
+| `API_URL` | `SENSOR_API_URL` |
+| `API_KEY` | `SENSOR_API_KEY` |
+| `REGION` | `SENSOR_REGION` |
+| `PLATFORM_KEY_AUTORENEW` | `SENSOR_KEY_AUTORENEW` |
+| `AGENT_ID`, `AGENT_NAME` | `SENSOR_ID`, `SENSOR_NAME` |
+| `AGENT_ALLOW_PRIVATE_TARGETS`, `OPENCTEM_SDK_ALLOW_PRIVATE_TARGETS` | `SENSOR_ALLOW_PRIVATE_TARGETS` |
+| `OPENCTEM_HTTPSEC_ALLOW_PRIVATE` | `OPENCTEM_SDK_HTTPSEC_ALLOW_PRIVATE` |
+
 | Setting | Type | Required | Default | Secret | Description |
 |---|---|---|---|---|---|
-| <span id="API_URL"></span>`API_URL` | url | yes |  |  | The platform's API URL (not the web UI origin). |
-| <span id="API_KEY"></span>`API_KEY` | string |  |  | yes | The sensor's bearer API key (legacy). Unset: the sensor pairs on first start and signs its requests with its own key (see [Pairing](pairing.md)). |
+| <span id="SENSOR_API_URL"></span>`SENSOR_API_URL` | url | yes |  |  | The platform's API URL (not the web UI origin). |
+| <span id="SENSOR_API_KEY"></span>`SENSOR_API_KEY` | string |  |  | yes | The sensor's bearer API key (legacy). Unset: the sensor pairs on first start and signs its requests with its own key (see [Pairing](pairing.md)). |
 | <span id="SENSOR_ID"></span>`SENSOR_ID` | string |  |  |  | The sensor's id, when the key is not bound to one. |
 | <span id="SENSOR_NAME"></span>`SENSOR_NAME` | string |  | `sensor-&lt;hostname&gt;` |  | The sensor's name on the platform. |
 | <span id="SENSOR_PROTOCOL"></span>`SENSOR_PROTOCOL` | enum |  | `auto` |  | Sensor protocol (v2; v1 is retired and refused). |
 | <span id="SENSOR_TRANSPORT"></span>`SENSOR_TRANSPORT` | enum |  | `auto` |  | Transport of sensor protocol v3 for a paired (key-bound) sensor: auto tries gRPC over mutual TLS, then HTTPS on a network that blocks it, then protocol v2; grpc, https and v2 force one. |
 | <span id="SENSOR_KEY_BIND"></span>`SENSOR_KEY_BIND` | enum |  | `auto` |  | A sensor started with an API key replaces it with a signing key it makes itself when the platform offers it (one way: the API key is retired); off keeps the API key. |
 | <span id="SENSOR_CA_CERT_FILE"></span>`SENSOR_CA_CERT_FILE` | path |  |  |  | PEM file with the platform's private CA (or a TLS-inspecting proxy's CA). |
-| <span id="SENSOR_CA_FINGERPRINT"></span>`SENSOR_CA_FINGERPRINT` | string |  |  |  | SHA-256 fingerprint of the platform's CA certificate (from the install snippet); pins platform TLS to it. API_URL must then use a host name, not an IP address. |
+| <span id="SENSOR_CA_FINGERPRINT"></span>`SENSOR_CA_FINGERPRINT` | string |  |  |  | SHA-256 fingerprint of the platform's CA certificate (from the install snippet); pins platform TLS to it. SENSOR_API_URL must then use a host name, not an IP address. |
 | <span id="SENSOR_PLATFORM_KEY"></span>`SENSOR_PLATFORM_KEY` | string |  |  |  | Thumbprint of the platform's pairing key (from the install snippet); pairing refuses another key. |
 | <span id="SSL_CERT_FILE"></span>`SSL_CERT_FILE` | path |  |  |  | System trust store file override (read by the Go runtime and the scanners). |
 | <span id="SSL_CERT_DIR"></span>`SSL_CERT_DIR` | path |  |  |  | System trust store directory override. |
 | <span id="SENSOR_STATE_DIR"></span>`SENSOR_STATE_DIR` | path |  | `/var/lib/openctem/state` |  | Local state: the paired identity and signing key (identity/), the renewed API key and the tool cost history. Mount a persistent volume. |
-| <span id="PLATFORM_KEY_AUTORENEW"></span>`PLATFORM_KEY_AUTORENEW` | bool |  | `auto` |  | API key auto-renewal: true, false, or unset (on when the state directory persists). |
+| <span id="SENSOR_KEY_AUTORENEW"></span>`SENSOR_KEY_AUTORENEW` | bool |  | `auto` |  | API key auto-renewal: true, false, or unset (on when the state directory persists). |
 | <span id="SENSOR_MAX_JOBS"></span>`SENSOR_MAX_JOBS` | int |  |  |  | Cap on concurrent jobs, 1-100. Unset: the slots follow CPU, memory and tool costs. |
 | <span id="SENSOR_DRAIN_GRACE"></span>`SENSOR_DRAIN_GRACE` | duration |  | `30s` |  | How long running jobs may finish on shutdown. |
 | <span id="SENSOR_SCANNER_PRIORITY"></span>`SENSOR_SCANNER_PRIORITY` | enum |  | `low` |  | Priority of scanner processes. |
@@ -53,7 +66,6 @@ proxies in [Network](network.md#proxies); the transport in
 | <span id="SENSOR_ALLOWED_PORTS"></span>`SENSOR_ALLOWED_PORTS` | list |  |  |  | Shorthand local policy: allowed ports. |
 | <span id="SENSOR_KILL_SWITCH_FILE"></span>`SENSOR_KILL_SWITCH_FILE` | path |  |  |  | A file whose presence stops every job. |
 | <span id="SENSOR_ALLOW_PRIVATE_TARGETS"></span>`SENSOR_ALLOW_PRIVATE_TARGETS` | enum |  |  |  | 1 allows private (RFC 1918 / ULA) targets; the local policy must allow them too. |
-| <span id="OPENCTEM_SDK_ALLOW_PRIVATE_TARGETS"></span>`OPENCTEM_SDK_ALLOW_PRIVATE_TARGETS` | enum |  |  |  | SDK name of the private-target switch. |
 | <span id="OPENCTEM_SDK_SCAN_ROOTS"></span>`OPENCTEM_SDK_SCAN_ROOTS` | list |  |  |  | Directories code scans may read. |
 | <span id="SENSOR_CONTROL_PROXY"></span>`SENSOR_CONTROL_PROXY` | url |  |  | yes | Proxy for platform requests (may carry credentials: presence only). |
 | <span id="SENSOR_CONTENT_PROXY"></span>`SENSOR_CONTENT_PROXY` | url |  |  | yes | Proxy for content downloads (may carry credentials: presence only). |
@@ -73,7 +85,7 @@ proxies in [Network](network.md#proxies); the transport in
 | <span id="SENSOR_OUTBOX_MAX_BYTES"></span>`SENSOR_OUTBOX_MAX_BYTES` | bytes |  | `1GiB` |  | Outbox size limit. |
 | <span id="SENSOR_OUTBOX_MAX_AGE"></span>`SENSOR_OUTBOX_MAX_AGE` | duration |  | `168h` |  | Outbox age limit. |
 | <span id="SENSOR_OUTBOX_KEY_FILE"></span>`SENSOR_OUTBOX_KEY_FILE` | path |  |  |  | Outbox encryption key file (default &lt;outbox dir&gt;/outbox.key). |
-| <span id="REGION"></span>`REGION` | string |  |  |  | Deployment region reported to the platform. |
+| <span id="SENSOR_REGION"></span>`SENSOR_REGION` | string |  |  |  | Deployment region reported to the platform. |
 | <span id="SENSOR_SCAN_ROOTS"></span>`SENSOR_SCAN_ROOTS` | list |  |  |  | Directories dispatched code scans may read (the scan workspace). |
 | <span id="SENSOR_DNS_RESOLVERS"></span>`SENSOR_DNS_RESOLVERS` | list |  |  |  | DNS resolvers for the recon tools (default: the system resolvers). |
 | <span id="SENSOR_CONTENT"></span>`SENSOR_CONTENT` | enum |  |  |  | Managed scanner content: on (default) or off. |

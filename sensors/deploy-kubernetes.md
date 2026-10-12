@@ -43,7 +43,7 @@ sensors: turn off **Require key-bound sensor identity** in
 | `sensor.enabled` | `false` | Run the bundled sensor |
 | `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform |
 | `sensor.existingSecret` / `.existingSecretKey` | none / `api-key` | Secret holding the API key (preferred over `sensor.apiKey`) |
-| `sensor.apiUrl` | the in-cluster API service | Override `API_URL` |
+| `sensor.apiUrl` | the in-cluster API service | Override `SENSOR_API_URL` |
 | `sensor.tools` | `nuclei` | Scanners passed with `-tools` |
 | `sensor.allowPrivateTargets` | empty | `"1"` sets `SENSOR_ALLOW_PRIVATE_TARGETS=1`; any other value fails the render |
 | `sensor.data.persistence.enabled` | `true` | One PVC (8Gi) at `/var/lib/openctem`: the sensor's identity (`state/`), undelivered results (`outbox/`) and the scanner content cache (`content/`). Needs `replicaCount: 1` |
@@ -113,7 +113,7 @@ spec:
             capabilities:
               drop: ["ALL"]
           env:
-            - name: API_URL
+            - name: SENSOR_API_URL
               value: https://openctem.example.com
             # What this sensor may scan. Without it (or a policy file) a newly
             # paired sensor refuses every job with network targets.
