@@ -32,9 +32,37 @@ work). A failed or warning check also makes an online sensor `degraded`.
 | `policy.local` `absent` | No sensor-local policy | The network owner installs one ([Network](network.md#sensor-local-policy)) |
 | `policy.template_keys` `missing` | The policy allows custom templates but no signing key is set | Set `SENSOR_TEMPLATE_SIGNING_KEYS` |
 | `config.env_unknown`, `config.file_unknown_key` | A setting the sensor does not read, often a typo | Rename it (the check suggests the closest name) |
+| `platform.ca_pin_host` `ip_url_with_pin` | `SENSOR_CA_FINGERPRINT` is set but `SENSOR_API_URL` is an IP address | Use the host name in the platform's certificate |
+| `runtime.sandbox_network` (sensors after v0.18.0) | Scans are not network-confined | Run with the sensor's seccomp profile ([Tool confinement](deploy-docker.md#tool-confinement)) |
 
 The same problems are printed at start as `Warning: ...` lines, followed by
 `Preflight: N passed, M warning(s), K failed`.
+
+## Errors by message
+
+What the sensor prints, or the platform answers, and the fix. Exit code 2
+means a configuration error: the container stops and Docker restarts it in a
+loop until it is fixed.
+
+| Message | Where | Cause | Fix |
+|---|---|---|---|
+| `missing: [SENSOR_API_URL]` (exit 2) | sensor | No platform URL | Set `SENSOR_API_URL` |
+| `environment variables a sensor no longer reads are set: API_URL (rename it to SENSOR_API_URL)` (exit 2) | sensor v0.17.0+ | An old variable name | Rename it as the message says ([Before you upgrade](operate.md#before-you-upgrade)) |
+| `Error: executor: network confinement required but not available: ...` (exit 2) | sensor | `SENSOR_SANDBOX_NETWORK=required` without the seccomp profile, or the host blocks user namespaces | [Tool confinement](deploy-docker.md#tool-confinement) |
+| `Warning: tool network not confined (SENSOR_SANDBOX_NETWORK=auto): ... operation not permitted` | sensor | The container's seccomp profile refuses namespaces | Add the sensor's seccomp profile |
+| `... permission denied` in the same warning | sensor | The host restricts unprivileged user namespaces (Ubuntu 23.10+) | Keep the default AppArmor profile; binary: [an AppArmor profile](deploy-binary.md#tool-confinement-on-a-host) |
+| `nuclei keeps to a web scope only in a tool sandbox that confines its network` | task log | A nuclei job on a host with an excluded path, on an unconfined sensor | Run the sensor confined |
+| `refused by local policy: no_local_policy: ...` | task log | A sensor paired by v0.12.0+ without `SENSOR_ALLOWED_RANGES` or a policy file | Set one ([Sensor-local policy](network.md#sensor-local-policy)) |
+| `refused by local policy: <rule>: ...` | task log | The target, port or tool is outside the local policy | `openctemio-sensor policy explain <file> -target <t> -tool <x>` |
+| `the platform's certificate chain does not contain the pinned CA` | sensor | `SENSOR_CA_FINGERPRINT` names a CA the platform does not send in its chain (the built-in gateway's root in TLS mode `internal`), or a proxy is in between | Use `SENSOR_CA_CERT_FILE` instead ([Trust a private CA](deploy-docker.md#trust-a-private-certificate-authority)) |
+| `x509: certificate signed by unknown authority` | sensor | The platform uses a private CA | [Trust it](deploy-docker.md#trust-a-private-certificate-authority) |
+| `platform certificate does not match the pin stored at pairing` | sensor | The platform's CA changed since pairing, or a TLS-inspecting proxy | Re-pair, or set `SENSOR_CA_FINGERPRINT` after a deliberate change |
+| `another sensor process uses this outbox directory; give each sensor its own volume` | sensor | Two processes on one volume (often an `-outbox-status` run next to the daemon) | One volume per sensor; stop the daemon first |
+| `BEARER_KEYS_DISABLED`: `This organization requires key-bound identity: pair the sensor instead of creating a key` | console / API | **Install a sensor** (API key) in an organization that requires paired sensors | Pair the sensor, or turn off **Require key-bound sensor identity** (Settings > Organization > General) |
+| `PUSH_INGEST_NOT_GRANTED` / `push_ingest_not_granted` | collector / audit `sensor.push_refused_grant` | A collector's reports without a job: its grant lacks push ingest, or it is not trusted | Change the grant profile to `collector` and promote it to Trusted ([Grants and trust](pairing.md#grants-and-trust)) |
+| `tool-not-permitted: The report's tool is not declared by this sensor` (HTTP 422) | sensor / collector | A report for a tool the sensor's manifest does not list (often a report sent before the first manifest) | Run in daemon mode so the manifest registers; requeue the dead letter |
+| `You may not scan these targets: ... no scope entry covers it` | console / API | The target is out of scope | Add a scope entry ([Scope](../scanning/scope.md)) |
+| `NO_SENSOR_FOR_TOOL` | console / API | No sensor of the organization reports the tool | Install a sensor with the tool, or check `SENSOR_TOOLS` |
 
 ## Read the logs
 
@@ -157,10 +185,10 @@ With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.17.0 -outbox-status
+  ghcr.io/openctemio/sensor:v0.18.0 -outbox-status
 # after fixing the cause of dead letters:
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.17.0 -outbox-requeue-dead
+  ghcr.io/openctemio/sensor:v0.18.0 -outbox-requeue-dead
 ```
 
 ## Cloned identity
@@ -335,6 +363,27 @@ the sensor accepts any target outside its built-in deny list. The network
 owner installs one (`SENSOR_LOCAL_POLICY`, mounted read-only; Helm:
 `sensor.localPolicy.enabled: true`). See
 [Sensor-local policy](network.md#sensor-local-policy).
+
+### Pinned CA and an IP address
+{: #platform-ca-pin-host }
+
+`platform.ca_pin_host` `ip_url_with_pin`: `SENSOR_CA_FINGERPRINT` is set, but
+`SENSOR_API_URL` names the platform by an IP address. A pinned connection
+checks the certificate against the host name, so it fails. Use the host name
+in the platform's certificate in `SENSOR_API_URL` (`pair` refuses an IP URL
+with a pin).
+
+### Tool network confinement
+{: #runtime-sandbox-network }
+
+`runtime.sandbox_network` (reported by sensors released after v0.18.0):
+whether each scan's network is confined to its targets. `confined` is the
+goal. `userns_blocked`: the container's seccomp profile refuses user
+namespaces; run it with the sensor's seccomp profile. `userns_restricted`:
+the host restricts unprivileged user namespaces; keep the default AppArmor
+profile (binary: give it an AppArmor profile). `off` / `sandbox_off`:
+`SENSOR_SANDBOX_NETWORK=off` or `SENSOR_SANDBOX=off`. `unavailable`: another
+cause, shown in the excerpt. See [Tool confinement](deploy-docker.md#tool-confinement).
 
 ### Template signing keys
 {: #policy-template-keys }

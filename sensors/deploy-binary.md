@@ -28,14 +28,16 @@ Archives are named `openctemio-sensor_<version>_<os>_<arch>.tar.gz` (and
 `.zip`), with the version without the leading `v`:
 
 ```bash
-VERSION=0.17.0
+VERSION=0.18.0
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/openctemio-sensor_${VERSION}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/checksums.txt"
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/checksums.txt.sigstore.json"
 ```
 
 Verify before installing. `checksums.txt` is signed keyless with cosign by
-the sensor's release workflow, and lists the SHA-256 of every archive:
+the sensor's release workflow, and lists the SHA-256 of every archive. The
+signature is a Sigstore bundle: use cosign v3 (cosign v2.4 and older fail with
+`bundle does not contain cert for verification`):
 
 ```bash
 cosign verify-blob checksums.txt --bundle checksums.txt.sigstore.json \
@@ -103,12 +105,58 @@ sudo systemctl enable --now openctem-sensor
 journalctl -u openctem-sensor -f       # read the code and fingerprint here
 ```
 
-Approve the sensor as described in [Pairing](pairing.md).
+Approve the sensor as described in [Pairing](pairing.md), then check the
+start-up lines:
+
+```bash
+journalctl -u openctem-sensor | grep -E 'Tool network:|Transport:|Preflight:'
+```
+
+[Check that it works](index.md#4-check-that-it-works) explains each line.
 `SENSOR_ALLOWED_RANGES` limits what it may scan; a newly paired sensor without
 it (or a policy file) refuses every job with network targets. A sensor-local
 policy file goes in `/etc/openctem/sensor-policy.yaml`, owned by root and not
 writable by the sensor's user (see [Network](network.md#sensor-local-policy));
 it replaces `SENSOR_ALLOWED_RANGES`, which must then be removed. Reload it with `systemctl kill -s HUP openctem-sensor`.
+
+## Tool confinement on a host
+
+A binary sensor confines each scan's network with unprivileged user
+namespaces. Check the host with:
+
+```bash
+unshare -Urn true && echo "user namespaces: allowed"
+```
+
+- **Ubuntu 23.10 and later** restrict them for programs without an AppArmor
+  profile (`kernel.apparmor_restrict_unprivileged_userns=1`), and the sensor
+  logs `Warning: tool network not confined`. Give the sensor binary a profile
+  that allows them, as Ubuntu does for browsers, in
+  `/etc/apparmor.d/openctemio-sensor`:
+
+  ```
+  abi <abi/4.0>,
+  include <tunables/global>
+  profile openctemio-sensor /usr/local/bin/openctemio-sensor flags=(unconfined) {
+    userns,
+  }
+  ```
+
+  then `sudo apparmor_parser -r /etc/apparmor.d/openctemio-sensor` and restart
+  the service. Prefer this to turning the restriction off for the whole host.
+- Other distributions: `kernel.unprivileged_userns_clone` (Debian) or
+  `user.max_user_namespaces` must allow them.
+
+An unconfined sensor still runs most scans; see
+[Tool confinement](deploy-docker.md#tool-confinement) for what it cannot run.
+macOS and Windows sensors never confine.
+
+## Upgrade and remove
+
+Install the new release over the old binary (same verification), then
+`sudo systemctl restart openctem-sensor`. `/var/lib/openctem` carries the
+identity and the outbox over. Rollback and removal:
+[Upgrade, back up and remove](operate.md).
 
 ## Build from source
 
