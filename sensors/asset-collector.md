@@ -183,7 +183,7 @@ severity and notifies every administrator.
 - **Back up** the volume: it holds the collector's credential (the renewed API
   key, or the signing key it bound) and the outbox of reports not yet
   delivered. Same commands as for a sensor
-  ([Back up and restore](operate.md#back-up-and-restore)), with
+  ([Back up](deploy-docker.md#back-up)), with
   `asset-collector-data`.
 - **Remove**: **Revoke** the collector in the console, then
   `docker rm -f asset-collector && docker volume rm asset-collector-data`,
