@@ -151,20 +151,33 @@ Details: [Scope and authorization to scan](scanning/scope.md).
 
 ## 5. Pair a sensor
 
-On the host in the network you want to scan:
+On the host in the network you want to scan (the full walk-through, with
+what each flag does, is the [sensor quickstart](sensors/index.md#quickstart-a-working-sensor-in-five-minutes)):
 
 ```bash
+curl -fsSLo openctem-sensor-seccomp.json \
+  https://raw.githubusercontent.com/openctemio/sensor/v0.18.0/docker/seccomp/sensor.json
 docker run -d --name openctem-sensor --restart unless-stopped \
+  --read-only --tmpfs /tmp --cap-drop ALL \
+  --security-opt no-new-privileges:true \
+  --security-opt seccomp="$PWD/openctem-sensor-seccomp.json" \
+  -e XDG_CONFIG_HOME=/tmp/.config -e XDG_CACHE_HOME=/tmp/.cache \
   -e SENSOR_API_URL=https://ctem.example.com \
+  -e SENSOR_ALLOWED_RANGES='*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.17.0
+  ghcr.io/openctemio/sensor:v0.18.0
 docker logs openctem-sensor
 ```
 
+`SENSOR_ALLOWED_RANGES` is what this sensor may scan, set on the sensor host
+by the owner of the network: a paired sensor without it (or a policy file)
+refuses every scan with network targets. Keep it in line with the scope from
+step 4. The seccomp profile lets the sensor confine each scan's network to its
+targets.
+
 With TLS mode `internal`, give the sensor the platform's CA as well: mount
-`ca/openctem-root-ca.crt` read-only and set `SENSOR_CA_CERT_FILE`, or pin it
-with `SENSOR_CA_FINGERPRINT` (see
-[Deploy with Docker](sensors/deploy-docker.md)).
+`ca/openctem-root-ca.crt` read-only and set `SENSOR_CA_CERT_FILE` (see
+[Trust a private certificate authority](sensors/deploy-docker.md#trust-a-private-certificate-authority)).
 
 The log shows a pairing **code** and a **fingerprint**. In the console:
 

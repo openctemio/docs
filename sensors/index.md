@@ -24,6 +24,10 @@ inside is described in [How sensors work](how-it-works.md).
 
 ## Quickstart: a working sensor in five minutes
 
+This quick start was run end to end against platform v0.9.2 with sensor
+v0.18.0. It installs a hardened, confined sensor, pairs it, checks it and runs
+a first scan.
+
 ### What you need
 
 - A Linux host with Docker, inside the network you want to scan, that can
@@ -41,17 +45,29 @@ inside is described in [How sensors work](how-it-works.md).
   `ca/openctem-root-ca.crt` from the platform host to the sensor host and
   repeat with `--cacert openctem-root-ca.crt`.
 - An account with the **Pair sensors** and **Approve sensors** permissions
-  (owners and administrators have both).
+  (owners and administrators have both), and the **Widen sensor grants**
+  permission to promote the sensor afterwards.
 - The address ranges or domains this sensor may scan.
 
 ### 1. Start the sensor
 
+Download the sensor's seccomp profile for the release you run, then start the
+container:
+
 ```bash
+curl -fsSLo openctem-sensor-seccomp.json \
+  https://raw.githubusercontent.com/openctemio/sensor/v0.18.0/docker/seccomp/sensor.json
+
 docker run -d --name openctem-sensor --restart unless-stopped \
+  --stop-timeout 45 \
+  --read-only --tmpfs /tmp --cap-drop ALL \
+  --security-opt no-new-privileges:true \
+  --security-opt seccomp="$PWD/openctem-sensor-seccomp.json" \
+  -e XDG_CONFIG_HOME=/tmp/.config -e XDG_CACHE_HOME=/tmp/.cache \
   -e SENSOR_API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.17.0
+  ghcr.io/openctemio/sensor:v0.18.0
 ```
 
 Change three things:
@@ -59,9 +75,9 @@ Change three things:
 - `SENSOR_API_URL`: your platform URL, without a path.
 - `SENSOR_ALLOWED_RANGES`: what this sensor may scan (CIDRs, addresses,
   `example.com`, `*.example.com`). The sensor refuses every job outside it,
-  whatever the platform sends. A newly paired sensor without such a list (or a
-  [policy file](network.md#sensor-local-policy)) refuses every job that has
-  network targets.
+  whatever the platform sends. **A newly paired sensor without such a list
+  (or a [policy file](network.md#sensor-local-policy)) refuses every job
+  that has network targets.**
 - To scan private addresses (RFC 1918, IPv6 ULA), list them and add
   `-e SENSOR_ALLOW_PRIVATE_TARGETS=1`.
 
@@ -72,10 +88,24 @@ If the platform uses its own CA, add these two lines before the image name:
   -e SENSOR_CA_CERT_FILE=/certs/openctem-ca.pem \
 ```
 
+What the other flags do:
+
+- `--security-opt seccomp=...` lets the sensor give every scan its own
+  network namespace, so a scanner reaches only the job's targets
+  ([Tool confinement](security.md#tool-confinement)). nuclei scans of a host
+  with an excluded path run **only** on a confined sensor. Without the
+  profile the sensor still runs, unconfined, and logs
+  `Warning: tool network not confined`.
+- `--read-only`, `--tmpfs /tmp`, `--cap-drop ALL` and `no-new-privileges`
+  are the least-privilege settings the platform's own install snippet uses.
+  Add `--cap-add NET_RAW` only for naabu SYN scans.
+- `--stop-timeout 45` gives running scans time to finish on `docker stop`.
+
 {: .warning }
 Keep the `openctem-sensor-data` volume. After pairing its `state/` directory
-holds the sensor's private key, its only credential. Back it up like a password and never mount it into
-a second sensor.
+holds the sensor's private key, its only credential. Back it up like a
+password and never mount it into a second sensor
+([Back up and restore](operate.md#back-up-and-restore)).
 
 ### 2. Read the pairing code
 
@@ -117,9 +147,19 @@ start-up lines:
 ```
 Paired: sensor "sensor-scan01" (...) in organization .... Identity saved in /var/lib/openctem/state/identity.
   Identity: key-bound sensor ... (key SHA256:...)
+  Local policy: enforced from SENSOR_ALLOWED_RANGES/SENSOR_ALLOWED_PORTS (sha256:...): targets allow 2, ...
+  Tool network: confined (each task reaches only its targets, through its forwarder)
   Transport: https (platform_without_grpc)
-  Preflight: 12 passed, 0 warning(s), 0 failed
+  Preflight: 15 passed, 0 warning(s), 0 failed (the platform shows them under the sensor's Setup & health)
 ```
+
+Check three things:
+
+| Look for | Good | If not |
+|---|---|---|
+| `Tool network:` | `confined` | `Warning: tool network not confined`: the seccomp profile is missing or the host blocks user namespaces. See [Tool confinement](security.md#tool-confinement). |
+| `Preflight:` | `0 failed` | Open the sensor's **Setup & health** in the console; each problem has its fix ([Setup check reference](troubleshooting.md#setup-check-reference)). |
+| `Transport:` | `grpc`, `https` or `v2` | An error after `Transport:`: see [Troubleshooting](troubleshooting.md#transport). |
 
 In the console, **Discovery > Sensors** lists it as `online`. Its detail
 sheet shows **Transport:** and, when it is not gRPC, the reason in plain words
@@ -143,6 +183,21 @@ A new sensor is at trust level **New**: it receives passive work only
 (subdomain discovery, DNS resolution, code and image analysis), no port
 scans, HTTP probes or templates. Open the sensor, review its **Grant**, and
 choose **Promote to Trusted**. See [Grants and trust](pairing.md#grants-and-trust).
+
+### 6. Run a first scan
+
+1. Put a target in scope: **Scoping > Scope**, add the domain or range (for
+   example `app.example.com`). The platform refuses to scan anything no scope
+   entry covers. See [Scope](../scanning/scope.md).
+2. **Discovery > Scans > New scan**, target `app.example.com`, workflow
+   **Discover**, then **Run now**.
+3. The run's **Tasks** tab shows the task on your sensor; the sensor's log
+   shows `Executing command ...` and `Command ... completed`. Results appear
+   on the asset within a minute.
+
+A task that never starts says why on the run (no sensor for the tool, the
+sensor is New, the target is outside its local policy or zone): see
+[Online, but it gets no work](troubleshooting.md#online-but-it-gets-no-work).
 
 Next: [route work to it with scan zones](zones.md), and read
 [Before production](#before-production).
@@ -172,9 +227,7 @@ Single-port gRPC in the API itself, without the built-in gateway in front, is
 [port of its own](transport.md#a-port-of-its-own) if you choose to open one.
 
 gRPC on the platform's own port requires **sensor v0.15.0 or later** (sdk-go
-v0.21.0 or later): it offers the routing id the gateway looks for. That change
-is in sensor [#207](https://github.com/openctemio/sensor/pull/207) and sdk-go
-[#244](https://github.com/openctemio/sdk-go/pull/244) and is not released yet.
+v0.21.0 or later): it offers the routing id the gateway looks for.
 Sensors v0.12.0 to v0.14.0 reach gRPC only through a dedicated sensor host
 name or a port of its own, and use HTTPS otherwise.
 
@@ -186,14 +239,21 @@ name or a port of its own, and use HTTPS otherwise.
 | [Kubernetes](deploy-kubernetes.md) | A sensor in a cluster, paired like a Docker sensor, or the chart's bundled sensor. |
 | [Binary](deploy-binary.md) | Hosts without containers; you install the scanners. |
 
+Then: [Upgrade, back up and remove](operate.md), [Security notes](security.md)
+and [Troubleshooting](troubleshooting.md).
+
 ## Before production
 
+- **Run it confined.** Start the container with the sensor's seccomp profile
+  and check that the log says `Tool network: confined`
+  ([Tool confinement](security.md#tool-confinement)).
 - **Back up the data volume** (`/var/lib/openctem`; the `content/` cache can be
-  left out, see [Back up](deploy-docker.md#back-up)). After pairing its `state/`
-  directory holds the sensor's private key, the only credential the sensor has. Keep the
-  backup encrypted, restore it only to a host that replaces the sensor, and
-  never run two sensors from one copy: the platform flags the sensor
-  `identity_cloned`. See [Where the identity lives](pairing.md#where-the-identity-lives).
+  left out, see [Back up and restore](operate.md#back-up-and-restore)). After
+  pairing its `state/` directory holds the sensor's private key, the only
+  credential the sensor has. Keep the backup encrypted, restore it only to a
+  host that replaces the sensor, and never run two sensors from one copy: the
+  platform flags the sensor `identity_cloned`. See
+  [Where the identity lives](pairing.md#where-the-identity-lives).
 - **Back up the platform's CAs.** The `api-data` volume holds the sensor CA
   (`/app/data/sensor-ca`) that signs the gRPC certificates; the `gateway-data`
   volume holds the gateway's CA in TLS mode `internal`. See
@@ -206,4 +266,4 @@ name or a port of its own, and use HTTPS otherwise.
   sensor never falls back to a weaker transport. To replace a lost or stolen
   key, [re-pair](pairing.md#re-pair-a-sensor).
 - **Pin the image version** and verify its signature
-  ([Docker](deploy-docker.md)).
+  ([Verify the image](deploy-docker.md#1-pick-an-image)).
