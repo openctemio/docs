@@ -17,6 +17,21 @@ The sensor is [`openctemio/sensor`](https://github.com/openctemio/sensor)
 (image `ghcr.io/openctemio/sensor`, binary `openctemio-sensor`). How it works
 inside is described in [How sensors work](how-it-works.md).
 
+## Which one do I need?
+
+| You want to | Use | Runs where | Start here |
+|---|---|---|---|
+| Scan hosts, web applications and networks the platform cannot reach (ports, HTTP, nuclei templates, subdomains) | **Sensor** (`openctemio/sensor`) | A host or cluster inside the network to scan | [Quickstart](#quickstart-a-working-sensor-in-five-minutes) |
+| Import inventory you already have (vCenter, Active Directory or LDAP, Google Cloud DNS, Splunk, PRTG) | **Asset collector** (`openctemio/asset-collector`) | A host that can reach those systems | [Asset collector](asset-collector.md) |
+| Scan code and dependencies in a pipeline | **CI integration** (no sensor) | GitHub Actions or GitLab CI | [CI integration](../scanning/ci-integration.md) |
+| Match your software inventory against known vulnerabilities | **Vulnerability feed** (`openctemio/vulnfeed`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
+| Follow public bug-bounty and disclosure programs | **Program feed** (`openctemio/programfeed`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
+
+A sensor and a collector both connect out to the platform, need no inbound
+port and appear under **Discovery > Sensors**. A sensor takes the scans the
+platform sends it; a collector takes none and pushes inventory on its own
+schedule. The feeds are not installed on your hosts at all.
+
 1. TOC
 {:toc}
 
