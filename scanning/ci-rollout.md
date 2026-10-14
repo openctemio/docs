@@ -52,6 +52,20 @@ configuration per repository. Narrow it only when you need to:
 ![The Trust tab: trust configurations for GitHub example-org and the GitLab platform group]({{ site.baseurl }}/assets/images/scanning/ci/ci-trust.png)
 *Figure: Trust for GitHub example-org and the GitLab platform group.*
 
+For GitHub Enterprise Server, set the trust's **GitHub Enterprise issuer**
+to `https://<host>/_services/token`. For an enterprise with a customized
+issuer on github.com, set it to
+`https://token.actions.githubusercontent.com/<enterprise>`. A server on a
+private network needs the operator setting
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`.
+
+Every trust audience contains the organization id (`openctem:tenant:<id>`),
+so a token minted for one organization is useless to another. GitHub and
+GitLab trusts created with another audience were moved to the default. For 90
+days, a pipeline that existed before may still request the old audience,
+until it requests the new one once. The trust card shows the old audience and
+its end date, so update those pipelines to the current snippet.
+
 The first exchange of an organization **pins** its immutable id. A
 repository name is bound to the repository id that first reported under it.
 An organization that is deleted and whose name is registered again cannot
@@ -103,6 +117,13 @@ of every pipeline on a commit, so a second workflow cannot turn it green.
 
 Switch the policy to **Enforce**. A change that loosens it later asks for
 step-up and notifies every administrator.
+
+## Developers' access
+
+Developers see the runs of the repositories in their data scope. Give each
+team its runs by making the team (a group) an owner of its repository assets.
+A developer who leaves the team loses the runs. Everyone with access to the
+pull request still sees the check and the comment.
 
 ## Track it
 

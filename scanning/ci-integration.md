@@ -38,14 +38,14 @@ image per tool. Both produce the same CTIS reports.
 ```mermaid
 flowchart LR
   dev["Developer<br/>(member, scans:ci:read)"]
-  sec["AppSec admin<br/>(admin, scans:ci:write + override)"]
+  sec["AppSec admin<br/>(admin, or AppSec engineer role:<br/>scans:ci:policy + override)"]
   ciso["CISO / owner"]
   pr["Pull request:<br/>OpenCTEM gate check + comment"]
   runs["CI/CD › Runs<br/>run detail: why blocked"]
   setup["CI/CD › Trust and gate<br/>trust · policy · break-glass · PR feedback"]
   cov["CI/CD › Pipelines and Coverage<br/>freshness, gaps, failing gates"]
   dev --> pr
-  dev -->|repositories in their access| runs
+  dev -->|repositories their team owns| runs
   sec --> setup
   sec --> runs
   sec --> cov
@@ -54,19 +54,22 @@ flowchart LR
 
 - **Developers** work from the pull request: the check and the comment list
   what blocked it. **Details** opens the run in the console. A developer sees
-  the runs of the repositories in their access. Anyone else sees "This run is
-  not available to you", and an administrator can grant access to the
-  repository.
-- **AppSec admins** (`scans:ci:write`) set up trust, gate policies and pull
-  request feedback. They see refused pipelines. Break-glass also needs
-  `scans:ci:override`.
+  the runs of the repositories in their data scope: make their team (a group)
+  an owner of the repository asset, and they see its runs. Leaving the team
+  takes them away. Anyone else sees "This run is not available to you".
+- **AppSec admins**: administrators set up trust and pull request feedback,
+  and see refused pipelines (`scans:ci:write`, admin-only). Gate policies and
+  expected scans (`scans:ci:policy`) and break-glass (`scans:ci:override`) can
+  also be given to a custom role built from the **AppSec engineer**
+  template.
 - **CISOs and owners** read the pipelines' freshness, failing default-branch
   gates and repository coverage.
 
 | Permission | Allows |
 |---|---|
 | `scans:ci:read` | Pipelines, runs, coverage, trust configurations and gate policies (read) |
-| `scans:ci:write` | Create and change trust, gate policies, coverage expectations and code host connections; see refused pipelines |
+| `scans:ci:write` | Create and change trust, the CI settings and code host connections; see refused pipelines. Admin-only |
+| `scans:ci:policy` | Create and change gate policies and coverage expectations |
 | `scans:ci:override` | Create and revoke break-glass overrides |
 
 Creating or changing a trust configuration, changing the CI settings,

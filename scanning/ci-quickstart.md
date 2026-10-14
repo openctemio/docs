@@ -73,21 +73,17 @@ on:
 
 jobs:
   openctem:
-    uses: openctemio/ci/.github/workflows/scan.yml@v0.2.0
+    uses: openctemio/ci/.github/workflows/scan.yml@v0.3.0
     with:
       capabilities: sast,sca,secrets,iac
       api-url: https://openctem.example.com
       tenant-id: <organization id>
     permissions:
       contents: read
-      id-token: write          # the job asks GitHub for an OIDC token; no stored secret
-      security-events: write   # required by openctemio/ci v0.2.0
+      id-token: write # the job asks GitHub for an OIDC token; no stored secret
 ```
 
-`security-events: write` is needed while you pin v0.2.0. That release's scan
-job asks for it, and GitHub refuses to start a called job that asks for more
-than its caller grants. Later releases ask for it only with
-`upload-sarif: true`.
+Add `security-events: write` only with `upload-sarif: true`.
 
 ### GitLab CI
 
@@ -95,15 +91,14 @@ Add to `.gitlab-ci.yml` (the jobs run in the `test` stage):
 
 ```yaml
 include:
-  - remote: https://raw.githubusercontent.com/openctemio/ci/v0.2.0/gitlab/templates/all.yml
+  - remote: https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml
 
 variables:
   OPENCTEM_API_URL: https://openctem.example.com
   OPENCTEM_TENANT_ID: <organization id> # jobs use their ID token; no stored secret
 ```
 
-Pin `v0.2.0` (or a commit) as shown. Never pin `@main` or `@v1`: `v1` is an
-early tag that points at v0.1.0. See [Reference](ci-reference.md#versions-to-pin).
+Pin `v0.3.0` (or a commit) as shown. Never pin `@main`. See [Reference](ci-reference.md#versions-to-pin).
 
 ## 4. Push and watch the first run
 
