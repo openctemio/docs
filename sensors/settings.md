@@ -45,6 +45,7 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_KEY_BIND"></span>`SENSOR_KEY_BIND` | enum |  | `auto` |  | A sensor started with an API key replaces it with a signing key it makes itself when the platform offers it (one way: the API key is retired); off keeps the API key. |
 | <span id="SENSOR_CA_CERT_FILE"></span>`SENSOR_CA_CERT_FILE` | path |  |  |  | PEM file with the platform's private CA (or a TLS-inspecting proxy's CA). |
 | <span id="SENSOR_CA_FINGERPRINT"></span>`SENSOR_CA_FINGERPRINT` | string |  |  |  | SHA-256 fingerprint of the platform's CA certificate (from the install snippet); pins platform TLS to it. SENSOR_API_URL must then use a host name, not an IP address. |
+| <span id="SENSOR_PAIRING_CODE"></span>`SENSOR_PAIRING_CODE` | string |  |  | yes | Pairing code an administrator created with "expect a sensor" (XXXX-XXXX); the sensor attaches to it on its first start. Ignored once the sensor has an identity. |
 | <span id="SENSOR_PLATFORM_KEY"></span>`SENSOR_PLATFORM_KEY` | string |  |  |  | Thumbprint of the platform's pairing key (from the install snippet); pairing refuses another key. |
 | <span id="SSL_CERT_FILE"></span>`SSL_CERT_FILE` | path |  |  |  | System trust store file override (read by the Go runtime and the scanners). |
 | <span id="SSL_CERT_DIR"></span>`SSL_CERT_DIR` | path |  |  |  | System trust store directory override. |
@@ -54,7 +55,7 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_DRAIN_GRACE"></span>`SENSOR_DRAIN_GRACE` | duration |  | `30s` |  | How long running jobs may finish on shutdown. |
 | <span id="SENSOR_SCANNER_PRIORITY"></span>`SENSOR_SCANNER_PRIORITY` | enum |  | `low` |  | Priority of scanner processes. |
 | <span id="SENSOR_PROTECT_FROM_OOM"></span>`SENSOR_PROTECT_FROM_OOM` | bool |  | `false` |  | Protect the sensor itself from the OOM killer (needs CAP_SYS_RESOURCE). |
-| <span id="SENSOR_TOOLS"></span>`SENSOR_TOOLS` | list |  |  |  | Allowlist of tools the sensor runs (comma-separated). Unset: every installed tool. |
+| <span id="SENSOR_TOOLS"></span>`SENSOR_TOOLS` | list |  |  |  | Deprecated: narrows the installed tools to this comma-separated list (built-ins such as the reachability probe are kept). Unset: every installed tool. Narrow with the local policy's tools.allow instead. |
 | <span id="SENSOR_ADAPTER_DIRS"></span>`SENSOR_ADAPTER_DIRS` | string |  |  |  | Directories of operator-installed tools (tool.yaml with its program), separated by the OS path list separator. |
 | <span id="SENSOR_TEMPLATE_SIGNING_KEYS"></span>`SENSOR_TEMPLATE_SIGNING_KEYS` | list |  |  |  | The platform's template-signing public keys (base64 Ed25519); needed for custom templates. |
 | <span id="SENSOR_JOB_SIGNING_KEYS"></span>`SENSOR_JOB_SIGNING_KEYS` | list |  |  |  | The platform job signer's keys (`SHA256:&lt;hex&gt;` key ids or base64 Ed25519 keys), in addition to those pinned at pairing; every signed job is verified with them before it runs. Needs a sensor release with signed-job verification. |
