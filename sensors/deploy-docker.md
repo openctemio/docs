@@ -32,12 +32,12 @@ is the reference behind it.
 Use a released version, never `latest` in production:
 
 ```bash
-docker pull ghcr.io/openctemio/sensor:v0.21.1
+docker pull ghcr.io/openctemio/sensor:v0.22.1
 ```
 
 The default image runs nuclei and the recon tools (subfinder, dnsx, naabu,
 httpx, katana). For code scanning on a daemon, use a per-tool image such as
-`ghcr.io/openctemio/sensor:v0.21.1-semgrep`. See
+`ghcr.io/openctemio/sensor:v0.22.1-opengrep` (or `-semgrep`). See
 [What runs inside](how-it-works.md#what-runs-inside).
 
 Release images are signed with cosign (keyless). Verify before you run. The
@@ -45,9 +45,9 @@ signatures use the Sigstore bundle format: use cosign v3 (cosign v2.4 and
 older report `no signatures found`):
 
 ```bash
-cosign verify ghcr.io/openctemio/sensor:v0.21.1 \
+cosign verify ghcr.io/openctemio/sensor:v0.22.1 \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity https://github.com/openctemio/sensor/.github/workflows/docker-publish.yml@refs/tags/v0.21.1
+  --certificate-identity https://github.com/openctemio/sensor/.github/workflows/docker-publish.yml@refs/tags/v0.22.1
 ```
 
 Without a local cosign: `docker run --rm ghcr.io/sigstore/cosign/cosign:v3.1.3 verify ...`
@@ -60,7 +60,7 @@ Download the seccomp profile of the same release (see
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.21.1/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.22.1/docker/seccomp/sensor.json
 ```
 
 With `docker run`:
@@ -77,7 +77,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_SANDBOX_NETWORK=required \
   --dns-search . \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1
+  ghcr.io/openctemio/sensor:v0.22.1
 ```
 
 No mode or tool flags are needed: the image's default command is `-verbose`,
@@ -90,7 +90,7 @@ then `docker compose up -d`):
 ```yaml
 services:
   sensor:
-    image: ghcr.io/openctemio/sensor:v0.21.1
+    image: ghcr.io/openctemio/sensor:v0.22.1
     container_name: openctem-sensor
     restart: unless-stopped
     # Least privilege: read-only root filesystem, no capabilities (add
@@ -137,8 +137,10 @@ volumes:
   one release with a deprecation warning; you no longer need them. To narrow
   the tools, use the local policy's `tools.allow`. `-enable-recon`,
   `-enable-vulnscan`, `-enable-secrets`, `-enable-assets`, `-enable-pipeline`
-  and `-bootstrap-token` are ignored with a warning.
-- The per-tool images (`-semgrep`, `-trivy`, `-betterleaks`, `-nuclei`) set
+  and `-bootstrap-token` are ignored with a warning. `-agent-id` (use
+  `-sensor-id`), `-retry-queue` and `-retry-dir` (the outbox replaced the
+  retry queue) are deprecated too.
+- The per-tool images (`-opengrep`, `-semgrep`, `-trivy`, `-betterleaks`, `-nuclei`) set
   `CI=true`, so they run one scan and exit by default. To run one as a daemon,
   pass `-daemon` or set `CI=false`.
 - `--dns-search .` (Compose: `dns_search: .`) is recommended: target names are
@@ -160,7 +162,7 @@ volumes:
   docker run --rm -it \
     -e SENSOR_API_URL=https://openctem.example.com \
     -v openctem-sensor-data:/var/lib/openctem \
-    ghcr.io/openctemio/sensor:v0.21.1 pair K7QM-4ZTD
+    ghcr.io/openctemio/sensor:v0.22.1 pair K7QM-4ZTD
   ```
 
 - `--stop-timeout` / `stop_grace_period` give running scans time to finish on
@@ -168,7 +170,7 @@ volumes:
   then hands unfinished work back to the platform.
 - The default image has no shell (it is distroless): `docker exec` into it
   does not work. Run the image's own commands instead (`docker run --rm ...
-  ghcr.io/openctemio/sensor:v0.21.1 -outbox-status`), or use `docker debug`.
+  ghcr.io/openctemio/sensor:v0.22.1 -outbox-status`), or use `docker debug`.
 
 For a richer limit than a list of ranges (ports, tools, a kill switch), mount
 a policy file instead of `SENSOR_ALLOWED_RANGES`:
@@ -370,6 +372,6 @@ Arguments after the image replace the default command, so the same image can
 run a single scan and print the results:
 
 ```bash
-docker run --rm ghcr.io/openctemio/sensor:v0.21.1 \
+docker run --rm ghcr.io/openctemio/sensor:v0.22.1 \
   -standalone -tool nuclei -target https://app.example.com
 ```

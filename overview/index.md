@@ -114,8 +114,9 @@ Then the next cycle starts, with what the last one taught you.
 
 ## Shipped and planned
 
-These pages describe what ships in the current release (v0.9.5). Work
-that is designed but not shipped is marked **Planned** where it is mentioned.
+These pages describe what ships in the current release (v0.9.5) and, where a
+page says so, in v0.9.6. Work that is designed but not shipped is marked
+**Planned** where it is mentioned.
 
 | Shipped | Planned |
 |---|---|
@@ -125,6 +126,10 @@ that is designed but not shipped is marked **Planned** where it is mentioned.
 | Scan workflows with the capabilities listed in [Scan workflows](../scanning/scan-workflows.md#capabilities) | Further capabilities such as `check.takeover`, `check.tls`, `cloud.posture` |
 | Organization isolation enforced by the application on every query | PostgreSQL row-level security as a second layer (policies exist, not enabled; see [Architecture](architecture.md#tenancy-and-isolation)) |
 | Sensors reach targets directly or through their host's proxy | Per-zone egress proxies |
+| Known false positives that hold across scanner engines, decisions approved by a second person, and data-flow traces on SAST findings | |
+| Static analysis with opengrep and the signed OpenCTEM rules pack, on sensors and in CI | |
+| Content packs delivered to sensors by digest, with file-level deltas | Scans that run the packs the platform delivers (sensors up to v0.22.1 fetch their own content) |
+| | A coverage policy per asset type, and a record of when each asset was last checked for each kind of test |
 
 The design documents (RFCs) and the roadmap live in the
 [openctem repository](https://github.com/openctemio/openctem/tree/develop/api/docs).

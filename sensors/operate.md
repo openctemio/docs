@@ -36,6 +36,13 @@ Notes that stop a sensor if missed:
 | three volumes | v0.16.0 or later | One volume at `/var/lib/openctem` replaces `state`, `outbox` and `content` volumes. The old layout keeps working; to move, see [Move from three volumes to one](deploy-docker.md#move-from-three-volumes-to-one). |
 | v0.8.x or older | any current | Protocol v1 is retired: such a sensor cannot connect to a current platform at all. Install a current release on the same volume. |
 
+Notes that change what a sensor does:
+
+| To | What to know |
+|---|---|
+| v0.22.0 or later | Upgrade the platform to v0.9.6 first. A confined sensor now reports a target its confinement kept the tool from reaching as `egress_refused`; an older platform reads that as unfinished and hands the target out again, until its attempts run out. |
+| v0.22.0 or later | A sensor with semgrep and no rules configured runs the signed OpenCTEM rules pack instead of semgrep's registry rules. Set `SENSOR_CONTENT_SEMGREP_RULESETS` to keep registry rules. The sensor needs HTTPS to `api.github.com`, `github.com` and `release-assets.githubusercontent.com` for the pack, or a mirror ([Network](network.md)). |
+
 ## Upgrade
 
 The seccomp profile belongs to a release: download the one of the new release
@@ -44,7 +51,7 @@ with it.
 **docker run**
 
 ```bash
-NEW=v0.21.1
+NEW=v0.22.1
 docker pull ghcr.io/openctemio/sensor:$NEW
 curl -fsSLo openctem-sensor-seccomp.json \
   https://raw.githubusercontent.com/openctemio/sensor/$NEW/docker/seccomp/sensor.json
@@ -134,7 +141,7 @@ docker stop openctem-sensor
 docker run --rm -it \
   -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1 pair -repair
+  ghcr.io/openctemio/sensor:v0.22.1 pair -repair
 docker start openctem-sensor
 ```
 
@@ -183,11 +190,11 @@ volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1 -outbox-status          # results waiting, dead letters
+  ghcr.io/openctemio/sensor:v0.22.1 -outbox-status          # results waiting, dead letters
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1 -outbox-requeue-dead    # after fixing the cause
+  ghcr.io/openctemio/sensor:v0.22.1 -outbox-requeue-dead    # after fixing the cause
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1 -content-status         # scanner content versions
+  ghcr.io/openctemio/sensor:v0.22.1 -content-status         # scanner content versions
 ```
 
 The outbox refuses a second process: with the sensor running, these commands

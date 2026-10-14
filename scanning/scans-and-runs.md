@@ -208,9 +208,44 @@ its tasks by state, and the findings it produced. The run page offers:
   hosts**); **Why waiting?** explains it ([Why a task waits](why-waiting.md)).
   A completed task lists the targets it skipped and the hosts it did not
   fully cover.
-- **Map**: the run drawn on the workflow version it executes.
+- **Run map**: the run's steps as one flow, drawn on the workflow version the
+  run executes (v0.9.6). See [The run flow](#the-run-flow).
 - **Stages**: per step, how many targets came from the seeds or from earlier
   steps, and how many were skipped and why.
+- **Timeline**, **Dispatch** and **Timing**: when each task ran, and how the
+  run was dispatched.
+
+### The run flow
+
+The **Run map** section of a run draws its steps as one flow (v0.9.6):
+
+- Each step is a card with its state (colour, icon and label), its tool, a
+  progress bar of its chunks, its outputs and findings, its duration, and
+  the comparison with the scan's previous run. Text wraps; nothing is cut.
+- When steps run side by side, the flow is a graph, left to right or top to
+  bottom, whichever fits, with each arrow labelled with what it hands to the
+  next step. **View** switches between **Graph** and **List**. A chain of
+  steps, and a phone screen, always get the list.
+- A skipped step says which step it waited on, for example
+  "Skipped: HTTP probe failed" or "Skipped: HTTP probe did not run".
+- Click a card (or press Enter on it) to open the step's panel: its tasks,
+  logs and outputs.
+
+Above the flow, a finished step that delivered less than its targets says
+why:
+
+| Shown | Meaning |
+|---|---|
+| *Step* **could not reach N targets (blocked by the sensor's network confinement).** | The sensor's [tool confinement](../sensors/security.md#tool-confinement) kept the tool from reaching these targets. They count as settled and are not handed out again. Shown instead of "produced nothing". |
+| *Step***: N targets refused by the sensor's target guard (not run).** | The sensor's target guard refused these targets (an address that may never be scanned, a name that does not resolve, an unsafe target), so they were never run. See [What targets need](../sensors/network.md#what-targets-need). |
+| *Step* **produced nothing.** | The step finished with no output, and neither reason above applies. When the previous run produced something, the line says how much. |
+
+The counts come from the sensor and are never more than the task's own
+targets. The API returns them per task as `egress_refused_targets` and
+`guard_refused_targets` (`GET /api/v1/scan-runs/{id}/tasks`). The first
+needs sensor v0.22.0 or later. The per-target guard count needs a sensor
+release after v0.22.1: up to v0.22.1 the guard refuses the whole task on
+its first refused target, and the task fails.
 
 ![A completed scan run: findings, tasks, duration, stages and the task timeline]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
 *Figure: A completed run: each stage with its tool, inputs and planned targets, and the timeline of its tasks.*
@@ -252,8 +287,16 @@ whether the tool is still producing records, output or CPU time.
   its unfinished targets are queued again as a new task. If the sensor does
   not answer within 5 minutes, the whole task is queued again. A task that
   stopped with nothing finished is queued again, not failed.
-- **Overrun**: a task still running at twice its budget plus 5 minutes is
-  taken back at once, whatever the signals say.
+- **Overrun**: a task still running past the deadline its sensor enforces,
+  plus 5 minutes, is taken back at once, whatever the signals say. That
+  deadline is the step's timeout when the task carries one (at most 24
+  hours), else twice the task's budget. Before v0.9.6 the platform used
+  twice the budget even when the step allowed more, so a slow but healthy
+  task could be restarted until it failed with "Max dispatch attempts
+  exceeded".
+- **Hand-backs are free**: a sensor that hands a task back because its hosts
+  are busy there or it has no free slot, and a task that waits for its
+  hosts, never count a dispatch attempt.
 - **Unfinished targets only**: when a sensor ends a task with some targets
   done and others unfinished (for example when the task's budget ran out),
   only the unfinished targets run again; a finished target is never scanned
