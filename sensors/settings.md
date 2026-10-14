@@ -131,12 +131,3 @@ removed name is set, and its error names the replacement:
 | <span id="TRIVY_CACHE_DIR"></span>`TRIVY_CACHE_DIR` | path |  |  |  | trivy cache directory (needs a writable path on a read-only root filesystem). |
 | <span id="TRIVY_USERNAME"></span>`TRIVY_USERNAME` | string |  |  |  | Private registry user for trivy image scans. |
 | <span id="TRIVY_PASSWORD"></span>`TRIVY_PASSWORD` | string |  |  | yes | Private registry password for trivy image scans. |
-| <span id="SENSOR_TENABLE_SC_CONFIG"></span>`SENSOR_TENABLE_SC_CONFIG` | path |  |  |  | Tenable.sc connector configuration file. |
-| <span id="TENABLE_SC_URL"></span>`TENABLE_SC_URL` | url |  |  |  | Tenable.sc URL (shorthand configuration). |
-| <span id="TENABLE_SC_CA_FILE"></span>`TENABLE_SC_CA_FILE` | path |  |  |  | Tenable.sc private CA file. |
-| <span id="TENABLE_SC_REPOSITORIES"></span>`TENABLE_SC_REPOSITORIES` | list |  |  |  | Tenable.sc repositories to pull. |
-| <span id="TENABLE_SC_OPERATIONS"></span>`TENABLE_SC_OPERATIONS` | list |  |  |  | Tenable.sc operations allowed. |
-| <span id="TENABLE_SC_ACCESS_KEY"></span>`TENABLE_SC_ACCESS_KEY` | string |  |  | yes | Tenable.sc API access key. |
-| <span id="TENABLE_SC_SECRET_KEY"></span>`TENABLE_SC_SECRET_KEY` | string |  |  | yes | Tenable.sc API secret key. |
-| <span id="TENABLE_SC_ACCESS_KEY_FILE"></span>`TENABLE_SC_ACCESS_KEY_FILE` | path |  |  |  | File holding the Tenable.sc access key. |
-| <span id="TENABLE_SC_SECRET_KEY_FILE"></span>`TENABLE_SC_SECRET_KEY_FILE` | path |  |  |  | File holding the Tenable.sc secret key. |
