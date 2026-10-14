@@ -336,10 +336,11 @@ Tenable scan exports: hosts become assets and vulnerabilities become findings.
 - **Import .nessus** opens the same **Import results** dialog as the findings
   list: choose the file, **Preview** (required before importing), then
   **Import**. Results below Low are left out from this page.
-- The live Tenable.sc and Nessus Pro connector is **paused**: connecting it for
-  rolling scan coverage is unavailable for now, and connectors created earlier
-  are listed as paused (findings they already brought in are kept). Imports of
-  `.nessus` exports work.
+- The live Tenable.sc connector is **paused**: connecting it for rolling scan
+  coverage is unavailable for now, and connectors created earlier are listed
+  as paused (findings they already brought in are kept). Imports of `.nessus`
+  exports work. When it is enabled, the connector runs as its own image next
+  to your Tenable.sc: see [Tenable.sc connector](../sensors/connector-tenable.md).
 
 ### Ticketing
 
