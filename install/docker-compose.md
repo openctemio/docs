@@ -33,7 +33,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.9.5          # the release you deploy
+git checkout v0.9.6          # the release you deploy
 cd api/deploy
 ```
 
@@ -78,7 +78,7 @@ OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
 `OPENCTEM_VERSION` is optional: the compose file and `.env.example` of a
-release default to that release (`v0.9.5` in the v0.9.5 files) and to the
+release default to that release (`v0.9.6` in the v0.9.6 files) and to the
 current image names (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
 `openctem-gateway`, `migrations`). Set it only to run another release than the
 files you checked out, which is not recommended.

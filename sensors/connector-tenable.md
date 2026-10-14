@@ -97,8 +97,8 @@ cosign verify ghcr.io/openctemio/connector-tenable:v0.1.0 \
 
 ## Moving from the sensor
 
-Sensor releases up to v0.22.x carried the connector. Newer sensors no longer
-run it: a sensor still started with `-tenable-sc-config`,
+Sensor releases up to v0.22.x carried the connector. Sensor v0.23.0 and later no
+longer run it: a sensor still started with `-tenable-sc-config`,
 `SENSOR_TENABLE_SC_CONFIG`, a `TENABLE_SC_*` variable or
 `/etc/openctem/connectors/tenable-sc.yaml` starts without it and prints a
 notice. Run the connector image with the same config file and key files, pair

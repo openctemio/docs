@@ -9,7 +9,7 @@ permalink: /install/
 {: .no_toc }
 
 OpenCTEM is self-hosted. Pick a deployment, check the requirements below, then
-follow the guide. These pages describe OpenCTEM v0.9.5; notes say where an
+follow the guide. These pages describe OpenCTEM v0.9.6; notes say where an
 older v0.9 release differs.
 
 For a production installation, follow the [go-live runbook](production-go-live.md):
