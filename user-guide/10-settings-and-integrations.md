@@ -336,11 +336,24 @@ Tenable scan exports: hosts become assets and vulnerabilities become findings.
 - **Import .nessus** opens the same **Import results** dialog as the findings
   list: choose the file, **Preview** (required before importing), then
   **Import**. Results below Low are left out from this page.
-- The live Tenable.sc connector is **paused**: connecting it for rolling scan
-  coverage is unavailable for now, and connectors created earlier are listed
-  as paused (findings they already brought in are kept). Imports of `.nessus`
-  exports work. When it is enabled, the connector runs as its own image next
-  to your Tenable.sc: see [Tenable.sc connector](../sensors/connector-tenable.md).
+- **Connect Tenable.sc** (Beta) links a Tenable Security Center you run. The
+  connector runs as its own image next to your Tenable.sc and keeps its API
+  keys: see [Tenable.sc connector](../sensors/connector-tenable.md). Pick the
+  connector's sensor and the instance name from its config. Each connector
+  card shows the sync state, the Tenable.sc version and license use, the
+  allow-lists the connector's owner set, and **Sync now**, **Edit** and
+  **Remove** for administrators (`integrations:manage`).
+- **Rolling coverage** (in the connector dialog) scans your inventory through
+  the connector in batches that fit the Tenable.sc license: choose the scan
+  policy and repository, an optional lower license cap and a safety margin.
+  **License rotation** stays **off** unless an administrator confirms that
+  your Tenable license terms allow rotating more assets through the license
+  than it holds; then **aging** waits for Tenable.sc's nightly cleanup of the
+  rotation repository between batches, and **recycle** has the connector
+  recreate that repository (an option its owner must allow). The coverage
+  panel shows the license, the current batch and the cycle's progress.
+- Connectors are **Beta**: the parts of the Tenable.sc API only its
+  documentation describes are confirmed on a first real installation.
 
 ### Ticketing
 
