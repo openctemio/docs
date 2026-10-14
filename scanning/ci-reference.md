@@ -13,28 +13,38 @@ nav_order: 7
 
 ## Versions to pin
 
-The current release of `openctemio/ci` is **v0.2.0**. Pin it, or a commit:
+The current release of `openctemio/ci` is **v0.3.0** (commit
+`c77ac12253277edde4f6947f1d3850ce85b70d44`). Pin it, or that commit:
 
 | Use | Reference |
 |---|---|
-| GitHub reusable workflow | `openctemio/ci/.github/workflows/scan.yml@v0.2.0` |
-| GitHub action | `openctemio/ci@v0.2.0` |
-| GitLab template | `https://raw.githubusercontent.com/openctemio/ci/v0.2.0/gitlab/templates/all.yml` |
-| Image (all tools) | `ghcr.io/openctemio/ci:v0.2.0`, or its digest |
+| GitHub reusable workflow | `openctemio/ci/.github/workflows/scan.yml@v0.3.0` |
+| GitHub action | `openctemio/ci@v0.3.0` |
+| GitLab template | `https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml` |
+| Image (all tools) | `ghcr.io/openctemio/ci:v0.3.0`, or its digest |
 
-Never pin `@main` or `@v1`. The `v1` git tag is an early tag that points at
-v0.1.0, and no `v1` image exists. `edge` follows the main branch and changes
-without notice. The console's snippets pin the release the platform was
-built with.
+Platform v0.9.6 and later accept v0.3.0 and later only by default
+(`CI_RUNNER_MIN_VERSION`). An older runner is refused with
+`403 RUNNER_OUTDATED`, and the message names the exact line to change: the
+`uses:` line on GitHub, the `include` URL on GitLab, or the image tag
+elsewhere. Older runners read scanner configuration and ignore files from the
+scanned tree, which could hide findings.
 
-With v0.2.0, a GitHub job that calls the reusable workflow must grant
-`security-events: write` ([why](ci-troubleshooting.md#other-symptoms)).
+Never pin a branch such as `@main`. `edge` images follow the main branch and
+change without notice. The workflow and the action run the images of the
+release tag they are pinned to. When you pin a commit instead, set
+`image-tag: v0.3.0`, or they run `edge`. The console's snippets pin the
+release the platform was built with.
+
+A GitHub job that calls the reusable workflow must grant
+`security-events: write`, even without `upload-sarif`
+([why](ci-troubleshooting.md#other-symptoms)).
 
 ## Capabilities
 
 | Capability | Does | Tool | Image |
 |---|---|---|---|
-| `sast` | Static analysis of the code | semgrep | `ghcr.io/openctemio/ci-semgrep` |
+| `sast` | Static analysis of the code | opengrep, with the signed OpenCTEM rules pack | `ghcr.io/openctemio/ci-opengrep` |
 | `sca` | Vulnerable dependencies | trivy | `ghcr.io/openctemio/ci-trivy` |
 | `secrets` | Committed credentials | betterleaks | `ghcr.io/openctemio/ci-betterleaks` |
 | `iac` | Infrastructure-as-code misconfigurations | trivy | `ghcr.io/openctemio/ci-trivy` |
@@ -57,13 +67,34 @@ signature before running it (`verify-signature`, on by default).
 | `fail-on` | | Local threshold when the platform cannot decide |
 | `diff` | `auto` | `auto`: on a pull request, sast reports only findings new since the merge base. `off`: full scan |
 | `enforce` | `true` | `false` reports without failing the workflow (a scan error always fails) |
-| `upload-sarif` | `false` | Also upload SARIF to GitHub code scanning (needs `security-events: write`) |
+| `upload-sarif` | `false` | Also upload SARIF to GitHub code scanning |
 | `image-tag`, `scanner-image`, `verify-signature` | | Advanced: the image tag, one image for every capability, signature check |
 
-The action (`openctemio/ci@v0.2.0`) takes the same inputs plus `path`,
-`semgrep-config` (default `p/default`), `aggregate`, `skip-gate`, `command`
-(`scan` or `gate`) and `status-dir`. Its outputs are `exit-code`, `sarif-dir`
-and `status-dir`.
+The action (`openctemio/ci@v0.3.0`) takes the same inputs plus `path`,
+`sast-rules` (default: `openctem`, the signed rules pack in the image; or a
+path in the repository, or a registry pack fetched on the runner),
+`aggregate`, `skip-gate`, `command` (`scan` or `gate`), `status-dir` and
+`ca-bundle` (a PEM file of every CA the scan must trust, for self-hosted
+runners behind a private CA). `semgrep-config` is a deprecated name for
+`sast-rules`. Its outputs are `exit-code`, `sarif-dir` and `status-dir`.
+
+## What a scan does not read
+
+A pull request must not be able to hide its own findings, so `openctem-ci`:
+
+- does not read scanner configuration or ignore files from the scanned tree
+  (`trivy.yaml`, `.trivyignore`, `.gitleaks.toml`, `.betterleaksignore` and
+  the like);
+- runs SAST with `--disable-nosem` and `--x-ignore-semgrepignore-files`: a
+  result under an inline ignore comment (`nosemgrep`, `nosem`, `noopengrep`)
+  or a path in `.semgrepignore` is still reported and counted by the gate.
+
+The job sends these comments and patterns as claims. From a default-branch
+run of a commit the CI provider signed, each claim becomes a pending
+suppression request (90 days) for the security team, when the policy allows
+the repository's own file. An approved request then stops the result from
+counting. Use an exception in `.openctem.yml` for anything else
+([Gate policies](ci-policies.md#a-repositorys-own-file)).
 
 ## GitLab template variables
 
@@ -84,9 +115,9 @@ in the merge request security widget.
 
 Azure Pipelines, Bitbucket Pipelines, CircleCI and Jenkins (with the OpenID
 Connect Provider plugin) report the same way: see
-[`examples/`](https://github.com/openctemio/ci/tree/v0.2.0/examples) and
-[docs/other-ci.md](https://github.com/openctemio/ci/blob/v0.2.0/docs/other-ci.md).
-In the image `ghcr.io/openctemio/ci:v0.2.0`:
+[`examples/`](https://github.com/openctemio/ci/tree/v0.3.0/examples) and
+[docs/other-ci.md](https://github.com/openctemio/ci/blob/v0.3.0/docs/other-ci.md).
+In the image `ghcr.io/openctemio/ci:v0.3.0`:
 
 ```bash
 openctem-ci scan --capability sast --aggregate   # one per capability, in parallel
@@ -110,7 +141,7 @@ OIDC for CI** is on (the default).
 | Route | Auth | Purpose |
 |---|---|---|
 | `POST /api/v1/ci/oidc/exchange` | the job's OIDC token | Exchange it for a 15-minute run token |
-| `POST /api/v1/ci/runs/{id}/results` | run token | Upload one report: CTIS, SARIF 2.1.0, or a format the platform's importers read ([Ingesting results](../api/ingest.md)) |
+| `POST /api/v1/ci/runs/{id}/results` | run token | Upload one report: CTIS, SARIF 2.1.0, or a format the platform's importers read ([Ingesting results](../api/ingest.md)). The answer lists the results already decided (`known`) |
 | `POST /api/v1/ci/runs/{id}/evaluate` | run token | Ask for the verdict (the first verdict is final) |
 | `/api/v1/ci/trust-configs`, `/gate-policies`, `/gate-overrides`, `/coverage`, `/pipelines`, `/runs`, `/settings` | console session, `scans:ci:*` | What the console's CI/CD page does |
 
@@ -118,8 +149,8 @@ OIDC for CI** is on (the default).
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `CI_RUNNER_LATEST_VERSION` | the CI release the API was built with | Snippets pin it; an older runner shows an update |
-| `CI_RUNNER_MIN_VERSION` | none | An older runner is refused (`RUNNER_OUTDATED`) |
+| `CI_RUNNER_LATEST_VERSION` | v0.3.0 (the CI release the API was built with) | Snippets pin it; an older runner shows an update |
+| `CI_RUNNER_MIN_VERSION` | v0.3.0 | An older runner is refused (`RUNNER_OUTDATED`). `none` turns the minimum off |
 | `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` | none | Private ranges the API may reach, for example a self-managed GitLab issuer |
 | `GITHUB_APP_*` | | The deployment's GitHub App ([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/github-app.md)) |
 

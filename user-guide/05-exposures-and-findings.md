@@ -64,7 +64,8 @@ verification** (fixes waiting to be verified; opens the
   until you filter on a status.
 - **Group** the list by CVE, rule, asset, owner, severity, source, component,
   type or solution family. Each group shows its progress (open, fixing, applied,
-  resolved).
+  resolved). Groups count only the findings that match the list's search and
+  every filter, and the search box stays available in the grouped view.
 - **Views**: save the current filters as a view, for yourself or shared with
   your groups.
 - **Export** as CSV or JSON. With the export permission the server exports every
@@ -73,8 +74,12 @@ verification** (fixes waiting to be verified; opens the
 
 ### Columns and badges
 
-Columns: **Title**, **Severity**, **Priority** (P0 to P3), **Source**,
-**Location**, **Status**, **Due / SLA** and **Created**. The title carries
+Columns: **Title**, **Severity**, **Priority** (P0 to P3), **Location**,
+**Status** and **Due / SLA**. **Source** and **Created** are hidden until you
+turn them on in **View**. **Location** shows the asset on one line and the
+place on it below (URL path, file and line, or port). A long path is cut in
+the middle, so its end stays visible; the tooltip has the full value. On a
+phone, each card shows the location too. The title carries
 inline badges: **KEV** for a CVE in the CISA Known Exploited Vulnerabilities
 catalog (with its remediation date), **EPSS x%** for the probability of
 exploitation in the next 30 days, and an icon when attack-path (data-flow) data
@@ -185,8 +190,10 @@ scored** for the transparent priority score (see
 - **Remediation**: progress, recommendation, auto-fix code, remediation steps
   (**Add Step**), references, and the **Definition of Done & Acceptable Fixes**
   card (see [Mobilization](08-mobilization.md#the-engineering-ticket-brief)).
-- **Attack path** (when data-flow data exists): sources, propagation steps and
-  sinks.
+- **Attack path** (when the scanner reported a data flow): the taint trace
+  from the source to the sink, with each step's code, file and line, and a
+  link to that line at the scanned commit. See
+  [Data-flow traces](../scanning/data-flow-traces.md).
 - **Related**: findings with the same CVE, similar findings, duplicates, links
   and occurrences.
 
@@ -239,20 +246,20 @@ stateDiagram-v2
     new --> resolved: covered scan or source<br/>says it is gone (platform)
     fix_applied --> validated_fixed: retest passed (platform)
     resolved --> confirmed: seen again<br/>(regression)
-    accepted --> confirmed: acceptance expired
-    false_positive --> confirmed: reopened
+    accepted --> confirmed: acceptance expired<br/>or taint source changed
+    false_positive --> confirmed: reopened or<br/>taint source changed
     duplicate --> confirmed: reopened
 ```
 
 | Status | Group | Set by |
 |---|---|---|
-| `new` | open | The first report from a scan, an import or an integration. |
-| `confirmed` | open | A person; or the platform when a closed, validated-fixed or not-observed finding is seen again, a retest finds it still vulnerable, or an accepted risk expires. |
+| `new` | open | The first report from a scan, an import or an integration; or the platform when the suppression rule that closed a finding is deleted or expires. |
+| `confirmed` | open | A person; or the platform when a closed, validated-fixed or not-observed finding is seen again, a retest finds it still vulnerable, an accepted risk expires, or a re-scan reports another taint source for a false positive or accepted risk. |
 | `in_progress`, `fix_applied` | in progress | A person, or a Jira or GitHub issue linked to the finding. |
 | `validated_fixed` | in progress | A validation re-check that no longer reproduces the finding. Not closed: a person with the verify permission resolves it. |
 | `not_observed` | in progress | The platform only: a later scan with the same coverage no longer reports it, or a branch-only finding expired. Nobody can choose it. |
 | `resolved` | closed | A person with the verify permission, a passing retest (when the retest settles findings automatically), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; off by default). |
-| `false_positive`, `accepted` | closed | An approved request. |
+| `false_positive`, `accepted` | closed | An approved request, or an approved [suppression rule](08-mobilization.md#exceptions). |
 | `duplicate` | closed | A person. |
 | `draft`, `in_review` | open, hidden | Pentest findings before publication; left out of dashboards and the open findings list. |
 
@@ -290,10 +297,14 @@ From any step before Resolved a pentest finding can also be marked
 `false_positive` or `accepted` (with approval), and either can be reopened to
 `draft` or `confirmed`.
 
-- **False Positive** and **Risk Accepted** always need approval. Choosing them opens **Request Status Approval**: enter a
-  justification (up to 2,000 characters) and, for Risk Accepted, an optional
-  expiry date, then **Submit for Approval**. When an approved acceptance expires,
-  the finding reopens as Confirmed.
+- **False Positive** and **Risk Accepted** always need approval. Choosing
+  them opens **Request Status Approval**: enter a justification (up to 2,000
+  characters) and, for Risk Accepted, the date the acceptance ends, then
+  **Submit for Approval**.
+- An accepted risk always ends. The date is 90 days ahead by default and at
+  most one year ahead. When it passes, the finding reopens as Confirmed, and
+  the CI gate stops honoring the acceptance on that date. A false positive has
+  no end date.
 - Resolving a finding by hand needs the verify permission.
 
 ### Approval requests
@@ -312,6 +323,13 @@ the queue of requests to move findings to false positive or accepted risk.
   reason (up to 2,000 characters). You cannot approve your own request, and
   expired requests cannot be approved or rejected.
 - The requester can **Cancel** their own request.
+- A request marked **Proposed by AI triage** was made by
+  [AI triage](../api/ai-triage.md#false-positive-proposals), not by a person.
+  Any approver may decide it; the finding does not change until a person
+  approves it.
+
+How decisions carry over to new scans, CI jobs and other tools is described
+in [Known false positives](known-false-positives.md).
 
 ## Exposures
 
@@ -337,13 +355,24 @@ resolve, accept or dismiss them.
 4. Select rows to **Resolve**, **Accept risk** or mark **False positive**.
    Accepting and false positive need a reason (recorded in the audit log) and the
    approval permission (`findings:approve`).
-5. Click a row for its details: description, **Security context** (effective
+5. On a **high or critical** exposure, **Accept risk** and **False positive**
+   take two people. The first click stores a request, and the exposure shows
+   **Awaiting approval**. A different approver opens it and clicks **Approve**
+   or **Reject**; the requester can **Cancel request**. When nobody else in
+   the organization can approve, the owner may confirm their own request, and
+   that is recorded as a critical audit event. Low and medium exposures change
+   at once.
+6. Click a row for its details: description, **Security context** (effective
    criticality, CISA KEV, EPSS, CVE, internet reachability), **Timeline** (first
    seen, last seen, resolved), **Details** (credential, database, source, code
    location and network fields; sensitive values are masked, with **Reveal
    secrets**) and **Activity** (every state change with who and why).
 
 **Analytics** charts exposures by severity, by state and by event type.
+
+The metrics and the charts count only the exposures you may see, the same set
+as the list. A member limited to some assets sees numbers for those assets,
+not for the whole organization. Exposures of deleted assets are not counted.
 
 Where exposure events come from (they are created automatically, not typed in):
 

@@ -295,8 +295,15 @@ changed**, **Timeline**, **Web surface** and **Suggestions**.
 ![The asset inventory with repositories, subdomains and IP addresses, their criticality, exposure and owner]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
 *Figure: The asset inventory.*
 
-- The cards: **All assets**, **Critical**, **Internet-facing**, **Unowned** and
-  **With findings**.
+- The cards: **All assets**, **Critical**, **Internet-facing**, **Unowned**,
+  **High risk** and **With findings**. Click one to filter by it.
+- The **lens bar** above the table groups asset types: **All**, then **External
+  surface**, **Applications**, **Cloud & infrastructure**, **Containers &
+  Kubernetes**, **Code**, **Identities**, **Data** and **Network**, each with
+  its count. Lenses with no asset are hidden, and **Other** collects assets
+  whose type belongs to no lens. Pick a lens to see its asset types as chips
+  with their counts; select one or more chips to filter by type (`?types=`).
+  Counts cover only the assets you can see (v0.9.6).
 - Search by name, description or alias. The filter panel narrows by signals
   (crown jewel or not, has findings or not, not seen for 30+ days or seen
   recently), tags, **Scope status** (**In scope**, **Not in scope (passive
@@ -320,24 +327,14 @@ changed**, **Timeline**, **Web surface** and **Suggestions**.
 - Click an asset to open its details.
 
 **Category view.** Switch to **Category view** (`/assets?view=categories`) for
-the overview by category: **Total assets**, **High-risk assets** (risk score 70
-or more), **Average risk score** and **Open findings**, and one card per
-category listing its asset types and counts. Categories and types with no data
-are hidden. With no assets yet, it shows **No assets discovered yet** with **Run
-discovery scan**, **Connect provider** and **Configure scope**. When the
-correlator finds likely duplicates, an alert with **Review** appears here (see
-[Duplicates](#duplicates)).
-
-| Category | Asset types |
-|---|---|
-| External Attack Surface | Domains, Subdomains, Certificates, IP Addresses |
-| Applications | Web applications, APIs, Mobile Apps |
-| Infrastructure | Hosts, Containers, Kubernetes, Services |
-| Network & Security | Firewalls, Load Balancers, Switches, Routers |
-| Cloud | Cloud Accounts, Storage |
-| Data | Databases |
-| Identity & Access | Users, Roles, Service Accounts |
-| Code & CI/CD | Repositories |
+the overview by lens: one card per lens with its total and its asset types
+with their counts, each a link into the filtered inventory, and what needs
+attention: **new this week**, **unowned**, **high risk** and **awaiting
+review**. A lens with no assets says how to discover them, and **Other**
+holds assets whose type belongs to no lens. With no assets yet, it shows **No
+assets discovered yet** with **Run a discovery scan** and **Open scope**. When
+the correlator finds likely duplicates, an alert with **Review** appears here
+(see [Duplicates](#duplicates)).
 
 Each asset is also described along further axes: **Criticality** (Critical,
 High, Medium, Low), **Zone** (Internal, External, Cloud, Partner, Vendor, Shadow
@@ -346,47 +343,23 @@ how reachable it is from the internet) and a **Risk score** (0 to 100, from
 criticality, exposure and findings; see
 [Risk scoring](06-prioritization.md#risk-scoring)).
 
-### Pages per asset type
+### One asset type
 
-Each row of a category card opens the page for that type, for example
-`/assets/domains`, `/assets/hosts` or `/assets/repositories`. These pages share
-one layout:
+Every asset type is a filter of the inventory: pick its chip in the lens bar,
+or open a link such as `/assets?types=host` (`&sub_type=` for a sub-type, for
+example IAM users). With one type selected, the list becomes that type's
+page:
 
-- **Export** (CSV) and **Add {type}** (needs `assets:write`): you can add any
-  type by hand, for example a domain, IP address, website, API, host, service,
-  container, database, storage bucket, cloud account, network device, mobile
-  app, certificate, identity or repository.
-- Search, a status filter, **Filter by tags** and **Filter by property**.
-- Columns common to all types (status, classification, labels, findings, risk,
-  last updated, scope match) plus columns for the type:
-
-  | Type | Type-specific columns |
-  |---|---|
-  | Domains | Type (root or sub), DNS |
-  | IP addresses | ASN / organization, type, open ports |
-  | Websites | Status, technologies, TLS |
-  | APIs | Type (REST, GraphQL, gRPC, WebSocket, SOAP), auth, endpoints, status, TLS, base URL |
-  | Hosts | IP, OS, resources, architecture, ports |
-  | Services | Port, protocol, product, status, technologies, TLS |
-  | Containers and Kubernetes | Kind, provider, version, namespace |
-  | Databases | Engine, size, security |
-  | Storage | Provider, region, size, security |
-  | Cloud accounts | Provider, account ID, resources, security |
-  | Network devices | Device type, vendor / model, firmware, management IP |
-  | Mobile apps | Version |
-  | Certificates | Issuer, valid until, validity, SANs |
-  | Identities | Type, email / ID, provider, MFA |
-  | Repositories | Source, visibility, language |
-
-- A row's menu: **View details**, **Edit**, a copy action, type-specific actions
-  and **Delete**; select rows to **Delete selected**.
-- **Repositories** also show a banner to add or manage source-control
-  connections, and **Trigger Scan**, **Sync Now** and **Open in Browser** per
-  repository (or **Scan Selected** and **Sync Selected**). A repository opens its
-  own page with its branches and findings.
-
-![The Domains and Subdomains page with DNS, classification, labels, findings and risk per name]({{ site.baseurl }}/assets/images/user-guide/assets-domains.png)
-*Figure: The page of one asset type: domains and subdomains.*
+- The header names the type, and the columns after the name are the type's
+  own (for example DNS for a domain, ports for an IP address, issuer and
+  validity for a certificate). The filter panel adds the type's properties
+  and yes/no counts.
+- **Add {type}** (needs `assets:write`) opens a form built from the type's
+  fields, and **Export** writes the list as CSV.
+- A scannable type shows, per row, whether scans can reach the asset.
+- A row's menu holds the type's actions (for example **Scan** and **Sync from
+  source** for a repository, **Open link**, **Copy IPs**, **Copy name**),
+  **Edit** and **Delete**.
 
 The add and edit form sets the type's fields, the **Criticality**, **Zone**,
 **Exposure**, the **Business Impact (CIA)** ratings (see
@@ -397,35 +370,56 @@ Reference** and, for some types, the group.
 
 Clicking an asset in a list opens its detail panel:
 
-- The header shows its status, classification, its scope standing, a
-  **Control plane** badge when it is one, the named **Criticality**,
-  **Exposure** and **Zone** badges ("This is the network zone, not the scan
-  scope.") and its CIA ratings, with **Edit** and **Delete**.
-- **Overview**: risk summary, the **Scope and scanning** card, ownership,
-  description, exposure, discovery, **Key facts**, a preview of
-  relationships, tags.
-  - **Scope and scanning** says whether scans can reach the asset and why
-    (**Why** opens the ownership panel), with the actions you may take:
-    **Scan now**, **Add to scope**, **Mark out of scope**, and **Confirm and
-    allow scanning** for a name that resolves only through a wildcard DNS
-    record.
+- The header shows the asset's state with the scan-scope answer next to it
+  (**In scope**, **Not in scope · passive only**, **Excluded**, **Not ours**,
+  the same answer the inventory's **Scope** column and the scan gate give),
+  its classification, a **Control plane** badge when it is one, the named
+  **Criticality**, **Exposure** and **Zone** badges ("Criticality: Medium",
+  "Exposure: Public", "Zone: Internal"; the zone is the network zone, not the
+  scan scope) and its CIA ratings, with **Edit** and **Delete**.
+- **Overview** opens with **Key facts**, then the risk summary, the **Scope
+  and scanning** card, ownership, the description, exposure, discovery, **All
+  properties** and **Related assets**.
   - **Key facts** shows what matters for the asset's type: for a domain or
-    subdomain what it resolves to, its CNAME, hosting (ASN and network
-    owner), HTTP server, TLS, technologies and DNS records; for an IP address
-    its network owner, reverse DNS, location and ports; for a service its
-    endpoint, product, TLS and HTTP response; for a certificate its subject,
-    alternative names, issuer, validity and key; for a host its operating
-    system, addresses and hardware. A long list shows its first values and a
-    **+N** button that opens the full list with **Copy all**. Every property
-    is under **All properties**, folded, with a search.
+    subdomain what it resolves to (every address), its CNAME, hosting (ASN
+    and network owner), HTTP server header, TLS with version, technologies
+    with versions and DNS records as a table; for an IP address its network
+    owner, reverse DNS, location and open ports; for a service its endpoint,
+    product, TLS and HTTP response; for a certificate its subject, every
+    alternative name, issuer, validity and key; for a host its operating
+    system, addresses and hardware; a repository and a cloud storage
+    resource show their own facts. A long list shows its first values and a
+    **+N** button that opens the full list with **Copy all**.
+  - **Scope and scanning** says whether scans can reach the asset and why
+    ("In scope through the scope entry *.example.com"; **Why** opens the
+    ownership panel), with the actions you may take: **Scan now**, **Add to
+    scope**, **Mark out of scope**, and **Confirm and allow scanning** for a
+    name that resolves only through a wildcard DNS record. Each action is
+    hidden without its permission.
+  - **All properties** is folded until opened, with a search. Record lists
+    (DNS records, open ports) read as tables, and dates as local dates.
+  - **Related assets** lists one line per kind of relationship, with its
+    count and the first related assets; **View all** opens **Relations**
+    (v0.9.6).
 - **Timeline**: what changed on the asset, and when.
 - **Owners**: **Add Owner** with a role (Primary, Secondary, Stakeholder,
   Informed, Regulatory), and the direct access grants.
-- **Relations**: the asset's relationships as a list, cards or a graph (all,
-  outgoing, incoming). **Add relationship** picks the **Relationship Type** and
-  one or more **Target Asset** entries, with an optional description,
-  **Confidence**, **Impact Weight** (1 to 10) and the **Control-plane
-  dependency** flag. Relationships can be edited or removed.
+- **Relations** (v0.9.6): the related assets, grouped by relationship and
+  read from this asset in plain words: **Resolves to** and **Names that resolve here**,
+  **Alias (CNAME) of**, **Exposes**, **Serves certificate**, **Runs on** and
+  **Hosts**, **Part of**, **Depends on** and **Used by**, and so on. Each
+  group shows its count and its first assets, most critical first, and
+  **Show all** pages through the group with a name search. Each related asset
+  shows its criticality, **Internet-facing** when it is public, its state
+  when it is not active and **Control plane** when it is one, and each link says who recorded it (**Scanner**, **Import**, **Added by
+  hand** or **Inferred**), with **low confidence** when it applies and when a
+  scan last reported it ("not seen for N days" once it is stale). Related
+  assets you cannot access are never shown, only counted ("2 related assets
+  you can't access"). For up to 30 links, **Graph** draws them.
+  **Add relationship** picks the **Relationship Type** and one or more
+  **Target Asset** entries, with an optional description, **Confidence**,
+  **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.
+  Relationships can be edited or removed from a related asset's menu.
 - **Findings**: the asset's findings.
 - **Details**: ownership and scope (with "Is it yours?" when you can decide it),
   timeline, technical details and **Identity history** (the merges that formed
@@ -488,7 +482,10 @@ their parameters (names only), the same path across origins, and what changed.
 - An endpoint under a scope exclusion shows **Never tested** with a link to the
   exclusion.
 
-Web surface fills in when a scan workflow with a web crawl step runs.
+Web surface fills in when a scan workflow with a web crawl step runs. The
+origins come from the HTTP probe: each probed origin is its own asset, named
+by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
+the subdomain or address it runs on (v0.9.6).
 
 ### Suggestions
 

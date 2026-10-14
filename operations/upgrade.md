@@ -21,7 +21,7 @@ with breaking changes has its own upgrade guide; read it first.
 |---|---|---|
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
-Upgrades within v0.9 (v0.9.0 to v0.9.5) need no guide of their own. Check
+Upgrades within v0.9 (v0.9.0 to v0.9.6) need no guide of their own. Check
 these points when you reach v0.9.5:
 
 - **GitHub App: add Members: Read.** Binding a GitHub App installation now
@@ -37,6 +37,37 @@ these points when you reach v0.9.5:
   and detects its tools; `-tools`, `SENSOR_TOOLS`, `-daemon` and
   `-enable-commands` are deprecated. See
   [Upgrade, back up and remove](../sensors/operate.md).
+
+Check these points when you reach v0.9.6:
+
+- **CI runners v0.3.0 and later only.** A pipeline on openctemio/ci v0.2.0 or
+  older is refused with `403 RUNNER_OUTDATED`, which names the line to change.
+  Update every pipeline to the v0.3.0 pin before you upgrade
+  ([CI/CD integration](../scanning/ci-integration.md)).
+- **CI trust audiences name the organization.** A migration moves GitHub and
+  GitLab trust configurations to the audience `openctem:tenant:<id>`. For 90
+  days a pipeline that existed before the upgrade may still request its old
+  audience, until it requests the new one once; after that it is refused with
+  `legacy_audience`. The trust card shows the old audience and its end date.
+- **Creating or changing CI trust, and the CI settings, need a recent
+  sign-in** (step-up), like a break-glass.
+- **The gate fails a run that skips an expected scan** (`missing_capability`)
+  when the repository has a coverage expectation.
+- **Inline ignore comments and ignore files no longer hide findings** with
+  runner v0.3.0. From a verified default-branch run each becomes a pending
+  suppression request for the security team.
+- **Accepting or dismissing a high or critical exposure takes two people.** The
+  first call stores a pending request; a second approver applies it.
+- **Approving a suppression rule closes the open findings it matches**, up to
+  10,000 per approval.
+- **SAST findings are keyed on the code they flag**, not on the engine. Existing
+  findings move to the new key on their next sighting and keep their triage.
+- **Platform scans run static analysis with opengrep.** A platform job whose
+  tool is semgrep is refused when it is created; platform-operated sensors
+  never fetch registry rules.
+- **OIDC signing keys stop verifying after 6 hours** without a refresh (was 24
+  hours). A longer outage of a sign-in or CI token issuer stops sign-ins or CI
+  exchanges through it until it is reachable again.
 
 Read the [release notes](https://github.com/openctemio/openctem/releases) of
 every version between yours and the target. How versions are numbered:

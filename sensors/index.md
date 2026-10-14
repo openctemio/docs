@@ -37,7 +37,7 @@ all.
 
 ## Quickstart: a working sensor in five minutes
 
-This quick start is written for platform v0.9.5 with sensor v0.21.1. It
+This quick start is written for platform v0.9.5 or later with sensor v0.22.1. It
 installs a hardened, confined sensor, pairs it, checks it and runs a first
 scan. The sensor needs no mode or tool flags: it runs as the daemon that takes
 the platform's commands and enables every tool in the image that works.
@@ -70,7 +70,7 @@ container:
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.21.1/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.22.1/docker/seccomp/sensor.json
 
 docker run -d --name openctem-sensor --restart unless-stopped \
   --stop-timeout 45 \
@@ -83,7 +83,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_SANDBOX_NETWORK=required \
   --dns-search . \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1
+  ghcr.io/openctemio/sensor:v0.22.1
 ```
 
 Change three things:
@@ -116,7 +116,8 @@ What the other flags do:
   ([Tool confinement](security.md#tool-confinement)). nuclei scans of a host
   with an excluded path run **only** on a confined sensor.
   `SENSOR_SANDBOX_NETWORK=required` makes the sensor refuse to start when it
-  cannot confine its tools, instead of running unconfined with
+  cannot confine its tools. The default, `auto`, confines them when the host
+  allows it and otherwise runs them unconfined with
   `Warning: tool network not confined`.
 - `--dns-search .` makes the tools look target names up exactly as written,
   never with the host's search domain appended. Recommended, not required.
@@ -266,7 +267,7 @@ name or a port of its own, and use HTTPS otherwise.
 | [Kubernetes](deploy-kubernetes.md) | A sensor in a cluster, paired like a Docker sensor, or the chart's bundled sensor. |
 | [Binary](deploy-binary.md) | Hosts without containers; you install the scanners. |
 
-Then: [Tool settings](tool-settings.md), [Upgrade, back up and remove](operate.md), [Security notes](security.md)
+Then: [Tool settings](tool-settings.md), [Scanner content and content packs](content-delivery.md), [Upgrade, back up and remove](operate.md), [Security notes](security.md)
 and [Troubleshooting](troubleshooting.md).
 
 ## Before production

@@ -38,14 +38,14 @@ image per tool. Both produce the same CTIS reports.
 ```mermaid
 flowchart LR
   dev["Developer<br/>(member, scans:ci:read)"]
-  sec["AppSec admin<br/>(admin, scans:ci:write + override)"]
+  sec["AppSec admin<br/>(admin, or AppSec role:<br/>scans:ci:policy + override)"]
   ciso["CISO / owner"]
   pr["Pull request:<br/>OpenCTEM gate check + comment"]
   runs["CI/CD › Runs<br/>run detail: why blocked"]
   setup["CI/CD › Trust and gate<br/>trust · policy · break-glass · PR feedback"]
   cov["CI/CD › Pipelines and Coverage<br/>freshness, gaps, failing gates"]
   dev --> pr
-  dev -->|repositories in their access| runs
+  dev -->|repositories their team owns| runs
   sec --> setup
   sec --> runs
   sec --> cov
@@ -54,24 +54,36 @@ flowchart LR
 
 - **Developers** work from the pull request: the check and the comment list
   what blocked it. **Details** opens the run in the console. A developer sees
-  the runs of the repositories in their access. Anyone else sees "This run is
-  not available to you", and an administrator can grant access to the
-  repository.
-- **AppSec admins** (`scans:ci:write`) set up trust, gate policies and pull
-  request feedback. They see refused pipelines. Break-glass also needs
-  `scans:ci:override`.
+  the runs, pipelines and coverage of the repositories in their data scope.
+  The usual way to give a team its runs: assign the repository asset to the
+  team, which makes the team an owner of it (**Settings › Teams › team ›
+  Assets**, see [data scope](../identity/roles-and-permissions.md#groups-and-data-scope)).
+  Leaving the team takes the runs away. Anyone else sees "This run is not available to you", and an
+  administrator can grant access to the repository.
+- **Owners and administrators** (`scans:ci:write`) set up trust, the CI
+  settings and pull request feedback. They see refused pipelines.
+- **AppSec engineers** can run the gate without being administrators: the
+  **AppSec engineer** role template carries `scans:ci:read`,
+  `scans:ci:policy` (gate policies and expected scans) and
+  `scans:ci:override` (break-glass). See
+  [Roles and permissions](../identity/roles-and-permissions.md#custom-roles).
 - **CISOs and owners** read the pipelines' freshness, failing default-branch
   gates and repository coverage.
 
 | Permission | Allows |
 |---|---|
 | `scans:ci:read` | Pipelines, runs, coverage, trust configurations and gate policies (read) |
-| `scans:ci:write` | Create and change trust, gate policies, coverage expectations and code host connections; see refused pipelines |
+| `scans:ci:policy` | Create, change and delete gate policies and coverage expectations (expected scans) |
 | `scans:ci:override` | Create and revoke break-glass overrides |
+| `scans:ci:write` | Create and change trust configurations, the CI settings and code host connections; see refused pipelines. Owners and administrators only: it can never be part of a custom role |
+
+Owners and administrators hold all four. `scans:ci:policy` and
+`scans:ci:override` can be put on a custom role.
 
 Creating or changing a trust configuration, changing the CI settings,
 loosening a gate policy, connecting a code host and creating a break-glass
-all ask for a recent sign-in (step-up).
+all ask for a recent sign-in (step-up). Deleting a trust configuration only
+withdraws trust and does not.
 
 ## How a pull request is gated
 
@@ -90,6 +102,7 @@ sequenceDiagram
   API->>API: trust rules, repository and owner binding, runner version, single use
   API-->>Job: run token (15 min, this run only)
   Job->>API: POST /ci/runs/{id}/results (one report per capability)
+  API-->>Job: counts + known: the results already decided
   Job->>API: POST /ci/runs/{id}/evaluate
   API->>API: gate policy, new vs base branch, expected capabilities, break-glass
   API-->>Job: verdict: pass or fail, with each blocking finding
@@ -108,6 +121,33 @@ sequenceDiagram
   workflow cannot turn a failing check green.
 - When the platform cannot be reached, the local `fail-on` threshold applies.
   A broken scan never exits 0.
+
+## Trust: issuers, audience and keys
+
+- **Audience.** Every trust audience except Azure Pipelines' fixed one must
+  contain the organization id. The default is `openctem:tenant:<id>`. A token
+  made for one organization is then refused by every other.
+- **Older GitHub and GitLab trusts.** Platform v0.9.6 moved GitHub and GitLab
+  trust configurations whose audience did not name the organization to the
+  default audience. For 90 days after the upgrade, a pipeline that already
+  existed may still ask for the old audience, until it uses the new one once.
+  A new pipeline must use the new audience. Otherwise the exchange is refused
+  with `legacy_audience`. After the 90 days the old audience is refused like
+  any wrong audience. The trust card shows the old audience and the date
+  it stops working. Update each pipeline to the current snippet.
+- **GitHub issuers.** A GitHub Actions trust accepts github.com
+  (`https://token.actions.githubusercontent.com`, the default), an
+  enterprise's own issuer
+  (`https://token.actions.githubusercontent.com/<enterprise slug>`) or a
+  GitHub Enterprise Server (`https://<host>/_services/token`). Set it in
+  **GitHub Enterprise issuer** in the trust dialog. Repositories of a server
+  are named with its host, for example `github.example.com/acme/api`. A
+  server on a private network needs its range in
+  `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` on the API.
+- **Signing keys.** The platform fetches each issuer's signing keys and
+  refreshes them. When the issuer cannot be reached, keys fetched earlier keep
+  verifying tokens for at most 6 hours. After that, exchanges against that
+  issuer are refused until it can be reached again.
 
 ## Connect GitHub and GitLab
 
@@ -183,6 +223,26 @@ capabilities ran recently.
 Disabling or deleting a trust configuration revokes its pipelines and stops
 the upload tokens of their running jobs.
 
+## Results already decided
+
+The upload answers with `known`: the results of that report that already
+carry a decision in OpenCTEM, by their position in the report. A decision is
+a false positive, a duplicate, an accepted risk that has not ended, or an
+approved suppression rule. `openctem-ci` leaves them out of its log summary,
+its SARIF and its GitLab report, and logs how many it left out and why. The
+platform still records them, and the CTIS file keeps every result. A job
+learns nothing about findings it did not report. See
+[Known false positives](../user-guide/known-false-positives.md).
+
+## Secret findings
+
+The token exchange gives the job a key for its organization and repository.
+The job sends each secret as a keyed hash of its raw value (HMAC-SHA256, the
+CTIS fingerprint `secretHMAC/v1`). The raw value never leaves the job. Two
+different secrets that look the same once masked are two findings, and a
+change in masking does not create a new finding. A finding keyed on its masked
+value moves to the new key the next time it is seen, and keeps its triage.
+
 ## Branch findings
 
 A finding seen only on a feature or merge request branch is **branch-only**.
@@ -192,21 +252,3 @@ organization's exposure when the code reaches a branch that counts: the
 default branch, a protected branch, or a `main` or `release` branch. In a
 repository whose default branch is not known yet, nothing is hidden.
 Branch-only findings that no branch reports any longer expire.
-
-## Platform code scanning (planned)
-
-The API already stores code scanning settings: the protected branches,
-capabilities and a weekly rescan per repository. These are
-`GET`/`PUT /api/v1/ci/code-scanning/settings`, per repository, plus a
-re-baseline call. The scans themselves do not run yet, the console has no
-page for them, and the CI gate does not read this baseline yet. The planned
-flow:
-
-```mermaid
-flowchart LR
-  conn[Code host connected] --> base["Full baseline of each protected branch<br/>(platform sensor, short-lived clone token)"]
-  base --> pr[Pull requests judged against the baseline]
-  base --> re["Weekly re-review and rule-pack or feed updates<br/>(no commit needed)"]
-  classDef planned stroke-dasharray: 5 5
-  class base,pr,re planned
-```

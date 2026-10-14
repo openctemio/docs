@@ -116,13 +116,14 @@ Images are published as `ghcr.io/openctemio/sensor:<version>` (and
 | `sensor:<version>` (also `-default`) | nuclei, subfinder, dnsx, naabu, httpx, katana, with a pinned nuclei-templates release | `-verbose` (the daemon, taking platform commands) |
 | `sensor:<version>-nuclei` | nuclei | `-tool nuclei --help` |
 | `sensor:<version>-semgrep` | semgrep | `-tool semgrep --help` |
+| `sensor:<version>-opengrep` (v0.22.0 and later) | opengrep | `-tool opengrep --help` |
 | `sensor:<version>-trivy` | trivy | `-tool trivy --help` |
 | `sensor:<version>-betterleaks` | betterleaks | `-tool betterleaks --help` |
 
 {: .note }
 From sensor v0.11.0 the default image carries nuclei and the recon tools only.
 Code scanning in CI moved to [`openctemio/ci`](../scanning/ci-integration.md).
-A daemon that must run semgrep, betterleaks or trivy uses the per-tool image.
+A daemon that must run opengrep, semgrep, betterleaks or trivy uses the per-tool image.
 The per-tool images set `CI=true`, so they run one scan and exit unless you
 pass `-daemon` or set `CI=false`.
 
@@ -160,9 +161,10 @@ per-task deadline beyond the run's own limit.
 - **On a cancel** the sensor stops the task and delivers nothing from it.
 - **Each target has its own outcome**: done, failed, skipped or unfinished.
   A failed target names its class (`unreachable`, `timeout`, `tool_error`,
-  `refused`, `excluded`). One target that times out or cannot be reached
-  never fails a recon task; the task fails only when the tool failed on every
-  target.
+  `refused`, `excluded`, and from v0.22.0 `egress_refused`: the task's
+  network confinement refused every connection the tool made toward it).
+  One target that times out or cannot be reached never fails a recon task;
+  the task fails only when the tool failed on every target.
 - **httpx and naabu** scan a task's whole target list in one process, so a
   host that does not answer costs only its own timeout, and each target
   settles as soon as its first result arrives.

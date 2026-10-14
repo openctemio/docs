@@ -52,6 +52,19 @@ configuration per repository. Narrow it only when you need to:
 ![The Trust tab: trust configurations for GitHub example-org and the GitLab platform group]({{ site.baseurl }}/assets/images/scanning/ci/ci-trust.png)
 *Figure: Trust for GitHub example-org and the GitLab platform group.*
 
+### GitHub Enterprise
+
+For GitHub Enterprise Server, or an enterprise on github.com with its own
+token issuer, use **Trust › Add trust** with **GitHub Actions** and fill in
+**GitHub Enterprise issuer**: `https://<host>/_services/token` for a server,
+or `https://token.actions.githubusercontent.com/<enterprise slug>`. The
+**Connect a pipeline** wizard covers github.com only. In OpenCTEM, the
+repositories and pipeline links of a server are named on its host
+(`github.example.com/acme/api`). A server on a private
+network needs its range in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` on the API.
+
+### Pins
+
 The first exchange of an organization **pins** its immutable id. A
 repository name is bound to the repository id that first reported under it.
 An organization that is deleted and whose name is registered again cannot
@@ -103,6 +116,17 @@ of every pipeline on a commit, so a second workflow cannot turn it green.
 
 Switch the policy to **Enforce**. A change that loosens it later asks for
 step-up and notifies every administrator.
+
+## Who does what
+
+- Trust, the CI settings and code host connections stay with owners and
+  administrators (`scans:ci:write`, never on a custom role).
+- Give the AppSec team a custom role from the **AppSec engineer** template:
+  it carries `scans:ci:policy` (gate policies, expected scans) and
+  `scans:ci:override` (break-glass).
+- Developers see the runs of the repositories their team owns: assign each
+  repository asset to its team
+  ([data scope](../identity/roles-and-permissions.md#groups-and-data-scope)).
 
 ## Track it
 

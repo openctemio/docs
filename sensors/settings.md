@@ -60,6 +60,7 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_STATE_DIR"></span>`SENSOR_STATE_DIR` | path |  | `/var/lib/openctem/state` |  | Local state: the paired identity and signing key (identity/), the renewed API key and the tool cost history. Mount a persistent volume. |
 | <span id="SENSOR_KEY_AUTORENEW"></span>`SENSOR_KEY_AUTORENEW` | bool |  | `auto` |  | API key auto-renewal: true, false, or unset (on when the state directory persists). |
 | <span id="SENSOR_MAX_JOBS"></span>`SENSOR_MAX_JOBS` | int |  |  |  | Cap on concurrent jobs, 1-100. Unset: the slots follow CPU, memory and tool costs. |
+| <span id="SENSOR_JOB_ID"></span>`SENSOR_JOB_ID` | string |  |  |  | Run the one platform command with this id and exit (or `-job`; a Kubernetes Job, see [Kubernetes](deploy-kubernetes.md)). It is not in the settings registry, so **Setup & health** lists it as unknown (`config.env_unknown`); that warning is harmless here. |
 | <span id="SENSOR_DRAIN_GRACE"></span>`SENSOR_DRAIN_GRACE` | duration |  | `30s` |  | How long running jobs may finish on shutdown. |
 | <span id="SENSOR_SCANNER_PRIORITY"></span>`SENSOR_SCANNER_PRIORITY` | enum |  | `low` |  | Priority of scanner processes. |
 | <span id="SENSOR_PROTECT_FROM_OOM"></span>`SENSOR_PROTECT_FROM_OOM` | bool |  | `false` |  | Protect the sensor itself from the OOM killer (needs CAP_SYS_RESOURCE). |

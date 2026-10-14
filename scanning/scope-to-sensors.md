@@ -104,6 +104,21 @@ or acknowledges it, the platform runs the gate again on its targets:
   profile). They wait for one, and the run says why
   ([Why a task waits](why-waiting.md)). When the organization has no
   confined sensor at all, the job is refused with `NO_CONFINED_SENSOR`.
+- **A target the forwarder kept out is not "done".** When the forwarder
+  refused every connection a tool made toward a target, the sensor reports
+  that target failed with the class `egress_refused`, and the run says the
+  step "could not reach N targets" (sensor v0.22.0 or later; see
+  [The run flow](scans-and-runs.md#the-run-flow)). A port scanner on a
+  confined sensor reaches the addresses its target names resolved to when
+  the task was admitted, and only those (sensor v0.22.0 or later; older
+  confined sensors found no open ports).
+- **The target guard.** Before a tool runs, the sensor checks each target
+  against its built-in rules (addresses that may never be scanned, private
+  addresses without `SENSOR_ALLOW_PRIVATE_TARGETS=1`, names that do not
+  resolve; see [What targets need](../sensors/network.md#what-targets-need)).
+  A sensor release after v0.22.1 leaves a refused target out and runs the
+  rest; the run counts the refused targets. Up to v0.22.1 the first refused
+  target fails the whole task.
 - **The local policy and the kill switch.** The sensor refuses every job
   outside its [local policy](../sensors/network.md#sensor-local-policy), and
   runs nothing while its kill-switch file exists.
