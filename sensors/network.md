@@ -118,14 +118,14 @@ comes from. See also [Scanner content and content packs](content-delivery.md).
 - **Always refused**, whatever is configured: loopback, link-local and cloud
   metadata (`169.254.0.0/16`), carrier-grade NAT (`100.64.0.0/10`),
   multicast and broadcast. A host name is refused when it resolves to such an
-  address, and a name that does not resolve is refused too. A sensor release
-  after v0.22.1 also refuses NAT64, 6to4 and Teredo addresses,
+  address, and a name that does not resolve is refused too. Sensor v0.22.2
+  and later also refuse NAT64, 6to4 and Teredo addresses,
   `192.0.0.0/24` and `198.18.0.0/15`.
 - **How the target guard refuses.** The sensor checks every target before
   its tool runs. A `host:port` target (`203.0.113.7:80`, `[2001:db8::1]:443`,
   as a port scan hands to the HTTP probe) is checked on its host (v0.22.1 and
   later). Up to v0.22.1 one refused target fails the whole task with
-  `scan target refused by guard: ...`. A sensor release after v0.22.1 leaves
+  `scan target refused by guard: ...`. Sensor v0.22.2 and later leave
   each refused target out with its reason, runs the others, and fails the
   task only when every target is refused; the run page counts them
   ([The run flow](../scanning/scans-and-runs.md#the-run-flow)).

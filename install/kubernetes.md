@@ -34,8 +34,10 @@ version with the OpenCTEM release it targets. Pin the chart version you tested
 (`--version`).
 
 At the time of writing the newest chart is `openctem-0.23.3` (`appVersion`
-v0.9.5, bundled sensor v0.21.1). To run the newest sensor, v0.22.1, set
-`sensor.image.tag`. A chart for each platform release is published after it.
+v0.9.5, bundled sensor v0.21.1); the chart for v0.9.6 follows. Until it is
+published, set `api.image.tag`, `api.migrations.image.tag`, `ui.image.tag`
+and `gateway.caddy.image.tag` to v0.9.6, and `sensor.image.tag` to v0.23.0,
+the newest sensor. A chart for each platform release is published after it.
 
 The chart is secure by default: `api.appEnv` is `production`, so the API refuses
 to start without TLS to PostgreSQL and Redis, a JWT secret of at least 64

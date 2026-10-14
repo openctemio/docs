@@ -49,7 +49,7 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.9.5          # the release you deploy
+git checkout v0.9.6          # the release you deploy
 cd api/deploy
 cp .env.example .env
 for v in DB_SUPERUSER_PASSWORD DB_MIGRATE_PASSWORD DB_PASSWORD REDIS_PASSWORD; do
@@ -153,7 +153,7 @@ what each flag does, is the [sensor quickstart](sensors/index.md#quickstart-a-wo
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.22.1/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.23.0/docker/seccomp/sensor.json
 docker run -d --name openctem-sensor --restart unless-stopped \
   --read-only --tmpfs /tmp --cap-drop ALL \
   --security-opt no-new-privileges:true \
@@ -162,7 +162,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_API_URL=https://ctem.example.com \
   -e SENSOR_ALLOWED_RANGES='*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.22.1
+  ghcr.io/openctemio/sensor:v0.23.0
 docker logs openctem-sensor
 ```
 
