@@ -49,7 +49,7 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.9.0          # the release you deploy
+git checkout v0.9.5          # the release you deploy
 cd api/deploy
 cp .env.example .env
 for v in DB_SUPERUSER_PASSWORD DB_MIGRATE_PASSWORD DB_PASSWORD REDIS_PASSWORD; do
@@ -63,9 +63,6 @@ chmod 600 .env
 Edit `.env` and set at least:
 
 ```bash
-OPENCTEM_VERSION=v0.9.0
-API_IMAGE=ghcr.io/openctemio/openctem-api
-UI_IMAGE=ghcr.io/openctemio/openctem-web
 OPENCTEM_HOSTNAME=ctem.example.com
 OPENCTEM_TLS_MODE=internal     # the gateway's own CA; acme for Let's Encrypt
 ```
@@ -156,7 +153,7 @@ what each flag does, is the [sensor quickstart](sensors/index.md#quickstart-a-wo
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.18.0/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.21.1/docker/seccomp/sensor.json
 docker run -d --name openctem-sensor --restart unless-stopped \
   --read-only --tmpfs /tmp --cap-drop ALL \
   --security-opt no-new-privileges:true \
@@ -165,7 +162,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_API_URL=https://ctem.example.com \
   -e SENSOR_ALLOWED_RANGES='*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0
+  ghcr.io/openctemio/sensor:v0.21.1
 docker logs openctem-sensor
 ```
 
@@ -173,7 +170,10 @@ docker logs openctem-sensor
 by the owner of the network: a paired sensor without it (or a policy file)
 refuses every scan with network targets. Keep it in line with the scope from
 step 4. The seccomp profile lets the sensor confine each scan's network to its
-targets.
+targets. No mode or tool flags are needed: the sensor runs as the daemon and
+enables every tool in the image that works. If an administrator created a code
+with **Expect a sensor** first, add `-e SENSOR_PAIRING_CODE=XXXX-XXXX` and the
+sensor attaches to it on first start.
 
 With TLS mode `internal`, give the sensor the platform's CA as well: mount
 `ca/openctem-root-ca.crt` read-only and set `SENSOR_CA_CERT_FILE` (see
@@ -222,8 +222,9 @@ when part of the work could not be done. Details:
 
 - **Assets**: the subdomains, addresses, services and certificates the scan
   found, merged into one inventory.
-- **Attack surface > Review**: names found by discovery that need a decision
-  (ours, not ours, a dependency) before they are actively probed.
+- **Attack surface > Suggestions**: decisions that need a person, such as the
+  addresses your in-scope names resolve to and names that may or may not be
+  yours (ours, not ours, a dependency).
 - **Findings**: each weakness on an asset, with its severity, priority and
   evidence. Open one to triage it, assign it or ask for a retest.
 - **Discovery > Exposures**: attack-surface changes such as new subdomains,

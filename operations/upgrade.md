@@ -21,6 +21,23 @@ with breaking changes has its own upgrade guide; read it first.
 |---|---|---|
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
+Upgrades within v0.9 (v0.9.0 to v0.9.5) need no guide of their own. Check
+these points when you reach v0.9.5:
+
+- **GitHub App: add Members: Read.** Binding a GitHub App installation now
+  checks that the person is an owner of the GitHub organization. Without the
+  **Members: Read** organization permission no organization installation can
+  be bound ([GitHub App permissions](../scanning/ci-integration.md#github-app-permissions)).
+- **GitLab: group or project access tokens only.** A new GitLab connection
+  made with a personal access token is refused. Connections made earlier
+  keep working until removed; reconnect them with a group access token.
+- **Break-glass overrides need the full commit id.** Overrides saved with an
+  abbreviated id stop applying; create them again.
+- **Sensors.** Sensor v0.21 runs the daemon with platform commands by default
+  and detects its tools; `-tools`, `SENSOR_TOOLS`, `-daemon` and
+  `-enable-commands` are deprecated. See
+  [Upgrade, back up and remove](../sensors/operate.md).
+
 Read the [release notes](https://github.com/openctemio/openctem/releases) of
 every version between yours and the target. How versions are numbered:
 [Versioning and releases](versioning.md).
@@ -69,7 +86,7 @@ recovery are in
 In `api/deploy` of your checkout:
 
 ```bash
-NEW_VERSION=v0.9.1   # the release you upgrade to
+NEW_VERSION=v0.9.5   # the release you upgrade to
 git fetch --tags
 git checkout "$NEW_VERSION"
 diff <(grep -o '^[A-Z_]*=' .env | sort) <(grep -o '^[A-Z_]*=' .env.example | sort)

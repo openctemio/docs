@@ -26,7 +26,9 @@ Keep the two ideas apart:
 
 - **Zones** are infrastructure: who can reach which ranges and who shares the
   work.
-- **Asset groups and scan targets** are scope: what a scan covers.
+- **Asset groups and scan targets** say what a scan covers; [scope](../scanning/scope.md)
+  says what it may actively probe. Exclusions are applied before a target is
+  routed to a zone.
 
 ## Ranges
 
@@ -88,22 +90,17 @@ how to run a workflow scan on targets that would otherwise need splitting.
   inside zones, public outside every zone, and private outside every zone
   (which scans skip), with warnings such as a zone without sensors.
 
-## Freeze windows
+## Scan windows
 
-A **freeze window** holds active scan work (port scans, HTTP probes,
-templates, DAST, validation) for the whole organization or for one zone, for
-maintenance or change freezes. Passive work (subdomain discovery, DNS, code
-and dependency analysis) and ingest are never held.
-
-- Manage them in **Settings > Policies > Scan freeze windows**
-  (`/api/v1/scan-freeze-windows`): one-off (up to 31 days) or weekly, in a
-  time zone you choose; at most 50 per organization.
-- During a window, held commands are neither offered nor claimable; work a
-  sensor already holds keeps running.
-- A scheduled run that falls in a window is deferred to the window's end.
-  Any other trigger is refused with `SCAN_FREEZE_ACTIVE`, unless a member with
-  the freeze-override permission (owners and administrators by default)
-  overrides it; overrides are audited.
+Times when scans may or may not touch targets are set organization-wide in
+**Settings > Policies > Scan windows**, not on the zone: an **Allow** policy
+lets its targets be scanned only inside its windows, a **Blackout** policy
+never inside them. A policy can select its targets by zone (and by tags,
+groups, asset types, criticality, business units, scope entries or bug-bounty
+programs). Work outside its windows waits for the next opening and does not
+count against the run's deadline; the run's **Why waiting?** says
+"It waits for its scan window to open." Details:
+[Scan windows](../user-guide/10-settings-and-integrations.md#scan-windows).
 
 ## Assign sensors
 
