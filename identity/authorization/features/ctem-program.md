@@ -2,7 +2,7 @@
 title: "CTEM program permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 15
+nav_order: 16
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
@@ -21,7 +21,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Permission | Roles |
 |---|---|
-| `assets:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| `assets:read` | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | `assets:write` | Owner, Administrator, Member, AppSec engineer |
 | `ctem:attacker_profiles:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Validation engineer, Threat intelligence analyst |
 | `ctem:attacker_profiles:write` | Owner, Administrator, CTEM program lead, Threat intelligence analyst |
@@ -49,10 +49,10 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/business-services/{id}/assets` | `ctem:business_services:read` | partial: asset links scoped (L-10); the service list is tenant configuration |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/business-services/{id}/assets` | `ctem:business_services:write` | partial: asset links scoped (L-10); the service list is tenant configuration |  | Owner, Administrator, Member, CTEM program lead |
 | DELETE | `/api/v1/business-services/{id}/assets/{assetId}` | `ctem:business_services:write` | partial: asset links scoped (L-10); the service list is tenant configuration |  | Owner, Administrator, Member, CTEM program lead |
-| GET | `/api/v1/business-units` | `assets:read` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/business-units` | `assets:read` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/business-units` | `assets:write` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, AppSec engineer |
 | DELETE | `/api/v1/business-units/{id}` | `assets:write` + team role admin | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator |
-| GET | `/api/v1/business-units/{id}` | `assets:read` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/business-units/{id}` | `assets:read` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | PUT | `/api/v1/business-units/{id}` | `assets:write` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, AppSec engineer |
 | POST | `/api/v1/business-units/{id}/assets` | `assets:write` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, AppSec engineer |
 | DELETE | `/api/v1/business-units/{id}/assets/{assetId}` | `assets:write` | partial: asset links scoped (L-10); the unit list and counts are tenant-wide |  | Owner, Administrator, Member, AppSec engineer |
@@ -78,7 +78,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/ctem-cycles/{id}/scope` | `ctem:cycles:read` | partial: scope snapshot scoped (L-10); cycle metrics are tenant-wide counts |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/ctem-cycles/{id}/scope-refinement` | `ctem:cycles:write` | partial: scope snapshot scoped (L-10); cycle metrics are tenant-wide counts |  | Owner, Administrator, Member, CTEM program lead |
 | POST | `/api/v1/ctem-cycles/{id}/start-review` | `ctem:cycles:write` | partial: scope snapshot scoped (L-10); cycle metrics are tenant-wide counts |  | Owner, Administrator, Member, CTEM program lead |
-| GET | `/api/v1/threat-models` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/threat-models` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/threat-models/generate` | `assets:write` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, AppSec engineer |
-| GET | `/api/v1/threat-models/{id}` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| GET | `/api/v1/threat-models/{id}/coverage` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/threat-models/{id}` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/threat-models/{id}/coverage` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, External tester, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
