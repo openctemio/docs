@@ -26,29 +26,30 @@ A refused permission answers 403 with `details.missing_permissions` (or `details
 
 | Feature | Modules | Routes |
 |---|---|---|
-| [Findings](features/findings.md) |  | 86 |
-| [Exposures and leaked credentials](features/exposures.md) | `credentials`, `exposures` | 28 |
+| [Findings](features/findings.md) | `ai_triage` | 84 |
+| [Exposures and leaked credentials](features/exposures.md) | `credentials`, `exposures` | 30 |
 | [Assets and inventory](features/assets.md) | `branches`, `components`, `relationships` | 124 |
-| [Attack surface and EASM](features/attack-surface.md) | `attack_surface` | 17 |
-| [Scope](features/scope.md) | `scope_config` | 26 |
+| [Attack surface and EASM](features/attack-surface.md) | `attack_surface` | 30 |
+| [Scope](features/scope.md) | `scope_config` | 37 |
+| [Bug-bounty programs](features/programs.md) | `scope_config` | 20 |
 | [CTEM program](features/ctem-program.md) | `attacker_profiles`, `business_services`, `business_units`, `compensating_controls`, `ctem_cycles`, `threat_model` | 46 |
-| [Prioritization and SLAs](features/prioritization.md) | `priority_rules`, `sla` | 13 |
-| [Remediation and automation](features/remediation.md) | `remediation`, `suppressions`, `workflows` | 39 |
-| [Scans and workflows](features/scans.md) | `scan_workflows`, `scanner_templates`, `scans`, `template_sources` | 126 |
-| [Sensors and scan zones](features/sensors.md) |  | 78 |
-| [CI pipelines](features/ci.md) | `scans` | 27 |
-| [Penetration testing](features/pentest.md) | `pentest` | 17 |
+| [Prioritization and SLAs](features/prioritization.md) | `priority_rules` | 13 |
+| [Remediation and automation](features/remediation.md) | `remediation`, `suppressions`, `workflows` | 40 |
+| [Scans and workflows](features/scans.md) | `scan_workflows`, `scanner_templates`, `scans`, `template_sources` | 153 |
+| [Sensors and scan zones](features/sensors.md) |  | 87 |
+| [CI pipelines](features/ci.md) | `scans` | 42 |
+| [Penetration testing](features/pentest.md) | `pentest` | 42 |
 | [Validation and simulation](features/validation.md) | `attack_simulation`, `control_testing` | 18 |
 | [Threat intelligence](features/threat-intel.md) | `iocs`, `threat_intel` | 19 |
 | [Compliance](features/compliance.md) | `compliance` | 12 |
-| [Dashboards and reports](features/dashboards-reports.md) | `reports` | 21 |
+| [Dashboards and reports](features/dashboards-reports.md) | `reports` | 22 |
 | [Integrations and API keys](features/integrations.md) | `integrations` | 35 |
-| [Members, roles and teams](features/access.md) |  | 71 |
-| [Organization settings and audit](features/organization.md) |  | 67 |
-| [MCP and AI clients](features/mcp.md) |  | 16 |
+| [Members, roles and teams](features/access.md) |  | 81 |
+| [Organization settings and audit](features/organization.md) |  | 75 |
+| [MCP and AI clients](features/mcp.md) |  | 23 |
 | [Sign-in and own account](features/account.md) |  | 54 |
-| [Platform admin console](features/admin-console.md) |  | 87 |
-| [System endpoints](features/system.md) |  | 8 |
+| [Platform admin console](features/admin-console.md) |  | 120 |
+| [System endpoints](features/system.md) |  | 12 |
 
 ## Data scope classes
 

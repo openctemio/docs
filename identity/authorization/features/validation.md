@@ -2,7 +2,7 @@
 title: "Validation and simulation permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 22
+nav_order: 23
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
@@ -21,8 +21,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Permission | Roles |
 |---|---|
-| `findings:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| `findings:write` | Owner, Administrator, Member, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Validation engineer, Threat intelligence analyst |
+| `findings:read` | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| `findings:write` | Owner, Administrator, Member, Researcher, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Validation engineer, Threat intelligence analyst |
 | `validation:read` | Owner, Administrator, Member, Viewer, Validation engineer |
 | `validation:write` | Owner, Administrator, Member, Validation engineer |
 
@@ -35,10 +35,10 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/control-tests/stats` | `validation:read` | config: compensating control tests |  | Owner, Administrator, Member, Viewer, Validation engineer |
 | DELETE | `/api/v1/control-tests/{id}` | `validation:write` | config: compensating control tests |  | Owner, Administrator, Member, Validation engineer |
 | PATCH | `/api/v1/control-tests/{id}/result` | `validation:write` | config: compensating control tests |  | Owner, Administrator, Member, Validation engineer |
-| GET | `/api/v1/findings/{id}/evidence` | `findings:read` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| POST | `/api/v1/findings/{id}/evidence` | `findings:write` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Validation engineer, Threat intelligence analyst |
-| GET | `/api/v1/findings/{id}/evidence/notes` | `findings:read` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| DELETE | `/api/v1/findings/{id}/evidence/notes/{noteId}` | `findings:write` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Validation engineer, Threat intelligence analyst |
+| GET | `/api/v1/findings/{id}/evidence` | `findings:read` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| POST | `/api/v1/findings/{id}/evidence` | `findings:write` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Researcher, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Validation engineer, Threat intelligence analyst |
+| GET | `/api/v1/findings/{id}/evidence/notes` | `findings:read` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| DELETE | `/api/v1/findings/{id}/evidence/notes/{noteId}` | `findings:write` | scoped: route guard on /findings/{id}/**, lists and bulk paths scoped |  | Owner, Administrator, Member, Researcher, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Validation engineer, Threat intelligence analyst |
 | GET | `/api/v1/simulations` | `validation:read` | gap: §1.3 validation and simulation |  | Owner, Administrator, Member, Viewer, Validation engineer |
 | POST | `/api/v1/simulations` | `validation:write` | gap: §1.3 validation and simulation |  | Owner, Administrator, Member, Validation engineer |
 | DELETE | `/api/v1/simulations/{id}` | `validation:write` | gap: §1.3 validation and simulation |  | Owner, Administrator, Member, Validation engineer |
@@ -46,5 +46,5 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/simulations/{id}` | `validation:write` | gap: §1.3 validation and simulation |  | Owner, Administrator, Member, Validation engineer |
 | POST | `/api/v1/simulations/{id}/run` | `validation:write` | gap: §1.3 validation and simulation |  | Owner, Administrator, Member, Validation engineer |
 | GET | `/api/v1/simulations/{id}/runs` | `validation:read` | gap: §1.3 validation and simulation |  | Owner, Administrator, Member, Viewer, Validation engineer |
-| GET | `/api/v1/validation/coverage` | `findings:read` | gap: §1.3 validation coverage |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/validation/coverage` | `findings:read` | gap: §1.3 validation coverage |  | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/validation/evidence` | no permission: sensor API-key auth | system: sensor evidence upload (sensor key) |  | see Requires |
