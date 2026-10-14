@@ -33,7 +33,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.9.0
+git checkout v0.9.5          # the release you deploy
 cd api/deploy
 ```
 
@@ -42,6 +42,9 @@ cd api/deploy
 | `docker-compose.yml` | The stack. |
 | `docker-compose.http-redirect.yml` | Overlay: also publish port 80, redirecting to HTTPS. |
 | `docker-compose.plain-http.yml` | Overlay: plain HTTP behind your own TLS proxy (TLS mode `http`). |
+| `docker-compose.sensor-passthrough.yml` | Overlay: sensors reach gRPC on the same port 443 (see [Transport](../sensors/transport.md)). |
+| `docker-compose.clamav.yml` | Overlay: malware scanning of uploaded files (see [File storage](../configuration/file-storage.md)). |
+| `docker-compose.job-signer.yml` | Overlay: signed jobs. A separate signer container with its own key signs every job before a sensor gets it; off by default. |
 | `.env.example` | Settings template. |
 | `backup.sh` | Backup, restore check and restore (see [Backup and restore](../operations/backup-restore.md)). |
 | `gateway/` | Gateway configuration (Caddyfile, TLS modes, entrypoint). |
@@ -51,8 +54,7 @@ cd api/deploy
 
 `./setup.sh ctem.example.com` writes `.env` (mode 600) with the host name and
 freshly generated secrets; add `--acme you@example.com` for a Let's Encrypt
-certificate. It never overwrites an existing `.env`. Then set the release and
-image names below.
+certificate. It never overwrites an existing `.env`.
 
 To do it by hand instead, copy the template and fill in a value for every secret. The commands below
 generate them; `.env` does not run commands itself.
@@ -67,24 +69,26 @@ sed -i "s|^APP_ENCRYPTION_KEY=.*|APP_ENCRYPTION_KEY=$(openssl rand -hex 32)|" .e
 chmod 600 .env
 ```
 
-Then edit `.env` and set where clients reach the platform and which release runs:
+Then edit `.env` and set where clients reach the platform:
 
 ```bash
-OPENCTEM_VERSION=v0.9.0
-API_IMAGE=ghcr.io/openctemio/openctem-api
-UI_IMAGE=ghcr.io/openctemio/openctem-web
-
 OPENCTEM_HOSTNAME=ctem.example.com          # DNS name or IP clients use
 # OPENCTEM_PUBLIC_URL=https://ctem.example.com:8443  # only when browsers use a port other than 443
 OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
-{: .warning }
-Set all three of `OPENCTEM_VERSION`, `API_IMAGE` and `UI_IMAGE` for v0.9.0. The
-v0.9.0 files still default to `v0.8.0` (in `.env.example`, and so in the `.env`
-that `setup.sh` writes) and to the image names used up to v0.8.0
-(`ghcr.io/openctemio/api`, `ghcr.io/openctemio/ui`). There is no
-`ghcr.io/openctemio/ui:v0.9.0`, so without `UI_IMAGE` the pull fails.
+`OPENCTEM_VERSION` is optional: the compose file and `.env.example` of a
+release default to that release (`v0.9.5` in the v0.9.5 files) and to the
+current image names (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
+`openctem-gateway`, `migrations`). Set it only to run another release than the
+files you checked out, which is not recommended.
+
+{: .note }
+Only the **v0.9.0** files defaulted to `v0.8.0` and to the old image names
+(`ghcr.io/openctemio/api`, `ghcr.io/openctemio/ui`). If you deploy v0.9.0
+itself, set `OPENCTEM_VERSION=v0.9.0`,
+`API_IMAGE=ghcr.io/openctemio/openctem-api` and
+`UI_IMAGE=ghcr.io/openctemio/openctem-web` in `.env`.
 
 {: .warning }
 Back up `.env`. `APP_ENCRYPTION_KEY` encrypts the credentials stored in the
