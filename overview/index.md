@@ -114,8 +114,7 @@ Then the next cycle starts, with what the last one taught you.
 
 ## Shipped and planned
 
-These pages describe what ships in the current release (v0.9.5) and, where a
-page says so, in v0.9.6. Work that is designed but not shipped is marked
+These pages describe what ships in the current release (v0.9.6). Work that is designed but not shipped is marked
 **Planned** where it is mentioned.
 
 | Shipped | Planned |
@@ -128,7 +127,7 @@ page says so, in v0.9.6. Work that is designed but not shipped is marked
 | Sensors reach targets directly or through their host's proxy | Per-zone egress proxies |
 | Known false positives that hold across scanner engines, decisions approved by a second person, and data-flow traces on SAST findings | |
 | Static analysis with opengrep and the signed OpenCTEM rules pack, on sensors and in CI | |
-| Content packs delivered to sensors by digest, with file-level deltas | Scans that run the packs the platform delivers (sensors up to v0.22.1 fetch their own content) |
+| Content packs delivered to sensors by digest, with file-level deltas | Scans that run the packs the platform delivers (sensors up to v0.23.0 fetch their own content) |
 | | A coverage policy per asset type, and a record of when each asset was last checked for each kind of test |
 
 The design documents (RFCs) and the roadmap live in the

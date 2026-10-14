@@ -117,6 +117,9 @@ sequenceDiagram
   httpx has already probed starts while httpx still works on the rest. This
   needs **sensor v0.21.1 or later** (sdk-go v0.31.0 or later); an older
   sensor holds all of a task's hosts until the task ends.
+  nuclei reports no end per host: from sensor v0.23.0 a nuclei task over
+  several hosts runs in up to 4 waves of whole hosts and frees each wave's
+  hosts when the wave ends; before, it held them all until the task ended.
 - **Only your organization counts**: another organization's scans never hold
   your tasks back, and you never see them.
 - **What the panel shows**: host counts only, never host names. The holding

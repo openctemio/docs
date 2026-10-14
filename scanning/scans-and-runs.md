@@ -243,8 +243,8 @@ why:
 The counts come from the sensor and are never more than the task's own
 targets. The API returns them per task as `egress_refused_targets` and
 `guard_refused_targets` (`GET /api/v1/scan-runs/{id}/tasks`). The first
-needs sensor v0.22.0 or later. The per-target guard count needs a sensor
-release after v0.22.1: up to v0.22.1 the guard refuses the whole task on
+needs sensor v0.22.0 or later. The per-target guard count needs sensor
+v0.22.2 or later: up to v0.22.1 the guard refuses the whole task on
 its first refused target, and the task fails.
 
 ![A completed scan run: findings, tasks, duration, stages and the task timeline]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
