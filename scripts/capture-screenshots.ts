@@ -119,11 +119,12 @@ interface Shot {
   dark?: boolean
   as?: 'alex' | 'admin' | 'anon'
   height?: number
+  width?: number
 }
 
 async function shoot(ctx: BrowserContext, shot: Shot) {
   const page = await ctx.newPage()
-  if (shot.height) await page.setViewportSize({ width: 1440, height: shot.height })
+  if (shot.height || shot.width) await page.setViewportSize({ width: shot.width ?? 1440, height: shot.height ?? 900 })
   try {
     if (shot.route) {
       await page.goto(WEB + shot.route)
@@ -138,7 +139,14 @@ async function shoot(ctx: BrowserContext, shot: Shot) {
     let buf: Buffer
     if (shot.crop) {
       const loc = typeof shot.crop === 'string' ? page.locator(shot.crop).first() : shot.crop(page)
-      buf = await loc.screenshot({ animations: 'disabled' })
+      // An element inside the viewport (a dialog) is clipped from the page as
+      // it is laid out now; an element screenshot would scroll it first.
+      const box = await loc.boundingBox()
+      const vp = page.viewportSize()
+      buf =
+        box && vp && box.y >= 0 && box.y + box.height <= vp.height
+          ? await page.screenshot({ clip: box, animations: 'disabled' })
+          : await loc.screenshot({ animations: 'disabled' })
     } else {
       buf = await page.screenshot({ fullPage: shot.fullPage ?? false, clip: shot.clip, animations: 'disabled' })
     }
@@ -259,6 +267,8 @@ async function stopPairing() {
 
 const clickTab = (name: RegExp) => async (page: Page) => {
   await page.getByRole('tab', { name }).first().click()
+  // No focus ring on the clicked tab in the picture.
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
 }
 
 // ---------------------------------------------------------------------------
@@ -279,7 +289,6 @@ const shots: Shot[] = [
 
   // Discovery
   { section: 'user-guide', name: 'assets-inventory', route: '/assets' },
-  { section: 'user-guide', name: 'assets-domains', route: '/assets/domains' },
   { section: 'user-guide', name: 'asset-detail', route: `/assets/${assetId('app.example.com')}` },
   { section: 'user-guide', name: 'asset-groups', route: '/assets/groups' },
   { section: 'user-guide', name: 'components', route: '/components' },
@@ -379,7 +388,32 @@ const shots: Shot[] = [
     },
   },
   { section: 'scanning', name: 'ci-pipelines', route: '/ci-cd' },
-  { section: 'scanning', name: 'ci-trust', route: '/settings/scanning/ci' },
+  { section: 'scanning', name: 'ci-trust', route: '/ci-cd', open: clickTab(/trust and gate/i) },
+  // CI/CD quickstart (scanning/ci): step 3 of the Connect a pipeline wizard for
+  // a new organization (example-org; its trust from an earlier capture is removed
+  // first, so the wizard creates one instead of reusing it).
+  {
+    section: 'scanning/ci',
+    name: 'ci-wizard-3-snippet',
+    route: '/ci-cd',
+    width: 1280,
+    open: async (page) => {
+      for (const c of rows(await get('/api/v1/ci/trust-configs')))
+        if (JSON.stringify(c.owners ?? c).includes('example-org'))
+          await call('DELETE', `/api/v1/ci/trust-configs/${c.id}`, undefined, alex.accessToken).catch((e) => log('skip delete trust', (e as Error).message))
+      await clickTab(/trust and gate/i)(page)
+      await page.getByRole('button', { name: /connect a pipeline/i }).first().click()
+      const dialog = page.getByRole('dialog')
+      await dialog.getByRole('radio', { name: /github/i }).first().click()
+      await dialog.getByRole('button', { name: /^next$/i }).click()
+      await dialog.locator('#ci-setup-owners').fill('example-org')
+      await dialog.getByRole('button', { name: /create trust/i }).click()
+      await dialog.getByRole('button', { name: /wait for the first run/i }).waitFor()
+      // The dialog surface is slightly translucent: hide the page behind it.
+      await page.addStyleTag({ content: 'main { visibility: hidden !important; }' })
+    },
+    crop: (page) => page.getByRole('dialog'),
+  },
   { section: 'scanning', name: 'tools', route: '/settings/scanning/tools' },
 
   // Sensors
