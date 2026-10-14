@@ -58,7 +58,7 @@ organizations, the wizard reuses it and shows its snippet.
 
 The snippet has your platform URL and organization id filled in.
 
-![Step 3: the GitHub Actions workflow to save as .github/workflows/openctem.yml]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-3-snippet.png)
+![Step 3: the GitHub Actions workflow pinned to openctemio/ci v0.3.0, to save as .github/workflows/openctem.yml]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-3-snippet.png)
 
 ### GitHub Actions
 
