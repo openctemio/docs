@@ -174,6 +174,7 @@ erDiagram
     scan_zones |o--o{ commands : "routes"
     tenants ||--o{ scope_targets : "authorizes"
     tenants ||--o{ scope_exclusions : "excludes"
+    assets ||--o| asset_attributions : "owned?"
     tenants ||--o{ integrations : "connects"
 
     scans {
@@ -219,12 +220,19 @@ erDiagram
         string target_type
         string pattern
         string status
-        int max_tier "0, 1, 2 (T0 to T2)"
+        int max_tier "0, 1, 2 (T0 to T2); a ceiling only under Strict"
     }
     scope_exclusions {
         uuid id PK
         string exclusion_type
         string pattern
+        string path_prefix "path exclusions"
+        string methods "blocked HTTP methods"
+        string testing "blocked, read_only, allowed"
+    }
+    asset_attributions {
+        uuid asset_id FK
+        string state "confirmed, discovered, needs_review, rejected, ..."
     }
     integrations {
         uuid id PK
@@ -239,6 +247,11 @@ erDiagram
 - A run records the **version** of the scan workflow it executes
   (`scan_workflow_versions`), so editing a workflow never changes a run in
   progress.
+- **Scope**: `scope_targets` authorize full scans; `scope_exclusions` always
+  win, and a path exclusion carries its prefix, blocked methods and testing
+  mode. `asset_attributions` holds an asset's ownership decision; an
+  inventory asset no entry covers and nobody excluded or rejected is
+  unclassified ([Unclassified assets](../scanning/scope.md#unclassified-assets)).
 - A sensor's **grant** (`sensor_grants`) and **keys** (`sensor_keys`, public
   keys only) are checked on every request; `scan_zone_sensors` is the zone's pool.
 - **Integrations** hold per-organization credentials, encrypted with
