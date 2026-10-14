@@ -169,7 +169,9 @@ probed by one task at a time. A name or address is one host; an address and a
 range scan of the same /24 conflict, two addresses of one /24 do not. Passive
 workflow steps (subdomain discovery, DNS, lookups) hold no host. A running
 task frees each host as soon as its targets on it settle (sensor v0.21.1 or
-later). A waiting task says so on the run page: see
+later). nuclei reports no end per host, so from sensor v0.23.0 it runs a task
+over several hosts in up to 4 waves and frees each wave's hosts when that
+wave ends. A waiting task says so on the run page: see
 [Why a task waits](why-waiting.md).
 
 ## Validation and versions

@@ -38,7 +38,7 @@ attestation, so you can check where the SBOM came from as well as download it.
 The release notes of each version carry these commands with the tag filled in:
 
 ```bash
-TAG=v0.9.5
+TAG=v0.9.6
 IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v'
 ISSUER=https://token.actions.githubusercontent.com
 
@@ -116,11 +116,11 @@ After each platform release, the chart's `appVersion` is bumped to it.
 The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older
 sensors cannot connect at all).
 
-The newest releases at the time of writing are sensor **v0.22.1**, SDK
-**v0.32.0**, CI runner **v0.3.0** and chart **0.23.3** (`appVersion` v0.9.5). A sensor or SDK can
+The newest releases at the time of writing are platform **v0.9.6**, sensor **v0.23.0**,
+SDK **v0.32.0**, CI runner **v0.3.0** and chart **0.23.3** (`appVersion` v0.9.5; the chart for v0.9.6 follows). A sensor or SDK can
 ship after the platform release you run, so the defaults compiled into it may
 name an older sensor. When the console's install snippets pin an older sensor
-tag than the newest release, set `SENSOR_LATEST_VERSION=v0.22.1` (and
+tag than the newest release, set `SENSOR_LATEST_VERSION=v0.23.0` (and
 `SENSOR_SDK_LATEST_VERSION=v0.32.0`) on the API so new installs get the
 current sensor and older sensors show "update available".
 
