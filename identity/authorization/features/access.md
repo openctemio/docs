@@ -2,7 +2,7 @@
 title: "Members, roles and teams permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 27
+nav_order: 28
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
@@ -11,7 +11,7 @@ nav_order: 27
 
 Members, invitations, roles, teams (access groups) and their data scope, trusted organizations and SCIM provisioning.
 
-- **Permissions:** `team:groups:assets`, `team:groups:delete`, `team:groups:members`, `team:groups:read`, `team:groups:write`, `team:members:read`, `team:members:write`, `team:roles:assign`, `team:roles:delete`, `team:roles:read`, `team:roles:write`
+- **Permissions:** `integrations:api_keys:delete`, `integrations:api_keys:read`, `integrations:api_keys:write`, `team:groups:assets`, `team:groups:delete`, `team:groups:members`, `team:groups:read`, `team:groups:write`, `team:members:read`, `team:members:write`, `team:roles:assign`, `team:roles:delete`, `team:roles:read`, `team:roles:write`
 
 ## Who can do it
 
@@ -19,6 +19,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Permission | Roles |
 |---|---|
+| `integrations:api_keys:delete` | Owner, Administrator |
+| `integrations:api_keys:read` | Owner, Administrator, Member, Viewer |
+| `integrations:api_keys:write` | Owner, Administrator |
 | `team:groups:assets` | Owner, Administrator |
 | `team:groups:delete` | Owner, Administrator |
 | `team:groups:members` | Owner, Administrator |
@@ -49,7 +52,11 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/groups/{groupId}/members` | `team:groups:read` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator, Member, Viewer, Auditor |
 | POST | `/api/v1/groups/{groupId}/members` | `team:groups:members` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
 | DELETE | `/api/v1/groups/{groupId}/members/{userId}` | `team:groups:members` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
+| PATCH | `/api/v1/groups/{groupId}/members/{userId}` | `team:groups:members` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
 | PUT | `/api/v1/groups/{groupId}/members/{userId}` | `team:groups:members` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
+| GET | `/api/v1/groups/{groupId}/roles` | `team:groups:read`, `team:roles:read` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator, Member, Viewer, Auditor |
+| POST | `/api/v1/groups/{groupId}/roles` | `team:groups:write`, `team:roles:assign` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
+| DELETE | `/api/v1/groups/{groupId}/roles/{roleId}` | `team:groups:write`, `team:roles:assign` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
 | GET | `/api/v1/groups/{groupId}/scope-rules` | `team:groups:read` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator, Member, Viewer, Auditor |
 | POST | `/api/v1/groups/{groupId}/scope-rules` | `team:groups:write` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
 | POST | `/api/v1/groups/{groupId}/scope-rules/reconcile` | `team:groups:write` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
@@ -87,6 +94,12 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/scim-tokens/group-mappings` | team role admin | config: SCIM tokens |  | Owner, Administrator |
 | PUT | `/api/v1/scim-tokens/group-mappings` | team role admin | config: SCIM tokens |  | Owner, Administrator |
 | DELETE | `/api/v1/scim-tokens/{id}` | team role owner | config: SCIM tokens |  | Owner |
+| GET | `/api/v1/service-accounts` | `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor |
+| POST | `/api/v1/service-accounts` | `team:members:write` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
+| DELETE | `/api/v1/service-accounts/{id}` | `team:members:write` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
+| GET | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:read`, `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer |
+| POST | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:write`, `team:members:write` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
+| DELETE | `/api/v1/service-accounts/{id}/api-keys/{key_id}` | `integrations:api_keys:delete`, `team:members:write` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
 | GET | `/api/v1/users/{userId}/roles` | `team:roles:read` | system: the caller's own account |  | Owner, Administrator, Member, Viewer, Auditor |
 | POST | `/api/v1/users/{userId}/roles` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |
 | PUT | `/api/v1/users/{userId}/roles` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |

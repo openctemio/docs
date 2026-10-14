@@ -2,14 +2,14 @@
 title: "Sign-in and own account permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 30
+nav_order: 31
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
 
 # Sign-in and own account: permissions
 
-Authentication, the caller's own account, notifications, bootstrap data and the real-time socket.
+Authentication, the caller's own account, notifications, platform announcements, bootstrap data and the real-time socket.
 
 
 ## Who can do it
@@ -21,6 +21,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Method | Path | Requires | Data scope | Step-up | Roles that pass |
 |---|---|---|---|---|---|
+| GET | `/api/v1/announcements` | no permission: any signed-in user (authMiddleware): the platform operator's active notices for the banner; plain text, no tenant data | system: platform operator notices (plain text); no tenant data |  | see Requires |
 | POST | `/api/v1/auth/access-requests` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/access-requests/confirm` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/backchannel-logout` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
@@ -34,7 +35,6 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/auth/mfa/enroll/confirm` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/mfa/enroll/start` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/mfa/verify` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
-| GET | `/api/v1/auth/oauth/providers` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/oauth/{provider}/authorize` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/oauth/{provider}/callback` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/providers` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |

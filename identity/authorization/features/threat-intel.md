@@ -2,7 +2,7 @@
 title: "Threat intelligence permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 23
+nav_order: 24
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
