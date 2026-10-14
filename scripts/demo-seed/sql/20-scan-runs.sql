@@ -90,7 +90,7 @@ DECLARE
   skip_n    int := 0;
   failed    boolean := false;
   last_end  timestamptz := base;
-  tool_of   jsonb := '{"discover.subdomains":"subfinder","resolve.dns":"dnsx","scan.ports":"naabu","probe.http":"httpx","vuln.templates":"nuclei","crawl.web":"katana"}';
+  tool_of   jsonb := '{"discover.subdomains":"subfinder","resolve.dns":"dnsx","discover.hosts":"naabu","scan.ports":"naabu","probe.http":"httpx","vuln.templates":"nuclei","crawl.web":"katana"}';
   cap       text;
 BEGIN
   SELECT id INTO sensor FROM sensors WHERE tenant_id = t_id AND name = 'dc-a-scanner-01';
@@ -188,6 +188,16 @@ BEGIN
   GROUP BY s.step_key, ws.capabilities, s.step_order
   ON CONFLICT (run_id, stage_key) DO UPDATE SET inputs = EXCLUDED.inputs, planned = EXCLUDED.planned,
     max_hop = EXCLUDED.max_hop, tool = EXCLUDED.tool, chained = EXCLUDED.chained, planned_at = EXCLUDED.planned_at;
+
+  -- Step outputs (the run map's "produced" counts): the assets a finished
+  -- step handed to the next stage.
+  INSERT INTO scan_step_outputs (tenant_id, run_id, scan_run_step_id, asset_id, created_at)
+  SELECT DISTINCT t_id, r.id, s.id, t.asset_id, COALESCE(s.completed_at, base)
+  FROM scan_run_targets t
+  JOIN scan_run_steps s ON s.scan_run_id = r.id AND s.step_key = t.parent_stage_key
+  WHERE t.run_id = r.id AND t.origin = 'derived' AND t.asset_id IS NOT NULL
+    AND s.status IN ('completed', 'partial')
+  ON CONFLICT DO NOTHING;
 
   -- Task timeline: the events a sensor's claims and results would have written.
   DELETE FROM command_events WHERE run_id = r.id;
