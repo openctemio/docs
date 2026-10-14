@@ -34,58 +34,72 @@ need the scan write permission). See also [Scans and scan runs](../scanning/scan
 
 ### Quick scan
 
-**Quick scan** runs a scanner on a few targets now, without saving anything.
+**Quick scan** runs a scanner on targets now, without saving anything. It
+needs the scan write and execute permissions.
 
-1. Paste the **Targets**, separated by new lines, commas or semicolons.
+1. Paste the **Targets** (up to 1,000), separated by new lines, commas or
+   semicolons.
 2. Pick the **Scanner** from the active scanners in the tool registry.
-3. Click **Start Scan**. Follow the run under **Runs**. If you want to run it
-   again later, **Save as scan** keeps the targets and scanner as a saved scan.
+3. Click **Start Scan**. Follow the run under **Runs**, where it shows as a
+   **Quick scan**. If you want to run it again later, **Save as scan** keeps
+   the targets and scanner as a saved scan.
 
 ### New scan
 
-**New scan** opens a four-step wizard: **Basic Info → Targets → Options →
-Schedule**. Each step is checked before you can go on; click a completed step to
-go back.
+**New scan** opens a five-step wizard: **What → Targets → Options →
+Schedule → Review**. Each step is checked before you can go on; click a
+completed step to go back.
 
 ![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
 *Figure: The New scan wizard.*
 
-1. **Basic Info**
+1. **What**
    - **Scan Name** (required), for example "Production Security Scan".
-   - **What to run**: a **Single check** (one scanner on the targets) or a
-     **workflow** (one of your organization's scan workflows or a system
-     workflow), with a preview of what each step would run.
-   - **Advanced Options › Sensor Preference**: **Auto** (the platform picks the
-     best available sensor), **Your sensors** (only your organization's
-     sensors) or, when offered, **Platform scanning** (the platform's shared
-     scanning, for public targets only).
-2. **Targets**: combine any of these sources; at least one target is required.
-   - **Asset Groups**: tick groups (each shows its asset count).
-   - **Individual Assets**: search assets by name and pick them.
-   - **Custom Targets**: one per line. Each line is checked as you type:
-     domain (`example.com`), wildcard (`*.example.com`), IPv4 or IPv6 address,
-     CIDR range (`192.0.2.0/24`), URL (`https://example.com`) or host and port
-     (`example.com:8080`). Private addresses (10.x, 172.16-31.x, 192.168.x) are
-     scanned only inside a scan zone, and localhost may be blocked.
-   - **Total Selected Targets** sums all sources. A **Scope check** shows which
-     targets your [scope](03-scoping.md#scope) allows; refused targets must be
-     fixed before the scan can start.
+   - **What to run**: a **Single check** (one scanner on the targets), a
+     scan workflow (one of your organization's workflows or a system
+     workflow, with a preview of its steps), or **Continuous discovery**
+     (every day, passive discovery of your root domains, then active probing
+     of the assets confirmed since the last run; it saves two scans).
+2. **Targets**: combine assets, asset groups and pasted targets (tabs
+   **Assets**, **Groups** and **Paste**); at least one target is required.
+   - Pasted targets are checked as you type: domain (`example.com`),
+     wildcard (`*.example.com`), IPv4 or IPv6 address, CIDR range
+     (`192.0.2.0/24`), URL (`https://example.com`) or host and port
+     (`example.com:8080`). Private addresses are scanned only inside a scan
+     zone, and localhost may be blocked.
+   - A wildcard is expanded at every run to the domain and the names your
+     inventory holds under it; the step says how many names that is now.
+   - For address ranges, **Address ranges** chooses **Find live hosts
+     first** (the default when the scan can run it), **Sweep the whole
+     range** or **Only the hosts already in the inventory**.
+   - A **Scope check** shows which targets your [scope](03-scoping.md#scope)
+     allows; refused targets must be fixed before the scan can start.
 3. **Options**
-   - **Targets per job** (1 to 50): how many targets one sensor job scans.
-     Smaller jobs spread a scan over more sensors.
-   - **Reliability**: **Timeout (seconds)** (up to 24 hours), **Max retries**
-     (0 to 10; 0 means no retry) and **Retry backoff (s)**.
+   - **Where it runs** and the **Scan profile** (tool settings, intensity and
+     quality gate; the organization default unless you pick another).
+   - **Advanced: job size, timeout and retries**: **Targets per job** (how
+     many targets one sensor job scans; smaller jobs spread a scan over more
+     sensors), **Max duration (seconds, optional)** (empty: no limit of its
+     own, the platform's 24-hour cap applies; 30 seconds to 24 hours),
+     **Max retries** (0 means no retry) and **Retry backoff (s)**.
 4. **Schedule**
    - **When to run?**: **Run immediately** or **Schedule for later**, with the
-     **Frequency** (Once, Daily, Weekly, Monthly), the **Day** for weekly scans
-     and the **Time**.
-   - Click **Start Scan** or **Schedule Scan**. If the scan is saved but cannot
-     start, it stays saved and you can trigger it later from **View Scan**.
+     **Frequency** (Once, Daily, Weekly, Monthly), the **Date** (once), the
+     **Day** (weekly) or **Day of the month** (monthly; a shorter month runs
+     on its last day), the **Time** and the **Timezone**. **Save without
+     running** saves the scan to start later.
+5. **Review**: everything chosen, and the scan zone each target goes to
+   (which can be pinned there). Click **Start scan**, **Schedule scan** or
+   **Save scan**. If the scan is saved but cannot start, it stays saved and
+   you can trigger it later from **View Scan**.
 
-When you trigger a scan, the platform may stop it and explain why:
-a [scan freeze window](10-settings-and-integrations.md#scan-freeze-windows) is active, a
-run of the same targets is already in progress (the sensor runs them one after
-the other), or the scope check refused some targets.
+When you trigger a scan, the platform may refuse it and say why, with a fix:
+for example a target's [scan window](../scanning/scans-and-runs.md#starting-a-run)
+never opens, the scan or the organization already has too many runs at
+once, or the scope check refused the targets. Once a run has started, a
+task can still wait, for example while another task of your organization is
+scanning the same hosts: the run page says why
+([Why a task waits](../scanning/why-waiting.md)).
 
 ### The scan list
 
@@ -96,7 +110,9 @@ scanner), schedule and next run, last run and run count.
   scan type, schedule and tags; search by name. **Show one-off scans** includes
   quick scans saved as scans.
 - A row's menu: **View details**, **Edit**, **Clone**, **Pause** / **Resume**
-  and **Delete**.
+  and **Delete**. **Edit** and **Clone** are also on the scan's page. A
+  clone keeps every setting and starts paused; editing a scan's targets
+  under scan approvals needs a new approval.
 - Select several to **Activate**, **Disable** or **Delete** them.
 - Click a scan to open its page (`/scans/{id}`): run statistics (runs, success
   rate, successful, partial, failed, next run), the upcoming runs of its
@@ -118,8 +134,11 @@ retests.
   (which tool ran which step on which sensor, and which targets were skipped and
   why), its tasks and logs, and its **Timeline** (task events are kept for 30
   days). Jump to the findings it produced from there.
-- A running run can be **canceled**; in-flight tasks stop at their next
-  heartbeat.
+- The task list shows each task's progress and, for a queued task, what it
+  waits for; **Why waiting?** explains it
+  ([Why a task waits](../scanning/why-waiting.md)).
+- A run that has not finished can be canceled (**Cancel run** in the run's
+  panel or on its page); in-flight tasks stop at their next heartbeat.
 
 ### Scan workflows
 
@@ -187,7 +206,8 @@ See [CI integration](../scanning/ci-integration.md).
 
 ## Attack surface
 
-**Discovery › Attack surface** has two tabs: **Overview** and **Review**. See also
+**Discovery › Attack surface** has four tabs: **Overview**, **Suggestions**,
+**Lookalikes** and **Changes**. See also
 [Attack surface monitoring](../scanning/easm.md).
 
 ### Overview
@@ -218,8 +238,9 @@ requests to internal addresses. Each run it raises exposure events for new
 subdomains (`subdomain_discovered`) and for certificates that are expiring
 within 30 days or recently expired (`certificate_expiring`,
 `certificate_expired`); see [Exposures](05-exposures-and-findings.md#exposures).
-New names also join the inventory: confirmed when they sit under a verified
-domain or a permanent scope entry, otherwise waiting in the review queue. DNS
+New names also join the inventory at once: confirmed when they sit under a
+permanent scope entry, otherwise as *discovered* (unless **Review
+discovered assets first** is on). DNS
 checks run right after and flag dangling CNAME or NS records and weak email
 security. The platform operator can turn monitoring off or change its default
 interval (24 hours) for the whole installation.
@@ -232,27 +253,40 @@ its service facts, risk, findings and labels. Filter by type and risk, **Export*
 to CSV, **Scan this page**, or **Add asset** (an external domain, subdomain, IP
 address, service or certificate).
 
-### Review
+### Suggestions
 
-**Review** (`/attack-surface/review`) is the ownership queue: names discovery
-found that may be yours. Confirming records ownership; a scope entry is still
-what lets scans reach a name.
+**Suggestions** (`/attack-surface/review`) collects the decisions that still
+need a person. Confirming a name or address as yours adds its exact scope
+entry; addresses are never added because a name points at them.
 
-- **Awaiting review** lists the names with their state, confidence, why they may
-  be yours (under a verified domain, under a domain you listed, a target you
-  scanned, found by one of your scans, covered by a scope entry) and what scope
-  entry covers them (or **Add to scope**). **Not ours** lists the names you
-  rejected.
-- Select names and decide: **Confirm**, **Not ours**, **Dependency** or
-  **Monitor only** (needs the assets write permission).
-- **Suggested rules** group names by a pattern. **Accept as rule** adds a scope
-  entry (which goes through scope approval); **Reject as rule** adds an exclusion
-  and marks the names not ours. Each asks for a reason, kept in the audit log.
+- **Waiting for your decision** opens with the card **N addresses your
+  in-scope names resolve to**. Adding them scans every port of those
+  addresses; a name never makes an address yours, so add only addresses you
+  know are yours. The card shows **Network unknown for N: check they are
+  yours**, **Shared, not offered** (CDN, CDN edge range, shared hosting where
+  names of 3 or more domains point, another organization's or a provider's
+  network), **Your own network** with **Add {prefix}**, and **Already get
+  low-impact checks (add to scope for a full scan)**, each address with its
+  open ports and other names. Actions: **Add N to scope**, **Not ours**
+  (never scanned or suggested again, until undone on the asset), **Not now**
+  and **Undo**. A second card lists assets you confirmed that are not in
+  scope.
+- The list below (views **Awaiting a decision** and **Not ours**) shows each
+  name with its state, confidence, why it may be yours (under a verified
+  domain, under a domain you listed, a target you scanned, found by one of
+  your scans, under a scope entry) and the scope entry that covers it (or
+  **Add to scope**).
+- Select names and decide: **Ours: add to scope**, **Not ours**,
+  **Dependency** or **Monitor only** (needs the assets write permission).
+
+Discovered names join the inventory without waiting here, unless **Review
+discovered assets first** is on in the scope policy
+([Scoping](03-scoping.md#scope-policy)).
 
 ## The asset inventory
 
-**Discovery › Assets** has five tabs: **Inventory**, **Groups**, **What
-changed**, **Web surface** and **Suggestions**.
+**Discovery › Assets** has six tabs: **Inventory**, **Groups**, **What
+changed**, **Timeline**, **Web surface** and **Suggestions**.
 
 ### Inventory
 
@@ -265,12 +299,24 @@ changed**, **Web surface** and **Suggestions**.
   **With findings**.
 - Search by name, description or alias. The filter panel narrows by signals
   (crown jewel or not, has findings or not, not seen for 30+ days or seen
-  recently) and tags. **Quick views** offers saved filters.
+  recently), tags, **Scope status** (**In scope**, **Not in scope (passive
+  only)**, **Out of scope**, **Internal**) and **Found by**. **Views** offers
+  saved filters, among them **Not in scope (passive only)**, **Discovered**,
+  **Out of scope** and **New since last visit**.
+- The list includes what discovery found. Names awaiting a decision and
+  names marked not yours are hidden until you choose **Show all**.
 - Columns: name, type, service facts, criticality, exposure, internet-facing,
-  owner, risk, findings, last seen and labels.
+  owner, risk, findings, last seen, labels and **Scope** (**In scope** when a
+  scope entry covers the asset). The scope labels say "passive only" for
+  assets no entry covers; such an asset gets what **Scan unclassified
+  assets** allows, low-impact checks by default
+  ([Unclassified assets](../scanning/scope.md#unclassified-assets)).
 - Select rows for bulk actions (they need `assets:write`): **Assign owner**
   (a user or group, with an ownership role), **Set criticality**, **Add tag**,
-  **Add to unit** and **Add to service**.
+  **Add to unit**, **Add to service**, **Mark out of scope** (**Exclude from
+  scanning** or **Not ours**, up to 200 at once, with **Undo**) and
+  **Archive** (hides assets from the default list; it does not change
+  scanning). See [Put out of scope](03-scoping.md#put-out-of-scope).
 - Click an asset to open its details.
 
 **Category view.** Switch to **Category view** (`/assets?view=categories`) for
@@ -294,8 +340,8 @@ correlator finds likely duplicates, an alert with **Review** appears here (see
 | Code & CI/CD | Repositories |
 
 Each asset is also described along further axes: **Criticality** (Critical,
-High, Medium, Low), **Scope** (Internal, External, Cloud, Partner, Vendor, Shadow
-IT: who owns it), **Exposure** (Public, Restricted, Private, Isolated, Unknown:
+High, Medium, Low), **Zone** (Internal, External, Cloud, Partner, Vendor, Shadow
+IT: the network zone, not the scan scope), **Exposure** (Public, Restricted, Private, Isolated, Unknown:
 how reachable it is from the internet) and a **Risk score** (0 to 100, from
 criticality, exposure and findings; see
 [Risk scoring](06-prioritization.md#risk-scoring)).
@@ -342,7 +388,7 @@ one layout:
 ![The Domains and Subdomains page with DNS, classification, labels, findings and risk per name]({{ site.baseurl }}/assets/images/user-guide/assets-domains.png)
 *Figure: The page of one asset type: domains and subdomains.*
 
-The add and edit form sets the type's fields, the **Criticality**, **Scope**,
+The add and edit form sets the type's fields, the **Criticality**, **Zone**,
 **Exposure**, the **Business Impact (CIA)** ratings (see
 [Scoping](03-scoping.md#how-business-context-raises-criticality)), an **Owner
 Reference** and, for some types, the group.
@@ -351,10 +397,28 @@ Reference** and, for some types, the group.
 
 Clicking an asset in a list opens its detail panel:
 
-- The header shows its status, classification, a **Control plane** badge when it
-  is one, and its CIA ratings, with **Edit** and **Delete**.
-- **Overview**: risk summary, ownership, description, exposure, discovery,
-  service facts, a preview of relationships, tags.
+- The header shows its status, classification, its scope standing, a
+  **Control plane** badge when it is one, the named **Criticality**,
+  **Exposure** and **Zone** badges ("This is the network zone, not the scan
+  scope.") and its CIA ratings, with **Edit** and **Delete**.
+- **Overview**: risk summary, the **Scope and scanning** card, ownership,
+  description, exposure, discovery, **Key facts**, a preview of
+  relationships, tags.
+  - **Scope and scanning** says whether scans can reach the asset and why
+    (**Why** opens the ownership panel), with the actions you may take:
+    **Scan now**, **Add to scope**, **Mark out of scope**, and **Confirm and
+    allow scanning** for a name that resolves only through a wildcard DNS
+    record.
+  - **Key facts** shows what matters for the asset's type: for a domain or
+    subdomain what it resolves to, its CNAME, hosting (ASN and network
+    owner), HTTP server, TLS, technologies and DNS records; for an IP address
+    its network owner, reverse DNS, location and ports; for a service its
+    endpoint, product, TLS and HTTP response; for a certificate its subject,
+    alternative names, issuer, validity and key; for a host its operating
+    system, addresses and hardware. A long list shows its first values and a
+    **+N** button that opens the full list with **Copy all**. Every property
+    is under **All properties**, folded, with a search.
+- **Timeline**: what changed on the asset, and when.
 - **Owners**: **Add Owner** with a role (Primary, Secondary, Stakeholder,
   Informed, Regulatory), and the direct access grants.
 - **Relations**: the asset's relationships as a list, cards or a graph (all,

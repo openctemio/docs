@@ -152,7 +152,7 @@ Scanning other people's systems without permission is the main abuse risk of a p
 Every path that makes a sensor send traffic to a target passes one fail-closed gate before a job
 exists:
 
-- **Scope entries.** A target must be covered by an active, unexpired scope entry of the organization.
+- **Scope entries.** A full active scan needs an active, unexpired scope entry of the organization.
   `*.example.com` covers `example.com` and every name below it. Creating, extending or raising the
   tier of an entry is **widening**: it needs the scope write permission and step-up, and is audited
   and notified to owners and admins. Narrowing is always one click. A second person's approval is
@@ -162,9 +162,20 @@ exists:
   scans: **On** applies approval rules (for example intrusive scans, or active scans of production
   assets); **Strict** asks two distinct approvers and a justification for every scan a rule catches.
   The approval covers the scan definition, so a later change needs a new approval. Off by default.
-- **Exclusions** are checked on every dispatch.
-- **Ownership.** An asset marked as rejected, a candidate, needing review, or a third-party dependency
-  is not probed.
+- **Unclassified assets.** An inventory asset that no entry covers, and that nobody excluded or
+  marked not ours, gets low-impact checks by default (a short list of common ports at a low rate, the
+  home page and `/.well-known/`, informational nuclei templates; never intrusive). The organization
+  can set this to Off or Full; Strict scan approval forces Off. Platform guardrails keep such an
+  asset passive in every mode when its address is on a CDN, shared-hosting or cloud network, nothing
+  is known about its network, names of three or more domains point at it, or a name is under none of
+  the organization's domains; a failed lookup holds everything (fail closed).
+- **Exclusions** win over every entry and setting. They are checked when the job is created, again
+  when a sensor claims it, carried in the signed job so the sensor cuts its ranges around them, kept
+  in the job signer's own ledger, enforced per request by the confined sensor's forwarder for web
+  paths, and applied again at ingest, where results outside a job's addresses are dropped. See
+  [How scope and exclusions reach sensors](../scanning/scope-to-sensors.md).
+- **Ownership.** An asset marked not ours (and every name below it), a dependency, a monitor-only
+  name, or a name that resolves only through a wildcard DNS record is not probed.
 - **Domain proof.** An organization proves a domain with a DNS TXT record. A platform setting,
   **Require a verified domain before platform sensors scan a target** (off by default; a super
   administrator changes it with a fresh authenticator code and a reason), makes jobs on shared platform
