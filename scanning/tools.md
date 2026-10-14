@@ -21,13 +21,18 @@ to a sensor that reports it.
 |---|---|---|---|
 | subfinder | `discover.subdomains` | T0 | default |
 | dnsx | `resolve.dns` | T0 | default |
-| naabu | `scan.ports` | T1 | default |
+| naabu | `scan.ports`, `discover.hosts` (live hosts first) | T1 | default |
 | httpx | `probe.http` | T1 | default |
 | katana | `crawl.web` | T1 | default |
 | nuclei | `vuln.templates`, finding re-verification and retests | T1 | default, `-nuclei` |
 | semgrep | `sast.code` | T0 | `-semgrep` |
 | trivy | `sca.deps`, `iac.misconfig`, `container.image` | T0 | `-trivy` |
 | betterleaks | `secrets.code` | T0 | `-betterleaks` |
+| rdap, asn (built in) | `lookup.rdap`, `lookup.asn` | T0 | every daemon |
+| reach-probe (built in) | `reach.probe` (one TCP connect per address and port, on the platform's request, to test reachability) | — | every daemon that takes platform commands |
+
+The sensor detects its tools itself and reports only those whose binary
+passes its check; nothing is configured to enable a tool.
 
 Other tools in the catalog (for example zap, codeql, grype, checkov) need a
 sensor that ships them; see [Writing a tool](../developers/tool-authoring.md)
@@ -68,15 +73,25 @@ The same data is available as `GET /api/v1/tools?include=availability`
 
 - **Enabled**: switch a tool off for the whole organization
   (`PATCH /api/v1/tools/{id}/settings` or `PATCH /api/v1/tools/settings`).
-- **Configuration overrides**: default options sent to sensors with every job
-  of that tool. A configuration that looks like a credential is refused:
-  credentials belong in the secret store, referenced by id.
+- **Configuration overrides**: a stored per-organization configuration of the
+  tool, shown with its effective configuration. Scan jobs do not carry it: a
+  job's tool options come from the scan and from each sensor's
+  [tool settings](../sensors/tool-settings.md). A configuration that looks
+  like a credential is refused: credentials belong in the secret store,
+  referenced by id.
 - **Custom tools and categories**: an organization can add its own catalog
   entries (`POST /api/v1/tools`, `/api/v1/tool-categories`). A custom tool runs
   only on a sensor that reports it.
 
 **Settings > Scanning > Capabilities** lists the capabilities and which of
 your tools and sensors provide each.
+
+## Tool options per sensor
+
+Rate, concurrency, timeouts, retries and tool-specific options are set per
+sensor under **Discovery > Sensors**, the sensor's **Tool settings** tab. A
+scan may only lower them, and the job's per-target budget shortens timeouts.
+See [Tool settings](../sensors/tool-settings.md).
 
 ## Nuclei safety
 
@@ -88,8 +103,10 @@ your tools and sensors provide each.
   them are refused.
 - The code, file, headless and self-contained template types are never
   enabled.
-- Rate limits are capped by the sensor (`SENSOR_NUCLEI_MAX_RATE_LIMIT`,
-  default 150 requests per second).
+- Rate limits are capped by the sensor host's ceilings
+  (`SENSOR_NUCLEI_MAX_RATE_LIMIT`, `SENSOR_NUCLEI_MAX_CONCURRENCY`,
+  `SENSOR_NUCLEI_MAX_BULK_SIZE`; default 150 requests per second, 25 and 25),
+  whatever the sensor's [tool settings](../sensors/tool-settings.md) say.
 - Out-of-band callbacks (interactsh) are off unless the organization allows
   them (**Settings > Organization > General**, "Allow out-of-band callbacks
   (interactsh) in sensor jobs"), the sensor's local policy allows them, and

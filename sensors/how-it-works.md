@@ -113,7 +113,7 @@ Images are published as `ghcr.io/openctemio/sensor:<version>` (and
 
 | Image | Tools | Default command |
 |---|---|---|
-| `sensor:<version>` (also `-default`) | nuclei, subfinder, dnsx, naabu, httpx, katana, with a pinned nuclei-templates release | `-daemon -enable-commands -verbose` |
+| `sensor:<version>` (also `-default`) | nuclei, subfinder, dnsx, naabu, httpx, katana, with a pinned nuclei-templates release | `-verbose` (the daemon, taking platform commands) |
 | `sensor:<version>-nuclei` | nuclei | `-tool nuclei --help` |
 | `sensor:<version>-semgrep` | semgrep | `-tool semgrep --help` |
 | `sensor:<version>-trivy` | trivy | `-tool trivy --help` |
@@ -123,16 +123,55 @@ Images are published as `ghcr.io/openctemio/sensor:<version>` (and
 From sensor v0.11.0 the default image carries nuclei and the recon tools only.
 Code scanning in CI moved to [`openctemio/ci`](../scanning/ci-integration.md).
 A daemon that must run semgrep, betterleaks or trivy uses the per-tool image.
+The per-tool images set `CI=true`, so they run one scan and exit unless you
+pass `-daemon` or set `CI=false`.
 
-`openctemio-sensor -list-tools` prints each scanner and whether its binary is
-available. `SENSOR_TOOLS` (or `-tools`) is an optional allowlist that narrows
-what the sensor runs and reports.
+A sensor started with no mode flag runs as the daemon and takes platform
+commands. It enables every tool whose wrapper is in the build and whose binary
+passes its check, and reports only those. `openctemio-sensor -list-tools`
+prints each scanner and whether it is available. To narrow the tools, use the
+local policy's `tools.allow`. `SENSOR_TOOLS` (or `-tools`) is deprecated: in
+the daemon it only narrows the detected tools, and a listed tool that is not
+installed is ignored and named in the log. To take no platform commands, pass
+`-enable-commands=false`, set `sensor.enable_commands: false` in the config
+file, or use `-standalone`. How each tool's options are set is in
+[Tool settings](tool-settings.md).
 
 Every tool run is confined: a private throwaway directory, resource limits,
 no privilege escalation, Landlock file access rules (Linux 5.13 or later) and
 a seccomp filter. `SENSOR_SANDBOX=required` makes the sensor refuse to start
 when the host cannot enforce all of it. The sensor never uses a Docker socket
 and never accepts inbound connections.
+
+## Progress, stalls and per-target outcomes
+
+A task carries one or more targets. While it runs, the sensor reports its
+progress on every heartbeat: targets done out of the total, and how many
+records, output bytes and CPU time the tool has produced. The platform treats
+a task as **stalled** only when none of these moved for the task's stall
+window (between 5 minutes and 1 hour, derived from the tool's expected time
+per target); a slow but working task is never taken back. There is no fixed
+per-task deadline beyond the run's own limit.
+
+- **On a stall** the platform asks the sensor to stop the task and deliver
+  what it finished. The task completes as partial, and only its unfinished
+  targets are queued again as a new task. When the sensor does not answer
+  within five minutes, the whole task is queued again.
+- **On a cancel** the sensor stops the task and delivers nothing from it.
+- **Each target has its own outcome**: done, failed, skipped or unfinished.
+  A failed target names its class (`unreachable`, `timeout`, `tool_error`,
+  `refused`, `excluded`). One target that times out or cannot be reached
+  never fails a recon task; the task fails only when the tool failed on every
+  target.
+- **httpx and naabu** scan a task's whole target list in one process, so a
+  host that does not answer costs only its own timeout, and each target
+  settles as soon as its first result arrives.
+- **Hosts are freed per target** (sensor v0.21.1 and later): as each target
+  settles, the sensor releases its hosts on the heartbeat, so the platform
+  can start the next task for those hosts without waiting for the whole task.
+  See [Why is a task waiting?](../scanning/why-waiting.md).
+- trivy gets a `--timeout` equal to the run's limit, so large image and
+  repository scans are not cut at trivy's own five-minute default.
 
 ## Health on the Sensors page
 

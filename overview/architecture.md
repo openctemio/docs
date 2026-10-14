@@ -99,7 +99,7 @@ sequenceDiagram
     participant S as Sensor
     participant T as Target
     U->>API: Trigger a scan
-    API->>API: Check scope, freeze windows, sensors and tools
+    API->>API: Check scope, scan windows, sensors and tools
     API->>DB: Create scan run, steps and tasks
     S->>API: Heartbeat (advised interval, pending work)
     S->>API: Claim a task (lease)
@@ -112,9 +112,14 @@ sequenceDiagram
 
 - Sensors only connect out. The platform never opens a connection to a sensor;
   work waits in a queue until a sensor with the right tools, in the right scan
-  zone, claims it.
+  zone, claims it, and until no other task of the organization is scanning
+  its hosts. Queued work is handed out fairly across runs.
 - A claimed task has a lease that every heartbeat renews. A sensor that
   disappears loses its lease, and the task goes back to the queue.
+- There is no fixed task timeout. The heartbeat reports each task's progress
+  (targets finished, records, output, CPU time); a task in which nothing
+  moved for its stall window is stopped, its finished targets are kept, and
+  only its unfinished targets are queued again.
 - Results are validated, capped and bound to the organization of the sensor's
   key, never to anything the report says about itself. Sensor results are
   stored first and applied by the background ingest worker.
@@ -172,8 +177,8 @@ instance (see [Scaling](../operations/scaling.md)). The main jobs:
 | Work | What it does | Every |
 |---|---|---|
 | Scan scheduler | Starts the scans whose schedule is due | 1 minute |
-| Scan timeout, retry and stalled-run repair | Enforces run deadlines, retries failed runs with a backoff, repairs runs that stopped advancing | 1 minute |
-| Command recovery | Returns tasks whose sensor lease expired to the queue; fails tasks that keep failing | 1 minute |
+| Scan timeout, retry and stalled-run repair | Enforces run deadlines, fails runs no sensor claimed (not those waiting for a scan window or their hosts), retries failed runs with a backoff, repairs runs that stopped advancing | 1 minute |
+| Command recovery | Returns tasks whose sensor lease expired to the queue; asks sensors to stop stalled tasks and hand back what they finished; takes back tasks far past their time budget; fails tasks that keep failing | 1 minute |
 | Command expiration | Expires tasks no sensor claimed in time | 1 minute |
 | Sensor health | Marks sensors whose heartbeats stopped as offline and notifies | 30 seconds |
 | Ingest worker | Applies queued results (sensor reports, and API ingest with `INGEST_MODE=async`) | 2 seconds |

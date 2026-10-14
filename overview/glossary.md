@@ -23,18 +23,22 @@ Terms as OpenCTEM uses them, in the console, the API and these docs.
 | **CTEM** | Continuous Threat Exposure Management: a repeating cycle of scoping, discovery, prioritization, validation and mobilization. |
 | **CTEM cycle** | A period of CTEM work with objectives, scope, attacker profiles and success criteria. |
 | **CTIS** | CTEM Ingest Schema: the open JSON format tools use to send assets, findings and dependencies to OpenCTEM. Specification at [openctemio/ctis](https://github.com/openctemio/ctis). |
+| **Deadline** (of a run) | When a scan run ends at the latest: the scan's max duration, else the workflow's timeout, else the platform's 24-hour cap. |
 | **Exposure event** | An attack-surface change that is not a vulnerability, such as an open port, a public bucket, an expiring certificate or a leaked credential. |
 | **Finding** | One weakness on one asset, from a scan, an import or an integration. De-duplicated by fingerprint. |
 | **Gateway** | The built-in Caddy reverse proxy that is the platform's single HTTPS entry point. |
+| **Host wait** | A queued task waits while another task of the same organization is scanning one of its hosts. See [Why a task waits](../scanning/why-waiting.md). |
+| **Live hosts first** | The default way to scan an address range: a light probe finds the live addresses, then deeper steps scan only those and the addresses already in the inventory. |
 | **Organization** | The unit of isolation (a tenant): its own members, assets, findings, sensors, integrations and audit log. |
 | **Owner** (organization role) | The role with full control of an organization, including deleting it. |
 | **Platform administrator** | An operator account that runs the installation from the admin console; belongs to no organization and cannot see organization data. |
 | **Platform sensor** | A sensor run by the operator as shared scanning capacity; organizations use it through scans but never see it. |
 | **Priority** | A finding's ranking for remediation, computed from severity, EPSS, CISA KEV, asset criticality, reachability, exposure and priority rules, with an explanation. |
+| **Quick scan** | One scanner run on up to 1,000 targets at once without saving a scan configuration; it can be saved afterwards. |
 | **Remediation campaign** | A set of findings with an owner, a deadline and tracked progress. |
 | **Retest** | A re-check of a finding by a sensor, typically after a fix. |
 | **Scan** | A scan configuration: targets, scan workflow and schedule. |
-| **Scan run** | One execution of a scan. |
+| **Scan run** | One execution of a scan. Its kind is shown in the Runs list: scan, quick scan, retest, validation and others. |
 | **Scan workflow** | A reusable graph of steps (which tools run, in which order) that scans use. |
 | **Scan zone** | A set of address ranges plus the sensors that can reach them. Network scans go to the narrowest matching zone, whose sensors share the work. |
 | **Scope** | What an organization may test: targets and exclusions, checked whenever a scan is triggered. |
@@ -42,7 +46,9 @@ Terms as OpenCTEM uses them, in the console, the API and these docs.
 | **Sensor key** | A sensor's credential, `octs_...`. Bound to one organization (or to the platform for platform sensors). |
 | **Severity** | The impact of a finding as rated by its source (critical, high, medium, low, info). Not the same as priority. |
 | **SLA** | A remediation deadline per priority or severity, with warnings before a breach. |
+| **Stall window** | How long a running task may go without any progress (no target finished, no output, no CPU time) before the platform stops it and re-queues its unfinished targets. Between 5 minutes and 1 hour, set per task by the platform. |
 | **Step** | One step of a scan run. |
 | **Task** | One unit of sensor work within a step, for a chunk of targets. |
+| **Unfinished targets** | The targets of a task that stopped part-way. Only these run again, as a new task; finished targets are kept. |
 | **Validation** | Confirming whether a finding is really exploitable, or really fixed, with a safe check run by a sensor, and recording the evidence. |
 | **Verified domain** | A domain whose control the organization proved with a DNS record. Active scanning can be limited to verified domains. |

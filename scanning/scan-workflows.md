@@ -26,7 +26,7 @@ steps, so they run on whichever implementation your sensors have:
 | Discover | discover subdomains, then resolve DNS, then probe HTTP |
 | Discover + Vuln | discover subdomains, resolve DNS, scan ports, probe HTTP, then vulnerability templates (fed by the probe and the ports) |
 | Web app | probe HTTP, crawl, then vulnerability templates |
-| Network | scan ports, probe HTTP, then vulnerability templates |
+| Network | find the live hosts of address ranges (host discovery), scan ports, probe HTTP, then vulnerability templates |
 | Code / CI | secrets, SAST, dependency and IaC scans of a repository, in parallel |
 
 ![The Workflows tab listing the organization's workflows and the built-in starter workflows]({{ site.baseurl }}/assets/images/scanning/workflows.png)
@@ -60,6 +60,9 @@ widen it.
 |---|---|---|---|
 | `discover.subdomains` | domain → subdomains | T0 | subfinder |
 | `resolve.dns` | names → names, IP addresses | T0 | dnsx |
+| `lookup.rdap` | root domain → its registration (registrar, name servers, dates) | T0 | rdap (built into the sensor) |
+| `lookup.asn` | addresses, networks → their autonomous system and holder | T0 | asn (built into the sensor) |
+| `discover.hosts` | addresses, ranges → live addresses (light TCP connect probes) | T1 | naabu |
 | `scan.ports` | names, addresses → open ports | T1 | naabu |
 | `probe.http` | names, addresses, ports → HTTP services, certificates | T1 | httpx |
 | `crawl.web` | HTTP services, URLs → discovered URLs | T1 | katana |
@@ -119,8 +122,10 @@ A value the tool's settings schema refuses fails the step at save time
 - **Every hop passes the gate** before it becomes a target: strict name
   parsing, scope exclusions, the run's scan zone, the scope check of the
   person who triggered the run and the ownership check. A passive (T0) step
-  may take names awaiting review; an active (T1) step takes only names your
-  scope authorizes; an intrusive (T2) step never takes derived targets.
+  may take any discovered name; an active (T1) step takes names your scope
+  authorizes, and unclassified inventory assets only as the scope policy
+  allows (low-impact checks by default, see [Scope](scope.md)); an intrusive
+  (T2) step never takes derived targets.
 - A derived target is at most **3 discovery hops** from the seeds. A port,
   service or URL on a host the run already reached keeps that host's hop.
 - Each capability caps its fan-out (at most 10,000 targets per run, 5,000
@@ -135,14 +140,37 @@ each, that any eligible sensor of the zone may claim:
 
 | Capability | Chunk size |
 |---|---|
+| `lookup.asn` | 500 |
 | `resolve.dns`, `probe.http` | 200 |
+| `lookup.rdap` | 100 |
+| `discover.hosts` | 64 |
 | `discover.subdomains`, `scan.ports` | 50 |
 | `vuln.templates` | 25 |
 | `crawl.web`, `dast.web` | 10 |
 
-Code, image and connector steps are not cut. Within an organization, a
-chunk of an active step is claimed only while no other running task holds
-one of its hosts, so one host is probed by one task at a time.
+Code, image and connector steps are not cut.
+
+Address ranges reach only host discovery, port scans and the network
+lookups. A range is cut into pieces of at most a /24 (IPv6 /120), around the
+scope's exclusions; a range that would need more than 4,096 pieces is refused
+(`RANGE_TOO_FRAGMENTED`). In a chunk a range weighs its number of addresses
+and every other target weighs one: a `scan.ports` chunk reaches at most
+1,024 addresses and a `discover.hosts` chunk at most 4,096.
+
+With **Find live hosts first** (the default for a new scan that can run it),
+the ranges go to the Host discovery step only; the port scan and the steps
+after it get the live hosts it found plus the addresses the inventory already
+holds in the ranges. A workflow without a Host discovery step cannot use it
+(`LIVENESS_NEEDS_HOST_DISCOVERY`).
+
+**Politeness.** Within an organization, a task is claimed only while no
+other running task of the organization holds one of its hosts, so one host is
+probed by one task at a time. A name or address is one host; an address and a
+range scan of the same /24 conflict, two addresses of one /24 do not. Passive
+workflow steps (subdomain discovery, DNS, lookups) hold no host. A running
+task frees each host as soon as its targets on it settle (sensor v0.21.1 or
+later). A waiting task says so on the run page: see
+[Why a task waits](why-waiting.md).
 
 ## Validation and versions
 
@@ -161,7 +189,8 @@ one of its hosts, so one host is probed by one task at a time.
 The new-scan wizard ends with a preview (`POST /api/v1/scans/workflow-preview`):
 for each step the capability, tier, the tool that would run and whether a
 sensor in the scan's zone can run it; the zone routing of a sample of the
-targets; and any active freeze window. A step no sensor can run blocks the
+targets, with the targets left out by exclusions; and which targets would
+wait for a scan window. A step no sensor can run blocks the
 scan with the same `NO_SENSOR_FOR_TOOL` reason the trigger would give.
 
 ## Automations are different
