@@ -60,16 +60,20 @@ organization excluded a path (it fails with `nuclei keeps to a web scope only
 in a tool sandbox that confines its network`), or take a job whose targets
 are limited to some ports or paths.
 
-{: .note }
-The platform's install commands and the Helm chart are moving to the
-confined setup by default: the console's commands download the profile from
-the platform (`/api/v1/sensors/install/seccomp.json`), check its SHA-256
-before the container starts, and run the sensor with it; the chart's bundled
-sensor uses `sensor.sandbox.seccompProfile=openctem` by default. Until your
-platform and chart include that change (openctem
-[#1983](https://github.com/openctemio/openctem/pull/1983), helm-charts
-[#47](https://github.com/openctemio/helm-charts/pull/47)), add the profile
-yourself as on this page.
+A confined sensor advertises the capability `net.confined@1`. The platform
+sends the jobs that need confinement (nuclei with a web scope, validation and
+retest jobs with a web scope, jobs limited to some ports or paths) only to
+sensors that advertise it. Without one, such a task waits, and its
+**Why waiting?** panel says it needs a sensor whose tool network is confined;
+a job that no confined sensor of the organization can ever take is refused
+with `NO_CONFINED_SENSOR`.
+
+The platform's install commands (**Discovery > Sensors**, the sensor's
+install snippets) download the profile from the platform
+(`/api/v1/sensors/install/seccomp-profile`), check its SHA-256 before the
+container starts, and run the sensor with it. The Helm chart's bundled sensor
+uses `sensor.sandbox.seccompProfile=openctem` by default (chart 0.23.0 and
+later).
 
 ## Least privilege
 

@@ -24,8 +24,8 @@ work). A failed or warning check also makes an online sensor `degraded`.
 |---|---|---|
 | `identity.state_persistent` | The state directory is not on a persistent volume | Mount the data volume at `/var/lib/openctem` (Helm: `sensor.data.persistence.enabled: true`) |
 | `storage.outbox_persistent` | The outbox (results not yet accepted) is not on a persistent volume | Mount the data volume at `/var/lib/openctem` (Helm: `sensor.data.persistence.enabled: true`) |
-| `tool.<name>.binary` | A scanner is missing, or installed but fails to start | Use an image that ships it, or remove it from `SENSOR_TOOLS` |
-| `tools.available` `none` | No scanner is installed and allowed: the sensor gets no scans | Fix `SENSOR_TOOLS`, or use an image with scanners |
+| `tool.<name>.binary` | A scanner is missing, or installed but fails to start | Use an image that ships it, or pull a fresh image |
+| `tools.available` `none` | No scanner is installed and allowed: the sensor gets no scans | Use an image with scanners, or widen the local policy's `tools.allow` (or remove a deprecated `SENSOR_TOOLS`) |
 | `network.scan_proxy_inherit` | Scanners inherit `HTTPS_PROXY` and send scan traffic through it | Set `SENSOR_SCAN_PROXY=direct`, or `inherit` to keep it on purpose |
 | `platform.tls` | `SSL_CERT_FILE`, `SSL_CERT_DIR` or `SENSOR_CA_CERT_FILE` points at a path the sensor cannot read | Mount the CA read-only at that path |
 | `runtime.oom_protect` | The sensor cannot protect itself from the out-of-memory killer | Add the `SYS_RESOURCE` capability |
@@ -33,6 +33,8 @@ work). A failed or warning check also makes an online sensor `degraded`.
 | `policy.template_keys` `missing` | The policy allows custom templates but no signing key is set | Set `SENSOR_TEMPLATE_SIGNING_KEYS` |
 | `config.env_unknown`, `config.file_unknown_key` | A setting the sensor does not read, often a typo | Rename it (the check suggests the closest name) |
 | `platform.ca_pin_host` `ip_url_with_pin` | `SENSOR_CA_FINGERPRINT` is set but `SENSOR_API_URL` is an IP address | Use the host name in the platform's certificate |
+| `config.commands_disabled` | Platform commands are turned off, so no platform scan runs here | Remove `-enable-commands=false` / `sensor.enable_commands: false` ([Daemon without jobs](#config-commands-disabled)) |
+| `config.tools_deprecated` | `SENSOR_TOOLS` or `-tools` is set; it only narrows the detected tools | Remove it; narrow with the local policy's `tools.allow` ([Deprecated tool list](#config-tools-deprecated)) |
 | `runtime.sandbox_network` (sensors after v0.18.0) | Scans are not network-confined | Run with the sensor's seccomp profile ([Tool confinement](deploy-docker.md#tool-confinement)) |
 
 The same problems are printed at start as `Warning: ...` lines, followed by
@@ -62,7 +64,7 @@ loop until it is fixed.
 | `PUSH_INGEST_NOT_GRANTED` / `push_ingest_not_granted` | collector / audit `sensor.push_refused_grant` | A collector's reports without a job: its grant lacks push ingest, or it is not trusted | Change the grant profile to `collector` and promote it to Trusted ([Grants and trust](pairing.md#grants-and-trust)) |
 | `tool-not-permitted: The report's tool is not declared by this sensor` (HTTP 422) | sensor / collector | A report for a tool the sensor's manifest does not list (often a report sent before the first manifest) | Run in daemon mode so the manifest registers; requeue the dead letter |
 | `You may not scan these targets: ... no scope entry covers it` | console / API | The target is out of scope | Add a scope entry ([Scope](../scanning/scope.md)) |
-| `NO_SENSOR_FOR_TOOL` | console / API | No sensor of the organization reports the tool | Install a sensor with the tool, or check `SENSOR_TOOLS` |
+| `NO_SENSOR_FOR_TOOL` | console / API | No sensor of the organization reports the tool | Install a sensor with the tool, or check the sensor's local policy `tools.allow` |
 
 ## Read the logs
 
@@ -95,7 +97,7 @@ started still has a log with the reason.
 | `SENSOR_ALLOW_PRIVATE_TARGETS="true" is not recognized` | Only `1` or `0` is accepted. |
 | `the platform does not serve sensor protocol v2` | The platform is older than the sensor supports. Upgrade the platform. A sensor older than v0.9.0 must be upgraded instead: the platform no longer serves protocol v1. |
 | A second sensor refuses to start on the same outbox | Each sensor needs its own outbox volume. |
-| `-platform mode has been removed` | An old command line. Use `-daemon -enable-commands` (the default image's command). |
+| `-platform mode has been removed` | An old command line. Remove `-platform`: the sensor runs as the daemon with platform commands by default. |
 
 ## Transport
 
@@ -169,7 +171,7 @@ Check, in this order:
 5. **Local policy rules.** A refusal is reported on the task as `refused by local
    policy: <rule>: <detail>`. Check with
    `openctemio-sensor policy explain <file> -target <target> -tool <tool>`.
-6. **Freeze window.** Active work is held during a freeze window.
+6. **Scan window.** Work outside its scan window waits for the window to open (**Why waiting?** says so); see [Scan windows](../user-guide/10-settings-and-integrations.md#scan-windows).
 7. **Kill switch.** The sensor heartbeats `paused by local policy` while the
    kill switch file exists.
 8. **Disabled.** A disabled sensor heartbeats, logs `paused by platform` and
@@ -185,10 +187,10 @@ With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 -outbox-status
+  ghcr.io/openctemio/sensor:v0.21.1 -outbox-status
 # after fixing the cause of dead letters:
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 -outbox-requeue-dead
+  ghcr.io/openctemio/sensor:v0.21.1 -outbox-requeue-dead
 ```
 
 ## Cloned identity
@@ -222,13 +224,14 @@ version. `not_installed`: the image does not contain the scanner, so the
 platform sends it no jobs for it. `broken`: the scanner is present but exits
 with an error; the console shows what it printed. Use an image that ships the
 scanner (the default `ghcr.io/openctemio/sensor` image, or a per-tool image),
-pull a fresh image, or remove the scanner from `SENSOR_TOOLS`.
+pull a fresh image, or leave the scanner out of the local policy's `tools.allow`.
 
 ### Scanner offered
 {: #tool-selection }
 
-`tool.<name>.selection`. `not_selected`: the scanner is installed but not in
-`SENSOR_TOOLS` (Helm: `sensor.tools`); add it to offer it. `policy_excluded`:
+`tool.<name>.selection`. `not_selected`: the scanner is installed but left
+out by the deprecated `SENSOR_TOOLS` / `-tools` (Helm: `sensor.tools`); remove
+the setting (the sensor then offers every detected tool) or add the scanner. `policy_excluded`:
 the [sensor-local policy](network.md#sensor-local-policy) does not allow it.
 Only the network owner can change the policy on the sensor host.
 
@@ -243,8 +246,9 @@ message; check the start-up log ([Read the logs](#read-the-logs)).
 {: #tools-available }
 
 `tools.available` `none`: no scanner is both installed and allowed, so the
-platform cannot send the sensor any scan. Fix `SENSOR_TOOLS`, use an image
-with scanners, or ask the network owner to allow them in the local policy.
+platform cannot send the sensor any scan. Use an image with scanners, remove
+a deprecated `SENSOR_TOOLS` that leaves them out, or ask the network owner to
+allow them in the local policy.
 
 ### State directory on a volume
 {: #identity-state-persistent }
@@ -336,15 +340,25 @@ environment, or remove the reference.
 ### Daemon without jobs
 {: #config-commands-disabled }
 
-`config.commands_disabled`: the sensor was started with `-daemon` but without
-`-enable-commands`, so it heartbeats but never runs a job. Start it with both
-flags (the default image's command; Helm: `sensor.mode: daemon`).
+`config.commands_disabled`: platform commands are turned off on this sensor
+(`-enable-commands=false`, or `sensor.enable_commands: false` in its config
+file), so it heartbeats but never runs a platform scan. Remove the setting:
+from sensor v0.21.0 the daemon takes platform commands by default.
+
+### Deprecated tool list
+{: #config-tools-deprecated }
+
+`config.tools_deprecated`: the sensor was started with `SENSOR_TOOLS` or
+`-tools`. From sensor v0.21.0 the sensor detects its tools itself, and this
+setting only narrows them; a listed tool that is not installed is ignored and
+named in the check. Remove the setting, and narrow the tools with the local
+policy's `tools.allow` instead.
 
 ### Retired scanner name
 {: #config-tool-retired }
 
-`config.tool_retired`: a name in `SENSOR_TOOLS` was replaced by another
-scanner, which the sensor runs instead. Update the list.
+`config.tool_retired`: a scanner name in the sensor's configuration was
+replaced by another scanner, which the sensor runs instead. Update the name.
 
 ### Platform TLS trust
 {: #platform-tls }
