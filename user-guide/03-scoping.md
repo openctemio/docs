@@ -298,6 +298,31 @@ approval**, **Lifted**, **Rejected**, **Ended**. Path exclusions also have a
 **Testing mode** (**Blocked**, **Read-only** or, for at most 90 days,
 **Allowed**).
 
+From the inventory, select assets and use **Mark out of scope**: **Exclude**
+adds exclusions (exact, or a suggested rule with a preview), **Not ours**
+records that they are not your organization's. Both offer **Undo**.
+
+**How an exclusion reaches the sensors.** Every way a scan starts (scheduled,
+manual or quick scans, workflow runs and each later step, automation,
+validation and retests) leaves excluded targets out of the job, and cuts a
+range around excluded addresses instead of dropping it. A job with a range
+also carries the nearby address exclusions so the sensor cuts its ranges
+again, and a web job carries the excluded paths, which the sensor refuses to
+request. When a sensor picks a job up, its targets are checked again, so an
+exclusion added while the job waited still applies, and results for
+addresses the job was not given are dropped. The scan preview and the run
+page list the targets exclusions left out, with the rule that matched.
+
+**Assets nobody has classified yet.** An inventory asset that no scope entry
+covers and nobody excluded or marked not yours gets low-impact checks by
+default (common ports at a low rate, the home page and `/.well-known/`,
+certificate and technology fingerprinting). Platform guardrails keep it
+passive when it sits on a shared, CDN or cloud network, nothing is known
+about its network, or it is a name outside your domains. **Scope policy** >
+**Scan unclassified assets** sets this to **Off**, **Low-impact** (default)
+or **Full**; Strict scan approval always means Off. Exclusions and **Not
+ours** always win.
+
 ### Approvals
 
 Shown under **Strict** scan approval, or while something still waits. The
