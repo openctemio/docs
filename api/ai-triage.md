@@ -9,7 +9,8 @@ nav_order: 6
 AI triage asks a large language model to assess a finding: a severity assessment with its
 justification, exploitability, business impact, a false-positive likelihood and a summary. The
 result is advice stored next to the finding; it does not change the finding's severity, status or
-priority.
+priority. AI triage never decides: at most it proposes a false positive for a person to approve
+(see [False-positive proposals](#false-positive-proposals)).
 
 AI triage is off unless the operator enables it (`AI_TRIAGE_ENABLED=true` and a provider; see
 [Environment variables](../configuration/environment-variables.md)) and the organization turns it
@@ -63,6 +64,22 @@ Then read the result. `status` moves from `pending` to `processing` to `complete
 ```
 
 Real-time progress is also pushed to the console over its WebSocket.
+
+## False-positive proposals
+
+When a completed triage rates a **medium or low** finding at least 0.9 likely to be a false
+positive, the platform opens a pending false-positive
+[approval request](../user-guide/05-exposures-and-findings.md#approval-requests) for it:
+
+- The request is made by `ai_triage`, not by a user, and its justification is the model's
+  rationale. The console marks it **Proposed by AI triage**.
+- The finding does not change until a person approves. Any approver may decide the request,
+  since no person requested it; it is never approved automatically.
+- Never for critical or high findings.
+- Not repeated while a request for the finding is pending, or after a person rejected or canceled
+  an AI proposal for it.
+- Nothing is proposed when the model's output needed correcting or the finding contained text
+  that looks like a prompt injection.
 
 ## Limits and data handling
 

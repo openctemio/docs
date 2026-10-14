@@ -27,9 +27,11 @@ flowchart LR
 ## What you need
 
 - An OpenCTEM account with `scans:ci:write` (owners and administrators). Saving
-  the trust may ask for a recent sign-in.
-- A repository on GitHub, or on GitLab (gitlab.com or self-managed), where you
-  can add a workflow file.
+  the trust asks for a recent sign-in (step-up).
+- A repository on github.com, or on GitLab (gitlab.com or self-managed), where
+  you can add a workflow file. For GitHub Enterprise Server, or an enterprise
+  with its own token issuer, use **Trust › Add trust** instead of the wizard
+  ([Organization rollout](ci-rollout.md#github-enterprise)).
 - The platform URL as the CI runners reach it, for example
   `https://openctem.example.com`. The runners need outbound HTTPS to it.
 
@@ -51,12 +53,16 @@ baseline that pull requests are compared with.
 
 ![Step 2: the organization example-org and the default branch main]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-2-organization.png)
 
-**Create trust** saves the trust configuration. If one already admits these
-organizations, the wizard reuses it and shows its snippet.
+**Create trust** saves the trust configuration and asks for your second
+factor. If a trust configuration already admits these organizations, the
+wizard reuses it and shows its snippet: running the wizard again never creates
+a duplicate.
 
 ## 3. Add the snippet to the repository
 
-The snippet has your platform URL and organization id filled in.
+The snippet has your platform URL and organization id filled in. Its jobs ask
+for a token whose audience is `openctem:tenant:<organization id>`, so a token
+made for your organization is useless to any other.
 
 ![Step 3: the GitHub Actions workflow to save as .github/workflows/openctem.yml]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-3-snippet.png)
 
@@ -73,7 +79,7 @@ on:
 
 jobs:
   openctem:
-    uses: openctemio/ci/.github/workflows/scan.yml@v0.2.0
+    uses: openctemio/ci/.github/workflows/scan.yml@v0.3.0
     with:
       capabilities: sast,sca,secrets,iac
       api-url: https://openctem.example.com
@@ -81,13 +87,13 @@ jobs:
     permissions:
       contents: read
       id-token: write          # the job asks GitHub for an OIDC token; no stored secret
-      security-events: write   # required by openctemio/ci v0.2.0
+      security-events: write   # the workflow's scan job asks for it
 ```
 
-`security-events: write` is needed while you pin v0.2.0. That release's scan
-job asks for it, and GitHub refuses to start a called job that asks for more
-than its caller grants. Later releases ask for it only with
-`upload-sarif: true`.
+Grant all three permissions. The reusable workflow's scan job asks for
+`security-events: write` even when `upload-sarif` is off, and GitHub refuses
+to start a called job that asks for more than its caller grants. If the
+console's snippet lacks the line, add it.
 
 ### GitLab CI
 
@@ -95,15 +101,16 @@ Add to `.gitlab-ci.yml` (the jobs run in the `test` stage):
 
 ```yaml
 include:
-  - remote: https://raw.githubusercontent.com/openctemio/ci/v0.2.0/gitlab/templates/all.yml
+  - remote: https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml
 
 variables:
   OPENCTEM_API_URL: https://openctem.example.com
   OPENCTEM_TENANT_ID: <organization id> # jobs use their ID token; no stored secret
 ```
 
-Pin `v0.2.0` (or a commit) as shown. Never pin `@main` or `@v1`: `v1` is an
-early tag that points at v0.1.0. See [Reference](ci-reference.md#versions-to-pin).
+Pin `v0.3.0` (or its commit) as shown, never a branch such as `main`. From
+platform v0.9.6, v0.3.0 is also the oldest release the platform accepts by
+default: an older one is refused with `RUNNER_OUTDATED`. See [Reference](ci-reference.md#versions-to-pin).
 
 ## 4. Push and watch the first run
 
