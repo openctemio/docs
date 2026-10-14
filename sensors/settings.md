@@ -21,6 +21,14 @@ settings with examples are in [Deploy with Docker](deploy-docker.md#common-setti
 proxies in [Network](network.md#proxies); the transport in
 [Transport](transport.md#settings).
 
+No mode or tool settings are needed: the sensor runs as the daemon that takes
+platform commands and enables every tool it detects. A tool's scan options
+(rate, concurrency, timeouts) are not environment variables: set them per
+sensor in the console, see [Tool settings](tool-settings.md). The
+`SENSOR_NUCLEI_MAX_*` variables below are the host operator's ceilings over
+those settings; unset, they are nuclei's own defaults (150 requests per
+second, 25 templates and 25 hosts in parallel).
+
 Every sensor setting is `SENSOR_`-prefixed. A sensor refuses to start while a
 removed name is set, and its error names the replacement:
 

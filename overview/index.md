@@ -114,13 +114,13 @@ Then the next cycle starts, with what the last one taught you.
 
 ## Shipped and planned
 
-These pages describe what ships in the current release (v0.9.0 and later). Work
+These pages describe what ships in the current release (v0.9.5). Work
 that is designed but not shipped is marked **Planned** where it is mentioned.
 
 | Shipped | Planned |
 |---|---|
 | The five CTEM stages in the console, multi-tenant with per-organization SSO (OpenID Connect, Entra ID, Google, SAML 2.0) and SCIM | Running more than one API instance for high availability (today one API instance; see [Scaling](../operations/scaling.md)) |
-| Scanner sensors with pairing, grants, scan zones and freeze windows, over sensor protocol v2 (HTTPS) | Sensor protocol v3 (gRPC with mutual TLS, HTTPS fallback) |
+| Scanner sensors with pairing, grants, scan zones and scan windows, over sensor protocol v3 (gRPC with mutual TLS, HTTPS fallback) or v2 | Single-port gRPC in the API without the built-in gateway in front |
 | Collector sensors (platform and SDK runtime) | An endpoint agent that reports about its own host |
 | Scan workflows with the capabilities listed in [Scan workflows](../scanning/scan-workflows.md#capabilities) | Further capabilities such as `check.takeover`, `check.tls`, `cloud.posture` |
 | Organization isolation enforced by the application on every query | PostgreSQL row-level security as a second layer (policies exist, not enabled; see [Architecture](architecture.md#tenancy-and-isolation)) |

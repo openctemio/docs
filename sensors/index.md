@@ -22,15 +22,13 @@ inside is described in [How sensors work](how-it-works.md).
 | You want to | Use | Runs where | Start here |
 |---|---|---|---|
 | Scan hosts, web applications and networks the platform cannot reach (ports, HTTP, nuclei templates, subdomains) | **Sensor** (`openctemio/sensor`) | A host or cluster inside the network to scan | [Quickstart](#quickstart-a-working-sensor-in-five-minutes) |
-| Import inventory you already have (vCenter, Active Directory or LDAP, Google Cloud DNS, Splunk, PRTG) | **Asset collector** (`openctemio/asset-collector`) | A host that can reach those systems | [Asset collector](asset-collector.md) |
 | Scan code and dependencies in a pipeline | **CI integration** (no sensor) | GitHub Actions or GitLab CI | [CI integration](../scanning/ci-integration.md) |
 | Match your software inventory against known vulnerabilities | **Vulnerability feed** (`openctemio/vulnfeed`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
 | Follow public bug-bounty and disclosure programs | **Program feed** (`openctemio/programfeed`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
 
-A sensor and a collector both connect out to the platform, need no inbound
-port and appear under **Discovery > Sensors**. A sensor takes the scans the
-platform sends it; a collector takes none and pushes inventory on its own
-schedule. The feeds are not installed on your hosts at all.
+A sensor connects out to the platform, needs no inbound port and appears
+under **Discovery > Sensors**. The feeds are not installed on your hosts at
+all.
 
 1. TOC
 {:toc}
@@ -39,9 +37,10 @@ schedule. The feeds are not installed on your hosts at all.
 
 ## Quickstart: a working sensor in five minutes
 
-This quick start was run end to end against platform v0.9.2 with sensor
-v0.18.0. It installs a hardened, confined sensor, pairs it, checks it and runs
-a first scan.
+This quick start is written for platform v0.9.5 with sensor v0.21.1. It
+installs a hardened, confined sensor, pairs it, checks it and runs a first
+scan. The sensor needs no mode or tool flags: it runs as the daemon that takes
+the platform's commands and enables every tool in the image that works.
 
 ### What you need
 
@@ -71,7 +70,7 @@ container:
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.18.0/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.21.1/docker/seccomp/sensor.json
 
 docker run -d --name openctem-sensor --restart unless-stopped \
   --stop-timeout 45 \
@@ -81,8 +80,10 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e XDG_CONFIG_HOME=/tmp/.config -e XDG_CACHE_HOME=/tmp/.cache \
   -e SENSOR_API_URL=https://openctem.example.com \
   -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
+  -e SENSOR_SANDBOX_NETWORK=required \
+  --dns-search . \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0
+  ghcr.io/openctemio/sensor:v0.21.1
 ```
 
 Change three things:
@@ -96,6 +97,11 @@ Change three things:
 - To scan private addresses (RFC 1918, IPv6 ULA), list them and add
   `-e SENSOR_ALLOW_PRIVATE_TARGETS=1`.
 
+If an administrator already created a code with **Expect a sensor**, add
+`-e SENSOR_PAIRING_CODE=XXXX-XXXX` (that code): the sensor attaches to it on
+first start and you skip step 2. The variable is ignored once the sensor is
+paired and is never logged.
+
 If the platform uses its own CA, add these two lines before the image name:
 
 ```bash
@@ -108,9 +114,12 @@ What the other flags do:
 - `--security-opt seccomp=...` lets the sensor give every scan its own
   network namespace, so a scanner reaches only the job's targets
   ([Tool confinement](security.md#tool-confinement)). nuclei scans of a host
-  with an excluded path run **only** on a confined sensor. Without the
-  profile the sensor still runs, unconfined, and logs
+  with an excluded path run **only** on a confined sensor.
+  `SENSOR_SANDBOX_NETWORK=required` makes the sensor refuse to start when it
+  cannot confine its tools, instead of running unconfined with
   `Warning: tool network not confined`.
+- `--dns-search .` makes the tools look target names up exactly as written,
+  never with the host's search domain appended. Recommended, not required.
 - `--read-only`, `--tmpfs /tmp`, `--cap-drop ALL` and `no-new-privileges`
   are the least-privilege settings the platform's own install snippet uses.
   Add `--cap-add NET_RAW` only for naabu SYN scans.
@@ -202,16 +211,19 @@ choose **Promote to Trusted**. See [Grants and trust](pairing.md#grants-and-trus
 ### 6. Run a first scan
 
 1. Put a target in scope: **Scoping > Scope**, add the domain or range (for
-   example `app.example.com`). The platform refuses to scan anything no scope
-   entry covers. See [Scope](../scanning/scope.md).
+   example `app.example.com`). A scope entry allows a full scan; an asset no
+   entry covers gets at most low-impact checks. See
+   [Scope](../scanning/scope.md).
 2. **Discovery > Scans > New scan**, target `app.example.com`, workflow
    **Discover**, then **Run now**.
 3. The run's **Tasks** tab shows the task on your sensor; the sensor's log
    shows `Executing command ...` and `Command ... completed`. Results appear
    on the asset within a minute.
 
-A task that never starts says why on the run (no sensor for the tool, the
-sensor is New, the target is outside its local policy or zone): see
+A task that does not start says why on the run: open **Why waiting?** on the
+task (another task is scanning its hosts, no sensor has the tool, the sensor
+is New, the target is outside its local policy or zone, the task needs a
+confined sensor). See [Why is a task waiting?](../scanning/why-waiting.md) and
 [Online, but it gets no work](troubleshooting.md#online-but-it-gets-no-work).
 
 Next: [route work to it with scan zones](zones.md), and read
@@ -254,7 +266,7 @@ name or a port of its own, and use HTTPS otherwise.
 | [Kubernetes](deploy-kubernetes.md) | A sensor in a cluster, paired like a Docker sensor, or the chart's bundled sensor. |
 | [Binary](deploy-binary.md) | Hosts without containers; you install the scanners. |
 
-Then: [Upgrade, back up and remove](operate.md), [Security notes](security.md)
+Then: [Tool settings](tool-settings.md), [Upgrade, back up and remove](operate.md), [Security notes](security.md)
 and [Troubleshooting](troubleshooting.md).
 
 ## Before production

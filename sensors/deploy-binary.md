@@ -56,8 +56,11 @@ openctemio-sensor -list-tools    # each scanner and whether it is available here
 openctemio-sensor -check-tools   # what is missing, with installation instructions
 ```
 
-The sensor reports to the platform only the scanners it finds. Install the
-ones you want this sensor to run, or narrow the list with `SENSOR_TOOLS`.
+The sensor detects the installed scanners itself and reports to the platform
+only those whose binary passes its check. Install the ones you want this
+sensor to run. To narrow the list further, use the local policy's
+`tools.allow` ([Sensor-local policy](network.md#sensor-local-policy));
+`SENSOR_TOOLS` is deprecated.
 
 ## Run as a systemd service
 
@@ -88,7 +91,8 @@ Environment=SENSOR_ALLOWED_RANGES=203.0.113.0/24,*.example.com
 Environment=SENSOR_STATE_DIR=/var/lib/openctem/state
 Environment=SENSOR_OUTBOX_DIR=/var/lib/openctem/outbox
 Environment=SENSOR_CONTENT_DIR=/var/lib/openctem/content
-ExecStart=/usr/local/bin/openctemio-sensor -daemon -enable-commands
+# Optional: SENSOR_PAIRING_CODE=XXXX-XXXX from "Expect a sensor" (first start only)
+ExecStart=/usr/local/bin/openctemio-sensor -verbose
 Restart=on-failure
 TimeoutStopSec=45
 NoNewPrivileges=true
