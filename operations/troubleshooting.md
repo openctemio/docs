@@ -122,6 +122,17 @@ are covered in [TLS and the gateway](../install/tls-and-gateway.md#troubleshooti
 Offline sensors, rejected keys and certificate errors on sensor hosts are covered
 in [Sensors: troubleshooting](../sensors/troubleshooting.md).
 
+## Scans
+
+| Symptom | What to check |
+|---|---|
+| A task stays queued | Open **Why waiting?** on the task in the run. The usual reasons are another task scanning the same hosts, a scan window, or no sensor in the zone with the tool. See [Why a task waits](../scanning/why-waiting.md). |
+| Run refused when triggered | **Run now** shows the refusal code and its fix (for example `NO_SENSOR_FOR_TOOL`, `ALL_TARGETS_EXCLUDED`, `SCAN_WINDOW_NEVER_OPENS`, `MAX_CONCURRENT_RUNS`). See [Starting a run](../scanning/scans-and-runs.md#starting-a-run). |
+| A step `DEADLINE_TOO_CLOSE` | Too little time was left before the run's deadline for that step. Its targets roll over to the next scheduled run; raise or clear the scan's **Max duration** if the run should finish in one go ([Run deadline](../scanning/scans-and-runs.md#run-deadline)). |
+| A task was re-queued as stalled | Nothing moved in the task for its stall window (no target finished, no output, no CPU time). Its sensor was asked to hand back what it finished, and only the unfinished targets run again ([Liveness and stalls](../scanning/scans-and-runs.md#liveness-and-stalls)). Check the sensor's log for the tool. |
+| A step failed with `COMMAND_EXHAUSTED` | The task was handed out the maximum number of times and never finished. Check the sensor's logs for the task, then run the scan again. |
+| A run is `partial` with skipped targets | The task list shows which targets were skipped and why (outside the sensor's policy, not a valid target, refused) and which hosts were not fully covered. |
+
 ## Requests refused
 
 | Status | Cause |

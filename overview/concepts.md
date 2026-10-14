@@ -175,7 +175,7 @@ See [Sensors](../sensors/index.md).
 | **Scan** | A configuration: targets, the scan workflow, the schedule. |
 | **Scan run** | One execution of a scan. |
 | **Step** | One step of a scan run (one tool on the run's targets). |
-| **Task** | One unit of sensor work within a step, for a chunk of targets. Sensors claim tasks. |
+| **Task** | One unit of sensor work within a step, for a chunk of targets. Sensors claim tasks. A task holds its hosts while it scans them, and only its unfinished targets run again when it stops part-way. |
 
 ```mermaid
 flowchart TB
@@ -191,9 +191,11 @@ flowchart TB
     ST1 -.->|"outputs feed"| ST2
 ```
 
-A scan run starts only by triggering a scan (by hand or on its schedule), so
-every run passes the same checks: scope, scan freeze windows, available sensors
-and tools. See [Scanning](../scanning/index.md).
+A scan run starts only by triggering a scan (by hand, on its schedule, from a
+quick scan, an automation or a retry), so every run passes the same checks:
+scope, scan windows, available sensors and tools. Retests and validation
+create runs of their own kinds. See [Scanning](../scanning/index.md) and
+[Why a task waits](../scanning/why-waiting.md).
 
 **CI pipelines** scan code in your own CI system and report each **CI run** to
 the platform, which can fail the pipeline on a policy gate.
