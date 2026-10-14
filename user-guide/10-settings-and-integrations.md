@@ -19,8 +19,8 @@ a filter box. The pages are also searchable from the command palette
 | My account | Profile, Security, Preferences, Notifications, Activity: see [Your account](01-getting-started.md#your-account) |
 | Organization | General, Modules, Audit log |
 | Access | Members, Teams, Roles, Authentication, Directory sync (SCIM), SSO approvals, API keys, AI access (MCP): see [Team and access](02-team-and-access.md) |
-| Policies | Risk scoring, SLA policies, Asset lifecycle, Scope policy, Scan freeze windows, Pentest methodology |
-| Scanning | Scan profiles, Scanner templates, Template sources, Source credentials, Tools, Capabilities, CI/CD integration, Scanner content |
+| Policies | Risk scoring, SLA policies, Asset lifecycle, Scope policy, Scan windows, Pentest methodology |
+| Scanning | Scan profiles, Scanner templates, Template sources, Source credentials, Tools, Capabilities, Scanner content |
 | Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Notification channels, SIEM |
 
 Almost every create, edit and delete action here is hidden or disabled according
@@ -116,24 +116,40 @@ fresh exposure. It needs the `team:update` permission; without it the page says
 
 Click **Save changes**.
 
-### Scan freeze windows
+### Scan windows
 
-**Settings › Policies › Scan freeze windows** (`/settings/scanning/freeze-windows`)
-sets times when no active scan of the organization is dispatched, for maintenance
-or a change freeze. Scheduled runs start when the window ends; passive discovery
-and imports continue. Windows that apply to a single scan zone are set on the
-zone.
+**Settings › Policies › Scan windows** (`/settings/scanning/scan-windows`) sets
+when scans may touch which targets. Each policy is one of two kinds:
 
-1. Click **Add freeze window**.
-2. Enter a **Name** (for example "Weekend patching") and a description.
-3. Choose whether it **Repeats** **Every week** (days and times) or happens
-   **Once** (start and end), and the **Time zone**.
-4. Keep it **Enabled** (a disabled window holds nothing and releases what it
-   held) and save.
+- **Allow: scan only inside the windows** (testing windows, such as business
+  hours).
+- **Blackout: never scan inside the windows** (maintenance, change freezes).
 
-An active window shows a banner across the console. Deleting a window releases
-the work it holds at once. Adding and editing windows needs the scan-zone write
-permission.
+A policy selects its targets by **Tags**, **Groups**, **Asset types**,
+**Criticality**, **Business units**, **Scope entries**, **Zones** or bug-bounty
+**Programs** (or **Every target**), and has weekly slots or dated one-off
+windows in a time zone. It applies to all tools, to active and intrusive
+tools, or to intrusive tools only, and may cap rate and concurrency.
+**Grace (minutes)** is how long running work may finish after its window
+closes (15 minutes by default).
+
+Work outside its windows **waits** instead of being refused: a manual run
+during a blackout starts and waits, a scheduled run with nothing open is
+deferred to the next opening, and a step with targets inside and outside is
+split so the open targets go now. Waiting does not count against the run's
+deadline. A target whose windows never open refuses the run with
+`SCAN_WINDOW_NEVER_OPENS`. When a window closes under a running task, the
+task gets its grace, then goes back to the queue and its sensor is told to
+stop. **Preview** shows why a target cannot be scanned now and when it can.
+
+Managing policies needs `scans:windows:manage`. **Override windows** lifts
+the policies for 15 minutes to 24 hours in an emergency, with a reason and a
+current authenticator code (`scans:windows:override`, owners and
+administrators); it is audited and every owner and administrator is notified.
+Bug-bounty program testing windows are never lifted.
+
+Freeze windows from earlier releases were converted to blackout policies on
+upgrade.
 
 ## Scanning
 
@@ -223,30 +239,43 @@ sensors that use it and asks you to confirm.
 
 ### CI/CD integration
 
-**CI/CD integration** (`/settings/scanning/ci`, also the **Trust and gate** tab of
-**Discovery › CI/CD**) lets CI jobs (GitHub Actions, GitLab CI, Azure Pipelines,
-Bitbucket Pipelines, CircleCI, Jenkins) send results with their own identity
-instead of a stored API key, and decides what fails a pipeline. Changing it needs
-an owner or admin. See [CI integration](../scanning/ci-integration.md).
+CI trust, the gate policy and break-glass are not settings pages: they are on
+the **Trust and gate** tab of **Discovery › CI/CD** (`/ci-cd`). The page lets CI
+jobs (GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket Pipelines, CircleCI,
+Jenkins) send results with their own identity instead of a stored API key, and
+decides what fails a pipeline. Changing it needs an owner or admin. See
+[CI/CD quickstart](../scanning/ci-quickstart.md) and
+[CI integration](../scanning/ci-integration.md).
 
-![The CI/CD integration settings with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
-*Figure: Settings, Scanning, CI/CD integration.*
+![The CI/CD integration page with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
+*Figure: Discovery, CI/CD, Trust and gate.*
 
+- **Connect a pipeline**: a four-step wizard (CI system, organization,
+  pipeline snippet, first run) that creates the trust and waits for the
+  pipeline's first run.
 - **Require OIDC for CI**: CI jobs must use their OIDC identity; when off, CI
   sensor API keys are still accepted.
 - **Trust**: **Add trust** for a CI provider, limited to owners, repositories,
-  branches and tags, environments and events, optionally to protected branches
-  only. Admitting fork pull requests shows a warning, because fork code would act
-  with the repository's identity. Each trust gives a **Pipeline snippet** to
-  copy.
+  branches and tags, environments, events and **Pipeline definitions** (only
+  jobs that run your central workflow), optionally to protected branches and
+  tags only. Admitting fork pull requests shows a warning, because fork code
+  would act with the repository's identity. Each trust gives a **Pipeline
+  snippet** to copy.
+- **Recent refused pipelines**: pipelines whose identity no trust admitted, with
+  the rule that refused each one and how to fix it.
 - **Gate policy**: what fails a pipeline, for the organization, per business unit
   or per repository: **Enforce** or **Warn**, the severity that fails, an
-  optional EPSS threshold, **New findings only** and **Known exploited (KEV)
-  fails**. A committed secret, and a scanner that fails to run, always fail the
-  pipeline; accepted risks, false positives and suppressions are always honored.
-- **Break-glass**: override the gate for one repository and commit for a limited
-  time (1 to 168 hours) with a reason. Every override is audited and can be
-  revoked.
+  optional EPSS threshold, **New findings only**, **Known exploited (KEV)
+  fails** and **Dependency and image vulnerabilities block only when a fix
+  exists** (off by default). A committed secret, and a scanner that fails to
+  run, always fail the pipeline; accepted risks, false positives and
+  suppressions are always honored.
+- **Break-glass**: override the gate for one repository and one full commit id
+  for a limited time (1 to 168 hours) with a reason. Every override is audited
+  and can be revoked.
+- **Pull request feedback**: install the OpenCTEM GitHub App or connect a
+  GitLab group with a group access token, so the gate shows as a check or
+  commit status with comments on the pull request.
 
 ### Scanner content
 
