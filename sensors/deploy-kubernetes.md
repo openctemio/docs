@@ -62,13 +62,13 @@ helm upgrade openctem openctem/openctem -n openctem --reuse-values \
 | Value | Default | Meaning |
 |---|---|---|
 | `sensor.enabled` | `false` | Run the bundled sensor |
-| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform; `sensor.image.tag=v0.18.0` for the newest |
-| `sensor.sandbox.seccompProfile` | `runtime-default` | `openctem`: run under the sensor's own seccomp profile, installed on the nodes by a DaemonSet, so scans are network-confined |
+| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform. Chart 0.23.2 pins v0.20.0; set `sensor.image.tag=v0.21.1` for the newest |
+| `sensor.sandbox.seccompProfile` | `openctem` | The sensor's own seccomp profile, installed on the nodes by a DaemonSet (`sensor.sandbox.installProfile`), so scans are network-confined. `runtime-default` where a DaemonSet with a host path cannot run; tasks then run unconfined |
 | `sensor.sandbox.network` | `auto` | `SENSOR_SANDBOX_NETWORK`: `required` refuses to run a task unconfined |
 | `sensor.caFingerprint` / `sensor.platformKey` | empty | `SENSOR_CA_FINGERPRINT` and `SENSOR_PLATFORM_KEY` pins (see [Security notes](security.md#tls-and-pinning)) |
 | `sensor.existingSecret` / `.existingSecretKey` | none / `api-key` | Secret holding an API key (preferred over `sensor.apiKey`). Empty: the sensor pairs |
 | `sensor.apiUrl` | the in-cluster API service | Override `SENSOR_API_URL` |
-| `sensor.tools` | empty | Allowlist of scanners (`-tools`). Empty: every scanner in the image |
+| `sensor.tools` | empty | Deprecated (`-tools`): from sensor v0.21.0 the sensor detects its tools and this only narrows them. Leave it empty and narrow with `tools.allow` in `sensor.localPolicy` |
 | `sensor.allowPrivateTargets` | empty | `"1"` sets `SENSOR_ALLOW_PRIVATE_TARGETS=1`; any other value fails the render |
 | `sensor.data.persistence.enabled` | `true` | One PVC (8Gi) at `/var/lib/openctem`: the sensor's identity (`state/`), undelivered results (`outbox/`) and the scanner content cache (`content/`). Required while the sensor pairs; needs `replicaCount: 1` |
 | `sensor.storageLayout` | empty | `data` (one volume) or `split` (a volume per directory: `sensor.state`, `sensor.outbox`, `sensor.content`, the layout before chart 0.19.0). Empty keeps `split` for a release that already has those PVCs. Under GitOps set it explicitly: see the chart README, "Upgrading to 0.19.0" |
@@ -95,8 +95,8 @@ may run the pod, under the kubelet's seccomp directory (by default
 ```bash
 # on each node, as root
 mkdir -p /var/lib/kubelet/seccomp/openctem
-curl -fsSLo /var/lib/kubelet/seccomp/openctem/sensor-v0.18.0.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.18.0/docker/seccomp/sensor.json
+curl -fsSLo /var/lib/kubelet/seccomp/openctem/sensor-v0.21.1.json \
+  https://raw.githubusercontent.com/openctemio/sensor/v0.21.1/docker/seccomp/sensor.json
 ```
 
 A pod whose `Localhost` profile is missing on its node does not start
@@ -146,10 +146,10 @@ spec:
           # The sensor's profile, installed on the node (see above).
           # RuntimeDefault works too, but the sensor then runs unconfined.
           type: Localhost
-          localhostProfile: openctem/sensor-v0.18.0.json
+          localhostProfile: openctem/sensor-v0.21.1.json
       containers:
         - name: sensor
-          image: ghcr.io/openctemio/sensor:v0.18.0
+          image: ghcr.io/openctemio/sensor:v0.21.1
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

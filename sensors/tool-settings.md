@@ -1,0 +1,112 @@
+---
+title: Tool settings
+parent: Sensors
+nav_order: 7.4
+---
+
+# Tool settings
+{: .no_toc }
+
+Each tool a sensor runs declares its options: how fast it may go (rate,
+concurrency), how long it waits (timeout, retries) and tool-specific choices.
+You set them **per sensor** in the console. They travel to the sensor inside
+each signed scan job, and the sensor maps each one to the tool's native flag.
+
+1. TOC
+{:toc}
+
+---
+
+## Where to set them
+
+**Discovery > Sensors**, open a sensor, tab **Tool settings**. The tab is shown
+to people who can manage sensors (`sensors:write`; owners and administrators
+by default).
+
+- Each tool the sensor reports with a settings schema gets a form, in two
+  groups: **Common options** (rate, concurrency, timeout, retries) and
+  **Tool options**.
+- Each field shows its default (`Default (...)`), the allowed range
+  (`Allowed: ... to ...`) and, where it has one, the tool's native flag.
+  Leave a field empty to keep the default.
+- **A scan can lower it** marks an option a scan may set lower, never higher.
+- A dangerous option keeps its default until the organization can enable
+  dangerous options.
+- **Save** stores the values and **Reset to defaults** removes them. Both are
+  audited.
+- **Show effective values** opens a table with the columns **Key**,
+  **Value**, **Source** (**This sensor** or **Tool default**) and **Native
+  flag**: what the sensor will run with before a scan's own options and the
+  job's limits apply.
+
+When the sensor's tool changes (an upgrade) and the saved values no longer fit
+its schema, the tab warns: "The sensor's tool changed and these saved settings
+no longer fit it. Its scan jobs fail until you save or reset them."
+
+## Who may raise or lower an option
+
+An option's value is resolved in layers, in this order:
+
+| Layer | Set by | May |
+|---|---|---|
+| Tool default | The tool's manifest | The starting value |
+| Organization | (no console page yet) | Raise or lower |
+| Sensor | **Tool settings** on the sensor | Raise or lower, within the allowed range |
+| Scan or workflow step | The scan's options | Only lower |
+| Job decision | The platform, per job (for example the per-target time budget) | Only lower |
+| Sensor-local policy | The network owner, on the sensor host | Only lower (for example `rate.max_rps`) |
+
+- Only the administrator layers may go **above** the tool's default. A scan
+  that asks for a higher rate, concurrency or retry count than the sensor
+  allows is an error, not a silent cap.
+- Today the platform sends only the sensor layer; there is no organization
+  layer to set.
+- **Timeout** is not lowered by a scan. The platform's per-target time budget
+  shortens it on each job (to the budget divided by retries plus one, at least
+  2 seconds), so one host that never answers costs one budget.
+- Some options are **sensor only** (for example nuclei's `bulk_size` and
+  trivy's `parallel`): a scan cannot set them at all.
+- The host operator's ceilings apply last, whatever the settings say. For
+  nuclei they are `SENSOR_NUCLEI_MAX_RATE_LIMIT`,
+  `SENSOR_NUCLEI_MAX_CONCURRENCY` and `SENSOR_NUCLEI_MAX_BULK_SIZE`, which
+  default to nuclei's own defaults (150 requests per second, 25 templates and
+  25 hosts in parallel). **To run nuclei faster than that, raise both the
+  sensor's tool setting and the matching variable on the sensor host.**
+
+When you save a single-tool scan, or add or edit a workflow step pinned to a
+tool, the platform checks its options against your sensors for that tool. A
+sensor-only option, a value out of range, or a raise above what the sensor
+allows is refused when no sensor would accept it, instead of failing every
+job later.
+
+## Options per tool
+
+Options marked *common* are the ones the platform's job decision and budget
+reach. The options a sensor reports are the ones in its version's manifest;
+the console shows exactly what your sensor declares.
+
+| Tool | Option (native flag) |
+|---|---|
+| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`) |
+| naabu | `rate` (`-rate`, common), `retries` (`-retries`, common), `ports` (`-p`), `top_ports`, `exclude_ports` |
+| httpx | `rate_limit` (`-rl`, common), `threads` (`-threads`, common), `timeout` (common), `retries` (common), `ports`, `follow_redirects` (`-follow-host-redirects`), `tech_detect`, `tls_grab` |
+| dnsx | `rate_limit` (`-rl`, common), `threads` (`-t`, common), `timeout` (common), `retries` (`-retry`, common), `record_types`, `wildcard_filter` (`-auto-wildcard`) |
+| subfinder | `rate_limit` (`-rl`, common), `timeout` (common), `sources` (`-sources`), `recursive`, `max_results` |
+| katana | `rate_limit` (`-rl`, common), `concurrency` (`-c`, common), `timeout` (common), `retries` (`-retry`, common), `depth` (`-d`), `js_parse` (`-js-crawl`), `max_urls` |
+| trivy | `parallel` (`--parallel`, sensor only), `dev_deps` (`--include-dev-deps`), `os_pkgs` (`--pkg-types`), `frameworks` (`--misconfig-scanners`) |
+
+These options need sensor v0.21.0 or later; older sensors declare fewer.
+
+## API
+
+| Method and path | Permission | Does |
+|---|---|---|
+| `GET /api/v1/sensors/{id}/tool-settings` | `sensors:read` | Each tool's schema and stored values |
+| `GET /api/v1/sensors/{id}/tool-settings/{tool}/effective` | `sensors:read` | The effective values with their source |
+| `POST /api/v1/sensors/{id}/tool-settings/{tool}/preview` | `sensors:read` | Resolves a scan's or step's options over the sensor's settings, as the sensor will: each option with its value and source (default, sensor or scan) and the keys the sensor ignores; `422` when the sensor would refuse them. Stores nothing. |
+| `PUT /api/v1/sensors/{id}/tool-settings/{tool}` | `sensors:write` | Saves the values |
+| `DELETE /api/v1/sensors/{id}/tool-settings/{tool}` | `sensors:write` | Resets to defaults |
+
+Related: [Tools and capabilities](../scanning/tools.md),
+[Sensor-local policy](network.md#sensor-local-policy),
+[Settings reference](settings.md).

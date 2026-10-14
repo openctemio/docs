@@ -30,6 +30,7 @@ Notes that stop a sensor if missed:
 
 | From | To | What to change first |
 |---|---|---|
+| a config-file daemon with `enable_commands` unset | v0.21.0 or later | The daemon takes platform commands by default: such a sensor now polls the platform (and pairs on first start when it has no key). Set `sensor.enable_commands: false` to keep it scheduled-only. `-daemon`, `-enable-commands` and `SENSOR_TOOLS` / `-tools` still work with a warning; the `-enable-recon` family of flags is ignored. |
 | any | v0.17.0 or later | Every setting is `SENSOR_`-prefixed. `API_URL` → `SENSOR_API_URL`, `API_KEY` → `SENSOR_API_KEY`, `REGION` → `SENSOR_REGION`, `PLATFORM_KEY_AUTORENEW` → `SENSOR_KEY_AUTORENEW`; `AGENT_ID`, `AGENT_NAME`, `AGENT_ALLOW_PRIVATE_TARGETS` and `OPENCTEM_SDK_ALLOW_PRIVATE_TARGETS` are gone (use `SENSOR_ID`, `SENSOR_NAME`, `SENSOR_ALLOW_PRIVATE_TARGETS`). With an old name set the sensor exits with code 2: `Error: environment variables a sensor no longer reads are set: API_URL (rename it to SENSOR_API_URL)`. |
 | any | v0.17.0 or later | The default image has no shell. Scripts that `docker exec` into the sensor stop working; run the image's own commands instead (below). |
 | three volumes | v0.16.0 or later | One volume at `/var/lib/openctem` replaces `state`, `outbox` and `content` volumes. The old layout keeps working; to move, see [Move from three volumes to one](deploy-docker.md#move-from-three-volumes-to-one). |
@@ -43,7 +44,7 @@ with it.
 **docker run**
 
 ```bash
-NEW=v0.18.0
+NEW=v0.21.1
 docker pull ghcr.io/openctemio/sensor:$NEW
 curl -fsSLo openctem-sensor-seccomp.json \
   https://raw.githubusercontent.com/openctemio/sensor/$NEW/docker/seccomp/sensor.json
@@ -133,7 +134,7 @@ docker stop openctem-sensor
 docker run --rm -it \
   -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 pair -repair
+  ghcr.io/openctemio/sensor:v0.21.1 pair -repair
 docker start openctem-sensor
 ```
 
@@ -182,11 +183,11 @@ volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 -outbox-status          # results waiting, dead letters
+  ghcr.io/openctemio/sensor:v0.21.1 -outbox-status          # results waiting, dead letters
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 -outbox-requeue-dead    # after fixing the cause
+  ghcr.io/openctemio/sensor:v0.21.1 -outbox-requeue-dead    # after fixing the cause
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 -content-status         # scanner content versions
+  ghcr.io/openctemio/sensor:v0.21.1 -content-status         # scanner content versions
 ```
 
 The outbox refuses a second process: with the sensor running, these commands
