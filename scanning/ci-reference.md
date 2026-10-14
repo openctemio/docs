@@ -13,22 +13,23 @@ nav_order: 7
 
 ## Versions to pin
 
-The current release of `openctemio/ci` is **v0.2.0**. Pin it, or a commit:
+The current release of `openctemio/ci` is **v0.3.0**. Pin it, or a commit:
 
 | Use | Reference |
 |---|---|
-| GitHub reusable workflow | `openctemio/ci/.github/workflows/scan.yml@v0.2.0` |
-| GitHub action | `openctemio/ci@v0.2.0` |
-| GitLab template | `https://raw.githubusercontent.com/openctemio/ci/v0.2.0/gitlab/templates/all.yml` |
-| Image (all tools) | `ghcr.io/openctemio/ci:v0.2.0`, or its digest |
+| GitHub reusable workflow | `openctemio/ci/.github/workflows/scan.yml@v0.3.0` |
+| GitHub action | `openctemio/ci@v0.3.0` |
+| GitLab template | `https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml` |
+| Image (all tools) | `ghcr.io/openctemio/ci:v0.3.0`, or its digest |
 
-Never pin `@main` or `@v1`. The `v1` git tag is an early tag that points at
-v0.1.0, and no `v1` image exists. `edge` follows the main branch and changes
-without notice. The console's snippets pin the release the platform was
+Never pin `@main`. `edge` follows the main branch and changes without notice.
+`v0` follows the latest 0.x release; it is signed like every release, but a
+full version or a digest is what makes a pipeline reproducible. The console's snippets pin the release the platform was
 built with.
 
-With v0.2.0, a GitHub job that calls the reusable workflow must grant
-`security-events: write` ([why](ci-troubleshooting.md#other-symptoms)).
+The platform refuses runners older than v0.3.0 (`CI_RUNNER_MIN_VERSION`).
+Earlier releases read scanner configuration and ignore files from the scanned
+tree, which could hide findings.
 
 ## Capabilities
 
@@ -60,7 +61,7 @@ signature before running it (`verify-signature`, on by default).
 | `upload-sarif` | `false` | Also upload SARIF to GitHub code scanning (needs `security-events: write`) |
 | `image-tag`, `scanner-image`, `verify-signature` | | Advanced: the image tag, one image for every capability, signature check |
 
-The action (`openctemio/ci@v0.2.0`) takes the same inputs plus `path`,
+The action (`openctemio/ci@v0.3.0`) takes the same inputs plus `path`,
 `semgrep-config` (default `p/default`), `aggregate`, `skip-gate`, `command`
 (`scan` or `gate`) and `status-dir`. Its outputs are `exit-code`, `sarif-dir`
 and `status-dir`.
@@ -84,9 +85,9 @@ in the merge request security widget.
 
 Azure Pipelines, Bitbucket Pipelines, CircleCI and Jenkins (with the OpenID
 Connect Provider plugin) report the same way: see
-[`examples/`](https://github.com/openctemio/ci/tree/v0.2.0/examples) and
-[docs/other-ci.md](https://github.com/openctemio/ci/blob/v0.2.0/docs/other-ci.md).
-In the image `ghcr.io/openctemio/ci:v0.2.0`:
+[`examples/`](https://github.com/openctemio/ci/tree/v0.3.0/examples) and
+[docs/other-ci.md](https://github.com/openctemio/ci/blob/v0.3.0/docs/other-ci.md).
+In the image `ghcr.io/openctemio/ci:v0.3.0`:
 
 ```bash
 openctem-ci scan --capability sast --aggregate   # one per capability, in parallel
@@ -119,7 +120,7 @@ OIDC for CI** is on (the default).
 | Variable | Default | Meaning |
 |---|---|---|
 | `CI_RUNNER_LATEST_VERSION` | the CI release the API was built with | Snippets pin it; an older runner shows an update |
-| `CI_RUNNER_MIN_VERSION` | none | An older runner is refused (`RUNNER_OUTDATED`) |
+| `CI_RUNNER_MIN_VERSION` | v0.3.0 | An older runner is refused (`RUNNER_OUTDATED`) |
 | `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` | none | Private ranges the API may reach, for example a self-managed GitLab issuer |
 | `GITHUB_APP_*` | | The deployment's GitHub App ([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/github-app.md)) |
 

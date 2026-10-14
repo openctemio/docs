@@ -10,6 +10,8 @@ nav_order: 3
 
 For AppSec admins: what fails a pipeline, how a policy is chosen, and how to
 change it safely. Open **Discovery › CI/CD › Trust and gate › Gate policy**.
+Changing policies and expected scans needs `scans:ci:policy` (owners,
+administrators, and the AppSec engineer role template).
 
 1. TOC
 {:toc}

@@ -60,6 +60,7 @@ Recent refused pipelines** (the latest 50) and in the audit log
 | `pipeline_rate` | This pipeline started too many runs in a short time. | Wait and retry; check for a loop in the pipeline. |
 | `run_mismatch` | The job named a run of another pipeline. | Let each pipeline run use its own run. |
 | `aggregate_no_run_id` | A combined run needs the pipeline's run id, which the token does not carry. | Run one job per capability without combining, or use a provider that names the run. |
+| `legacy_audience` | The pipeline used the trust configuration's old audience, which it may no longer use. | Update the pipeline to the current snippet. Its audience names the organization (`openctem:tenant:<id>`). |
 
 ### Refused, but nothing is listed
 
@@ -70,7 +71,7 @@ The job only sees `401`.
 | Cause | Check |
 |---|---|
 | No enabled trust configuration for the token's issuer | The trust exists and is enabled. For self-managed GitLab, the issuer URL is exactly the instance URL. |
-| Wrong audience | The job requests `openctem:tenant:<organization id>`, or the trust's own audience. On GitHub, pass `oidc-audience` only when the trust uses another one. |
+| Wrong audience | The job requests `openctem:tenant:<organization id>`, or the trust's own audience, which always contains the organization id. On GitHub, pass `oidc-audience` only when the trust uses another one. |
 | Wrong organization id in the job | `tenant-id` / `OPENCTEM_TENANT_ID` is the id shown in the snippet. |
 | Expired token | The job ran longer than its provider's token lifetime before the first upload. |
 | Issuer unreachable from the platform | For a self-managed GitLab on a private network, the operator allows its range with `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. A private CA must be in the API's trust store. |
@@ -78,7 +79,7 @@ The job only sees `401`.
 ## Runner version (`403 RUNNER_OUTDATED`)
 
 The platform refuses a CI runner below the minimum CI runner release
-(`CI_RUNNER_MIN_VERSION`, none by default). Pin the current release
+(`CI_RUNNER_MIN_VERSION`, v0.3.0 by default). Pin the current release
 ([Reference](ci-reference.md#versions-to-pin)).
 
 Platform releases up to v0.9.5 compare the CI runner's version with the
@@ -93,7 +94,7 @@ upgraded to a release with `CI_RUNNER_MIN_VERSION`, an operator can set
 | Symptom | Cause and fix |
 |---|---|
 | The job scans but never uploads | `OPENCTEM_TENANT_ID` / `tenant-id` is unset, the change comes from a fork, or (GitHub) the job lacks `id-token: write`. |
-| GitHub: "The nested job 'scan' is requesting 'security-events: write', but is only allowed 'none'" | With `scan.yml@v0.2.0`, grant `security-events: write` to the calling job ([Quickstart](ci-quickstart.md#github-actions)). |
+| GitHub: "The nested job 'scan' is requesting 'security-events: write', but is only allowed 'none'" | You pin `scan.yml@v0.2.0`, whose scan job always asks for it. Pin v0.3.0 ([Reference](ci-reference.md#versions-to-pin)). |
 | Every finding counts as new | The default branch, or the release branch the pull request targets, was never scanned. Run the pipeline on it once. |
 | The check stays red after a break-glass | The override applies to the next run: re-run the pipeline on that commit. |
 | A break-glass does not apply | It must name the full commit id, and the provider must have signed the commit. |
