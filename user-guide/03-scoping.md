@@ -256,10 +256,10 @@ approver.
 2. For a domain, choose what it **Covers**: the domain and every name below it
    (`*.example.com`), or the domain only. To cover the names below a domain but
    not the domain itself, add an exclusion of exactly that domain.
-3. Choose the **Duration**: **Permanent** (names found under it join the
-   inventory) or **One-off** (expires after the number of **Days** you choose, up
-   to the policy maximum; it authorizes scans only, and names found still need
-   review).
+3. Choose the **Duration**: **Permanent** (names found under it are confirmed
+   as yours) or **One-off** (expires after the number of **Days** you choose, up
+   to the policy maximum; it authorizes scans only and never confirms names,
+   though names found still join the inventory).
 4. Under **Strict** scan approval only, choose the **Deepest probe allowed**:
    **T0 passive**, **T1 safe active** or **T2 intrusive** (T2 needs an expiry
    and an approval). Outside Strict the scan decides how hard it probes.
@@ -298,30 +298,49 @@ approval**, **Lifted**, **Rejected**, **Ended**. Path exclusions also have a
 **Testing mode** (**Blocked**, **Read-only** or, for at most 90 days,
 **Allowed**).
 
-From the inventory, select assets and use **Mark out of scope**: **Exclude**
-adds exclusions (exact, or a suggested rule with a preview), **Not ours**
-records that they are not your organization's. Both offer **Undo**.
+From the inventory, select up to 200 assets and use **Mark out of scope**:
+
+- **Exclude from scanning** adds exclusions: **Exactly these**, or **By
+  rule** (a suggested pattern, with a preview of how many assets it
+  matches). Exclusions win over every scope entry.
+- **Not ours** records that they are not your organization's; names found
+  again under them stay out too.
+
+Both offer **Undo**. **Archive**, next to it, hides assets from the default
+list and does not change scanning.
 
 **How an exclusion reaches the sensors.** Every way a scan starts (scheduled,
 manual or quick scans, workflow runs and each later step, automation,
 validation and retests) leaves excluded targets out of the job, and cuts a
 range around excluded addresses instead of dropping it. A job with a range
-also carries the nearby address exclusions so the sensor cuts its ranges
-again, and a web job carries the excluded paths, which the sensor refuses to
-request. When a sensor picks a job up, its targets are checked again, so an
-exclusion added while the job waited still applies, and results for
-addresses the job was not given are dropped. The scan preview and the run
-page list the targets exclusions left out, with the rule that matched.
+also carries the nearby address exclusions, so the sensor cuts its ranges
+again (sensor v0.20.0 or later; the port scanner gets them as
+`-exclude-hosts`), and a web job carries the excluded paths, which the
+sensor's forwarder refuses to request, whatever the method. A **Read-only**
+path rule limits the whole job to GET and HEAD instead. nuclei jobs with a
+web scope run only on a sensor that confines its tools' network. With job
+signing, the signer refuses to sign a job that names an excluded target.
+When a sensor picks a job up, its targets are checked again, so an exclusion
+added while the job waited still applies, and the sensor's own local policy
+narrows it further. Results for addresses the job was not given are
+dropped. The scan preview and the run page list the targets exclusions left
+out, with the rule that matched. Every step is described in
+[How scope and exclusions reach sensors](../scanning/scope-to-sensors.md).
 
 **Assets nobody has classified yet.** An inventory asset that no scope entry
 covers and nobody excluded or marked not yours gets low-impact checks by
 default (common ports at a low rate, the home page and `/.well-known/`,
 certificate and technology fingerprinting). Platform guardrails keep it
 passive when it sits on a shared, CDN or cloud network, nothing is known
-about its network, or it is a name outside your domains. **Scope policy** >
-**Scan unclassified assets** sets this to **Off**, **Low-impact** (default)
-or **Full**; Strict scan approval always means Off. Exclusions and **Not
-ours** always win.
+about its network, names of three or more domains point at its address
+(shared hosting), or it is a name outside your domains. A name that resolves
+only through a wildcard DNS record stays passive until a person confirms it.
+**Settings › Policies › Scope policy** > **Scan unclassified assets** sets
+this to **Off (passive only)**, **Low-impact (default)** or **Full** (the
+scan's own intensity, still behind the guardrails); Strict scan approval
+always means Off. A port scan of a name reaches only the web ports while an
+address it resolves to is not in scope. Exclusions and **Not ours** always
+win. See [Unclassified assets](../scanning/scope.md#unclassified-assets).
 
 ### Approvals
 
@@ -358,11 +377,25 @@ identity, is audited and notifies every administrator.
 | **Longest one-off entry** | 1 to 30 days | 7 |
 | **Default deepest probe** | T0 passive, T1 safe active (T2 is never a default) | T1 |
 | **Add discovered names automatically** | on or off | on |
+| **Review discovered assets first** | on or off | off |
+| **Confirming an asset adds it to scope** | on or off | on |
+| **Scan unclassified assets** | Off (passive only), Low-impact (default), Full | Low-impact |
 
 The **In effect now** section shows the resulting approval count, whether
 active probes need domain proof (set by the platform operator), the scan
-approval mode and that scope checks are always on. When automatic adding is off, every newly discovered name
-waits in the attack-surface review queue.
+approval mode and that scope checks are always on.
+
+- When **Add discovered names automatically** is off, names found under a
+  permanent entry stay *discovered*, in the inventory, until a person
+  confirms them (a scope entry still lets scans reach them).
+- **Review discovered assets first** makes names outside every permanent
+  entry wait in **Attack surface › Suggestions** before they join the
+  inventory. It never changes what may be scanned.
+- **Confirming an asset adds it to scope** adds the exact entry when a
+  person confirms a domain, subdomain or public address as yours. Under
+  Strict scan approval, confirming records ownership only.
+- **Scan unclassified assets** shows "Strict scan approval is in force, so
+  this is Off for now." while scan approval is Strict.
 
 ## Threat model
 

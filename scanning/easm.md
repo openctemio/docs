@@ -10,13 +10,18 @@ Attack surface monitoring (EASM) keeps track of your internet-facing names
 and what is wrong with them:
 
 1. **What do we have on the internet?** Discovery from your domains.
-2. **Is it really ours?** Attribution, with evidence and a review queue.
+2. **Is it really ours?** Attribution, with evidence and suggestions.
 3. **What is wrong with it?** Passive DNS checks and non-intrusive scans.
 4. **What changed?** Continuous monitoring and alerts.
 
 It needs the **Attack surface** module. The pages are under
-**Attack surface** (tabs **Overview** and **Review**). Only your own attack
-surface is covered, under your own scope.
+**Attack surface** (tabs **Overview**, **Suggestions**, **Lookalikes** and
+**Changes**). Only your own attack surface is covered, under your own scope.
+
+Discovered assets join the inventory at once. Scope decides what is actively
+scanned: entries authorize the full scan, and assets no entry covers get
+low-impact checks by default
+([Unclassified assets](scope.md#unclassified-assets)).
 
 ## How it works
 
@@ -110,29 +115,58 @@ Port scan results become `open_port` assets linked to their address, with
 `port_open` and `service_detected` exposures. A later port scan that no
 longer sees a port marks it inactive and resolves its exposures.
 
-## Review queue
+## Suggestions
 
 Every internet-facing asset carries an **attribution**: `confirmed`,
 `needs_review`, `candidate`, `dependency` (your name on a provider's
 infrastructure), `monitor_only` or `rejected`.
 
-- Names covered by a permanent scope entry, and names found under a verified
-  domain, are **confirmed** automatically.
-- Other names found by discovery wait in **Attack surface > Review**, each
-  with its evidence in words. Decide one by one or in bulk: **Confirm**,
-  **Not ours**, **Dependency** or **Monitor only**.
-- **Review by rule** suggests patterns (a wildcard at a label level, a /24 or
-  /48 range) that cover many pending names; accepting one creates a scope
-  entry through the normal approval flow, rejecting one creates an
-  exclusion.
+- Names covered by a permanent scope entry are **confirmed** automatically
+  (**Add discovered names automatically**, on by default).
+- Everything else discovery finds joins the inventory at once as
+  *discovered*. Only when **Review discovered assets first** is on (off by
+  default) do names outside every permanent entry wait for a person before
+  they join the inventory.
+
+**Attack surface > Suggestions** collects the decisions that still need a
+person. Its **Waiting for your decision** section has:
+
+- **Addresses your in-scope names resolve to.** Adding them scans every port
+  of those addresses; today only the names are scanned. A name never makes
+  an address yours, so add only addresses you know are yours. The card
+  groups them:
+  - **Network unknown for N: check they are yours**;
+  - **Shared, not offered**: CDN, CDN edge range, shared hosting (names of 3
+    or more domains point there), another organization's network or a
+    provider network. These are never offered;
+  - **Your own network**: **Add {prefix}** for your network seeds;
+  - **Already get low-impact checks (add to scope for a full scan)**.
+
+  Each address shows the open ports seen and its other names. Actions: **Add
+  N to scope**, **Not ours** (never scanned or suggested again, until undone
+  on the asset), **Not now**, and **Undo**.
+- **Assets you confirmed that are not in scope**: confirmed before
+  confirming added a scope entry, so scans skip them; add their exact
+  entries to scan them.
+
+The list below it (views **Awaiting a decision** and **Not ours**) shows each
+name with its evidence ("Why it may be yours"). Decide one by one or in
+bulk: **Ours: add to scope**, **Not ours**, **Dependency** or **Monitor
+only**. Confirming a domain or address as yours adds its exact scope entry,
+unless your organization turned this off or uses Strict scan approval.
+
 - A name marked **Not ours** is remembered for 12 months, with every name
   below it, so discovery does not propose it again unless new evidence
   appears.
-- The asset inventory shows your organization's assets by default; names
-  awaiting review and rejected names appear behind **Show all**.
+- Names awaiting a decision and rejected names are hidden from the default
+  inventory view; **Show all** shows them.
 
-A person's decision always wins over automation, and names awaiting review
-or rejected are never actively probed.
+A person's decision always wins over automation. Names marked Not ours,
+dependencies, monitor-only names and names that resolve only through a
+wildcard DNS record are never actively probed. Names that discovery found
+and nobody has decided on yet are unclassified: they get what **Scan
+unclassified assets** allows (low-impact checks by default, behind the
+platform guardrails).
 
 ## Alerts
 
