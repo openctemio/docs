@@ -33,6 +33,10 @@ migrations images (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
 version with the OpenCTEM release it targets. Pin the chart version you tested
 (`--version`).
 
+At the time of writing the newest chart is `openctem-0.23.2` (`appVersion`
+v0.9.4, bundled sensor v0.20.0). The chart for v0.9.5 is published after the
+platform release.
+
 The chart is secure by default: `api.appEnv` is `production`, so the API refuses
 to start without TLS to PostgreSQL and Redis, a JWT secret of at least 64
 characters, an encryption key and secure cookies. See
@@ -40,8 +44,9 @@ characters, an encryption key and secure cookies. See
 
 ## Requirements
 
-- PostgreSQL 17 and Redis 7, external and reachable over TLS. PostgreSQL 18 is
-  not supported yet: a v0.9.0 migration stops on it. The chart can bundle
+- PostgreSQL 17 and Redis 7, external and reachable over TLS. PostgreSQL 17 is
+  the version the test suites run on. From v0.9.1 every migration is also
+  applied to PostgreSQL 18 in CI; the v0.9.0 migrations stop on PostgreSQL 18. The chart can bundle
   Bitnami PostgreSQL and Redis subcharts, for evaluation only: they are single
   instance, not backed up, and the bundled Redis cannot serve TLS, so it never
   passes the production checks (with `api.appEnv: production` the chart refuses
