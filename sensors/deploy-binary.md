@@ -28,7 +28,7 @@ Archives are named `openctemio-sensor_<version>_<os>_<arch>.tar.gz` (and
 `.zip`), with the version without the leading `v`:
 
 ```bash
-VERSION=0.22.1
+VERSION=0.23.0
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/openctemio-sensor_${VERSION}_linux_amd64.tar.gz"
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/checksums.txt"
 curl -fsSLO "https://github.com/openctemio/sensor/releases/download/v${VERSION}/checksums.txt.sigstore.json"
