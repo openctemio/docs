@@ -55,6 +55,16 @@ Check: the start-up log says `Tool network: confined`. `SENSOR_SANDBOX_NETWORK`
 is `auto` by default (confine when possible, otherwise run unconfined and
 warn); `required` makes the sensor refuse to start unconfined.
 
+What confinement admits: the job's target names, the addresses each name
+resolved to when the task was admitted (each address alone, with the name's
+ports and scope limits; names are not resolved again during the task), and
+the job's addresses and ranges. A port scanner that dials addresses works
+confined from sensor v0.22.0; on older confined sensors it found no open
+ports. When the forwarder refused every connection toward a target, the
+target is reported failed with `egress_refused`, the task is partial, and
+the run shows "could not reach N targets" instead of "produced nothing"
+(sensor v0.22.0 or later, platform v0.9.6 or later for the count).
+
 What an unconfined sensor cannot do: run a nuclei job on a host where the
 organization excluded a path (it fails with `nuclei keeps to a web scope only
 in a tool sandbox that confines its network`), or take a job whose targets

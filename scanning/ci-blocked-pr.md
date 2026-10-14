@@ -37,7 +37,8 @@ reason.
 
 If the sheet says **This run is not available to you**, the run's repository
 is not in your access. The pull request comment still lists what blocked it.
-Ask an administrator for access to the repository.
+You see the runs of the repositories your team owns: ask an administrator to
+assign the repository to your team.
 
 ## Why it failed
 
@@ -53,6 +54,9 @@ Ask an administrator for access to the repository.
 | No baseline | The target branch was never scanned, so every finding counts as new (a note) | Run the pipeline once on the target branch |
 | Break-glass | An administrator let this commit through (a note) | Nothing; the reason is recorded |
 
+A finding whose accepted risk has ended counts again under its usual reason.
+Fix it, or ask for the acceptance to be renewed.
+
 **New compared with what?** A pull request into a release line (the default
 branch, a protected branch, or a `main` or `release` branch the repository
 has scanned) is compared with that branch. Anything else is compared with the
@@ -66,7 +70,7 @@ flowchart TD
   open --> what{What blocks it?}
   what -->|a real issue| fix[Fix it and push]
   fix --> rerun[The next run judges the new commit;<br/>the check and comment update]
-  what -->|false positive or accepted risk| exc["Request an exception in .openctem.yml<br/>(reason, expiry ≤ 90 days)"]
+  what -->|false positive or accepted risk| exc["Request an exception in .openctem.yml<br/>(reason, expiry ≤ 90 days)<br/>and merge it"]
   exc --> approve[AppSec approves the suppression request]
   approve --> rerun
   what -->|urgent release, cannot wait| bg["Ask AppSec for a break-glass<br/>for this exact commit"]
@@ -77,9 +81,11 @@ flowchart TD
 
 ### Request an exception from the repository
 
-Add an exception to `.openctem.yml` at the repository root. It becomes a
-**pending suppression request** that an administrator approves. The file can
-never make a finding pass on its own.
+Add an exception to `.openctem.yml` at the repository root. Once the change
+is merged and the pipeline runs on the default branch, the exception becomes
+a **pending suppression request** that an administrator approves. The file
+can never make a finding pass on its own, and an exception added in the pull
+request does not unblock that pull request.
 
 ```yaml
 gate:
@@ -94,8 +100,16 @@ The reason must be 10 to 500 characters. The expiry must be at most 90 days
 ahead. The same file can make the gate **stricter** for the repository: see
 [Gate policies](ci-policies.md#a-repositorys-own-file).
 
-Accepted risks, false positives and suppressions decided in the console are
-always honored while they apply.
+An inline ignore comment (`nosemgrep`, `nosem`, `noopengrep`) or a
+`.semgrepignore` entry does not hide a result either. The scanner still
+reports it and the gate counts it. From the default branch, each one becomes
+a pending suppression request, like an exception in the file.
+
+False positives, duplicates and approved suppressions decided in the console
+are always honored. An accepted risk is honored until its end date. The job
+leaves results that are already decided out of its log, its SARIF and its
+merge request report, so you see only what still needs a decision
+([Known false positives](../user-guide/known-false-positives.md)).
 
 ### Ask for a break-glass
 

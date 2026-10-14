@@ -106,6 +106,7 @@ erDiagram
         uuid id PK
         uuid tenant_id FK
         string asset_type
+        string sub_type
         string name
         uuid parent_id
     }
@@ -113,6 +114,9 @@ erDiagram
         uuid source_asset_id FK
         uuid target_asset_id FK
         string relationship_type
+        string discovery_method "automatic, imported, manual, inferred"
+        string confidence
+        timestamp last_verified
     }
     findings {
         uuid id PK
@@ -176,6 +180,7 @@ erDiagram
     tenants ||--o{ scope_exclusions : "excludes"
     assets ||--o| asset_attributions : "owned?"
     tenants ||--o{ integrations : "connects"
+    sensors }o--o{ tools : "reports"
 
     scans {
         uuid id PK
@@ -213,7 +218,14 @@ erDiagram
     sensor_grants {
         uuid sensor_id FK
         string profile
-        string tier_ceiling
+        int tier_ceiling "0, 1, 2 (T0 to T2)"
+    }
+    tools {
+        uuid id PK
+        uuid tenant_id "null for platform tools"
+        string name
+        jsonb config_schema
+        jsonb metadata "origin sensor_manifest for a declared tool"
     }
     scope_targets {
         uuid id PK
@@ -254,6 +266,10 @@ erDiagram
   unclassified ([Unclassified assets](../scanning/scope.md#unclassified-assets)).
 - A sensor's **grant** (`sensor_grants`) and **keys** (`sensor_keys`, public
   keys only) are checked on every request; `scan_zone_sensors` is the zone's pool.
+- The **tool catalog** (`tools`) holds the platform's tools (no `tenant_id`)
+  and each organization's own: tools a member added and tools a sensor of the
+  organization declares in its manifest, projected from the tool's
+  descriptor ([Tools your sensors declare](../scanning/tools.md#tools-your-sensors-declare)).
 - **Integrations** hold per-organization credentials, encrypted with
   `APP_ENCRYPTION_KEY`; notification channels are integrations too.
 

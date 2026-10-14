@@ -19,15 +19,18 @@ Terms as OpenCTEM uses them, in the console, the API and these docs.
 | **Automation** | An event rule: when an event happens and conditions hold, take actions (assign, notify, open a ticket). |
 | **Break-glass administrator** | A local platform administrator for emergencies, never bound to an identity provider; every sign-in is audited and alerted. |
 | **CI run** | One execution of a customer's CI pipeline that reports to OpenCTEM through `openctem-ci`. |
+| **Content pack** | A signed, immutable archive of scanner content (nuclei templates, SAST rules, a wordlist), stored once and named by its SHA-256 digest. See [Scanner content and content packs](../sensors/content-delivery.md). |
 | **Crown jewel** | An asset marked as business-critical; findings on it are prioritised higher. |
 | **CTEM** | Continuous Threat Exposure Management: a repeating cycle of scoping, discovery, prioritization, validation and mobilization. |
 | **CTEM cycle** | A period of CTEM work with objectives, scope, attacker profiles and success criteria. |
 | **CTIS** | CTEM Ingest Schema: the open JSON format tools use to send assets, findings and dependencies to OpenCTEM. Specification at [openctemio/ctis](https://github.com/openctemio/ctis). |
+| **Data-flow trace** | The path a SAST finding's untrusted data takes from its source to the sink, step by step with the code of each step. See [Data-flow traces](../scanning/data-flow-traces.md). |
 | **Deadline** (of a run) | When a scan run ends at the latest: the scan's max duration, else the workflow's timeout, else the platform's 24-hour cap. |
 | **Exposure event** | An attack-surface change that is not a vulnerability, such as an open port, a public bucket, an expiring certificate or a leaked credential. |
 | **Finding** | One weakness on one asset, from a scan, an import or an integration. De-duplicated by fingerprint. |
 | **Gateway** | The built-in Caddy reverse proxy that is the platform's single HTTPS entry point. |
 | **Host wait** | A queued task waits while another task of the same organization is scanning one of its hosts. See [Why a task waits](../scanning/why-waiting.md). |
+| **Known false positive** | A finding a person, an approved suppression rule or an approved repository claim decided is not a real issue. It stays decided when it is reported again, also by another scanner engine. See [Known false positives](../user-guide/known-false-positives.md). |
 | **Live hosts first** | The default way to scan an address range: a light probe finds the live addresses, then deeper steps scan only those and the addresses already in the inventory. |
 | **Organization** | The unit of isolation (a tenant): its own members, assets, findings, sensors, integrations and audit log. |
 | **Owner** (organization role) | The role with full control of an organization, including deleting it. |
@@ -37,6 +40,8 @@ Terms as OpenCTEM uses them, in the console, the API and these docs.
 | **Quick scan** | One scanner run on up to 1,000 targets at once without saving a scan configuration; it can be saved afterwards. |
 | **Remediation campaign** | A set of findings with an owner, a deadline and tracked progress. |
 | **Retest** | A re-check of a finding by a sensor, typically after a fix. |
+| **Rules pack** | The signed OpenCTEM SAST rules for opengrep ([sast-rules](https://github.com/openctemio/sast-rules)), the default rules of platform and CI static analysis. |
+| **Run flow** | The Run map of a scan run: its steps as one flow, each with its state, tool, progress and results. See [The run flow](../scanning/scans-and-runs.md#the-run-flow). |
 | **Scan** | A scan configuration: targets, scan workflow and schedule. |
 | **Scan run** | One execution of a scan. Its kind is shown in the Runs list: scan, quick scan, retest, validation and others. |
 | **Scan workflow** | A reusable graph of steps (which tools run, in which order) that scans use. |
@@ -48,6 +53,7 @@ Terms as OpenCTEM uses them, in the console, the API and these docs.
 | **SLA** | A remediation deadline per priority or severity, with warnings before a breach. |
 | **Stall window** | How long a running task may go without any progress (no target finished, no output, no CPU time) before the platform stops it and re-queues its unfinished targets. Between 5 minutes and 1 hour, set per task by the platform. |
 | **Step** | One step of a scan run. |
+| **Suppression rule** | An approved rule that marks matching findings as false positive or accepted risk, both the open ones when it is approved and new ones at ingest. |
 | **Task** | One unit of sensor work within a step, for a chunk of targets. |
 | **Unfinished targets** | The targets of a task that stopped part-way. Only these run again, as a new task; finished targets are kept. |
 | **Validation** | Confirming whether a finding is really exploitable, or really fixed, with a safe check run by a sensor, and recording the evidence. |

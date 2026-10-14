@@ -159,26 +159,56 @@ also appears on the Executive summary and Program health dashboards.
 
 ## Exceptions
 
-**Mobilization › Exceptions** (`/exceptions`) holds suppression rules that hide
-false positives and accepted risks, with an approval step.
+**Mobilization › Exceptions** (`/exceptions`) holds suppression rules: an
+organization's decision that a class of findings is a false positive or an
+accepted risk, with an approval step.
 
 1. Click **New rule**. Enter a **Name** (for example "Ignore test-fixture
-   secrets"), the **Type**, a **Description** (why the findings are suppressed),
-   and what it matches: a **Rule ID** (for example `semgrep.sql-injection`)
-   and/or a **Path pattern** (for example `tests/**`), optionally narrowed by
+   secrets"), the **Type** (false positive, accepted risk or won't fix), a
+   **Description** (why the findings are suppressed), and what it matches: a
+   **Rule ID** (exact, or a prefix ending in `*`) and/or a **Path pattern**
+   (`*` and `**` globs, for example `tests/**`), optionally narrowed by
    **Tool name**. At least a rule ID or a path pattern is required. Set
    **Expires** or leave it blank for a rule that never expires.
 2. The rule is **Pending approval** until someone **other than the requester**
    approves it. The one exception: when the owner is the only person who can
    approve, the owner may approve their own rule, and that self-approval is
    recorded as a critical audit event.
-3. Approvers click **Approve**, or **Reject** with a reason.
+3. Before approving, the dialog says how many open findings the rule matches
+   now. **Approve** closes them in the same step: false positive for a
+   false-positive rule, accepted for an accepted-risk or won't-fix rule. Each
+   closed finding gets an activity naming the approver and the rule. Or
+   **Reject** with a reason.
 4. Rules can be edited or deleted. If a rule changes after you opened it,
    approving fails; reload and review the current version.
 
+What an approval closes:
+
+- Only open work. A false-positive rule closes new, confirmed, in-progress,
+  fix-applied and not-observed findings. An accepted-risk rule leaves work in
+  progress alone, because someone decided to fix it.
+- Never findings already decided or resolved, and never findings a person
+  reported (pentest, manual, bug bounty, red team).
+- At most 10,000 findings per approval. Beyond that the dialog says so; the
+  rest stay open, and the rule still applies to them in the CI gate and on
+  new findings.
+
+After approval the rule also applies to new findings as they arrive. A new
+finding a rule closes at ingest raises no alert: no notification, no ticket
+and no SLA deadline. The CI gate does not count a finding an active rule
+covers.
+
+Some requests come from repositories, not from people: an exception in a
+repository's `.openctem.yml`, an inline ignore comment in the code, or a
+scanner ignore file. A CI run on the default branch turns each of these into
+a pending accepted-risk rule for that repository, expiring in 90 days, and the
+rule names the CI identity as its requester. See
+[Known false positives](known-false-positives.md#claims-in-the-repository).
+
 The tabs show **All rules**, **Pending approval**, **Approved**, **Rejected** and
-**Expired**. When a rule expires or is deleted, the findings it hid return to the
-open backlog (unless another active rule covers them).
+**Expired**. When a rule expires or is deleted, the findings it closed reopen
+as New (unless another active rule covers them). A finding someone changed
+since is left alone.
 
 ## Automations
 

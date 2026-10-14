@@ -11,6 +11,10 @@ nav_order: 3
 For AppSec admins: what fails a pipeline, how a policy is chosen, and how to
 change it safely. Open **Discovery › CI/CD › Trust and gate › Gate policy**.
 
+Changing gate policies and expected scans needs `scans:ci:policy`. Owners and
+administrators have it, and so does the **AppSec engineer** role template, so
+an AppSec team can run the gate without being administrators.
+
 1. TOC
 {:toc}
 
@@ -23,8 +27,8 @@ Whatever the policy says:
 
 - a committed secret that the change adds fails the run, and every
   default-branch run fails while a secret is open;
-- accepted risks, false positives and suppressions are honored while they
-  apply;
+- false positives, duplicates and approved suppression rules are honored, and
+  accepted risks until their end date (see [below](#accepted-risk-ends));
 - a scanner that fails to run fails the run;
 - a repository that is **expected** to report a capability fails a run that
   does not report it (see [Expected scans](#expected-scans)).
@@ -88,7 +92,8 @@ flowchart TD
 ## Expected scans
 
 On **Pipelines › Coverage**, **Expect** marks the capabilities a repository
-must report: sast, sca, secrets, iac, or all four. Each CI run of an expected
+must report: sast, sca, secrets, iac, or all four (an expectation that names
+none means all four). Setting it needs `scans:ci:policy`. Each CI run of an expected
 repository must report every expected capability. A run that reports no tool
 for one fails with **Expected scan missing**. A pull request that edits its
 pipeline to drop a scanner therefore cannot pass on silence. Coverage also
@@ -96,6 +101,15 @@ alerts when an expected repository stops being scanned.
 
 The tools a run reports are self-declared, so this cannot prove that a scan
 really ran. It closes the "report nothing" path.
+
+## Accepted risk ends
+
+Every accepted risk has an end date. A request names it, 90 days ahead
+unless set, at most a year. A risk accepted through an accepted-risk
+suppression rule takes the rule's expiry. When the date passes, the gate
+counts the finding again, so a pipeline that passed because of it can fail.
+Renew the acceptance before then if the risk still holds. See
+[Known false positives](../user-guide/known-false-positives.md).
 
 ## A repository's own file
 
@@ -119,3 +133,10 @@ gate:
 
 A value applies only when it is stricter than the policy. The file can never
 make a finding pass. A policy with `allow_repo_policy` off ignores the file.
+
+An exception becomes a **pending suppression request** only from a run on
+the default branch, of a commit the CI provider signed, and never from a fork:
+the file there has been reviewed and merged. It is sent once per rule and
+path, and changes nothing until an administrator approves it. Inline ignore
+comments and `.semgrepignore` patterns become requests the same way
+([Reference](ci-reference.md#what-a-scan-does-not-read)).

@@ -33,6 +33,8 @@ flowchart LR
 | [Scan run](scans-and-runs.md#scan-runs) | One execution of a scan; split into steps and tasks | Discovery > Scans > Runs |
 | [Why a task waits](why-waiting.md) | Why a queued task has not started, and what to do | Run page, **Why waiting?** |
 | [Tools](tools.md) | The scanners sensors run, and their availability | Settings > Scanning > Tools |
+| [Data-flow traces](data-flow-traces.md) | The source-to-sink path of a SAST finding | Finding detail, data-flow tab |
+| [Known false positives](../user-guide/known-false-positives.md) | How a decision on a finding is requested, approved and kept | Exposures > Findings, Exceptions |
 | [CI/CD quickstart](ci-quickstart.md) | Connect a first pipeline in minutes | Discovery > CI/CD |
 | [CI integration](ci-integration.md) | Code scanning in your pipelines, with a gate | Discovery > CI/CD |
 | [Attack surface monitoring](easm.md) | Passive discovery and checks of your internet-facing names | Attack surface |
@@ -104,4 +106,5 @@ needs the `scans:write` and `scans:execute` permissions.
 Then, when a sensor claims the work, the scope is checked again, and on the
 sensor its grant, its sensor-local policy and its target guard apply. A
 queued task can still wait for free hosts or a free sensor: see
-[Why a task waits](why-waiting.md).
+[Why a task waits](why-waiting.md). Targets a sensor refused or could not
+reach are counted on the run: see [The run flow](scans-and-runs.md#the-run-flow).

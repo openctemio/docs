@@ -36,9 +36,28 @@ The sensor detects its tools itself and reports only those whose binary
 passes its check; nothing is configured to enable a tool.
 
 Other tools in the catalog (for example zap, codeql, grype, checkov) need a
-sensor that ships them; see [Writing a tool](../developers/tool-authoring.md)
-for packaging your own. For code scanning in CI, use
+sensor that ships them. For code scanning in CI, use
 [CI integration](ci-integration.md) rather than a sensor.
+
+## Tools your sensors declare
+
+A sensor can run tools its operator installed, written to the tool contract
+([Writing a tool](../developers/tool-authoring.md)). Such a tool joins your
+organization's catalog by itself (v0.9.6) when one of your active sensors reports it
+with a valid contract: its name, description, capabilities, target types,
+settings schema and version come from the tool's descriptor, and a newer
+version refreshes them. Nothing in the platform has to change.
+
+- It is enabled when it appears. Switch it off like any tool; it cannot be
+  edited or deleted, because the sensor's next report would bring it back.
+- It never takes the name of a platform tool or replaces a tool a member
+  added. An organization holds at most 128 of them, and they are never
+  visible to another organization. Platform-operated sensors declare nothing.
+- It grants nothing. Such a tool is **unverified** and runs as T2
+  (intrusive): only on a Trusted sensor whose grant allows T2, and only on
+  targets whose scope allows T2.
+- Each sensor's **Manifest** tab shows the tool's contract and options, and
+  lists anything the platform ignored with the reason.
 
 ## Availability
 
@@ -82,7 +101,8 @@ The same data is available as `GET /api/v1/tools?include=availability`
   referenced by id.
 - **Custom tools and categories**: an organization can add its own catalog
   entries (`POST /api/v1/tools`, `/api/v1/tool-categories`). A custom tool runs
-  only on a sensor that reports it.
+  only on a sensor that reports it. Tools your sensors declare are added
+  without this step ([above](#tools-your-sensors-declare)).
 
 **Settings > Scanning > Capabilities** lists the capabilities and which of
 your tools and sensors provide each.
@@ -185,3 +205,32 @@ takes it from, in this order:
 
 opengrep never fetches rules itself: it runs only local rules and has no
 network access during a scan.
+
+From platform v0.9.6, scans on platform-operated sensors never use registry
+rules. A platform scan whose tool is semgrep is refused when it is created,
+because semgrep falls back to registry rules when a sensor has no managed
+rules. Platform scans run
+static analysis with opengrep and the rules pack. The content policy a
+platform-operated sensor receives never carries registry rule sets; your own
+sensors still get the rule sets your organization chose.
+
+### How SAST runs
+
+With platform v0.9.6 and sensor v0.22.1 or later:
+
+- **Inline ignore comments do not hide results.** The sensor runs opengrep
+  and semgrep with `--disable-nosem` and without reading `.semgrepignore`. A
+  comment or ignore file in the scanned repository is the author's claim,
+  not a decision: the result is reported, and the platform decides
+  ([Known false positives](../user-guide/known-false-positives.md)).
+  Dependencies, build output and test directories are still excluded by the
+  sensor.
+- **Taint traces.** The sensor runs with `--dataflow-traces`, so a taint
+  result carries its path from source to sink
+  ([Data-flow traces](data-flow-traces.md)).
+- **Rule ids as written.** opengrep runs with `--no-rewrite-rule-ids`, so a
+  rule id does not depend on where the rules are installed. The rule id is
+  part of a finding's identity.
+- **Engine-neutral findings.** A SAST finding is keyed on the rule, the file
+  and the code it flags, not on the engine. Moving from semgrep to opengrep
+  with the same rules keeps every finding and its triage.
