@@ -116,7 +116,7 @@ or acknowledges it, the platform runs the gate again on its targets:
   against its built-in rules (addresses that may never be scanned, private
   addresses without `SENSOR_ALLOW_PRIVATE_TARGETS=1`, names that do not
   resolve; see [What targets need](../sensors/network.md#what-targets-need)).
-  A sensor release after v0.22.1 leaves a refused target out and runs the
+  Sensor v0.22.2 and later leave a refused target out and runs the
   rest; the run counts the refused targets. Up to v0.22.1 the first refused
   target fails the whole task.
 - **The local policy and the kill switch.** The sensor refuses every job

@@ -32,7 +32,7 @@ Nothing secret goes through Helm values.
 ```bash
 helm upgrade openctem openctem/openctem -n openctem --reuse-values \
   --set sensor.enabled=true \
-  --set sensor.image.tag=v0.22.1 \
+  --set sensor.image.tag=v0.23.0 \
   --set sensor.sandbox.seccompProfile=openctem \
   --set sensor.localPolicy.enabled=true \
   --set-file sensor.localPolicy.policy=sensor-policy.yaml
@@ -62,7 +62,7 @@ helm upgrade openctem openctem/openctem -n openctem --reuse-values \
 | Value | Default | Meaning |
 |---|---|---|
 | `sensor.enabled` | `false` | Run the bundled sensor |
-| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform. Chart 0.23.3 pins v0.21.1; set `sensor.image.tag=v0.22.1` for the newest (v0.22.0 fixed confined port scans, which find no open ports on v0.21.1) |
+| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform. Chart 0.23.3 pins v0.21.1; set `sensor.image.tag=v0.23.0` for the newest (v0.22.0 fixed confined port scans, which find no open ports on v0.21.1) |
 | `sensor.sandbox.seccompProfile` | `openctem` | The sensor's own seccomp profile, installed on the nodes by a DaemonSet (`sensor.sandbox.installProfile`), so scans are network-confined. `runtime-default` where a DaemonSet with a host path cannot run; tasks then run unconfined |
 | `sensor.sandbox.network` | `auto` | `SENSOR_SANDBOX_NETWORK`: `required` refuses to run a task unconfined |
 | `sensor.caFingerprint` / `sensor.platformKey` | empty | `SENSOR_CA_FINGERPRINT` and `SENSOR_PLATFORM_KEY` pins (see [Security notes](security.md#tls-and-pinning)) |
@@ -95,8 +95,8 @@ may run the pod, under the kubelet's seccomp directory (by default
 ```bash
 # on each node, as root
 mkdir -p /var/lib/kubelet/seccomp/openctem
-curl -fsSLo /var/lib/kubelet/seccomp/openctem/sensor-v0.22.1.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.22.1/docker/seccomp/sensor.json
+curl -fsSLo /var/lib/kubelet/seccomp/openctem/sensor-v0.23.0.json \
+  https://raw.githubusercontent.com/openctemio/sensor/v0.23.0/docker/seccomp/sensor.json
 ```
 
 A pod whose `Localhost` profile is missing on its node does not start
@@ -146,10 +146,10 @@ spec:
           # The sensor's profile, installed on the node (see above).
           # RuntimeDefault works too, but the sensor then runs unconfined.
           type: Localhost
-          localhostProfile: openctem/sensor-v0.22.1.json
+          localhostProfile: openctem/sensor-v0.23.0.json
       containers:
         - name: sensor
-          image: ghcr.io/openctemio/sensor:v0.22.1
+          image: ghcr.io/openctemio/sensor:v0.23.0
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

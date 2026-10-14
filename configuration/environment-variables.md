@@ -98,12 +98,12 @@ never prints a secret value. Run it before a deploy or as an init step:
 
 ```bash
 # API image (the entrypoint is the server binary)
-docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:v0.9.5 -check-config
+docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:v0.9.6 -check-config
 # Docker Compose, in api/deploy
 docker compose run --rm --no-deps api -check-config
 # All-in-one image
 docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
-  ghcr.io/openctemio/openctem:v0.9.5 -check-config
+  ghcr.io/openctemio/openctem:v0.9.6 -check-config
 ```
 
 ```text
@@ -569,7 +569,7 @@ Read by `api/deploy/docker-compose.yml` from its `.env` file.
 |---|---|---|---|---|---|
 | `OPENCTEM_HOSTNAME` | string | `none` | yes |  | DNS name or IP address browsers and sensors use; the gateway certificate is issued for it. |
 | `OPENCTEM_CA_EXPORT_DIR` | string | `./ca` |  |  | Host directory the internal root CA is exported to. |
-| `OPENCTEM_VERSION` | string | `none` | yes |  | Release tag of the API, web and migrations images, for example `v0.9.5`. |
+| `OPENCTEM_VERSION` | string | `none` | yes |  | Release tag of the API, web and migrations images, for example `v0.9.6`. |
 | `OPENCTEM_PUBLIC_URL` | string | `https://<OPENCTEM_HOSTNAME>` | yes |  | Exact origin browsers use, when it is not `https://<OPENCTEM_HOSTNAME>` (a port other than 443). Passed to the API as `APP_URL`. |
 | `API_IMAGE` | string | `ghcr.io/openctemio/openctem-api` |  |  | Image repository of the API. |
 | `UI_IMAGE` | string | `ghcr.io/openctemio/openctem-web` |  |  | Image repository of the web console. |

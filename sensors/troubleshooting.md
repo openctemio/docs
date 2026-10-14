@@ -66,7 +66,7 @@ loop until it is fixed.
 | `You may not scan these targets: ... no scope entry covers it` | console / API | The target is out of scope | Add a scope entry ([Scope](../scanning/scope.md)) |
 | `NO_SENSOR_FOR_TOOL` | console / API | No sensor of the organization reports the tool | Install a sensor with the tool, or check the sensor's local policy `tools.allow` |
 | `scan target refused by guard: DNS lookup failed for scanner target "203.0.113.7:80"` | task log | Sensor v0.22.0 or older: the target guard looked up a `host:port` target (as a port scan hands to the HTTP probe) as a name, and refused the whole task | Upgrade the sensor to v0.22.1 or later |
-| `scan target refused by guard: ...` (other reasons) | task log | Up to v0.22.1 one target the guard refuses (a blocked address, a name that does not resolve) fails the whole task | Remove or fix the target; a sensor release after v0.22.1 leaves only that target out ([What targets need](network.md#what-targets-need)) |
+| `scan target refused by guard: ...` (other reasons) | task log | Up to v0.22.1 one target the guard refuses (a blocked address, a name that does not resolve) fails the whole task | Remove or fix the target; sensor v0.22.2 and later leave only that target out ([What targets need](network.md#what-targets-need)) |
 | *Step* `could not reach N targets (blocked by the sensor's network confinement)` | run page | The task's confinement refused every connection the tool made toward those targets (sensor v0.22.0 or later) | Check that the targets are what the job names (a redirect to another host is refused by design). On sensor v0.21.x a confined port scan found no open ports at all: upgrade to v0.22.0 or later |
 | `Max dispatch attempts exceeded` | task | The task was taken back from its sensor too many times (lease lost, overrun) | On platforms before v0.9.6 a slow task with a long step timeout was taken back at twice its budget: upgrade the platform. Otherwise check the sensor's logs for restarts |
 
@@ -191,10 +191,10 @@ With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.22.1 -outbox-status
+  ghcr.io/openctemio/sensor:v0.23.0 -outbox-status
 # after fixing the cause of dead letters:
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.22.1 -outbox-requeue-dead
+  ghcr.io/openctemio/sensor:v0.23.0 -outbox-requeue-dead
 ```
 
 ## Cloned identity
