@@ -104,6 +104,13 @@ Use this when you prepare the console first:
    openctemio-sensor pair K7QM-4ZTD
    ```
 
+   Or give the code to a container or service in the environment and start
+   the daemon as usual: `SENSOR_PAIRING_CODE=K7QM-4ZTD`. The sensor attaches
+   to the code on its first start. The variable is read only while the sensor
+   has no identity, no `SENSOR_API_KEY` and platform commands on; it is
+   ignored once the sensor is paired, and it is never logged. A code that is
+   not in the form `XXXX-XXXX` stops the sensor with exit code 2.
+
 3. The sensor prints its fingerprint; the console shows the fingerprint it
    received as soon as the sensor connects. Compare and approve as above.
 
@@ -124,6 +131,11 @@ has neither an API key nor an identity.
 | `-ca-fingerprint` | `SENSOR_CA_FINGERPRINT` | SHA-256 of the platform's CA. With it, `SENSOR_API_URL` must name the platform by the host name in its certificate, not an IP address |
 | `-platform-key` | `SENSOR_PLATFORM_KEY` | Thumbprint of the platform's pairing key; a pairing signed by another key is refused |
 | `-repair` | | Replace this sensor's key (see below) |
+
+`CODE` is an **Expect a sensor** code; without it the command prints the
+sensor's own code to approve. The daemon reads the same code from
+`SENSOR_PAIRING_CODE` instead (see above); the `pair` command takes it only as
+an argument.
 
 `SENSOR_CA_FINGERPRINT` and `SENSOR_PLATFORM_KEY` are public values. They stop
 a fake platform from answering the sensor's first contact.
@@ -172,7 +184,7 @@ stopped:
 docker stop openctem-sensor
 docker run --rm -it -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.18.0 pair -repair
+  ghcr.io/openctemio/sensor:v0.21.1 pair -repair
 docker start openctem-sensor
 ```
 

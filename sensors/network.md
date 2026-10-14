@@ -79,9 +79,13 @@ A proxy that decrypts and re-encrypts TLS presents its own certificate:
 A network segment that is reachable only through a proxy is best served by
 its own sensor inside it, in its own [scan zone](zones.md).
 
+On a confined sensor each scan task already reaches the network only through
+its own forwarder, which admits the job's targets and enforces the job's web
+scope ([Tool confinement](security.md#tool-confinement)).
+
 {: .note }
 Per-zone egress profiles (proxies configured on the platform per scan zone,
-with an in-sensor forwarder that checks every destination) are **planned**
+used by that forwarder) are **planned**
 ([RFC-034](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-034-sensor-network-egress.md)).
 Today proxies are set on the sensor host only.
 
@@ -172,10 +176,10 @@ kill_switch_file: /etc/openctem/STOP
 
 | Key | Meaning |
 |---|---|
-| `targets.allow` / `targets.deny` | CIDRs, IPs, host names and `*.domain` patterns. A name passes when it matches a domain entry or every address it resolves to is in an allowed range. Deny always wins. |
+| `targets.allow` / `targets.deny` | CIDRs, IPs, host names and `*.domain` patterns. A name passes when it matches a domain entry or every address it resolves to is in an allowed range. Deny always wins: a range that contains denied addresses is scanned around them, address by address, together with the job's own exclusions and the built-in deny list. |
 | `targets.allow_private` | RFC 1918 / ULA ranges may be scanned (`SENSOR_ALLOW_PRIVATE_TARGETS=1` is needed as well) |
 | `ports.allow` | Ports a job may name |
-| `tools.allow` | Tools that may run; others are neither run nor reported |
+| `tools.allow` | Tools that may run; others are neither run nor reported. This replaces the deprecated `SENSOR_TOOLS` |
 | `checks.allow` | Job types: `scan`, `validate`, `retest`, `collect`, `refresh_content` |
 | `allow_custom_templates`, `allow_interactsh` | Platform-supplied custom templates; out-of-band callbacks. Off unless set |
 | `rate.max_rps`, `rate.max_job_seconds` | Request rate ceiling; longest job run |
