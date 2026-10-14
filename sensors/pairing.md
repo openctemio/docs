@@ -184,7 +184,7 @@ stopped:
 docker stop openctem-sensor
 docker run --rm -it -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.21.1 pair -repair
+  ghcr.io/openctemio/sensor:v0.22.1 pair -repair
 docker start openctem-sensor
 ```
 

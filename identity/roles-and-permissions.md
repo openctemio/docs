@@ -63,8 +63,12 @@ A custom role has a name, a slug, a description, a level below 80, a list of per
 - Some permissions are reserved for owners and admins and can never be part of a custom role:
   sensor management (`sensors:write`, `sensors:delete`, `sensors:commands:delete`,
   `sensors:zones:write`, `sensors:zones:delete`, `sensors:pair`, `sensors:approve`,
-  `sensors:revoke`, `sensors:grant:narrow`, `sensors:grant:widen`) and CI gate configuration
-  (`scans:ci:write`, `scans:ci:override`). The database refuses them too.
+  `sensors:revoke`, `sensors:grant:narrow`, `sensors:grant:widen`) and CI trust
+  (`scans:ci:write`: trust configurations, CI settings and code host connections, which admit
+  upload credentials). The database refuses them too. CI gate policies and expected scans
+  (`scans:ci:policy`) and break-glass (`scans:ci:override`, with step-up and an alert to every
+  administrator) can be delegated: the **AppSec engineer** [role template](authorization/roles-matrix.md) carries both, with
+  `scans:ci:read`.
 - A person can hold several roles. Their permissions are the union of all their roles, and they see
   all data if any of their roles has full data access.
 - Custom roles belong to one organization.
@@ -84,7 +88,7 @@ Permissions are named `module[:resource]:action`, for example `findings:triage` 
 | Core | `dashboard:read`, `dashboard:aggregate`, `audit:read`, `settings:read`, `settings:write` |
 | Assets | `assets:read/write/delete/import/export`; `assets:groups:*`; `assets:components:*` |
 | Findings | `findings:read/write/delete/assign/triage/status/export/bulk_update/approve/fix_apply/verify`; `findings:exposures:*`; `findings:suppressions:read/write/delete/approve`; `findings:vulnerabilities:read`; `findings:credentials:read/write/reveal`; `findings:evidence:reveal`; `findings:remediation:*`; `findings:workflows:*` |
-| Scans | `scans:read/write/delete/execute`; `scans:profiles:*`, `scans:sources:*`, `scans:tools:*`, `scans:templates:*`, `scans:secret_store:*`, `scans:workflows:*`; `scans:tenant_tools:*`; `scans:ci:read/write/override`; `scans:freeze:override` |
+| Scans | `scans:read/write/delete/execute`; `scans:profiles:*`, `scans:sources:*`, `scans:tools:*`, `scans:templates:*`, `scans:secret_store:*`, `scans:workflows:*`; `scans:tenant_tools:*`; `scans:ci:read/write/policy/override`; `scans:freeze:override` |
 | Sensors | `sensors:read/write/delete`; `sensors:commands:*`; `sensors:zones:*`; `sensors:pair`, `sensors:approve`, `sensors:revoke`; `sensors:grant:narrow`, `sensors:grant:widen` |
 | Team | `team:read/update/delete`; `team:members:read/invite/write`; `team:groups:read/write/delete/members/assets`; `team:roles:read/write/delete/assign`; `team:assignment_rules:*` |
 | Integrations | `integrations:read/manage`; `integrations:scm:*`; `integrations:notifications:*`; `integrations:api_keys:read/write/delete` |

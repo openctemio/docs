@@ -19,8 +19,9 @@ those, use an exception or a suppression
 
 ## Rules
 
-- You need `scans:ci:override` (owners and administrators) and a recent
-  sign-in (step-up).
+- You need `scans:ci:override` and a recent sign-in (step-up). Owners and
+  administrators have it, and so does the **AppSec engineer** role template;
+  it can be put on any custom role.
 - It names the **full** commit id (40 or 64 characters) and covers exactly that
   commit. Abbreviated ids are refused.
 - It needs a reason of at least 10 characters, and lasts 1 to 168 hours

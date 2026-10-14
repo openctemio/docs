@@ -326,6 +326,8 @@ Prefixes the API owns: `APP_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AUTH_`, `SSO
 | Variable | Type | Default | Required | Secret | Description |
 |---|---|---|---|---|---|
 | `SENSOR_CA_CERT_FILE` | string | empty |  |  | Private CA certificate (PEM) the install snippets install on the sensor host. Set it with the gateway in TLS mode `internal` (the Compose stack points it at the exported root CA). |
+| `CI_RUNNER_LATEST_VERSION` | string | the CI runner release in `versions.yaml` when the API was built (`v0.3.0`) |  |  | Newest CI runner release (openctemio/ci: the openctem-ci action and image). The console's pipeline snippets pin it, and a pipeline on an older runner shows an update. CI runners have their own release line; the sensor settings never apply to them. `none` or `off` turns the comparison off. |
+| `CI_RUNNER_MIN_VERSION` | string | the CI runner minimum in `versions.yaml` (`v0.3.0`) |  |  | Oldest accepted CI runner release. The token exchange refuses an older runner (`RUNNER_OUTDATED`) and its pipeline is shown as degraded. Empty, `none` or `off`: no minimum. |
 | `SENSOR_COMMAND_LEASE` | duration | `3m` |  |  | How long a sensor holds a claimed task without renewing it; an expired lease puts the task back in the queue. |
 | `SENSOR_CONFIG_TEMPLATES_DIR` | string | `configs/sensor-templates` |  |  | Directory of the sensor configuration templates shown in the console. |
 | `SENSOR_HEALTH_SLOW_HEARTBEAT` | duration | `2s` |  |  | Heartbeat handling p95 that counts as slow. While the platform is slow, no sensor is marked offline. |
@@ -569,8 +571,8 @@ Read by `api/deploy/docker-compose.yml` from its `.env` file.
 | `OPENCTEM_CA_EXPORT_DIR` | string | `./ca` |  |  | Host directory the internal root CA is exported to. |
 | `OPENCTEM_VERSION` | string | `none` | yes |  | Release tag of the API, web and migrations images, for example `v0.9.5`. |
 | `OPENCTEM_PUBLIC_URL` | string | `https://<OPENCTEM_HOSTNAME>` | yes |  | Exact origin browsers use, when it is not `https://<OPENCTEM_HOSTNAME>` (a port other than 443). Passed to the API as `APP_URL`. |
-| `API_IMAGE` | string | `ghcr.io/openctemio/api` |  |  | Image repository of the API. |
-| `UI_IMAGE` | string | `ghcr.io/openctemio/ui` |  |  | Image repository of the web console. |
+| `API_IMAGE` | string | `ghcr.io/openctemio/openctem-api` |  |  | Image repository of the API. |
+| `UI_IMAGE` | string | `ghcr.io/openctemio/openctem-web` |  |  | Image repository of the web console. |
 | `MIGRATIONS_IMAGE` | string | `ghcr.io/openctemio/migrations` |  |  | Image repository of the migrations job. |
 | `API_VERSION` | string | `OPENCTEM_VERSION` |  |  | Per-image tag override. Leave unset. |
 | `UI_VERSION` | string | `OPENCTEM_VERSION` |  |  | Per-image tag override. Leave unset. |
@@ -589,6 +591,10 @@ Read by `api/deploy/docker-compose.yml` from its `.env` file.
 | `API_MEMORY_LIMIT` | string | `2g` |  |  | Memory limit of the `api` container. |
 | `WEB_MEMORY_LIMIT` | string | `1g` |  |  | Memory limit of the `web` container. |
 | `GATEWAY_MEMORY_LIMIT` | string | `512m` |  |  | Memory limit of the `gateway` container. |
+| `API_GOMEMLIMIT` | string | `1600MiB` |  |  | `GOMEMLIMIT` of the `api` container: the Go runtime collects garbage to stay below it. Keep it about 80% of `API_MEMORY_LIMIT`. |
+| `POSTGRES_MEMORY_LIMIT` | string | `4g` |  |  | Memory limit of the bundled `postgres` container; keep it above `shared_buffers` plus connections times `work_mem`. |
+| `REDIS_MEMORY_LIMIT` | string | `1g` |  |  | Memory limit of the bundled `redis` container. |
+| `SIGNER_MEMORY_LIMIT` | string | `256m` |  |  | Memory limit of the `signer` container (`docker-compose.job-signer.yml`). |
 
 ## All-in-one image
 
