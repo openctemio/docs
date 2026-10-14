@@ -25,6 +25,7 @@ to a sensor that reports it.
 | httpx | `probe.http` | T1 | default |
 | katana | `crawl.web` | T1 | default |
 | nuclei | `vuln.templates`, finding re-verification and retests | T1 | default, `-nuclei` |
+| opengrep | `sast.code` (local rules only, no network) | T0 | `-opengrep` |
 | semgrep | `sast.code` | T0 | `-semgrep` |
 | trivy | `sca.deps`, `iac.misconfig`, `container.image` | T0 | `-trivy` |
 | betterleaks | `secrets.code` | T0 | `-betterleaks` |
@@ -156,9 +157,31 @@ and javascript types excluded.
 ## Scanner content
 
 The sensor keeps each tool's content (nuclei templates, and on per-tool
-images the trivy database and semgrep rules) current itself and reports the
+images the trivy database and the SAST rules) current itself and reports the
 versions. **Settings > Scanning > Scanner content** sets the organization's
 policy: refresh interval, maximum age per content, a pinned version, and the
 semgrep rule sets. The policy never chooses where content comes from; that is
 the sensor host's setting ([Network](../sensors/network.md#scanner-content-without-internet-access)).
 Each result records the content version the scan used.
+
+### SAST rules
+
+opengrep and semgrep run the same rules content, `semgrep-rules`. The sensor
+takes it from, in this order:
+
+1. a local rules path on the sensor host (`SENSOR_CONTENT_SEMGREP_RULES_PATH`,
+   for networks without internet access);
+2. registry rule sets chosen in the content policy or on the sensor host
+   (`SENSOR_CONTENT_SEMGREP_RULESETS`). The sensor fetches them from the
+   registry under the registry's own licence, so only a sensor you run can use
+   them: the platform never sends rule sets to the sensors it operates, and its
+   own scans run opengrep with the rules pack;
+3. by default, the **OpenCTEM rules pack**
+   ([openctemio/sast-rules](https://github.com/openctemio/sast-rules), MIT).
+   The sensor installs the newest release, or the version pinned in the policy
+   or in `SENSOR_CONTENT_SAST_RULES_VERSION`. It installs a release only if
+   its signature verifies for that repository's release workflow, so a mirror
+   or proxy cannot change the rules.
+
+opengrep never fetches rules itself: it runs only local rules and has no
+network access during a scan.

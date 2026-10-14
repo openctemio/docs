@@ -12,7 +12,7 @@ and no route from the platform into your network.
 | Traffic | From the sensor to | Needed for |
 |---|---|---|
 | Control | The platform URL on TCP 443 (HTTPS; gRPC on the same port when the platform offers it, or the [dedicated sensor host name or port](transport.md#a-dedicated-sensor-host-name) if one is set up) | Pairing, heartbeats, jobs, results |
-| Content | `github.com` and `api.github.com` (nuclei templates); `mirror.gcr.io` and `ghcr.io` (trivy database, per-tool trivy image); `semgrep.dev` (semgrep rule sets, only when configured) | Keeping scanner content current. Optional: mirrors and local files work, see below |
+| Content | `github.com` and `api.github.com` (nuclei templates); `mirror.gcr.io` and `ghcr.io` (trivy database, per-tool trivy image); `github.com`, `api.github.com` and `release-assets.githubusercontent.com` (the OpenCTEM SAST rules pack); `semgrep.dev` (registry rule sets, only when configured) | Keeping scanner content current. Optional: mirrors and local files work, see below |
 | DNS | The resolvers in `/etc/resolv.conf`, or `SENSOR_DNS_RESOLVERS` | Resolving targets; dnsx, naabu and subfinder never use their built-in public resolver lists |
 | Scan | Your targets | The scans themselves |
 
@@ -101,7 +101,7 @@ downloading anything. For hosts without internet access:
 |---|---|
 | nuclei templates | `SENSOR_CONTENT_NUCLEI_TEMPLATES_URL` (an `https://` or `file://` archive URL with `{version}` or `{bare_version}`), `SENSOR_CONTENT_NUCLEI_TEMPLATES_CHECKSUMS_URL`, and a pinned `SENSOR_CONTENT_NUCLEI_TEMPLATES_VERSION`; or `SENSOR_CONTENT_NUCLEI_TEMPLATES_DIR` for a local directory |
 | trivy database | `SENSOR_CONTENT_TRIVY_DB_REPOSITORY` pointing at an internal registry copy |
-| semgrep rules | `SENSOR_CONTENT_SEMGREP_RULES_PATH` (a local file or directory) |
+| SAST rules (opengrep, semgrep) | `SENSOR_CONTENT_SEMGREP_RULES_PATH` (a local file or directory, for example an unpacked rules pack release), or `SENSOR_CONTENT_SAST_RULES_URL` (a mirror of the rules pack releases with `{version}` and `{bare_version}`; the signature is still verified) |
 
 `SENSOR_CONTENT=off` lets each tool fetch its own content instead. The
 platform's content policy (**Settings > Scanning > Scanner content**) can set
