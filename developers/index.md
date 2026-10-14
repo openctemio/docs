@@ -19,7 +19,7 @@ platform, and authors of tools and integrations.
 | [Database migrations](migrations.md) | golang-migrate layout, the baseline, expand-contract |
 | [Generated files](generated-files.md) | The OpenAPI spec, web API types and registry codegen |
 | [Release process](release-process.md) | Release train, tags, images, signatures and SBOMs |
-| [Writing a tool](tool-authoring.md) | Add a scanner or collector that sensors can run |
+| [Writing a tool](tool-authoring.md) | Add a tool sensors can run: descriptor, settings, testing, and how it joins your tool catalog |
 
 To call the API from your own code, start with the [API](../api/index.md) section instead.
 

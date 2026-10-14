@@ -116,12 +116,12 @@ After each platform release, the chart's `appVersion` is bumped to it.
 The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older
 sensors cannot connect at all).
 
-The newest releases at the time of writing are sensor **v0.21.1**, SDK
-**v0.31.0** and chart **0.23.2** (`appVersion` v0.9.4). A sensor or SDK can
+The newest releases at the time of writing are sensor **v0.22.1**, SDK
+**v0.32.0**, CI runner **v0.3.0** and chart **0.23.3** (`appVersion` v0.9.5). A sensor or SDK can
 ship after the platform release you run, so the defaults compiled into it may
 name an older sensor. When the console's install snippets pin an older sensor
-tag than the newest release, set `SENSOR_LATEST_VERSION=v0.21.1` (and
-`SENSOR_SDK_LATEST_VERSION=v0.31.0`) on the API so new installs get the
+tag than the newest release, set `SENSOR_LATEST_VERSION=v0.22.1` (and
+`SENSOR_SDK_LATEST_VERSION=v0.32.0`) on the API so new installs get the
 current sensor and older sensors show "update available".
 
 ## Which version is running

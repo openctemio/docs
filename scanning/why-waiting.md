@@ -86,6 +86,25 @@ task is not offered to any sensor while another task of the organization
 holds one of its hosts, even when sensors have free slots. The free slots
 take other work in the meantime.
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant P as Platform
+    participant S as Sensor
+    Note over P: Every task gets its host list when it is created
+    P->>S: task A (httpx, hosts 1-3) is claimed
+    Note over P: task B (nuclei, host 1) waits: host 1 is held
+    S->>P: heartbeat: host 1 is done
+    Note over P: host 1 is free
+    P->>S: task B is offered
+    Note over P,S: hosts 2 and 3 stay held until task A settles them
+```
+
+- **Every task has its hosts**: the platform works out a task's hosts when
+  it creates the task, whatever created it (a run step, a quick scan, a
+  single scanner, validation, a retest), and sends that list to the sensor.
+  The sensor admits the task under the same list, so the platform and the
+  sensor never disagree about which hosts a task touches.
 - **What counts as one host**: a name, or an address. An address and a range
   scan of the same /24 (IPv6 /120) conflict; two different addresses of one
   /24 do not.
@@ -104,6 +123,10 @@ take other work in the meantime.
   task's run and step are named only when you may read that run.
 - **It does not fail the run**: a run whose work waits for its hosts (or for a
   scan window) is not ended as "no sensor picked up this run's work".
+- **It does not use up attempts**: waiting for hosts, and a sensor handing a
+  task back because its hosts are busy there or it has no free slot, never
+  counts as a dispatch attempt, so such a task is never failed with "Max
+  dispatch attempts exceeded".
 
 What to do: usually nothing; the task starts when the hosts are free. If the
 holding run is not needed, cancel it ([Cancel a run](scans-and-runs.md#cancel-a-run)).

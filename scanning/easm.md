@@ -115,6 +115,12 @@ Port scan results become `open_port` assets linked to their address, with
 `port_open` and `service_detected` exposures. A later port scan that no
 longer sees a port marks it inactive and resolves its exposures.
 
+The HTTP probe makes each web origin it finds its own asset, named by its URL
+(`https://app.example.com`, `http://203.0.113.7:8080`), so crawling,
+templates and DAST have a web target; the subdomain or address keeps its own
+row and type (v0.9.6). On an existing inventory, the next HTTP probe adds the
+origins.
+
 ## Suggestions
 
 Every internet-facing asset carries an **attribution**: `confirmed`,

@@ -243,15 +243,22 @@ CI trust, the gate policy and break-glass are not settings pages: they are on
 the **Trust and gate** tab of **Discovery › CI/CD** (`/ci-cd`). The page lets CI
 jobs (GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket Pipelines, CircleCI,
 Jenkins) send results with their own identity instead of a stored API key, and
-decides what fails a pipeline. Changing it needs an owner or admin. See
+decides what fails a pipeline. Trust, the CI settings and pull request
+feedback need an owner or admin (`scans:ci:write`). Gate policies and
+expected scans need `scans:ci:policy`, and break-glass `scans:ci:override`:
+both can be given to an AppSec team through a custom role from the **AppSec
+engineer** template. Creating or changing a trust, changing the CI settings,
+loosening a gate policy, connecting a code host and creating a break-glass
+ask for a recent sign-in. See
 [CI/CD quickstart](../scanning/ci-quickstart.md) and
 [CI integration](../scanning/ci-integration.md).
 
 ![The CI/CD integration page with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
 *Figure: Discovery, CI/CD, Trust and gate.*
 
-- **Connect a pipeline**: a four-step wizard (CI system, organization,
-  pipeline snippet, first run) that creates the trust and waits for the
+- **Connect a pipeline**: a four-step wizard (CI system, organization and
+  default branch, pipeline snippet, first run) that creates the trust, or
+  reuses one that already admits the organization, and waits for the
   pipeline's first run.
 - **Require OIDC for CI**: CI jobs must use their OIDC identity; when off, CI
   sensor API keys are still accepted.
@@ -259,17 +266,20 @@ decides what fails a pipeline. Changing it needs an owner or admin. See
   branches and tags, environments, events and **Pipeline definitions** (only
   jobs that run your central workflow), optionally to protected branches and
   tags only. Admitting fork pull requests shows a warning, because fork code
-  would act with the repository's identity. Each trust gives a **Pipeline
-  snippet** to copy.
+  would act with the repository's identity. The audience must contain the
+  organization id (default `openctem:tenant:<id>`). A GitHub trust can name a
+  **GitHub Enterprise issuer** (GitHub Enterprise Server or an enterprise's
+  own issuer). Each trust gives a **Pipeline snippet** to copy.
 - **Recent refused pipelines**: pipelines whose identity no trust admitted, with
   the rule that refused each one and how to fix it.
 - **Gate policy**: what fails a pipeline, for the organization, per business unit
   or per repository: **Enforce** or **Warn**, the severity that fails, an
   optional EPSS threshold, **New findings only**, **Known exploited (KEV)
   fails** and **Dependency and image vulnerabilities block only when a fix
-  exists** (off by default). A committed secret, and a scanner that fails to
-  run, always fail the pipeline; accepted risks, false positives and
-  suppressions are always honored.
+  exists** (off by default). A committed secret, a scanner that fails to
+  run, and a missing expected scan always fail the pipeline. False positives
+  and approved suppressions are always honored, and accepted risks until
+  their end date.
 - **Break-glass**: override the gate for one repository and one full commit id
   for a limited time (1 to 168 hours) with a reason. Every override is audited
   and can be revoked.

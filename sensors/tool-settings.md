@@ -87,15 +87,22 @@ the console shows exactly what your sensor declares.
 
 | Tool | Option (native flag) |
 |---|---|
-| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`) |
-| naabu | `rate` (`-rate`, common), `retries` (`-retries`, common), `ports` (`-p`), `top_ports`, `exclude_ports` |
-| httpx | `rate_limit` (`-rl`, common), `threads` (`-threads`, common), `timeout` (common), `retries` (common), `ports`, `follow_redirects` (`-follow-host-redirects`), `tech_detect`, `tls_grab` |
-| dnsx | `rate_limit` (`-rl`, common), `threads` (`-t`, common), `timeout` (common), `retries` (`-retry`, common), `record_types`, `wildcard_filter` (`-auto-wildcard`) |
-| subfinder | `rate_limit` (`-rl`, common), `timeout` (common), `sources` (`-sources`), `recursive`, `max_results` |
-| katana | `rate_limit` (`-rl`, common), `concurrency` (`-c`, common), `timeout` (common), `retries` (`-retry`, common), `depth` (`-d`), `js_parse` (`-js-crawl`), `max_urls` |
+| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`), `tags`, `exclude_tags`, `severity` |
+| naabu | `rate` (`-rate`, common), `retries` (`-retries`, common), `ports` (`-p`), `top_ports` (`-top-ports`), `exclude_ports` (`-exclude-ports`) |
+| httpx | `rate_limit` (`-rl`, common), `threads` (`-threads`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `ports` (`-ports`), `follow_redirects` (`-follow-host-redirects`), `tech_detect` (`-tech-detect`), `tls_grab` (`-tls-grab`) |
+| dnsx | `rate_limit` (`-rl`, common), `threads` (`-t`, common), `timeout` (`-timeout`, common), `retries` (`-retry`, common), `record_types`, `wildcard_filter` (`-auto-wildcard`) |
+| subfinder | `rate_limit` (`-rl`, common), `timeout` (`-timeout`, common), `sources` (`-sources`), `recursive` (`-recursive`), `max_results` |
+| katana | `rate_limit` (`-rl`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retry`, common), `depth` (`-d`), `js_parse` (`-js-crawl`), `max_urls` |
 | trivy | `parallel` (`--parallel`, sensor only), `dev_deps` (`--include-dev-deps`), `os_pkgs` (`--pkg-types`), `frameworks` (`--misconfig-scanners`) |
+| opengrep | `taint_intrafile` (`--taint-intrafile`), `rule_timeout` (`--timeout`), `max_target_bytes` (`--max-target-bytes`), `jobs` (`--jobs`, sensor only), `max_memory_mb` (`--max-memory`, sensor only) |
+| betterleaks | `history` |
+| codeql | `languages` |
+| asn | `include_announced`, `max_ranges` |
+| rdap | `follow_registrar` |
 
-These options need sensor v0.21.0 or later; older sensors declare fewer.
+semgrep declares no options.
+
+These options are the ones sensor v0.22.1 declares (opengrep from v0.22.0); older sensors declare fewer.
 
 ## API
 

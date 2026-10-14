@@ -120,6 +120,15 @@ and `accepted`. The full state diagram, including `validated_fixed`, `not_observ
 regression reopen, is in
 [Exposures and findings](../user-guide/05-exposures-and-findings.md#status-workflow).
 
+A decision such as false positive or accepted risk stays with the finding
+when it is reported again, also by another scanner engine. On a finding,
+such a decision is a request that a second person approves (on an exposure
+event, when it is high or critical), and repository ignore comments become
+requests for the security team. See
+[Known false positives](../user-guide/known-false-positives.md). A SAST
+finding can carry its **data-flow trace**, the path from untrusted input to
+the vulnerable call ([Data-flow traces](../scanning/data-flow-traces.md)).
+
 An **exposure event** records an attack-surface change that is not a
 vulnerability: an open port, a public bucket, an expiring certificate, a leaked
 credential.
