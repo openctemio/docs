@@ -2,7 +2,7 @@
 title: "Compliance permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 24
+nav_order: 25
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->

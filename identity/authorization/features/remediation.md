@@ -2,7 +2,7 @@
 title: "Remediation and automation permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 17
+nav_order: 18
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
@@ -21,7 +21,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Permission | Roles |
 |---|---|
-| `findings:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| `findings:read` | Owner, Administrator, Member, Viewer, Researcher, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | `findings:remediation:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | `findings:remediation:write` | Owner, Administrator, Member, Vulnerability manager |
 | `findings:suppressions:approve` | Owner, Administrator, CTEM program lead, Risk approver |
@@ -61,6 +61,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/suppressions/{id}` | `findings:suppressions:read` | gap: §1.3 suppression rules |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, AppSec engineer, Risk approver, Auditor |
 | PUT | `/api/v1/suppressions/{id}` | `findings:suppressions:write` | gap: §1.3 suppression rules |  | Owner, Administrator, Security analyst, Vulnerability manager, AppSec engineer |
 | POST | `/api/v1/suppressions/{id}/approve` | `findings:suppressions:approve` | gap: §1.3 suppression rules |  | Owner, Administrator, CTEM program lead, Risk approver |
+| GET | `/api/v1/suppressions/{id}/preview` | `findings:suppressions:approve` | partial: organization-wide count of open findings an approval would close; the approval applies organization-wide, so only approvers (findings:suppressions:approve) see it (authorization-matrix.md) |  | Owner, Administrator, CTEM program lead, Risk approver |
 | POST | `/api/v1/suppressions/{id}/reject` | `findings:suppressions:approve` | gap: §1.3 suppression rules |  | Owner, Administrator, CTEM program lead, Risk approver |
 | GET | `/api/v1/workflow-runs` | `findings:workflows:read` | gap: L-18 (trigger data) |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
 | GET | `/api/v1/workflow-runs/{id}` | `findings:workflows:read` | gap: L-18 (trigger data) |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |

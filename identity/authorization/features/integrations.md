@@ -2,7 +2,7 @@
 title: "Integrations and API keys permissions"
 parent: "Authorization reference"
 grand_parent: "Identity and access"
-nav_order: 26
+nav_order: 27
 ---
 
 <!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
