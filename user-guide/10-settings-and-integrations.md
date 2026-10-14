@@ -282,10 +282,16 @@ decides what fails a pipeline. Changing it needs an owner or admin. See
 **Scanner content** (`/settings/scanning/content`) sets how fresh the
 vulnerability databases, templates and rules your sensors scan with must be: how
 often sensors check for updates, and for the Trivy databases, Nuclei templates and
-Semgrep rules a **Maximum age (hours)**, an optional **Pinned version** and, for
-Semgrep, the rulesets. **Apply to sensors now** sends the policy to every sensor
-that manages its content. Content sources (registries, mirrors) are configured on
-the sensor host. Changing it needs an admin.
+SAST rules a **Maximum age (hours)**, an optional **Pinned version** and, for
+the SAST rules, registry rulesets. **Apply to sensors now** sends the policy to
+every sensor that manages its content. Content sources (registries, mirrors) are
+configured on the sensor host. Changing it needs an admin.
+
+Without rulesets, sensors run the OpenCTEM SAST rules pack (signed releases of
+[openctemio/sast-rules](https://github.com/openctemio/sast-rules)); a pinned
+version is a pack release such as `v0.1.0`. Registry rulesets are fetched by your
+own sensors from the registry, under the registry's licence; scans the platform
+runs on its own sensors never use them.
 
 ## Integrations
 

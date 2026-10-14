@@ -118,6 +118,8 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_CONTENT_SEMGREP_RULESETS"></span>`SENSOR_CONTENT_SEMGREP_RULESETS` | list |  |  |  | semgrep rulesets to fetch. |
 | <span id="SENSOR_CONTENT_SEMGREP_REGISTRY_URL"></span>`SENSOR_CONTENT_SEMGREP_REGISTRY_URL` | url |  |  |  | semgrep registry URL. |
 | <span id="SENSOR_CONTENT_SEMGREP_RULES_PATH"></span>`SENSOR_CONTENT_SEMGREP_RULES_PATH` | path |  |  |  | Local semgrep rules. |
+| <span id="SENSOR_CONTENT_SAST_RULES_VERSION"></span>`SENSOR_CONTENT_SAST_RULES_VERSION` | string |  |  |  | OpenCTEM rules pack release to install (vX.Y.Z); default the newest. |
+| <span id="SENSOR_CONTENT_SAST_RULES_URL"></span>`SENSOR_CONTENT_SAST_RULES_URL` | url |  |  |  | Mirror of the rules pack downloads ({version}, {bare_version}); the signature is still verified. |
 | <span id="SENSOR_CONTENT_SEMGREP_SKIP_CHECK"></span>`SENSOR_CONTENT_SEMGREP_SKIP_CHECK` | bool |  |  |  | Skip the semgrep rules check. |
 | <span id="SENSOR_CONTENT_TRIVY_DB_REPOSITORY"></span>`SENSOR_CONTENT_TRIVY_DB_REPOSITORY` | string |  |  |  | trivy DB OCI repository. |
 | <span id="SENSOR_CONTENT_TRIVY_JAVA_DB"></span>`SENSOR_CONTENT_TRIVY_JAVA_DB` | bool |  |  |  | Also fetch the trivy Java DB. |
