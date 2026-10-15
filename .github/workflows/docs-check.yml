@@ -17,6 +17,15 @@ jobs:
       - name: Check Markdown
         run: python3 scripts/docs_check.py .
 
+      # Fails when the repository tracks commercial, internal-planning,
+      # research or review material (listed in .gitignore; this also catches
+      # git add -f and merges that bring such folders back).
+      - name: Private paths (self-test)
+        run: bash .github/scripts/check-private-paths.test.sh >/dev/null
+
+      - name: Private paths
+        run: bash .github/scripts/check-private-paths.sh
+
       - name: Customer identifiers (self-test)
         run: bash .github/scripts/check-customer-identifiers.test.sh >/dev/null
 
