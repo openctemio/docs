@@ -116,11 +116,71 @@ sequenceDiagram
 - The platform takes the repository, branch and commit from the **verified
   token**, never from the report. A report can describe only the job's own
   repository.
-- The first verdict of a run is final. The check on a commit takes the
-  **strictest** latest verdict of every pipeline on that commit, so a second
-  workflow cannot turn a failing check green.
+- All jobs, retries and re-runs of one pipeline run report into **one** run.
+  A re-run of only the gate job is judged on everything the earlier attempts
+  uploaded, never on an empty run, so it cannot pass on nothing. An exception
+  approved since then, or a flaky scan that succeeds on re-run, can turn it
+  green without a new commit. Scanner failures of the earlier verdict keep
+  failing it until a later attempt uploads, and a run nothing was uploaded to
+  fails. The check on a commit takes the **strictest** latest verdict of every
+  pipeline on that commit, so a second workflow cannot turn a failing check
+  green.
 - When the platform cannot be reached, the local `fail-on` threshold applies.
   A broken scan never exits 0.
+
+## The gate baseline
+
+A repository with existing findings would otherwise stay red forever. The
+**gate baseline** is the set of findings open on the repository's default
+branch when it was recorded:
+
+- The **first verified run on the default branch** records it and passes.
+  Its verdict says "first run: N existing findings recorded as the gate
+  baseline". This happens once per repository, and never for a fork.
+- After that, a default-branch run is judged against the baseline only. A
+  finding in it shows as baseline (not blocking); anything else is new. The
+  run view shows "N baseline · M new". Running a failed run again does not
+  change what counts as new.
+- A pull request into the default branch treats a finding as pre-existing
+  only when it is open on that branch **and** in the baseline. A finding that
+  reached the default branch later keeps blocking until it is fixed, accepted
+  or baselined.
+- Secrets in the baseline still block default-branch runs, unless the
+  organization turns that off.
+- An administrator with the CI policy permission can **record a new baseline
+  now** (sign-in again, audited, every administrator is told) or remove it
+  (every finding counts as new again). The repository's `.openctem.yml`
+  cannot touch the baseline.
+- An optional **grace period** (days) gives baseline findings a due date.
+  After it, they block again.
+
+## Gate settings per repository
+
+Settings → CI/CD holds the organization's gate policy. Each pipeline's
+**Settings** tab shows the policy that applies to its repository, setting by
+setting: the effective value, where it comes from (default, organization,
+business unit or this repository), and any lock.
+
+- A repository override sets only the settings it changes. Everything else
+  follows the organization, including later changes.
+- The organization (or a business unit) can **lock** a setting. Below a lock,
+  a setting can only be made stricter, whoever asks.
+- Loosening a setting for one repository needs the CI policy permission, a
+  reason and a recent sign-in. It is audited and announced, and it can have an
+  end date, after which the repository follows the organization again.
+- The repository's `.openctem.yml` can only make the gate stricter.
+- The Pipelines list filters on repositories with overrides, and the
+  organization policy shows how many repositories override each setting.
+
+| Setting | Locks | A repository may loosen |
+|---|---|---|
+| Mode (enforce / warn) | yes | with permission, reason, sign-in |
+| Fail-on severity | yes | same |
+| New findings only | yes | same |
+| KEV fails, EPSS threshold, fixable only | yes | same |
+| Per-capability and per-rule modes | yes | same |
+| Allow `.openctem.yml` | yes | turning it off is stricter |
+| First-run baseline, baseline grace, baseline secrets block | yes | same |
 
 ## Trust: issuers, audience and keys
 
