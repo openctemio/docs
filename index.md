@@ -48,8 +48,8 @@ reachable; sensors connect out to the platform, so nothing has to reach into you
 Each release is described in the
 [changelog](https://github.com/openctemio/openctem/blob/develop/api/CHANGELOG.md); see
 [Versioning and releases](operations/versioning.md) for the release policy. OpenCTEM is
-free software: the platform, sensor, SDK and CI integration are licensed under the GNU GPL v3.0,
-the CTIS schema and the Helm charts under the Apache License 2.0 (see [Legal](legal/)).
+free software: the platform, sensor and CI integration are licensed under the GNU GPL v3.0,
+the Go SDK, the CTIS schema and the Helm charts under the Apache License 2.0 (see [Legal](legal/)).
 
 To report a security vulnerability, email **<!--email_off-->[security@openctem.io](mailto:security@openctem.io)<!--/email_off-->** and see the
 [vulnerability disclosure policy](security/vulnerability-disclosure.md). For anything

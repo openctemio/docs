@@ -12,7 +12,7 @@ Exposure Management (CTEM)**: it keeps an inventory of what your organization
 exposes, finds the weaknesses in it, ranks them by real risk, checks which ones
 can actually be exploited, and drives their remediation, as a repeating cycle.
 It is multi-tenant: one installation serves several organizations, each isolated
-from the others. The code is under the GPL-3.0 licence at
+from the others. The platform code is under the GPL-3.0 licence (the Go SDK under the Apache License 2.0) at
 [github.com/openctemio](https://github.com/openctemio).
 
 ![The OpenCTEM dashboard of the Example Corp organization: active exposure, priority classes over time and the five CTEM stages]({{ site.baseurl }}/assets/images/overview/dashboard.png)

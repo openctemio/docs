@@ -127,7 +127,7 @@ Reviewers also check that:
 
 ## Licensing
 
-The platform, sensor, SDK, CI and Tenable connector repositories are licensed under GPL-3.0; `ctis`, `helm-charts`,
+The platform, sensor, CI and Tenable connector repositories are licensed under GPL-3.0; `sdk-go`, `ctis`, `helm-charts`,
 `openctem-ansible`, `programfeed` and `vulnfeed` under Apache-2.0; `sast-rules` under MIT (see each
 repository's `LICENSE`). Contributions are accepted under the Contributor License Agreement below.
 
