@@ -1,0 +1,16 @@
+# Contributor License Agreement settings, used by legal/cla.md and
+# legal/cla-corporate.md.
+#
+# >>> GRANTEE: the ONE place that names the party receiving the licence. <<<
+# Both agreements print this value wherever they name the Grantee. When the
+# project's legal entity exists, change it here. A change of party is a new
+# version of the agreements: raise `version`, and move the CLA workflow in
+# every repository to a new signature file (signatures/v2/cla.json), so each
+# record stays tied to the text that was accepted. Rights under version 1 move
+# to the entity through the assignment clause (section 9 of each agreement).
+grantee: "Manh Nguyen Van, maintainer of the OpenCTEM project, and any successor legal entity to which he assigns the project"
+
+version: "1.0"
+effective_date: "2026-10-15"
+# Where a signed Corporate CLA is sent.
+corporate_contact: "info@openctem.io"
