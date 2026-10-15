@@ -95,7 +95,7 @@ See our [Privacy Policy](privacy-policy.md) for detailed information on data han
 
 ### 7.1 Open Source License
 
-- OpenCTEM is released under the GNU General Public License (GPL).
+- The OpenCTEM platform is released under the GNU General Public License (GPL); other components, such as the Go SDK, are released under the licenses listed on the [Legal](index.md) page.
 - You may use, modify, and distribute the software in accordance with the license terms.
 - Contributions to the project are subject to the project's contribution guidelines.
 
