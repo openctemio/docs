@@ -17,7 +17,7 @@ their own consumers live in their own repositories under the
 |---|---|---|---|---|
 | [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web console (`web/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed`, `admin-cli` |
 | [sensor](https://github.com/openctemio/sensor) | Go | GPL-3.0 | The sensor (`openctemio-sensor`) that runs scanners where the targets are and reports to the platform | its own tags; image `ghcr.io/openctemio/sensor` |
-| [sdk-go](https://github.com/openctemio/sdk-go) | Go | GPL-3.0 | The Go SDK: sensor runtime (`pkg/sensorkit`), tool contract (`pkg/tool`), protocol client, the `openctem` developer CLI | Go module with its own semver |
+| [sdk-go](https://github.com/openctemio/sdk-go) | Go | Apache-2.0 | The Go SDK: sensor runtime (`pkg/sensorkit`), tool contract (`pkg/tool`), protocol client, the `openctem` developer CLI | Go module with its own semver |
 | [ctis](https://github.com/openctemio/ctis) | Go, JSON Schema | Apache-2.0 | CTIS, the CTEM Ingest Schema: specification, JSON Schemas, Go types, report importers, the capability taxonomy | Go module `github.com/openctemio/ctis` |
 | [ci](https://github.com/openctemio/ci) | Go | GPL-3.0 | `openctem-ci`, the GitHub Action and GitLab templates for scanning in CI pipelines | its own tags; images `ghcr.io/openctemio/ci`, `ci-<tool>` |
 | [helm-charts](https://github.com/openctemio/helm-charts) | Helm | Apache-2.0 | The `openctem` Helm chart (optionally with a bundled sensor) | chart releases |
