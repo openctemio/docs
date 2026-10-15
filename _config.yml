@@ -66,6 +66,9 @@ callouts:
 # Exclude from build
 exclude:
   - README.md
+  - CONTRIBUTING.md
+  - CLA.md
+  - CLA-CORPORATE.md
   - Gemfile
   - Gemfile.lock
   - node_modules/
