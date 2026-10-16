@@ -13,9 +13,9 @@ about it.
 
 The pages are under **Mobilization** in the sidebar:
 
-- **Remediation**: tasks and campaigns that turn findings into owned work with a
-  priority, a due date and progress (tab **Tasks**), and **Solution families**
-  that resolve a whole family of findings with one fix.
+- **Remediation**: the **Fix plan**, **Suggestions** of findings that one fix
+  closes, **Tasks** that give each fix an owner and a deadline, and
+  **Campaigns** that track many fixes toward one goal.
 - **SLA Compliance**: how open findings stand against their deadlines.
 - **Exceptions**: suppression rules for false positives and accepted risks, with
   an approval step.
@@ -32,59 +32,118 @@ running automations needs the workflows write permission.
 
 ## Remediation tasks
 
-**Mobilization › Remediation › Tasks** (`/remediation`) tracks the work of fixing
-findings: who owns it, where it stands and when it is due. Each task is a
-**remediation campaign**: it can group many findings and shows how many are
-linked and resolved.
+A **remediation task** is one fix with one owner and one deadline: "upgrade
+django to 4.2.30 on the payment services", "rotate the leaked AWS key". It holds
+the findings that this fix closes. The platform suggests tasks; a person
+accepts them. Nothing is created or changed until someone accepts.
 
-![The Remediation tasks page with two campaigns, their priority, status and assignee]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
-*Figure: Remediation tasks.*
+The Remediation pages have five tabs: **Fix plan**, **Suggestions**, **Tasks**,
+**Campaigns** and **Solution families**.
 
-1. The header has **Refresh**, **Export** (**Export as CSV** or **Export as
-   JSON**) and **New task**.
-2. The quick filters **All tasks**, **Open**, **In progress**, **In review**,
-   **Blocked** and **Overdue** each show a count; the filter panel narrows by
-   priority, status and assignee.
-3. Switch between **Table view** and **Kanban view**:
-   - The table shows each **Task** (with its linked findings), **Priority**,
-     **Status**, **Assignee** (or Unassigned) and **Due date** (days left or
-     overdue).
-   - Kanban shows one column per status; each card shows the assignee, due date
-     and an overdue flag.
-4. **New task**: the **Title** (required), a description, the priority
-   (**Urgent**, **High**, **Medium**, **Low**), the **Due Date**, **Assign to…**
-   and **Link Findings** (pick open findings). Click **Create Task**.
-5. A task's menu: **View details**, **Open campaign**, **Create Jira epic**,
-   **Copy ID** and **Delete**, plus the status steps that fit its current status
-   (**Start Task**, **Submit for Validation**, **Block**, **Unblock**,
-   **Complete**).
-6. Click a task to open its details: rename it, change its priority, see its
-   progress and linked findings (**Manage** to link more, or unlink one), assign
-   an owner and a **Validator**, set the start date and description.
-7. Select several tasks to **Move to** In progress, Review or Completed at once.
-   Tasks that cannot move from their current status are reported.
+### The fix plan
 
-### The campaign page
+**Mobilization › Remediation › Fix plan** (`/remediation`) lists the fixes that
+remove the most risk, whether they are already tasks or still suggestions, with
+counts of open tasks, overdue tasks, suggestions to review and your own tasks.
 
-**Open campaign** opens the campaign (`/remediation/{id}`). Its status is one of
-**Draft**, **Active**, **Paused**, **Validating**, **Completed** or **Canceled**,
-with the actions **Activate**, **Pause**, **Resume**, **Start Validation**,
-**Complete** and **Cancel**. It shows the description, priority, progress (it
-auto-completes when all its findings are resolved), start and due dates, owner,
-validator, risk reduction and tags.
+![The fix plan with tasks and suggestions ranked by risk]({{ site.baseurl }}/assets/images/user-guide/remediation-fix-plan.png)
+*Figure: The fix plan.*
 
-![A remediation campaign page with its progress, dates and owner]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
-*Figure: A remediation campaign.*
+### Suggestions
 
-- **Resolve open findings** applies one outcome to all of the campaign's open
-  findings: **Fix applied — pending rescan verification (recommended)** or
-  **Resolved — close now**, with an optional note (for example a change
-  reference). Large bulk resolutions ask you to confirm.
-- For each linked finding: **Open finding**, **Create ticket** or **Unlink from
-  campaign**.
-- **Create Jira Epic** pushes the campaign to Jira: enter the **Jira project
-  key** (for example `SEC`). It needs a connected Jira integration (see
-  [Ticketing](10-settings-and-integrations.md#ticketing)).
+**Suggestions** (`/remediation/suggestions`) groups open findings that one fix
+closes: the same package upgraded to the same version, the same leaked secret,
+or the same specific solution from the scanner. Each card shows the fix, how
+many findings and assets it covers, the risk it removes (by priority class) and
+who it would go to: the asset's primary owner, or the default queue when the
+asset has none.
+
+![The suggestions inbox]({{ site.baseurl }}/assets/images/user-guide/remediation-suggestions.png)
+*Figure: Suggestions.*
+
+- **Why?** explains the grouping and shows the fix steps, for example the
+  upgrade command to copy.
+- **Accept** creates the fix and one task per owner. When the fix is already a
+  task for that owner, accepting adds the findings to it.
+- **Edit** lets you change the task title and owners, leave findings out (they
+  are not suggested for this fix again), set a deadline (it can only make the
+  deadline earlier) and turn on **auto-join**: new findings with the same exact
+  fix then join the owner's open task by themselves, at most 200 a day. Auto-join
+  never changes a finding's status.
+- **Dismiss** asks for a reason. A dismissed suggestion comes back only when it
+  changes a lot: many more findings, twice the risk, or a P0 or KEV finding.
+- **Snooze** hides a suggestion for seven days. Dismiss and snooze can be undone
+  from the message that confirms them.
+- Select several suggestions and **Accept selected** to accept them in one go
+  (up to 50).
+- Review with the keyboard: **j**/**k** move, **a** accepts, **e** edits, **d**
+  dismisses (then **1**–**7** pick the reason), **s** snoozes, **x** selects and
+  **?** shows why.
+
+At most 50 new suggestions appear per day; the rest wait for the next day.
+Reviewers get one daily notification when new suggestions arrive. **Refresh
+now** looks for new suggestions right away.
+
+### Tasks
+
+**Tasks** (`/remediation/tasks`) has views for **All open**, **My tasks** (yours
+and your groups'), **Verifying**, **On hold**, **Closed** and **All**, a search,
+a sort (deadline, risk, recently changed, newest), and a table or a board.
+
+A task's **state** follows its findings:
+
+- **Open**: nobody has started;
+- **In progress**: some findings are being fixed or claimed fixed;
+- **Verifying**: every open finding is claimed fixed and waits for its own check;
+- **Done**: every finding is closed **and at least one was verified fixed** (by a
+  scan, a retest or a reviewer);
+- **Closed, not verified**: every finding is closed, but none was verified
+  fixed;
+- **On hold** and **Canceled** are set by a person; **Archived** means the task
+  lost its last finding to a move.
+
+The **deadline** is the earliest SLA deadline of the task's open findings. A
+deadline set on the task, or a campaign's due date, can only make it earlier. On
+the board only **On hold** can be set by dragging a card.
+
+### A task
+
+Click a task to open it.
+
+![A remediation task with its fix, progress and findings]({{ site.baseurl }}/assets/images/user-guide/remediation-task.png)
+*Figure: A remediation task.*
+
+- **Fix** shows what to do, with the command to copy for an upgrade.
+- **Progress** counts verified, closed, claimed and open findings.
+- **Findings** are grouped by asset. Select findings to **Move to…** another
+  task (the platform warns you before it hands findings to another owner or
+  another fix, or empties this task), to take them out of any task, or to
+  **Split** them into a new task of the same fix. You can also drag findings
+  onto a task of the same fix. Every move can be undone from its message.
+- **Mark fixed** claims the fix for every open finding of the task (a note is
+  required, and you can claim only findings on assets you own). Each finding is
+  then checked again on its own; nothing closes until its own check passes.
+- **Put on hold**, **Resume** and **Cancel task** (with a reason; a canceled
+  task releases its findings) are in the menu.
+- The **Timeline** records every change, and each finding's own timeline names
+  the tasks it joined and left.
+
+If a finding of a done task comes back, the task is not reopened: the finding
+moves to a new task, "Regression: …", linked to the done one.
+
+Managing tasks needs the remediation write permission; **Mark fixed** also needs
+the permission to mark findings fixed. Members who see only part of the
+organization see a task through their own findings and cannot change a task
+that has findings outside their access.
+
+### Campaigns
+
+**Campaigns** (`/remediation/campaigns`) are programs that track many fixes
+toward one goal and deadline. A campaign's status is one of **Draft**,
+**Active**, **Paused**, **Validating**, **Completed** or **Canceled**; open one
+(`/remediation/campaigns/{id}`) to see its progress, dates, owner, validator and
+findings, to **Resolve open findings** (each is claimed fixed and checked again
+on its own) and to **Create Jira Epic**.
 
 ### The engineering ticket brief
 
