@@ -60,7 +60,7 @@ That is the most important workflow in the product; it is covered first in
    dashboard, notifications and your own account.
 2. [Team and access](02-team-and-access.md): members and invitations, roles and
    permissions, teams (data scope) and assignment rules, sign-in policy, SCIM,
-   API keys, AI access (MCP) and the audit log.
+   API keys, AI assistants (MCP) and the audit log.
 3. [Scoping](03-scoping.md): CTEM cycles, business context (crown jewels,
    services, business units), the scan scope, the threat model.
 4. [Discovery and the asset inventory](04-discovery.md): scans, scan runs and

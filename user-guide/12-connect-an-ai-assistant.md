@@ -15,7 +15,7 @@ This page is for three readers:
 
 - **Members** who want to connect Claude or another assistant: [Connect an assistant](#connect-an-assistant).
 - **Administrators** who decide which assistants an organization allows:
-  [Set the organization policy](#set-the-organization-policy).
+  [Approve applications and set the policy](#approve-applications-and-set-the-policy).
 - **Everyone using an assistant** should read [Use AI assistants safely](#use-ai-assistants-safely).
 - **Security reviewers** who need to know how it is protected: [Security model](#security-model).
 
@@ -45,7 +45,7 @@ You need an OpenCTEM account in the organization. You do not need to be an admin
 
 ### Find the server URL
 
-Open **Settings > Access > AI access (MCP)**. The card **Connect an AI assistant** shows the
+Open **Settings > Access > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
 configuration with the server URL of your installation. The URL always has this form:
 
 ```
@@ -70,9 +70,9 @@ the assistant opens OpenCTEM in your browser and you sign in.
 5. You are sent back to Claude, which now lists the OpenCTEM tools. Ask a question such as "List my
    open critical findings."
 
-If the consent screen says **This application cannot be connected**, your administrator has not
-allowed Claude yet. Send them the link to this page; they need to
-[add `claude.ai` to the trusted application hosts](#recommended-add-the-assistants-host).
+If the consent screen says **Your organization has not approved this application**, your
+administrator has not approved Claude yet. Choose **Request access**: administrators are notified and
+can approve it. See [If your organization has not approved the application](#if-your-organization-has-not-approved-the-application).
 
 ### Claude Code
 
@@ -119,7 +119,7 @@ Any client that supports MCP over HTTP with OAuth works if it:
 
 A client that registers itself on the fly (dynamic client registration) works only when the platform
 operator turned that on (`MCP_OAUTH_DCR_ENABLED`, off by default) and the organization chose
-**Allow unverified applications**. Such a client is always shown as unverified.
+**Allow unverified applications** (Applications tab, **Advanced: unverified applications**). Such a client is always shown as unverified.
 
 Scripts without a person at the keyboard use an [API key](../api/mcp.md#connect-a-client) instead,
 if the organization allows API keys on the MCP server.
@@ -138,12 +138,36 @@ The consent screen is the one place where you decide. Read it before you choose 
 | **It will be able to, as you:** | The access you grant, one line per permission group: **Read findings, vulnerabilities, priorities and remediation groups**, **Read assets and attack paths**, **Read compliance posture**, **Read pentest campaigns, findings, retests and templates**. A line with a check mark is granted. A struck-through line is not: you do not hold that access in this organization, or **(not allowed by your organization)**. A line with the **Changes data** badge is the comment tool; every comment it makes asks for your confirmation. |
 | **You will be sent back to** | The address your browser returns to after you choose. For Claude on the web it is a `claude.ai` address; for an application on your computer it is `127.0.0.1` or `localhost`. If it is a host you do not recognize, choose **Cancel**. |
 | **Only continue if you started this** | The application runs on your own computer, where any program could use the same name. Continue only if you just asked the assistant to connect. |
-| **This application cannot be connected** | The organization's policy blocks it. **Allow** is disabled. See [Troubleshooting](#troubleshooting). |
+| **Your organization has not approved this application** | The organization has not approved the application's publisher. **Allow** is disabled. Members see **Request access**; administrators see **Allow {host} for {organization}**. See [the next section](#if-your-organization-has-not-approved-the-application). |
+| **AI assistants are turned off** | The organization turned off **AI assistants** (Policy tab). **Allow** is disabled. |
 | **Unverified application** | Shown for an unverified application the organization allows. |
 | **Cancel** / **Allow** | **Cancel** refuses the request. **Allow** grants exactly the lines with a check mark and sends you back to the application. |
 
 The page also says: it sees only what you can see in this organization, and loses access when you
 do. You can disconnect it at any time.
+
+### If your organization has not approved the application
+
+An organization accepts only **approved** applications by default (see
+[the default](#the-default-is-closed-to-unknown-applications)). When the consent screen shows
+**Your organization has not approved this application**, with the line "Applications published by
+{host} need an administrator's approval before anyone can connect them":
+
+1. Choose **Request access**. The request carries the publisher and the access the application asks
+   for; you do not type anything, and nothing can be added to it.
+2. The screen confirms **Request sent. Your administrators were notified; connect again after they
+   approve it.** Owners and administrators get an in-app notification of the type **AI application
+   requests**.
+3. When an administrator decides, you get a notification of the result. After an approval, start the
+   connection again from the assistant.
+
+You can send at most 5 new requests per day. If several members ask for the same publisher, the
+administrators see one request with a count, not many. If you are an owner or administrator
+yourself, the screen offers **Allow {host} for {organization}** instead; see
+[Approve a request](#approve-a-request).
+
+An application that registered itself (marked **Unverified**) cannot be requested: there is no
+publisher to approve. It can be connected only if the organization allows unverified applications.
 
 ### How long a connection lasts
 
@@ -160,7 +184,7 @@ connection ends when:
 ## Manage and disconnect your connections
 
 Open **Settings > My account > Connected applications** (`/account/connected-apps`), titled
-**Your AI applications**. Each row shows the application name and where it is published (or the
+**Your AI applications**. The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
 **Unverified** badge), the access it holds (**Findings**, **Assets**, **Compliance**, **Pentest**),
 when it was connected, when it was last used and from which address, and when it ends.
 
@@ -170,72 +194,105 @@ use it again, connect it again from the application.
 If a row looks wrong (an application you do not recognize, or use from an unexpected address),
 disconnect it and tell your administrator.
 
-## Set the organization policy
+## Approve applications and set the policy
 
-Administrators manage MCP under **Settings > Access > AI access (MCP)**. You need the
-`settings:write` permission (Owner and Administrator roles) to change the policy; anyone with
-`settings:read` sees it. Saving needs a recent sign-in and the page asks for it when required.
+Administrators manage MCP under **Settings > Access > AI assistants (MCP)**. The page has four tabs:
+
+| Tab | Who sees it | What is on it |
+|---|---|---|
+| **Connect** | Everyone | How to connect an assistant, the link to your own connections, API keys for scripts. |
+| **Applications** | `settings:read` (the count of waiting requests is on the tab) | **Access requests**, **Approved publishers**, **Registered by your organization**, **Advanced: unverified applications**. |
+| **Connections** | Owner and Administrator | Every AI application a member connected, with **Disconnect**. |
+| **Policy** | `settings:read` | **Access**, **What assistants may do**, **Limits**. |
+
+You need the `settings:write` permission (Owner and Administrator roles) to change anything; anyone
+with `settings:read` can look. Changes that allow more need a recent sign-in, and the page asks for
+it when required. A status line under the title summarizes the policy (for example **On**,
+**Approved applications only**, **Read-only**, **Connections last 90 days**, **Up to TLP:AMBER**) and
+warns when unverified applications are allowed or access is off.
 
 ### The default is closed to unknown applications
 
 Out of the box an organization accepts only **verified** applications:
 
 - an application registered by the organization;
-- an application whose identity document is published on a host that is on the organization's list
-  of **Trusted application hosts** or on the platform's list.
+- an application whose identity document is published on a host in the organization's **Approved
+  publishers** or on the platform's list (**Trusted by the platform**).
 
-Any other application is refused on the consent screen with **Your organization only allows
-approved applications. Ask an administrator to allow this one.** This is the secure default.
-Claude on the web is an application published on `claude.ai`, so an organization has to trust that
-host before members can connect it.
+Any other application is refused on the consent screen with **Your organization has not approved
+this application**. This is the secure default. Claude on the web is an application published on
+`claude.ai`, so an organization has to approve that publisher before members can connect it.
 
-### Recommended: add the assistant's host
+### Approve a request
 
-1. Open **Settings > Access > AI access (MCP)** and find the card **Organization policy**.
-2. In **Trusted application hosts** add the host, one per line, for example:
+This is the recommended way. A member who is blocked sends a request from the consent screen, and
+you decide it:
 
-   ```
-   claude.ai
-   ```
+1. Open **Settings > Access > AI assistants (MCP) > Applications**. **Access requests** lists each
+   waiting request: the application, the publisher, who asked first, how many requests there are,
+   when, and **Asks for:** the access it wants.
+2. Check that you recognize the publisher and want that service in the organization.
+3. Choose **Approve**. The dialog **Approve applications published by {host}?** says that every
+   member can then connect applications from that publisher, that each person still approves what it
+   may do and never sees more than they can, and that you can remove the publisher at any time.
+   Confirm, and sign in again if asked.
+4. Or choose **Decline**. The policy does not change; the member is told and can ask again later.
 
-   Enter the host name only, without `https://` or a path. Names are lower-cased. At most 50 hosts
-   are accepted. Below the box, **Trusted by the platform:** lists hosts the platform operator
-   already trusts for every organization.
-3. Choose **Save policy**. It applies to existing connections at once.
+Approving adds the publisher to **Approved publishers** and tells the member. It applies to every
+member, not only the requester. Both decisions are recorded in the audit log.
 
-Ask the member to start the connection again.
+At most 50 requests can wait at once in an organization, and one member can send 5 new requests per
+day, so a flood of requests is not possible.
+
+If an owner or administrator is blocked on the consent screen, the alert offers **Allow {host} for
+{organization}**. Choosing it (after a recent sign-in) approves the publisher at once and enables
+**Allow**; no request is created.
+
+### Approved publishers
+
+**Applications > Approved publishers** is the list of hosts whose published applications count as
+verified. Rows marked **Trusted by the platform** come from the platform operator and apply to every
+organization; you cannot remove them. Rows you added can be removed.
+
+To add one without waiting for a request, choose **Add publisher**, enter the host name (for example
+`claude.ai`; pasting the application's address is fine, only the host is kept), and **Approve**. At
+most 50 publishers are accepted. **Remove** (with confirmation) means applications published there can
+no longer be connected, and existing connections stop working at their next request. Changes in this
+tab save at once.
 
 {: .note }
-Trusting a host means trusting that host to name the application honestly: it can publish a
-document for any application it hosts. Add only hosts of services you have decided to allow. The
+Approving a publisher means trusting that host to name its applications honestly: it can publish a
+document for any application it hosts. Approve only hosts of services you have decided to allow. The
 platform operator can add hosts for every organization with the environment variable
 `MCP_OAUTH_TRUSTED_CLIENT_HOSTS` (see [Environment variables](../configuration/environment-variables.md)).
 
 ### Unverified applications
 
-**Allow unverified applications** is off by default. Do not turn it on to get one assistant
-working. With it on, a member can connect any application whose name nobody vouches for, including
-one written to look like a trusted assistant, and the consent screen is the only protection:
-a member who clicks **Allow** hands that program their read access to the organization's findings,
-assets and pentest data. If you need one assistant, trust its host (above) or
-[register it](#register-an-organization-application). If you need many unknown tools, leave this
-off and review requests one by one.
+Under **Applications > Advanced: unverified applications**, **Allow unverified applications** is off
+by default. Do not turn it on to get one assistant working. With it on, a member can connect any
+application whose name nobody vouches for, including one written to look like a trusted assistant,
+and the consent screen is the only protection: a member who clicks **Allow** hands that program their
+read access to the organization's findings, assets and pentest data. Turning it on asks for
+confirmation (**Allow applications nobody vouches for?**); turning it off does not. If you need one
+assistant, approve its publisher (above) or [register it](#register-an-organization-application). If
+you need many unknown tools, leave this off and review requests one by one.
 
 ### The policy fields
 
-| Field | What it does | Default |
-|---|---|---|
-| **AI application access** | Off: no application or API key can use the MCP server. Applies at once to existing connections. | On |
-| **Allow unverified applications** | Off: only applications your organization registered or published on a trusted host. | Off |
-| **Trusted application hosts** | Hosts whose published application identity counts as verified. | Empty |
-| **Access members may grant** | The permission groups a member can give an assistant. Unticking one removes it from new consent screens (shown as **(not allowed by your organization)**) and from existing connections. | All read access |
-| **API keys on the MCP server** | Whether `oct_` keys may call the MCP server. Keys still work on the REST API. | On |
-| **Require proof of possession (DPoP)** | Applications must sign every request with their own key, so a copied token is useless. Applications without DPoP support can no longer connect, and existing connections without it stop working. | Off |
-| **Connections last (days)** | How long until a person must approve the application again, 1 to 90. | 90 |
-| **Highest TLP sent to AI applications** | Pentest campaigns above this TLP level are never sent: the tools and prompts refuse them and campaign lists leave them out. A campaign lead can also exclude one campaign with **Keep this campaign away from AI assistants** on its Engagement card. | TLP:AMBER |
+The **Policy** tab has one **Save policy** button. It applies to existing connections at once.
 
-The comment tool's permission group (adding comments to findings) is not offered by this form and
-stays off.
+| Section | Field | What it does | Default |
+|---|---|---|---|
+| **Access** | **AI assistants** | Off: no application or API key can use the MCP server, and existing connections stop working. | On |
+| **What assistants may do** | **Read** | The permission groups a member can let an assistant read: findings, vulnerabilities, priorities and remediation groups; assets and attack paths; compliance posture; pentest campaigns, findings, retests and templates. Unticking one removes it from new consent screens (shown as **(not allowed by your organization)**) and from existing connections. At least one must stay ticked. | All read access |
+| **What assistants may do** | **Change: Add comments to findings** | Lets an assistant ask to add a comment to a finding. It changes data: the member approves it on the consent screen, and each comment waits for the member to confirm the exact text in OpenCTEM before it is saved. It never changes severity or status. | Off |
+| **Limits** | **Connections last (days)** | How long until a person must approve the application again, 1 to 90. | 90 |
+| **Limits** | **Highest TLP sent to AI applications** | Pentest campaigns above this TLP level are never sent: the tools and prompts refuse them and campaign lists leave them out. A campaign lead can also exclude one campaign with **Keep this campaign away from AI assistants** on its Engagement card. | TLP:AMBER |
+| **Limits** | **Require proof of possession (DPoP)** | Applications must sign every request with their own key, so a copied token is useless. Applications without DPoP support can no longer connect, and existing connections without it stop working. | Off |
+| **Limits** | **API keys on the MCP server** | Whether `oct_` keys may call the MCP server. Keys still work on the REST API. | On |
+
+Publishers, requests and the unverified switch are on the **Applications** tab and are not changed
+by **Save policy**.
 
 Every change to the policy is written to the audit log.
 
@@ -244,7 +301,7 @@ Every change to the policy is written to the audit log.
 Use this for an assistant your organization runs or has reviewed, or for a client that cannot publish
 an identity document.
 
-1. In **Applications registered by your organization** (below the policy card) choose **Register**.
+1. On the **Applications** tab, in **Registered by your organization**, choose **Register**.
 2. Enter the **Name** and the **Return addresses (redirect URIs)**, one per line. Return addresses
    must be `https`, or `http` on `127.0.0.1`, `[::1]` or `localhost` (any port) for applications
    that run on a computer. The application can return only to these addresses.
@@ -255,9 +312,8 @@ an identity document.
 
 ### See and end connections of everyone
 
-The card **Connected applications in this organization** (Owner and Administrator) lists every AI
-application a member connected: who, which application, access, last use and expiry. Choose
-**Disconnect** to end one at once.
+The **Connections** tab (Owner and Administrator) lists every AI application a member connected:
+who, which application, access, last use and expiry. Choose **Disconnect** to end one at once.
 
 ## Audit log
 
@@ -270,7 +326,8 @@ unless noted):
 | `mcp_grant.token_issued` | An application received its first tokens. |
 | `mcp_grant.revoked` | A connection ended: disconnected by the person, an administrator or the application. |
 | `mcp_grant.code_reused`, `mcp_grant.refresh_reused` | A one-time code or a rotated token was presented twice, which indicates theft. The connection is revoked. |
-| `mcp_settings.updated` | The organization policy changed. |
+| `mcp_settings.updated` | The organization policy changed, including publishers and the unverified switch. |
+| `mcp_access_request.created` / `mcp_access_request.approved` | A member asked to connect an application; an administrator approved the request or allowed the publisher. A declined request is recorded too. |
 | `mcp_client.registered` / `mcp_client.deleted` | An organization application was registered or deleted. |
 | `mcp_action.requested`, `mcp_action.confirmed`, `mcp_action.refused` | An assistant asked to add a comment, and the person confirmed or refused it. |
 
@@ -310,8 +367,9 @@ persuaded, so use the assistant in a way that limits the damage.
 
 ### For administrators
 
-- Keep the defaults: only verified applications, and read access only. Allow the comment permission
-  only if you need it.
+- Keep the defaults: only approved applications, and read access only. Approve a request only for a
+  publisher you recognize, and allow **Add comments to findings** only if you need it. Never turn on
+  **Allow unverified applications** to get one assistant working.
 - Set **Highest TLP sent to AI applications** to the most restrictive level your contracts allow, and
   exclude sensitive pentest campaigns from assistants.
 - Turn on **Require proof of possession (DPoP)** when all your users' applications support it, and
@@ -319,22 +377,24 @@ persuaded, so use the assistant in a way that limits the damage.
 - Use `oct_` API keys only for unattended automation, with the IP allowlist and the fewest
   permissions. Turn off **API keys on the MCP server** if you do not use them.
 - Review the connections of everyone regularly and end the ones you do not recognize. **AI
-  application access** is the switch that turns all assistants off at once.
+  assistants** (Policy > Access) is the switch that turns all assistants off at once.
 - Watch the audit log for unusual volumes of MCP tool calls.
 
 ## Troubleshooting
 
 | What you see | Why | What to do |
 |---|---|---|
-| **This application cannot be connected** / **Your organization only allows approved applications. Ask an administrator to allow this one.** | The application is not verified for this organization and **Allow unverified applications** is off. | An administrator adds the application's host (for `claude.ai`, the host `claude.ai`) under **Trusted application hosts**, or registers it as an organization application. |
-| **This application cannot be connected** / **Your organization has turned off AI application access.** | **AI application access** is off. | An administrator turns it on, if the organization wants it. |
-| **(not allowed by your organization)** next to a permission, struck through | The policy does not let members grant that access. | An administrator ticks it under **Access members may grant**, if appropriate. |
+| **Your organization has not approved this application** | The application's publisher is not approved for this organization. | Members: choose **Request access**. Administrators: choose **Allow {host} for {organization}**, or approve the request under Applications > **Access requests**. |
+| **Your organization has not approved this application** and "Nobody vouches for this application" (no **Request access**) | The application registered itself, so it has no publisher to approve. | An administrator [registers it](#register-an-organization-application), or allows unverified applications (not recommended). |
+| **AI assistants are turned off** / **Your organization has turned off AI assistants.** | **AI assistants** (Policy > Access) is off. | An administrator turns it on, if the organization wants it. |
+| **Could not send the request.** | You reached 5 new requests in a day, or the organization has 50 waiting. | Try again tomorrow, or ask an administrator directly. |
+| **(not allowed by your organization)** next to a permission, struck through | The policy does not let members grant that access. | An administrator ticks it under Policy > **What assistants may do**, if appropriate. |
 | A permission struck through without that note | You do not hold that access in this organization. | Ask for the role or permission. The assistant never gets more than you have. |
 | **You have none of the access this application asks for in this organization.** | You hold none of the requested access here. **Allow** is disabled. | Check the organization selector; ask an administrator for access. |
 | **Choose an organization first: sign in again or pick one from the organization list, then open the link again.** | The consent link opened without a current organization. | Sign in, choose the organization, then connect again from the assistant. |
 | **This link is not a valid connection request.** / **This request is no longer available.** | The request expired (it lasts 10 minutes) or was already answered. | Start the connection again from the assistant. |
 | **Cannot connect the application** | A generic failure of the consent page; its text gives the reason. | Retry from the assistant; if it persists, send the text to your administrator. |
-| The assistant says it cannot sign in, or an authentication error after it worked before | The connection ended: disconnected, expired, your access changed, or DPoP became required. | Check **Connected applications**; connect again. |
+| The assistant says it cannot sign in, or an authentication error after it worked before | The connection ended: disconnected, expired, your access changed, or DPoP became required. | Check **Your AI applications**; connect again. |
 | `401 Invalid credentials` from the MCP endpoint | The token is wrong, expired, revoked, the membership ended, or a required DPoP proof is missing or invalid. | Reconnect. A `WWW-Authenticate: DPoP` header names the accepted algorithms. |
 | `403 Your organization does not allow API keys on the MCP server` | **API keys on the MCP server** is off. | Use OAuth, or ask an administrator. |
 | `403 IP_NOT_ALLOWED` | The organization's IP allowlist applies to MCP like the REST API. | Connect from an allowed network. |
@@ -375,8 +435,8 @@ For security reviewers.
   once (replay cache), and a stolen token alone is useless. **Require proof of possession (DPoP)**
   makes this mandatory for the organization; bearer-only clients are then refused at token issue and
   at refresh, and existing bearer grants stop working.
-- **Writes.** The only write is `add_finding_comment`, behind a separate scope that members cannot
-  grant from the policy form. The first call returns a confirmation link; the person sees the exact
+- **Writes.** The only write is `add_finding_comment`, behind a separate scope that is off by default and is allowed only by the policy's **Add comments
+  to findings** option. The first call returns a confirmation link; the person sees the exact
   comment and visibility in OpenCTEM and confirms within 5 minutes; the assistant repeats the call
   with the confirmation. It never touches severity or status.
 - **Network and abuse controls.** The browser-origin guard, the organization's IP allowlist and a
