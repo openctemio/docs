@@ -27,10 +27,17 @@ Content-Type: application/json
   server-sent events). Protocol revision `2024-11-05`.
 - Methods: `initialize`, `ping`, `tools/list`, `tools/call`, `prompts/list`, `prompts/get`;
   `notifications/*` are acknowledged with `202` and no body.
-- Authentication: a tenant [API key](authentication.md#tenant-api-keys) only. A browser
-  session or JWT is refused. Any authentication failure is a plain `401`.
+- Authentication: either an OAuth access token, issued after a person signs in and approves the
+  assistant (see [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md)), or a
+  tenant [API key](authentication.md#tenant-api-keys). A browser session or JWT is refused. Any
+  authentication failure is a plain `401`. The organization's policy can turn either method off.
 
 ## Connect a client
+
+Most people should connect with OAuth, which needs no key: add the endpoint URL to the assistant
+and approve it in OpenCTEM. The steps, the consent screen and the organization policy are in
+[Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md). The rest of this section
+is the API-key method for scripts and clients without OAuth support.
 
 1. In the console open **Settings > AI access (MCP)** and choose **Generate connection key**.
 2. Pick the key's purpose:
