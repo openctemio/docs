@@ -231,19 +231,22 @@ and tools that call the API.
 Each key shows its scopes, expiry and last use; you can **Revoke** or **Delete**
 it. See [Authentication and API keys](../api/authentication.md).
 
-## AI access (MCP)
+## AI assistants (MCP)
 
-**Settings › Access › AI access (MCP)** (`/settings/mcp`) connects an AI
-assistant (any Model Context Protocol client) to your organization's data,
-read-only.
+**Settings › Access › AI assistants (MCP)** (`/settings/mcp`) connects an AI
+assistant (any Model Context Protocol client) to your organization's data, as
+the person who connects it. Most people connect with the sign-in flow on the
+**Connect** tab. If your organization has not approved the application, choose
+**Request access** on the consent screen and an administrator decides under
+**Applications**. For a script, use an API key:
 
-1. Click **Generate MCP connection key**.
+1. On the **Connect** tab choose **Generate key**.
 2. Give it a **Name** (for example "Claude on my laptop"), pick the **Purpose**
    (**General read access** or **Pentest report writing**) and an expiry.
 3. Copy the key (shown once) and the **Client configuration** snippet into your
    client.
 
-See [MCP server](../api/mcp.md).
+See [Connect an AI assistant](12-connect-an-ai-assistant.md) and [MCP server](../api/mcp.md).
 
 ## Audit log
 
