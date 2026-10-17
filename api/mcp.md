@@ -39,7 +39,7 @@ and approve it in OpenCTEM. The steps, the consent screen and the organization p
 [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md). The rest of this section
 is the API-key method for scripts and clients without OAuth support.
 
-1. In the console open **Settings > AI access (MCP)** and choose **Generate connection key**.
+1. In the console open **Settings > Access > AI assistants (MCP)**, open the **Connect** tab and choose **Generate key**.
 2. Pick the key's purpose:
    - **General read access**: scopes `findings:read`, `assets:read`,
      `compliance:frameworks:read`.
@@ -114,7 +114,7 @@ Tools that took `id` now take `campaign_id` or `finding_id`; `id` is still accep
   findings with `get_pentest_finding`; the campaign-wide tools and prompts answer `not_found` to
   them.
 - **TLP limit.** An organization administrator sets the highest TLP sent to AI applications in
-  **Settings > AI access (MCP) > Organization policy** (default TLP:AMBER). A campaign above it
+  **Settings > Access > AI assistants (MCP) > Policy** (default TLP:AMBER). A campaign above it
   is refused by every pentest tool and prompt with the error `campaign_restricted`, and left out of
   `list_campaigns`, `my_work` and `list_findings` (the lists say how many they left out, with no
   names). A campaign lead can also tick **Keep this campaign away from AI assistants** on the

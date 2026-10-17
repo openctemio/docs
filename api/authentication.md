@@ -85,7 +85,7 @@ secret manager.
 ![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
 *Figure: Settings, API keys.*
 
-**Settings > AI access (MCP)** creates a key with the scopes the MCP tools need; see
+**Settings > AI assistants (MCP)** creates a key with the scopes the MCP tools need; see
 [MCP server](mcp.md).
 
 You need `integrations:api_keys:write` to create keys and `integrations:api_keys:read` to list

@@ -18,7 +18,7 @@ a filter box. The pages are also searchable from the command palette
 |---|---|
 | My account | Profile, Security, Preferences, Notifications, Activity: see [Your account](01-getting-started.md#your-account) |
 | Organization | General, Modules, Audit log |
-| Access | Members, Teams, Roles, Authentication, Directory sync (SCIM), SSO approvals, API keys, AI access (MCP): see [Team and access](02-team-and-access.md) |
+| Access | Members, Teams, Roles, Authentication, Directory sync (SCIM), SSO approvals, API keys, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
 | Policies | Risk scoring, SLA policies, Asset lifecycle, Scope policy, Scan windows, Pentest methodology |
 | Scanning | Scan profiles, Scanner templates, Template sources, Source credentials, Tools, Capabilities, Scanner content |
 | Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Notification channels, SIEM |
