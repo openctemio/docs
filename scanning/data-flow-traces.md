@@ -21,7 +21,7 @@ flowchart LR
   i["Imported SARIF<br/>(codeFlows)"] --> r
   r --> n["Platform normalizes it:<br/>repository-relative paths,<br/>secrets masked, size bounded"]
   n --> f[Stored on the finding<br/>with the scanned commit]
-  f --> t[Attack path tab]
+  f --> t[Data flow tab]
 ```
 
 - **Sensor.** The sensor runs opengrep and semgrep with `--dataflow-traces`.
@@ -62,7 +62,7 @@ decision. See
 
 ## In the console
 
-A finding with a trace has an **Attack path** tab, with the number of steps.
+A finding with a trace has a **Data flow** tab, with the number of steps.
 It lists the steps in order from source to sink, sanitizers included. Each
 step shows its type (Source, Propagation, Sanitizer, Sink), its file and
 line, its function and class, and its code, with buttons to copy the code or

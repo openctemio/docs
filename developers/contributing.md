@@ -94,8 +94,9 @@ section. At release the fragments are folded into `CHANGELOG.md`.
 
 ## What review and CI look for
 
-Six checks are required on `main` and `develop`: **API CI OK**, **Web CI OK**, **CodeQL OK**,
-**All-in-one OK**, **Secret Scanning** and **Workflow Lint**. Beyond tests, CI enforces:
+Seven checks are required on `main` and `develop`: **API CI OK**, **Web CI OK**, **CodeQL OK**,
+**All-in-one OK**, **Secret Scanning**, **Workflow Lint** and **security-gate**. Beyond tests, CI
+enforces:
 
 - **Every new route is documented** (`// @Router` annotation; the OpenAPI contract check fails
   otherwise) and **has an authorization gate** or an allowlist entry with a reason.
@@ -106,7 +107,13 @@ Six checks are required on `main` and `develop`: **API CI OK**, **Web CI OK**, *
   [Database migrations](migrations.md)).
 - **Lint on new code**: `go vet`, staticcheck and golangci-lint (v1.64.8, pinned) on the lines your
   branch adds (`make -C api lint-ci` locally); ESLint, Prettier and `tsc` for the web.
-- **Security gates**: secret scanning of your commits, tenant-scope analysis, govulncheck, Trivy,
+- **Security gate**: a pull request that touches authentication or authorization, tenant
+  isolation, cryptography, the sensor protocol, the scope gate, upload and download handlers,
+  the SSRF guard, CI workflows or deployment defaults (the list is `.github/security-paths.yml`)
+  is labelled `security-sensitive` and gets an automated review comment. The `security-gate`
+  check passes once a maintainer has reviewed it, added the `security-ack` label (contributors
+  never add it) and no HIGH finding is open. Every other pull request passes at once.
+- **Security scans**: secret scanning of your commits, tenant-scope analysis, govulncheck, Trivy,
   Semgrep, CodeQL.
 - **Dependency Review** (pull requests only, not a required check): fails when a Go module, npm
   package or GitHub Action that the pull request adds or upgrades has a known high or critical

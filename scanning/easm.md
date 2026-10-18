@@ -100,7 +100,9 @@ last ran, its switch and its cadence.
 Platform operators set the defaults: `CERT_MONITOR_ENABLED`,
 `CERT_MONITOR_INTERVAL`, `CERT_MONITOR_FEED_URL`,
 `CERT_MONITOR_CERTSPOTTER_URL` (`off` disables the fallback),
-`EASM_DNS_CHECKS_ENABLED`, `EASM_DNS_CHECK_INTERVAL`, `EASM_DNS_RESOLVER`.
+`EASM_DNS_CHECKS_ENABLED`, `EASM_DNS_CHECK_INTERVAL`, `EASM_DNS_RESOLVER`,
+`EASM_DNS_MAX_NAMES_PER_RUN` (default 500 names per organization per run) and
+`EASM_DNS_QPS` (default 20 queries per second in all).
 
 ## Active discovery
 

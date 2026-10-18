@@ -15,7 +15,7 @@ their own consumers live in their own repositories under the
 
 | Repository | Language | License | What it is | Released as |
 |---|---|---|---|---|
-| [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web console (`web/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed`, `admin-cli` |
+| [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web app (`web/`), platform console app (`web/console/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed`, `admin-cli` |
 | [sensor](https://github.com/openctemio/sensor) | Go | GPL-3.0 | The sensor (`openctemio-sensor`) that runs scanners where the targets are and reports to the platform | its own tags; image `ghcr.io/openctemio/sensor` |
 | [sdk-go](https://github.com/openctemio/sdk-go) | Go | Apache-2.0 | The Go SDK: sensor runtime (`pkg/sensorkit`), tool contract (`pkg/tool`), protocol client, the `openctem` developer CLI | Go module with its own semver |
 | [ctis](https://github.com/openctemio/ctis) | Go, JSON Schema | Apache-2.0 | CTIS, the CTEM Ingest Schema: specification, JSON Schemas, Go types, report importers, the capability taxonomy | Go module `github.com/openctemio/ctis` |
@@ -32,8 +32,10 @@ The old `openctemio/api` repository was renamed to `openctemio/openctem` (its li
 flowchart LR
   browser[Browser] --> gw[Gateway]
   gw --> web[web: Next.js console]
+  gw -->|own site| pconsole[console: platform administration]
   web -->|/api/v1| api[api: Go control plane]
-  gw -->|sensor, MCP, SCIM, webhooks| api
+  pconsole -->|/api/v1/admin, console listener| api
+  gw -->|sensor mTLS on 443 to api:9443, MCP, SCIM, webhooks| api
   api --> pg[(PostgreSQL)]
   api --> redis[(Redis)]
   sensor[sensor, built on sdk-go] -->|/api/v2/sensor, CTIS results| gw
@@ -58,8 +60,10 @@ flowchart LR
 ```
 openctem/
 ├── Makefile            root targets: setup, generate, dev-api, dev-web, build, test, lint, check
+├── versions.yaml       the released versions the platform pins (sensor, SDK, CI runner)
 ├── api/                Go module github.com/openctemio/openctem/api
-│   ├── cmd/            server, bootstrap-admin, rekey, refingerprint, code generators
+│   ├── cmd/            server, bootstrap-admin, rekey, refingerprint, seed, content-bundle,
+│   │                   chainaudit, signer, code generators (gen-modules, envdoc, ...)
 │   ├── internal/
 │   │   ├── app/        application services (use cases)
 │   │   ├── config/     configuration from the environment
@@ -68,17 +72,20 @@ openctem/
 │   ├── pkg/            shared packages: domain (entities, value objects), apierror,
 │   │                   pagination, filterspec, httpsec, sensorproto, ...
 │   ├── migrations/     golang-migrate SQL (baseline + later migrations), seed/
-│   ├── configs/        asset-types.yaml, relationship-types.yaml, sensor and workflow templates
+│   ├── configs/        asset-types.yaml, relationship-types.yaml, modules/, sensor-products/,
+│   │                   workflow-templates/
 │   ├── api/openapi/    generated spec (not committed), sensor protocol spec, lint baselines
-│   ├── deploy/         Compose deployment and the gateway (Caddy)
+│   ├── deploy/         Compose deployment, the gateway (Caddy), Kubernetes manifests, sensor overlay
 │   ├── tests/          unit and integration tests
 │   ├── tools/          code generators and linters (routestyle, openapicontract, ...)
 │   ├── changelog.d/    one changelog fragment per change
 │   └── docs/           architecture notes, RFCs, development and deployment docs
-├── web/                Next.js console
-│   └── src/            app/ (routes), features/, components/, lib/ (API client), config/
+├── web/                Next.js apps
+│   ├── src/            the tenant app: app/ (routes), features/, components/, lib/ (API client), config/
+│   ├── console/        the platform console app (its own site and image)
+│   └── e2e/            Playwright tests
 ├── deploy/             allinone/ image, observability/ stack
-├── scripts/            generate-in-docker.sh
+├── scripts/            generate-in-docker.sh, docs_check.py, rfc_index.py, signing/
 ├── .github/            workflows, composite actions, scripts
 └── .githooks/          pre-commit and commit-msg hooks
 ```

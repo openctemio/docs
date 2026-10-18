@@ -19,14 +19,19 @@ api/migrations/
 ├── 001147_<name>.up.sql        every later change: one numbered pair
 ├── 001147_<name>.down.sql
 ├── ...
-└── seed/                       optional data (seed_required.sql, seed_test.sql)
+└── seed/                       optional data (seed_required.sql, seed_test.sql, seed_components_demo.sql)
 ```
 
 - Versions are six-digit, sequential numbers. A new migration takes the next number above the
   highest one on `develop` **and** in open pull requests. CI fails when two migrations share a
   version, or when a migration you add is not above the base branch's highest version (golang-migrate
-  silently skips a lower version on a database already past it). In the merge queue, a pull request
-  whose number was taken by another must renumber to the next free one.
+  silently skips a lower version on a database already past it). When another pull request took
+  your number, the merge queue renumbers yours when it enqueues the pull request, so do not
+  renumber by hand and never write a version number into a test: find a migration by name with
+  `testdb.MigrationVersion(t, dir, name)`.
+- A migration skipped on a database because its number was below the applied version is never
+  renumbered after the fact: add a repair migration above the head that re-applies it
+  idempotently (`IF NOT EXISTS`, guarded constraints, `ON CONFLICT DO NOTHING`) with a no-op down.
 - Every migration has a working `.down.sql`.
 - `make -C api migrate-create name=add_widget_table` creates the pair (check the number it picks).
 

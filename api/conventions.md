@@ -174,7 +174,7 @@ Several limits apply; the first one a request hits answers `429`.
 |---|---|---|
 | Global | 100 requests/s, burst 200 (`RATE_LIMIT_RPS`, `RATE_LIMIT_BURST`) | client address |
 | Authenticated reads (`GET` on tenant routes) | 120 requests/min (`RATE_LIMIT_READ_PER_MIN`) | user |
-| API key | the key's `rate_limit` per hour, if set | key |
+| API key or MCP connection | the key's `rate_limit` per hour, if set; at most 60 requests at once (burst 60) | key |
 | Sign-in, password reset, second factor | stricter fixed limits | client address, account |
 | Finding import | 6 per minute, burst 3 | organization |
 | Asset CSV import | 10 per minute, burst 3 | client address |

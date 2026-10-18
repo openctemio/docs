@@ -62,7 +62,7 @@ helm upgrade openctem openctem/openctem -n openctem --reuse-values \
 | Value | Default | Meaning |
 |---|---|---|
 | `sensor.enabled` | `false` | Run the bundled sensor |
-| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform. Chart 0.23.3 pins v0.21.1; set `sensor.image.tag=v0.23.0` for the newest (v0.22.0 fixed confined port scans, which find no open ports on v0.21.1) |
+| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform. Chart 0.28.0 pins v0.23.0; older charts pin older releases (a chart that pins v0.21.1 finds no open ports with confined port scans, fixed in v0.22.0), so set `sensor.image.tag` to the release you want |
 | `sensor.sandbox.seccompProfile` | `openctem` | The sensor's own seccomp profile, installed on the nodes by a DaemonSet (`sensor.sandbox.installProfile`), so scans are network-confined. `runtime-default` where a DaemonSet with a host path cannot run; tasks then run unconfined |
 | `sensor.sandbox.network` | `auto` | `SENSOR_SANDBOX_NETWORK`: `required` refuses to run a task unconfined |
 | `sensor.caFingerprint` / `sensor.platformKey` | empty | `SENSOR_CA_FINGERPRINT` and `SENSOR_PLATFORM_KEY` pins (see [Security notes](security.md#tls-and-pinning)) |
@@ -252,13 +252,20 @@ Keep response buffering off and the idle timeout above 30 seconds on the
 ingress for `/api/v3/sensor/*`: the platform pushes jobs over a long-lived
 response.
 
-gRPC on port 443 needs a layer-4 path to the API's mTLS listener. An ingress
-controller that routes by SNI only (ssl-passthrough) cannot use the routing id
-of the [Compose setup](transport.md#grpc-on-port-443-docker-compose), so on
-Kubernetes it takes the chart's bundled gateway with the layer-4 module, or a
-dedicated sensor host name passed through by SNI. The `openctem` chart README
-describes both ("Sensor protocol v3" and "Single-port gateway"). Every other
-setup uses HTTPS, which runs every scan.
+gRPC on port 443 needs a layer-4 path to the API's mTLS listener (port 9443 in
+the cluster; `api.sensorTransport.mtls.port`). An ingress controller that
+routes by SNI only (ssl-passthrough) cannot use the routing id of the
+[Compose setup](transport.md#grpc-on-port-443-docker-compose). With the chart's
+bundled gateway (image `ghcr.io/openctemio/openctem-gateway`, which carries the
+layer-4 module) the chart enables the routing by itself
+(`gateway.caddy.sensorGateway`, default `alpn` when the image has the module;
+`passthrough` adds a dedicated sensor host name, `off` keeps HTTPS), and
+expects the gateway in a TLS mode other than `http`. Without the bundled
+gateway use a dedicated sensor host name passed through by SNI
+(`api.sensorTransport.publicHost`), or the API terminating TLS itself
+([The API terminates TLS itself](transport.md#the-api-terminates-tls-itself)).
+The `openctem` chart README describes the options ("Sensor protocol v3" and
+"Single-port gateway"). Every other setup uses HTTPS, which runs every scan.
 
 {: .warning }
 Do not set `api.sensorTransport.enabled` (charts 0.16.0 and 0.17.0) with a

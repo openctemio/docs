@@ -106,8 +106,12 @@ count against the run's deadline; the run's **Why waiting?** says
 
 Assign a sensor to a zone from the zone, or choose the zones when you
 [approve a pairing](pairing.md). A sensor can be in several zones. Its
-[grant](pairing.md#grants-and-trust) can narrow the zones further. Platform
-sensors cannot be assigned to an organization's zones.
+[grant](pairing.md#grants-and-trust) can narrow the zones further. Shared
+sensors cannot be assigned to an organization's zones. An instance
+administrator can let shared sensors scan private ranges for an organization
+with an [instance scan zone](shared-sensors.md#instance-scan-zones); the
+organization does not manage those zones, and a target in one of its own zones
+still runs on its own sensors.
 
 ## Network paths
 

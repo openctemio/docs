@@ -41,7 +41,8 @@ Notes that change what a sensor does:
 | To | What to know |
 |---|---|
 | v0.22.0 or later | Upgrade the platform to v0.9.6 first. A confined sensor now reports a target its confinement kept the tool from reaching as `egress_refused`; an older platform reads that as unfinished and hands the target out again, until its attempts run out. |
-| v0.23.0 or later | The Tenable.sc connector is no longer in the sensor. Run it as its own image, `ghcr.io/openctemio/connector-tenable`, and point the Tenable.sc integration at that sensor ([Tenable.sc connector](connector-tenable.md)). A sensor still started with the connector settings starts without it and prints a notice naming the image. |
+| v0.23.1 or later | The Tenable.sc connector is no longer in the sensor. Run it as its own image, `ghcr.io/openctemio/connector-tenable`, and point the Tenable.sc integration at that sensor ([Tenable.sc connector](connector-tenable.md)). A sensor still started with the connector settings starts without it and prints a notice naming the image. |
+| v0.23.1 or later | nuclei, httpx and katana send the identification a bug-bounty program requires (the organization's User-Agent and headers) on every request of a job that carries it; a tool that cannot send it is refused for such a job. subfinder, dnsx and naabu send no HTTP to the targets and run (from v0.23.2). The platform hands such jobs only to sensors that report `http.identity@1`. |
 | v0.23.0 or later | nuclei runs a task over several hosts in up to 4 waves of whole hosts. Each wave's findings are delivered and its hosts freed when the wave ends, so the next step of a workflow starts on them while later waves run. Each extra wave loads the templates again (about 5 s with 10,000 templates). A failed wave keeps the earlier waves' results; its targets and the later ones run again. |
 | v0.22.2 or later | The target guard refuses per target: a refused target is left out with its reason and the others run. |
 | v0.22.0 or later | A sensor with semgrep and no rules configured runs the signed OpenCTEM rules pack instead of semgrep's registry rules. Set `SENSOR_CONTENT_SEMGREP_RULESETS` to keep registry rules. The sensor needs HTTPS to `api.github.com`, `github.com` and `release-assets.githubusercontent.com` for the pack, or a mirror ([Network](network.md)). |
@@ -156,7 +157,7 @@ name when you approve, or the sensor takes the name it proposes (by default
 its host name). See [Re-pair a sensor](pairing.md#re-pair-a-sensor).
 
 A key-based sensor (`SENSOR_API_KEY`) rotates its own key before it expires
-when its state is on a volume; **Regenerate key** in the console replaces it
+when its state is on a volume; **Rotate key** in the sensor's **⋯** menu replaces it
 at once.
 
 After a change of the **platform's** CA, the sensor refuses the new
@@ -165,7 +166,7 @@ pairing`): re-pair it, or set `SENSOR_CA_FINGERPRINT` to the new CA.
 
 ## Remove a sensor
 
-1. In the console, open the sensor and **Revoke** it. Its key stops working
+1. In the console, open the sensor and choose **Revoke access** in its **⋯** menu. Its key stops working
    at its next request.
 2. On the host, remove the container (or the Deployment, or the service) and
    the volume:
@@ -183,8 +184,8 @@ pairing`): re-pair it, or set `SENSOR_CA_FINGERPRINT` to the new CA.
    still a credential.
 
 To take a sensor out of service for a while without losing it, use
-**Deactivate**: it keeps heartbeating, logs `paused by platform` and takes no
-jobs until it is activated again.
+**Disable** (in the sensor's **⋯** menu; **Enable** undoes it): it keeps heartbeating, logs `paused by platform` and takes no
+jobs until it is enabled again.
 
 ## Commands that read the volume
 

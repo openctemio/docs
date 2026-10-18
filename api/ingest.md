@@ -73,7 +73,7 @@ Formats (detected from the content, not from the file name):
 | Family | Formats |
 |---|---|
 | Vulnerability scanners | Nessus v2 XML (`.nessus`), Qualys host detection XML (with an optional KnowledgeBase file), vuls, nuclei JSON, ZAP (JSON and XML) |
-| Code and dependencies | SARIF 2.1.0, semgrep, trivy, grype, osv-scanner |
+| Code and dependencies | SARIF 2.1.0, semgrep, opengrep, trivy, grype, osv-scanner |
 | Secrets | gitleaks, betterleaks |
 | SBOM and advisories | CycloneDX (SBOM, VDR, VEX), SPDX, CSAF 2.0, OpenVEX |
 | Other platforms | DefectDojo Generic Findings JSON |
@@ -112,23 +112,28 @@ What to expect:
 - An import never auto-resolves findings that are absent from the file.
 - A member with a restricted data scope only adds findings to assets in their scope and creates
   no new assets.
-- VEX `not_affected` statements close matching findings only when the operator set
-  `INGEST_VEX=enforce` and the uploader holds `findings:approve`; otherwise they are recorded and
-  counted. Findings from pentests and other human sources are never closed by VEX.
+- VEX `not_affected` statements never set a status on their own. `INGEST_VEX` (default `dry_run`)
+  decides: `off` stores them, `dry_run` also counts what would happen, and `enforce` files a pending
+  false-positive request (actor `vex`, with the statement's justification) that a person with
+  `findings:approve` decides, like any other false positive. Findings from pentests and other human
+  sources are not affected.
 - Every import is audit-logged (file names and counts, never content).
 
 Other upload endpoints:
 
 | Endpoint | Takes |
 |---|---|
-| `POST /api/v1/components/import` | an SBOM for the components inventory |
-| `POST /api/v1/assets/import/csv` | assets from CSV |
+| `POST /api/v1/components/import` | an SBOM for the components inventory (`components:write`) |
+| `POST /api/v1/assets/import/csv` | assets from CSV (`assets:write` and `assets:import`) |
 | `POST /api/v1/pentest/campaigns/{id}/findings/import` | findings into a pentest campaign |
+| `POST /api/v1/ci/runs/{id}/results` | a CI run's results: CTIS, or a tool's output file in any importer format (or a ZIP), filed on the run's repository; used by `openctem-ci` with the run token |
 
 ## Send CTIS over the sensor protocol
 
 A custom collector or connector sends CTIS the way sensors do, on the sensor plane
-(`/api/v2/sensor`), authenticated with a **sensor key**. Create the sensor in the console and pair
+(`/api/v2/sensor`), authenticated with a **sensor key**. The same sensor key is used on the
+platform's sensor transport v3 (`/api/v3/sensor`, gRPC with mutual TLS on the API's sensor
+listener), see [Transport](../sensors/transport.md). Create the sensor in the console and pair
 it or enroll it (see [Pairing and enrollment](../sensors/pairing.md)). The easiest client is the
 Go SDK (`github.com/openctemio/sdk-go`, `pkg/sensorkit` and `pkg/client`), which handles
 compression, digests, segmentation, retries and request signing. The wire rules, for any

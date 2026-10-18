@@ -281,6 +281,9 @@ organization's own entry.
 Private addresses and internal names are not authorized by scope entries but
 by [scan zones](../sensors/zones.md): a private target is accepted only when
 one of your zones covers it, and is scanned only by that zone's sensors.
+When the platform operator allows it, a private range can also be an
+[instance scan zone](../sensors/shared-sensors.md#instance-scan-zones)
+assigned to your organization, which shared sensors scan for you.
 
 ## The gate, check by check
 

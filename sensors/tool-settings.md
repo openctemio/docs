@@ -9,7 +9,8 @@ nav_order: 7.4
 
 Each tool a sensor runs declares its options: how fast it may go (rate,
 concurrency), how long it waits (timeout, retries) and tool-specific choices.
-You set them **per sensor** in the console. They travel to the sensor inside
+You set them **per organization** (defaults for every sensor) and **per
+sensor** (overrides) in the console. They travel to the sensor inside
 each signed scan job, and the sensor maps each one to the tool's native flag.
 
 1. TOC
@@ -19,7 +20,18 @@ each signed scan job, and the sensor maps each one to the tool's native flag.
 
 ## Where to set them
 
-**Discovery > Sensors**, open a sensor, tab **Tool settings**. The tab is shown
+**Organization defaults:** **Settings > Scanning > Tool defaults** lists every
+tool that at least one of your sensors reports with a settings schema, with the
+options every sensor of the organization runs it with. Save and reset are per
+tool; owners and administrators (`sensors:write`) change them, everyone with
+`sensors:read` sees them. If a sensor's tool version refuses the defaults, the
+page names the sensor and the option, because that tool's scan jobs on it fail
+until the defaults change. A tool no sensor reports any more shows only a reset
+to remove its defaults. Shared sensors never use these defaults. Changing an option marked as having
+impact (it raises the load or reach of each scan) asks you to confirm your
+identity.
+
+**Per sensor:** **Discovery > Sensors**, open a sensor, tab **Tool settings**. The tab is shown
 to people who can manage sensors (`sensors:write`; owners and administrators
 by default).
 
@@ -29,14 +41,17 @@ by default).
 - Each field shows its default (`Default (...)`), the allowed range
   (`Allowed: ... to ...`) and, where it has one, the tool's native flag.
   Leave a field empty to keep the default.
+- A value that differs from the organization default shows **Set on this
+  sensor**; **Reset to organization default** (per option) and **Remove all
+  overrides** fall back to the layer above.
 - **A scan can lower it** marks an option a scan may set lower, never higher.
 - A dangerous option keeps its default until the organization can enable
   dangerous options.
 - **Save** stores the values and **Reset to defaults** removes them. Both are
   audited.
 - **Show effective values** opens a table with the columns **Key**,
-  **Value**, **Source** (**This sensor** or **Tool default**) and **Native
-  flag**: what the sensor will run with before a scan's own options and the
+  **Value**, **Source** (**This sensor**, **Organization**, **Tool default**
+  or **Scan**) and **Native flag**: what the sensor will run with before a scan's own options and the
   job's limits apply.
 
 When the sensor's tool changes (an upgrade) and the saved values no longer fit
@@ -50,7 +65,7 @@ An option's value is resolved in layers, in this order:
 | Layer | Set by | May |
 |---|---|---|
 | Tool default | The tool's manifest | The starting value |
-| Organization | (no console page yet) | Raise or lower |
+| Organization | **Settings > Scanning > Tool defaults** | Raise or lower |
 | Sensor | **Tool settings** on the sensor | Raise or lower, within the allowed range |
 | Scan or workflow step | The scan's options | Only lower |
 | Job decision | The platform, per job (for example the per-target time budget) | Only lower |
@@ -59,8 +74,6 @@ An option's value is resolved in layers, in this order:
 - Only the administrator layers may go **above** the tool's default. A scan
   that asks for a higher rate, concurrency or retry count than the sensor
   allows is an error, not a silent cap.
-- Today the platform sends only the sensor layer; there is no organization
-  layer to set.
 - **Timeout** is not lowered by a scan. The platform's per-target time budget
   shortens it on each job (to the budget divided by retries plus one, at least
   2 seconds), so one host that never answers costs one budget.
@@ -102,12 +115,14 @@ the console shows exactly what your sensor declares.
 
 semgrep declares no options.
 
-These options are the ones sensor v0.23.0 declares (opengrep from v0.22.0); older sensors declare fewer.
+These options are the ones the current sensor release (v0.23.2) declares (opengrep from v0.22.0); older sensors declare fewer.
 
 ## API
 
 | Method and path | Permission | Does |
 |---|---|---|
+| `GET /api/v1/sensors/tool-defaults` | `sensors:read` | Each tool's schema and the organization's defaults |
+| `PUT` / `DELETE /api/v1/sensors/tool-defaults/{tool}` | `sensors:write` | Saves or resets the organization's defaults of a tool |
 | `GET /api/v1/sensors/{id}/tool-settings` | `sensors:read` | Each tool's schema and stored values |
 | `GET /api/v1/sensors/{id}/tool-settings/{tool}/effective` | `sensors:read` | The effective values with their source |
 | `POST /api/v1/sensors/{id}/tool-settings/{tool}/preview` | `sensors:read` | Resolves a scan's or step's options over the sensor's settings, as the sensor will: each option with its value and source (default, sensor or scan) and the keys the sensor ignores; `422` when the sensor would refuse them. Stores nothing. |

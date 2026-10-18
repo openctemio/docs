@@ -28,8 +28,11 @@ never shares a process with the keys.
 
 ## Install
 
-1. In OpenCTEM, **Settings > Sensors > Add sensor**. Pick the
-   **Scanner connector** profile (tool `tenable_sc`) and copy the pairing code.
+1. In OpenCTEM, **Discovery > Sensors > Pair a sensor**, tab **Expect a
+   sensor**: the console shows a single-use pairing code; copy it. (The
+   connector settings dialog under **Settings > Integrations > Vulnerability
+   scanners > Connect Tenable.sc** also shows the install command, under
+   **No connector yet? Run it next to Tenable.sc**.)
 2. Create a least-privilege Tenable.sc user for OpenCTEM (view on the
    repositories you want pulled; for scans, "create scans" with the allowed
    policies shared to it) and save its API keys in two files.
@@ -64,7 +67,8 @@ never shares a process with the keys.
    ```
 
 5. Approve the pairing in OpenCTEM (check the fingerprint in
-   `docker logs connector-tenable`). A new sensor is at trust level **New**:
+   `docker logs connector-tenable`) and choose the **Scanner connector**
+   profile under **What it may do** (tool `tenable_sc`). A new sensor is at trust level **New**:
    it receives syncs only. Trust it before you launch scans.
 6. **Settings > Integrations > Vulnerability scanners > Connect Tenable.sc**:
    pick the connector's sensor and type the instance name (`sc-prod`).
@@ -97,7 +101,7 @@ cosign verify ghcr.io/openctemio/connector-tenable:v0.1.0 \
 
 ## Moving from the sensor
 
-Sensor releases up to v0.22.x carried the connector. Sensor v0.23.0 and later no
+Sensor releases up to v0.23.0 carried the connector. Sensor v0.23.1 and later no
 longer run it: a sensor still started with `-tenable-sc-config`,
 `SENSOR_TENABLE_SC_CONFIG`, a `TENABLE_SC_*` variable or
 `/etc/openctem/connectors/tenable-sc.yaml` starts without it and prints a

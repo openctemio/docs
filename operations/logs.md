@@ -21,7 +21,7 @@ stored in the database, see [Audit log](../security/audit-log.md).
 
 | Deployment | Command |
 |---|---|
-| Docker Compose | `docker compose logs -f api` (or `web`, `gateway`, `migrate`, `db-roles`, `postgres`, `redis`) |
+| Docker Compose | `docker compose logs -f api` (or `web`, `console`, `gateway`, `migrate`, `db-roles`, `postgres`, `redis`) |
 | All-in-one | `docker logs -f openctem`. Each line is prefixed `[api]`, `[web]`, `[gateway]`, `[migrate]` or `[supervise]`. |
 | Kubernetes | `kubectl -n openctem logs deploy/openctem-api` (or `deploy/openctem-ui`, `deploy/openctem-gateway`, `job/openctem-api-migrations`) |
 
@@ -112,15 +112,15 @@ Problems:
 | `failed to load configuration` | ERROR | A setting is invalid or missing; `error` names it. The API exits. See [Production checks](../configuration/environment-variables.md#production-checks). |
 | `database schema check failed — refusing to start` | ERROR | The schema is behind, dirty or older than the migration baseline. Run the migrations; see [Upgrading](upgrade.md). |
 | `failed to connect to database` / `failed to connect to redis` | ERROR | Host, credentials or TLS settings. |
-| `jira webhook preflight: connected Jira integrations have no webhook secret` | WARN | Their inbound webhook deliveries are refused (401) until the organization rotates its Jira webhook secret. |
+| `jira webhook preflight: connected Jira integrations have no webhook secret` | WARN | Their inbound webhook deliveries are refused (401) until the organization sets a secret in **Settings > Integrations > Ticketing > Inbound webhook**. |
 | `email service not configured, skipping ... email` | WARN | No platform SMTP server is set (admin console, **System > E-mail**); verification and password-reset email is not sent. See [Email (SMTP)](../configuration/email.md). |
 | `email task handlers NOT registered - SMTP is not configured; other job handlers still run` | WARN | Same cause. |
 | `panic recovered` | ERROR | A handler or background task panicked; the request got 500. Counted by `openctem_panics_recovered_total`. |
 | `shutting down...`, `application stopped` | INFO | Graceful shutdown (`SERVER_SHUTDOWN_TIMEOUT`). |
 
-## Web console
+## Web console and admin console
 
-The Next.js server writes plain-text lines: its start-up banner (`Ready in ...`),
+The Next.js server of the web console (`web`) and of the separate platform admin console app (`console`) write plain-text lines: its start-up banner (`Ready in ...`),
 configuration warnings, and
 errors from its API proxy. It has no request log; the gateway's access log and
 the API's request log cover requests.

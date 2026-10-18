@@ -11,8 +11,8 @@ nav_order: 4
 From the repository root of `openctem`:
 
 ```bash
-make test        # generate, then go test ./... (api) and vitest (web)
-make lint        # api: go vet, staticcheck, golangci-lint on new code; web: eslint + tsc
+make test        # generate, then go test ./... (api, no database) and vitest (web)
+make lint        # api: golangci-lint on new code, go vet, staticcheck; web: eslint + tsc
 make check       # the contract checks: OpenAPI spec vs routes, then tsc against the spec
 ```
 
@@ -25,12 +25,11 @@ Tests live next to the code (`*_test.go`) and in `api/tests/`:
 | `internal/...`, `pkg/...` | unit tests beside the code, and `*_db_test.go` files that need a database |
 | `api/tests/unit/` | cross-cutting unit tests, for example "every route has an authorization gate" |
 | `api/tests/integration/` | multi-service scenarios against a real database |
-| `api/tests/load/` | load tests for the platform queue (`make -C api test-load`) |
 | `api/tools/lint/` | the route-style and OpenAPI contract linters, with their tests |
 
 ```bash
 cd api
-make test                        # go test -race -cover ./... ; DB-backed tests skip
+make test                        # go test -v -race -cover ./... ; DB-backed tests skip without TEST_DATABASE_URL
 GOWORK=off go test ./internal/app/...   # one area
 make test-coverage               # writes coverage.html
 ```

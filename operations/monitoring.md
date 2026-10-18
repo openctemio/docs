@@ -77,9 +77,29 @@ Besides the Go runtime and process metrics, the API exposes among others:
 | `openctem_automation_runs_total`, `openctem_automations_auto_paused_total` | Automation runs and automations paused after repeated failures. |
 | `openctem_storage_operations_total{op,backend,result}`, `openctem_storage_operation_seconds`, `openctem_storage_bytes_written_total` | File storage uploads, downloads, deletes and signed links, on the server storage or organizations' own buckets ([File storage](../configuration/file-storage.md)). |
 | `openctem_storage_events_total{event}` | Quota rejections, retention purges and malware scan results. |
+| `openctem_schema_version`, `openctem_schema_dirty` | Database migration state (applied and shipped). |
+| `openctem_build_info{version,commit}` | The running build. |
+| `openctem_sensors`, `openctem_sensors_unhardened`, `openctem_command_queue_depth`, `openctem_command_oldest_pending_seconds`, `openctem_scan_runs_open` | Active sensors, sensors with weak settings, and the sensor command and scan run queues (platform-wide counts). |
+| `openctem_outbox_entries`, `openctem_outbox_oldest_pending_seconds` | The notification outbox. |
+| `openctem_security_audit_chain_breaks_total{reason}` | New breaks of the audit log hash chain. |
 
 Metric labels never carry organization, user, sensor or target identifiers, so
 alerts can be sent to chat tools safely.
+
+## The System page (no monitoring stack needed)
+
+The platform admin console's **System** page (read-only, every platform administrator role) shows
+service health, free space of the data volumes in `SYSTEM_STORAGE_PATHS`, the database size, the
+last successful backup (`SYSTEM_BACKUP_STATUS_FILE`), certificate expiry (the sensor CA and
+`SYSTEM_TLS_CERT_FILES`) and the running version. A watcher checks the same values every
+`SYSTEM_WATCH_INTERVAL` (5 minutes), sets the `openctem_system_*` metrics
+(`storage_free_ratio`, `storage_level`, `database_bytes`, `backup_age_seconds`, `backup_level`,
+`certificate_expiry_seconds`, `certificate_level`; levels 0 ok, 1 warning, 2 critical) and emails the
+active platform administrators when a check gets worse. Warnings start at 20% free space, a backup
+older than 26 hours, and a certificate within 30 days; critical at 10% free space and 7 days.
+Without SMTP, the WARN log lines (`alert=system_storage`, `system_backup`, `system_cert`) and the
+metrics are the alert. The page holds no action: backup, restore, upgrade and key rotation stay on
+the command line.
 
 ## The monitoring stack
 
