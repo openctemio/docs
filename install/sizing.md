@@ -104,6 +104,14 @@ Notes:
   visit and about 50 ms on repeat visits (measured). First-load JavaScript is
   435-550 KB compressed.
 
+### Platform console
+
+The platform console is a small Next.js app that only platform administrators
+use, so it stays at one replica and its load is negligible next to the web
+console. The Compose stack limits it to 512 MB (`CONSOLE_MEMORY_LIMIT`), the
+Ansible kit to 512 MB (`openctem_mem_console`); budget the same for any size.
+It holds no data of its own.
+
 ### Gateway
 
 | | Evaluation | Small | Medium | Large |
@@ -268,8 +276,8 @@ Give it 2-10 GB of disk depending on retention and the number of sensors.
 
 ### All-in-one image
 
-The all-in-one image runs the gateway, the web console and the API in one
-container. Give it the sum of those three rows, for example
+The all-in-one image runs the gateway, the web console, the platform console
+and the API in one container. Give it the sum of those four rows, for example
 **1 vCPU / 2 GB for Evaluation** and **2.5 vCPU / 3 GB for Small**. PostgreSQL
 and Redis are yours: size them from the tables above. The all-in-one image is
 not meant for Medium or Large.
@@ -284,6 +292,7 @@ Small (8 GB host):
 ```bash
 API_MEMORY_LIMIT=2g
 WEB_MEMORY_LIMIT=1g
+CONSOLE_MEMORY_LIMIT=512m
 GATEWAY_MEMORY_LIMIT=512m
 PG_SHARED_BUFFERS=1GB
 PG_EFFECTIVE_CACHE_SIZE=3GB
@@ -295,7 +304,9 @@ Medium (32 GB host running everything):
 
 ```bash
 API_MEMORY_LIMIT=4g
+API_GOMEMLIMIT=3400MiB
 WEB_MEMORY_LIMIT=1g
+CONSOLE_MEMORY_LIMIT=512m
 GATEWAY_MEMORY_LIMIT=512m
 PG_SHARED_BUFFERS=4GB
 PG_EFFECTIVE_CACHE_SIZE=12GB
@@ -305,8 +316,10 @@ PG_MAX_WAL_SIZE=4GB
 PG_SHM_SIZE=1g
 ```
 
-The API reads `GOMEMLIMIT` and `DB_MAX_OPEN_CONNS` from the environment. Add them
-to the `api` service's environment for Medium (`3400MiB`, `40`).
+The Compose file sets the API's `GOMEMLIMIT` from `API_GOMEMLIMIT` (default
+`1600MiB`, about 80% of the default 2 GB limit); keep it near 80% of
+`API_MEMORY_LIMIT`. `DB_MAX_OPEN_CONNS` is not passed by default: for Medium add
+`DB_MAX_OPEN_CONNS: "40"` to the `api` service in a `docker-compose.override.yml`.
 
 ## Kubernetes
 

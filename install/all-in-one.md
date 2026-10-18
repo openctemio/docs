@@ -77,7 +77,7 @@ extensions:
 
 ```bash
 git clone https://github.com/openctemio/openctem.git
-git -C openctem checkout v0.10.1
+git -C openctem checkout v0.11.0
 export APP_DB_PASSWORD="$(openssl rand -hex 24)"
 export MIGRATOR_DB_PASSWORD="$(openssl rand -hex 24)"
 psql "postgres://postgres@db.example.com:5432/openctem?sslmode=require" \
@@ -87,7 +87,15 @@ psql "postgres://postgres@db.example.com:5432/openctem?sslmode=require" \
   -f openctem/api/deploy/postgres/least-privilege-roles.sql
 ```
 
-The script is idempotent; re-run it after restoring a dump.
+The script is idempotent; re-run it after restoring a dump and after every
+upgrade, so tables a release adds get their grants (the all-in-one image runs
+the migrations but does not run this script). To give the platform console's
+identity tables their own role, add `-v admin_user=openctem_console -v
+admin_password="$(openssl rand -hex 24)"` and set `DB_ADMIN_USER` and
+`DB_ADMIN_PASSWORD` in `openctem.env`; with that role in use, upgrading to
+v0.11.0 needs the script re-run first, because the console's new
+`admin_approvals` table gets its grants from it. `bootstrap-admin` and the
+migrations connect as `DB_MIGRATE_USER`.
 
 ## 2. Write the environment file
 
@@ -152,7 +160,7 @@ to nothing:
 ```bash
 docker run --rm --env-file openctem.env \
   --entrypoint /opt/openctem/api/server \
-  ghcr.io/openctemio/openctem:v0.10.1 -check-config
+  ghcr.io/openctemio/openctem:v0.11.0 -check-config
 ```
 
 ```text
@@ -173,7 +181,7 @@ docker run -d --name openctem --restart unless-stopped \
   -p 443:443 -p 127.0.0.1:8443:8443 \
   -v openctem-data:/data \
   --env-file openctem.env \
-  ghcr.io/openctemio/openctem:v0.10.1
+  ghcr.io/openctemio/openctem:v0.11.0
 docker logs -f openctem
 ```
 
@@ -190,14 +198,16 @@ docker run -d --name openctem --restart unless-stopped \
   --security-opt no-new-privileges:true \
   --memory 3g --log-opt max-size=50m --log-opt max-file=5 \
   --env-file openctem.env \
-  ghcr.io/openctemio/openctem:v0.10.1
+  ghcr.io/openctemio/openctem:v0.11.0
 ```
 
 Keep `NET_BIND_SERVICE`: with `--cap-drop ALL` alone the gateway cannot start
 (`caddy: Operation not permitted`).
 
 `8443` is the platform console's site. It answers only the networks in
-`OPENCTEM_ADMIN_ALLOWED_CIDRS` (private networks by default), but Docker
+`OPENCTEM_ADMIN_ALLOWED_CIDRS` (private networks by default). The API checks
+the same list as `ADMIN_ALLOWED_CIDRS`, comma-separated: the image does not
+copy one into the other, so when you widen the list, set both. Docker
 publishes a port past the host firewall, so do not rely on the list alone:
 publish it on a loopback or private address, as above (`127.0.0.1`, then an
 SSH tunnel: `ssh -L 8443:127.0.0.1:8443 you@<host>`), or give the console its
@@ -270,7 +280,7 @@ Pull the new tag and recreate the container with the same volume and env file.
 Migrations run on start. See [Upgrading](../operations/upgrade.md).
 
 ```bash
-NEW_VERSION=v0.10.1   # the release you upgrade to
+NEW_VERSION=v0.11.0   # the release you upgrade to
 docker pull ghcr.io/openctemio/openctem:$NEW_VERSION
 docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
   ghcr.io/openctemio/openctem:$NEW_VERSION -check-config
@@ -279,5 +289,16 @@ docker run -d --name openctem --restart unless-stopped \
   -p 443:443 -p 127.0.0.1:8443:8443 -v openctem-data:/data --env-file openctem.env \
   ghcr.io/openctemio/openctem:$NEW_VERSION
 ```
+
+## Hosted service
+
+For a hosted, multi-tenant service set `MANAGED_SERVICE=true` in
+`openctem.env`. In production the API then refuses to start unless
+`ADMIN_AUDIT_SINK` is set too: an `https://` receiver (with
+`ADMIN_AUDIT_SINK_SECRET`, at least 32 bytes), `syslog+tls://` or a
+`file:///` path in a directory of the `/data` volume that the image's user can
+write (the file sink only protects against rewrites inside the database; the
+copy on the same volume is not off-box). See
+[Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink).
 
 All environment variables: [Environment variables reference](../configuration/environment-variables.md#all-in-one-image).

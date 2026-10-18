@@ -37,14 +37,19 @@ The chart is released separately from the platform: a platform release is
 followed by a chart whose `appVersion` is that release, and
 `versions.yaml` in the openctem repository (`chart.version`) names the newest
 chart that targets the platform release ([Versioning](../operations/versioning.md#sensors-sdk-and-helm-chart)).
-Chart 0.28.0 already deploys the platform console as its own service, the
-console's database role (`database.console`) and `api.signupMode`, but its
-`appVersion` is v0.9.7. Until a chart for v0.10.1 is published, set the image
-tags of every platform component to v0.10.1 in your values file (the example
-below does), and create the `FINGERPRINT_KEY` secret of step 1: v0.10 refuses
-to start without it, and the chart has no value of its own for it yet. Compare
-`helm search repo openctem/openctem --versions` before you do this; once a chart
-whose `appVersion` is v0.10.1 exists, drop the overrides.
+The newest chart is **0.29.0**, whose `appVersion` is **v0.10.1**. **There is no
+chart for v0.11.0 yet**: the chart's release workflow opens the `appVersion`
+bump after a platform release is published, so check
+`helm search repo openctem/openctem --versions` (and the
+[chart releases](https://github.com/openctemio/helm-charts/releases)) before you
+install. Until a chart whose `appVersion` is v0.11.0 exists, run v0.11.0 with
+chart 0.29.0 by setting the image tags of every platform component to v0.11.0
+in your values file, as the example below does. That combination is what you
+choose to run: the chart's own tests cover its `appVersion`. Once the
+v0.11.0 chart is published, drop the tag overrides. Chart 0.29.0 has the
+platform console as its own service, the console's database role
+(`database.console`), `api.signupMode` and `api.fingerprint` (the
+`FINGERPRINT_KEY`).
 
 The chart is secure by default: `api.appEnv` is `production`, so the API refuses
 to start without TLS to PostgreSQL and Redis, a JWT secret of at least 64
@@ -89,7 +94,8 @@ kubectl -n openctem create secret generic openctem-api-secrets \
 # FINGERPRINT_KEY keys the identity of every secret finding. Keep it for the life
 # of the installation; never rotate it with APP_ENCRYPTION_KEY. On an upgraded
 # install that already has secret findings, use the current APP_ENCRYPTION_KEY
-# value instead of a new one.
+# value instead of a new one. (api.fingerprint.key would put it in the values
+# file; a Secret keeps it out.)
 kubectl -n openctem create secret generic openctem-fingerprint \
   --from-literal=FINGERPRINT_KEY="$(openssl rand -hex 32)"
 
@@ -116,10 +122,10 @@ Back up `openctem-api-secrets` and `openctem-fingerprint` outside the cluster.
 api:
   appEnv: production
   image:
-    tag: v0.10.1          # until a chart for v0.10.1 is published
-  extraEnvFrom:
-    - secretRef:
-        name: openctem-fingerprint
+    tag: v0.11.0          # until a chart for v0.11.0 is published
+  fingerprint:
+    existingSecret: openctem-fingerprint
+    keyRef: FINGERPRINT_KEY
   auth:
     provider: local
     existingSecret: openctem-api-secrets
@@ -132,7 +138,7 @@ api:
   migrations:
     sslMode: require
     image:
-      tag: v0.10.1
+      tag: v0.11.0
   signupMode: disabled
   bootstrapAdmin:
     enabled: true
@@ -165,10 +171,10 @@ redisConfig:
 
 ui:
   image:
-    tag: v0.10.1
+    tag: v0.11.0
 console:                   # the platform console
   image:
-    tag: v0.10.1
+    tag: v0.11.0
 admin:
   site:
     mode: host             # the console on its own DNS name (recommended)
@@ -181,7 +187,7 @@ gateway:
     - 10.244.0.0/16        # your cluster's pod CIDR
   caddy:
     image:
-      tag: v0.10.1
+      tag: v0.11.0
     tls:
       mode: acme
       acme:
@@ -291,13 +297,14 @@ kubectl -n openctem exec deploy/openctem-api -- /app/bootstrap-admin \
 |---|---|---|
 | `api.appEnv` | `production` | `APP_ENV`. Keep `production`. |
 | `api.auth.provider` | `local` | `AUTH_PROVIDER`. |
-| `api.auth.existingSecret` / `api.encryption.existingSecret` | empty | Secrets holding `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`. With `appEnv: production` the chart refuses to render without stable values for both. `FINGERPRINT_KEY` goes in through `api.extraEnvFrom` (see step 1). |
+| `api.auth.existingSecret` / `api.encryption.existingSecret` | empty | Secrets holding `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`. With `appEnv: production` the chart refuses to render without stable values for both. `FINGERPRINT_KEY` goes in through `api.fingerprint.existingSecret` (see step 1); empty, it falls back to the encryption key. |
 | `api.replicaCount` | `1` | Keep 1: see [Scaling](../operations/scaling.md). The chart refuses more unless `api.allowMultipleReplicas` is set. |
 | `api.signupMode` | `disabled` | `SIGNUP_MODE`: `disabled`, `domain` or `open` ([Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations)). `open` needs the platform e-mail and, in production, the Turnstile keys. |
 | `admin.site.mode` / `admin.site.host` / `admin.site.port` | `port` / empty / `8443` | Where the platform console is reached (`host`, `port` or `off`) and its DNS name or port. |
 | `admin.allowedCidrs` | private networks | Client networks that may reach the platform console. |
 | `console.enabled` / `console.image.tag` | `true` / `appVersion` | The platform console Deployment. |
 | `api.attachments.storage` | `local` | `local`: a 10 GiB ReadWriteOnce volume at `/app/data`. `s3`: an S3-compatible bucket (`api.attachments.s3.*`). Encryption, retention, malware scanning and direct downloads: [File storage](../configuration/file-storage.md). |
+| `database.console.existingSecret` | empty | The console's own database role (`DB_ADMIN_USER`, `DB_ADMIN_PASSWORD`): the API writes administrators, console sessions and approvals through it, and `bootstrap-admin` connects as it. Needs `database.migrator`. Run `least-privilege-roles.sql` with `-v admin_user=… -v admin_password=…` first, and again on every upgrade (below). |
 | `api.extraEnv` / `api.extraEnvFrom` | empty | Any other [API variable](../configuration/environment-variables.md). The chart refuses names the API removed (for example `SMTP_HOST`: the relay is set in the console). |
 | `api.bootstrapAdmin.extraEnv` | empty | Variables for the bootstrap Job only, such as `BOOTSTRAP_SMTP_*`. |
 | `database.tls.ca.existingSecret` / `api.redis.ca.existingSecret` | empty | Secrets holding the CA (`ca.crt`) of a private PostgreSQL / Redis certificate. |
@@ -328,6 +335,17 @@ kubectl -n openctem exec deploy/openctem-gateway -- \
   cat /data/caddy/pki/authorities/local/root.crt > openctem-root-ca.crt
 ```
 
+## Hosted service
+
+For a hosted multi-tenant service add `MANAGED_SERVICE: "true"` to `api.extraEnv`.
+With `api.appEnv: production` the API then refuses to start from v0.11.0 on unless
+`ADMIN_AUDIT_SINK` is set as well: an `https://…` receiver (with
+`ADMIN_AUDIT_SINK_SECRET` from a Secret through `api.extraEnvFrom`, at least 32
+bytes), `syslog+tls://` or a `file:///` path on a writable volume. The chart has
+no value of its own for them. See
+[Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)
+for what each destination does.
+
 ## Upgrades and rollback
 
 ```bash
@@ -339,3 +357,9 @@ The migration Job runs before the new pods. `helm rollback` reverts the
 Kubernetes objects only, not the database schema; see
 [Upgrading](../operations/upgrade.md). Read the chart README's "Upgrading to"
 sections for the chart versions you cross.
+
+**Upgrading the platform to v0.11.0.** The migrations (002908 to 002915) only add
+objects. If you use `database.console`, re-run `least-privilege-roles.sql` as a
+superuser (with `admin_user` and `admin_password`) before the upgrade, so the
+console's new `admin_approvals` table gets its grants. API clients should expect
+the SLA and MTTR dashboard fields to be null where there is no data.
