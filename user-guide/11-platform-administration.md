@@ -139,7 +139,7 @@ Organizations created here have no limits. Open an organization for its tabs:
     (the organization owner can always still use a password).
 
   SSO changes proposed here take effect only after the organization's owner
-  approves them under **Settings › Access › SSO approvals**. See
+  approves them under **Settings › Security › SSO approvals**. See
   [Identity and access](../identity/index.md).
 - **Scope**: the organization's scan approval policy and its modules. Modules are
   available unless denied here; the organization then switches on or off what is

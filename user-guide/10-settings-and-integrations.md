@@ -7,26 +7,45 @@ nav_order: 10
 # Settings and integrations
 
 **Settings** (in the sidebar footer) is where you shape the platform to your
-organization: its details, which features are on, the policies it applies, how
-scanning is set up, and how it connects to your other tools. Inside the settings
-area the sidebar is replaced by the settings rail; **Settings** (`/settings`)
-shows every settings page you can open, grouped as in the rail, and the rail has
-a filter box. The pages are also searchable from the command palette
-(<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd>).
+organization: its details, how it is protected, who may sign in, the policies it
+applies, how scanning is set up, and how it connects to your other tools. Inside
+the settings area the sidebar is replaced by the settings rail.
 
 | Group | Pages |
 |---|---|
-| My account | Profile, Security, Preferences, Notifications, Activity: see [Your account](01-getting-started.md#your-account) |
-| Organization | General, Modules, Usage & limits, Domains, Trusted organizations, Audit log, License policy, Content catalog |
-| Access | Members, Teams, Roles, Authentication, Directory sync (SCIM), SSO approvals, Support access, API keys, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
-| Findings | Finding lifecycle, Finding approvals, Vulnerability matching |
-| Policies | Risk scoring, SLA policies, Asset lifecycle, Asset sources, Scope policy, Scan windows, Pentest methodology |
-| Scanning | Scan approval, Scan profiles, Scanner templates, Template sources, Source credentials, Tools, Capabilities, Tool defaults, Scanner content |
-| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Notification channels, SIEM, Service accounts |
+| My account | Profile, Security, Preferences, Notifications, Activity, Connected applications: see [Your account](01-getting-started.md#your-account) |
+| Organization | General, Modules, Usage & limits |
+| Security | Security overview, Authentication, Domains, Trusted organizations, SSO approvals, Support access, Audit log |
+| Access | Members, Teams, Roles, Directory sync (SCIM), API keys, Service accounts, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
+| Findings & assets | Finding lifecycle, Finding approvals, Risk scoring, SLA policies, Vulnerability matching, License policy, Asset sources, Asset lifecycle, Pentest methodology |
+| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan profiles, Tools, Tool defaults, Capabilities |
+| Scanner content | Content catalog, Scanner templates, Template sources, Source credentials, Content freshness |
+| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Notification channels, SIEM |
 
 Pages that depend on a module or a limit appear only when it applies: for
 example **Usage & limits** is listed only while a limit applies to your
 organization, and a page whose module is off is hidden.
+
+### Find a setting
+
+**Settings** (`/settings`) has a search box, and so has the settings rail. Both
+find pages and the settings inside them: typing `ip allowlist`, `2fa` or
+`interactsh` lists the page and the setting (for example **Authentication ›
+IP allowlist**). Opening a setting goes to its page, scrolls to it and outlines
+it for a moment. The command palette (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd>)
+finds the same pages and settings. A setting's address (for example
+`/settings/authentication#ip-allowlist`) can be shared.
+
+### Save changes
+
+On a settings form, a bar appears at the bottom of the page as soon as you
+change something: **Discard** puts back the saved values, **Save changes** (or
+<kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>S</kbd>) saves them. Leaving the page with
+unsaved changes asks first. A switch that applies at once (no Save) says so next
+to it. A change that weakens protection (for example two-factor no longer
+required, an emptied IP allowlist, or scan jobs allowed to use callbacks) is
+listed and confirmed before it is saved. Security pages show who changed them
+last, with a link to the audit log.
 
 Almost every create, edit and delete action here is hidden or disabled according
 to your permissions. Administrative changes usually need the **Owner** or
@@ -50,13 +69,21 @@ to your permissions. Administrative changes usually need the **Owner** or
 ![The General settings of the organization: name, URL slug and website]({{ site.baseurl }}/assets/images/user-guide/settings-general.png)
 *Figure: Settings, General.*
 
-The page has one **Save** for the active tab. Without permission the fields are
-locked and say why.
+The page saves with the bar at the bottom (see [Save changes](#save-changes)).
+Without permission the fields are locked and say why. Only the owner can change
+the **URL slug**, and not while single sign-on is configured (the sign-in
+addresses registered at your identity provider use it).
 
-**Delete this organization** (owner only) is at the bottom of the General tab.
-It deletes everything in the organization (assets, findings, scans, members,
-roles, settings and its audit log). User accounts survive and keep their other
-organizations. You confirm by typing the organization's name.
+The owner's **Danger zone** at the bottom of the General tab has two actions:
+
+- **Transfer ownership**: opens Members, where you choose the new owner (see
+  [Transfer ownership](02-team-and-access.md#transfer-ownership)).
+- **Delete this organization**: deletes everything in the organization (assets,
+  findings, scans, members, roles, settings and its audit log). User accounts
+  survive and keep their other organizations. You confirm by typing the
+  organization's name.
+
+Leaving an organization is in **My account › Profile**, for every member.
 
 Each user chooses their own time zone, date format and theme under
 [Preferences](01-getting-started.md#preferences). Organization sign-in rules are
@@ -96,9 +123,35 @@ only while a limit applies. Limits are set by a platform administrator; see
 [Platform administration](11-platform-administration.md#organizations). A limit
 never removes anything: new additions over it are refused.
 
+## Security
+
+### Security overview
+
+**Settings › Security › Security overview** (`/settings/security`, owners and
+administrators) checks how well the organization is protected and lists what to
+fix first: two-factor for owners and administrators, members without a second
+factor, email verification, the IP allowlist, members who have not signed in for
+90 days, pending requests to join, API keys that expire soon or are unused, idle
+directory sync tokens, sensor job opt-ins, a verified domain and active support
+access. Each check says **Passed**, **Warning**, **Risk** or **Information**,
+with a link to the page that fixes it, and the page shows a score out of 100
+(the two two-factor checks weigh three times as much as the others; information checks do not count). The same
+score and the first three things to fix are shown at the top of **Settings**.
+
+![The security overview: a score out of 100 and the checks grouped by area]({{ site.baseurl }}/assets/images/user-guide/settings-security-overview.png)
+*Figure: Settings, Security overview.*
+
+### Authentication
+
+**Settings › Security › Authentication** (`/settings/authentication`) sets how
+people sign in and who may join: see
+[Team and access › Sign-in policy](02-team-and-access.md#sign-in-policy). What
+scan jobs may do on your sensors is on
+[Sensor job safety](#sensor-job-safety).
+
 ### Domains
 
-**Settings › Organization › Domains** (`/settings/domains`; owners change it,
+**Settings › Security › Domains** (`/settings/domains`; owners change it,
 administrators read it) decides what the organization's verified single sign-on
 domains do to accounts on them. A platform administrator verifies the domains;
 everything here is off until an owner turns it on. For each verified domain
@@ -111,7 +164,7 @@ that is not verified, or that another organization also claims, has no effect.
 
 ### Trusted organizations
 
-**Settings › Organization › Trusted organizations**
+**Settings › Security › Trusted organizations**
 (`/settings/trusted-organizations`; owners change trusts, administrators read
 them) lists partner organizations whose people sign in here with their own
 company's single sign-on, and organizations that trust this one. A trust
@@ -121,29 +174,22 @@ applies only once both owners agree.
 
 See [Audit log](02-team-and-access.md#audit-log).
 
-### License policy
+## Access
 
-**Settings › Organization › License policy** (`/settings/license-policy`) sets
-which open-source licenses your packages may use. Turn on **Evaluate licenses**,
-then add ordered rules, each matching one SPDX license id or a category
-(permissive, weak copyleft, copyleft, proprietary, public domain, unknown) with
-the action **Allow**, **Review** or **Deny**, and choose the verdict for a known
-license no rule matches. Denied licenses open findings; review verdicts open
-medium findings only if **Open findings for review verdicts** is on, otherwise
-they show only in the inventory. Saving evaluates the inventory and reports how
-many packages were flagged. Changing it needs `settings:write`.
+Members, teams, roles, directory sync, API keys and AI assistants are described
+in [Team and access](02-team-and-access.md).
 
-### Content catalog
+### Service accounts
 
-**Settings › Organization › Content catalog** (`/settings/content`) is the
-catalog of signed packages of rules, templates and other content. Installing one
-makes it available to the whole organization. The tabs are **Catalog** (browse
-and install), **Installed** (update, roll back, uninstall), **Requests** (members
-ask, an approver decides) and **Settings**, where **Require approval** makes a
-second member approve every install, update, rollback and uninstall. Turning it
-on takes effect at once; turning it off takes effect 24 hours later.
+**Service accounts** (`/settings/service-accounts`) are identities for
+integrations, such as a SIEM export or a ticketing bridge, so no integration
+borrows a person's key. A new account holds no permission: give it a role under
+**Roles** and assets through a team. It acts only through API keys created
+on this page; the secret is shown once, and only scopes you hold yourself can be
+given. A service account is never an owner or administrator, never has full data
+access and never signs in.
 
-## Findings
+## Findings & assets
 
 - **Finding lifecycle** (`/settings/finding-lifecycle`): your own
   sub-statuses, the moves between statuses and the requirements each move
@@ -161,20 +207,28 @@ on takes effect at once; turning it off takes effect 24 hours later.
   findings when a published CVE affects a product version your assets run.
   Changing it needs `team:update`.
 
-## Policies
-
 - **Risk scoring** (`/settings/risk-scoring`): see
   [Prioritization › Risk scoring](06-prioritization.md#risk-scoring).
 - **SLA policies** (`/settings/sla-policies`): see
   [Mobilization › SLA policies](08-mobilization.md#sla-policies).
-- **Scope policy** (`/settings/scope`): see
-  [Scoping › Scope policy](03-scoping.md#scope-policy).
 - **Pentest methodology** (`/settings/pentest`): see
   [Validation](07-validation.md#pentest-methodology-and-the-finding-library).
 
+### License policy
+
+**Settings › Findings & assets › License policy** (`/settings/license-policy`) sets
+which open-source licenses your packages may use. Turn on **Evaluate licenses**,
+then add ordered rules, each matching one SPDX license id or a category
+(permissive, weak copyleft, copyleft, proprietary, public domain, unknown) with
+the action **Allow**, **Review** or **Deny**, and choose the verdict for a known
+license no rule matches. Denied licenses open findings; review verdicts open
+medium findings only if **Open findings for review verdicts** is on, otherwise
+they show only in the inventory. Saving evaluates the inventory and reports how
+many packages were flagged. Changing it needs `settings:write`.
+
 ### Asset lifecycle
 
-**Settings › Policies › Asset lifecycle** (`/settings/asset-lifecycle`) moves
+**Settings › Findings & assets › Asset lifecycle** (`/settings/asset-lifecycle`) moves
 stale assets out of the active inventory automatically, so that you focus on
 fresh exposure. It needs the `team:update` permission; without it the page says
 **Insufficient permissions**.
@@ -193,14 +247,37 @@ Click **Save changes**.
 
 ### Asset sources
 
-**Settings › Policies › Asset sources** (`/settings/asset-sources`, owners and
+**Settings › Findings & assets › Asset sources** (`/settings/asset-sources`, owners and
 administrators) chooses which source decides each kind of asset value
 (criticality, owner, exposure) when scans, imports, connectors, feeds and people
 disagree.
 
+## Scanning
+
+These pages define what runs where and how.
+
+- **Scope policy** (`/settings/scope`): see
+  [Scoping › Scope policy](03-scoping.md#scope-policy).
+
+### Scan approval
+
+**Settings › Scanning › Scan approval** (`/settings/scanning/scan-approval`)
+sets which scans need a person's approval before they run. The mode is **Off**
+(the default: nobody approves, scope entries take effect at once), **On** (the
+approval rules decide which scans are held) or **Strict** (as On, with two
+distinct approvers and a justification for each held scan, and scope entries need
+approval too). Only an owner changes the mode, with a reason. Rules can start
+from a preset (**Light**, **Standard**, **Strict**), run in **Monitor** mode to
+record what they would hold, and be tried on existing scans. A platform
+administrator can set the mode for the whole installation or an organization;
+the page then shows it as in force.
+ Deploying sensors is covered in
+[Sensors](../sensors/index.md); tools are described in
+[Tools and capabilities](../scanning/tools.md).
+
 ### Scan windows
 
-**Settings › Policies › Scan windows** (`/settings/scanning/scan-windows`) sets
+**Settings › Scanning › Scan windows** (`/settings/scanning/scan-windows`) sets
 when scans may touch which targets. Each policy is one of two kinds:
 
 - **Allow: scan only inside the windows** (testing windows, such as business
@@ -233,25 +310,25 @@ Bug-bounty program testing windows are never lifted.
 Freeze windows from earlier releases were converted to blackout policies on
 upgrade.
 
-## Scanning
+### Sensor job safety
 
-These pages define what runs where and how.
+**Settings › Scanning › Sensor job safety** (`/settings/scanning/sensor-safety`,
+read by administrators, changed by the owner) sets what scan jobs may do on your
+sensors. A sensor's own local policy always decides first: these settings only
+narrow what is sent.
 
-### Scan approval
+- **Private targets need a sensor-local policy**: jobs that scan private
+  addresses go only to sensors whose network owner installed a local policy.
+- **Allow out-of-band callbacks (interactsh)** and **Allow custom templates**:
+  off by default; turning one on is audited at critical severity.
+- **User-Agent of scan tools** and **Refuse tools that skip TLS certificate
+  verification**.
+- **Sensor keys and shared sensors**: the key-bound sensor identity and key
+  binding requirements and the shared sensors opt-out. Each of these switches
+  applies as soon as you change it.
 
-**Settings › Scanning › Scan approval** (`/settings/scanning/scan-approval`)
-sets which scans need a person's approval before they run. The mode is **Off**
-(the default: nobody approves, scope entries take effect at once), **On** (the
-approval rules decide which scans are held) or **Strict** (as On, with two
-distinct approvers and a justification for each held scan, and scope entries need
-approval too). Only an owner changes the mode, with a reason. Rules can start
-from a preset (**Light**, **Standard**, **Strict**), run in **Monitor** mode to
-record what they would hold, and be tried on existing scans. A platform
-administrator can set the mode for the whole installation or an organization;
-the page then shows it as in force.
- Deploying sensors is covered in
-[Sensors](../sensors/index.md); tools are described in
-[Tools and capabilities](../scanning/tools.md).
+The scan-job fields are saved with the bar at the bottom of the page; turning
+protection off is listed and confirmed first.
 
 ### Scan profiles
 
@@ -267,44 +344,6 @@ configurations: which tools run, how intensively and for how long.
   **Set as Default**.
 - A row's menu: **Set as default**, **Edit**, **Clone** and **Delete** (system
   profiles cannot be deleted).
-
-### Scanner templates
-
-**Scanner templates** (`/settings/scanning/templates`) holds custom Nuclei,
-Semgrep and Betterleaks templates, uploaded here or synced from template sources,
-validated and versioned.
-
-- **Upload template**: choose the **Template Type**, a **Name** and description,
-  and the file (Nuclei and Semgrep YAML, Betterleaks TOML) or paste its content.
-  It is validated as you go.
-- Filter by type and status (Active, Pending review, Deprecated, Revoked).
-- A row's menu: **Download**, **Deprecate** (deprecated templates cannot be used
-  in new scans; the template is not deleted) and **Delete**.
-
-### Template sources
-
-**Template sources** (`/settings/scanning/template-sources`) are external places
-custom templates are synced from.
-
-1. Click **Add source**, give it a **Name**, the **Template Type** and a cache
-   time.
-2. Choose the source: **Git** (repository URL, branch, optional path), **S3**
-   (bucket, region, optional prefix) or **HTTP** (URL, timeout).
-3. Pick the authentication and, if it needs one, a credential from **Source
-   credentials**.
-4. **Auto Sync on Scan** (on by default) refreshes the source before scans.
-
-A row's menu: **Sync now**, **Disable** / **Enable**, **Edit** and **Delete**.
-
-### Source credentials
-
-**Source credentials** (`/settings/scanning/credentials`) stores, encrypted, the
-credentials that template sources use to authenticate: Git tokens, cloud keys and
-more. **Add credential** with a name, an optional expiry date (you are reminded
-before it expires) and the credential type (for example API key, basic, bearer
-token, SSH key, AWS role). Secret values are never shown again after you save
-them; when you edit, leave them empty to keep them. Integrations such as
-source control and ticketing store their own credentials on their own pages.
 
 ### Tools
 
@@ -394,9 +433,62 @@ ask for a recent sign-in. See
   GitLab group with a group access token, so the gate shows as a check or
   commit status with comments on the pull request.
 
-### Scanner content
+## Scanner content
 
-**Scanner content** (`/settings/scanning/content`) sets how fresh the
+The rules, templates and other content your sensors scan with, and where they
+come from.
+
+### Content catalog
+
+**Settings › Scanner content › Content catalog** (`/settings/content`) is the
+catalog of signed packages of rules, templates and other content. Installing one
+makes it available to the whole organization. The tabs are **Catalog** (browse
+and install), **Installed** (update, roll back, uninstall), **Requests** (members
+ask, an approver decides) and **Settings**, where **Require approval** makes a
+second member approve every install, update, rollback and uninstall. Turning it
+on takes effect at once; turning it off takes effect 24 hours later.
+
+### Scanner templates
+
+**Scanner templates** (`/settings/scanning/templates`) holds custom Nuclei,
+Semgrep and Betterleaks templates, uploaded here or synced from template sources,
+validated and versioned.
+
+- **Upload template**: choose the **Template Type**, a **Name** and description,
+  and the file (Nuclei and Semgrep YAML, Betterleaks TOML) or paste its content.
+  It is validated as you go.
+- Filter by type and status (Active, Pending review, Deprecated, Revoked).
+- A row's menu: **Download**, **Deprecate** (deprecated templates cannot be used
+  in new scans; the template is not deleted) and **Delete**.
+
+### Template sources
+
+**Template sources** (`/settings/scanning/template-sources`) are external places
+custom templates are synced from.
+
+1. Click **Add source**, give it a **Name**, the **Template Type** and a cache
+   time.
+2. Choose the source: **Git** (repository URL, branch, optional path), **S3**
+   (bucket, region, optional prefix) or **HTTP** (URL, timeout).
+3. Pick the authentication and, if it needs one, a credential from **Source
+   credentials**.
+4. **Auto Sync on Scan** (on by default) refreshes the source before scans.
+
+A row's menu: **Sync now**, **Disable** / **Enable**, **Edit** and **Delete**.
+
+### Source credentials
+
+**Source credentials** (`/settings/scanning/credentials`) stores, encrypted, the
+credentials that template sources use to authenticate: Git tokens, cloud keys and
+more. **Add credential** with a name, an optional expiry date (you are reminded
+before it expires) and the credential type (for example API key, basic, bearer
+token, SSH key, AWS role). Secret values are never shown again after you save
+them; when you edit, leave them empty to keep them. Integrations such as
+source control and ticketing store their own credentials on their own pages.
+
+### Content freshness
+
+**Content freshness** (`/settings/scanning/content`) sets how fresh the
 vulnerability databases, templates and rules your sensors scan with must be: how
 often sensors check for updates, and for the Trivy databases, Nuclei templates and
 SAST rules a **Maximum age (hours)**, an optional **Pinned version** and, for
@@ -536,13 +628,3 @@ SLA breaches to **Splunk** through the HTTP Event Collector (HEC).
 3. Click **Create integration**, then **Send test event** from the row menu.
 
 Events go out through the same delivery queue and filters as notifications.
-
-### Service accounts
-
-**Service accounts** (`/settings/service-accounts`) are identities for
-integrations, such as a SIEM export or a ticketing bridge, so no integration
-borrows a person's key. A new account holds no permission: give it a role under
-**Roles** and assets through a team. It acts only through API keys created
-on this page; the secret is shown once, and only scopes you hold yourself can be
-given. A service account is never an owner or administrator, never has full data
-access and never signs in.

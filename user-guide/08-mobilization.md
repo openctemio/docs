@@ -168,7 +168,7 @@ guidance, never a secret from the finding.
 
 ## SLA policies
 
-**Settings › Policies › SLA policies** (`/settings/sla-policies`) is where you
+**Settings › Findings & assets › SLA policies** (`/settings/sla-policies`) is where you
 **define** remediation deadlines.
 
 - The **default policy** applies to every finding:

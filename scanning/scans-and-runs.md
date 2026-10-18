@@ -154,7 +154,7 @@ sequenceDiagram
 - **No overlap.** A scheduled occurrence is skipped while the scan's
   previous run is still active. Occurrences missed while the platform was
   down are skipped, not replayed.
-- **Scan windows.** Policies under **Settings > Policies > Scan windows**
+- **Scan windows.** Policies under **Settings > Scanning > Scan windows**
   say when targets may be scanned (allow windows) or never (blackouts). A
   scheduled run none of whose targets may run now is moved to the next
   opening; a manual run starts and its waiting targets wait for their window.

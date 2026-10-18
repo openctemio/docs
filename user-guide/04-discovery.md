@@ -676,7 +676,7 @@ upload a report and from SBOM imports; there is no manual add or delete. See als
 - With no packages yet the page says **No components yet** and offers **Import
   SBOM** or **Set up a sensor**.
 - License verdicts follow the organization's license policy under **Settings ›
-  Organization › License policy**.
+  Findings & assets › License policy**.
 
 ### VEX statements
 
