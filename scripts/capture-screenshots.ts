@@ -294,7 +294,7 @@ const shots: Shot[] = [
   // Discovery
   { section: 'user-guide', name: 'assets-inventory', route: '/assets' },
   { section: 'user-guide', name: 'asset-detail', route: `/assets/${assetId('app.example.com')}` },
-  { section: 'user-guide', name: 'asset-drawer', route: '/assets', open: async (page: Page) => { await page.getByText('www.example.com', { exact: true }).first().click(); await page.waitForTimeout(1500) } },
+  { section: 'user-guide', name: 'asset-drawer', route: '/assets', open: async (page: Page) => { await page.getByText('www.example.org', { exact: true }).first().click(); await page.waitForTimeout(1500) } },
   { section: 'user-guide', name: 'asset-groups', route: '/assets/groups' },
   { section: 'user-guide', name: 'components', route: '/components' },
 
@@ -356,7 +356,7 @@ const shots: Shot[] = [
     },
   },
   { section: 'user-guide', name: 'remediation', route: '/remediation' },
-  { section: 'user-guide', name: 'remediation-campaign', route: campaigns[0] ? `/remediation/${campaigns[0].id}` : '/remediation' },
+  { section: 'user-guide', name: 'remediation-campaign', route: campaigns[0] ? `/remediation/campaigns/${campaigns[0].id}` : '/remediation' },
   { section: 'user-guide', name: 'my-work', route: '/my-work' },
 
   // Insights

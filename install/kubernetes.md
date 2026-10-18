@@ -27,17 +27,24 @@ helm repo update
 helm search repo openctem/openctem
 ```
 
-The chart's `appVersion` is the default tag of the API, web console and
-migrations images (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
-`migrations`). `helm search repo openctem/openctem --versions` lists each chart
+The chart's `appVersion` is the default tag of the API, web console, platform
+console and migrations images (`ghcr.io/openctemio/openctem-api`,
+`openctem-web`, `openctem-console`, `migrations`) and of the gateway. `helm search repo openctem/openctem --versions` lists each chart
 version with the OpenCTEM release it targets. Pin the chart version you tested
 (`--version`).
 
-At the time of writing the newest chart is `openctem-0.23.3` (`appVersion`
-v0.9.5, bundled sensor v0.21.1); the chart for v0.9.6 follows. Until it is
-published, set `api.image.tag`, `api.migrations.image.tag`, `ui.image.tag`
-and `gateway.caddy.image.tag` to v0.9.6, and `sensor.image.tag` to v0.23.0,
-the newest sensor. A chart for each platform release is published after it.
+The chart is released separately from the platform: a platform release is
+followed by a chart whose `appVersion` is that release, and
+`versions.yaml` in the openctem repository (`chart.version`) names the newest
+chart that targets the platform release ([Versioning](../operations/versioning.md#sensors-sdk-and-helm-chart)).
+Chart 0.28.0 already deploys the platform console as its own service, the
+console's database role (`database.console`) and `api.signupMode`, but its
+`appVersion` is v0.9.7. Until a chart for v0.10.1 is published, set the image
+tags of every platform component to v0.10.1 in your values file (the example
+below does), and create the `FINGERPRINT_KEY` secret of step 1: v0.10 refuses
+to start without it, and the chart has no value of its own for it yet. Compare
+`helm search repo openctem/openctem --versions` before you do this; once a chart
+whose `appVersion` is v0.10.1 exists, drop the overrides.
 
 The chart is secure by default: `api.appEnv` is `production`, so the API refuses
 to start without TLS to PostgreSQL and Redis, a JWT secret of at least 64
@@ -79,6 +86,13 @@ kubectl -n openctem create secret generic openctem-api-secrets \
   --from-literal=APP_ENCRYPTION_KEY="$(openssl rand -hex 32)" \
   --from-literal=AUTH_JWT_SECRET="$(openssl rand -hex 64)"
 
+# FINGERPRINT_KEY keys the identity of every secret finding. Keep it for the life
+# of the installation; never rotate it with APP_ENCRYPTION_KEY. On an upgraded
+# install that already has secret findings, use the current APP_ENCRYPTION_KEY
+# value instead of a new one.
+kubectl -n openctem create secret generic openctem-fingerprint \
+  --from-literal=FINGERPRINT_KEY="$(openssl rand -hex 32)"
+
 kubectl -n openctem create secret generic openctem-db \
   --from-literal=DB_USER=openctem_app \
   --from-literal=DB_PASSWORD='the openctem_app password'
@@ -91,7 +105,7 @@ kubectl -n openctem create secret generic openctem-redis \
   --from-literal=REDIS_PASSWORD='your Redis password, 32+ characters'
 ```
 
-Back up `openctem-api-secrets` outside the cluster.
+Back up `openctem-api-secrets` and `openctem-fingerprint` outside the cluster.
 
 ## 2. Write the values file
 
@@ -101,6 +115,11 @@ Back up `openctem-api-secrets` outside the cluster.
 ```yaml
 api:
   appEnv: production
+  image:
+    tag: v0.10.1          # until a chart for v0.10.1 is published
+  extraEnvFrom:
+    - secretRef:
+        name: openctem-fingerprint
   auth:
     provider: local
     existingSecret: openctem-api-secrets
@@ -112,7 +131,9 @@ api:
     tlsEnabled: true
   migrations:
     sslMode: require
-  tenantCreationMode: admin_only
+    image:
+      tag: v0.10.1
+  signupMode: disabled
   bootstrapAdmin:
     enabled: true
     email: admin@example.com
@@ -142,17 +163,38 @@ redisConfig:
     existingSecret: openctem-redis
     createSecret: false
 
+ui:
+  image:
+    tag: v0.10.1
+console:                   # the platform console
+  image:
+    tag: v0.10.1
+admin:
+  site:
+    mode: host             # the console on its own DNS name (recommended)
+    host: admin.ctem.example.com
+
 gateway:
   mode: caddy
   host: ctem.example.com
   trustedProxies:
     - 10.244.0.0/16        # your cluster's pod CIDR
   caddy:
+    image:
+      tag: v0.10.1
     tls:
       mode: acme
       acme:
         email: ops@example.com
 ```
+
+The platform console is its own Deployment on its own site. `admin.site.mode`
+is `host` (its own DNS name on the gateway's port 443, recommended: point
+`admin.ctem.example.com` at the same address), `port` (a second port, 8443, on a
+ClusterIP Service: use `kubectl port-forward`; for evaluation or private
+networks) or `off`. Only the networks in `admin.allowedCidrs` (private networks
+by default) reach it. With `gateway.mode` `ingress` or `httpRoute`, publish it
+with `console.ingress` in host mode.
 
 `gateway.trustedProxies` is the pod CIDR of your cluster (`10.244.0.0/16` on
 kubeadm with flannel, `10.42.0.0/16` on k3s): only those addresses may assert a
@@ -230,6 +272,9 @@ kubectl -n openctem logs job/openctem-api-bootstrap-admin
 kubectl -n openctem delete job openctem-api-bootstrap-admin
 ```
 
+Administrators then sign in to the platform console (see
+[First administrator](first-admin.md#sign-in)).
+
 The Job name is `<release>-openctem-api-bootstrap-admin`, or
 `<release>-api-bootstrap-admin` when the release name contains `openctem`. To run
 the tool later (for example to add an organization):
@@ -246,9 +291,12 @@ kubectl -n openctem exec deploy/openctem-api -- /app/bootstrap-admin \
 |---|---|---|
 | `api.appEnv` | `production` | `APP_ENV`. Keep `production`. |
 | `api.auth.provider` | `local` | `AUTH_PROVIDER`. |
-| `api.auth.existingSecret` / `api.encryption.existingSecret` | empty | Secrets holding `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`. With `appEnv: production` the chart refuses to render without stable values for both. |
+| `api.auth.existingSecret` / `api.encryption.existingSecret` | empty | Secrets holding `AUTH_JWT_SECRET` and `APP_ENCRYPTION_KEY`. With `appEnv: production` the chart refuses to render without stable values for both. `FINGERPRINT_KEY` goes in through `api.extraEnvFrom` (see step 1). |
 | `api.replicaCount` | `1` | Keep 1: see [Scaling](../operations/scaling.md). The chart refuses more unless `api.allowMultipleReplicas` is set. |
-| `api.tenantCreationMode` | `admin_only` | `TENANT_CREATION_MODE`. |
+| `api.signupMode` | `disabled` | `SIGNUP_MODE`: `disabled`, `domain` or `open` ([Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations)). `open` needs the platform e-mail and, in production, the Turnstile keys. |
+| `admin.site.mode` / `admin.site.host` / `admin.site.port` | `port` / empty / `8443` | Where the platform console is reached (`host`, `port` or `off`) and its DNS name or port. |
+| `admin.allowedCidrs` | private networks | Client networks that may reach the platform console. |
+| `console.enabled` / `console.image.tag` | `true` / `appVersion` | The platform console Deployment. |
 | `api.attachments.storage` | `local` | `local`: a 10 GiB ReadWriteOnce volume at `/app/data`. `s3`: an S3-compatible bucket (`api.attachments.s3.*`). Encryption, retention, malware scanning and direct downloads: [File storage](../configuration/file-storage.md). |
 | `api.extraEnv` / `api.extraEnvFrom` | empty | Any other [API variable](../configuration/environment-variables.md). The chart refuses names the API removed (for example `SMTP_HOST`: the relay is set in the console). |
 | `api.bootstrapAdmin.extraEnv` | empty | Variables for the bootstrap Job only, such as `BOOTSTRAP_SMTP_*`. |

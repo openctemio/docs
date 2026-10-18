@@ -117,6 +117,9 @@ const targets = [
   { pattern: 'github.com/example-corp/*', target_type: 'repository', description: 'All repositories of the GitHub organization' },
   { pattern: 'AWS:123456789012', target_type: 'cloud_account', description: 'AWS production account' },
 ]
+// Scope approvals are opt-in governance (default: off). The demo organization
+// runs Strict scan approval, so a widening waits for a second administrator.
+sqlText(`UPDATE tenants SET scan_approval_policy = 'strict' WHERE id = '${alex.tenantId}'`)
 for (const t of targets) await step(`scope ${t.pattern}`, () => api('POST', '/api/v1/scope/targets', { ...t, tags: ['demo'] }))
 await step('scope exclusion', () =>
   api('POST', '/api/v1/scope/exclusions', { exclusion_type: 'domain', pattern: 'partners.example.com', reason: 'Hosted by a partner; not ours to test.' })
@@ -373,7 +376,7 @@ if (zone?.id) st.ids.zone = zone.id
 // Sensors pair with their own key (no API key). The real sensor image runs
 // only its `pair` command, which exits once approved: it never scans.
 async function pairSensor(name: string, profile: string) {
-  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.17.0'
+  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.23.2'
   const apiUrl = process.env.SENSOR_API_URL ?? 'http://127.0.0.1:18980'
   const proc = spawn('docker', ['run', '--rm', '--name', `openctem-demo-pair-${name}`, '--network', 'host', '--hostname', name, image, 'pair', '-api-url', apiUrl, '-name', name, '-state-dir', '/tmp/state'])
   let out = ''

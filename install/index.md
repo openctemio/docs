@@ -9,8 +9,9 @@ permalink: /install/
 {: .no_toc }
 
 OpenCTEM is self-hosted. Pick a deployment, check the requirements below, then
-follow the guide. These pages describe OpenCTEM v0.9.6; notes say where an
-older v0.9 release differs.
+follow the guide. These pages describe OpenCTEM v0.10.1; notes say where an
+older release differs. [Versioning](../operations/versioning.md) lists how the
+platform, sensor and chart versions fit together.
 
 For a production installation, follow the [go-live runbook](production-go-live.md):
 the order of work from an empty host to a monitored installation with a tested restore.
@@ -24,14 +25,16 @@ the order of work from an empty host to a monitored installation with a tested r
 
 | Deployment | Runs | Best for |
 |---|---|---|
-| [Docker Compose](docker-compose.md) | Gateway, web console, API, PostgreSQL and Redis on one host, from `api/deploy/docker-compose.yml`. | Most single-host installs. Everything included, TLS between all parts. |
-| [All-in-one image](all-in-one.md) | `ghcr.io/openctemio/openctem`: gateway, web console and API in one container. PostgreSQL and Redis are yours. | You already run PostgreSQL and Redis (managed or self-hosted). |
+| [Docker Compose](docker-compose.md) | Gateway, web console, platform console, API, PostgreSQL and Redis on one host, from `api/deploy/docker-compose.yml`. | Most single-host installs. Everything included, TLS between all parts. |
+| [All-in-one image](all-in-one.md) | `ghcr.io/openctemio/openctem`: gateway, web console, platform console and API in one container. PostgreSQL and Redis are yours. | You already run PostgreSQL and Redis (managed or self-hosted). |
 | [Kubernetes (Helm)](kubernetes.md) | The `openctem` chart from `openctemio/helm-charts`. | Clusters, external managed datastores, GitOps. |
 | [One VM with Ansible](ansible.md) | The `openctem-ansible` kit: a hardened Ubuntu VM, signed images, encrypted backups and a monitor. Two guides: [with Cloudflare Tunnel and Access](ansible-cloudflare.md) (no inbound port) and [without Cloudflare](ansible-without-cloudflare.md) (your own TLS, public or private). | A production single host you want hardened and operated the same way every time. |
 
-All three expose the platform on one HTTPS port through the same gateway: see
-[TLS and the gateway](tls-and-gateway.md). After installing, create the
-[first administrator](first-admin.md).
+All of them expose the platform on one HTTPS port through the same gateway: see
+[TLS and the gateway](tls-and-gateway.md). The platform console, where platform
+administrators work, is a separate app on its own site (its own port or host
+name, reachable from private networks by default), never part of the public
+site. After installing, create the [first administrator](first-admin.md).
 
 Sensors, the components that run scans in your networks, are installed
 separately: see [Sensors](../sensors/index.md).
@@ -48,7 +51,9 @@ flowchart LR
     subgraph host["One Docker host"]
         GW["gateway<br/>(Caddy)"] --> WEB["web<br/>:3000"]
         GW --> API["api<br/>:8080"]
+        GW -->|"console site"| CON["console<br/>:3000"]
         WEB --> API
+        CON -->|"console listener"| API
         API -->|TLS| PG[("postgres<br/>:5432")]
         API -->|TLS| RD[("redis<br/>:6379")]
         MIG["migrate, db-roles,<br/>datastore-tls<br/>(one-shot jobs)"] -.-> PG
@@ -145,12 +150,14 @@ flowchart TB
     ADM --> PSEN
 ```
 
-- `TENANT_CREATION_MODE=admin_only` (the default): only platform
-  administrators create organizations. `self_service`: any signed-in user can
-  create one ([First administrator](first-admin.md#self-service-organizations)).
+- `SIGNUP_MODE=disabled` (the default): no public sign-up, and only platform
+  administrators create organizations. `domain` and `open` allow public
+  sign-up ([First administrator](first-admin.md#sign-up-and-more-organizations)).
 - Organization sensors take only their own organization's work. Platform
-  sensors are shared capacity run by the operator; in the current release no
-  organization can send scans to them yet (see [Sensors](../sensors/how-it-works.md#organization-sensors-and-platform-sensors)).
+  sensors (shared sensors) are capacity run by the operator for the
+  organizations it allows; they are off until a super administrator turns them
+  on (see [Shared sensors](../sensors/shared-sensors.md) and
+  [Sensors](../sensors/how-it-works.md#organization-sensors-and-platform-sensors)).
 - Whether platform sensors need a verified domain before they scan a target
   is an admin console setting (**System > Platform scanning**), off by
   default (see [Scope](../scanning/scope.md#platform-guardrails)).
@@ -165,7 +172,9 @@ attached to the release:
 |---|---|
 | `ghcr.io/openctemio/openctem-api` | API server, `bootstrap-admin`, migrations and configuration files. |
 | `ghcr.io/openctemio/openctem-web` | Web console. |
-| `ghcr.io/openctemio/openctem` | All-in-one: API, web console and gateway. |
+| `ghcr.io/openctemio/openctem-console` | Platform console (its own app and site). |
+| `ghcr.io/openctemio/openctem-gateway` | Gateway: Caddy with the layer-4 module, for the Compose stack and the chart. |
+| `ghcr.io/openctemio/openctem` | All-in-one: API, web console, platform console and gateway. |
 | `ghcr.io/openctemio/migrations` | Database migration runner. |
 | `ghcr.io/openctemio/admin-cli` | `bootstrap-admin` on its own. |
 | `ghcr.io/openctemio/seed` | Demo and test data. Not for production. |
@@ -222,9 +231,14 @@ and the order in which to scale. In short:
 |---|---|---|
 | 443/TCP | Browsers, sensors, API clients, SCIM, identity providers, Jira and GitHub webhooks | The only required port. |
 | 80/TCP | Browsers | Optional: redirects to HTTPS, and Let's Encrypt HTTP-01 in TLS mode `acme`. |
+| 8443/TCP (`OPENCTEM_ADMIN_PORT`) | Platform administrators | The platform console in port mode (the default for Compose and the all-in-one image). It answers only the networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS` (private networks by default): reach it over a VPN or an SSH tunnel. In host mode the console has its own DNS name on 443 and needs no extra port. |
 
-Nothing else is published. Internally the API listens on 8080, the web console on
-3000, PostgreSQL on 5432 and Redis on 6379; keep them off public networks.
+Nothing else is published. Internally the API listens on 8080 (its console
+listener on 8081), the web console and the platform console on 3000,
+PostgreSQL on 5432 and Redis on 6379; keep them off public networks. Sensors
+reach the platform on 443 (the gateway routes them by ALPN to the API's
+mutual-TLS listener on 9443 when the sensor passthrough is on; see
+[Sensor transport](../sensors/transport.md)).
 
 ### Outbound (from the API)
 
