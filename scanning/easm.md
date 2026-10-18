@@ -15,8 +15,12 @@ and what is wrong with them:
 4. **What changed?** Continuous monitoring and alerts.
 
 It needs the **Attack surface** module. The pages are under
-**Attack surface** (tabs **Overview**, **Suggestions**, **Lookalikes** and
-**Changes**). Only your own attack surface is covered, under your own scope.
+**Discovery › Attack surface** (`/attack-surface`, tabs **Overview**,
+**Suggestions**, **Lookalikes** and **Changes**). Only your own attack surface
+is covered, under your own scope.
+
+![The Attack surface overview: total and exposed assets, critical exposures, the external surface by attribution and freshness, and the top external risks]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
+*Figure: Discovery, Attack surface, Overview.*
 
 Discovered assets join the inventory at once. Scope decides what is actively
 scanned: entries authorize the full scan, and assets no entry covers get

@@ -13,7 +13,12 @@ are views: you look, filter and export; you change data elsewhere.
 
 Most dashboards need the dashboard read permission. Some are modules: if a
 module is off you see "Module not enabled", and if you lack the permission you see
-a "You don't have access" message rather than the numbers.
+a "You don't have access" message rather than the numbers. Every figure follows
+your data scope and leaves out unpublished pentest findings; what the numbers
+count is explained in [The dashboard](01-getting-started.md#what-the-numbers-count).
+For a question no dashboard answers (for example "open critical findings in the
+KEV catalog on internet-facing assets, by asset type"), use the
+[query language](../api/query.md) over the API.
 
 ## Program health
 
@@ -38,6 +43,11 @@ exposure falling), rather than how much activity there is.
   resolved this period. Useful for context, but not what the program is judged
   on.
 
+The program metrics and the exposure trend are computed for the whole
+organization, so a member whose data scope is limited needs the
+`dashboard:aggregate` permission (or full data access) to see them. Pentest
+findings in draft or in review never count.
+
 How each metric is defined is documented in
 [Program metrics](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/program-metrics.md).
 
@@ -60,25 +70,37 @@ Use it to tell whether the attack surface is scanned often enough.
 **Insights › Executive Summary** (`/insights/executive`) is the leadership view
 of risk posture, remediation performance and process health.
 
-![The Executive summary with risk score, findings resolved, SLA compliance and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
-*Figure: The Executive summary.*
+![The Executive summary with risk score, findings resolved, the share of open findings within SLA, the time to fix and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
+*Figure: The Executive summary. The time-to-fix cards show a dash because no critical or high finding was fixed in the period.*
 
 1. Choose the **Period**: Last 30 days, Last 90 days or Last year.
 2. The headline cards: **Risk score** (with the change from the previous period),
-   **Findings resolved**, **SLA compliance**, **P0 open**, **P1 open**, **Crown
-   jewels at risk** (high-value assets exposed), **MTTR critical** and **MTTR
-   high**.
-3. **Top risks**: the highest-priority findings that need executive attention,
-   with severity, priority class, asset, EPSS and KEV.
-4. **MTTR by severity** and **MTTR by priority class** (P0 to P3).
+   **Findings resolved**, **Open within SLA** (the share of open findings that
+   have an SLA and are not past it, with the number breached), **P0 open**,
+   **P1 open**, **Crown jewels with open findings**, **Time to fix · critical
+   (median)** and **Time to fix · high (median)**. A time-to-fix card shows the
+   median hours from detection to fix, and below it the mean, the 90th
+   percentile and how many findings were fixed.
+3. **Top risks**: the highest-priority open findings that need executive
+   attention, with severity, priority class, asset, EPSS and KEV.
+4. **MTTR by severity** and **MTTR by priority class** (P0 to P3). A severity or
+   priority class with no fixed finding is left out.
 5. **Process health**: **Approval avg time**, **Stale assets**, **Findings
    without owner** and **Avg time to assign** (from finding creation to owner
    assignment).
 
-MTTR and process health are always computed over the last 90 days, whatever the
-period you choose. With too little data you see messages such as "No top risks
-for the selected period" or "MTTR appears once enough findings have been
-resolved".
+A figure with nothing to measure shows a dash (**—**), never 0 or 100 %: **Open
+within SLA** when no open finding has an SLA, a time to fix when nothing was
+fixed. MTTR and process health are always computed over the last 90 days,
+whatever the period you choose. With too little data you see messages such as
+"No top risks for the selected period" or "MTTR appears once enough findings
+have been resolved".
+
+The figures count what you may see, like the dashboard: see
+[Whose data the dashboard shows](01-getting-started.md#whose-data-the-dashboard-shows).
+For a member whose data scope is limited, the top risks are their own top
+findings, and the change of the risk score from the previous period is not
+shown.
 
 ## CTEM maturity
 

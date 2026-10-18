@@ -51,12 +51,13 @@ async function prepare(page: Page) {
   // installation would have instead (for example in the SAML service-provider URLs).
   await page.evaluate((origins) => {
     const pub = "https://ctem.example.com"
+    // A bare host (no scheme, as in the URL slug prefix) becomes the bare public host.
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
     for (let n = walker.nextNode(); n; n = walker.nextNode())
-      for (const o of origins) if (n.textContent?.includes(o)) n.textContent = n.textContent.split(o).join(pub)
+      for (const o of origins) if (n.textContent?.includes(o)) n.textContent = n.textContent.split(o).join(o.includes('://') ? pub : new URL(pub).host)
     for (const el of Array.from(document.querySelectorAll("input, textarea")) as HTMLInputElement[])
-      for (const o of origins) if (el.value?.includes(o)) el.value = el.value.split(o).join(pub)
-  }, [new URL(WEB).origin, new URL(CONSOLE).origin, new URL(API).origin, WEB.replace("localhost", "127.0.0.1")])
+      for (const o of origins) if (el.value?.includes(o)) el.value = el.value.split(o).join(o.includes('://') ? pub : new URL(pub).host)
+  }, [new URL(WEB).origin, new URL(CONSOLE).origin, new URL(API).origin, WEB.replace("localhost", "127.0.0.1"), new URL(WEB).host])
   await page.evaluate(() => {
     // API keys, sensor keys, JWTs, TOTP URIs and secrets (also in groups of
     // four), pairing codes, PEM blocks, webhook URLs, AWS key IDs.
@@ -290,6 +291,7 @@ const shots: Shot[] = [
   { section: 'scanning', name: 'scope-approvals', route: '/scope', open: clickTab(/approvals/i) },
   { section: 'scanning', name: 'scope-domain-proof', route: '/scope', open: clickTab(/domain proof/i) },
   { section: 'user-guide', name: 'scoping-overview', route: '/scoping' },
+  { section: 'scanning', name: 'easm-overview', route: '/attack-surface' },
 
   // Discovery
   { section: 'user-guide', name: 'assets-inventory', route: '/assets' },
@@ -420,6 +422,7 @@ const shots: Shot[] = [
     crop: (page) => page.getByRole('dialog'),
   },
   { section: 'scanning', name: 'tools', route: '/settings/scanning/tools' },
+  { section: 'sensors', name: 'sensor-products', route: '/settings/scanning/sensor-products' },
 
   // Sensors
   { section: 'sensors', name: 'sensors-list', route: '/sensors' },
