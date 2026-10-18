@@ -95,9 +95,11 @@ erDiagram
     assets ||--o{ asset_relationships : "target of"
     assets ||--o{ findings : "has"
     assets ||--o{ exposure_events : "has"
-    assets ||--o{ asset_components : "contains"
-    components ||--o{ asset_components : "used in"
-    components |o--o{ findings : "vulnerable in"
+    assets ||--o{ asset_software : "runs or contains"
+    software_products ||--o{ software_versions : "has"
+    software_versions ||--o{ asset_software : "used as"
+    asset_software ||--o{ asset_software_edges : "dependency graph"
+    software_versions |o--o{ findings : "vulnerable in"
     findings ||--o{ finding_evidence : "proved by"
     findings ||--o{ finding_activities : "history"
     findings ||--o{ finding_comments : "discussed in"
@@ -128,6 +130,7 @@ erDiagram
         string priority_class
         bool is_in_kev
         float epss_score
+        uuid component_id "software version, for package findings"
     }
     exposure_events {
         uuid id PK
@@ -136,14 +139,28 @@ erDiagram
         string state
         string fingerprint
     }
-    components {
+    software_products {
         uuid id PK
-        string purl "global catalog"
-        string version
+        uuid tenant_id "null for the feed's global products"
+        string name
+        string purl_type "package identity"
     }
-    asset_components {
+    software_versions {
+        uuid id PK
+        uuid product_id FK
+        string raw "version as reported"
+        string purl
+    }
+    asset_software {
         uuid asset_id FK
-        uuid component_id FK
+        uuid software_version_id FK
+        string source "package, technology, service, open_port, os"
+        string relationship "direct, transitive, unknown"
+        string location "manifest path"
+    }
+    asset_software_edges {
+        uuid parent_id FK
+        uuid child_id FK
     }
     finding_evidence {
         uuid finding_id FK
@@ -156,9 +173,13 @@ erDiagram
   [Exposures and findings](../user-guide/05-exposures-and-findings.md#status-workflow).
 - An **exposure event** is one attack-surface change on an asset, with a state
   (active, resolved, accepted, false positive) and first and last sightings.
-- **Components** (packages with a version, identified by a purl) are a catalog
-  shared by the installation; which asset uses which component is
-  per organization (`asset_components`).
+- **Components** are packages in the **software catalog**. A package is a row of
+  `software_products` identified by a purl, a version is a row of
+  `software_versions`, and which asset uses which version, from which manifest
+  and as a direct or transitive dependency, is an `asset_software` row (with
+  `asset_software_edges` for the dependency graph). Products from the
+  vulnerability feed are shared by the installation (no `tenant_id`); a package
+  that an organization's own reports name is private to it.
 
 ## Scans, sensors and scope
 
@@ -211,8 +232,8 @@ erDiagram
     }
     sensors {
         uuid id PK
-        uuid tenant_id FK
-        bool is_platform_sensor
+        uuid tenant_id "null for a shared sensor"
+        string scope "instance (shared) or organization"
         string trust_level
     }
     sensor_grants {
@@ -266,6 +287,9 @@ erDiagram
   unclassified ([Unclassified assets](../scanning/scope.md#unclassified-assets)).
 - A sensor's **grant** (`sensor_grants`) and **keys** (`sensor_keys`, public
   keys only) are checked on every request; `scan_zone_sensors` is the zone's pool.
+  A **shared sensor** (`sensors.scope = 'instance'`) belongs to the installation,
+  not to an organization; the operator groups them in `instance_scan_zones`
+  (`instance_scan_zone_sensors`, `instance_scan_zone_tenants`).
 - The **tool catalog** (`tools`) holds the platform's tools (no `tenant_id`)
   and each organization's own: tools a member added and tools a sensor of the
   organization declares in its manifest, projected from the tool's
@@ -279,5 +303,5 @@ Every organization-owned table has a `tenant_id` column, and the application
 filters every query on it. Child rows that have no `tenant_id` of their own
 (for example `scan_workflow_steps`, `scan_run_steps`, `group_members`) are only
 reached through a parent row that has one. A few tables are installation-wide by
-design: `users`, `components`, `permissions`, `admin_users` and the platform
-settings. See [Tenancy and isolation](architecture.md#tenancy-and-isolation).
+design: `users`, `permissions`, `admin_users`, the platform settings, the
+feed's global rows of the software catalog and the shared sensors. See [Tenancy and isolation](architecture.md#tenancy-and-isolation).

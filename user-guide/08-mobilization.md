@@ -37,8 +37,10 @@ django to 4.2.30 on the payment services", "rotate the leaked AWS key". It holds
 the findings that this fix closes. The platform suggests tasks; a person
 accepts them. Nothing is created or changed until someone accepts.
 
-The Remediation pages have five tabs: **Fix plan**, **Suggestions**, **Tasks**,
-**Campaigns** and **Solution families**.
+The Remediation pages have four tabs: **Fix plan**, **Suggestions**, **Tasks**
+and **Campaigns**. Findings that one fix closes are listed under Suggestions;
+the API list `GET /api/v1/findings/remediation-groups` and the MCP tool
+`list_remediation_groups` return them for API and MCP clients.
 
 ### The fix plan
 
@@ -163,23 +165,6 @@ Markdown block with **Definition of done**, **Verification** and **Acceptable
 fixes** (preferred and alternatives) to the ticket body. The block is added only
 when you have filled in at least one field, and it only ever contains your
 guidance, never a secret from the finding.
-
-## Solution families
-
-**Mobilization › Remediation › Solution families** (`/remediations`) groups the
-open findings that share **one fix**, for example "upgrade library X to version
-Y", which can close dozens of findings across many assets at once.
-
-Each family shows the fix, its findings and its assets. For a family you can:
-
-- **Track as campaign**: create a remediation campaign for it;
-- **Resolve all**: resolve every finding in the family in one step (through the
-  normal bulk-update path, with its limits).
-
-A solution family resolves a group of findings quickly; a remediation task is a
-piece of work with an owner, a lifecycle and progress. The list is also
-available through the API (`GET /api/v1/findings/remediation-groups`) and the
-MCP tool `list_remediation_groups`.
 
 ## SLA policies
 

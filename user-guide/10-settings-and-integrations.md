@@ -17,11 +17,16 @@ a filter box. The pages are also searchable from the command palette
 | Group | Pages |
 |---|---|
 | My account | Profile, Security, Preferences, Notifications, Activity: see [Your account](01-getting-started.md#your-account) |
-| Organization | General, Modules, Audit log |
-| Access | Members, Teams, Roles, Authentication, Directory sync (SCIM), SSO approvals, API keys, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
-| Policies | Risk scoring, SLA policies, Asset lifecycle, Scope policy, Scan windows, Pentest methodology |
-| Scanning | Scan profiles, Scanner templates, Template sources, Source credentials, Tools, Capabilities, Scanner content |
-| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Notification channels, SIEM |
+| Organization | General, Modules, Usage & limits, Domains, Trusted organizations, Audit log, License policy, Content catalog |
+| Access | Members, Teams, Roles, Authentication, Directory sync (SCIM), SSO approvals, Support access, API keys, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
+| Findings | Finding lifecycle, Finding approvals, Vulnerability matching |
+| Policies | Risk scoring, SLA policies, Asset lifecycle, Asset sources, Scope policy, Scan windows, Pentest methodology |
+| Scanning | Scan approval, Scan profiles, Scanner templates, Template sources, Source credentials, Tools, Capabilities, Tool defaults, Scanner content |
+| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Notification channels, SIEM, Service accounts |
+
+Pages that depend on a module or a limit appear only when it applies: for
+example **Usage & limits** is listed only while a limit applies to your
+organization, and a page whose module is off is hidden.
 
 Almost every create, edit and delete action here is hidden or disabled according
 to your permissions. Administrative changes usually need the **Owner** or
@@ -82,9 +87,79 @@ sidebar and its permissions are left out of the role editor.
 If a page in this guide is missing for your organization, its module is probably
 off here.
 
+### Usage & limits
+
+**Settings › Organization › Usage & limits** (`/settings/limits`, owners and
+administrators) shows the limits that apply to the organization, such as seats,
+assets, findings, sensors and API keys, and what it uses. The page is listed
+only while a limit applies. Limits are set by a platform administrator; see
+[Platform administration](11-platform-administration.md#organizations). A limit
+never removes anything: new additions over it are refused.
+
+### Domains
+
+**Settings › Organization › Domains** (`/settings/domains`; owners change it,
+administrators read it) decides what the organization's verified single sign-on
+domains do to accounts on them. A platform administrator verifies the domains;
+everything here is off until an owner turns it on. For each verified domain
+choose who can join with an address on it (**Only people we invite**, **Anyone,
+after an administrator approves** or **Anyone, automatically**) and the role they
+join as (**Viewer** or **Member**), whether to show the organization to
+colleagues who sign up, whether to require single sign-on for every account on
+the domain, and whether to block new organizations for accounts on it. A domain
+that is not verified, or that another organization also claims, has no effect.
+
+### Trusted organizations
+
+**Settings › Organization › Trusted organizations**
+(`/settings/trusted-organizations`; owners change trusts, administrators read
+them) lists partner organizations whose people sign in here with their own
+company's single sign-on, and organizations that trust this one. A trust
+applies only once both owners agree.
+
 ### Audit log
 
 See [Audit log](02-team-and-access.md#audit-log).
+
+### License policy
+
+**Settings › Organization › License policy** (`/settings/license-policy`) sets
+which open-source licenses your packages may use. Turn on **Evaluate licenses**,
+then add ordered rules, each matching one SPDX license id or a category
+(permissive, weak copyleft, copyleft, proprietary, public domain, unknown) with
+the action **Allow**, **Review** or **Deny**, and choose the verdict for a known
+license no rule matches. Denied licenses open findings; review verdicts open
+medium findings only if **Open findings for review verdicts** is on, otherwise
+they show only in the inventory. Saving evaluates the inventory and reports how
+many packages were flagged. Changing it needs `settings:write`.
+
+### Content catalog
+
+**Settings › Organization › Content catalog** (`/settings/content`) is the
+catalog of signed packages of rules, templates and other content. Installing one
+makes it available to the whole organization. The tabs are **Catalog** (browse
+and install), **Installed** (update, roll back, uninstall), **Requests** (members
+ask, an approver decides) and **Settings**, where **Require approval** makes a
+second member approve every install, update, rollback and uninstall. Turning it
+on takes effect at once; turning it off takes effect 24 hours later.
+
+## Findings
+
+- **Finding lifecycle** (`/settings/finding-lifecycle`): your own
+  sub-statuses, the moves between statuses and the requirements each move
+  needs. See [Exposures and findings](05-exposures-and-findings.md).
+- **Finding approvals** (`/settings/finding-approvals`): who decides false
+  positives and accepted risks, and who is told. It sets the approval level for
+  false positives (**False-positive approval**: **Always**, **Only for serious findings** or **Never**; see
+  [Known false positives](known-false-positives.md)), an **Approval policy** (how many people approve each kind of
+  request by how risky the finding is, a security pool, how long a decision
+  lasts) and a **Backup contact**, an advisor or auditor outside the
+  organization who is emailed when the only member approves their own request.
+  A relaxing change takes effect 24 hours after you save it; a stricter one
+  applies at once. Changing it needs `settings:write`.
+- **Vulnerability matching** (`/settings/vulnerability-matching`): opens
+  findings when a published CVE affects a product version your assets run.
+  Changing it needs `team:update`.
 
 ## Policies
 
@@ -115,6 +190,13 @@ fresh exposure. It needs the `team:update` permission; without it the page says
   flagged stale**.
 
 Click **Save changes**.
+
+### Asset sources
+
+**Settings › Policies › Asset sources** (`/settings/asset-sources`, owners and
+administrators) chooses which source decides each kind of asset value
+(criticality, owner, exposure) when scans, imports, connectors, feeds and people
+disagree.
 
 ### Scan windows
 
@@ -153,7 +235,21 @@ upgrade.
 
 ## Scanning
 
-These pages define what runs where and how. Deploying sensors is covered in
+These pages define what runs where and how.
+
+### Scan approval
+
+**Settings › Scanning › Scan approval** (`/settings/scanning/scan-approval`)
+sets which scans need a person's approval before they run. The mode is **Off**
+(the default: nobody approves, scope entries take effect at once), **On** (the
+approval rules decide which scans are held) or **Strict** (as On, with two
+distinct approvers and a justification for each held scan, and scope entries need
+approval too). Only an owner changes the mode, with a reason. Rules can start
+from a preset (**Light**, **Standard**, **Strict**), run in **Monitor** mode to
+record what they would hold, and be tried on existing scans. A platform
+administrator can set the mode for the whole installation or an organization;
+the page then shows it as in force.
+ Deploying sensors is covered in
 [Sensors](../sensors/index.md); tools are described in
 [Tools and capabilities](../scanning/tools.md).
 
@@ -227,6 +323,17 @@ whether a scan with each can run now.
 - **Add tool** registers a custom tool for your own scanner (name, category,
   install method, commands, capabilities, supported targets, output formats).
   Custom tools can be edited and deleted; built-in tools cannot.
+
+### Tool defaults
+
+**Tool defaults** (`/settings/scanning/tool-defaults`) are the options every
+sensor of your organization runs each tool with. A sensor can override any
+option in its own tool settings. The order is: the tool's default, these
+organization defaults, then a sensor's overrides; a scan or workflow step can
+only lower rate, concurrency and retries, and a sensor's local policy can always
+narrow further. Tools appear once a sensor reports them. Owners and
+administrators change the defaults, and the page lists sensors whose tool
+version refuses a default.
 
 ### Capabilities
 
@@ -374,7 +481,11 @@ create and track remediation tickets.
    - the Jira status names used for outbound changes, and an **inbound status
      mapping** from Jira statuses to finding statuses (confirmed, in progress or
      fix applied).
-3. **Routing rules** send tickets to different projects by severity, asset scope,
+3. **Ticket field mapping** (`/settings/integrations/ticketing/mappings`) maps
+   OpenCTEM attributes to Jira fields, the Jira fields that come back and the
+   status mapping, per project and issue type. Without a mapping, tickets use
+   the built-in fields: summary, description, priority from severity and labels.
+4. **Routing rules** send tickets to different projects by severity, asset scope,
    asset criticality or finding tags. Rules are checked top to bottom and the
    first match wins; otherwise the default project is used.
 
@@ -400,8 +511,11 @@ notifications are set under
    settings and recipients for email.
 2. Name the channel, choose the **Severity Filters** (Critical and High by
    default) and the event types to send.
-3. Under **Advanced Settings**, choose a message template, whether to include
-   details, and a rate limit (5 to 60 minutes).
+3. Under **Advanced Settings**, choose a message template, whether to **Include
+   details in notifications**, and a rate limit (5 to 60 minutes). Details are
+   off by default: messages carry only the event type, severity and a link, with
+   no finding or asset names. Turn it on to send finding titles and descriptions
+   to that channel.
 4. Click **Create Channel**, then **Send test** from the row menu. A toast says
    whether the test was delivered.
 
@@ -422,3 +536,13 @@ SLA breaches to **Splunk** through the HTTP Event Collector (HEC).
 3. Click **Create integration**, then **Send test event** from the row menu.
 
 Events go out through the same delivery queue and filters as notifications.
+
+### Service accounts
+
+**Service accounts** (`/settings/service-accounts`) are identities for
+integrations, such as a SIEM export or a ticketing bridge, so no integration
+borrows a person's key. A new account holds no permission: give it a role under
+**Roles** and assets through a team. It acts only through API keys created
+on this page; the secret is shown once, and only scopes you hold yourself can be
+given. A service account is never an owner or administrator, never has full data
+access and never signs in.

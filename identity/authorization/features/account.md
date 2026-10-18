@@ -37,6 +37,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/auth/mfa/verify` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/oauth/{provider}/authorize` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/oauth/{provider}/callback` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| POST | `/api/v1/auth/onboarding/accept` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| POST | `/api/v1/auth/onboarding/options` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/providers` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/refresh` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/register` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
@@ -51,6 +53,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/auth/step-up` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/token` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/verify-email` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| DELETE | `/api/v1/me/account` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets | yes | see Requires |
+| GET | `/api/v1/me/account/deletion` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | GET | `/api/v1/me/bootstrap` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | GET | `/api/v1/me/event-types` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | GET | `/api/v1/me/modules` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |

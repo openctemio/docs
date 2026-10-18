@@ -88,6 +88,9 @@ alerts can be sent to chat tools safely.
 
 ## The System page (no monitoring stack needed)
 
+![The System page of the admin console: services, storage, backup, certificates and version]({{ site.baseurl }}/assets/images/operations/console-system.png)
+*Figure: The System page.*
+
 The platform admin console's **System** page (read-only, every platform administrator role) shows
 service health, free space of the data volumes in `SYSTEM_STORAGE_PATHS`, the database size, the
 last successful backup (`SYSTEM_BACKUP_STATUS_FILE`), certificate expiry (the sensor CA and

@@ -65,8 +65,9 @@ each one; the left sidebar of the console follows the same order.
 
 1. **Decide what matters and what you may test.** Under **Scoping** you open a
    CTEM cycle, mark crown jewels and business services, and write the scope:
-   which domains and address ranges may be probed, at which intensity, and what
-   is excluded. Domains can be proven with a DNS record.
+   which domains and address ranges may be probed and what is excluded (under
+   Strict scan approval also how deep each entry may be probed). Domains can be
+   proven with a DNS record.
 2. **Find what you have and what is wrong with it.** You install
    [sensors](../sensors/index.md) in the networks to scan; they connect out to
    the platform, pull scan tasks, run open-source scanners (nuclei, subfinder,
@@ -96,13 +97,15 @@ Then the next cycle starts, with what the last one taught you.
 
 ## How it is delivered
 
-- **The platform**: an API (Go), a web console (Next.js) and a gateway, with
-  PostgreSQL and Redis. Install it with Docker Compose, as one all-in-one
+- **The platform**: an API (Go), a web console (Next.js) for the organizations,
+  a platform console (Next.js) for the operators and a gateway, with PostgreSQL
+  and Redis. Install it with Docker Compose, as one all-in-one
   container, or on Kubernetes with Helm. See [Install](../install/index.md) and
   [Architecture](architecture.md).
 - **Sensors**: small programs you run where the targets are (a data centre, a
-  cloud VPC, a lab network). They connect out to the platform over HTTPS, pick
-  up scan tasks, run the scanners and report results. See
+  cloud VPC, a lab network). They connect out to the platform (HTTPS, or gRPC
+  with mutual TLS on the same port), pick up scan tasks, run the scanners and
+  report results. See
   [Sensors](../sensors/index.md).
 - **CI scanning**: `openctem-ci` runs code scans in your CI pipelines and
   reports with the job's OIDC identity, without a stored key. See
@@ -114,21 +117,25 @@ Then the next cycle starts, with what the last one taught you.
 
 ## Shipped and planned
 
-These pages describe what ships in the current release (v0.9.6). Work that is designed but not shipped is marked
+These pages describe what ships in the current release (v0.10.1). Work that is designed but not shipped is marked
 **Planned** where it is mentioned.
 
 | Shipped | Planned |
 |---|---|
 | The five CTEM stages in the console, multi-tenant with per-organization SSO (OpenID Connect, Entra ID, Google, SAML 2.0) and SCIM | Running more than one API instance for high availability (today one API instance; see [Scaling](../operations/scaling.md)) |
-| Scanner sensors with pairing, grants, scan zones and scan windows, over sensor protocol v3 (gRPC with mutual TLS, HTTPS fallback) or v2 | Single-port gRPC in the API without the built-in gateway in front |
-| Collector sensors (platform and SDK runtime) | An endpoint agent that reports about its own host |
+| A platform console on its own site and port (or host name) for the operators of the installation, apart from the organizations' web console | An endpoint agent that reports about its own host |
+| Sign-up policy set by the operator (`SIGNUP_MODE`: `disabled`, `domain` or `open`), onboarding by invitation, verified domain or access request, and per-organization limits | |
+| Scanner sensors with pairing, grants, scan zones and scan windows, over sensor protocol v3 (gRPC with mutual TLS on the gateway's port by ALPN, or on a dedicated port; HTTPS fallback) or v2 | |
+| Collector sensors (platform and SDK runtime) and shared sensors that the operator runs for every organization | |
+| AI assistants (MCP clients) that connect with OAuth, as the person who approves them, under an organization policy | |
 | Scan workflows with the capabilities listed in [Scan workflows](../scanning/scan-workflows.md#capabilities) | Further capabilities such as `check.takeover`, `check.tls`, `cloud.posture` |
 | Organization isolation enforced by the application on every query | PostgreSQL row-level security as a second layer (policies exist, not enabled; see [Architecture](architecture.md#tenancy-and-isolation)) |
 | Sensors reach targets directly or through their host's proxy | Per-zone egress proxies |
 | Known false positives that hold across scanner engines, decisions approved by a second person, and data-flow traces on SAST findings | |
 | Static analysis with opengrep and the signed OpenCTEM rules pack, on sensors and in CI | |
 | Content packs delivered to sensors by digest, with file-level deltas | Scans that run the packs the platform delivers (sensors up to v0.23.0 fetch their own content) |
-| | A coverage policy per asset type, and a record of when each asset was last checked for each kind of test |
+| Content catalog: signed content packages installed, pinned and rolled back from offline bundles (**Settings > Content catalog**) | Delivering installed catalog packages to sensors |
+| Automatic coverage: a coverage policy per asset type and a ledger of when each asset was last checked for each kind of test, with gap alerts | |
 
 The design documents (RFCs) and the roadmap live in the
 [openctem repository](https://github.com/openctemio/openctem/tree/develop/api/docs).

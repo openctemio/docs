@@ -30,14 +30,13 @@ Requirements:
   browsers allow only for `Secure` cookies.
 - **SP-initiated sign-in only.** Every response must answer a request OpenCTEM sent
   (`InResponseTo`); IdP-initiated (unsolicited) responses are refused. Users start at
-  `https://<console>/login?org={slug}` or at the sign-in start URL above.
+  `https://<app>/login?org={slug}` (`<app>` is `APP_URL`) or at the sign-in start URL above.
 - **Set `APP_URL`** when the API is reached through a proxy; without it the SP URLs are derived
   from the request host and trusted forwarding headers.
-- **Set `OAUTH_FRONTEND_CALLBACK_URL`** to an URL on the console origin (for example
-  `https://app.example.com/auth/callback`). After a successful SAML sign-in the browser is sent to that
-  origin; its default is `http://localhost:3000`. The Compose deployment sets it to
-  `<OPENCTEM_PUBLIC_URL>/auth/callback`; set it yourself in the all-in-one env file or, with Helm, in
-  `api.extraEnv`.
+- **`OAUTH_FRONTEND_CALLBACK_URL`** is the URL on the web app origin where the browser lands after a
+  successful SAML sign-in. It defaults to `APP_URL/auth/callback` (and to
+  `http://localhost:3000/auth/callback` when `APP_URL` is unset), so with `APP_URL` set you only
+  change it when the web app is at another origin.
 
 ## Attributes
 
@@ -58,23 +57,27 @@ this organization, so a later email change at the IdP follows the same account.
 
 A platform administrator (super admin) configures SAML:
 
-1. **Admin console > Organizations >** the organization **> Single sign-on > Verified domains:** add
-   the organization's email domain, publish the TXT record shown (`_openctem-verify.<domain>`, value
-   `openctem-domain-verification=<token>`), then **Verify**.
-2. In the same tab, **SAML 2.0**:
+1. **Admin console > Organizations >** the organization **> Single sign-on** (tab) **> Verified
+   domains:** add the organization's email domain, publish the TXT record shown
+   (`_openctem-verify.<domain>`, value `openctem-domain-verification=<token>`), then **Verify now**.
+2. In the same tab, under **SAML 2.0** (every change needs a fresh authenticator code):
 
    | Field | Value |
    |---|---|
-   | IdP entity ID | The issuer of your IdP |
+   | IdP entity ID (issuer) | The issuer of your IdP |
    | IdP SSO URL | The IdP single sign-on endpoint |
-   | IdP certificate | The IdP signing certificate, PEM. Responses are verified against it. |
-   | Allowed domains | Optional email-domain allow-list |
-   | Default role | `viewer` (default) or `member` for just-in-time members. Admins and owners are never provisioned by SSO. |
-   | Auto-provision | Create memberships at first sign-in |
-   | Enabled | Master switch |
+   | IdP signing certificate (PEM) | The IdP signing certificate. Responses are verified against it. |
+   | Allowed email domains | Optional email-domain allow-list |
+   | Default role for new users | `viewer` (default) or `member` for just-in-time members. Admins and owners are never provisioned by SSO. |
+   | Auto-provision users | Create memberships at first sign-in |
+   | Enable SAML login | Master switch |
+
+   **Service provider details** on the same card lists the metadata, ACS and login URLs. Because the
+   admin console runs on its own origin, use the values from the table above (built from
+   `APP_URL`), not the origin shown there.
 
 3. If the organization has an owner, saving creates a **pending change**. An owner approves it in the
-   organization under **Settings > SSO approvals** after comparing the new certificate's SHA-256
+   organization under **Settings > SSO approvals** (with step-up) after comparing the new certificate's SHA-256
    fingerprint with the one in the IdP. Pending changes expire after 7 days.
 
 Signature validation, conditions and replay checks are done by an established SAML library
@@ -100,6 +103,6 @@ enforcement and the organization's 2FA requirement, for this organization only. 
 | Symptom | Cause |
 |---|---|
 | Redirect to `/login?error=saml` | Check the API log. Common causes: wrong certificate, clock skew, the response was not for a request OpenCTEM sent (IdP-initiated), audience mismatch with the entity ID, email domain not verified, the person is not a member and auto-provision is off. |
-| Sign-in works but lands on `localhost:3000` | Set `OAUTH_FRONTEND_CALLBACK_URL` to an URL on the console origin. |
+| Sign-in works but lands on `localhost:3000` | `APP_URL` is not set. Set it (or `OAUTH_FRONTEND_CALLBACK_URL`) to the web app origin. |
 | Sign-in fails over plain HTTP | SAML needs HTTPS (secure cookie). |
-| The SP URLs shown in the console differ from the metadata | The console shows its own origin; the metadata uses `APP_URL`. Make them the same origin (the bundled gateway does). |
+| The SP URLs shown in the admin console differ from the metadata | The admin console shows its own origin; the metadata uses `APP_URL`. Register the `APP_URL` values. |

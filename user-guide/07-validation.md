@@ -173,6 +173,9 @@ holds the profile, which the lead can edit:
   | TLP:AMBER+STRICT | People in their own organization only. |
   | TLP:RED | Nobody: the named recipients only. |
 
+- **Keep this campaign away from AI assistants**: the lead can exclude the
+  campaign from every [AI assistant](12-connect-an-ai-assistant.md); the
+  organization's TLP limit for assistants can also exclude it.
 - **Signed authorization letter**: the signed permission to test, linked from a
   file uploaded to the campaign. The web console picks a file already uploaded
   to the campaign; it has no upload button for campaign files yet, so upload the

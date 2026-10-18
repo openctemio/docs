@@ -36,7 +36,7 @@ Give each person the **roles** for what they do, a **team** for what they see, a
 | **Executive or board member** | Executive viewer | Leadership | The crown-jewel and in-scope assets, or one business unit. | Permanent. |
 | **Procurement or third-party risk** | Executive viewer | Business unit: <name> | Assets tagged as vendor-managed (a scope rule on a vendor tag). | Permanent. |
 | **External penetration testing vendor** | External tester | Engagement: <vendor> <dates> | Only the engagement's assets and the campaign they are a member of. | External membership (viewer on entry), mandatory end date when unmanaged; campaign role tester. |
-| **Bug-bounty researcher** | Researcher | Program: <bug-bounty program> | The targets of the programs they belong to. | The built-in Researcher role (RFC-064) and a program group. |
+| **Bug-bounty researcher** | Researcher | Program: <bug-bounty program> | The targets of the programs they belong to. | A role created from the Researcher template (RFC-064) and a program group. |
 | **Managed security service analyst** | Security analyst | Security operations | The customer's program scope. | An external membership in each customer organization (managed by the provider's own organization, which the customer trusts), never a cross-tenant account. |
 | **CI pipeline** | none (machine identity) |  | The repository the run is bound to. | OIDC workload identity exchanged for a 15-minute run token (RFC-051); no user, no role, no API key. |
 | **API integration** | none (machine identity) |  | The teams the service account belongs to, never full data. | A service account (no sign-in, never owner or administrator, no full data access) with a narrow custom role and its teams, acting through an oct_ API key minted for it; keys are read-only on the REST API and go with the account. |
@@ -305,7 +305,7 @@ Hunts on bug-bounty programs and records findings against program targets.
 - **Roles:** Researcher
 - **Team:** Program: <bug-bounty program>
 - **Sees:** The targets of the programs they belong to.
-- **Access:** The built-in Researcher role (RFC-064) and a program group.
+- **Access:** A role created from the Researcher template (RFC-064) and a program group.
 - **Must not:** widen the organization's own scope; approve scope entries
 
 ### Managed security service analyst

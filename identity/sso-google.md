@@ -14,10 +14,11 @@ OpenCTEM supports Google in two independent ways:
 | Configured by | Platform administrator in the admin console, approved by the organization owner | Operator, with `OAUTH_GOOGLE_*` environment variables |
 | Accounts accepted | Only accounts of a Google Workspace (or Cloud Identity) organization | Any Google account with a verified email |
 | Joins people to an organization | Yes, just-in-time for DNS-verified domains, if enabled | No |
-| Redirect URI | `https://<console>/auth/sso/callback/google_workspace` | `https://<console>/auth/callback/google` |
+| Redirect URI | `https://<app>/auth/sso/callback/google_workspace` | `https://<app>/auth/callback/google` |
 
-`<console>` is the public origin of the web console (`NEXT_PUBLIC_APP_URL`; with the bundled gateway,
-`OPENCTEM_PUBLIC_URL`).
+`<app>` is the public origin of OpenCTEM, the address people open in the browser (`APP_URL`; with the
+bundled gateway `OPENCTEM_PUBLIC_URL`, by default `https://<OPENCTEM_HOSTNAME>`). It is not the
+platform admin console's own site.
 
 ## Step 1: Create the OAuth client in Google Cloud
 
@@ -33,7 +34,7 @@ OpenCTEM supports Google in two independent ways:
 
 A **platform administrator** (super admin) configures it in the admin console:
 
-1. **Admin console > Organizations >** the organization **> Single sign-on**.
+1. **Admin console > Organizations >** the organization **> Single sign-on** (tab).
 2. **Verified domains:** add the Workspace domain and publish the TXT record shown
    (`_openctem-verify.<domain>`, value `openctem-domain-verification=<token>`), then **Verify**.
 3. **Identity providers:** add a provider:
@@ -50,7 +51,7 @@ A **platform administrator** (super admin) configures it in the admin console:
 4. An organization owner approves the change under **Settings > SSO approvals** (unless the
    organization has no owner yet).
 
-Users sign in at `https://<console>/login?org=<organization-slug>`.
+Users sign in at `https://<app>/login?org=<organization-slug>`.
 
 ### The hosted-domain check
 
@@ -74,19 +75,21 @@ OAUTH_ENABLED=true
 OAUTH_GOOGLE_ENABLED=true
 OAUTH_GOOGLE_CLIENT_ID=<client-id>
 OAUTH_GOOGLE_CLIENT_SECRET=<client-secret>
-OAUTH_FRONTEND_CALLBACK_URL=https://app.example.com/auth/callback
 OAUTH_STATE_SECRET=<openssl rand -hex 32>
 ```
 
-Register `https://<console>/auth/callback/google` as an authorized redirect URI; its origin must
-match `OAUTH_FRONTEND_CALLBACK_URL`. Only Google accounts with a verified email are accepted.
+`OAUTH_ENABLED` defaults to `true`. `OAUTH_FRONTEND_CALLBACK_URL` defaults to `APP_URL/auth/callback`; set
+it only when the web app is not at `APP_URL`. `OAUTH_STATE_SECRET` is optional (derived from the
+session secret when unset). Register `https://<app>/auth/callback/google` as an authorized redirect
+URI; its origin must match `OAUTH_FRONTEND_CALLBACK_URL`. Only Google accounts with a verified email are accepted.
 
-Social sign-in creates an account only when self-registration is allowed (see
-[Sign-up and invitations](sign-up-and-invitations.md)) or the person was invited. It never adds anyone
+Social sign-in creates an account only when the sign-up policy admits it (see
+[Sign-up and invitations](sign-up-and-invitations.md#creating-organizations)) or the person has a
+pending invitation. An address on a domain whose organization requires SSO is refused. It never adds anyone
 to an organization, and it does not satisfy an organization's SSO enforcement or 2FA requirement.
 
 GitHub works the same way with `OAUTH_GITHUB_ENABLED`, `OAUTH_GITHUB_CLIENT_ID` and
-`OAUTH_GITHUB_CLIENT_SECRET`, and the callback `https://<console>/auth/callback/github`. GitHub
+`OAUTH_GITHUB_CLIENT_SECRET`, and the callback `https://<app>/auth/callback/github`. GitHub
 accounts must have a verified primary email.
 
 ## Troubleshooting

@@ -41,14 +41,16 @@ code, containers, attack-surface scanning, pentest, imports, manual).
 
 ### Header and metrics
 
-- **Approvals** opens the [approval requests](#approval-requests).
+- **Approvals** opens the [approval requests](#approval-requests); it is also an
+  entry under **Findings** in the sidebar, with the number of requests waiting
+  for you when you are an approver.
 - **Import results** loads a scanner report (see
   [Import results](#import-results)).
 - **Add finding** records a finding by hand (title, description, severity,
   source, asset and location).
 
-The metric strip is also a set of quick filters: **All findings**, **Open**,
-**Critical**, **High**, **Overdue SLA**, **In CISA KEV** and **Awaiting
+The metric strip is also a set of quick filters: **Total**, **Open**,
+**Critical open**, **High open**, **Overdue SLA**, **In CISA KEV** and **Awaiting
 verification** (fixes waiting to be verified; opens the
 [verify view](#verify-fixes)).
 
@@ -63,7 +65,7 @@ verification** (fixes waiting to be verified; opens the
   feature branch) and **Source**. Draft and In Review pentest findings are hidden
   until you filter on a status.
 - **Group** the list by CVE, rule, asset, owner, severity, source, component,
-  type or solution family. Each group shows its progress (open, fixing, applied,
+  type or family (findings sharing one fix). Each group shows its progress (open, fixing, applied,
   resolved). Groups count only the findings that match the list's search and
   every filter, and the search box stays available in the grouped view.
 - **Views**: save the current filters as a view, for yourself or shared with
@@ -258,7 +260,7 @@ stateDiagram-v2
 | `in_progress`, `fix_applied` | in progress | A person, or a Jira or GitHub issue linked to the finding. |
 | `validated_fixed` | in progress | A validation re-check that no longer reproduces the finding. Not closed: a person with the verify permission resolves it. |
 | `not_observed` | in progress | The platform only: a later scan with the same coverage no longer reports it, or a branch-only finding expired. Nobody can choose it. |
-| `resolved` | closed | A person with the verify permission, a passing retest (when the retest settles findings automatically), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; off by default). |
+| `resolved` | closed | A person with the verify permission, a passing retest (when the retest settles findings automatically), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; the default `dry_run` only records what it would resolve). |
 | `false_positive`, `accepted` | closed | An approved request, or an approved [suppression rule](08-mobilization.md#exceptions). |
 | `duplicate` | closed | A person. |
 | `draft`, `in_review` | open, hidden | Pentest findings before publication; left out of dashboards and the open findings list. |
@@ -297,6 +299,27 @@ From any step before Resolved a pentest finding can also be marked
 `false_positive` or `accepted` (with approval), and either can be reopened to
 `draft` or `confirmed`.
 
+### Sub-statuses and your own lifecycle
+
+An organization can add its own labels inside each status and its own rules for
+moving between them, under **Settings › Findings › Finding lifecycle** (needs the
+**Manage Finding Lifecycles** permission). A label never changes what a metric,
+an SLA or an export counts: they keep reading the status.
+
+- **Sub-statuses** are labels inside one status, for example "In review" inside
+  In Progress. A sub-status inside a closed status is bound to one closure reason.
+- **Lifecycles** add moves between sub-statuses and the requirements each needs
+  (a note of a minimum length, fields such as a ticket link, a fix reference or a
+  due date, or a permission), for the findings their conditions select (finding
+  type, severity, source, tool, priority class, KEV); the first lifecycle is the
+  default for every finding. A move can only add requirements: permissions,
+  four-eyes approval and evidence rules still apply. A draft is checked, then
+  **Publish**ed as a new version (you may be asked to confirm your identity), and
+  can be rolled back. When a move needs details, the status dialog asks for them
+  and keeps them on the finding's timeline.
+
+### Approval rules
+
 - **False Positive** and **Risk Accepted** always need approval. Choosing
   them opens **Request Status Approval**: enter a justification (up to 2,000
   characters) and, for Risk Accepted, the date the acceptance ends, then
@@ -306,6 +329,13 @@ From any step before Resolved a pentest finding can also be marked
   the CI gate stops honoring the acceptance on that date. A false positive has
   no end date.
 - Resolving a finding by hand needs the verify permission.
+- Who approves, and how many people, is set under **Settings › Findings ›
+  Finding approvals** (see [Settings](10-settings-and-integrations.md#findings)):
+  by the risk of the finding, with a security pool and an expiry for the decision.
+  A request made by a ticket, a VEX statement or AI triage, with no person behind
+  it, needs one more sign-off. When VEX `not_affected` statements in a scan report
+  request false positives (`INGEST_VEX=enforce`), the approvers in scope are
+  told.
 
 ### Approval requests
 
@@ -350,7 +380,7 @@ resolve, accept or dismiss them.
    **All states**), and **Export** to CSV.
 3. Columns: exposure (with its type), severity, state (Active, Resolved,
    Accepted, False positive), source and first seen. A row's menu: **View
-   details**, **Mark resolved**, **Accept risk**, **False positive** or
+   details**, **Mark resolved**, **Accept risk**, **Mark false positive** or
    **Reactivate**.
 4. Select rows to **Resolve**, **Accept risk** or mark **False positive**.
    Accepting and false positive need a reason (recorded in the audit log) and the
