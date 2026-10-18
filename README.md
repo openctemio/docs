@@ -16,6 +16,7 @@ The site is built with [Jekyll](https://jekyllrb.com/) and the
 | `install/` | Requirements, Docker Compose, all-in-one image, Kubernetes, TLS |
 | `configuration/` | Environment variables reference, email, notifications |
 | `operations/` | Upgrades, versioning, backups, monitoring, scaling, troubleshooting, logs |
+| `console/` | The platform console for platform administrators |
 | `security/` | Security model, hardening, vulnerability disclosure, data handling |
 | `identity/` | SSO, SCIM, sign-up, roles and permissions, two-factor authentication |
 | `sensors/` | Deploying and pairing sensors, scan zones, network requirements |

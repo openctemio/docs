@@ -84,7 +84,7 @@ provider. SSO never grants the owner or admin role. Details:
 | Account created by an organization admin (with a one-time set-password link) | organization owners and admins |
 | Just-in-time provisioning at the first SSO sign-in, for email domains the organization has proven with DNS | platform administrator (SSO) and organization owner (approval) |
 | SCIM 2.0 provisioning from the identity provider | organization owner (token), identity provider admin |
-| Signing up and creating your own organization, when the installation allows it (`SIGNUP_MODE`: `disabled`, `domain` or `open`) | operator (`SIGNUP_MODE`) and platform administrator (System > Sign-up) |
+| Signing up and creating your own organization, when the installation allows it (`SIGNUP_MODE`: `disabled`, `domain` or `open`) | operator (`SIGNUP_MODE`) and platform administrator (console **Settings › Sign-up**) |
 
 See [Sign-up and invitations](sign-up-and-invitations.md) and [SCIM provisioning](scim.md).
 
