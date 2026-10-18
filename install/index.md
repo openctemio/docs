@@ -27,6 +27,7 @@ the order of work from an empty host to a monitored installation with a tested r
 | [Docker Compose](docker-compose.md) | Gateway, web console, API, PostgreSQL and Redis on one host, from `api/deploy/docker-compose.yml`. | Most single-host installs. Everything included, TLS between all parts. |
 | [All-in-one image](all-in-one.md) | `ghcr.io/openctemio/openctem`: gateway, web console and API in one container. PostgreSQL and Redis are yours. | You already run PostgreSQL and Redis (managed or self-hosted). |
 | [Kubernetes (Helm)](kubernetes.md) | The `openctem` chart from `openctemio/helm-charts`. | Clusters, external managed datastores, GitOps. |
+| [One VM with Ansible](ansible.md) | The `openctem-ansible` kit: a hardened Ubuntu VM, signed images, encrypted backups and a monitor. Two guides: [with Cloudflare Tunnel and Access](ansible-cloudflare.md) (no inbound port) and [without Cloudflare](ansible-without-cloudflare.md) (your own TLS, public or private). | A production single host you want hardened and operated the same way every time. |
 
 All three expose the platform on one HTTPS port through the same gateway: see
 [TLS and the gateway](tls-and-gateway.md). After installing, create the
