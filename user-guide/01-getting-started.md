@@ -142,9 +142,11 @@ with its own assets, findings, members and settings.
 When you may create another organization, **Create a new team** is also offered
 on **Select a team** and **Create organization** in the organization switcher.
 
-To leave an organization yourself, use **Leave organization** in **Settings >
-Organization > General** (the only owner cannot leave; transfer ownership
-first, see [Team and access](02-team-and-access.md#transfer-ownership)).
+To leave an organization yourself, use **Leave organization** under
+**Organization membership** in **Settings > My account > Profile**: every member
+can, whatever their role. The only owner cannot leave and the button says why;
+transfer ownership first (see
+[Team and access](02-team-and-access.md#transfer-ownership)).
 
 ## Accept an invitation
 

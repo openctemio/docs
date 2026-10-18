@@ -31,7 +31,7 @@ OpenCTEM combines several risk signals into one **priority class**, `P0` to
 The pages are under **Prioritization** in the sidebar: **Exposure Chains**,
 **Attack Paths**, **Threat Intel**, **Indicators (IOCs)**, **Detections**,
 **Business Impact**, **Compensating Controls** and **Priority Rules**. The asset
-risk score is tuned under **Settings › Policies › Risk scoring**.
+risk score is tuned under **Settings › Findings & assets › Risk scoring**.
 
 ## Priority classes
 
@@ -259,7 +259,7 @@ automatically in the background.
 
 ## Risk scoring
 
-**Settings › Policies › Risk scoring** (`/settings/risk-scoring`) sets how each
+**Settings › Findings & assets › Risk scoring** (`/settings/risk-scoring`) sets how each
 **asset's risk score** (0 to 100) is computed. The score is shown across the
 console and drives pages such as Business Impact.
 

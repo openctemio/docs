@@ -330,7 +330,7 @@ an SLA or an export counts: they keep reading the status.
   no end date.
 - Resolving a finding by hand needs the verify permission.
 - Who approves, and how many people, is set under **Settings › Findings ›
-  Finding approvals** (see [Settings](10-settings-and-integrations.md#findings)):
+  Finding approvals** (see [Settings](10-settings-and-integrations.md#findings--assets)):
   by the risk of the finding, with a security pool and an expiry for the decision.
   A request made by a ticket, a VEX statement or AI triage, with no person behind
   it, needs one more sign-off. When VEX `not_affected` statements in a scan report

@@ -317,7 +317,7 @@ who, which application, access, last use and expiry. Choose **Disconnect** to en
 
 ## Audit log
 
-OpenCTEM writes these events to **Settings > Organization > Audit log** (resource type `mcp_grant`
+OpenCTEM writes these events to **Settings > Security > Audit log** (resource type `mcp_grant`
 unless noted):
 
 | Event | When |
