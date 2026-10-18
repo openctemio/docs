@@ -75,7 +75,10 @@ people and by role. Each member's menu offers:
 - **View details**: their roles, what they own and what they can access (access
   groups, direct grants, API keys, owned assets and schedules, assigned
   findings, pentest engagements).
-- **Change roles**: add or remove roles, then save.
+- **Change roles**: add or remove roles, then save. Giving someone a privileged
+  custom role (one that carries full data access or manages members, teams,
+  roles, API keys, the secret store or settings) asks you to confirm your
+  identity again.
 - **Reset 2FA**: signs the member out everywhere and lets them sign in with their
   password alone until they set up two-factor authentication again (at their
   next sign-in if the organization requires it). Use it only after confirming
@@ -227,8 +230,9 @@ organization's sign-in rules. Administrators can read them; only the owner can
 change them, after signing in again (step-up). The page saves with the bar at
 the bottom, shows who changed it last, and lists any change that weakens
 protection (for example two-factor no longer required or an emptied IP
-allowlist) for confirmation before saving; the owner and administrators are
-notified of such a change.
+allowlist) for confirmation before saving. Every owner and administrator gets an
+in-app notice naming who changed what, and the audit log records such a change
+with **High** severity.
 
 ![The Authentication settings page]({{ site.baseurl }}/assets/images/identity/authentication.png)
 *Figure: Settings, Authentication.*

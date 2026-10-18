@@ -58,15 +58,22 @@ Over the API (tenant from the access token):
 | Method and path | Permission | Purpose |
 |---|---|---|
 | `GET /api/v1/audit-logs` | `audit:read` and full data access | List and filter. Query parameters: `actor_id`, `action`, `resource_type`, `resource_id`, `result`, `severity`, `request_id`, `search`, `since`, `until`, `exclude_system`, `sort_by`, `sort_order`, pagination (`page`, `per_page`) |
+| `GET /api/v1/audit-logs/export` | `audit:read` and full data access | Download the filtered list (`format=csv` or `jsonl`), at most 50,000 rows |
 | `GET /api/v1/audit-logs/stats` | `audit:read` and full data access | Counts |
 | `GET /api/v1/audit-logs/{id}` | `audit:read` and full data access | One entry |
 | `GET /api/v1/audit-logs/resource/{type}/{id}` | `audit:read` and full data access | History of one resource |
 | `GET /api/v1/audit-logs/user/{id}` | `audit:read` and full data access, or the caller's own id | Activity of one user |
 | `GET /api/v1/audit-logs/verify` | owner or admin | Verify the hash chain |
 
-There is no bulk export button. To archive the log in another system, page through
-`GET /api/v1/audit-logs` with a `since` filter from a scheduled job. Organization API keys are
-read-only and can call these routes if the key has the `audit:read` scope (see
+**Export** on the audit log page downloads the events that match the current filters as **CSV**
+or **JSON lines**, newest first, up to 50,000 events (narrow the filters when more match). The
+export is itself recorded in the log (`audit_log.exported`), and CSV cells that start with a
+spreadsheet formula character are neutralised. Over the API: `GET /api/v1/audit-logs/export?format=csv`
+(or `jsonl`) with the list's filters, the same permission as the list; the response carries
+`X-Export-Truncated: true` when the cap cut it short. To archive the log in another system, run the
+export or page through `GET /api/v1/audit-logs` with a `since` filter from a scheduled job, signed
+in as a person who holds `audit:read` and full data access. Organization API keys cannot read the
+audit log: a key never has full data access (see
 [API authentication](../api/authentication.md)).
 
 Platform administrators read the platform audit log in the platform console (**Security > Admin activity**) or with

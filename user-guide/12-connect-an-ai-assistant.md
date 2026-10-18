@@ -55,6 +55,9 @@ https://openctem.example.com/api/v1/mcp
 Use the host name you use to open the OpenCTEM console, followed by `/api/v1/mcp`. No key is needed:
 the assistant opens OpenCTEM in your browser and you sign in.
 
+![The AI assistants (MCP) settings page on the Connect tab: client configuration with the server URL and the organization's status badges]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
+*Figure: Settings, Access, AI assistants (MCP), Connect tab.*
+
 ### Claude on the web and in the Claude apps
 
 1. In Claude open **Settings > Connectors** and choose **Add custom connector**.
@@ -127,6 +130,9 @@ if the organization allows API keys on the MCP server.
 ### What each line of the consent screen means
 
 The consent screen is the one place where you decide. Read it before you choose **Allow**.
+
+![The consent screen for an application registered by the organization: the organization, the two read permissions granted, the return address 127.0.0.1 and the warning to continue only if you started this]({{ site.baseurl }}/assets/images/user-guide/mcp-consent.png)
+*Figure: The consent screen of an application your organization registered, running on your own computer.*
 
 | On the screen | What it tells you |
 |---|---|

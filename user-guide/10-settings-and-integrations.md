@@ -18,7 +18,7 @@ the settings area the sidebar is replaced by the settings rail.
 | Security | Security overview, Authentication, Domains, Trusted organizations, SSO approvals, Support access, Audit log |
 | Access | Members, Teams, Roles, Directory sync (SCIM), API keys, Service accounts, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
 | Findings & assets | Finding lifecycle, Finding approvals, Risk scoring, SLA policies, Vulnerability matching, License policy, Asset sources, Asset lifecycle, Pentest methodology |
-| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan profiles, Tools, Tool defaults, Capabilities |
+| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan profiles, Tools, Tool defaults, Sensor products, Capabilities |
 | Scanner content | Content catalog, Scanner templates, Template sources, Source credentials, Content freshness |
 | Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Notification channels, SIEM |
 
@@ -78,10 +78,15 @@ The owner's **Danger zone** at the bottom of the General tab has two actions:
 
 - **Transfer ownership**: opens Members, where you choose the new owner (see
   [Transfer ownership](02-team-and-access.md#transfer-ownership)).
-- **Delete this organization**: deletes everything in the organization (assets,
-  findings, scans, members, roles, settings and its audit log). User accounts
-  survive and keep their other organizations. You confirm by typing the
-  organization's name.
+- **Delete organization**: closes the organization for everyone at once and
+  deletes everything in it (assets, findings, scans, members, roles, settings and
+  its audit log) after **14 days**. Until then nobody can use it: sign-ins, API
+  keys, AI assistant tokens, sensors, directory sync, CI and inbound webhooks
+  are refused, and scheduled work stops. Any owner can cancel the deletion from
+  the sign-in page during those 14 days (see
+  [Organization suspended or scheduled for deletion](01-getting-started.md#organization-suspended-or-scheduled-for-deletion)),
+  and everything works again as before. User accounts survive and keep their
+  other organizations. You confirm by typing the organization's name.
 
 Leaving an organization is in **My account › Profile**, for every member.
 
@@ -344,6 +349,9 @@ configurations: which tools run, how intensively and for how long.
   **Set as Default**.
 - A row's menu: **Set as default**, **Edit**, **Clone** and **Delete** (system
   profiles cannot be deleted).
+- A profile's quality gate and which profile is the default apply to the whole
+  organization, so only owners and administrators change them; members do not
+  see **Set as default**.
 
 ### Tools
 
@@ -357,7 +365,8 @@ whether a scan with each can run now.
   **Disabled**, **Updates available**), category and type (built-in or custom);
   **Show full catalog** includes tools no sensor has yet.
 - Each tool shows its category, status, sensors, versions and last report, and
-  an **Enabled** switch.
+  an **Enabled** switch (owners and administrators; the switch applies to the
+  whole organization).
 - Open a tool for how to add it to a sensor and which sensors have it.
 - **Add tool** registers a custom tool for your own scanner (name, category,
   install method, commands, capabilities, supported targets, output formats).
@@ -373,6 +382,27 @@ only lower rate, concurrency and retries, and a sensor's local policy can always
 narrow further. Tools appear once a sensor reports them. Owners and
 administrators change the defaults, and the page lists sensors whose tool
 version refuses a default.
+
+### Sensor products
+
+**Sensor products** (`/settings/scanning/sensor-products`) is for sensors your
+organization builds itself on the sensor SDK (sdk-go). Record each product's
+**Latest release** and **Minimum release** (versions such as `v1.4.0`), and its
+sensors on **Discovery › Sensors** show **update available** below the latest
+release and **unsupported** below the minimum. Without a recorded release, such
+a sensor shows only whether its SDK is current. Products your sensors report
+but that are not recorded yet are suggested above the list.
+
+![Settings, Scanning, Sensor products, with one product and its latest and minimum release]({{ site.baseurl }}/assets/images/sensors/sensor-products.png)
+*Figure: Settings, Scanning, Sensor products.*
+
+Every member who can read sensors sees the list; adding, changing or removing a
+product needs the sensors write permission and is audited. A recorded release
+line changes what your organization sees only: authorization and job dispatch
+never depend on it. First-party products (names that start with `openctemio-`)
+are managed by the platform and cannot be added, and at most 50 products can be
+recorded. See
+[How the console judges a sensor's version](../sensors/operate.md#how-the-console-judges-a-sensors-version).
 
 ### Capabilities
 
@@ -511,6 +541,11 @@ connection with its category, status (Connected, Disconnected, Error, Pending,
 Expired, Disabled), last sync and **Manage**. Start from a category card to
 connect your first tool. Integrations are configured per organization, with the
 organization's own credentials.
+
+Connecting, changing, disabling or deleting an integration, creating a
+notification channel or changing a channel's settings asks you to confirm your
+identity again (a recent sign-in or an authenticator code), because these change
+where your data goes.
 
 ### Source control
 

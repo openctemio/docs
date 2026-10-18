@@ -64,6 +64,29 @@ code with an authenticator app (or type the secret key), enter the code, click
 | A member of several organizations | **Select a team**, where you pick one |
 | A member of no organization | The onboarding page (see below) |
 
+### Organization suspended or scheduled for deletion
+
+- **Suspended**: when the platform operator suspends an organization, signing in
+  to it, and every API key, AI assistant token, sensor and integration of it,
+  is refused with **This organization is suspended — contact support**. Nothing
+  is deleted; everything works again once the suspension is lifted.
+- **Scheduled for deletion**: after an owner deletes the organization it stays
+  closed to everyone for 14 days, then it is deleted. When an owner signs in
+  during those days, **Organization scheduled for deletion** shows the date and
+  offers **Cancel deletion**, which reopens the organization as it was (sign in
+  again to open it), or **Continue without it**. Other members cannot open the
+  organization until an owner cancels.
+
+{: .note }
+In the current release the **Cancel deletion** prompt appears only when the
+owner signs in with a password alone. An owner whose sign-in asks for a
+two-factor code (or whose organization requires two-factor setup) sees **This
+organization is suspended — contact support** instead and cannot cancel from the
+sign-in page; contact your platform operator before the 14 days end.
+
+If your own account is blocked by the platform operator, sign-in is refused and
+your sessions, API keys and AI assistant tokens stop working.
+
 ### Forgot your password
 
 Click **Forgot password?**, enter your email and click **Send reset link**. If an
@@ -238,23 +261,25 @@ view switcher and an **Options** menu.
 From top to bottom:
 
 1. **Active exposure**: the number of open P0 findings (exploitable now), with
-   the risk score, KEV chains, crown jewels at risk and SLA compliance, and a
-   90-day P0 burn-down that says whether you are gaining or losing ground.
+   the risk score, KEV chains, **Crown jewels with open findings** and **Within
+   SLA**, and a 90-day P0 burn-down that says whether you are gaining or losing
+   ground.
 2. **Priority classes over time**: open P0 to P3 findings over 90 days.
 3. **The CTEM loop**: five tiles, one per stage, each opening the matching page.
 
    | Tile | Opens | Shows |
    |---|---|---|
-   | Scoping | Scoping overview | How many readiness checks are met; a flag if no crown jewels are designated |
-   | Discovery | Scans | Scan coverage, unscanned assets, critical assets not covered |
-   | Prioritize | Findings | Open P0 findings, KEV entries in the catalog |
+   | Scoping | Scoping overview | How many readiness checks are met, the number of crown jewels and how many of them have open findings; a flag if no crown jewels are designated |
+   | Discovery | Scans | Scan coverage and unscanned assets |
+   | Prioritize | Findings | Open P0 findings and your open findings in the KEV catalog (not the size of the catalog) |
    | Validate | Compensating controls | Share of findings validated |
-   | Mobilize | Remediation | SLA compliance and breaches |
+   | Mobilize | Remediation | Open findings within their SLA and the number breached |
 
 4. **Fix next** (findings ranked by exposure) next to **Attack paths → crown
-   jewels** (crown jewels reachable now).
+   jewels** (crown jewels on an attack path that is reachable now).
 5. **Threat intel context** (EPSS and KEV figures) next to **Coverage &
-   hygiene** (scan, validation and SLA coverage).
+   hygiene**: **Connector dispatch freshness** (assets whose scans were
+   dispatched recently enough), **Validation** and **Open within SLA**.
 6. **CTEM maturity**, when the CTEM cycles module is on.
 7. **Analyst detail**: findings trend, severity distribution, asset distribution
    and recent activity.
@@ -265,6 +290,47 @@ of sample numbers. When a change to the scoring (a new scoring model, the risk
 scoring settings, the priority rules or an SLA policy) moves the numbers, the
 trend charts mark that date and say that values before and after it are not
 directly comparable.
+
+### What the numbers count
+
+- **Open** means new, confirmed, in progress or fix applied. Finding totals and
+  the severity breakdown count open findings only; resolved, false positive,
+  accepted and duplicate findings are not in them.
+- **Within SLA** (or **Open within SLA**) is the share of open findings that
+  have an SLA and are not past it. **Overdue** counts the open findings past
+  their SLA.
+- **Crown jewels with open findings** counts crown jewels that have at least one
+  open finding; **crown jewels on an attack path** (on the attack paths card)
+  counts those an attacker can reach now. The two are different numbers.
+- A figure with nothing to measure shows a dash (**—**), never 0 % or 100 %: for
+  example the SLA share when no open finding has an SLA, or the time to fix
+  when nothing was fixed in the period.
+- Unpublished pentest findings (draft, in review) are never counted, and
+  findings found only on a branch are left out.
+
+The formulas are documented in
+[Dashboard metrics](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/dashboard-metrics.md).
+
+### Whose data the dashboard shows
+
+The dashboard counts what you may see:
+
+- Owners, administrators and roles with full data access see the whole
+  organization.
+- A member or viewer whose data scope is limited (see
+  [Groups and data scope](../identity/roles-and-permissions.md#groups-and-data-scope))
+  sees counts for the assets of their teams and direct grants, and those assets'
+  findings. A member with no team sees zeros.
+- A limited member whose role holds `dashboard:aggregate` sees the
+  organization's totals, but small breakdown buckets (under 5) are left out so a
+  total cannot point at an asset they cannot see.
+- Lists of actual findings (**Fix next**, top risks, recent activity) always
+  stay within your own scope, whatever the permission.
+- A pentest finding is counted or listed only for members of its campaign, and
+  never while it is a draft or in review for the campaign's client role.
+- Organization-wide history (the risk trend, the program metrics and the CTEM
+  cycle trends) needs `dashboard:aggregate` or full data access: without it the
+  risk trend stays empty and the program and cycle figures are not shown.
 
 ### The Classic view
 
@@ -283,8 +349,8 @@ Choose **Classic** in the view switcher for the earlier layout:
 - **Findings Trend** (by severity over six months) and **Severity
   Distribution**.
 - **Asset Distribution** (by asset type), **Recent Activity** (up to ten
-  events) and **Quick Stats** (**Findings**, **Critical Findings**, **Overdue**,
-  **Repositories with Issues**).
+  events) and **Quick Stats** (**Open findings**, **Open critical findings**,
+  **Overdue** and **Repositories with Issues**).
 
 If the dashboard cannot load its data, a banner **Failed to load dashboard data**
 appears with **Retry**.
@@ -301,7 +367,7 @@ You can build personal dashboards next to the built-in views.
 - **Start from a template** (Executive, SOC / Triage, Vulnerability Management,
   My Work, AppSec / Developer) with **Use template**, or click **New blank**.
 - Under **Your dashboards**, each card has **Open**, **Edit**, **Set as default**
-  and **Delete**. Deleting a dashboard is immediate; there is no confirmation.
+  (the star) and **Delete** (the bin), which asks for confirmation first.
 - **Edit** sets the **Name**, **Description** and the number of columns (one to
   four).
 - To add or arrange widgets, open the dashboard and choose **Options › Customize
