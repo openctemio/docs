@@ -201,7 +201,7 @@ sheet shows **Transport:** and, when it is not gRPC, the reason in plain words
 
 All three transports run every scan; gRPC only delivers jobs faster. Platform
 admins see which transport the platform offers, and why gRPC is not offered,
-on Console > Operations > Health ([What the platform offers](transport.md#what-the-platform-offers)).
+on Monitoring > Health ([What the platform offers](transport.md#what-the-platform-offers)).
 
 ### 5. Let it run active scans
 

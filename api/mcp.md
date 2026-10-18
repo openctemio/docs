@@ -262,4 +262,4 @@ tokens are refused. Changes that loosen the policy also need a recent sign-in.
 
 Requests, approvals and declines are audited (`mcp_access_request.created`, `.approved`, `.denied`),
 and policy changes as `mcp_settings.updated`. Platform operators see every AI application, with
-counts only, and can block one everywhere in the admin console (**System > AI applications**).
+counts only, and can block one everywhere in the admin console (**Settings > AI applications**).

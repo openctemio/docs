@@ -230,7 +230,7 @@ sensor that confines its tools' network. See
 A **verified domain** proves that your organization controls a domain's DNS.
 It is proof, not authorization: a scope entry is still required. Proof is
 needed only when the platform administrator turns on **Require a verified
-domain before platform sensors scan a target** (admin console, **System >
+domain before platform sensors scan a target** (admin console, **Scanning >
 Platform scanning**; off by default). Then:
 
 - a job goes to shared platform sensors only when every target is at or under
@@ -264,8 +264,8 @@ The platform operator sets these; no organization can change them.
 
 | Setting | Effect |
 |---|---|
-| Require a verified domain before platform sensors scan a target | Admin console, **System > Platform scanning**. Off by default. On: platform sensors scan only targets at or under a verified domain of the organization, and intrusive (T2) probes need one on any sensor. Changing it needs a super administrator, a fresh authenticator code and a reason; it is audited and the other platform administrators are emailed. (The environment variable `SCOPE_ACTIVE_PROOF` of earlier releases is retired: the API refuses to start while it is set.) |
-| Scan approval policy | Admin console, **System > Scan approval**: the platform default or a per-organization override (`tenant_controlled`, `off`, `on`, `strict`). |
+| Require a verified domain before platform sensors scan a target | Admin console, **Scanning > Platform scanning**. Off by default. On: platform sensors scan only targets at or under a verified domain of the organization, and intrusive (T2) probes need one on any sensor. Changing it needs a super administrator, a fresh authenticator code and a reason; it is audited and the other platform administrators are emailed. (The environment variable `SCOPE_ACTIVE_PROOF` of earlier releases is retired: the API refuses to start while it is set.) |
+| Scan approval policy | Admin console, **Scanning > Scan approval**: the platform default or a per-organization override (`tenant_controlled`, `off`, `on`, `strict`). |
 | Public suffixes | No entry may be, or wildcard, a public suffix (`*.com`, `*.co.uk`, `*.azurewebsites.net`) |
 | Government and military names | Refused |
 | Shared provider apexes | Refused as wildcard roots (`*.amazonaws.com`); exact names under them stay allowed |
