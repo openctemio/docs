@@ -442,7 +442,12 @@ Reference** and, for some types, the group.
 
 ### Asset details
 
-Clicking an asset in a list opens its detail panel:
+Clicking an asset in a list opens its detail panel (a drawer; the expand icon in
+its header, or **Open full page** in the row menu, opens the same details as the
+full page `/assets/{id}`):
+
+![The detail drawer of the subdomain www.example.org: state and scope badges, Key facts, risk, scope and scanning, ownership and exposure]({{ site.baseurl }}/assets/images/user-guide/asset-drawer.png)
+*Figure: The asset drawer.*
 
 - The header shows the asset's state with the scan-scope answer next to it
   (**In scope**, **Not in scope · passive only**, **Excluded**, **Not ours**,
@@ -512,7 +517,7 @@ Clicking an asset in a list opens its detail panel:
   a gap), timeline, technical details and **Identity history** (the merges that
   formed this asset).
 
-![The details of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
+![The full page of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
 *Figure: Asset details.*
 
 The asset page (`/assets/{id}`) summarizes criticality, risk score, exposure and

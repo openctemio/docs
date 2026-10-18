@@ -161,14 +161,8 @@ export async function signIn(state: DemoState, email: string, tenantSlug = 'exam
 // Platform administrator: the admin console uses cookies, not bearer tokens.
 // ---------------------------------------------------------------------------
 
-// The platform console API listener (ADMIN_LISTEN_ADDR). It is a separate
-// listener since v0.10: publish it on loopback of the scratch stack only.
-export const ADMIN_API = (process.env.OPENCTEM_ADMIN_API_URL ?? 'http://127.0.0.1:18981').replace(/\/$/, '')
-
 export class AdminSession {
   jar = new Map<string, string>()
-  // Set after sign-in: writes carry a fresh authenticator code as the step-up.
-  stepUp?: () => Promise<string>
 
   private absorb(res: Response) {
     for (const c of res.headers.getSetCookie()) {
@@ -182,17 +176,16 @@ export class AdminSession {
   }
 
   async call<T = any>(method: string, path: string, body?: unknown): Promise<T> {
-    const headers: Record<string, string> = { Accept: 'application/json', Origin: ADMIN_API }
+    const headers: Record<string, string> = { Accept: 'application/json' }
     if (body !== undefined) headers['Content-Type'] = 'application/json'
     if (this.jar.size) headers.Cookie = [...this.jar].map(([k, v]) => `${k}=${v}`).join('; ')
     const csrf = this.jar.get('admin_csrf')
     if (csrf) headers['X-CSRF-Token'] = decodeURIComponent(csrf)
-    if (this.stepUp && method !== 'GET') headers['X-Admin-Step-Up'] = await this.stepUp()
     let res: Response
     for (let attempt = 0; ; attempt++) {
-      res = await fetch(ADMIN_API + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+      res = await fetch(API + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
       if (res.status !== 429 || attempt >= 6) break
-      await sleep(Math.min(Math.max(Number(res.headers.get('retry-after') ?? 20), 5), 65) * 1000)
+      await sleep(Math.min(Math.max(Number(res.headers.get(retry-after) ?? 20), 5), 65) * 1000)
     }
     this.absorb(res)
     const text = await res.text()
@@ -206,7 +199,8 @@ export class AdminSession {
 export async function adminSignIn(state: DemoState, email: string, tempPassword?: string): Promise<AdminSession> {
   const tryWith = async (password: string) => {
     const s = new AdminSession()
-    const start: any = await s.call('POST', '/api/v1/admin/auth/login', { email, password })
+    await s.call('POST', '/api/v1/auth/login', { email, password })
+    const start: any = await s.call('POST', '/api/v1/admin/auth/session')
     if (start.secret) {
       state.totp[email] = start.secret
       saveState(state)
@@ -214,21 +208,16 @@ export async function adminSignIn(state: DemoState, email: string, tempPassword?
     await s.call('POST', '/api/v1/admin/auth/mfa', { code: await freshCode(state, email) })
     return s
   }
-  const finish = (s: AdminSession) => {
-    s.stepUp = () => freshCode(state, email)
-    return s
-  }
   try {
-    return finish(await tryWith(DEMO_PASSWORD))
+    return await tryWith(DEMO_PASSWORD)
   } catch (e) {
     if (!tempPassword || !(e instanceof ApiError) || e.status !== 401) throw e
   }
   const s = await tryWith(tempPassword)
   const me: any = await s.call('GET', '/api/v1/admin/auth/validate')
   if (me.password_change_required) {
-    s.stepUp = () => freshCode(state, email)
     await s.call('POST', '/api/v1/admin/auth/password', { current_password: tempPassword, new_password: DEMO_PASSWORD })
-    return finish(await tryWith(DEMO_PASSWORD))
+    return tryWith(DEMO_PASSWORD)
   }
-  return finish(s)
+  return s
 }

@@ -70,6 +70,9 @@ stay at or below it. `SIGNUP_MODE` replaces the older `TENANT_CREATION_MODE`.
 
 ## Sign in to the admin console
 
+![The sign-in page of the admin console, titled Platform administration]({{ site.baseurl }}/assets/images/identity/console-sign-in.png)
+*Figure: Admin console sign-in.*
+
 1. Open the console address and sign in with your administrator email and
    password (or **Sign in with {provider}** when the installation has an
    identity provider for administrators, see [Admin sign-in](#admin-sign-in)).
