@@ -309,15 +309,15 @@ await comment('Apache Log4j2', 'Confirmed with an out-of-band DNS callback. lega
 await comment('Tainted SQL string', 'Fix in review: the query now uses a parameterised statement.')
 
 // Risk acceptance and false positive go through approval.
-const approval = async (title: string, status: string, justification: string) => {
+const approval = async (title: string, status: string, closure_reason: string, justification: string) => {
   const id = F(title)
   if (!id) return
   await step(`approval ${status}: ${title}`, () =>
-    api('POST', `/api/v1/findings/${id}/approvals`, { requested_status: status, justification, expires_at: new Date(Date.now() + 90 * 86400e3).toISOString() })
+    api('POST', `/api/v1/findings/${id}/approvals`, { requested_status: status, closure_reason, justification, expires_at: new Date(Date.now() + 90 * 86400e3).toISOString() })
   )
 }
-await approval('TLS Version 1.0 Protocol Detection', 'accepted', 'A legacy payment terminal still needs TLS 1.0; it is isolated and will be replaced in Q1.')
-await approval('GraphQL Introspection Enabled', 'false_positive', 'Introspection is only enabled for the public schema subset by design.')
+await approval('TLS Version 1.0 Protocol Detection', 'accepted', 'risk_accepted', 'A legacy payment terminal still needs TLS 1.0; it is isolated and will be replaced in Q1.')
+await approval('GraphQL Introspection Enabled', 'false_positive', 'detection_error', 'Introspection is only enabled for the public schema subset by design.')
 
 // ---------------------------------------------------------------------------
 // Remediation campaign
@@ -327,7 +327,7 @@ await step('campaign', async () => {
     name: 'Patch internet-facing critical vulnerabilities',
     description: 'Close every critical vulnerability on internet-facing assets within the 15-day SLA.',
     priority: 'critical',
-    finding_filter: { severities: ['critical'], exposure: 'public' },
+    finding_filter: { severities: ['critical'] },
     assigned_to: st.ids.jordan,
     start_date: new Date(Date.now() - 6 * 86400e3).toISOString(),
     due_date: new Date(Date.now() + 9 * 86400e3).toISOString(),

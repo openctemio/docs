@@ -9,24 +9,30 @@ nav_order: 1
 This page explains who may create an account or an organization, and how people join an existing
 organization.
 
-{: .note }
-Sign-up admission is being reworked: one admission rule for every sign-up path, access requests when
-sign-up is closed, and email-first sign-in that finds the organization's SSO are planned. This page
-describes the current behaviour; check the release notes of your version.
-
 ## Creating accounts
 
 | Path | When it works |
 |---|---|
 | **Invitation** | Always. The invited person registers (or signs in) with the invited email address. |
-| **Created by an organization admin** | Always. The admin enters an email and roles; the person gets a one-time set-password link. |
+| **Created by an organization admin** | Always for addresses on a domain the organization has verified; anyone else is invited instead. The admin enters an email and roles; the person gets a one-time set-password link. |
 | **Just-in-time SSO** | When the organization's identity provider allows it (see [Verified domains and just-in-time provisioning](#verified-domains-and-just-in-time-provisioning)). |
 | **SCIM** | When the organization provisions from its identity provider (see [SCIM](scim.md)). |
-| **Open registration** (`POST /api/v1/auth/register`, social sign-in buttons) | Only when `AUTH_ALLOW_REGISTRATION=true`. The default is `false`. |
+| **Public sign-up** (the register page, social sign-in buttons) | Only when the [sign-up policy](#creating-organizations) allows it: anyone, or only people on an organization's verified domain. Closed by default. |
 
-Registering creates an account only; it does not create or join an organization. Public sign-in
-endpoints answer the same way whether or not an email has an account, so they cannot be used to find
-out who is registered.
+Every way in passes one admission rule. When it refuses, the API answers 403 `SIGNUP_NOT_AVAILABLE`
+and the web console shows one page, "Your organization isn't set up yet", whatever the reason; no
+account is written. A person with a pending invitation, or on an organization's SSO, is always
+admitted. In the open and domain modes, disposable email addresses cannot sign up.
+
+Registering creates an account only. A signed-in account that belongs to no organization sees its
+options (the onboarding page): its pending invitations, the organization that claims its verified
+email domain (**Join** or **Ask to join**, then **Waiting for approval**), and a form to create an
+organization when the installation allows it. Offers carry no organization id or slug.
+
+Public sign-in endpoints answer the same way whether or not an email has an account, so they cannot
+be used to find out who is registered. Registering again with an address whose password was never
+verified emails that address a set-password link; following it verifies the address and replaces the
+password.
 
 ### Passwords and email verification
 
@@ -35,33 +41,91 @@ out who is registered.
   default upper case, lower case and a number) and must not be on an embedded list of about 47,000
   commonly breached passwords.
 - Passwords are stored with bcrypt (cost 12).
-- Whether a new account must verify its email follows the organization's **email verification**
-  setting (`always`, `never` or `auto`; under **Settings > Authentication**). With `auto`, verification
-  is required when the installation can send email. People who register through an invitation are
-  verified by it. Verification links are valid for 24 hours (`AUTH_EMAIL_VERIFICATION_DURATION`);
+- Every self-registered account (sign-up mode `domain` or `open`) must verify its email address before it can
+  sign in. For accounts invited into an organization, the organization's **email verification**
+  setting (`always`, `never` or `auto`; under **Settings > Authentication**) decides; with `auto`,
+  verification is required when the installation can send email. People who register through an
+  invitation are verified by it. Verification links are valid for 24 hours (`AUTH_EMAIL_VERIFICATION_DURATION`);
   password reset links for 1 hour (`AUTH_PASSWORD_RESET_DURATION`).
 - After `AUTH_MAX_LOGIN_ATTEMPTS` (5) wrong passwords or codes, the account is locked for
   `AUTH_LOCKOUT_DURATION` (15 minutes).
 
 ## Creating organizations
 
-Who may create an organization is one platform setting, the **sign-up policy**, changed by a super
-admin in the admin console under **System > Sign-up** (a fresh authenticator code is required; every
-change is audited at critical severity and emailed to the other administrators):
+Who may sign up and who may create an organization is decided in two layers.
 
-| Policy | Meaning |
+**1. The server ceiling, `SIGNUP_MODE`** (environment variable, read at start; default `disabled`).
+No API or console session can open sign-up beyond it:
+
+| `SIGNUP_MODE` | Meaning |
 |---|---|
-| `admin_only` (default) | Only platform administrators create organizations: in the admin console, or with `bootstrap-admin -org-name ... -org-owner-email ...` at installation. People sign in only to organizations that exist. |
-| `self_service` | Any signed-in person may create an organization, and becomes its owner. An installation can cap how many self-created organizations one person may own (one by default). |
+| `disabled` (default) | No public account creation. People get accounts from a platform administrator, an invitation or their organization's SSO. Only platform administrators create organizations: in the admin console, or with `bootstrap-admin -org-name ... -org-owner-email ...` at installation. |
+| `domain` | Public sign-up only for addresses on an organization's verified domain; those people join that organization and never create one. |
+| `open` | Anyone may sign up and create an organization (the hosted service). |
 
-`TENANT_CREATION_MODE` (`admin_only` or `self_service`) only seeds the policy at the first start; after
-that the console value applies. If the stored value cannot be read, the policy is `admin_only`.
-Changing the policy never affects existing organizations, members, invitations or sessions.
+`domain` and `open` need the platform e-mail (**System > E-mail** in the admin console, or
+`BOOTSTRAP_SMTP_*` for `bootstrap-admin`) and local accounts, or the server refuses to start, and
+public sign-up closes while the platform e-mail does not work. `open` in production also needs the
+Cloudflare Turnstile keys (`CAPTCHA_TURNSTILE_SECRET` and `CAPTCHA_TURNSTILE_SITE_KEY`) or
+`SIGNUP_CAPTCHA=off-i-understand`. Self-service organizations start with the limits in
+`SELF_SERVICE_START_LIMITS` until a super admin saves limits under **System > Limits**. The old
+`TENANT_CREATION_MODE` and `AUTH_ALLOW_REGISTRATION` variables are gone: remove them from the
+environment (`TENANT_CREATION_MODE` stops start-up while set).
+
+**2. The sign-up policy**, a runtime switch below the ceiling. A super admin changes it in the admin
+console under **System > Sign-up** (a fresh authenticator code is required; every change is audited at
+critical severity and emailed to the other administrators). Any administrator can read it. The page
+shows the server setting and what is in force.
+
+| Setting | Choices |
+|---|---|
+| **Who can create an account?** | Nobody by public sign-up; People on an organization's verified domain; Anyone |
+| **Who can create an organization?** | Only platform administrators; Anyone who signs up (needs "Anyone" above) |
+| **Let people request access** | When only administrators create organizations, people who cannot sign in may ask for one. |
+
+![The Sign-up page of the admin console with the server setting and the two choices]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
+*Figure: Admin console, System, Sign-up.*
+
+A choice the ceiling does not allow is shown as locked (**Locked by the server configuration**) and
+saving it answers 409 `SIGNUP_LOCKED_BY_DEPLOYMENT`. Changing the policy never affects existing
+organizations, members, invitations or sessions. If the stored value cannot be read, the policy is
+the safe default (only platform administrators).
+
+### Requesting access
+
+With organization creation limited to administrators and **Let people request access** on, the "not
+set up" page offers a request form (`/request-access`). Every accepted submission gets the same
+answer; limits per address (3 an hour) and per domain (5 a day) and disposable addresses drop
+requests silently, and the requester confirms by an emailed link first. Platform administrators see
+the queue under **Requests > Access requests** in the admin console; an ops admin approves (the
+organization is created with the requester as its owner) or rejects (a neutral email). Unconfirmed
+requests are deleted after 24 hours and decided ones after 90 days.
+
+### Joining by domain
+
+An organization owner decides, per domain the organization has verified for SSO, who may join with
+it (**Settings > Domains**; owners change, admins read; saving asks for step-up):
+
+| Setting | Meaning |
+|---|---|
+| **Who can join with an example.com address?** | **Only people we invite** (default), **Anyone, after an administrator approves**, or **Anyone, automatically**; the person **Joins as** Viewer or Member |
+| **Show the organization to colleagues who sign up** | People with a verified address on the domain see the organization's name on the onboarding page |
+| **Require single sign-on for every account on the domain** | Password and social sign-up for these addresses are refused (403 `SSO_REQUIRED`); the person is sent to their organization's sign-in |
+| **Block new organizations for accounts on the domain** | People on the domain cannot create their own organizations |
+| **Include subdomains** | The settings also cover subdomains |
+
+![The Domains settings page with the join, discoverability and single sign-on options of a verified domain]({{ site.baseurl }}/assets/images/identity/settings-domains.png)
+*Figure: Settings, Domains.*
+
+Everything is off until an owner turns it on, and stops at once when the domain claim lapses. Join
+requests wait under **Requests to join** on **Settings > Members**: an administrator approves them as
+viewer or member, or rejects them. One request per person and organization is pending, a person may
+ask 5 times a day, and requests expire after 30 days. Nobody becomes an administrator by request.
 
 ### The first owner of an organization
 
 A platform administrator creates an organization's first owner in the admin console
-(**Organizations > organization > Users**, or when creating the organization with an owner email). The
+(**Organizations**, open the organization, **Members** tab, or when creating the organization with an owner email). The
 owner receives a one-time link to set a password (emailed when the installation can send email; shown
 once otherwise). From then on the owner and their admins invite or create users; the platform
 administrator cannot add further users to an organization that has an owner.
@@ -76,26 +140,43 @@ Owners and admins invite from **Settings > Members** (`POST /api/v1/tenants/{ten
 - An invitation names one or more roles. **Owner** is never offered; only an owner can invite an
   **admin**.
 - Invitations expire after **7 days**. They can be resent or deleted.
-- The invitation email links to `https://<console>/invitations#token=...`. The token is in the URL
+- The invite dialog can add the invitee to teams (up to 20; only teams the inviter may add people
+  to), so the person does not join with no data. It previews, before sending, whether the policy
+  allows the address, whether the person is outside, and whether step-up and two-factor will apply.
+- Invitations are single use. A resend waits at least 10 minutes and happens at most 5 times; one
+  person sends at most 50 invitations an hour. Seats are checked when the invitation is created.
+  Cancelled or declined invitations are kept as revoked (so the daily invitation limit counts them)
+  and purged after 30 days.
+- Accepting re-checks the inviter: an invitation from someone who has since left, been suspended or
+  been demoted grants nothing.
+- The invitation email links to `https://<your OpenCTEM address>/invitations#token=...`. The token is in the URL
   fragment, so it is never sent to a server or recorded in access logs or `Referer` headers.
 - The invitee registers or signs in with the **same email address** and accepts. Declining is
   possible without an account.
 - If the address reaches the same mailbox as an existing member's (dots or `+tags` in Gmail-style
   addresses), the admin gets a look-alike warning.
 
-### External members
+### People outside the organization
 
-A person whose email domain does not belong to the organization is an **external member**:
+Anyone may be invited, to any role except owner, unless the organization restricts invitations
+(**Settings > Authentication**, **Who can be invited**: **Anyone** (default), **Verified domains
+only**, or **Verified and allowed domains**; an organization with allowed email domains reads as the
+last). A person whose email domain the organization does not hold is **outside** the organization:
 
-- They join only by accepting an invitation addressed to them; an admin cannot add their existing
-  account directly or create one for them.
-- They join as **viewer**, with no data until an admin adds them to a team. They can never be owner,
-  admin, or hold a full-data-access role.
-- If no organization on the installation has verified their email domain (for example a personal
-  address), their access ends after **90 days** by default (at most 365). An admin can set a new end
-  date. Expired memberships are suspended automatically.
-- Owners and admins see each member's kind and, for external members, the name of their home
-  organization.
+- They join only by accepting an invitation addressed to them. An admin cannot add their existing
+  account directly or create one for them; direct add and create need an address on a domain the
+  organization has verified.
+- They are marked as outside (an **External** badge) wherever members are listed, and for external
+  members owners and admins see the name of their home organization. They can never be owner, and
+  never get full data access through a team. A trust with their home organization caps their role.
+- Inviting an outside address with a role above member, or accepting such an invitation, needs the
+  inviter's recent re-authentication (step-up), and the person must prove a second factor every time
+  they open the organization (**Two-factor required** in the invitation list).
+- An end of access is optional. With **Require an end of access for people outside** on, it is
+  mandatory for outside people no organization manages (for example personal addresses): 90 days by
+  default, 365 at most. Expired memberships are suspended automatically.
+- Invitation refusals carry a code that the invite dialog explains: `INVITEE_NOT_ON_VERIFIED_DOMAIN`,
+  `INVITEE_DOMAIN_NOT_ALLOWED`, `PERSONAL_ACCOUNTS_BLOCKED`, `INVITATION_NO_LONGER_VALID`.
 
 ### Personal email addresses
 
@@ -104,7 +185,7 @@ The organization's **personal accounts** policy (owner; security settings API
 
 | Value | Meaning |
 |---|---|
-| `allowed` | Personal addresses may join. Existing organizations keep this value. |
+| `allowed` | Personal addresses may join. Organizations that never chose keep this value. |
 | `allowed_with_mfa` | They may join, but get access only with a proven second factor. The default for new organizations. |
 | `blocked` | Personal addresses cannot be invited, cannot accept an invitation, and get no access token. |
 

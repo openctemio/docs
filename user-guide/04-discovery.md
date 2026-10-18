@@ -24,9 +24,10 @@ is: **set your scope → run a scan → review the assets and findings it found.
 
 ## Scans
 
-**Discovery › Scans** has three tabs: **Scans** (the saved scans and their
-schedules), **Runs** (every run they produced) and **Workflows** (the scan
-workflows a scan can run). The header has **Quick scan** and **New scan** (both
+**Discovery › Scans** has four tabs: **Scans** (the saved scans and their
+schedules), **Runs** (every run they produced), **Workflows** (the scan
+workflows a scan can run) and **Approvals** (scan approval requests, see
+[Scan approvals](#scan-approvals)). The header has **Quick scan** and **New scan** (both
 need the scan write permission). See also [Scans and scan runs](../scanning/scans-and-runs.md).
 
 ![The Scans page listing three scheduled and manual scans with their last run and success rate]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
@@ -40,7 +41,15 @@ needs the scan write and execute permissions.
 1. Paste the **Targets** (up to 1,000), separated by new lines, commas or
    semicolons.
 2. Pick the **Scanner** from the active scanners in the tool registry.
-3. Click **Start Scan**. Follow the run under **Runs**, where it shows as a
+3. Below the targets a preview shows what they expand to: how many known assets
+   match a wildcard or range, how many **will be scanned**, and how many are left
+   out and why (exclusions or the deny list, outside your data scope, ownership
+   not confirmed yet, a scope entry that allows a lighter scan than this
+   scanner runs, internal addresses no scan zone covers, a kind of asset this
+   scanner cannot scan, or archived). With no known names it offers **Run
+   discovery on {domain} first**. The preview is a help: if it is unavailable
+   you can still start the scan.
+4. Click **Start Scan**. Follow the run under **Runs**, where it shows as a
    **Quick scan**. If you want to run it again later, **Save as scan** keeps
    the targets and scanner as a saved scan.
 
@@ -75,8 +84,11 @@ completed step to go back.
    - A **Scope check** shows which targets your [scope](03-scoping.md#scope)
      allows; refused targets must be fixed before the scan can start.
 3. **Options**
-   - **Where it runs** and the **Scan profile** (tool settings, intensity and
-     quality gate; the organization default unless you pick another).
+   - **Where it runs**: **Auto** (your organization's sensors first, then the
+     shared sensors), **Organization sensors** or **Shared sensors** (public
+     targets only; offered only where the organization may use them), and the
+     **Scan profile** (tool settings, intensity and quality gate; the
+     organization default unless you pick another).
    - **Advanced: job size, timeout and retries**: **Targets per job** (how
      many targets one sensor job scans; smaller jobs spread a scan over more
      sensors), **Max duration (seconds, optional)** (empty: no limit of its
@@ -140,6 +152,24 @@ retests.
 - A run that has not finished can be canceled (**Cancel run** in the run's
   panel or on its page); in-flight tasks stop at their next heartbeat.
 
+### Scan approvals
+
+How much human approval a scan needs is the organization's **scan approval**
+mode (**Off** by default, **On**, or **Strict**; an administrator of the platform
+can force a mode), set with its approval rules under **Settings › Scanning ›
+Scan approval**. When a rule catches a scan, its page shows **Needs approval
+before it runs**, with who can approve it and **Submit for approval**; when the
+scan changes after an approval, it says **Changed since the last approval** and
+asks again. The **Approvals** tab (`/scans/approvals`) is the inbox: filter
+**Pending** or all, see who requested what, which targets and why, and
+**Approve** or **Reject** (with an optional note), **Remind** the approvers, or,
+when nobody else can decide, approve your own request as the owner with a reason
+and a code from your authenticator app. A request is **Pending**, **Approved**,
+**Rejected**, **Canceled**, **Expired** or **Superseded**. An **Emergency run**
+skips the approval for a limited window: it asks for a reason, confirms your
+identity again, is audited as critical and tells the administrators. See also
+[Scoping](03-scoping.md#scope).
+
 ### Scan workflows
 
 A **scan workflow** chains several scan steps (for example subdomain discovery,
@@ -180,7 +210,7 @@ dependencies between steps. Scans run either one scanner or one workflow. See
 ## Sensors
 
 Scans run on **sensors**: the OpenCTEM scanning component you deploy where your
-targets are, or the platform's shared sensors for public targets. **Discovery ›
+targets are, or the instance's shared sensors for public targets. **Discovery ›
 Sensors** (`/sensors`) lists your fleet with each sensor's health, jobs, version,
 tools and zone, and lets administrators **Install sensor** (create the sensor
 and copy its install command and key) or **Pair a sensor** (the sensor makes its
@@ -196,10 +226,13 @@ Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
 
 **Discovery › CI/CD** (`/ci-cd`) shows the CI/CD pipelines that scan your
 repositories from GitHub Actions, GitLab CI and other CI systems, their runs and
-repository coverage, with guides for GitHub Actions and GitLab CI. Its **Trust and
-gate** tab is the same as
-[Settings › Scanning › CI/CD integration](10-settings-and-integrations.md#cicd-integration).
-See [CI integration](../scanning/ci-integration.md).
+repository coverage, with guides for GitHub Actions and GitLab CI. The
+**Pipelines** tab lists the pipelines and their CI runs, each judged by the CI
+gate; the **Trust and gate** tab (**Connect a pipeline**) decides which
+pipelines may send results (trust) and what fails them (gate policy and
+break-glass). A repository that a CI trust names also appears as a scope entry
+([Scoping](03-scoping.md#scope)). See
+[CI integration](../scanning/ci-integration.md).
 
 ![The CI/CD page listing two GitHub Actions pipelines with their gate status]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
 *Figure: Discovery, CI/CD: one row per CI pipeline.*
@@ -226,7 +259,12 @@ changed this week.
 - **Monitoring** (for administrators): turn **Certificate Transparency
   discovery** and **DNS checks** on or off, choose **How often** they run (every
   6, 12, 24 or 48 hours, or weekly; never more often than every 6 hours) and
-  **Run now** (at most once per 15 minutes).
+  **Run now** (at most once per 15 minutes). The same card switches **Automatic
+  enrichment** (every new asset in your scope gets DNS records, domain
+  registration and the network owner of its addresses, from public lookups only),
+  **Certificate checks of lookalike domains**, **Network seed lookups**,
+  **Screenshots of web assets** (off by default; kept for 30 days) and the
+  **Weekly digest** (see [Changes](#changes)).
 - **Asset breakdown**, **Exposed assets** (**View all** opens the external
   attack surface list) and **Recent changes** (**View all** opens What changed).
 
@@ -283,6 +321,39 @@ Discovered names join the inventory without waiting here, unless **Review
 discovered assets first** is on in the scope policy
 ([Scoping](03-scoping.md#scope-policy)).
 
+### Lookalikes
+
+**Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
+registered to imitate yours, without contacting them: DNS lookups and Certificate
+Transparency only, daily for registered lookalikes and weekly for the rest.
+
+- Under **Watched domains**, **Watch a domain** takes one of your root domains
+  (a permanent domain scope entry or a verified domain). Each watch has **Monitor**
+  on or off, **Candidates to check** (10 to 1000) and the **Kinds of lookalikes**
+  to generate (omitted or doubled letters, swapped letters, neighboring keys, a
+  hyphen, look-alike characters, bit flips, another ending; none selected means
+  all). **Stop watching** resolves its open lookalike exposures.
+- **Registered lookalikes** lists the names that exist, with whether they have
+  addresses, receive mail or hold certificates (mail servers or a certificate make
+  phishing more likely). Decide each: **Ours or benign**, **Not a threat** or
+  **Taken down**; the states are **To review**, **Ours or benign**, **Not a
+  threat** and **Taken down**. An open lookalike is an exposure
+  ([Exposures](05-exposures-and-findings.md#exposures)).
+- Certificate lookups of lookalikes go to crt.sh; **Certificate checks of
+  lookalike domains** in the Monitoring card turns them off, and lookalikes are
+  then checked through DNS only.
+
+### Changes
+
+**Changes** (`/attack-surface/changes`) lists what changed on your external
+attack surface: new and removed hosts, opened and closed ports, new or expiring
+certificates, DNS changes (including dangling DNS), technology changes and new
+exposures, newest first, for the assets you can see. Filter by **Change kinds**
+and by time window; **Show older changes** pages back. Once a week the
+administrators and the notification channels that receive attack surface events
+get a **Weekly digest** of these changes (the day and hour are set in the
+Monitoring card; a week without changes sends nothing).
+
 ## The asset inventory
 
 **Discovery › Assets** has six tabs: **Inventory**, **Groups**, **What
@@ -303,10 +374,13 @@ changed**, **Timeline**, **Web surface** and **Suggestions**.
   its count. Lenses with no asset are hidden, and **Other** collects assets
   whose type belongs to no lens. Pick a lens to see its asset types as chips
   with their counts; select one or more chips to filter by type (`?types=`).
-  Counts cover only the assets you can see (v0.9.6).
+  Counts cover only the assets you can see.
 - Search by name, description or alias. The filter panel narrows by signals
   (crown jewel or not, has findings or not, not seen for 30+ days or seen
-  recently), tags, **Scope status** (**In scope**, **Not in scope (passive
+  recently), tags, **Technologies** (what probes fingerprinted on the assets: web
+  servers, frameworks and CMS, languages and runtimes, JavaScript libraries, CDN,
+  hosting, WAF, analytics and security headers; pick a **Category** or search a
+  **Technology**), **Scope status** (**In scope**, **Not in scope (passive
   only)**, **Out of scope**, **Internal**) and **Found by**. **Views** offers
   saved filters, among them **Not in scope (passive only)**, **Discovered**,
   **Out of scope** and **New since last visit**.
@@ -377,9 +451,11 @@ Clicking an asset in a list opens its detail panel:
   **Criticality**, **Exposure** and **Zone** badges ("Criticality: Medium",
   "Exposure: Public", "Zone: Internal"; the zone is the network zone, not the
   scan scope) and its CIA ratings, with **Edit** and **Delete**.
-- **Overview** opens with **Key facts**, then the risk summary, the **Scope
-  and scanning** card, ownership, the description, exposure, discovery, **All
-  properties** and **Related assets**.
+- **Overview** opens with **Key facts**, then **Technologies** (what runs on
+  it, by category, with **View all**), the risk summary (**Why this score?**
+  unfolds the factors of the risk score and the open findings that drive it),
+  the **Scope and scanning** card, ownership, the description, exposure,
+  discovery, **All properties** and **Related assets**.
   - **Key facts** shows what matters for the asset's type: for a domain or
     subdomain what it resolves to (every address), its CNAME, hosting (ASN
     and network owner), HTTP server header, TLS with version, technologies
@@ -400,11 +476,12 @@ Clicking an asset in a list opens its detail panel:
     (DNS records, open ports) read as tables, and dates as local dates.
   - **Related assets** lists one line per kind of relationship, with its
     count and the first related assets; **View all** opens **Relations**
-    (v0.9.6).
-- **Timeline**: what changed on the asset, and when.
+   .
 - **Owners**: **Add Owner** with a role (Primary, Secondary, Stakeholder,
   Informed, Regulatory), and the direct access grants.
-- **Relations** (v0.9.6): the related assets, grouped by relationship and
+- **Timeline**: what changed on the asset, and when (a value or the source that
+  decides it).
+- **Relations**: the related assets, grouped by relationship and
   read from this asset in plain words: **Resolves to** and **Names that resolve here**,
   **Alias (CNAME) of**, **Exposes**, **Serves certificate**, **Runs on** and
   **Hosts**, **Part of**, **Depends on** and **Used by**, and so on. Each
@@ -420,10 +497,20 @@ Clicking an asset in a list opens its detail panel:
   **Target Asset** entries, with an optional description, **Confidence**,
   **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.
   Relationships can be edited or removed from a related asset's menu.
+- **Technologies** (when probes fingerprinted any): each technology with its
+  category, version, confidence, source and first and last sighting.
+- **Software**: what the asset runs (from SBOM uploads of CI, service and
+  version detection scans, or an endpoint sensor), matched against known CVEs,
+  with the severity counts of each version. A name that matches no product the
+  vulnerability feed knows is marked **No CPE match: CVEs not checked**.
 - **Findings**: the asset's findings.
 - **Details**: ownership and scope (with "Is it yours?" when you can decide it),
-  timeline, technical details and **Identity history** (the merges that formed
-  this asset).
+  which source decides each attribute, **Data freshness** (when DNS records,
+  the web service, ports, the TLS certificate, the registration and the network
+  owner were last observed), **Coverage** (for each check this kind of asset
+  needs: its state, why it was skipped, when it last succeeded, and whether it is
+  a gap), timeline, technical details and **Identity history** (the merges that
+  formed this asset).
 
 ![The details of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
 *Figure: Asset details.*
@@ -485,7 +572,7 @@ their parameters (names only), the same path across origins, and what changed.
 Web surface fills in when a scan workflow with a web crawl step runs. The
 origins come from the HTTP probe: each probed origin is its own asset, named
 by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
-the subdomain or address it runs on (v0.9.6).
+the subdomain or address it runs on.
 
 ### Suggestions
 
@@ -548,39 +635,75 @@ add, edit or delete them by hand.
 ## Software components (SBOM)
 
 **Discovery › Components** (`/components`) is your software bill of materials:
-the packages your repositories and images depend on, their vulnerabilities and
-their licenses. It is the basis of supply-chain security.
+the packages your repositories, images and hosts are built from, where they are
+used, their vulnerabilities and their licenses. It is the basis of supply-chain
+security. Packages come from sensors that run an SCA tool, from CI jobs that
+upload a report and from SBOM imports; there is no manual add or delete. See also
+[Exposures and findings](05-exposures-and-findings.md).
 
 ![The Components page with totals, vulnerable components, ecosystems and licenses]({{ site.baseurl }}/assets/images/user-guide/components.png)
 *Figure: Software components.*
 
-- The overview: **Total components** (direct and transitive), **Vulnerabilities**
-  (critical and high), **License risks** and **Outdated**, with cards for
-  vulnerable components, ecosystems and license compliance (each with **View
-  all**). When components carry CISA KEV vulnerabilities, an alert at the top
-  links to them.
-- **All components** (`/components/all`): the full list with the cards **Total
-  Components**, **Direct Dependencies**, **Outdated** and **Vulnerable** (click
-  to filter), the tabs All, Direct, Transitive, Outdated and Vulnerable, search
-  and an ecosystem filter. Click a component for its versions, CVEs and the assets
-  that use it. **Export CSV**.
-- **Vulnerable components** (`/components/vulnerable`): components with known
-  vulnerabilities, by severity, with a **CISA KEV** tab.
-- **Package ecosystems** (`/components/ecosystems`): components, vulnerable and
-  outdated counts per package ecosystem (npm, PyPI, Maven, Go, ...), to see where
-  supply-chain risk concentrates.
-- **License compliance** (`/components/licenses`): licenses by category
-  (permissive, copyleft or high risk, unknown) and risk, for compliance
-  reporting. **Export Report**.
+- The header has **Export SBOM**, **Import VEX** (needs the approve permission
+  on findings) and **Import SBOM** (needs the components write permission).
+- The strip shows **Packages** (with the versions and assets behind them),
+  **Vulnerable**, **Known exploited** (CISA KEV), **Fix available** and
+  **Outdated**; each of the first four filters the list. The view switch offers
+  **All**, **Vulnerable**, **Known exploited**, **Fixable** and **Direct
+  dependencies**.
+- The list has one row per package: **Package**, **Versions** in use,
+  **Assets** (with direct and transitive uses), **Vulnerabilities** (open, by
+  severity), **Fix**, **License**, **Risk** and **Last seen**. Search by name or
+  namespace; the filters (a side panel, or **Filters** on a phone) cover
+  **Risk**, **Severity**, **Has open vulnerabilities**, **Known exploited (KEV)**,
+  **Fix available**, **Ecosystem**, **Dependency** (direct or transitive),
+  **Scope** (runtime, development, test, build, optional or provided) and
+  **License**. Search, sort, page and filters are kept in the address.
+- Click a package for its page (`/components/{id}`): the package URL (with a copy
+  button), licenses, KEV flag and risk, and the tabs **Versions** (with the
+  version to upgrade to, and a hint when it is a major version), **Where used**
+  (the asset, version, direct or transitive, scope, manifest and open findings;
+  **Show how this package is brought in** lists the dependency paths, and
+  **Graph** draws the asset's dependency graph, with the vulnerable packages and
+  every path to them highlighted), **Vulnerabilities** (with links to the
+  findings of each CVE; **Include closed findings** adds the closed ones) and
+  **VEX**.
+- With no packages yet the page says **No components yet** and offers **Import
+  SBOM** or **Set up a sensor**.
+- License verdicts follow the organization's license policy under **Settings ›
+  Organization › License policy**.
+
+### VEX statements
+
+The **VEX** tab lists the statements about the package: status (**Not
+affected**, **Affected**, **Fixed** or **Under investigation**), justification,
+the versions or range, every asset or one asset, a review date, and whether it
+was written or imported. **New statement**, **Edit** and **Delete** need the
+approve permission on findings. A **Not affected** statement does not close
+findings by itself: it asks for false positive approval for the open findings it
+covers (a person approves it, and the findings stay open until then), and
+**Fixed** resolves them. Statements also apply to findings reported later, and a
+statement for every asset needs access to every asset. **Import VEX** reads an
+OpenVEX, CSAF VEX or CycloneDX VEX document (JSON, up to 5 MB) in three steps
+(file and optional asset, preview, import); statements about packages not in the
+inventory are skipped. See [Known false positives](known-false-positives.md).
+
+### Import an SBOM
+
+**Import SBOM** is a three-step dialog: choose the **asset the SBOM
+describes** and the file (CycloneDX 1.4 to 1.6 or SPDX 2.2 and 2.3, JSON, up to
+50 MB), check the **preview** (new, unchanged and recorded-but-not-in-the-file
+packages, and skipped entries; nothing is written yet) and import. Packages the
+file lists replace the ones recorded for the same manifest.
 
 ### Export an SBOM
 
-**Export SBOM** (`/components/sbom-export`, with the SBOM export module):
+**Export SBOM** opens a dialog:
 
-1. Choose the **SBOM Format**: CycloneDX (CycloneDX 1.6 JSON) or SPDX (SPDX 2.3
-   JSON).
-2. Click **Export SBOM**. The server builds the document from the components
-   you may see and your browser saves it (`sbom-<date>.cdx.json` or
+1. Choose the **Format**: CycloneDX (1.6 JSON) or SPDX (2.3 JSON).
+2. Choose the **Contents**: **One asset** or **Every asset I can see**.
+3. Click **Download**. The server builds the document from the components you
+   may see and your browser saves it (`sbom-<date>.cdx.json` or
    `sbom-<date>.spdx.json`).
 
 The document lists each component with its package URL, licenses (SPDX

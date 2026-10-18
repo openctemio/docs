@@ -32,7 +32,8 @@ OpenCTEM is an open-source, self-hosted platform. The platform operator (your or
 |------|---------|-----------|
 | Organization name, slug | Organization identification | Until the organization is deleted |
 | Member list and roles | Access control (RBAC) | Until the member is offboarded or the organization is deleted |
-| Invitation records | User onboarding | Expire after 7 days; kept until the organization is deleted |
+| Invitation records | User onboarding | Expire after 7 days; kept until the organization is deleted (cancelled or declined invitations are purged after 30 days) |
+| Requests for access (email address, a hash of the requester's IP address), when sign-up is closed | Letting an administrator decide on a new organization | Unconfirmed requests 24 hours; decided requests 90 days |
 
 ### 2.3 Security Data (Your Data)
 
@@ -93,7 +94,7 @@ We do NOT:
 ### 4.2 Access Control
 
 - **Multi-tenant isolation**: All database queries filtered by `tenant_id`
-- **RBAC**: about 160 granular permissions across all modules
+- **RBAC**: about 170 granular permissions across all modules
 - **2-layer model**: Permissions (what you can DO) + Groups (what data you can SEE)
 - **Session limits**: Maximum 10 concurrent sessions per user (configurable)
 - **Account lockout**: 5 failed login attempts trigger a 15-minute lockout (configurable)
@@ -122,13 +123,15 @@ When an administrator configures integrations, data may be shared with:
 | Integration | Data Shared | Purpose |
 |-------------|-------------|---------|
 | Jira | Finding title, severity, description | Ticket creation |
-| Slack / Teams / Telegram | Alert summaries, severity | Notifications |
+| Slack / Teams / Telegram | Event type, severity and a link by default; finding and asset details only for channels where an administrator turned on **Include details in notifications** | Notifications |
 | GitHub / GitLab | Repository metadata, scan status | SCM sync |
 | Email (SMTP) | Alert content, invitation and password links | Notifications, invitations |
 | AI providers (Anthropic Claude, OpenAI, Google Gemini) | Finding details | AI-assisted triage, if enabled |
 | Webhooks / Splunk HEC | Event payloads | Custom integrations |
+| AI assistants connected over MCP | What the application requests, limited to what the person who connected it can see and to the organization's settings | AI assistants working with the organization's data |
+| Release feed host (GitHub by default) | One anonymous download a day of the signed release feed; no instance identifier, version or counts. The operator can turn it off | Telling administrators about new and security releases |
 
-**AI triage** is off unless the operator enables it, and each organization chooses whether to use it with the platform's provider, its own API key, or not at all. When it is used, finding details are sent to the selected provider for analysis and are subject to that provider's data processing terms.
+**AI triage** is available only when the operator or the organization supplies a provider key, and each organization chooses whether to use it with the platform's provider, its own API key, or not at all. When it is used, finding details are sent to the selected provider for analysis and are subject to that provider's data processing terms.
 
 ### 5.3 No Other Sharing
 
@@ -144,14 +147,15 @@ We do not share your data with any other third parties unless:
 | Security data (assets, findings) | Until deleted by a user | No |
 | Audit logs | Indefinitely; can be archived and pruned after 365 days or more | Yes |
 | Session records | Deleted once expired or revoked (sessions last at most 30 days) | Session lifetime only |
-| Invitations | Expire after 7 days | No |
+| Invitations | Expire after 7 days; cancelled or declined ones are purged after 30 days | No |
 | In-app notification history | 90 days | No |
 | Soft-deleted assets | Purged after 30 days | No |
 
 ### 6.1 Deletion
 
+- A person can delete their own account (**My account > Security > Delete account**). Their sessions end at once; signing in again within 14 days cancels it; after that the account leaves every organization and its personal data is erased.
 - Organization owners can offboard members and erase a former member's personal data; erasure anonymises the account. Existing audit log entries keep the details recorded at the time.
-- Tenant owners can delete the entire tenant. Its database records are deleted immediately; uploaded files and backups are removed by the platform operator.
+- Tenant owners can delete the entire tenant. Its database records and its uploaded files are deleted immediately; backups are managed by the platform operator.
 - Backup retention is managed by the platform operator.
 
 ## 7. Your Rights
@@ -162,7 +166,7 @@ Depending on your jurisdiction, you may have the following rights:
 |-------|-----------------|
 | **Access** | Export your data via the Service's export features, or ask your tenant administrator |
 | **Correction** | Update your profile and data through the Service |
-| **Deletion** | Ask your tenant administrator to offboard and erase your account |
+| **Deletion** | Delete your own account under My account > Security, or ask your tenant administrator to offboard and erase it |
 | **Portability** | Export data in CSV/JSON format via API |
 | **Objection** | Contact your tenant administrator |
 | **Restriction** | Contact your tenant administrator |
@@ -180,7 +184,7 @@ For GDPR, CCPA, or other regulatory requests, contact your platform administrato
 | `app_user_info`, `app_pending_tenants` (cookies) | Sign-in and organization selection | 5 minutes, 1 hour |
 | `mfa_challenge` (httpOnly cookie) | Two-factor sign-in step | 5 minutes |
 | `saml_authn_<org>` (cookie) | SAML sign-in in progress | Sign-in duration |
-| `admin_session`, `admin_mfa`, `admin_csrf`, `admin_idp` (cookies) | Platform admin console session | Console session (at most 8 hours) |
+| `admin_session`, `admin_mfa`, `admin_csrf`, `admin_idp` (cookies, on the platform console's own site) | Platform admin console session | Console session (at most 8 hours) |
 | `locale` (cookie) | Language preference | 1 year |
 | `sidebar_state` (cookie) | Sidebar open or closed | 7 days |
 | `theme` and other UI preference keys (localStorage) | UI preferences (theme, dashboard view, table density, filter panels) and unsent form drafts | Persistent, in your browser only |

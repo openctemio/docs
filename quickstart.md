@@ -49,35 +49,29 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.9.6          # the release you deploy
+git checkout v0.10.1         # the release you deploy
 cd api/deploy
-cp .env.example .env
-for v in DB_SUPERUSER_PASSWORD DB_MIGRATE_PASSWORD DB_PASSWORD REDIS_PASSWORD; do
-  sed -i "s|^$v=.*|$v=$(openssl rand -hex 24)|" .env
-done
-sed -i "s|^AUTH_JWT_SECRET=.*|AUTH_JWT_SECRET=$(openssl rand -hex 64)|" .env
-sed -i "s|^APP_ENCRYPTION_KEY=.*|APP_ENCRYPTION_KEY=$(openssl rand -hex 32)|" .env
-chmod 600 .env
+./setup.sh ctem.example.com  # writes .env: the host name and generated secrets
 ```
 
-Edit `.env` and set at least:
+`setup.sh` never overwrites an existing `.env` and never prints a secret. It
+selects the gateway's own certificate authority (TLS mode `internal`, for a LAN
+or an IP address); for a public DNS name with Let's Encrypt run
+`./setup.sh ctem.example.com --acme you@example.com` instead. It also sets up
+the platform console's own site (see step 2). Check the configuration and start
+the stack:
 
 ```bash
-OPENCTEM_HOSTNAME=ctem.example.com
-OPENCTEM_TLS_MODE=internal     # the gateway's own CA; acme for Let's Encrypt
-```
-
-Start it and check it answers:
-
-```bash
+docker compose run --rm api -check-config   # optional preflight
 docker compose up -d
 docker compose ps
 curl --cacert ca/openctem-root-ca.crt https://ctem.example.com/health
 ```
 
-The one-shot jobs (`datastore-tls`, `db-roles`, `migrate`) exit with code 0;
-`gateway`, `web`, `api`, `postgres` and `redis` stay up. Back up `.env` now:
-`APP_ENCRYPTION_KEY` cannot be recovered.
+The one-shot jobs (`gateway-init`, `datastore-tls`, `db-roles`, `migrate`,
+`db-grants`) exit with code 0; `gateway`, `web`, `console`, `api`, `postgres`
+and `redis` stay up. Back up `.env` now: `APP_ENCRYPTION_KEY` cannot be
+recovered, and `FINGERPRINT_KEY` must be kept with it.
 
 Full guide: [Docker Compose](install/docker-compose.md). TLS choices:
 [TLS and the gateway](install/tls-and-gateway.md).
@@ -97,8 +91,11 @@ break-glass administrator, and a one-time set-password link for the
 organization owner (also emailed when SMTP is configured). Copy them now: they
 are shown once.
 
-- The **platform administrator** runs the installation from the admin console
-  (`/admin`) and cannot see organization data.
+- The **platform administrator** runs the installation from the platform
+  console, a separate site of its own (by default `https://ctem.example.com:8443/`,
+  reachable from private networks only; `setup.sh` prints its address) with its
+  own sign-in and second factor. The platform administrator cannot see
+  organization data. See [Platform administration](user-guide/11-platform-administration.md).
 - The **organization owner** works inside the organization. The rest of this
   guide uses the owner's account.
 
@@ -107,7 +104,8 @@ Full guide: [First administrator](install/first-admin.md).
 ## 3. Sign in as the owner
 
 Open the set-password link, choose a password, and sign in at
-`https://ctem.example.com/login`. With TLS mode `internal`, the browser warns
+`https://ctem.example.com/login` (the platform administrator signs in on the
+console site instead). With TLS mode `internal`, the browser warns
 until you import `ca/openctem-root-ca.crt`. You land on the dashboard of
 **Example Corp**; lists are empty until the first scan.
 
@@ -115,30 +113,35 @@ until you import `ca/openctem-root-ca.crt`. You land on the dashboard of
 
 *Figure: the dashboard, here for an organization that already has scan results. A new organization shows empty lists until its first scan.*
 
-Enroll an authenticator app under your account's **Security** settings while
-you are here ([Two-factor authentication](identity/two-factor.md)).
+A new organization requires two-factor authentication for its owner and
+administrators, so the first sign-in ends with setting up an authenticator app
+(scan the QR code, enter the code, save the recovery codes). Anyone else can
+enroll under **Settings > My account > Security**
+([Two-factor authentication](identity/two-factor.md)).
 
 ## 4. Authorize a target: scope and domain proof
 
 Nothing is actively probed unless an **active scope entry** of your
 organization covers it.
 
-1. Open **Scoping > Scope**, tab **In scope**, and add `*.example.com` (it
-   covers `example.com` and every name below it). Keep the default highest
-   tier, `t1` (non-intrusive active checks). Turn **discovery** on so attack
-   surface monitoring watches the domain.
-2. Adding scope widens what may be probed, so the console asks you to
-   re-authenticate. With a single administrator no second approval is needed
-   and the entry becomes `active`.
-3. Open the **Domain proof** tab, add `example.com` and publish the TXT record
-   it shows:
+1. Open **Scoping > Scope**, tab **In scope**, choose **Add to scope** and
+   type `example.com`. The kind (domain) is detected. Under **Covers**, keep
+   the domain and every name below it (`*.example.com`), keep the duration
+   **Permanent**, and give a **Reason**.
+2. Adding scope widens what may be probed, so the console asks you to confirm
+   your identity. Under the default scan approval no second person is needed:
+   the entry is **Active** at once. (Organizations that turn on **Strict** scan
+   approval get a request that another approver must approve.)
+3. Open the **Domain proof** tab, enter `example.com`, choose **Prove a
+   domain** and publish the TXT record it shows:
 
    | Host | Value |
    |---|---|
    | `_openctem-verify.example.com` | `openctem-domain-verification=<token>` |
 
-   Then choose **Check now**. Proof is not authorization (the scope entry
-   is), but intrusive checks, and some installations, require it.
+   Then choose **Check**. Proof is not authorization (the scope entry is), but
+   intrusive (T2) checks need it, and so do scans on shared sensors when the
+   platform administrator requires it.
 
 ![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 
@@ -205,9 +208,11 @@ The sensor shows as `online` within a few seconds. Details:
 3. What to run: the starter scan workflow **Discover** (find subdomains,
    resolve them, probe their web services) or **Discover + Vuln** (adds port
    scans and non-intrusive nuclei templates).
-4. The last step previews which sensor takes each target and whether every
-   step has a sensor that can run it.
-5. Save, then **Run now**.
+4. The **Review** step shows which scan zone and sensor take each target, and
+   whether every step has a sensor that can run it. A **Scope check** on the
+   **Targets** step refuses names that no scope entry covers.
+5. On the **Schedule** step keep **Run immediately** and choose **Start scan**
+   (or **Save without running** and start it later from the scan's page).
 
 ![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
 

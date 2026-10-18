@@ -10,8 +10,8 @@ OpenCTEM keeps two audit trails:
 
 | Trail | What it records | Who reads it |
 |---|---|---|
-| Organization audit log (`audit_logs`) | Actions inside an organization, and sign-in events | Organization owners and admins (`audit:read`); every user sees their own actions under **Account > Activity** |
-| Platform audit log (`admin_audit_logs`) | Actions taken in the platform admin console | Platform administrators (any console role) |
+| Organization audit log (`audit_logs`) | Actions inside an organization, and sign-in events | Organization owners and admins (`audit:read`) whose data access is full, because entries name assets and findings; every user sees their own actions under **Account > Activity** |
+| Platform audit log (`admin_audit_logs`) | Actions taken in the platform admin console | Platform administrators (any console role), in the platform console under **Security > Admin activity** |
 
 Every organization audit entry is also linked into a per-organization SHA-256 hash chain, so that
 editing or deleting entries afterwards is detectable.
@@ -57,11 +57,11 @@ Over the API (tenant from the access token):
 
 | Method and path | Permission | Purpose |
 |---|---|---|
-| `GET /api/v1/audit-logs` | `audit:read` | List and filter. Query parameters: `actor_id`, `action`, `resource_type`, `resource_id`, `result`, `severity`, `request_id`, `search`, `since`, `until`, `exclude_system`, `sort_by`, `sort_order`, pagination (`page`, `per_page`) |
-| `GET /api/v1/audit-logs/stats` | `audit:read` | Counts |
-| `GET /api/v1/audit-logs/{id}` | `audit:read` | One entry |
-| `GET /api/v1/audit-logs/resource/{type}/{id}` | `audit:read` | History of one resource |
-| `GET /api/v1/audit-logs/user/{id}` | `audit:read`, or the caller's own id | Activity of one user |
+| `GET /api/v1/audit-logs` | `audit:read` and full data access | List and filter. Query parameters: `actor_id`, `action`, `resource_type`, `resource_id`, `result`, `severity`, `request_id`, `search`, `since`, `until`, `exclude_system`, `sort_by`, `sort_order`, pagination (`page`, `per_page`) |
+| `GET /api/v1/audit-logs/stats` | `audit:read` and full data access | Counts |
+| `GET /api/v1/audit-logs/{id}` | `audit:read` and full data access | One entry |
+| `GET /api/v1/audit-logs/resource/{type}/{id}` | `audit:read` and full data access | History of one resource |
+| `GET /api/v1/audit-logs/user/{id}` | `audit:read` and full data access, or the caller's own id | Activity of one user |
 | `GET /api/v1/audit-logs/verify` | owner or admin | Verify the hash chain |
 
 There is no bulk export button. To archive the log in another system, page through
@@ -69,7 +69,7 @@ There is no bulk export button. To archive the log in another system, page throu
 read-only and can call these routes if the key has the `audit:read` scope (see
 [API authentication](../api/authentication.md)).
 
-Platform administrators read the platform audit log in the admin console (**System logs**) or with
+Platform administrators read the platform audit log in the platform console (**Security > Admin activity**) or with
 `GET /api/v1/admin/audit-logs`.
 
 ## Hash chain
@@ -106,7 +106,7 @@ Read these before relying on the chain as evidence:
   metadata and change values are stored with the entry but are not part of the hash.
 - A **rebaseline** re-signs an organization's chain from the current rows. It exists only to repair
   breaks left by a historical timestamp-precision defect. It is available only to a platform
-  super admin in the admin console (**Organizations > organization > Audit chain**), after a
+  super admin in the platform console (**Organizations**, open the organization, **Audit chain** tab), after a
   classification shows that every break is explained, with a fresh authenticator code. Every
   rebaseline keeps the overwritten hashes in `audit_chain_rebaselines` and
   `audit_chain_rebaseline_entries` and writes a critical `audit.chain_rebaselined` event.

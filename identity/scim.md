@@ -15,7 +15,7 @@ or let provisioned people set a password.
 
 ## 1. Create a SCIM token
 
-In the organization, **Settings > SCIM** (owner only):
+In the organization, **Settings > Directory sync (SCIM)** (the owner generates and revokes tokens; admins can view them):
 
 1. Select **Generate token**, give it a name (for example `Okta production`) and confirm with
    [step-up re-authentication](two-factor.md#step-up-re-authentication).
@@ -57,7 +57,7 @@ provider's service); the token is the boundary.
 
 | Operation | Effect |
 |---|---|
-| `POST /Users` | Normalises the email to lower case, finds or creates a passwordless account, and adds an active membership with the `member` role. Re-sending an existing active member is idempotent. An email that already has an account but is not a member is attached only when the organization has DNS-verified that email domain; otherwise the answer is `409 uniqueness` and the person must be invited. The organization's allowed email domains apply. |
+| `POST /Users` | Normalises the email to lower case, finds or creates a passwordless account, and adds an active membership with the `viewer` role (least privilege: no data until a team includes the person), unless an identity-provider group maps them higher. Re-sending an existing active member is idempotent. An email that already has an account but is not a member is attached only when the organization has DNS-verified that email domain; otherwise the answer is `409 uniqueness` and the person must be invited. The organization's allowed email domains apply. |
 | `PATCH active:false` | Suspends the membership: sessions are revoked and cached permissions cleared at once. |
 | `PATCH active:true` | Re-activates the membership. |
 | `DELETE /Users/{id}` | Offboards the member (access, keys, groups and grants removed). If the person still owns work that must be reassigned, the membership is suspended instead and the organization's admins are notified to finish offboarding. |
@@ -77,8 +77,10 @@ Group membership in the identity provider can set a member's organization role:
   ```
 
   There is no console page for mappings yet; use the API with an owner or admin session.
-- A member's role is the highest role among their mapped groups (`admin` > `member` > `viewer`); with
-  no mapped group it is `member`.
+- A member's role is the highest role among their mapped groups (`admin` > `member` > `viewer`). With
+  no mapped group nothing is raised: a provisioned person stays `viewer`, and only an administrator
+  falls back to `member` when they leave the admin group. To give SCIM users the member role, map a
+  group to `member`.
 - **Admin is the owner's decision.** Only an owner can add, change or remove a mapping to `admin`, and
   only an owner-configured mapping grants admin. SCIM never demotes an administrator who was
   appointed by hand until the owner has configured at least one admin mapping.
@@ -95,7 +97,7 @@ id and prefix in the metadata. Role changes are high severity. See [Audit log](.
 | Symptom | Cause |
 |---|---|
 | `401` | The token is revoked or wrong. Generate a new one (the old value cannot be shown again). |
-| Everyone is `member` | Expected without a group mapping. |
+| Everyone is `viewer` | Expected without a group mapping. Map a group to `member` or higher. |
 | Admin group members are not promoted | The admin mapping was not saved by an owner. Have an owner save the mappings again. |
 | `403` when saving mappings | Only an owner may change a mapping to `admin`. |
 | `409 uniqueness` on create | The email already has an account on the installation and the domain is not verified for the organization. Invite the person instead. |

@@ -11,11 +11,11 @@ Local accounts (email and password) can protect their sign-in with a time-based 
 actions ask for a fresh proof of identity even inside a signed-in session (step-up).
 
 Accounts that sign in only through SSO have no password in OpenCTEM; their second factor is the
-identity provider's. The platform admin console has its own TOTP, which is always required.
+identity provider's. The platform admin console has its own second step, which is always required (see [Platform administrators](#platform-administrators)).
 
 ## Turning on 2FA
 
-In **Account > Security**:
+In **Settings > My account > Security**:
 
 1. Select **Set up two-factor authentication**. Scan the QR code (or enter the secret) in your
    authenticator app.
@@ -30,7 +30,7 @@ Turning 2FA on signs out every other session of your account.
 From then on, sign-in asks for a code after the password. A recovery code can be used instead of a
 code; using one is audited and emailed to you.
 
-| Action (Account > Security) | Needs |
+| Action (Settings > My account > Security) | Needs |
 |---|---|
 | Turn 2FA on | password and a code |
 | Turn 2FA off | password and a code or an unused recovery code; you are emailed |
@@ -48,8 +48,16 @@ stored as bcrypt hashes.
 
 ## Requiring 2FA in an organization
 
-An owner turns on **Require two-factor authentication** under **Settings > Authentication**.
-Then:
+An owner turns on **Require two-factor authentication** under **Settings > Authentication** (in the
+**Access** group). **Require two-factor authentication for owners and admins** is a narrower switch
+that is on for every organization created from now on (organizations created before keep it off until
+an owner turns it on; it is on and locked while the first switch is on). The creator of a new
+organization without 2FA gets the organization but no access token (`403 MFA_ENROLLMENT_REQUIRED`) and
+enrols at the next sign-in. Other rules can also demand 2FA: a person outside the organization who
+holds a role above member, or whose personal address is allowed only with 2FA, must prove a second
+factor every time they open the organization (see
+[Sign-up and invitations](sign-up-and-invitations.md#people-outside-the-organization)). With the
+switch on:
 
 - A member who has not enrolled is asked to enrol at their next sign-in and gets no session until they
   do.
@@ -85,6 +93,27 @@ Rules for the reset:
 - because the factor belongs to the account and not to one organization, the caller needs the same
   authority in **every** organization the person belongs to.
 
+## Platform administrators
+
+The admin console has its own sign-in on its own site: email and password (or the platform identity
+provider, see [OIDC](sso-oidc.md#platform-administrator-sign-in)), then a second step every time.
+There is no way to turn it off.
+
+- **Authenticator app.** Every administrator enrols a TOTP authenticator at first sign-in.
+- **Security keys and passkeys** (**My security keys** in the console, under Security). The console
+  offers them before the authenticator code. A key is bound to the console's own origin
+  (`ADMIN_PUBLIC_URL`; changing the host makes registered keys unusable). Register at least two keys
+  (one as a spare).
+- **Recovery codes.** Ten one-time codes per administrator, shown once, used at sign-in when no key
+  is at hand. They never confirm a sensitive action.
+- **Require security keys** (**System > Admin sign-in**, super admin): administrators who hold a key
+  must use it and the authenticator app is refused for them, after a 7-day grace period for those
+  who have none. It turns on only when the administrator enabling it has two keys and recovery codes.
+  Break-glass administrators keep the authenticator app.
+- Sensitive console actions ask for a fresh code or key confirmation. With `ADMIN_ELEVATION=required`
+  (the default) a console session is read-only until the administrator presses **Elevate** (a role
+  no higher than their own, 15 to 60 minutes, with a reason).
+
 ## Step-up re-authentication
 
 Some actions could hand the organization to someone who has stolen a session. For those, the API
@@ -94,7 +123,9 @@ requires that the session proved the user's identity within the last **10 minute
 - changing organization security settings (2FA requirement, IP allowlist, allowed domains, SSO
   settings); approving an SSO change;
 - deleting the organization; offboarding or erasing a member; removing a member's 2FA;
-- making someone an admin or owner; renaming the organization's slug;
+- making someone an admin; transferring ownership; renaming the organization's slug;
+- changing who may join with a verified domain (**Settings > Domains**); inviting someone outside the
+  organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;
   allowing bearer-key sensors again;
 - revealing a stored credential; reading or rotating an inbound webhook secret; changing where

@@ -27,8 +27,8 @@ bottom, and so does this guide.
 ```mermaid
 flowchart LR
     S["<b>Scoping</b><br/>what is in scope,<br/>what matters<br/><br/>Overview, Cycles,<br/>Business context,<br/>Scope, Threat model"]
-    D["<b>Discovery</b><br/>assets, exposures,<br/>findings<br/><br/>Scans, Sensors, CI/CD,<br/>Attack surface, Assets,<br/>Exposures, Credential leaks,<br/>Components, Findings"]
-    P["<b>Prioritization</b><br/>rank by real risk<br/><br/>Exposure chains,<br/>Attack paths, Threat intel,<br/>Business impact,<br/>Compensating controls,<br/>Priority rules"]
+    D["<b>Discovery</b><br/>assets, exposures,<br/>findings<br/><br/>Scans, Sensors, CI/CD,<br/>Attack surface, Assets,<br/>Exposures, Credential leaks,<br/>Components"]
+    P["<b>Prioritization</b><br/>rank by real risk<br/><br/>Exposure chains,<br/>Attack paths, Threat intel,<br/>Indicators, Detections,<br/>Business impact,<br/>Compensating controls,<br/>Priority rules"]
     V["<b>Validation</b><br/>is it really<br/>exploitable?<br/><br/>Overview, Pentest campaigns,<br/>Attack simulation,<br/>Control testing,<br/>Retest queue, ATT&CK coverage"]
     M["<b>Mobilization</b><br/>fix it, track it,<br/>enforce SLAs<br/><br/>Remediation,<br/>SLA compliance,<br/>Exceptions, Automations"]
     S --> D --> P --> V --> M
@@ -37,8 +37,9 @@ flowchart LR
     M ~~~ I
 ```
 
-Each box lists the sidebar entries of that stage. **Findings** sits at the top of
-the sidebar, next to the dashboard and **My work**, because every stage uses it.
+Each box lists the sidebar entries of that stage. **Findings** and **Approvals**
+sit at the top of the sidebar, next to the dashboard and **My work**, because
+every stage uses them.
 
 | Stage | Goal | Chapter |
 |---|---|---|
@@ -83,8 +84,11 @@ That is the most important workflow in the product; it is covered first in
 10. [Settings and integrations](10-settings-and-integrations.md): the settings
     area, organization settings, modules, policies, scanning settings and
     integrations.
-11. [Platform administration](11-platform-administration.md): the admin console
-    for platform administrators.
+11. [Platform administration](11-platform-administration.md): the platform
+    console for platform administrators.
+12. [Connect an AI assistant](12-connect-an-ai-assistant.md): let an AI
+    assistant work with your organization's data, as you, within your
+    organization's policy.
 
 ## Things worth knowing up front
 
@@ -104,8 +108,9 @@ That is the most important workflow in the product; it is covered first in
   [Settings › Organization › Modules](10-settings-and-integrations.md#modules).
 - **Most assets come from scans and integrations.** You enrich them with
   context: criticality, owner, business unit, crown-jewel status.
-- **Sensitive actions need a second person.** Marking a finding a false positive
-  or accepting its risk goes through an approval request, and verifying a fix
-  is a separate permission from triaging it.
+- **Sensitive actions need a second person.** Accepting a risk always goes
+  through an approval request, and so does marking a finding a false positive
+  (at the level your organization sets under **Settings > Finding approvals**).
+  Verifying a fix is a separate permission from triaging it.
 - **Lists start empty.** Until the first scan or import, most data pages show an
   honest empty state with a suggested next step, not sample numbers.

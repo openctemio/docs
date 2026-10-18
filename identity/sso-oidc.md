@@ -28,8 +28,9 @@ sign-in. Key fetches go through an outbound guard that refuses private and loopb
 
 1. **Applications > Create App Integration > OIDC - OpenID Connect > Web Application.**
 2. **Grant type:** Authorization Code.
-3. **Sign-in redirect URI:** `https://<console>/auth/sso/callback/okta`, where `<console>` is the
-   public origin of the web console.
+3. **Sign-in redirect URI:** `https://<app>/auth/sso/callback/okta`, where `<app>` is the public
+   origin of OpenCTEM, the address people open in the browser (`APP_URL`; not the platform admin
+   console's own site).
 4. **Assignments:** assign the users or groups who may sign in.
 5. Copy the **Client ID**, the **Client secret** and your Okta org URL (for example
    `https://example.okta.com`).
@@ -40,26 +41,29 @@ issuer must be exactly that; a custom authorization server is not supported.
 ### Step 2: Configure it in OpenCTEM
 
 A platform administrator (super admin) opens **Admin console > Organizations >** the organization
-**> Single sign-on**:
+**> Single sign-on** (tab; every change needs a fresh authenticator code):
 
 1. **Verified domains:** add the organization's email domain and publish the TXT record shown
-   (`_openctem-verify.<domain>`, value `openctem-domain-verification=<token>`), then **Verify**.
-2. **Identity providers:** add a provider:
+   (`_openctem-verify.<domain>`, value `openctem-domain-verification=<token>`), then **Verify now**.
+2. **Identity providers:** open **Okta** and fill in:
 
    | Field | Value |
    |---|---|
-   | Provider | `okta` |
    | Display name | Button label |
+   | Okta Org URL | Your Okta org URL, `https://...` (required: it locates the signing keys) |
    | Client ID, Client secret | From Okta. The secret is stored encrypted with `APP_ENCRYPTION_KEY`. |
-   | Tenant identifier | Your Okta org URL, `https://...` (required: it locates the signing keys) |
-   | Scopes | `openid`, `email`, `profile`. Set them explicitly: the built-in default list also contains a Microsoft-only scope. |
-   | Allowed domains | Optional narrowing of the verified domains |
-   | Auto-provision, Default role | Just-in-time provisioning; default role `viewer` or `member` |
+   | Allowed email domains | Optional narrowing of the verified domains |
+   | Auto-provision users, Default role | Just-in-time provisioning; default role `viewer` or `member` |
+
+   The console form has no scopes field. The built-in default list is `openid email profile User.Read`;
+   send `scopes` (`openid`, `email`, `profile`) with the admin API
+   (`POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`) if your provider rejects the
+   Microsoft-only `User.Read`.
 
 3. An organization owner approves the change under **Settings > SSO approvals** (unless the
    organization has no owner yet).
 
-Users sign in at `https://<console>/login?org=<organization-slug>`. The email comes from Okta's
+Users sign in at `https://<app>/login?org=<organization-slug>`. The email comes from Okta's
 userinfo endpoint and must be verified there (`email_verified`). Admission, account binding, SSO
 enforcement and the redirect URI allow-list (`SSO_ALLOWED_REDIRECT_URIS`) work as described for
 [Entra ID](sso-entra-id.md#who-is-admitted).
@@ -77,15 +81,21 @@ instead of a password. Any provider that publishes OpenID discovery
 (`/.well-known/openid-configuration`) works.
 
 1. In your provider, create a confidential web client with the redirect URI
-   `https://<console>/admin/login/callback`.
-2. In the admin console, **System > Admin sign-in**, enter the issuer URL (https, as published in the
-   discovery document), the client ID and secret, and the redirect URI.
+   `https://<console-origin>/login/callback`, where `<console-origin>` is the admin console's own
+   site (its own host name, or the gateway's console port, `OPENCTEM_ADMIN_PORT`, 8443 by default;
+   the shipped default is `https://<OPENCTEM_HOSTNAME>:8443`).
+2. In the admin console, **System > Admin sign-in** (super admins only), turn the provider on and
+   enter the **Button label**, **Issuer URL** (https, as published in the discovery document),
+   **Client ID**, **Client secret**, **Redirect URI** and **Scopes**.
 3. Each administrator is matched by email at the first provider sign-in and bound to the provider's
    subject after that.
 
-A TOTP code from the console authenticator is still required after the provider sign-in, and a local
-break-glass administrator keeps password access. Organization identity providers are never trusted
-for the admin console.
+By default the console still asks for its own second step (authenticator code, recovery code or
+security key) after the provider sign-in. If your provider enforces phishing-resistant MFA and
+reports it in the token, list its **Trusted acr values** or **Trusted amr values** to skip the
+console code for those tokens. **Require the identity provider** refuses password sign-in for every
+administrator except break-glass accounts, which stay local (add an active break-glass super admin
+first). Organization identity providers are never trusted for the admin console.
 
 ## External provider mode (Keycloak)
 

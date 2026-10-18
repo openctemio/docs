@@ -15,10 +15,11 @@ OpenCTEM has two independent ways to sign in with Microsoft. They do not share c
 | Directory | The organization's own directory (single tenant) | Any Entra directory (`/common`) |
 | Joins people to an organization | Yes, just-in-time for DNS-verified domains, if enabled | No |
 | Counts as the organization's SSO (SSO enforcement, 2FA requirement) | Yes | No |
-| Redirect URI | `https://<console>/auth/sso/callback/entra_id` | `https://<console>/auth/callback/microsoft` |
+| Redirect URI | `https://<app>/auth/sso/callback/entra_id` | `https://<app>/auth/callback/microsoft` |
 
-`<console>` is the public origin of the web console (`NEXT_PUBLIC_APP_URL`; with the bundled gateway,
-`OPENCTEM_PUBLIC_URL`).
+`<app>` is the public origin of OpenCTEM, the address people open in the browser (`APP_URL`; with the
+bundled gateway `OPENCTEM_PUBLIC_URL`, by default `https://<OPENCTEM_HOSTNAME>`). It is not the
+platform admin console's own site.
 
 You can also connect Entra ID with [SAML 2.0](sso-saml.md) instead of OIDC, and provision users with
 [SCIM](scim.md).
@@ -50,31 +51,33 @@ and guest users whose email domain is not verified in the signing directory are 
 
 ## Step 2: Configure organization SSO
 
-Organization SSO is configured by a **platform administrator** (super admin) in the admin console, not
-by the organization's own admins:
+Organization SSO is configured by a **platform administrator** (super admin, with a fresh
+authenticator code for every change) in the admin console, not by the organization's own admins:
 
-1. **Admin console > Organizations >** the organization **> Single sign-on**.
+1. **Admin console > Organizations >** the organization **> Single sign-on** (tab).
 2. Under **Verified domains**, add the organization's email domain. Publish the TXT record shown:
 
    | Host | Type | Value |
    |---|---|---|
    | `_openctem-verify.example.com` | TXT | `openctem-domain-verification=<token>` |
 
-   Then select **Verify**. A domain can be verified for SSO by only one organization on the
+   Then select **Verify now**. A domain can be verified for SSO by only one organization on the
    installation; public email providers, disposable-email domains and public suffixes are refused.
-3. Under **Identity providers**, add a provider:
+3. Under **Identity providers**, open **Microsoft Entra ID** and fill in:
 
    | Field | Value |
    |---|---|
-   | Provider | `entra_id` (Microsoft Entra ID) |
    | Display name | The button label, for example `Sign in with Contoso` |
+   | Directory (Tenant) ID | Directory (tenant) ID. Do not use `common`. |
    | Client ID | Application (client) ID |
    | Client secret | The secret value. It is stored encrypted with `APP_ENCRYPTION_KEY`. |
-   | Tenant identifier | Directory (tenant) ID. Do not use `common`. |
-   | Scopes | Leave empty for the default `openid email profile User.Read`. A custom list must include `openid`. |
-   | Allowed domains | Optional. Narrows which verified domains may sign in. |
-   | Auto-provision | On to create memberships at first sign-in (just-in-time) |
+   | Allowed email domains | Optional. Narrows which verified domains may sign in. |
+   | Auto-provision users | On to create memberships at first sign-in (just-in-time) |
    | Default role | `viewer` (default) or `member`. SSO never provisions admins or owners. |
+   | Status | Active or not |
+
+   The scopes are `openid email profile User.Read` unless a custom list (which must include `openid`)
+   is sent with the admin API (`scopes` on `POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`).
 
 4. If the organization already has an owner, the change is **pending** until an owner approves it in
    the organization under **Settings > SSO approvals** (with step-up re-authentication). The owner
@@ -87,7 +90,7 @@ by the organization's own admins:
 ![The SSO approvals page where the organization owner approves or rejects the proposed identity provider]({{ site.baseurl }}/assets/images/identity/sso-approvals.png)
 *Figure: The owner approves the change under Settings, SSO approvals.*
 
-Users then sign in at `https://<console>/login?org=<organization-slug>` and choose the provider.
+Users then sign in at `https://<app>/login?org=<organization-slug>` and choose the provider.
 
 ### Who is admitted
 
@@ -109,7 +112,15 @@ tab), once a working provider exists. Members must then sign in through the orga
 provider; a password session or another organization's SSO is refused for this organization. The
 organization **owner** can always sign in with a password, so the organization cannot be locked out.
 The owner can grant time-limited exceptions to named members (`sso_exceptions`, at most 90 days, 2FA
-required).
+required; an invitation to someone outside the organization says so when SSO is enforced).
+
+An owner can also turn on **Approve new SSO members** (`jit_requires_approval`, owner with step-up): people the
+organization's SSO admits for the first time wait with no access until an administrator approves them
+under **Settings > Members**; rejecting offboards them.
+
+The platform administrator can also choose, per verified domain, whether new people from that domain
+are admitted at all and in which role (**New people** action on the domain: **Admit new people**,
+and **Identity provider default**, Viewer or Member).
 
 ## Step 3: Optional: one shared Entra app for selected organizations
 
@@ -140,7 +151,7 @@ In the app registration, **Authentication > Front-channel logout URL**, set:
 https://<api-host>/api/v1/auth/backchannel-logout
 ```
 
-With the bundled gateway, `<api-host>` is the same host as the console. The token is verified against
+With the bundled gateway, `<api-host>` is the same host as `<app>`. The token is verified against
 the directory's signing keys, audience and issuer; no secret is configured. With the `sid` optional
 claim a logout ends one session; without it, all of that user's sessions from the directory end.
 
@@ -165,14 +176,15 @@ OAUTH_ENABLED=true
 OAUTH_MICROSOFT_ENABLED=true
 OAUTH_MICROSOFT_CLIENT_ID=<application-client-id>
 OAUTH_MICROSOFT_CLIENT_SECRET=<client-secret-value>
-OAUTH_FRONTEND_CALLBACK_URL=https://app.example.com/auth/callback
 OAUTH_STATE_SECRET=<openssl rand -hex 32>
 ```
 
-Register `https://<console>/auth/callback/microsoft` as the redirect URI; its origin must match
-`OAUTH_FRONTEND_CALLBACK_URL`. The `xms_edov` claim is required here too. Social sign-in creates an
-account only when self-registration is allowed (see
-[Sign-up and invitations](sign-up-and-invitations.md)); it never adds anyone to an organization, and
+`OAUTH_FRONTEND_CALLBACK_URL` defaults to `APP_URL/auth/callback`; set it only when the web app is not at
+`APP_URL`. Register `https://<app>/auth/callback/microsoft` as the redirect URI; its origin must match
+it. The `xms_edov` claim is required here too. Social sign-in creates an
+account only when the sign-up policy admits it (see
+[Sign-up and invitations](sign-up-and-invitations.md#creating-organizations)) or the person has a
+pending invitation; it never adds anyone to an organization, and
 it does not satisfy an organization's SSO enforcement or 2FA requirement.
 
 ## Troubleshooting
@@ -180,7 +192,7 @@ it does not satisfy an organization's SSO enforcement or 2FA requirement.
 | Symptom | Cause |
 |---|---|
 | `404 SSO provider not configured` | Wrong or missing `?org=` slug, no active `entra_id` provider for the organization, or a pending change not yet approved by the owner. For the env fallback: the slug is not in `SSO_ENTRA_ALLOWED_TENANTS`. |
-| `AADSTS50011` | The redirect URI in Azure does not exactly match `https://<console>/auth/sso/callback/entra_id`. |
+| `AADSTS50011` | The redirect URI in Azure does not exactly match `https://<app>/auth/sso/callback/entra_id`. |
 | `invalid redirect URI` | The callback is not in `SSO_ALLOWED_REDIRECT_URIS`. |
 | Sign-in refused after Microsoft authentication | `xms_edov` claim missing or false; the token's directory does not match the configured tenant identifier; `openid` missing from the scopes. |
 | "not a member of this organization" | Just-in-time provisioning was not allowed: verify the domain, turn on auto-provision, or invite the user. |

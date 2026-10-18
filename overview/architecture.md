@@ -26,6 +26,9 @@ flowchart LR
         BR["Browsers"]
         CLI["API-key and<br/>MCP clients"]
     end
+    subgraph adm["Operator networks"]
+        PADM["Platform<br/>administrators"]
+    end
     subgraph cip["CI provider"]
         CIJ["CI job running<br/>openctem-ci"]
     end
@@ -34,8 +37,9 @@ flowchart LR
         TGT["Targets"]
     end
     subgraph opnet["Operator network: the platform"]
-        GW["Gateway (Caddy)<br/>one HTTPS port"]
+        GW["Gateway (Caddy)<br/>main HTTPS port,<br/>console site"]
         WEB["Web console<br/>(Next.js)"]
+        PCON["Platform console<br/>(Next.js)"]
         API["API (Go)<br/>one process: HTTP and<br/>background work"]
         PG[("PostgreSQL")]
         RD[("Redis")]
@@ -51,7 +55,10 @@ flowchart LR
     BR -->|HTTPS| GW
     CLI -->|"HTTPS, oct_ key"| GW
     CIJ -->|"outbound HTTPS,<br/>job OIDC token"| GW
-    SEN -->|"outbound HTTPS,<br/>signed requests"| GW
+    SEN -->|"outbound HTTPS or gRPC<br/>with mutual TLS"| GW
+    PADM -->|"HTTPS, console site<br/>(allowed networks only)"| GW
+    GW -->|"console pages"| PCON
+    PCON -->|"server-side proxy,<br/>console API listener"| API
     SEN --> TGT
     GW -->|"pages, console<br/>API calls"| WEB
     WEB -->|"server-side<br/>proxy"| API
@@ -66,16 +73,19 @@ flowchart LR
 ```
 
 The subgraphs are the trust boundaries. The platform runs in the operator's
-network and accepts connections only through the gateway. Sensors run in the
+network and accepts connections only through the gateway. The platform console
+has its own site on the gateway (a port, by default 8443, or its own host
+name), open only to the networks the operator allows. Sensors run in the
 networks they scan and only connect out. CI jobs run at the CI provider and
 prove who they are with the provider's OIDC token. The platform never opens a
 connection to a sensor or a CI job, and never sends probes to targets itself.
 
 | Component | What it does | Code |
 |---|---|---|
-| Gateway | The single public entry point. Terminates TLS (four modes) and routes each request to the API or the web console by path and credential. | [`api/deploy/gateway`](https://github.com/openctemio/openctem/tree/develop/api/deploy/gateway) |
-| Web console | The user interface and the admin console. Serves pages and proxies the browser's API calls (authenticated by the session cookie) to the API on the server side. The browser's WebSocket goes from the gateway straight to the API. Holds no state of its own. | [`web/`](https://github.com/openctemio/openctem/tree/develop/web) |
-| API | All business logic: the REST API, the sensor protocol, ingest of scan results, the WebSocket for live updates, and the background work (see [Background work](#background-work)). One long-running process; `bootstrap-admin` and the maintenance commands are separate one-shot binaries. | [`api/`](https://github.com/openctemio/openctem/tree/develop/api) |
+| Gateway | The public entry point. Terminates TLS (four modes) and routes each request to the API or the web console by path and credential. On the main HTTPS port it also hands sensor connections that offer the sensor protocol's ALPN id to the API's mutual-TLS listener (`api:9443`), and it serves the platform console's own site. | [`api/deploy/gateway`](https://github.com/openctemio/openctem/tree/develop/api/deploy/gateway) |
+| Web console | The organizations' user interface. Serves pages and proxies the browser's API calls (authenticated by the session cookie) to the API on the server side. The browser's WebSocket goes from the gateway straight to the API. Holds no state of its own and contains no platform-administration page. | [`web/`](https://github.com/openctemio/openctem/tree/develop/web) |
+| Platform console | The operators' user interface (organizations, users, system settings, shared sensors, health): a separate application and image (`ghcr.io/openctemio/openctem-console`) on its own site, with its own sign-in and second factor. It talks to the API's console listener (`api:8081`). Holds no state of its own. See [Platform administration](../user-guide/11-platform-administration.md). | [`web/console`](https://github.com/openctemio/openctem/tree/develop/web/console) |
+| API | All business logic: the REST API, the sensor protocol, ingest of scan results, the WebSocket for live updates, the console API, and the background work (see [Background work](#background-work)). One long-running process with three listeners: the main one (`:8080`), the console API (`:8081`) and the sensor mutual-TLS listener (`:9443`); none is published, the gateway reaches them. `bootstrap-admin` and the maintenance commands are separate one-shot binaries. | [`api/`](https://github.com/openctemio/openctem/tree/develop/api) |
 | PostgreSQL | The system of record for every organization's data, the audit logs and the job queues that must survive a restart. | |
 | Redis | Caches, permission versions, rate-limit state, the background job queue and the WebSocket fan-out. Not a system of record. | |
 | Sensors | Run scans close to the targets. Connect outbound to the gateway, claim tasks, run the scanners, report results. Released separately. | [openctemio/sensor](https://github.com/openctemio/sensor), [openctemio/sdk-go](https://github.com/openctemio/sdk-go) |
@@ -104,7 +114,7 @@ sequenceDiagram
     S->>API: Heartbeat (advised interval, pending work)
     S->>API: Claim a task (lease)
     S->>T: Run the scanner
-    S->>API: Report results (protocol v2)
+    S->>API: Report results (protocol v2 or v3)
     API->>API: Validate, bind to the sensor's organization, ingest
     API->>DB: Assets and findings (de-duplicated), next step
     API-->>U: Live update (WebSocket), notifications
@@ -135,7 +145,7 @@ Details: [scan-lifecycle.md](https://github.com/openctemio/openctem/blob/develop
 | CI pipelines | `openctem-ci` exchanges the job's OIDC token for a short-lived run token and uploads CTIS or SARIF. |
 | Imports | Files from other scanners (Nessus, Qualys, SARIF, trivy, nuclei, ZAP and others) uploaded in the console or the API. |
 | Connectors and integrations | SCM repositories (GitHub, GitLab), Tenable.sc, DefectDojo, Entra ID identity exposures, SIEM. |
-| Discovery jobs | Certificate Transparency logs and DNS checks of each organization's own domains, run by the API. |
+| Discovery jobs | Certificate Transparency logs and DNS checks of each organization's own domains, and the automatic coverage loop that plans the checks each asset type needs, run by the API. |
 | Threat intelligence | EPSS scores and the CISA KEV catalog, refreshed daily, used in prioritization. |
 
 ### Outputs
@@ -144,8 +154,11 @@ Notifications are written to an outbox in the same transaction as the change
 that caused them and delivered by a background worker to Slack, Teams,
 Telegram, email, webhooks or Splunk HTTP Event Collector. Jira and GitHub
 issues are created and synchronised both ways.
-Reports are rendered and emailed on schedules. The REST API and the read-only MCP
-server serve the data to other tools.
+Reports are rendered and emailed on schedules. The read-only REST API and the MCP
+server serve the data to other tools; the MCP server reads with the permissions of
+the person who connected the assistant (or the scopes of an API key), and its
+one write tool (a finding comment) runs only after that person confirms it in
+the web console.
 
 ## Background work
 
@@ -187,9 +200,11 @@ instance (see [Scaling](../operations/scaling.md)). The main jobs:
 | Threat intelligence | EPSS and CISA KEV refresh, then escalates findings on known-exploited CVEs | 24 hours |
 | Certificate Transparency and DNS checks | Attack surface monitoring of each organization's domains | per organization, 24 hours by default |
 | SLA escalation | Warns before and on SLA breaches | 15 minutes |
+| Asset coverage | Plans the checks every asset in scope needs and records when each last succeeded (see [Scoping](../user-guide/03-scoping.md#scope-policy)) | 1 minute |
 | Retest scheduler, report scheduler | Continuous retests; scheduled reports by email | 1 minute |
 | Approval and access expiry | Expires risk acceptances (the finding reopens), memberships and scope exclusions past their end | 1 minute to 1 hour |
 | SSO domain re-verification | Re-checks the DNS proof of SSO domains | 12 hours |
+| Version check | Downloads the signed release feed and compares it with the running version (off with `VERSION_CHECK_ENABLED=false`) | 24 hours |
 | Retention | Purges old sessions, notifications, task logs, heartbeats, evidence and deleted assets per their retention | 1 to 24 hours |
 
 ## Tenancy and isolation
@@ -211,10 +226,11 @@ findings, scans, sensors, integrations, users' memberships and audit log.
   decide which assets (and their findings) a member can see. A member in no
   group sees no assets.
 - **Platform administrators** are separate accounts that belong to no
-  organization. They create organizations and run platform sensors from the
-  admin console, and cannot read organization data.
-- **Platform sensors** are shared scanning capacity run by the operator. An
-  organization uses them through scans but never sees or manages them, and
+  organization. They create organizations and run shared sensors from the
+  platform console, and cannot read organization data.
+- **Shared sensors** are scanning capacity run by the operator for every
+  organization, for public targets. An organization uses them through scans
+  but never sees or manages them (an owner can opt the organization out), and
   results are bound to the organization whose task the sensor ran.
 
 **Planned:** PostgreSQL row-level security policies exist for the main tenant
@@ -239,15 +255,16 @@ flowchart LR
     subgraph N["Customer network: sensor trusts its local policy"]
         S[Sensor] --> T[Targets]
     end
-    S -- "outbound HTTPS, sensor key" --> GW
+    S -- "outbound HTTPS or gRPC with mTLS, sensor key" --> GW
 ```
 
 | Boundary | Controls |
 |---|---|
-| Internet to platform | One TLS port; internal endpoints (`/metrics`, `/ready`, `/debug`) blocked at the gateway; client addresses believed only from configured proxies; rate limits; production start-up checks for TLS to the datastores and strong secrets. |
+| Internet to platform | One TLS port for users, sensors and API clients, plus the console's own port or host name, open only to the operator's allowed networks; internal endpoints (`/metrics`, `/ready`, `/debug`) blocked at the gateway; client addresses believed only from configured proxies; rate limits; production start-up checks for TLS to the datastores and strong secrets. |
+| Platform console to API | A separate origin and process from the web console; its own sign-in, second factor and short sessions; the API serves the console API on its own listener, and the main listener answers 404 for it. |
 | Browser to API | Session cookies (`Secure`, `SameSite`), CSRF protection, step-up re-authentication for sensitive actions, permission checks on every route with data scope inside the organization. |
-| Automation to API | `oct_` API keys are bound to one organization and are read-only on the REST API; SCIM and CI use their own credentials. |
-| Sensor to platform | Each sensor has its own key, bound to one organization; results are treated as hostile input (validated, size-capped, bound to the key's organization, quarantined when they do not match the task). |
+| Automation to API | `oct_` API keys are bound to one organization and are read-only on the REST API; SCIM and CI use their own credentials. AI assistants connect to the MCP server with OAuth, as the person who approved them, within the organization's AI policy. |
+| Sensor to platform | Each sensor has its own key, bound to one organization (a shared sensor to the instance); results are treated as hostile input (validated, size-capped, bound to the key's organization, quarantined when they do not match the task). |
 | Platform to sensor | A sensor runs only the tools it has, can enforce a local policy set by the network owner (allowed targets, ports, tools, kill switch) whatever the platform sends, and accepts custom scanner templates only when signed. |
 | Platform to outside services | Outbound URLs and SMTP hosts are checked against private, loopback and metadata addresses before connecting. |
 

@@ -39,24 +39,29 @@ flowchart LR
 ## Installation, organizations and people
 
 - An **installation** is one deployment of the platform. It is run by
-  **platform administrators**, who use the admin console to create
-  organizations and manage platform sensors. They are not members of any
-  organization and do not see organization data.
+  **platform administrators**, who use the platform console (a separate site
+  of its own) to create organizations, set the installation's policies and
+  manage shared sensors. They are not members of any organization and do not
+  see organization data.
 - An **organization** (a *tenant* in engineering documents) is the unit of
   isolation. Everything below belongs to exactly one organization.
 - **Members** belong to one or more organizations. Their **role** (owner, admin,
   member, viewer, or a custom role) decides what they can do. **Access groups**
   decide which assets, and so which findings, a member can see. Owners and
   admins see everything in their organization.
-- People sign in with a password and optional two-factor authentication, or
-  through the organization's SSO (OpenID Connect, Microsoft Entra ID, SAML),
-  with optional SCIM provisioning. See [Identity and access](../identity/index.md).
+- People get an account from an invitation, from a platform administrator, from
+  their organization's SSO or SCIM or, when the operator allows it
+  (`SIGNUP_MODE`), by signing up. They sign in with a password and optional
+  two-factor authentication (required by default for the owners and
+  administrators of a new organization), or through the organization's SSO
+  (OpenID Connect, Microsoft Entra ID, SAML). See
+  [Identity and access](../identity/index.md).
 
 ```mermaid
 flowchart TB
     subgraph inst["Installation"]
-        PA["Platform administrators<br/>(admin console, no organization)"]
-        PS["Platform sensors<br/>(shared capacity)"]
+        PA["Platform administrators<br/>(platform console, no organization)"]
+        PS["Shared sensors<br/>(shared capacity)"]
         subgraph o1["Organization A"]
             M1["Members, roles, groups"] --- D1["Assets, findings, scans,<br/>sensors, integrations, audit log"]
         end
@@ -82,12 +87,15 @@ The **scope** says what an organization may test: **targets** (domains, IP
 ranges, repositories) and **exclusions**. Every scan is checked against it when it
 is triggered. Domains can be **verified** (DNS proof of control); the operator
 decides when active scanning requires a verified domain and which names and
-ranges no organization may target at all. See
+ranges no organization may target at all. How much human approval scope changes
+and scans need is the organization's **scan approval** mode: Off (the default),
+On (approval rules decide) or Strict (two approvers, and deepest-probe ceilings
+per scope entry). See
 [Scope and authorization to scan](../scanning/scope.md).
 
 ```mermaid
 flowchart LR
-    E["Scope entries<br/>(targets, highest tier)"] --> G{"Scope gate"}
+    E["Scope entries<br/>(targets)"] --> G{"Scope gate"}
     X["Exclusions<br/>(always win)"] --> G
     VD["Verified domains<br/>(proof, not permission)"] --> G
     GR["Operator guardrails<br/>(deny list, size limits)"] --> G
@@ -114,17 +122,20 @@ an exposed secret, a weak dependency. Findings from different tools and scans
 are de-duplicated by fingerprint, so a rescan updates a finding instead of
 creating a new one. Each finding has a severity, a **priority** that explains how
 it was computed (EPSS, CISA KEV, asset criticality, reachability and exposure,
-priority rules), and a status that moves through a lifecycle, for example
-`new`, `confirmed`, `in_progress`, `fix_applied`, `resolved`, or `false_positive`
-and `accepted`. The full state diagram, including `validated_fixed`, `not_observed` and
-regression reopen, is in
+priority rules), and a status that moves through a lifecycle: `new`,
+`confirmed`, `in_progress`, `fix_applied`, `resolved`, `false_positive`,
+`accepted` or `duplicate`. Whether a scanner still reports a finding and whether
+a re-check still reproduces it are separate fields, not statuses. The full state
+diagram, including regression reopen, is in
 [Exposures and findings](../user-guide/05-exposures-and-findings.md#status-workflow).
 
 A decision such as false positive or accepted risk stays with the finding
 when it is reported again, also by another scanner engine. On a finding,
-such a decision is a request that a second person approves (on an exposure
-event, when it is high or critical), and repository ignore comments become
-requests for the security team. See
+such a decision is a request that a second person approves (an accepted risk
+always; a false positive by default, at the level the organization sets under
+**Settings > Finding approvals**; on an exposure event, when it is high or
+critical), and repository ignore comments become requests for the security
+team. See
 [Known false positives](../user-guide/known-false-positives.md). A SAST
 finding can carry its **data-flow trace**, the path from untrusted input to
 the vulnerable call ([Data-flow traces](../scanning/data-flow-traces.md)).
@@ -168,8 +179,9 @@ flowchart LR
 Every arrow starts at the sensor: sensors only connect out.
 
 - **Organization sensors** belong to one organization.
-- **Platform sensors** are shared capacity run by the operator; organizations use
-  them through scans without seeing them.
+- **Shared sensors** are capacity the operator runs for every organization, for
+  public targets; organizations use them through scans without seeing them, and
+  an owner can opt the organization out.
 - A **scan zone** is a set of address ranges plus the sensors that can reach
   them. Network scans are routed to the narrowest zone that holds the target, and
   the zone's sensors share the work.
@@ -228,5 +240,8 @@ the platform, which can fail the pipeline on a policy gate.
 - **Integrations** are external systems the platform calls: SCM (GitHub,
   GitLab), ticketing (Jira), notification channels, SIEM, scanners with an API,
   identity providers.
-- **API keys** (`oct_...`) let scripts and AI clients read an organization's data
-  through the REST API and the MCP server. See [API](../api/index.md).
+- **API keys** (`oct_...`) let scripts read an organization's data through the
+  REST API and the MCP server. **AI assistants** (MCP clients) normally connect
+  with a sign-in flow instead, as the person who approves them, within an
+  organization policy (**Settings > Access > AI assistants (MCP)**). See
+  [API](../api/index.md) and [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md).

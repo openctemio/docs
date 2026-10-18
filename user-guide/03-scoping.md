@@ -68,7 +68,11 @@ outcome it is judged by, so each round is measurable and comparable to the last.
    evaluated and the cycle and its scope snapshot become read-only.
 
 Status flows **planning → active → review → closed**, one step at a time, and
-each step asks for confirmation.
+each step asks for confirmation. Owners and administrators can switch on
+**Require the validation coverage SLO to close a cycle** (on the Cycles page,
+off by default): a cycle whose resolved findings lack validation evidence below
+the coverage targets then cannot be closed; with it off the cycle closes and the
+shortfall stays visible.
 
 When you create the next cycle, the lessons from the last closed cycle are shown
 as a callout so you can carry the relevant items into the new scope and charter.
@@ -237,10 +241,13 @@ is out of scope, and an exclusion always wins. See also
 ![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope: the entries in effect.*
 
-The cards **In scope** and **Out of scope** also switch tabs. The tabs are **In
-scope**, **Out of scope**, **Domain proof** and **Networks**. Under **Strict**
-scan approval (or while a change still waits), a **Waiting for approval** card
-and an **Approvals** tab appear as well. **Policy** opens the scope policy.
+The page has three sections, shown as tabs under the title: **Scope**,
+**Programs** and **Letters** (see [Programs and letters](#programs-and-letters)).
+On **Scope**, the cards **In scope** and **Out of scope** also switch tabs. The
+tabs are **In scope**, **Out of scope**, **Domain proof** and **Networks** (the
+last two need the attack surface module). Under **Strict** scan approval (or
+while a change still waits), a **Waiting for approval** card and an
+**Approvals** tab appear as well. **Policy** opens the scope policy.
 
 ### Add to scope
 
@@ -257,14 +264,19 @@ approver.
    (`*.example.com`), or the domain only. To cover the names below a domain but
    not the domain itself, add an exclusion of exactly that domain.
 3. Choose the **Duration**: **Permanent** (names found under it are confirmed
-   as yours) or **One-off** (expires after the number of **Days** you choose, up
-   to the policy maximum; it authorizes scans only and never confirms names,
-   though names found still join the inventory).
+   as yours), or an expiring entry: a preset such as 7 days, 30 days or 1 year
+   (only what the policy allows is offered, up to the policy maximum) or a
+   **Custom date**. An expiring entry authorizes scans only and never confirms
+   names, though names found still join the inventory. The dialog shows the date
+   it would expire.
 4. Under **Strict** scan approval only, choose the **Deepest probe allowed**:
    **T0 passive**, **T1 safe active** or **T2 intrusive** (T2 needs an expiry
    and an approval). Outside Strict the scan decides how hard it probes.
-5. Give a **Reason** (required for one-off entries, requests and T2; kept in the
-   audit log) and an optional description.
+5. Under **Authorized by**, keep **Our organization owns it** or choose a
+   **Letter** of authorization (see [Programs and letters](#programs-and-letters)):
+   the entry then authorizes probes only while the letter is valid. Give a
+   **Reason** (required for expiring entries, requests and T2; kept in the audit
+   log) and an optional description.
 6. Click **Add to scope** or **Send request**.
 
 The dialog tells you whether the entry needs approvals (Strict only) or takes
@@ -278,7 +290,11 @@ The In scope table shows each entry's kind, status (**Active**, **Pending
 approval**, **Expired**, **Inactive**, **Rejected**), deepest probe, reason and
 who added it. Row actions: **Edit**, **Deactivate**, **Activate** and **Extend**,
 and **Remove**. Under Strict, activating and extending need approval, and an
-edit that widens scope sends the entry back to pending.
+edit that widens scope sends the entry back to pending. A repository entry that
+a CI trust keeps says **Managed by the CI trust {name}** (with whether a verified
+pipeline has been seen); it changes through the trust, so its only action is
+**Open the CI trust**, and other repository entries offer **Set up CI for these
+repositories**.
 
 ### Put out of scope
 
@@ -358,11 +374,25 @@ approving widening entries can require a fresh identity check.
 The **Domain proof** tab proves that you control a domain with a DNS TXT record:
 enter the **Domain**, click **Prove a domain**, publish the record and click
 **Check**. Proof does not put anything in scope; scope entries do. When the
-platform administrator requires it (off by default), scans on platform sensors
+platform administrator requires it (off by default), scans on shared sensors
 and intrusive (T2) probes need a proved domain.
 
 ![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
 *Figure: Domain proof: two domains verified, one waiting for its DNS TXT record.*
+
+### Networks
+
+The **Networks** tab holds your **network seeds**: AS numbers (`AS64500`) and
+organization names that are yours. Each is looked up in public routing data
+(RIPEstat; the value is sent there): an AS number lists the address ranges it
+announces, which you can add as scope entries, and an organization name lists
+the AS numbers registered to it (**Add as AS seed**). **Add seed** takes the
+**Kind** (**AS number** or **Organization**) and the **Value**; **Look up
+again** refreshes one. Prefixes of a cloud or CDN provider that serves many
+organizations are not offered as scope entries, and ranges larger than the
+platform allows are refused. Removing a seed keeps the scope entries you added
+from it. An administrator can turn the lookups off under **Attack surface ›
+Monitoring**, in which case seeds are kept but not looked up.
 
 ### Scope policy
 
@@ -380,6 +410,8 @@ identity, is audited and notifies every administrator.
 | **Review discovered assets first** | on or off | off |
 | **Confirming an asset adds it to scope** | on or off | on |
 | **Scan unclassified assets** | Off (passive only), Low-impact (default), Full | Low-impact |
+| **Automatic coverage** | on or off | on (off under Strict until turned on) |
+| **Require proof for CI scopes** | on or off | off |
 
 The **In effect now** section shows the resulting approval count, whether
 active probes need domain proof (set by the platform operator), the scan
@@ -396,6 +428,42 @@ approval mode and that scope checks are always on.
   Strict scan approval, confirming records ownership only.
 - **Scan unclassified assets** shows "Strict scan approval is in force, so
   this is Off for now." while scan approval is Strict.
+- **Automatic coverage**: every asset your scope covers gets the checks its type
+  needs (DNS, ports, HTTP probe, templates) on a schedule and when it appears or
+  changes, with no scan to set up. Scope, exclusions, scan windows and the
+  platform's guardrails still decide what may be scanned, and intrusive checks
+  never run this way.
+- **Require proof for CI scopes**: off, the repositories a CI trust names are in
+  scope as soon as the trust is saved, and a verified pipeline run is shown as
+  evidence; on, a CI trust's new repository entries wait until a verified
+  pipeline run under them.
+
+## Programs and letters
+
+**Scoping › Scope › Programs** (`/programs`) lists the bug-bounty and disclosure
+programs you test under their published rules; **Import program** (needs the
+programs write permission) takes the program's scope as pasted text or a file (a
+platform CSV export, a Burp Suite scope file, a plain list or another CSV), with
+optional rules (what the program forbids, a rate limit, a required User-Agent and
+headers, testing windows and notes). In-scope targets become scope entries and
+out-of-scope items program exclusions; they take effect when you accept the
+program's rules, and **Accept and import** records that acceptance with your
+name. The catalog lists public programs you can **Follow**: following creates
+the entries inactive, so only passive monitoring runs until someone accepts the
+rules and scope on the program page. A private program stays locked until you
+accept its terms and confidentiality, and every view of it is audited. Program
+targets are scanned only from your organization's own sensors, never from shared
+sensors. Events about a private program's assets reach only the notification
+channels you attach to it.
+
+**Scoping › Scope › Letters** (`/scope/letters`) keeps your **letters of
+authorization**. **Upload letter** takes the signed letter with a **Title**,
+**Issued by**, **Valid from** and **Valid until** and an optional reference. A
+letter authorizes nothing by itself: a scope entry that names it as its
+authorization source (**Authorized by**, **Letter**) goes through the normal
+approval rules and authorizes probes only while the letter is in effect. A letter
+that is revoked (**Revoke**, for people who can approve scope) or expired stops
+every entry naming it. **Download** returns the stored file.
 
 ## Threat model
 
