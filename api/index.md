@@ -18,6 +18,7 @@ MCP, results ingest).
 | [Conventions](conventions.md) | JSON, pagination, filtering and sorting, errors, rate limits, CSRF |
 | [Webhooks and outbound integrations](webhooks.md) | Notification channels, the generic webhook payload, inbound Jira and GitHub webhooks |
 | [MCP server](mcp.md) | Model Context Protocol access for AI clients: OAuth, API keys, tools, policy |
+| [Query language](query.md) | Text queries over your findings and assets: counts, grouped tables and time series |
 | [Ingesting results (CTIS)](ingest.md) | Sending scan results and importing reports from other tools |
 | [AI triage](ai-triage.md) | Endpoints of the AI triage feature |
 
