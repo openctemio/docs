@@ -112,7 +112,7 @@ address in [Sign in](#sign-in), not on the organization sign-in page.
    organization sign-in page: it is its own site, with its own sign-in page.
    Where it is depends on how you installed
 (`setup.sh` prints the address; for what the console offers once you are in, see
-[the console guide](../console/index.md)):
+[the console guide](../user-guide/11-platform-administration.md)):
 
    | Install | Platform console address |
    |---|---|

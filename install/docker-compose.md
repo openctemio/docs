@@ -126,7 +126,7 @@ the migrations so a table a release adds gets its grants before the API starts
 
 Platform e-mail (SMTP), the legal texts and the CAPTCHA keys are not part of
 `.env`: set them in the platform console (**Settings**, **E-mail**, **Legal**,
-**CAPTCHA**; see [Console settings](../console/settings.md)). The old `SMTP_*` and
+**CAPTCHA**; see [Console settings](../user-guide/11-platform-administration.md)). The old `SMTP_*` and
 `LEGAL_*` variables are gone and the API refuses to start while an `SMTP_*`
 server variable is set. The CAPTCHA keys can be pinned from the environment
 (`CAPTCHA_TURNSTILE_SITE_KEY` with `CAPTCHA_TURNSTILE_SECRET`, in a
@@ -226,7 +226,7 @@ interface (a private or VPN address): a published port is not filtered by the
 host firewall, so prefer that, or an SSH tunnel
 (`ssh -L 8443:127.0.0.1:8443 you@<host>`), over a public interface.
 `setup.sh` prints the address it configured. What the console offers is
-described in [the console guide](../console/index.md). The port is not a security
+described in [the console guide](../user-guide/11-platform-administration.md). The port is not a security
 control; the controls are the separate origin, the network list, the console's
 own sign-in with a second factor, step-up and its audit log.
 
