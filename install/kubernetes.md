@@ -335,6 +335,19 @@ kubectl -n openctem exec deploy/openctem-gateway -- \
   cat /data/caddy/pki/authorities/local/root.crt > openctem-root-ca.crt
 ```
 
+## Security keys for the console
+
+The chart does not set `ADMIN_PUBLIC_URL`, so the API uses the origin of
+`APP_URL` and administrators cannot register security keys on the console's
+origin (a known gap). Set it in the values:
+
+```yaml
+api:
+  extraEnv:
+    - name: ADMIN_PUBLIC_URL
+      value: https://admin.ctem.example.com   # admin.site.host, or https://<host>:8443
+```
+
 ## Hosted service
 
 For a hosted multi-tenant service add `MANAGED_SERVICE: "true"` to `api.extraEnv`.
