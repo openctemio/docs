@@ -20,7 +20,7 @@ set-password links are not delivered.
 
 | Level | Configured by | Used for |
 |---|---|---|
-| Platform SMTP | A platform administrator, in the platform console: **System > E-mail** | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
+| Platform SMTP | A platform administrator, in the platform console: **Settings > E-mail** | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
 | Organization SMTP | An organization administrator, as an **Email** notification channel (see [Notification channels](notifications.md#email)) | That organization's account email and its email notifications. |
 
 For account email, an organization's connected Email channel wins; otherwise
@@ -30,9 +30,9 @@ logged.
 ## Configure platform SMTP
 
 Open the platform console (its own address, not a path of the main application) as a platform administrator, go to
-**System > E-mail**, enter the relay (host, port, user, password, sender
+**Settings > E-mail**, enter the relay (host, port, user, password, sender
 address and name, STARTTLS) and save. Saving needs a super administrator and a
-fresh authenticator code. **Send test** sends a message to your own address.
+fresh authenticator code. **Send a test e-mail** sends a message to your own address.
 The setting applies to the next message, without a restart. The password is
 stored encrypted with `APP_ENCRYPTION_KEY`.
 
@@ -81,7 +81,7 @@ an address other than `127.0.0.1`.
 
 ## Check that it works
 
-Use **Send test** on **System > E-mail**. To check account email end to end,
+Use **Send a test e-mail** on **Settings > E-mail**. To check account email end to end,
 invite a user to an organization (or use **Forgot password** on the sign-in
 page) and watch the API log:
 
@@ -93,7 +93,7 @@ docker compose logs -f api | grep -i -E "email|smtp"
 
 | The API log contains | Cause |
 |---|---|
-| `email service not configured, skipping ...` | No platform SMTP is saved in **System > E-mail** and the organization has no Email channel. |
+| `email service not configured, skipping ...` | No platform SMTP is saved in **Settings > E-mail** and the organization has no Email channel. |
 | `smtp host rejected: ...` | The host resolves to a private, loopback or link-local address. See [Relays on a private network](#relays-on-a-private-network). |
 | `failed to connect: ...` | Wrong host or port, or outbound SMTP blocked by a firewall. |
 | `failed to start TLS: ...` | The relay does not offer STARTTLS on that port, or its certificate does not match the host name. |

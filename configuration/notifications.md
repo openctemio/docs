@@ -47,7 +47,7 @@ An Email channel has its own SMTP settings: host, port, user name and password,
 sender address and name, recipients, an optional reply-to address, and the TLS
 mode: implicit TLS (usually port 465) or STARTTLS (usually port 587). A
 connected Email channel is also used for the organization's account email
-(invitations, password resets) instead of the [system SMTP](email.md).
+(invitations, password resets) instead of the [platform SMTP](email.md).
 
 ### Minimal messages by default
 
@@ -130,5 +130,8 @@ link-local and cloud metadata addresses are always refused. See
 ## Operator alerts
 
 Notification channels are for an organization's data. Alerts about the
-platform itself (API down, disk full, failed backups) come from the monitoring
-stack's Alertmanager: see [Monitoring](../operations/monitoring.md).
+platform itself reach the platform administrators by e-mail and through an optional HTTPS
+webhook set in the platform console (**Settings > Alerts**): low disk, stale backups, expiring
+certificates, setting changes and sign-up bursts. Prometheus alerts (API down, error bursts,
+stuck queues) come from the monitoring stack's Alertmanager. See
+[Monitoring](../operations/monitoring.md).

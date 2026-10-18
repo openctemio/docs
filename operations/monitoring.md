@@ -82,27 +82,50 @@ Besides the Go runtime and process metrics, the API exposes among others:
 | `openctem_sensors`, `openctem_sensors_unhardened`, `openctem_command_queue_depth`, `openctem_command_oldest_pending_seconds`, `openctem_scan_runs_open` | Active sensors, sensors with weak settings, and the sensor command and scan run queues (platform-wide counts). |
 | `openctem_outbox_entries`, `openctem_outbox_oldest_pending_seconds` | The notification outbox. |
 | `openctem_security_audit_chain_breaks_total{reason}` | New breaks of the audit log hash chain. |
+| `openctem_signup_events_total{kind,source}` | Sign-up events recorded for the console's sign-up feed. |
+| `openctem_signup_burst_alerts_total{dimension,kind}` | Sign-up burst alerts raised: many sign-ups of one kind from one network (`ip_prefix`) or one e-mail domain (`email_domain`) within the window. The prefix or domain is in the administrators' audit log, never a label. The `SignupBurst` rule alerts on it. |
 
 Metric labels never carry organization, user, sensor or target identifiers, so
 alerts can be sent to chat tools safely.
 
-## The System page (no monitoring stack needed)
+## The Health page (no monitoring stack needed)
 
-![The System page of the admin console: services, storage, backup, certificates and version]({{ site.baseurl }}/assets/images/operations/console-system.png)
-*Figure: The System page.*
+The platform console's **Monitoring > Health** page (`/health` on the console site;
+read-only, every platform administrator role) is the one place to see whether the installation is
+well. It shows service health (API, web, gateway), free space of the data volumes in
+`SYSTEM_STORAGE_PATHS`, the database size, the last successful backup
+(`SYSTEM_BACKUP_STATUS_FILE`), certificate expiry (the sensor CA and `SYSTEM_TLS_CERT_FILES`),
+the schema state and the running version, and what the API reports about its own work: sensor
+transport and counts, command and scan queues and background jobs. The two halves load
+independently, so one failing read never hides the other. The older System and Operations pages
+no longer exist; `/system` and `/operations` do not redirect.
 
-The platform admin console's **System** page (read-only, every platform administrator role) shows
-service health, free space of the data volumes in `SYSTEM_STORAGE_PATHS`, the database size, the
-last successful backup (`SYSTEM_BACKUP_STATUS_FILE`), certificate expiry (the sensor CA and
-`SYSTEM_TLS_CERT_FILES`) and the running version. A watcher checks the same values every
-`SYSTEM_WATCH_INTERVAL` (5 minutes), sets the `openctem_system_*` metrics
-(`storage_free_ratio`, `storage_level`, `database_bytes`, `backup_age_seconds`, `backup_level`,
-`certificate_expiry_seconds`, `certificate_level`; levels 0 ok, 1 warning, 2 critical) and emails the
-active platform administrators when a check gets worse. Warnings start at 20% free space, a backup
-older than 26 hours, and a certificate within 30 days; critical at 10% free space and 7 days.
-Without SMTP, the WARN log lines (`alert=system_storage`, `system_backup`, `system_cert`) and the
-metrics are the alert. The page holds no action: backup, restore, upgrade and key rotation stay on
-the command line.
+A watcher checks the host values every `SYSTEM_WATCH_INTERVAL` (5 minutes), sets the
+`openctem_system_*` metrics (`storage_free_ratio`, `storage_level`, `database_bytes`,
+`backup_age_seconds`, `backup_level`, `certificate_expiry_seconds`, `certificate_level`; levels 0
+ok, 1 warning, 2 critical) and alerts the platform administrators when a check gets worse. Warnings
+start at 20% free space, a backup older than 26 hours, and a certificate within 30 days; critical
+at 10% free space and 7 days. The page holds no action: backup, restore, upgrade and key rotation
+stay on the command line. The same findings appear in the console Overview's "Needs attention"
+list.
+
+### Where administrator alerts go
+
+Alerts reach the active platform administrators by e-mail (which needs the platform e-mail in
+**Settings > E-mail**) and, when you turn it on, an HTTPS webhook set in **Settings > Alerts**:
+
+- The webhook address is a credential: it is stored encrypted, shown only as its host, and never
+  read back. An optional signing secret adds `X-OpenCTEM-Timestamp` and `X-OpenCTEM-Signature:
+  sha256=<hex>`, the HMAC-SHA256 of `timestamp + "." + body` under the secret.
+- **Send a test alert** posts to the saved address and reports whether the receiver accepted it.
+- Only a super admin changes it, with a fresh confirmation and a reason. The change is a critical
+  entry in the administrators' audit log and notifies every administrator.
+- Without e-mail and without a webhook, the WARN log lines (`alert=system_storage`,
+  `system_backup`, `system_cert`, `signup_burst`) and the metrics are the alert. A failed webhook
+  delivery logs `alert=alert_webhook_failed`.
+
+The Alertmanager receivers of the monitoring stack below are separate: they carry the Prometheus
+alerts.
 
 ## The monitoring stack
 
@@ -175,6 +198,7 @@ On Kubernetes the chart ships the same rules for the API (see above).
 - `openctem_log_records_total{level="error"}` and recovered panics.
 - Disk space of the PostgreSQL volume: PostgreSQL stops when it fills.
 - Sensors offline, from the console's Sensors page or the `SensorsOffline` alert.
-- Backup freshness.
+- Backup freshness, certificate expiry and free space: the console's Monitoring > Health page.
+- `SignupBurst` on an open or domain sign-up installation: bots registering from one network.
 
 Logs are described in the [Log reference](logs.md).

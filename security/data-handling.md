@@ -47,11 +47,14 @@ Retention is automatic only where the table says so. Everything else stays until
 |---|---|---|
 | Sessions and refresh tokens | Session ends after `AUTH_SESSION_DURATION` (30 days); refresh tokens after `AUTH_REFRESH_TOKEN_DURATION` (7 days). Expired and revoked rows are deleted hourly. | lifetimes only |
 | 2FA sign-in challenges | Deleted hourly after expiry (5 minutes) | no |
-| Platform administrator sessions | 8 hours absolute, 15 minutes idle | no |
+| Platform console sessions | 8 hours absolute, 15 minutes idle, at most 3 per administrator | no |
 | Organization audit log | Indefinitely, unless `AUDIT_ARCHIVE_DIR` is set; then entries older than `AUDIT_RETENTION_DAYS` (default and minimum 365) are archived to that directory and deleted | yes |
-| Platform audit log | Indefinitely by default: the retention job only reports (`ADMIN_AUDIT_RETENTION_DRY_RUN=true`). With dry-run off, entries older than `ADMIN_AUDIT_RETENTION_DAYS` (365) are deleted | yes |
+| Administrators' audit log | Indefinitely by default: the retention job only reports (`ADMIN_AUDIT_RETENTION_DRY_RUN=true`). With dry-run off, entries older than `ADMIN_AUDIT_RETENTION_DAYS` are deleted, never any newer than one year. A copy sent to `ADMIN_AUDIT_SINK` is kept by whoever runs the destination | yes |
 | Requests for access (when sign-up is closed) | Unconfirmed requests 24 hours; decided requests 90 days | no |
+| Sign-up events (the platform console's sign-up feed and burst alerts) | 90 days. An event keeps only the registrable e-mail domain, the client network prefix (/24 for IPv4, /48 for IPv6), the kind and the time: never the address, a name or a user agent | no |
 | Deleted accounts | Personal data erased 14 days after a person deletes their account, unless they sign in again | no |
+| Organizations an owner deleted | Closed at once, data purged 14 days later unless an owner cancels | no |
+| Suspended organizations and blocked accounts | Kept as they are: suspension and blocking delete nothing | no |
 | Priority classification history | 180 days | no |
 | In-app notifications | 90 days | no |
 | Notification delivery queue | Delivered 7 days, failed 30 days, event history 90 days | no |
@@ -110,7 +113,19 @@ separate owner action.
 ### Organizations
 
 An owner deletes an organization under **Settings > General** (`DELETE /api/v1/tenants/{tenant}`,
-step-up required). The deletion is **immediate and permanent**, with no grace period:
+step-up required). The deletion has a **14-day grace period**:
+
+- The request answers `202` with `deletion_due_at`. From that moment the organization is closed to
+  every credential, the same gate as a suspension: sessions, API keys, MCP tokens, sensor keys, SCIM
+  tokens, CI tokens and inbound webhooks are refused, and scheduled work stops. Nothing is deleted yet.
+- Any active owner can **cancel** until the 14 days end, from the sign-in page
+  (`POST /api/v1/auth/organization-deletion/cancel`). Everything works again as before.
+- When the 14 days end, the `organization-delete` worker purges the organization.
+- A platform administrator can purge an organization at once from the platform console
+  (**Organizations > Delete now**: super admin, a fresh authenticator code, a reason, a critical
+  audit row, and a second super admin's approval when four-eyes approvals apply).
+
+The purge is **permanent**:
 
 - all organization-owned data in the database is deleted (assets, findings, scans, sensors,
   integrations, settings, memberships);
@@ -123,6 +138,14 @@ step-up required). The deletion is **immediate and permanent**, with no grace pe
   owner can retry. Files of organizations deleted before this behaviour existed are not removed:
   delete the directory `<STORAGE_LOCAL_PATH>/<tenant id>/` or bucket prefix yourself;
 - remove its data from backups according to your backup retention.
+
+### Suspension and deletion
+
+A platform administrator can **suspend** an organization or **block** an account (platform console,
+operations admin or super admin, with a fresh authenticator code and a reason). It stops access and
+deletes nothing: the data stays exactly as it is until the suspension is lifted or the organization
+is deleted. Suspension is the tool for an abuse report or a legal hold; deletion is the tool for an
+erasure request.
 
 ## Personal data in logs
 
@@ -144,9 +167,11 @@ Nothing leaves the installation unless an administrator configures it:
 | Email (SMTP) | Invitations, password and set-password links, security notices, notifications | operator / organization |
 | Notification channels (Slack, Microsoft Teams, Telegram, email, webhooks, Splunk HEC) | By default only the event type, severity and a link. With **Include details in notifications** on for a channel: finding titles, descriptions and asset names | organization admins |
 | AI assistants (MCP) | What a connected application asks for through the MCP server, limited to what the person who connected it can see and to the organization's settings under **Settings > AI assistants (MCP)** | each person connects an application; organization owners can turn AI assistants off |
-| Request-access form CAPTCHA (Cloudflare Turnstile) | The visitor's browser contacts Cloudflare when the operator sets the Turnstile keys | operator |
+| CAPTCHA (Cloudflare Turnstile) on registration, request access and sign-in after repeated failures | The visitor's browser contacts Cloudflare when the keys are set | platform administrator (Console > Settings > CAPTCHA) or the environment |
+| Administrator alert webhook | Alert text about the platform itself (low disk, stale backups, expiring certificates, setting changes, sign-up bursts): counts and names of checks, no organization data | platform administrator (Console > Settings > Alerts) |
+| Administrators' audit copy | Every administrators' audit row (no request body), to your own collector | operator (`ADMIN_AUDIT_SINK`) |
 | Ticketing (Jira) and source control (GitHub, GitLab) | Finding details for tickets; repository metadata | organization admins |
-| AI triage providers (Anthropic Claude, OpenAI, Google Gemini) | Finding details sent for analysis | available when the operator sets a provider key (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY`) or an organization stores its own key; each organization chooses platform AI, its own API key, or off |
+| AI triage providers (Anthropic Claude, OpenAI, Google Gemini) | Finding details sent for analysis | available when a platform administrator sets a provider and key (Console > Settings > AI provider, or `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY` in the environment) or an organization stores its own key; each organization chooses platform AI, its own API key, or off |
 | Identity providers | Sign-in requests; SCIM is inbound | platform administrator |
 | Error reporting (Sentry) | Errors from the web console server, with request context | off unless the operator sets `NEXT_PUBLIC_SENTRY_DSN` |
 | Threat-intelligence feeds (EPSS, CISA KEV) | Nothing about you: the API downloads public data | platform administrator |
@@ -156,7 +181,7 @@ an integration, in particular AI triage.
 
 ## Backups
 
-OpenCTEM has no built-in backup job. Back up PostgreSQL, the file storage, `AUDIT_ARCHIVE_DIR` and
+OpenCTEM has no built-in backup job (the Compose stack and the Ansible kit ship scripts). Back up PostgreSQL, the file storage, `AUDIT_ARCHIVE_DIR` and
 your secrets yourself, encrypt the backups, and keep `APP_ENCRYPTION_KEY` separate from them. Deletion
 and erasure do not reach existing backups: expire backups on a schedule that matches your retention
 policy. See [Backup and restore](../operations/backup-restore.md).
@@ -167,7 +192,6 @@ So that you can plan around them:
 
 - a personal data export;
 - a configurable retention period for assets, findings, scans or notifications;
-- a grace period or undo for organization deletion;
 - automatic deletion of expired invitations;
 - application-level encryption of personal data other than the secrets listed above;
 - anonymisation of audit log entries.
