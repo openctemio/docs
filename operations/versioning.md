@@ -117,13 +117,18 @@ After each platform release, the chart's `appVersion` is bumped to it.
 The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older
 sensors cannot connect at all).
 
-The newest releases at the time of writing are platform **v0.10.1**, sensor **v0.23.2**,
-SDK **v0.34.0**, CI runner **v0.3.1** and chart **0.28.0** (`appVersion` v0.9.7; the chart for
-v0.10.1 follows). A sensor or SDK can ship after the platform release you run, so the defaults
-compiled into it may name an older sensor (v0.10.1 names sensor v0.23.0 and SDK v0.32.0). When the
-console's install snippets pin an older sensor tag than the newest release, set
-`SENSOR_LATEST_VERSION=v0.23.2` (and `SENSOR_SDK_LATEST_VERSION=v0.34.0`) on the API so new installs
-get the current sensor and older sensors show "update available".
+The current versions of each product are in
+[`versions.yaml`](https://github.com/openctemio/openctem/blob/develop/versions.yaml)
+(`platform.release`, `sensor.latest`, `sdk.latest`, `ci.latest`, `chart.version`)
+and on each repository's releases page; this page does not repeat them, so it
+cannot go stale. A sensor, SDK or chart can ship after the platform release you
+run, so the defaults compiled into your platform may name an older sensor than
+the newest release. When the console's install snippets pin an older sensor tag
+than the newest release, set `SENSOR_LATEST_VERSION` (and
+`SENSOR_SDK_LATEST_VERSION`) on the API to the newer version, so new installs
+get the current sensor and older sensors show "update available". The chart's
+`appVersion` can likewise trail the platform: check
+`helm search repo openctem/openctem --versions`.
 
 ## Which version is running
 

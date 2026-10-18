@@ -20,13 +20,14 @@ owner from the command line, with `bootstrap-admin`.
 
 | Account | What it does | Created by |
 |---|---|---|
-| Platform administrator | Runs the installation from the admin console (`/admin`): organizations, platform sensors, platform settings. Belongs to no organization and cannot see organization data. | `bootstrap-admin`, or another platform administrator. |
+| Platform administrator | Runs the installation from the platform console, its own site (see [Sign in](#sign-in)): organizations, shared sensors, platform settings. Belongs to no organization and cannot see organization data. | `bootstrap-admin`, or another platform administrator. |
 | Break-glass administrator | A second, local platform administrator for emergencies, never bound to an identity provider. Every sign-in with it is audited and alerted. | `bootstrap-admin -backup-email`. |
 | Organization owner | Owns one organization: invites users, configures SSO, manages roles and data. | `bootstrap-admin -org-*`, or the admin console. |
 
 By default only a platform administrator creates organizations
-(`TENANT_CREATION_MODE=admin_only`). See
-[Organizations](#self-service-organizations) for the alternative.
+(`SIGNUP_MODE=disabled`). See
+[Sign-up and more organizations](#sign-up-and-more-organizations) for the
+alternatives.
 
 ## Run `bootstrap-admin`
 
@@ -84,11 +85,22 @@ in the output.
 ![The set-password page a new account owner reaches from the one-time link]({{ site.baseurl }}/assets/images/install/set-password.png)
 *Figure: The page the one-time set-password link opens.*
 
-1. Each administrator signs in at `https://<host>/login` with the email and the
-   temporary password, opens the admin console, changes the password and enrolls
-   an authenticator app (TOTP). The console requires a TOTP code.
+1. Each administrator signs in to the **platform console**, not to the
+   organization sign-in page: it is its own site, with its own sign-in page.
+   Where it is depends on how you installed:
+
+   | Install | Platform console address |
+   |---|---|
+   | Compose or all-in-one, port mode (default) | `https://<host>:8443/` (`OPENCTEM_ADMIN_PORT`), from the networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS` (private networks by default). From elsewhere, use your VPN or an SSH tunnel: `ssh -L 8443:127.0.0.1:8443 you@<host>`, then `https://localhost:8443/`. |
+   | Host mode (`OPENCTEM_ADMIN_SITE=host`) | `https://<OPENCTEM_ADMIN_HOST>/`, its own DNS name. Recommended for production: the browser then isolates it from the main site. |
+   | Kubernetes | `admin.site.host` (host mode), or `kubectl port-forward` in port mode; see [Kubernetes](kubernetes.md). |
+   | Ansible kit | The console host or port you chose; see [Install with Ansible](ansible.md). |
+
+   Sign in with the email and the temporary password, change the password and
+   enroll an authenticator app (TOTP). The console asks for a TOTP code at every
+   sign-in.
 2. The owner opens the set-password link, chooses a password, signs in at
-   `https://<host>/login`, and then invites users or configures SSO for the
+   `https://<host>/login` (the organization sign-in page, on the main address), and then invites users or configures SSO for the
    organization (see [Identity and access](../identity/index.md)).
 
 ## Options
@@ -114,16 +126,22 @@ unchanged, and an organization whose slug exists is skipped. Re-run it to add a
 break-glass administrator or an organization to an existing installation. An
 email that already has an ordinary account cannot become a platform administrator.
 
-## Self-service organizations
+## Sign-up and more organizations
 
-With `TENANT_CREATION_MODE=self_service` any signed-in user can create an
-organization and becomes its owner. Use it for a trial or SaaS-style
-installation; the default, `admin_only`, suits a self-hosted install where the
-operator decides which organizations exist. Further organizations in
-`admin_only` mode: admin console, **Organizations**, **Create**.
+`SIGNUP_MODE` is the installation's sign-up ceiling. The default,
+`disabled`, suits a self-hosted install where the operator decides which
+organizations exist: nobody signs up on their own, and only a platform
+administrator creates further organizations in the platform console,
+**Organizations**, **Create**. `domain` lets people with an address on an
+organization's verified domain sign up and join it; `open` lets anyone sign up
+and create an organization (a hosted service). `domain` and `open` need the
+platform e-mail. The old `TENANT_CREATION_MODE` variable is gone and stops the
+API from starting while it is set. See
+[Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations)
+for both layers, the limits and the CAPTCHA rules.
 
 ![The Organizations list of the admin console with Example Corp and its owner]({{ site.baseurl }}/assets/images/user-guide/admin-organizations.png)
-*Figure: Admin console, Organizations: every organization of the installation.*
+*Figure: Platform console, Organizations: every organization of the installation.*
 
 Users never sign up on their own by default: accounts come from an organization
 owner or administrator (direct creation or invitation) or from the

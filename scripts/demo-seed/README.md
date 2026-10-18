@@ -40,8 +40,14 @@ need a real sensor or CI provider, is in `sql/`:
 ## Run it
 
 1. Start a scratch stack from the `openctem` repository (any way you like: the
-   Compose files in `api/deploy`, or the API and web console from source), with an
-   empty database, and run the migrations.
+   Compose files in `api/deploy`, the all-in-one image, or the API and consoles from
+   source), with an empty database, and run the migrations. The seed talks to three
+   addresses: the API, the platform console's API listener (`ADMIN_LISTEN_ADDR`,
+   which is not served on the main address) and, for the screenshots, the web
+   console and the platform console's own site. With the all-in-one image and
+   `GATEWAY=off`, set `OPENCTEM_CONSOLE_STANDALONE=true` and
+   `ADMIN_API_URL=http://127.0.0.1:8081` to run the console, and publish it on a
+   loopback address only.
 2. Create the platform administrator and the organization:
 
    ```bash
@@ -57,6 +63,7 @@ need a real sensor or CI provider, is in `sql/`:
    cd scripts
    npm install            # playwright, sharp, tsx
    OPENCTEM_API_URL=http://127.0.0.1:8080 \
+   OPENCTEM_ADMIN_API_URL=http://127.0.0.1:8081 \
    DEMO_PSQL="docker exec -i <postgres container> psql -U <user> -d <database>" \
    OWNER_SETUP_TOKEN=<token> ADMIN_TEMP_PASSWORD=<password> \
      npx tsx demo-seed/seed.ts
@@ -64,15 +71,22 @@ need a real sensor or CI provider, is in `sql/`:
 
 The seed takes about ten minutes, mostly waiting for rate limits and for a fresh
 authenticator code (every account has TOTP enrolled; the secrets are kept in
-`demo-seed/.state.json`, which is not committed). Run it once, on an empty database.
+`demo-seed/.state.json`, which is not committed). Run it on an empty database;
+a second run on the same database skips what exists (a repeated run reports
+`skip` lines and creates nothing twice, sensors included). The organization runs
+**Strict** scan approval, so the scope has entries and an exclusion waiting for a
+second administrator, the platform administrator's console actions use a fresh
+authenticator code (step-up), and the findings approvals use their closure reasons.
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `OPENCTEM_API_URL` | `http://127.0.0.1:18980` | API base URL |
+| `OPENCTEM_ADMIN_API_URL` | `http://127.0.0.1:18981` | The platform console's API listener (`ADMIN_LISTEN_ADDR`) |
 | `OPENCTEM_WEB_URL` | `http://localhost:13980` | Web console URL (capture) |
+| `OPENCTEM_CONSOLE_URL` | `http://localhost:13981` | The platform console's own site (capture) |
 | `DEMO_PSQL` | `docker exec -i openctem-demo-pg psql -U openctem -d openctem` | psql command line of the scratch database |
 | `DEMO_PASSWORD` | `DemoPassw0rd!2026` | Password of every demo account |
-| `SENSOR_IMAGE` | `ghcr.io/openctemio/sensor:v0.17.0` | Image whose `pair` command pairs the demo sensors |
+| `SENSOR_IMAGE` | `ghcr.io/openctemio/sensor:v0.23.2` | Image whose `pair` command pairs the demo sensors |
 | `SENSOR_API_URL` | `http://127.0.0.1:18980` | API URL as the sensor container (host network) reaches it |
 | `PAIR_SENSORS` | | `0` skips pairing (no Docker) |
 | `SKIP_IMPORTS` | | `1` skips the tool imports |

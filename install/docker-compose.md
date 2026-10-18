@@ -7,9 +7,11 @@ nav_order: 2
 # Install with Docker Compose
 {: .no_toc }
 
-The production Compose stack runs the gateway, the web console, the API,
-PostgreSQL and Redis on one host. Only the gateway publishes a port: one HTTPS
-port (443) for browsers, sensors and API clients.
+The production Compose stack runs the gateway, the web console, the platform
+console, the API, PostgreSQL and Redis on one host. Only the gateway publishes
+ports: one HTTPS port (443) for browsers, sensors and API clients, and the
+platform console's own site (port 8443 by default, or its own host name), which
+answers only your administrators' networks.
 
 1. TOC
 {:toc}
@@ -33,7 +35,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.9.6          # the release you deploy
+git checkout v0.10.1         # the release you deploy
 cd api/deploy
 ```
 
@@ -42,30 +44,38 @@ cd api/deploy
 | `docker-compose.yml` | The stack. |
 | `docker-compose.http-redirect.yml` | Overlay: also publish port 80, redirecting to HTTPS. |
 | `docker-compose.plain-http.yml` | Overlay: plain HTTP behind your own TLS proxy (TLS mode `http`). |
-| `docker-compose.sensor-passthrough.yml` | Overlay: sensors reach gRPC on the same port 443 (see [Transport](../sensors/transport.md)). |
+| `docker-compose.sensor-passthrough.yml` | Overlay: sensors reach the platform on the same port 443, routed to the API's mutual-TLS listener (see [Transport](../sensors/transport.md)). |
+| `docker-compose.sensor.yml` | Overlay: a bundled sensor, enrolled as a shared sensor of the installation (see [Overlays](#overlays)). |
 | `docker-compose.clamav.yml` | Overlay: malware scanning of uploaded files (see [File storage](../configuration/file-storage.md)). |
 | `docker-compose.job-signer.yml` | Overlay: signed jobs. A separate signer container with its own key signs every job before a sensor gets it; off by default. |
+| `setup.sh` | Writes `.env` with generated secrets (see step 2). |
 | `.env.example` | Settings template. |
 | `backup.sh` | Backup, restore check and restore (see [Backup and restore](../operations/backup-restore.md)). |
 | `gateway/` | Gateway configuration (Caddyfile, TLS modes, entrypoint). |
 | `postgres/least-privilege-roles.sql` | Creates the database roles the stack uses. |
+| `sensor/` | The bundled sensor's local policy and seccomp profile (used by `docker-compose.sensor.yml`). |
 
 ## 2. Create `.env`
 
 `./setup.sh ctem.example.com` writes `.env` (mode 600) with the host name and
-freshly generated secrets; add `--acme you@example.com` for a Let's Encrypt
-certificate. It never overwrites an existing `.env`.
+freshly generated secrets, including `FINGERPRINT_KEY`; add
+`--acme you@example.com` for a Let's Encrypt certificate. It never overwrites
+an existing `.env`. The platform console's site has its own options
+(`--admin-site port|host|off`, `--admin-host`, `--admin-port`,
+`--admin-cidrs`); see [Platform console](#platform-console). Run
+`./setup.sh --help` for the list.
 
 To do it by hand instead, copy the template and fill in a value for every secret. The commands below
 generate them; `.env` does not run commands itself.
 
 ```bash
 cp .env.example .env
-for v in DB_SUPERUSER_PASSWORD DB_MIGRATE_PASSWORD DB_PASSWORD REDIS_PASSWORD; do
+for v in DB_SUPERUSER_PASSWORD DB_MIGRATE_PASSWORD DB_ADMIN_PASSWORD DB_PASSWORD REDIS_PASSWORD; do
   sed -i "s|^$v=.*|$v=$(openssl rand -hex 24)|" .env
 done
-sed -i "s|^AUTH_JWT_SECRET=.*|AUTH_JWT_SECRET=$(openssl rand -hex 64)|" .env
-sed -i "s|^APP_ENCRYPTION_KEY=.*|APP_ENCRYPTION_KEY=$(openssl rand -hex 32)|" .env
+for v in APP_ENCRYPTION_KEY FINGERPRINT_KEY METRICS_TOKEN; do
+  sed -i "s|^$v=.*|$v=$(openssl rand -hex 32)|" .env
+done
 chmod 600 .env
 ```
 
@@ -78,9 +88,9 @@ OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
 `OPENCTEM_VERSION` is optional: the compose file and `.env.example` of a
-release default to that release (`v0.9.6` in the v0.9.6 files) and to the
+release default to that release (`v0.10.1` in the v0.10.1 files) and to the
 current image names (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
-`openctem-gateway`, `migrations`). Set it only to run another release than the
+`openctem-console`, `openctem-gateway`, `migrations`). Set it only to run another release than the
 files you checked out, which is not recommended.
 
 {: .note }
@@ -93,17 +103,23 @@ itself, set `OPENCTEM_VERSION=v0.9.0`,
 {: .warning }
 Back up `.env`. `APP_ENCRYPTION_KEY` encrypts the credentials stored in the
 database (integration tokens, SMTP passwords, identity-provider secrets): a
-database backup is useless for those without it. `AUTH_JWT_SECRET` signs
-sessions; changing it signs everyone out.
+database backup is useless for those without it. `FINGERPRINT_KEY` keys the
+identity of every secret finding: changing it makes every known secret open a
+second finding, so never rotate it together with `APP_ENCRYPTION_KEY`. (Sessions
+are signed with a key derived from `APP_ENCRYPTION_KEY`; an optional
+`AUTH_JWT_SECRET` lets you rotate the encryption key without signing everyone
+out.)
 
 Choose the TLS mode in [TLS and the gateway](tls-and-gateway.md). `internal`
 works for any name or IP address with no further setup.
 
-The template creates three database roles: `DB_SUPERUSER` (`postgres`, used only
-to initialise the database and to create the other two), `DB_MIGRATE_USER`
-(`openctem_migrator`, owns the schema and runs migrations) and `DB_USER`
-(`openctem_app`, the API: read and write rows only). Leaving `DB_MIGRATE_USER`
-unset runs everything as `DB_USER` instead.
+The template creates four database roles: `DB_SUPERUSER` (`postgres`, used only
+to initialise the database and to create the others), `DB_MIGRATE_USER`
+(`openctem_migrator`, owns the schema and runs migrations), `DB_USER`
+(`openctem_app`, the API: read and write rows only) and `DB_ADMIN_USER`
+(`openctem_console`, the only role that writes the platform console's identity
+tables: administrators and console sessions). Leaving `DB_MIGRATE_USER` unset
+runs everything as `DB_USER` instead.
 
 ## 3. Start the stack
 
@@ -126,9 +142,10 @@ docker compose up -d
 docker compose ps -a
 ```
 
-The one-shot jobs `datastore-tls`, `db-roles`, `migrate` and `gateway-init` run
-first and exit with code 0; `gateway`, `web`, `api`, `postgres` and `redis` stay up. The first
-start takes a minute or two while PostgreSQL initialises and the migrations run.
+The one-shot jobs `datastore-tls`, `db-roles`, `migrate`, `db-grants` and
+`gateway-init` run and exit with code 0; `gateway`, `web`, `console`, `api`,
+`postgres` and `redis` stay up. The first start takes a minute or two while
+PostgreSQL initialises and the migrations run.
 
 Check the platform from the host:
 
@@ -148,9 +165,11 @@ Next: [create the first administrator and organization](first-admin.md).
 | `gateway-init` | `openctem-gateway` | Gives the gateway's volumes to its user (uid 1000), then exits. |
 | `gateway` | `openctem-gateway` | The only published service: TLS and routing on port 443. Caddy with the layer-4 module, non-root. |
 | `web` | `openctem-web` | Web console (Next.js), internal port 3000. |
+| `console` | `openctem-console` | Platform console (Next.js), internal port 3000: its own app, served by the gateway on its own site. It reaches the API's console listener (internal port 8081). |
 | `api` | `openctem-api` | API (Go), internal port 8080. Runs the background jobs too. |
 | `migrate` | `migrations` | Applies database migrations, then exits. |
-| `db-roles` | `postgres:17` | Creates or repairs the least-privilege roles, then exits. |
+| `db-roles` | `postgres:17` | Creates or repairs the least-privilege roles before the migrations, then exits. |
+| `db-grants` | `postgres:17` | The same script again after the migrations, so tables a migration just created get their grants before the API starts, then exits. |
 | `datastore-tls` | `postgres:17` | Issues a private CA and server certificates for PostgreSQL and Redis, renews them when they are within 30 days of expiry, then exits. |
 | `postgres` | `postgres:17` | Database, TLS on. |
 | `redis` | `redis:7-alpine` | Cache, queues and rate-limit state; TLS only, password required. |
@@ -173,16 +192,38 @@ rotated at 50 MB with 5 files kept.
 
 Never run `docker compose down -v`: it deletes the volumes.
 
+## Platform console
+
+Platform administrators work in the platform console, not in the organization
+web console. It is its own app on its own site, set by `OPENCTEM_ADMIN_SITE`:
+
+| Value | Where the console is |
+|---|---|
+| `port` (default) | `https://<OPENCTEM_HOSTNAME>:<OPENCTEM_ADMIN_PORT>/` (8443). Needs no extra DNS name. |
+| `host` | `https://<OPENCTEM_ADMIN_HOST>/`, its own DNS name on port 443 (must differ from `OPENCTEM_HOSTNAME`). Recommended for production: the browser then isolates the console from the main site. |
+| `off` | No console site. |
+
+Only the networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS` reach it (loopback and
+private networks by default); set `0.0.0.0/0 ::/0` only behind an access
+gateway. In port mode `OPENCTEM_ADMIN_BIND` publishes the console port on one
+interface (a private or VPN address): a published port is not filtered by the
+host firewall, so prefer that, or an SSH tunnel
+(`ssh -L 8443:127.0.0.1:8443 you@<host>`), over a public interface.
+`setup.sh` prints the address it configured. The port is not a security
+control; the controls are the separate origin, the network list, the console's
+own sign-in with a second factor, step-up and its audit log.
+
 ## Setting other variables
 
 The `api` service passes a fixed list of variables from `.env` to the API:
-`APP_ENV`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`,
-`DB_SSLMODE`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_DB`, `REDIS_PASSWORD`,
-`REDIS_TLS_ENABLED`, `REDIS_TLS_CA_FILE`, `LOG_LEVEL`, `LOG_FORMAT`,
-`AUTH_PROVIDER`, `AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`,
-`APP_ENCRYPTION_KEY_PREVIOUS`, `APP_TEMPLATE_SIGNING_KEY`,
-`APP_CONTENT_SIGNING_KEY`, `TENANT_CREATION_MODE`, `METRICS_TOKEN` (empty:
-`/metrics` off) and the `SENSOR_*VERSION` variables. Platform email (SMTP) is
+`APP_ENV`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_ADMIN_USER`,
+`DB_ADMIN_PASSWORD`, `DB_NAME`, `DB_SSLMODE`, `REDIS_HOST`, `REDIS_PORT`,
+`REDIS_DB`, `REDIS_PASSWORD`, `REDIS_TLS_ENABLED`, `REDIS_TLS_CA_FILE`,
+`LOG_LEVEL`, `LOG_FORMAT`, `AUTH_PROVIDER`, `AUTH_JWT_SECRET`,
+`APP_ENCRYPTION_KEY`, `APP_ENCRYPTION_KEY_PREVIOUS`, `FINGERPRINT_KEY`,
+`APP_TEMPLATE_SIGNING_KEY`, `APP_CONTENT_SIGNING_KEY`, `SIGNUP_MODE`,
+`SELF_SERVICE_START_LIMITS`, `VERSION_CHECK_ENABLED`, `VERSION_CHECK_URL` and
+`METRICS_TOKEN` (empty: `/metrics` off). Platform email (SMTP) is
 not an environment variable: set it in the admin console, **System > E-mail**
 (see [Email](../configuration/email.md)). It passes the public origin to the API as `APP_URL`
 (`OPENCTEM_PUBLIC_URL`, else `https://<OPENCTEM_HOSTNAME>`), and the API derives
@@ -202,8 +243,9 @@ services:
 
 Then apply with `docker compose up -d`.
 
-Memory limits default to 2 GB for the API, 1 GB for the web console and 512 MB
-for the gateway; change them with `API_MEMORY_LIMIT`, `WEB_MEMORY_LIMIT` and
+Memory limits default to 2 GB for the API, 1 GB for the web console, 512 MB
+for the platform console and 512 MB for the gateway; change them with
+`API_MEMORY_LIMIT`, `WEB_MEMORY_LIMIT`, `CONSOLE_MEMORY_LIMIT` and
 `GATEWAY_MEMORY_LIMIT` in `.env`. The bundled PostgreSQL's memory settings follow the
 `PG_*` variables in `.env.example`. [Sizing](sizing.md#docker-compose) has
 values for each installation size.
@@ -233,8 +275,12 @@ docker compose -f docker-compose.yml -f docker-compose.http-redirect.yml up -d
 # TLS mode http, behind your own TLS proxy
 docker compose -f docker-compose.yml -f docker-compose.plain-http.yml up -d
 
-# Sensor gRPC on the same port 443 (builds the gateway with the layer-4 module)
-docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d --build
+# Sensors on the same port 443 (the published gateway image already carries the
+# layer-4 module: nothing to build)
+docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d
+
+# A bundled sensor, enrolled as a shared sensor of the installation
+docker compose -f docker-compose.yml -f docker-compose.sensor.yml up -d
 
 # Malware scanning of uploaded files with ClamAV (about 1.5 GB of memory)
 docker compose -f docker-compose.yml -f docker-compose.clamav.yml up -d
@@ -243,8 +289,37 @@ docker compose -f docker-compose.yml -f docker-compose.clamav.yml up -d
 File storage (a local volume or an S3-compatible bucket), retention and
 malware scanning are described in [File storage](../configuration/file-storage.md).
 
-The sensor overlay is described in
+The sensor passthrough overlay is described in
 [Sensor transport](../sensors/transport.md#grpc-on-port-443-docker-compose).
+
+### The bundled shared sensor
+
+`docker-compose.sensor.yml` adds a sensor that belongs to the installation, not
+to an organization, so a platform administrator can offer scanning to
+organizations without anyone installing a sensor. It adds two services:
+
+- `sensor-enrollment`, a one-shot job that runs after the migrations and
+  registers the single-use `SENSOR_INSTANCE_ENROLLMENT_TOKEN` (valid for one
+  hour, audited in the console). `setup.sh` writes a token into `.env`; to
+  enroll again, put a new value there (`octe_` and 49 letters or digits) and
+  run the `up` again.
+- `sensor`, which enrolls with that token on its first start and keeps its
+  identity in the `sensor-data` volume (back it up like a credential). It runs
+  in shared mode: every tool sandboxed and network-confined, a fresh task
+  directory per job, and a local policy in `sensor/sensor-policy.yaml`
+  (`setup.sh` copies it from `sensor/sensor-policy.example.yaml`; public
+  targets only by default). It refuses to start if the host cannot confine
+  tools (unprivileged user namespaces must be allowed).
+
+It takes no organization's work until a super administrator turns shared
+sensors on (platform console, **System > Platform scanning**). Shared mode
+needs a sensor release that has it; sensor v0.23.2 and older do not, and the
+overlay's default `SENSOR_VERSION` is v0.23.0. Such a sensor enrolls but
+receives no shared job, because the platform sends shared jobs only to a sensor
+that reports shared-mode isolation. Set `SENSOR_VERSION` to the first release
+that supports shared mode when it is published. See
+[Shared sensors](../sensors/shared-sensors.md) for the settings, the fleet page
+and what organizations see.
 
 Use the same `-f` list for every later `docker compose` command.
 
