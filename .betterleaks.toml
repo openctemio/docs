@@ -1,0 +1,21 @@
+# Betterleaks configuration (gitleaks-compatible format).
+# The default rules apply everywhere except the throwaway fixtures listed here.
+# A verified false positive outside these paths goes in .gitleaksignore as
+# commit:file:rule:line, with a comment saying why it is not a credential.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixtures and lock files"
+paths = [
+    '''(^|/)testdata/''',
+    '''_test\.go$''',
+    '''(^|/)__tests__/''',
+    '''\.test\.[jt]sx?$''',
+    '''(^|/)(go\.sum|package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$''',
+]
+# Obvious placeholders in docs and examples (matched against the secret only).
+regexes = [
+    '''(?i)^(your[-_ ]|<|\$\{|\$\(|example|changeme|placeholder|x{4,})''',
+]

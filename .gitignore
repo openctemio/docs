@@ -97,3 +97,11 @@ marketing/
 
 # Screenshot tooling: demo account TOTP secrets of the scratch stack
 scripts/demo-seed/.state.json
+
+# Secrets and runtime state: never committed
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+/data/
