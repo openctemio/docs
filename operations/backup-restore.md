@@ -21,6 +21,10 @@ nav_order: 4
 | Attachments and the sensor CA | `api-data` volume (Compose), `/data` (all-in-one), the attachments volume or bucket (Helm) | Uploaded files, finding evidence, report templates and stored reports, and the sensor CA (`SENSOR_MTLS_CA_DIR`, `data/sensor-ca`) that signs sensor certificates. Not in the database. Without the sensor CA a new one is created and every sensor must be enrolled again. |
 | Gateway data | `gateway-data` volume (Compose), `/data` (all-in-one) | The internal CA's private key (TLS mode `internal`) and ACME account. Without it a new CA is created and sensors stop trusting the gateway. |
 | Audit archives | `AUDIT_ARCHIVE_DIR`, when set | Archived audit-log entries, which are deleted from the database after archiving. |
+| Administrators' audit copy | The destination of `ADMIN_AUDIT_SINK`, when it is a `file:///` path | The copy of the platform administrators' audit log kept outside the database. A copy sent to an `https` or `syslog+tls` receiver is the receiver's to back up. See [Audit logs](../security/audit-log.md). |
+
+The platform console keeps no state of its own: its sessions, administrators and
+settings are in the database, so the database backup covers it.
 
 Redis holds caches, rate-limit counters and queued background jobs. It does not
 need a backup; restarting with an empty Redis loses only queued work.
@@ -96,7 +100,8 @@ differs from the running `OPENCTEM_VERSION`.
 ./backup.sh restore backups/20261008T021500Z --yes
 ```
 
-Without `--yes` it refuses. It stops `gateway`, `web` and `api`, restores the
+Without `--yes` it refuses. It stops `gateway`, `web`, `console` and `api` (so nobody signs in to the platform
+console or the organization site while the database is replaced), restores the
 database with `pg_restore --clean`, re-runs the `db-roles` job so the
 least-privilege roles get their grants on the restored schema, replaces the
 contents of the `api-data` and `gateway-data` volumes, and starts the stack
@@ -122,7 +127,73 @@ The same order applies to any PostgreSQL: restore as a superuser into an empty
 database with `--no-owner --no-privileges`, then run
 [`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/api/deploy/postgres/least-privilege-roles.sql)
 again to give the schema to `openctem_migrator` and the grants to
-`openctem_app`, then start the platform.
+`openctem_app`, then start the platform. If you run the console database role
+(`DB_ADMIN_USER`), pass `admin_user` and `admin_password` to the script as well, or the
+console tables (including `admin_approvals`, the four-eyes approvals) keep the
+application role's grants. See the
+[database roles guide](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/database-roles.md).
+
+## Point-in-time recovery (Ansible kit)
+
+The nightly backup loses up to a day of data. The [Ansible kit](../install/ansible.md)
+can also ship every finished WAL segment, encrypted, to an S3-compatible bucket, plus a
+weekly base backup, and recover the database to a chosen time. It is **off by default**,
+covers the database only (uploaded files and secrets stay in the nightly backup), and
+needs a bucket and an access key that only you can provide. The full procedure is
+[`docs/BACKUP-PITR.md`](https://github.com/openctemio/openctem-ansible/blob/main/docs/BACKUP-PITR.md)
+in the kit.
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `openctem_wal_archive` | `false` | Turns archiving on (inventory). Postgres needs one restart for `archive_mode`. |
+| `openctem_wal_archive_timeout` | `300` | Seconds after which a busy database closes a WAL segment. With the upload interval this bounds the loss: about 6 minutes. |
+| `openctem_wal_spool_dir` | `/var/lib/openctem-wal-spool` | Where finished segments wait for upload (root only). |
+| `backup_age_recipient` | empty | The age public key everything in the bucket is encrypted to. The private key stays off the host; losing it makes the archive unreadable. |
+| `backup_wal_bucket` | empty | The bucket. |
+| `backup_wal_prefix` | the project name | A path inside the bucket. |
+| `backup_wal_remote_conf` | `/opt/openctem/secrets/backup_remote.conf` | rclone remote (`[openctem-backup]`, `type = s3`) with the access key. You place it on the server, owner root, mode `0400` or `0600`; it never goes in the inventory. |
+| `backup_wal_retention_days` | `14` | Window in which you can recover to a time. Older base backups and WAL are deleted, except the newest base backup before the window. |
+| `backup_basebackup_on_calendar` | `Sun *-*-* 02:30:00` | When the weekly base backup runs. |
+| `backup_wal_ship_interval` | `1min` | How often segments are uploaded. |
+| `monitoring_wal_lag_minutes` | `15` | The monitor alerts when the oldest segment waiting for upload is older than this. |
+| `monitoring_wal_spool_max_mb` | `2048` | Alert when the spool is larger than this. |
+| `monitoring_basebackup_max_age_days` | `8` | Alert when the newest base backup is older. |
+| `monitoring_webhook_url` | empty | Where the monitor sends alerts; without it they only reach the journal. |
+
+Turn it on in this order, so the spool never fills the disk without an uploader
+(`$INV` is your inventory):
+
+```bash
+ansible-playbook -i $INV playbooks/55-backup.yml -K -e apply_backup=true -e openctem_wal_archive=true
+ansible-playbook -i $INV playbooks/50-openctem.yml -K -e apply_openctem=true -e openctem_wal_archive=true
+ansible-playbook -i $INV playbooks/55-backup.yml -K -e apply_backup=true -e openctem_wal_archive=true
+```
+
+Recover to a time just before the damage (UTC; `latest` replays the whole archive). Bring the
+age identity file to the server for the duration only:
+
+```bash
+sudo openctem-restore --pitr "2026-10-18 14:02:00 UTC" /root/pitr.key --yes
+sudo rm -f /root/pitr.key
+```
+
+The command recovers a throwaway Postgres without network first and replaces the live database
+only with the recovered dump, so a failure before that point leaves the stack untouched. Data
+written after the target is gone. If a release upgrade ran between the target and now, the
+recovered schema is the older one: roll back the release or rerun the openctem play so the
+migrations run again. Rehearse monthly with `sudo openctem-restore-drill --pitr latest
+/root/drill.key`, which prints how long the recovery took.
+
+Erased personal data stays in the bucket until it ages out of `backup_wal_retention_days`; say
+so in your privacy policy.
+
+#### Administrators' audit copy
+
+With `openctem_admin_audit_sink: file` the kit writes the administrators' audit copy to
+`openctem_admin_audit_sink_dir` (default `/opt/openctem/admin-audit`), and `openctem-backup`
+archives that directory as `admin-audit.tar.gz`, so the copy leaves the host with the encrypted
+backups. Restore it with `tar -xzf` into the directory. With an `https` sink, the HMAC key in
+`/opt/openctem/secrets/admin_audit_sink_secret` is part of `secrets.tar.gz`.
 
 ## Rotating the encryption key
 

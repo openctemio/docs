@@ -49,7 +49,7 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.10.1         # the release you deploy
+git checkout v0.11.0         # the release you deploy
 cd api/deploy
 ./setup.sh ctem.example.com  # writes .env: the host name and generated secrets
 ```
@@ -79,7 +79,10 @@ Full guide: [Docker Compose](install/docker-compose.md). TLS choices:
 ## 2. Create the first administrator and organization
 
 ```bash
-docker compose exec api /app/bootstrap-admin \
+docker compose exec \
+  -e DB_MIGRATE_USER="$(grep ^DB_MIGRATE_USER= .env | cut -d= -f2-)" \
+  -e DB_MIGRATE_PASSWORD="$(grep ^DB_MIGRATE_PASSWORD= .env | cut -d= -f2-)" \
+  api /app/bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
   -org-name="Example Corp" \
@@ -88,8 +91,14 @@ docker compose exec api /app/bootstrap-admin \
 
 The output prints a temporary password for the platform administrator and the
 break-glass administrator, and a one-time set-password link for the
-organization owner (also emailed when SMTP is configured). Copy them now: they
+organization owner (also emailed when the platform e-mail is configured). Copy them now: they
 are shown once.
+
+The tool ends with a line saying to sign in at `<ui-url>/login`; that is out of
+date for the platform administrator, who uses the console address below. The
+two `-e` options pass the schema owner's credentials: the default stack uses
+separate database roles and the tool fails without them (see
+[First administrator](install/first-admin.md)).
 
 - The **platform administrator** runs the installation from the platform
   console, a separate site of its own (by default `https://ctem.example.com:8443/`,
@@ -156,7 +165,7 @@ what each flag does, is the [sensor quickstart](sensors/index.md#quickstart-a-wo
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.23.0/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.23.2/docker/seccomp/sensor.json
 docker run -d --name openctem-sensor --restart unless-stopped \
   --read-only --tmpfs /tmp --cap-drop ALL \
   --security-opt no-new-privileges:true \
@@ -165,7 +174,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_API_URL=https://ctem.example.com \
   -e SENSOR_ALLOWED_RANGES='*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0
+  ghcr.io/openctemio/sensor:v0.23.2
 docker logs openctem-sensor
 ```
 

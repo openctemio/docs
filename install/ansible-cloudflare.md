@@ -359,6 +359,9 @@ ansible-playbook -i $INV playbooks/55-backup.yml -K -e apply_backup=true -e back
 ansible-playbook -i $INV playbooks/60-monitoring.yml -K -e apply_monitoring=true
 ```
 
+The kit's [Cloudflare Access guide](https://github.com/openctemio/openctem-ansible/blob/main/docs/CLOUDFLARE-ACCESS.md)
+has the same dashboard steps with the exact machine paths.
+
 Create the first platform administrator **on the VM in an interactive session**, as
 described in [First administrator](ansible.md#first-administrator). The administrator's e-mail
 must match the policy of the Access application of `admin.example.com`, or Access stops the
@@ -435,6 +438,8 @@ In addition to [the shared checklist](ansible.md#security-checklist):
 - [ ] Service tokens: one per client, short enough lifetimes, expiry on a calendar, revoked when a client is retired.
 - [ ] The tunnel token is in the 0700 secrets directory (0400, uid 65532); the dashboard's copy is not in a ticket or chat; rotate it yearly (Tunnel, Refresh token, then place it as in step 3 and recreate the connector).
 - [ ] `openctem_admin_allowed_cidrs` is what you decided: staff ranges, or every address with Access as the gate and the warning understood.
+- [ ] A hosted service (`MANAGED_SERVICE`) has `openctem_admin_audit_sink` set; the sink's receiver is not behind the Access application of the console (it is called by the API, which has no Access login). See [the audit sink](ansible.md#hosted-service-the-administrators-audit-sink).
+- [ ] Optional: continuous archiving to a bucket for point-in-time restore ([guide](ansible.md#continuous-archiving-and-point-in-time-restore)); the VM's outbound policy ([firewall](ansible.md#outbound-firewall-of-the-stacks-containers)) still lets the API and the connector reach what they need.
 - [ ] Cloudflare account hardening: MFA for every Cloudflare administrator, a short list of them, audit logs reviewed.
 - [ ] Break-glass: the platform break-glass account works and is offline; know how to reach the VM without Cloudflare (SSH from an admin network, or the hypervisor console), because if Cloudflare is unavailable the console is too.
 

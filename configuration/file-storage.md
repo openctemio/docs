@@ -102,9 +102,17 @@ instead of landing on the server storage.
 
 ## Quota
 
-`STORAGE_TENANT_QUOTA_MB` (default 20480 = 20 GiB, 0 = none) bounds the
-attachment bytes one organization holds; an upload over it gets
-`413 STORAGE_QUOTA_EXCEEDED`.
+How many MiB of attachments one organization may hold is decided in this order:
+
+1. The organization's own **`storage_mb`** limit (a platform administrator sets it on the
+   organization's **Limits** tab in the platform console).
+2. The platform default, set in the platform console under **Settings > Limits** (a super
+   admin, with a fresh confirmation and a reason; audited). It applies to the next upload
+   on every replica without a restart.
+3. Until the console stores a default, `STORAGE_TENANT_QUOTA_MB` (default 20480 = 20 GiB).
+
+A default of 0 means no quota. An upload over the quota is refused with
+`413 STORAGE_QUOTA_EXCEEDED`. If the stored quota cannot be read, the upload is refused too.
 
 ## Retention
 
