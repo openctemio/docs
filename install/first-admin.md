@@ -38,14 +38,27 @@ organization through the normal, audited organization service.
 **Docker Compose** (in `api/deploy`):
 
 ```bash
-docker compose exec api /app/bootstrap-admin \
+docker compose exec \
+  -e DB_MIGRATE_USER="$(grep ^DB_MIGRATE_USER= .env | cut -d= -f2-)" \
+  -e DB_MIGRATE_PASSWORD="$(grep ^DB_MIGRATE_PASSWORD= .env | cut -d= -f2-)" \
+  api /app/bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
   -org-name="Example Corp" \
   -org-owner-email=owner@example.com
 ```
 
-**All-in-one image:**
+{: .note }
+The two `-e` options are needed on a `setup.sh` install, which uses separate
+database roles: the tool must connect as the schema owner
+(`DB_MIGRATE_USER`), and the `api` service does not carry that password, so
+without them the tool fails with `permission denied for table admin_users`. The
+stack does not pass the migrator's credentials to the API on purpose. If
+`DB_MIGRATE_USER` is unset in `.env` (single-role layout), run the command
+without the `-e` options.
+
+**All-in-one image** (the container's environment already holds
+`DB_MIGRATE_USER`):
 
 ```bash
 docker exec openctem /opt/openctem/api/bootstrap-admin \
@@ -74,8 +87,18 @@ and an `=== Organization created ===` block. Copy the passwords now; they are no
 stored anywhere you can read them again. Keep the break-glass credentials offline.
 
 The organization owner gets a one-time set-password link, valid for 24 hours:
-emailed when [SMTP is configured](../configuration/email.md), otherwise printed
-in the output.
+emailed when the platform e-mail is configured, otherwise printed in the output.
+On a fresh install nothing is configured yet, so the link is printed; for a
+headless install set `BOOTSTRAP_SMTP_HOST` (with `BOOTSTRAP_SMTP_PORT`,
+`_USER`, `_PASSWORD`, `_FROM`, `_FROM_NAME` and `_STARTTLS`) in the command's
+environment to store the relay first (see
+[Email](../configuration/email.md#headless-installs)). If you run the command
+a second time, the output is the same and existing accounts are left alone.
+
+{: .note }
+The last lines of the tool's output say to sign in at `<ui-url>/login`. That text
+is out of date: platform administrators sign in to the platform console, at the
+address in [Sign in](#sign-in), not on the organization sign-in page.
 
 ## Sign in
 
@@ -87,14 +110,16 @@ in the output.
 
 1. Each administrator signs in to the **platform console**, not to the
    organization sign-in page: it is its own site, with its own sign-in page.
-   Where it is depends on how you installed:
+   Where it is depends on how you installed
+(`setup.sh` prints the address; for what the console offers once you are in, see
+[the console guide](../user-guide/11-platform-administration.md)):
 
    | Install | Platform console address |
    |---|---|
    | Compose or all-in-one, port mode (default) | `https://<host>:8443/` (`OPENCTEM_ADMIN_PORT`), from the networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS` (private networks by default). From elsewhere, use your VPN or an SSH tunnel: `ssh -L 8443:127.0.0.1:8443 you@<host>`, then `https://localhost:8443/`. |
    | Host mode (`OPENCTEM_ADMIN_SITE=host`) | `https://<OPENCTEM_ADMIN_HOST>/`, its own DNS name. Recommended for production: the browser then isolates it from the main site. |
    | Kubernetes | `admin.site.host` (host mode), or `kubectl port-forward` in port mode; see [Kubernetes](kubernetes.md). |
-   | Ansible kit | The console host or port you chose; see [Install with Ansible](ansible.md). |
+   | Ansible kit | The console host or port you chose (`openctem_admin_host`); behind Cloudflare it first asks for the Cloudflare Access login. The kit's wrapper is `sudo openctem-bootstrap-admin`, see [Install with Ansible](ansible.md#first-administrator). |
 
    Sign in with the email and the temporary password, change the password and
    enroll an authenticator app (TOTP). The console asks for a TOTP code at every
@@ -120,6 +145,11 @@ in the output.
 | `-force` | | Delete and re-create an existing administrator with the same email. |
 | `-link` | | Link an administrator created by v0.8.0 or earlier to a sign-in account, keeping its role and authenticator. |
 | `-db` | `DATABASE_URL` | Database URL. Default: built from `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` and `DB_SSLMODE`. |
+
+Three subcommands share the binary: `bootstrap-admin sensor-token -from-env
+SENSOR_INSTANCE_ENROLLMENT_TOKEN` (the bundled sensor's enrollment job),
+`bootstrap-admin storage migrate` (copy file storage between local disk and S3)
+and `bootstrap-admin verify-audit` (check the administrators' audit chain).
 
 The tool is idempotent: an administrator that already exists is reported and left
 unchanged, and an organization whose slug exists is skipped. Re-run it to add a

@@ -420,6 +420,9 @@ In addition to [the shared checklist](ansible.md#security-checklist):
       by the API; add a network-level limit with your firewall or a proxy module if the VM is exposed to
       the whole internet.
 - [ ] A hosting-provider firewall or security group allows only the same ports as ufw (two walls).
+- [ ] A hosted service (`MANAGED_SERVICE`) has `openctem_admin_audit_sink` set ([the audit sink](ansible.md#hosted-service-the-administrators-audit-sink)).
+- [ ] The outbound policy of the API container suits you ([firewall](ansible.md#outbound-firewall-of-the-stacks-containers)); the host's own outbound access is yours to restrict, and a restricted policy needs `openctem_egress_allow` for an internal SMTP relay.
+- [ ] Optional: continuous archiving and point-in-time restore ([guide](ansible.md#continuous-archiving-and-point-in-time-restore)).
 - [ ] Monitoring: your own outside uptime and certificate checks, in addition to the kit's monitor.
 
 ## Day-2 operations
