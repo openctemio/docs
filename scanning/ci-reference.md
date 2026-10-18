@@ -30,6 +30,11 @@ Platform v0.9.6 and later accept v0.3.0 and later only by default
 elsewhere. Older runners read scanner configuration and ignore files from the
 scanned tree, which could hide findings.
 
+`openctemio/ci` v0.3.1 is a fix release: the job log shows why the platform
+refused a token, and every `openctem-ci` step of a job shares one run token.
+The console's snippets of platform v0.10.1 still pin v0.3.0, which stays
+accepted. To use v0.3.1, change the version in the pin.
+
 Never pin a branch such as `@main`. `edge` images follow the main branch and
 change without notice. The workflow and the action run the images of the
 release tag they are pinned to. When you pin a commit instead, set
@@ -126,7 +131,8 @@ openctem-ci gate --expect sast,sca,secrets       # once, after all of them
 
 with `OPENCTEM_API_URL` and `OPENCTEM_TENANT_ID` set. A CI system that issues
 no OIDC token is not supported: no stored key is accepted while **Require
-OIDC for CI** is on (the default).
+OIDC for CI** is on (the default for new organizations; an upgraded organization that
+kept accepting keys turns it on, see [Require OIDC for CI](ci-integration.md#require-oidc-for-ci)).
 
 ## Exit codes
 
@@ -142,6 +148,7 @@ OIDC for CI** is on (the default).
 |---|---|---|
 | `POST /api/v1/ci/oidc/exchange` | the job's OIDC token | Exchange it for a 15-minute run token |
 | `POST /api/v1/ci/runs/{id}/results` | run token | Upload one report: CTIS, SARIF 2.1.0, or a format the platform's importers read ([Ingesting results](../api/ingest.md)). The answer lists the results already decided (`known`) |
+| `POST /api/v1/ci/runs/{id}/baseline-diff` | run token | Split a list of fingerprints into new and already open on the repository's default branch (for inline notes on new findings) |
 | `POST /api/v1/ci/runs/{id}/evaluate` | run token | Ask for the verdict (the first verdict is final) |
 | `/api/v1/ci/trust-configs`, `/gate-policies`, `/gate-overrides`, `/coverage`, `/pipelines`, `/runs`, `/settings` | console session, `scans:ci:*` | What the console's CI/CD page does |
 

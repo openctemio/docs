@@ -58,7 +58,9 @@ only then pushes it and merges the architectures into one manifest list per tag.
 | Image | Built from | Contents |
 |---|---|---|
 | `ghcr.io/openctemio/openctem-api` | `api/Dockerfile` (target `production`) | API server, port 8080, non-root |
-| `ghcr.io/openctemio/openctem-web` | `web/Dockerfile` | web console, port 3000 |
+| `ghcr.io/openctemio/openctem-web` | `web/Dockerfile` | the tenant web app, port 3000 |
+| `ghcr.io/openctemio/openctem-console` | `web/Dockerfile` (target `console`) | the platform console app (its own site), port 3000 |
+| `ghcr.io/openctemio/openctem-gateway` | `api/deploy/gateway/Dockerfile` | the Caddy gateway with the layer-4 module that routes sensor mTLS on port 443 |
 | `ghcr.io/openctemio/openctem` | `deploy/allinone/` | all-in-one: API, web and the Caddy gateway (PostgreSQL and Redis external) |
 | `ghcr.io/openctemio/migrations` | `api/Dockerfile.migrations` | one-shot migration runner (golang-migrate) |
 | `ghcr.io/openctemio/seed` | `api/Dockerfile.seed` | seeding utility |

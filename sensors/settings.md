@@ -54,6 +54,7 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_CA_CERT_FILE"></span>`SENSOR_CA_CERT_FILE` | path |  |  |  | PEM file with the platform's private CA (or a TLS-inspecting proxy's CA). |
 | <span id="SENSOR_CA_FINGERPRINT"></span>`SENSOR_CA_FINGERPRINT` | string |  |  |  | SHA-256 fingerprint of the platform's CA certificate (from the install snippet); pins platform TLS to it. SENSOR_API_URL must then use a host name, not an IP address. |
 | <span id="SENSOR_PAIRING_CODE"></span>`SENSOR_PAIRING_CODE` | string |  |  | yes | Pairing code an administrator created with "expect a sensor" (XXXX-XXXX); the sensor attaches to it on its first start. Ignored once the sensor has an identity. |
+| <span id="SENSOR_INSTANCE_ENROLLMENT_TOKEN"></span>`SENSOR_INSTANCE_ENROLLMENT_TOKEN` | string |  |  | yes | Single-use token (`octe_...`) a super administrator issued for a shared sensor; the sensor pairs with its own key and is enrolled as a shared sensor of the instance without a further approval. Ignored once the sensor has an identity; never printed. See [Shared sensors](shared-sensors.md). |
 | <span id="SENSOR_PLATFORM_KEY"></span>`SENSOR_PLATFORM_KEY` | string |  |  |  | Thumbprint of the platform's pairing key (from the install snippet); pairing refuses another key. |
 | <span id="SSL_CERT_FILE"></span>`SSL_CERT_FILE` | path |  |  |  | System trust store file override (read by the Go runtime and the scanners). |
 | <span id="SSL_CERT_DIR"></span>`SSL_CERT_DIR` | path |  |  |  | System trust store directory override. |

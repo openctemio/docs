@@ -38,11 +38,12 @@ docker compose exec api wget -qO- localhost:8080/ready
 | `failed to load configuration` with `... is required` or `... must be ...` | A missing or invalid setting. In production several settings are enforced. | Fix the variable named in `error`. See [Production checks](../configuration/environment-variables.md#production-checks). |
 | `retired environment variables are set and no longer read: AGENT_...` | A pre-sensor variable name. | Rename it as the message says (`AGENT_` to `SENSOR_`). |
 | `AUTH_JWT_SECRET is a known development default` / `APP_ENCRYPTION_KEY is the docker-compose default` | A published example secret outside `APP_ENV=development`. | Generate real values (`openssl rand -hex 64` / `openssl rand -hex 32`). Changing the encryption key on an existing database needs a [key rotation](backup-restore.md#rotating-the-encryption-key). |
-| `KEYCLOAK_BASE_URL must be set in production` | `AUTH_PROVIDER` is unset (default `oidc`) or `oidc`/`hybrid` without Keycloak. | Set `AUTH_PROVIDER=local` unless you use Keycloak. |
+| `KEYCLOAK_BASE_URL must be set in production` | `AUTH_PROVIDER` is `oidc` or `hybrid` (the default is `local`) without a Keycloak URL. | Set `AUTH_PROVIDER=local`, or set the Keycloak variables. |
+| `FINGERPRINT_KEY is required when APP_ENV="production"` (or `must be at least 32 characters`) | The secret that keys the identity of secret findings is missing or short. | Generate one with `openssl rand -hex 32`. On an installation that already stores secret findings set it to the current `APP_ENCRYPTION_KEY` value, and never change it afterwards. |
 | `database schema check failed — refusing to start` | Migrations did not run, failed (dirty), or the database predates the migration baseline. | See [Migrations](#migrations). |
 | `failed to connect to database` | Host, credentials, or TLS (`DB_SSLMODE`). | Check `DB_*`; production refuses `DB_SSLMODE=disable`. |
 | `failed to connect to redis` | Host, password, or TLS. | Check `REDIS_*`; production requires TLS and a 32+ character password. |
-| `jira webhook preflight: connected Jira integrations have no webhook secret` (warning) | A connected Jira integration without a webhook secret; its inbound webhooks are refused. | The organization rotates its Jira webhook secret. |
+| `jira webhook preflight: connected Jira integrations have no webhook secret` (warning) | A connected Jira integration without a webhook secret; its inbound webhooks are refused. | The organization sets the secret in **Settings > Integrations > Ticketing > Inbound webhook**. |
 
 ## Migrations
 
@@ -137,7 +138,7 @@ in [Sensors: troubleshooting](../sensors/troubleshooting.md).
 
 | Status | Cause |
 |---|---|
-| `429` | Rate limit: `RATE_LIMIT_RPS` / `RATE_LIMIT_BURST` per client, `RATE_LIMIT_READ_PER_MIN` per user for reads, stricter limits on sign-in. In `INGEST_MODE=async`, an organization's ingest queue is full (`INGEST_MAX_PENDING_PER_TENANT`). |
+| `429` | Rate limit: `RATE_LIMIT_RPS` / `RATE_LIMIT_BURST` per client, `RATE_LIMIT_READ_PER_MIN` per user for reads, stricter limits on sign-in, and for an API key or MCP connection its hourly limit and a burst of 60. In `INGEST_MODE=async`, an organization's ingest queue is full (`INGEST_MAX_PENDING_PER_TENANT`). |
 | `503 Server at capacity, please retry later` | More than `MAX_CONCURRENT_REQUESTS` requests in progress. |
 | `413` | Body larger than the route's limit or the gateway's `GATEWAY_MAX_BODY_SIZE`. |
 | `404` on `/metrics` | No `METRICS_TOKEN` set or the wrong token, or the request went through the gateway (which never serves it). |

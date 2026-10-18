@@ -142,7 +142,7 @@ same sensor, deleted when the sensor is removed. See
 
 ## Respond to a compromise
 
-1. **Revoke** the sensor in the console (or only its key). It takes effect at
+1. **Revoke access** to the sensor in the console (or only its key). It takes effect at
    the sensor's next request; open gRPC streams end within seconds.
 2. Read the sensor's **Activity** and the audit log for what it ran.
 3. Rebuild the host, then pair a new sensor, or re-pair this one

@@ -117,6 +117,18 @@ Use this when you prepare the console first:
 ![The Expect a sensor tab with a single-use code (blurred) and the command to run]({{ site.baseurl }}/assets/images/sensors/pair-expect.png)
 *Figure: Expecting a sensor: the code is blurred here.*
 
+## Enroll a shared sensor
+
+A sensor that serves every organization of the installation (a
+[shared sensor](shared-sensors.md)) is not approved in an organization. A super
+administrator issues a single-use enrollment token in the admin console
+(**System > Platform scanning > Enroll a shared sensor**), and the sensor
+starts with `SENSOR_INSTANCE_ENROLLMENT_TOKEN`: it pairs with its own key and is
+enrolled without a further approval, with no organization and the
+least-privilege grant. The token cannot be combined with
+`SENSOR_PAIRING_CODE`. Everything else on this page (the key, the identity
+directory, re-pairing) applies to it the same way.
+
 ## The `pair` command
 
 `openctemio-sensor pair [flags] [CODE]` pairs and exits, for a host prepared
@@ -190,7 +202,7 @@ docker start openctem-sensor
 
 ## Revoke a sensor or a key
 
-Disable, revoke or delete a sensor from the **⋯** menu of its sheet under
+Disable, revoke access to or delete a sensor from the **⋯** menu of its sheet under
 **Discovery > Sensors**; revoke a single key with
 `POST /api/v1/sensors/{id}/keys/{key_id}/revoke` (see [API](#api)):
 
@@ -200,7 +212,7 @@ Disable, revoke or delete a sensor from the **⋯** menu of its sheet under
   the refusal, keeps sending only its heartbeat (reason `identity_refused`)
   and waits.
 - A **disabled** sensor keeps heartbeating, logs `paused by platform` and
-  takes no jobs until it is activated again. A revoked key or sensor does not
+  takes no jobs until it is enabled again. A revoked key or sensor does not
   come back: re-pair the host, or pair it as a new sensor.
 
 ## Grants and trust

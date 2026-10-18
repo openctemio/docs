@@ -112,7 +112,8 @@ sequenceDiagram
 
 - The job exchanges its token at its first upload, not at the start, so a
   long scan does not use up the run token's 15 minutes. GitHub and Azure jobs
-  renew it.
+  renew it, and any job may present the same still-valid OIDC token again (at
+  most 5 times) to get a fresh run token for the same run, and for no other.
 - The platform takes the repository, branch and commit from the **verified
   token**, never from the report. A report can describe only the job's own
   repository.
@@ -181,6 +182,17 @@ business unit or this repository), and any lock.
 | Per-capability and per-rule modes | yes | same |
 | Allow `.openctem.yml` | yes | turning it off is stricter |
 | First-run baseline, baseline grace, baseline secrets block | yes | same |
+
+## Require OIDC for CI
+
+**Discovery › CI/CD › Trust and gate** has a **Require OIDC for CI** switch
+(`GET` and `PUT /api/v1/ci/settings`; changing it needs `scans:ci:write` and a
+recent sign-in). When on, a one-shot CI sensor key is refused on every sensor
+route (`403`, problem `ci-oidc-required`), so a stored key that leaks cannot
+send results. Organizations created before the setting existed keep accepting
+CI sensor keys and see a banner until they turn it on; every organization
+created since starts with it on. Move your pipelines to OIDC (add trust, set
+`OPENCTEM_TENANT_ID` in the pipeline), then turn it on.
 
 ## Trust: issuers, audience and keys
 
@@ -279,6 +291,12 @@ capabilities ran recently.
 
 ![The Coverage view: repositories by SAST, SCA, secrets and IaC freshness, with Expect buttons]({{ site.baseurl }}/assets/images/scanning/ci/ci-coverage.png)
 *Figure: Coverage. **Expect** marks the capabilities a repository must report.*
+
+A container scan whose report carries the image's content digest also
+suggests relationships from the repository to the assets running that image
+(`contains` for an image asset, `deployed_to` for a workload, cluster or
+host). They wait in the relationship review; nothing is linked without
+approval.
 
 Disabling or deleting a trust configuration revokes its pipelines and stops
 the upload tokens of their running jobs.

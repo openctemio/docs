@@ -21,7 +21,7 @@ the sizes in [Sizing](../install/sizing.md) and use the
 | Component | Scales | Notes |
 |---|---|---|
 | API | Vertically: one instance | Runs the request handlers and every background job (schedulers, ingest worker, feed refreshes, notification outbox, retention). |
-| Web console | Horizontally | Stateless; run two or more behind the gateway or a Service. |
+| Web console and admin console app | Horizontally | Stateless; run two or more behind the gateway or a Service. |
 | PostgreSQL | Vertically, or a managed service | Holds all data; usually the first thing to grow. |
 | Redis | Vertically | Small: caches, rate-limit state, queues. |
 | Sensors | Horizontally | Add sensors to share scanning work. |
@@ -35,7 +35,13 @@ Helm chart refuses more than one API replica unless
 `api.allowMultipleReplicas` is set, and its production example keeps
 autoscaling off.
 
-Running several API instances is planned. Until then, give the one instance more
+The platform admin console's API can run as its own process: the same image with
+`OPENCTEM_PLANE=admin` serves only the console API (and `/health`), while the main process runs as
+`tenant` or, by default, `all`. That is a split of audiences, not a second copy of the tenant API:
+there is still exactly one process that runs the background jobs. The Compose stack runs the
+console app as the `console` service in front of the API's console listener (`ADMIN_LISTEN_ADDR`).
+
+Running several tenant API instances is planned. Until then, give the one instance more
 CPU and memory, and use the knobs below.
 
 | Setting | Default | When to change |

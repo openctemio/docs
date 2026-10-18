@@ -9,8 +9,7 @@ nav_order: 7
 
 A paired sensor reaches the platform in one of three ways and picks the best
 one by itself. Nothing has to be configured on the sensor. On the platform,
-gRPC on port 443 needs one Compose override; everything else works as
-installed. Which setup gives which transport is summarized in
+gRPC on port 443 needs one Compose override; everything else works as installed. Which setup gives which transport is summarized in
 [Choose your setup](index.md#choose-your-setup).
 
 Design: [RFC-059](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-059-sensor-transport-v3.md).
@@ -76,14 +75,14 @@ that a sensor can reach the gRPC listener:
    of its own public URL (`SENSOR_PUBLIC_API_URL`, else `APP_URL`; `https://`
    only, not `localhost`). With Compose that is `OPENCTEM_PUBLIC_URL`, a host
    name or an IP address.
-2. The API's mTLS listener (`:8443` in the container) runs, with a server
+2. The API's mTLS listener (`:9443` in the container) runs, with a server
    certificate from the sensor CA.
 3. Every minute (every 30 seconds while failing) the API dials the endpoint
    the way a sensor does and accepts only a certificate from its sensor CA.
    Only the mTLS listener holds one, so the probe passes only when the path
    through the gateway really reaches it.
 
-Platform admins see the result on **Console > Operations**, in the Sensor
+Platform admins see the result on **Console > Operations > Health**, in the Sensor
 fleet card: a *Sensor connection* row (gRPC and HTTPS, HTTPS, Checking, or
 Protocol v2) and, when gRPC is not offered for a reason an operator can
 change, a short note on what would let sensors use it, with the reason code.
@@ -113,12 +112,14 @@ line per change, for example
 
 The built-in gateway can pass sensor gRPC connections through to the API on
 the same port 443 as the console, whether the platform is reached by an IP
-address or by one host name. It needs a gateway image with the layer-4 module,
-which the override file builds:
+address or by one host name. The published gateway image
+(`ghcr.io/openctemio/openctem-gateway`) already contains the layer-4 module;
+the override switches the routing on and publishes the API's mTLS listener
+on the Compose network only (`api:9443`, never on the host):
 
 ```bash
 cd openctem/api/deploy
-docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d --build
+docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d
 ```
 
 - The gateway looks at each TLS connection before terminating it. A
@@ -134,11 +135,8 @@ docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up
 - The gateway adds a PROXY protocol header with the sensor's address; the API
   believes it only from the gateway's fixed address
   (`SENSOR_MTLS_TRUSTED_PROXIES`, set by the override).
-- Switching the gateway image restarts it: a few seconds without console or
-  API.
-- `--build` downloads the Caddy build image and the layer-4 module. On a host
-  without internet access, build the image elsewhere from
-  `api/deploy/gateway/Dockerfile` and set `GATEWAY_L4_IMAGE` to it.
+- Applying the override recreates the gateway: a few seconds without console
+  or API.
 
 Keep the override in every later `docker compose` command (or in
 `COMPOSE_FILE`), otherwise the next `up` returns to the stock gateway and
@@ -151,8 +149,9 @@ sensors that can use it; give them a [dedicated host name](#a-dedicated-sensor-h
 
 The gateway refuses to start, with a message starting `openctem-gateway:`,
 when the sensor routing is asked for in TLS mode `http` (it must see the TLS
-handshake), on an image without the layer-4 module, or with an invalid
-`SENSOR_PUBLIC_HOSTNAME`.
+handshake), on a custom image without the layer-4 module, or with an invalid
+`SENSOR_PUBLIC_HOSTNAME`. With `alpn`, `SENSOR_PUBLIC_HOSTNAME` is ignored and
+the gateway says so in its log; use `passthrough` to route that name too.
 
 ### A dedicated sensor host name
 
@@ -164,17 +163,43 @@ too:
 OPENCTEM_SENSOR_GATEWAY=passthrough \
 SENSOR_PUBLIC_HOSTNAME=sensors.example.com \
 SENSOR_PUBLIC_HOST=sensors.example.com:443 \
-  docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d --build
+  docker compose -f docker-compose.yml -f docker-compose.sensor-passthrough.yml up -d
 ```
 
 Put the three variables in `.env` to keep them. `SENSOR_PUBLIC_HOSTNAME` is a
 host name only (no port) and must differ from `OPENCTEM_HOSTNAME`. No
 certificate is needed for it.
 
+### The API terminates TLS itself
+
+For an API that is exposed directly, without the built-in gateway (the web
+console served separately, or the API behind a TCP load balancer), set
+`SERVER_TLS_CERT_FILE` and `SERVER_TLS_KEY_FILE` (a PEM certificate with its
+chain, and the matching key) on the API. The API listener then terminates TLS
+itself: a connection that offers the sensor routing id is served by the sensor
+gRPC binding on that same port, with the same checks as the mTLS listener;
+every other connection gets your certificate and the normal API. The
+certificate files are re-read when they change. No extra port is needed, and
+the endpoint is offered once the probe passes. Unset (the default), the API
+serves plain HTTP behind your TLS proxy, as before. A TCP load balancer in
+front must pass the connection through unchanged; if it sends the PROXY
+protocol, list its addresses in `SENSOR_MTLS_TRUSTED_PROXIES`.
+
+### Your own ALPN-routing proxy
+
+A proxy that reads the TLS ClientHello without terminating it (nginx `stream`
+with `ssl_preread`, HAProxy `mode tcp`) can do what the gateway does: send a
+connection that offers the ALPN protocol `openctem-sensor/3` to the API's
+mTLS listener (`:9443`) untouched, and everything else to your HTTPS service.
+A router that reads only the server name (SNI), such as a Kubernetes ingress
+with SSL passthrough, cannot route by ALPN: give the sensors a
+[dedicated host name](#a-dedicated-sensor-host-name) and set
+`SENSOR_PUBLIC_HOST=sensors.example.com:443`.
+
 ### A port of its own
 
 Only when you want a separate port, for example in front of a setup without
-the built-in gateway: publish the API's mTLS port (8443 in the container)
+the built-in gateway: publish the API's mTLS port (9443 in the container)
 directly or through a TCP load balancer that does not terminate TLS, and set
 `SENSOR_PUBLIC_HOST=<host>:<port>` on the API, for example
 `203.0.113.10:8444`. Without a proxy that sends the PROXY protocol, leave
@@ -217,7 +242,8 @@ API:
 |---|---|---|
 | `SENSOR_TRANSPORT_V3` | `auto` | `auto`: HTTPS always, gRPC while its probe passes. `off`: no protocol v3; every sensor is back on v2 at its next call (emergency switch). The older `SENSOR_TRANSPORT_V3_ENABLED` is refused at start. |
 | `SENSOR_PUBLIC_HOST` | the host and port of the platform URL | Endpoint sensors dial for gRPC. Set it only for a dedicated host name or a port of its own. |
-| `SENSOR_MTLS_LISTEN_ADDR` | `:8443` | The mTLS listener. |
+| `SERVER_TLS_CERT_FILE`, `SERVER_TLS_KEY_FILE` | none | Make the API terminate TLS itself and serve the sensor gRPC binding on its own port ([above](#the-api-terminates-tls-itself)). |
+| `SENSOR_MTLS_LISTEN_ADDR` | `:9443` | The mTLS listener. |
 | `SENSOR_MTLS_CA_DIR` | `data/sensor-ca` (`/app/data/sensor-ca`) | Where the sensor CA is created. |
 | `SENSOR_MTLS_CA_CERT_FILE`, `SENSOR_MTLS_CA_KEY_FILE` | none | Your own sensor CA (PEM). |
 | `SENSOR_MTLS_CERT_TTL` | `168h` | Client certificate lifetime, 1h to 720h. |
@@ -229,7 +255,7 @@ Gateway (with the override file):
 |---|---|---|
 | `OPENCTEM_SENSOR_GATEWAY` | `off` (`alpn` with the override) | `alpn`: route connections that offer the sensor routing id; `passthrough`: that, and `SENSOR_PUBLIC_HOSTNAME` by SNI. |
 | `SENSOR_PUBLIC_HOSTNAME` | none | Dedicated sensor host name for `passthrough`. |
-| `GATEWAY_L4_IMAGE` | `openctem-gateway-l4:local` | The gateway image with the layer-4 module. |
+| `SENSOR_MTLS_UPSTREAM` | `api:9443` | Where the gateway passes sensor connections to. Set by the override. |
 
 ## Files on the sensor
 

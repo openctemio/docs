@@ -36,6 +36,9 @@ Delivery rules that apply to every channel:
 - **Outbound address checks.** Webhook and HEC URLs are checked when the channel is saved and again
   when connecting: loopback, link-local, private and cloud-metadata addresses are refused, even if
   DNS changes later.
+- **Minimal by default.** A channel whose **Include details in notifications** switch is off (the default for a new
+  channel) sends only the event type, severity and a link back to OpenCTEM: no finding title, asset
+  name or body. Turn it on per channel to send the full message.
 - **Untrusted text is cleaned.** Titles and bodies often contain text a scan target controls.
   Control, bidirectional-control and zero-width characters are removed, lengths are capped (title
   300 characters, field 2,000, body 20,000) and each channel escapes its own markup.
@@ -119,48 +122,48 @@ come back through the inbound webhooks below.
 
 ## Inbound webhooks
 
-Inbound webhooks are public endpoints (no session, no API key). Each request names the
-organization with `?tenant=<organization id>`, and that value is used only to choose which of
-that organization's secrets the signature is checked against. An unsigned or badly signed
-request is `401`, and nothing is read from it.
+Inbound webhooks are public endpoints (no session, no API key). Each is checked against the secret
+of the organization it belongs to, so a sender can never choose another organization's data. An
+unsigned or badly signed request is `401`, and nothing is read from it.
 
 | Endpoint | Sender | Signature | Effect |
 |---|---|---|---|
-| `POST /api/v1/webhooks/incoming/github?tenant=<id>` | GitHub | `X-Hub-Signature-256` (GitHub's scheme) with the organization's GitHub webhook secret | `issues` events (closed, reopened) update the linked finding; `push` events update branch state; other events (including `ping`) are acknowledged |
-| `POST /api/v1/webhooks/incoming/jira?tenant=<id>` | Jira, through a signing relay | `X-OpenCTEM-Signature` and `X-OpenCTEM-Timestamp` (below) | issue updates sync the linked finding's status |
+| `POST /hooks/jira-integrations/{integration_id}` | Jira | `X-Hub-Signature` (`sha256=` and the hex HMAC-SHA256 of the raw body, the header Jira sends for a webhook with a secret) under that Jira integration's own secret | issue updates sync the linked finding's status |
+| `POST /api/v1/webhooks/incoming/github?tenant=<organization id>` | GitHub | `X-Hub-Signature-256` (GitHub's scheme) with the organization's GitHub webhook secret | `issues` events (closed, reopened) update the linked finding; `push` events update branch state; other events (including `ping`) are acknowledged |
 
-Both always answer `200` once the signature is valid, so the sender does not retry on a
-processing error; failures are in the API log.
+### Jira
 
-### The `X-OpenCTEM-Signature` scheme (Jira endpoint)
+Each Jira integration has its own webhook URL, so no organization id is sent and there is no
+platform-wide secret. In the console open **Settings > Integrations > Ticketing**, choose the Jira
+integration and **Inbound webhook**: the dialog shows the URL and lets you generate a secret
+(shown once) or enter the one you set in Jira. The secret is stored encrypted and never returned.
+In Jira, create a webhook with that URL and secret for issue updates.
 
-```
-X-OpenCTEM-Timestamp: 1791450000
-X-OpenCTEM-Signature: sha256=<hex of HMAC-SHA256(secret, timestamp + "." + raw body)>
-```
+- Replays are refused: by delivery id (`X-Atlassian-Webhook-Identifier`, or the body hash when
+  absent) for 24 hours, and by the payload timestamp (at most one hour old).
+- Bodies over 2 MiB are `400`. The route is rate limited per client address and per integration.
+- A valid delivery answers `200`. A delivery that fails to process answers `5xx` and is forgotten, so
+  Jira's retry is processed.
+- With no secret configured the endpoint refuses every request.
 
-- The timestamp is Unix seconds and must be within 5 minutes of the server clock (replay
-  protection). It is part of the signed input, so it cannot be swapped.
-- The signature may be bare hex or prefixed with `sha256=`.
-- Bodies over 2 MiB are refused.
-- The accepted secrets are the webhook secrets of the organization's Jira integrations
-  (`POST /api/v1/integrations/jira/webhook-secret/rotate` sets one). There is no platform-wide
-  secret. With no secret configured the endpoint refuses every request.
+API for the console dialog (`integrations:manage`; changing the secret needs a recent sign-in):
+`GET /api/v1/integrations/{id}/jira-webhook`, `POST /api/v1/integrations/{id}/jira-webhook/secret/rotate`
+and `PUT /api/v1/integrations/{id}/jira-webhook/secret`.
 
-A sender that cannot compute this signature itself (Jira's built-in webhooks cannot add a
-timestamped HMAC) needs a small relay that signs the body and forwards it:
+### GitHub
 
-```bash
-TS=$(date +%s)
-SIG=$(printf '%s.%s' "$TS" "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -hex | sed 's/^.* //')
-curl -X POST "https://openctem.example.com/api/v1/webhooks/incoming/jira?tenant=$ORG_ID" \
-  -H "Content-Type: application/json" \
-  -H "X-OpenCTEM-Timestamp: $TS" -H "X-OpenCTEM-Signature: sha256=$SIG" \
-  --data-raw "$BODY"
-```
+Point a repository or organization webhook at
+`https://openctem.example.com/api/v1/webhooks/incoming/github?tenant=<organization id>` with content
+type `application/json`, and the organization's webhook secret (read it with
+`GET /api/v1/integrations/github/webhook-secret` and change it with
+`POST /api/v1/integrations/github/webhook-secret/rotate`; both need `integrations:manage` and a
+recent sign-in).
+The `tenant` value only selects which of that organization's secrets the signature is checked
+against. Each delivery needs its `X-GitHub-Delivery` header (a replayed delivery id is acknowledged
+and ignored for 24 hours) and a body of at most 5 MiB. Valid deliveries answer `200`.
 
-The `/api/v1/webhooks/incoming/` prefix is closed to new routes; future inbound webhooks will be
-served under `/hooks/{provider}`.
+The `/api/v1/webhooks/incoming/` prefix is closed to new routes; inbound webhooks are served under
+`/hooks/{provider}`.
 
 ### SIEM and EDR detections (not available)
 

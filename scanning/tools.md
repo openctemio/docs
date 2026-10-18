@@ -107,12 +107,26 @@ The same data is available as `GET /api/v1/tools?include=availability`
 **Settings > Scanning > Capabilities** lists the capabilities and which of
 your tools and sensors provide each.
 
-## Tool options per sensor
+## Tool options
 
-Rate, concurrency, timeouts, retries and tool-specific options are set per
-sensor under **Discovery > Sensors**, the sensor's **Tool settings** tab. A
-scan may only lower them, and the job's per-target budget shortens timeouts.
-See [Tool settings](../sensors/tool-settings.md).
+Rate, concurrency, timeouts, retries and tool-specific options are set in two
+layers, and a scan may only lower them:
+
+1. **Organization defaults**: **Settings > Scanning > Tool defaults**
+   (`GET /api/v1/tool-defaults`, `PUT` and `DELETE /api/v1/tool-defaults/{tool}`)
+   holds the options every sensor of your organization runs each tool with.
+   Anyone with `sensors:read` sees them; owners and administrators
+   (`sensors:write`) change them. The page lists the sensors whose tool
+   version refuses a default, because their scan jobs of that tool fail.
+   Shared platform sensors never use these defaults.
+2. **Per sensor**: **Discovery > Sensors**, the sensor's **Tool settings**
+   tab overrides any option for that sensor.
+
+The order is the tool's own default, then the organization defaults, then the
+sensor's overrides. A scan or workflow step can only lower rate, concurrency
+and retries, the job's per-target budget shortens timeouts, and each sensor's
+local policy can always narrow further. See
+[Tool settings](../sensors/tool-settings.md).
 
 ## Nuclei safety
 

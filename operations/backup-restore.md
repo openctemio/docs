@@ -17,8 +17,8 @@ nav_order: 4
 | What | Where | Why |
 |---|---|---|
 | The database | PostgreSQL database `openctem` (`DB_NAME`) | Everything: organizations, users, assets, findings, scans, audit logs, integrations. |
-| The secrets | `.env` (Compose), the env file (all-in-one), or the Kubernetes Secrets | `APP_ENCRYPTION_KEY` decrypts the credentials stored in the database (integration tokens, SMTP passwords, identity-provider secrets). A database backup without it restores everything except those credentials. `AUTH_JWT_SECRET` keeps sessions valid. |
-| Attachments | `api-data` volume (Compose), `/data` (all-in-one), the attachments volume or bucket (Helm) | Uploaded files, finding evidence, report templates and stored reports. Not in the database. |
+| The secrets | `.env` (Compose), the env file (all-in-one), or the Kubernetes Secrets | `APP_ENCRYPTION_KEY` decrypts the credentials stored in the database (integration tokens, SMTP passwords, identity-provider secrets). A database backup without it restores everything except those credentials. `AUTH_JWT_SECRET` keeps sessions valid. `FINGERPRINT_KEY` keys the identity of every secret finding: after a restore with a different value, a secret seen again opens a second finding. |
+| Attachments and the sensor CA | `api-data` volume (Compose), `/data` (all-in-one), the attachments volume or bucket (Helm) | Uploaded files, finding evidence, report templates and stored reports, and the sensor CA (`SENSOR_MTLS_CA_DIR`, `data/sensor-ca`) that signs sensor certificates. Not in the database. Without the sensor CA a new one is created and every sensor must be enrolled again. |
 | Gateway data | `gateway-data` volume (Compose), `/data` (all-in-one) | The internal CA's private key (TLS mode `internal`) and ACME account. Without it a new CA is created and sensors stop trusting the gateway. |
 | Audit archives | `AUDIT_ARCHIVE_DIR`, when set | Archived audit-log entries, which are deleted from the database after archiving. |
 
@@ -45,7 +45,7 @@ files `0600`):
 | File | Holds |
 |---|---|
 | `openctem.dump` | `pg_dump -Fc` of the database, taken while the platform runs and checked with `pg_restore --list`. |
-| `api-data.tar.gz` | The `api-data` volume: uploaded attachments and finding evidence. |
+| `api-data.tar.gz` | The `api-data` volume: uploaded attachments, finding evidence and the sensor CA. |
 | `gateway-data.tar.gz` | The `gateway-data` volume: certificates, the ACME account and the internal CA. |
 | `env` | A copy of `.env`, with every secret. |
 | `VERSION` | The `OPENCTEM_VERSION` of the stack that was backed up. |

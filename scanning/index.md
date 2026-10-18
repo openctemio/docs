@@ -33,7 +33,7 @@ flowchart LR
 | [Scan run](scans-and-runs.md#scan-runs) | One execution of a scan; split into steps and tasks | Discovery > Scans > Runs |
 | [Why a task waits](why-waiting.md) | Why a queued task has not started, and what to do | Run page, **Why waiting?** |
 | [Tools](tools.md) | The scanners sensors run, and their availability | Settings > Scanning > Tools |
-| [Data-flow traces](data-flow-traces.md) | The source-to-sink path of a SAST finding | Finding detail, data-flow tab |
+| [Data-flow traces](data-flow-traces.md) | The source-to-sink path of a SAST finding | Finding detail, **Data flow** tab |
 | [Known false positives](../user-guide/known-false-positives.md) | How a decision on a finding is requested, approved and kept | Exposures > Findings, Exceptions |
 | [CI/CD quickstart](ci-quickstart.md) | Connect a first pipeline in minutes | Discovery > CI/CD |
 | [CI integration](ci-integration.md) | Code scanning in your pipelines, with a gate | Discovery > CI/CD |
@@ -98,6 +98,7 @@ needs the `scans:write` and `scans:execute` permissions.
 | An active scope entry covers the target at the needed tier, or the target is an unclassified inventory asset that the scope policy lets get low-impact checks; no exclusion matches | Refused, or the target is skipped with a run warning ([Scope](scope.md)) |
 | The person (or the scan owner, for scheduled runs) may act on the asset | Refused or skipped |
 | A sensor that may run the tool is online | Refused (`NO_SENSOR_FOR_TOOL`) |
+| A scan sent to shared sensors is within the organization's **shared sensor scans a day** limit, and the platform's proof rule is met ([Shared sensors](../sensors/shared-sensors.md)) | Refused (`PLATFORM_SENSOR_REFUSED`); an organization at its **shared sensor jobs at a time** limit has its extra jobs wait |
 | The scan and the organization are under their limits of runs at once | Refused (`MAX_CONCURRENT_RUNS`) |
 | A scan window opens for the targets | Refused when it never opens (`SCAN_WINDOW_NEVER_OPENS`); otherwise the work waits for the window |
 | The target is routed to a zone with sensors | Uncovered targets are skipped and listed |

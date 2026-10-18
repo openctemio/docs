@@ -20,7 +20,7 @@ set-password links are not delivered.
 
 | Level | Configured by | Used for |
 |---|---|---|
-| Platform SMTP | A platform administrator, in the admin console: **System > E-mail** | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
+| Platform SMTP | A platform administrator, in the platform console: **System > E-mail** | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
 | Organization SMTP | An organization administrator, as an **Email** notification channel (see [Notification channels](notifications.md#email)) | That organization's account email and its email notifications. |
 
 For account email, an organization's connected Email channel wins; otherwise
@@ -29,7 +29,7 @@ logged.
 
 ## Configure platform SMTP
 
-Open the admin console (`/admin`) as a platform administrator, go to
+Open the platform console (its own address, not a path of the main application) as a platform administrator, go to
 **System > E-mail**, enter the relay (host, port, user, password, sender
 address and name, STARTTLS) and save. Saving needs a super administrator and a
 fresh authenticator code. **Send test** sends a message to your own address.

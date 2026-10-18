@@ -14,10 +14,10 @@ MCP, results ingest).
 
 | Page | What it covers |
 |---|---|
-| [Authentication and API keys](authentication.md) | Console sessions, `oct_` API keys, sensor credentials |
+| [Authentication and API keys](authentication.md) | Console sessions, `oct_` API keys, service accounts, sensor credentials |
 | [Conventions](conventions.md) | JSON, pagination, filtering and sorting, errors, rate limits, CSRF |
 | [Webhooks and outbound integrations](webhooks.md) | Notification channels, the generic webhook payload, inbound Jira and GitHub webhooks |
-| [MCP server](mcp.md) | Read-only Model Context Protocol access for AI clients |
+| [MCP server](mcp.md) | Model Context Protocol access for AI clients: OAuth, API keys, tools, policy |
 | [Ingesting results (CTIS)](ingest.md) | Sending scan results and importing reports from other tools |
 | [AI triage](ai-triage.md) | Endpoints of the AI triage feature |
 
@@ -42,12 +42,12 @@ and a user's API key cannot submit sensor results.
 | Tenant (user) | `/api/v1/...` | the web console, scripts | session (console) or `oct_` API key (read-only) |
 | Self | `/api/v1/me/...` | the signed-in user | session |
 | Auth | `/api/v1/auth/...`, `/api/v1/invitations` | browsers, identity providers | none (rate limited) |
-| Admin | `/api/v1/admin/...` | the platform admin console | admin console session |
-| Sensor | `/api/v2/sensor/...` | sensors | sensor key `octs_...`, enrollment token `octe_...` |
+| Admin | `/api/v1/admin/...` | the platform admin console (its own app and site) | admin console session |
+| Sensor | `/api/v2/sensor/...`, `/api/v3/sensor/...` | sensors | sensor key `octs_...`, enrollment token `octe_...` |
 | Inbound webhooks | `/api/v1/webhooks/incoming/...` | Jira, GitHub | HMAC signature per organization |
 | SCIM | `/scim/v2/...` | your identity provider | SCIM bearer token |
-| MCP | `/api/v1/mcp` | AI clients | `oct_` API key |
-| Ops | `/health`, `/docs`, `/openapi.yaml` | load balancers, people | none |
+| MCP | `/api/v1/mcp`, `/oauth/...`, `/.well-known/oauth-...` | AI clients | OAuth access token, or `oct_` API key |
+| Ops | `/health`, `/openapi.yaml`, `/docs` (and `/ready`, `/metrics` on the internal network only) | load balancers, people | none for `/health`; see [The OpenAPI document](#the-openapi-document) |
 
 The **organization (tenant) always comes from the credential**, never from the URL or the body.
 Tenant routes have no `{tenant}` path parameter: a key or session belongs to one organization,
@@ -87,14 +87,18 @@ The API server also serves the document and an interactive reference:
 | Path | Serves |
 |---|---|
 | `GET /openapi.yaml` | the spec file, with `host` rewritten to the address you called |
-| `GET /docs` | an interactive API reference that loads `/openapi.yaml` |
+| `GET /docs` | an interactive API reference that loads `/openapi.yaml` (outside production only) |
 
-The release images generate the spec at build time and ship it next to the server binary, so on
-an installation from the `openctem-api` or all-in-one image (from v0.9.0) both paths work as is,
-also through the gateway: `https://<host>/openapi.yaml` and `https://<host>/docs`. The document
-always matches the running release. The server reads the spec from `api/openapi/swagger.yaml`
-relative to its working directory; in a source checkout, run `make -C api swagger` first, or
-`/openapi.yaml` answers `404 OpenAPI spec not found`.
+The release images generate the spec at build time and ship it next to the server binary, so the
+document always matches the running release. The server reads the spec from
+`api/openapi/swagger.yaml` relative to its working directory; in a source checkout, run
+`make -C api swagger` first, or `/openapi.yaml` answers `404 OpenAPI spec not found`.
+
+Who may read it depends on `APP_ENV`. With `APP_ENV=production`, `GET /openapi.yaml` is served only
+to a signed-in user and there is no public `/docs` page (the public reference is this site);
+platform administrators with a console session read the same document at
+`/api/v1/admin/openapi.yaml` and the reference page at `/api/v1/admin/docs`. In any other
+environment `/openapi.yaml` and `/docs` are public.
 
 The sensor protocol (`/api/v2/sensor`) is described separately by a hand-maintained OpenAPI 3.1
 document, [`api/api/openapi/sensor-protocol-v2.yaml`](https://github.com/openctemio/openctem/blob/develop/api/api/openapi/sensor-protocol-v2.yaml),

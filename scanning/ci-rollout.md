@@ -135,7 +135,7 @@ step-up and notifies every administrator.
 | Pipelines that are stale, failing or degraded | **Pipelines** cards and list |
 | Repositories with no scan, or with gaps against their expectation | **Coverage** |
 | Pipelines refused at the token exchange | **Trust and gate › Recent refused pipelines** |
-| Break-glass created or used, gate failing, ungated merge, coverage regression, runner outdated, token refusals | Notifications (`ci.*` events) to your channels |
+| Break-glass created or used, a scheduled pipeline that stopped running, gate failing, ungated merge, coverage regression, runner outdated, token refusals | Notifications (`ci.*` events) to your channels |
 
 ## Offboarding
 
