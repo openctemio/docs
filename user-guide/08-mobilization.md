@@ -48,9 +48,6 @@ the API list `GET /api/v1/findings/remediation-groups` and the MCP tool
 remove the most risk, whether they are already tasks or still suggestions, with
 counts of open tasks, overdue tasks, suggestions to review and your own tasks.
 
-![The fix plan with tasks and suggestions ranked by risk]({{ site.baseurl }}/assets/images/user-guide/remediation-fix-plan.png)
-*Figure: The fix plan.*
-
 ### Suggestions
 
 **Suggestions** (`/remediation/suggestions`) groups open findings that one fix
@@ -59,9 +56,6 @@ or the same specific solution from the scanner. Each card shows the fix, how
 many findings and assets it covers, the risk it removes (by priority class) and
 who it would go to: the asset's primary owner, or the default queue when the
 asset has none.
-
-![The suggestions inbox]({{ site.baseurl }}/assets/images/user-guide/remediation-suggestions.png)
-*Figure: Suggestions.*
 
 - **Why?** explains the grouping and shows the fix steps, for example the
   upgrade command to copy.
@@ -111,9 +105,6 @@ the board only **On hold** can be set by dragging a card.
 ### A task
 
 Click a task to open it.
-
-![A remediation task with its fix, progress and findings]({{ site.baseurl }}/assets/images/user-guide/remediation-task.png)
-*Figure: A remediation task.*
 
 - **Fix** shows what to do, with the command to copy for an upgrade.
 - **Progress** counts verified, closed, claimed and open findings.

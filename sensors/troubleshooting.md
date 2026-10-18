@@ -100,7 +100,7 @@ started still has a log with the reason.
 | `the platform rejected the API key (HTTP 401 ...)` | A key-based sensor whose key was revoked, regenerated or expired, or whose sensor was deleted. The sensor stays up and checks again (30 s, doubling to 10 min). Rotate the key, or pair the sensor. |
 | `SENSOR_ALLOW_PRIVATE_TARGETS="true" is not recognized` | Only `1` or `0` is accepted. |
 | `the platform does not serve sensor protocol v2` | The platform is older than the sensor supports. Upgrade the platform. A sensor older than v0.9.0 must be upgraded instead: the platform no longer serves protocol v1. |
-| A shared sensor cannot enroll (HTTP 401 at pairing) | Any unusable enrollment token answers the same 401: it was already used, expired (5 to 60 minutes after it was issued), or mistyped. Issue a new token under **System > Platform scanning** in the admin console ([Shared sensors](shared-sensors.md#enroll-a-shared-sensor)). The token cannot be combined with `SENSOR_PAIRING_CODE`. |
+| A shared sensor cannot enroll (HTTP 401 at pairing) | Any unusable enrollment token answers the same 401: it was already used, expired (5 to 60 minutes after it was issued), or mistyped. Issue a new token under **Scanning > Platform scanning** in the admin console ([Shared sensors](shared-sensors.md#enroll-a-shared-sensor)). The token cannot be combined with `SENSOR_PAIRING_CODE`. |
 | A shared sensor refuses to start in shared mode | `SENSOR_SHARED_MODE=1` needs the tool sandbox, network confinement and a local policy, and pinned job-signing keys; the sensor says why it stops. Run it under the sensor's seccomp profile. |
 | A shared sensor is online but takes no jobs | Shared sensors are off until a super administrator turns them on, the organization must be allowed (and not opted out), and the sensor image must advertise `shared.isolation@1` (a release with shared mode). |
 | A second sensor refuses to start on the same outbox | Each sensor needs its own outbox volume. |
@@ -119,7 +119,7 @@ transport: no binding, sending nothing (platform_certificate_refused): ...
 The console shows the same on the sensor's sheet (**Transport:**), with the
 reason in plain words (hover for the code). What the platform itself offers is
 an installation detail that only platform administrators see, on
-**Console > Operations > Health** ([What the platform offers](transport.md#what-the-platform-offers)). A sensor on `https` or `v2` works fully;
+**Monitoring > Health** ([What the platform offers](transport.md#what-the-platform-offers)). A sensor on `https` or `v2` works fully;
 only the lines marked **stops** need action.
 
 | Reason | Transport | Cause | Fix |

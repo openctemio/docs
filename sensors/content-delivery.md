@@ -62,7 +62,7 @@ There are two kinds of packs:
 | Pack | Managed by | Where |
 |---|---|---|
 | **Organization pack** | People with `scans:content:write` (owners and administrators by default), with a recent sign-in | API: `/api/v1/content-packs` (upload, list, download, revoke). Signed with the organization's content key. |
-| **Platform pack** | Platform super administrators, each change with a reason and a fresh authenticator code | Admin console, **System > Content packs**: **Add pack** uploads an archive or imports a release by `https` URL with its expected digest. Each pack name has a `stable` and a `canary` channel. Signed with the platform content key. |
+| **Platform pack** | Platform super administrators, each change with a reason and a fresh authenticator code | Admin console, **Scanning > Content packs**: **Add pack** uploads an archive or imports a release by `https` URL with its expected digest. Each pack name has a `stable` and a `canary` channel. Signed with the platform content key. |
 
 Organizations read the platform packs and channels with `scans:content:read`
 (`/api/v1/platform-content-packs`). Revoking a platform pack moves every

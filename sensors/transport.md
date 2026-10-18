@@ -82,7 +82,7 @@ that a sensor can reach the gRPC listener:
    Only the mTLS listener holds one, so the probe passes only when the path
    through the gateway really reaches it.
 
-Platform admins see the result on **Console > Operations > Health**, in the Sensor
+Platform admins see the result on **Monitoring > Health**, in the Sensor
 fleet card: a *Sensor connection* row (gRPC and HTTPS, HTTPS, Checking, or
 Protocol v2) and, when gRPC is not offered for a reason an operator can
 change, a short note on what would let sensors use it, with the reason code.
