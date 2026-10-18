@@ -23,6 +23,7 @@ the details. Work through it top to bottom; do not skip the checks.
 | Compose (`api/deploy/docker-compose.yml`) | One host, everything included (gateway, web, API, PostgreSQL, Redis) | [Docker Compose](docker-compose.md) |
 | All-in-one image (`ghcr.io/openctemio/openctem`) | One container, with your own PostgreSQL and Redis | [All-in-one](all-in-one.md) |
 | Helm chart | Kubernetes | [Kubernetes](kubernetes.md) |
+| Ansible kit (`openctem-ansible`) | One hardened Ubuntu VM, with or without Cloudflare | [Install with Ansible](ansible.md) |
 
 Every deployment publishes one HTTPS port. The API, the web console,
 PostgreSQL and Redis are never reachable from outside.
