@@ -25,7 +25,7 @@ Manage scope under **Scoping > Scope**, with the tabs **In scope** (entries),
 **Out of scope** (exclusions), **Domain proof** and **Networks** (the last two
 with the Attack surface module). An **Approvals** tab appears only while the
 organization's scan approval is **Strict** or a change still waits for a
-decision. The organization's rules are in **Settings > Policies > Scope
+decision. The organization's rules are in **Settings > Scanning > Scope
 policy**.
 
 Design: [RFC-054](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-054-scope-model.md).
@@ -180,7 +180,7 @@ Decisions on the rest, and on the addresses your names resolve to, are on
 An inventory asset is **unclassified** when no scope entry covers it and
 nobody excluded it, marked it "Not ours" or held it for review. (The scan
 target filter uses the same word for an asset without a type; that is
-unrelated.) **Settings > Policies > Scope policy > Scan unclassified
+unrelated.) **Settings > Scanning > Scope policy > Scan unclassified
 assets** decides what it gets:
 
 | Value | Unclassified assets get |

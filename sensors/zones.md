@@ -93,7 +93,7 @@ how to run a workflow scan on targets that would otherwise need splitting.
 ## Scan windows
 
 Times when scans may or may not touch targets are set organization-wide in
-**Settings > Policies > Scan windows**, not on the zone: an **Allow** policy
+**Settings > Scanning > Scan windows**, not on the zone: an **Allow** policy
 lets its targets be scanned only inside its windows, a **Blackout** policy
 never inside them. A policy can select its targets by zone (and by tags,
 groups, asset types, criticality, business units, scope entries or bug-bounty

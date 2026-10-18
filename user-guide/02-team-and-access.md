@@ -8,7 +8,7 @@ nav_order: 2
 
 How to bring people into your organization and control what they can do and
 what they can see. These pages are in the settings area (**Settings** in the
-sidebar footer), under **Access** and **Organization**. Most actions need an
+sidebar footer), under **Access** and **Security**. Most actions need an
 **Admin** or **Owner** role; some are owner-only.
 
 Access control has three layers that work together:
@@ -59,7 +59,7 @@ Pending invitations are listed under **Pending invitations**, with **Resend
 email**, **Cancel invitation** and a copy-link action.
 
 When the organization lets people with a verified address on its domain ask to
-join (**Settings › Organization › Domains**), **Requests to join** appears above
+join (**Settings › Security › Domains**), **Requests to join** appears above
 the list: choose a role (viewer or member, never administrator) and **Approve**
 or **Reject**. Requests expire after 30 days. See
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain).
@@ -118,9 +118,10 @@ organization. A service account cannot own an organization.
 
 ### Leave the organization
 
-Any member can leave from **Settings › Organization › General**, **Leave
-organization**: access ends at once and the member's API keys for this
-organization are revoked. The only owner cannot leave; transfer ownership
+Any member, whatever their role, can leave from **Settings › My account ›
+Profile**, **Leave organization** under **Organization membership**: access
+ends at once and the member's API keys for this organization are revoked. The
+only owner cannot leave: the button is disabled and says to transfer ownership
 first.
 
 ## Roles
@@ -221,33 +222,30 @@ Rules can be **Active** or **Inactive**, edited and deleted.
 
 ## Sign-in policy
 
-**Settings › Access › Authentication** (`/settings/authentication`) holds the
-organization's sign-in rules. Changing them needs an owner or admin.
+**Settings › Security › Authentication** (`/settings/authentication`) holds the
+organization's sign-in rules. Administrators can read them; only the owner can
+change them, after signing in again (step-up). The page saves with the bar at
+the bottom, shows who changed it last, and lists any change that weakens
+protection (for example two-factor no longer required or an emptied IP
+allowlist) for confirmation before saving; the owner and administrators are
+notified of such a change.
 
-![The Authentication settings page with the two-factor and sensor identity switches]({{ site.baseurl }}/assets/images/identity/authentication.png)
+![The Authentication settings page]({{ site.baseurl }}/assets/images/identity/authentication.png)
 *Figure: Settings, Authentication.*
 
-The **Sign-in** card:
+**Two-factor authentication** and **New members**:
 
-- **Require two-factor authentication**: members who sign in with a password
+- **Require for everyone**: members who sign in with a password
   must set up an authenticator app at their next sign-in. Members who sign in
   through SSO use their identity provider's two-factor settings.
-- **Require two-factor authentication for owners and admins**: the same for the
+- **Require for owners and administrators**: the same for the
   roles that can change the organization, even when other members do not need
   it. On for every new organization; an organization created before the setting
   existed keeps it off until an owner turns it on.
 - **Approve new SSO members**: people your SSO admits for the first time wait,
   with no access, until an administrator approves them in **Members** (their
   menu offers **Approve** instead of **Re-enable**).
-- **Private targets need a sensor-local policy**, **Require key-bound sensor
-  identity**, **Require approval of sensor keys**, **Never use shared sensors**
-  (owner only), **Allow out-of-band callbacks (interactsh) in sensor jobs**,
-  **Allow custom templates in sensor jobs**, **User-Agent of scan tools** and
-  **Refuse tools that skip TLS certificate verification**: how sensors and scan
-  tools may behave for this organization, explained in
-  [Sensors](../sensors/index.md). Turning the two sensor opt-ins on is audited
-  and alerted.
-- **Email verification**: **Auto (Recommended)** requires verification only when
+- **Email verification**: **Auto (recommended)** requires verification only when
   email (SMTP) is configured; **Always require** forces it (SMTP must work);
   **Never require** skips it. Use **Never require** only on closed internal
   deployments: it lets anyone register with any address. It governs accounts
@@ -272,13 +270,18 @@ Further cards:
   organization enforces SSO, an owner can add a member as an **SSO exception**
   (with a **Reason** and an **Until** date) so they can sign in without it.
 
+What scan jobs may do on your sensors (private targets, out-of-band callbacks,
+custom templates, the tool User-Agent and TLS, sensor identity and key binding,
+shared sensors) is on **Settings › Scanning ›
+[Sensor job safety](10-settings-and-integrations.md#sensor-job-safety)**.
+
 **Single sign-on** (SAML or OIDC) and verified domains are configured per
 organization by the **platform administrator**, not on this page; the page says
 so and tells you whom to contact. When the platform administrator proposes an SSO
-change, an owner approves or rejects it under **Settings › Access › SSO
+change, an owner approves or rejects it under **Settings › Security › SSO
 approvals** (`/settings/sso-approvals`); nothing takes effect until an owner
 approves it. Once a domain is verified for SSO, an owner decides under
-**Settings › Organization › Domains** who may join with it (see
+**Settings › Security › Domains** who may join with it (see
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain)).
 See [Identity and access](../identity/index.md).
 
@@ -353,7 +356,7 @@ applications**. See [Connect an AI assistant](12-connect-an-ai-assistant.md) and
 
 ## Audit log
 
-**Settings › Organization › Audit log** (`/settings/audit-log`) records who did
+**Settings › Security › Audit log** (`/settings/audit-log`) records who did
 what, when and with what result. Reading it needs the audit permission (owners
 and administrators) and **full data access**, because the log names assets and
 findings: without the permission the page shows **Access denied**, and with a
@@ -369,5 +372,9 @@ administrator to widen your data access.
   itself, and filter by **Result** and **Severity**.
 - Click an event to see who did it and when, the request (IP address, request
   ID), the changes and the metadata. Request and resource IDs can be copied.
+- **Export** downloads the events that match the current filters as **CSV** or
+  **JSON lines**, newest first and at most 50,000 events (narrow the filters for
+  more). The export itself is recorded in the audit log. Spreadsheet formulas
+  in the CSV are neutralised.
 
 See [Audit log](../security/audit-log.md).

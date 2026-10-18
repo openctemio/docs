@@ -351,7 +351,7 @@ passive when it sits on a shared, CDN or cloud network, nothing is known
 about its network, names of three or more domains point at its address
 (shared hosting), or it is a name outside your domains. A name that resolves
 only through a wildcard DNS record stays passive until a person confirms it.
-**Settings › Policies › Scope policy** > **Scan unclassified assets** sets
+**Settings › Scanning › Scope policy** > **Scan unclassified assets** sets
 this to **Off (passive only)**, **Low-impact (default)** or **Full** (the
 scan's own intensity, still behind the guardrails); Strict scan approval
 always means Off. A port scan of a name reaches only the web ports while an
@@ -396,7 +396,7 @@ Monitoring**, in which case seeds are kept but not looked up.
 
 ### Scope policy
 
-**Settings › Policies › Scope policy** (`/settings/scope`) sets how scope may
+**Settings › Scanning › Scope policy** (`/settings/scope`) sets how scope may
 change. Only scope approvers can edit it; saving asks you to confirm your
 identity, is audited and notifies every administrator.
 

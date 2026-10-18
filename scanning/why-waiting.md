@@ -54,7 +54,7 @@ sensors by name were checked.**
 
 | Reason | What to do |
 |---|---|
-| It waits for its scan window to open. | Nothing: it starts by itself when the window opens (**Settings > Policies > Scan windows**). |
+| It waits for its scan window to open. | Nothing: it starts by itself when the window opens (**Settings > Scanning > Scan windows**). |
 | Another task is scanning one of its hosts. | Nothing: it starts when that task is done with those hosts. See below. |
 | The sensor that took it is still scanning one of its hosts, so it handed the task back. | Nothing: it runs when that host is free on that sensor, or on another sensor. |
 | The task expired before a sensor took it. | Run the scan again. |

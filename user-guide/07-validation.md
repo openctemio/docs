@@ -182,7 +182,7 @@ holds the profile, which the lead can edit:
   letter with `POST /api/v1/attachments` (`context_type=campaign`,
   `context_id` the campaign id) first. When an owner or administrator turns on
   **Campaigns cannot start without a signed authorization letter** (**Settings ›
-  Policies › Pentest methodology**, **Authorization letter**; off by default), a
+  Findings & assets › Pentest methodology**, **Authorization letter**; off by default), a
   campaign cannot move from planning to testing until a letter is linked.
 
 ### The campaign page
@@ -530,7 +530,7 @@ security controls pass their tests, framework by framework.
 
 ## Pentest methodology and the finding library
 
-**Settings › Policies › Pentest methodology** (`/settings/pentest`) has four
+**Settings › Findings & assets › Pentest methodology** (`/settings/pentest`) has four
 tabs.
 
 - **Methodology**: the **Target types** a campaign's **What is tested** offers
