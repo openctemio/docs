@@ -60,7 +60,7 @@ A bundle that fails a check is not imported; the previous data stays.
 | `VULNFEED_BASE_URL` | `https://github.com/openctemio/vulnfeed/releases` | Where the releases are |
 | `VULNFEED_MIRRORS` | empty | Comma-separated https mirrors, tried after the release |
 | `VULNFEED_BUNDLE_DIR` | empty | Air-gapped: a directory holding the files of one release |
-| `FEED_CACHE_DIR` | system temp dir | Cache of verified chunks |
+| `FEED_CACHE_DIR` | `<system temp dir>/openctem-feeds` | Cache of verified chunks between imports |
 
 The `vuln-feed-import` worker runs every hour. With `VULNFEED_ROOT_KEY_ID`
 unset it imports nothing and logs nothing; the `vulnfeed` row of the

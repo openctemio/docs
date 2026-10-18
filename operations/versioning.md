@@ -39,7 +39,7 @@ attestation, so you can check where the SBOM came from as well as download it.
 The release notes of each version carry these commands with the tag filled in:
 
 ```bash
-TAG=v0.10.1
+TAG=v0.11.0
 IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v'
 ISSUER=https://token.actions.githubusercontent.com
 
@@ -97,38 +97,105 @@ see [Vulnerability disclosure](../security/vulnerability-disclosure.md).
 
 ## Sensors, SDK and Helm chart
 
-The sensor ([openctemio/sensor](https://github.com/openctemio/sensor)), the Go
-SDK ([openctemio/sdk-go](https://github.com/openctemio/sdk-go)) and the Helm
-chart ([openctemio/helm-charts](https://github.com/openctemio/helm-charts)) have
-their own version numbers and release from their own repositories.
+The sensor ([openctemio/sensor](https://github.com/openctemio/sensor)), the other
+first-party sensor products (the Tenable.sc connector), the Go SDK
+([openctemio/sdk-go](https://github.com/openctemio/sdk-go)) and the Helm chart
+([openctemio/helm-charts](https://github.com/openctemio/helm-charts)) have their own
+version numbers and release from their own repositories. The platform needs no
+release when one of them ships.
 
-Compatibility is recorded in `versions.yaml` at the root of the openctem
-repository and compiled into each API release as defaults:
+### What the platform owns, and what it learns
 
-| Entry | Effect in the platform | Override |
-|---|---|---|
-| `sensor.latest` | Sensors below it show "update available"; install snippets pin this sensor image tag. | `SENSOR_LATEST_VERSION` |
-| `sensor.min` | Sensors below it are degraded, "version unsupported". | `SENSOR_MIN_VERSION` |
-| `sdk.latest` / `sdk.min` | Sensors built with an older SDK are "outdated" / degraded. | `SENSOR_SDK_LATEST_VERSION` / `SENSOR_SDK_MIN_VERSION` |
-| `chart.version` | The newest chart whose `appVersion` is the platform release. | |
+The platform judges a sensor by what the sensor declares (protocol, SDK, capabilities)
+against ranges the platform owns, whatever the product. Two things are kept apart:
 
-After each platform release, the chart's `appVersion` is bumped to it.
+- **Compatibility** (the oldest release that works) is the platform's own contract. It is
+  in `versions.yaml` at the root of the openctem repository, compiled into each API
+  release, and changes only with an API upgrade.
+- **Availability** (the newest release) is information. The platform learns it from the
+  signed release feed, so a sensor or SDK release reaches the Sensors page and the install
+  commands within hours, with no platform release and no restart.
 
-The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older
-sensors cannot connect at all).
+| Entry in `versions.yaml` | Effect in the platform |
+|---|---|
+| `<product>.latest` (`sensor`, `connector-tenable`) | The release this platform release was built with. Sensors of the product below the newest known release show "update available"; the install commands pin the image tag (and the digest, when the feed gave one). The feed can only raise it. |
+| `<product>.min` | Sensors of the product below it are degraded, "version unsupported". The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older sensors cannot connect at all). |
+| `sdk.latest` | A sensor built with an older sdk-go shows "outdated" (no health effect). The feed raises it. |
+| `sdk.min` | A sensor of any product built with an older sdk-go is degraded with the reason `sdk_unsupported`. Empty today: it is raised only when a protocol change requires it. |
+| `sdk.advisories` | SDK releases with a published security advisory: a sensor built with one is degraded with a warning. |
+| `chart.version` | The newest chart whose `appVersion` is the platform release. |
+
+The SDK checks apply to sensors built with sdk-go. Everything a sensor declares is
+untrusted input: it changes only what the organization sees. Authorization, grants, scope
+and dispatch never read the product, version or SDK.
+
+The old `SENSOR_LATEST_VERSION`, `SENSOR_MIN_VERSION`, `SENSOR_SDK_LATEST_VERSION` and
+`SENSOR_SDK_MIN_VERSION` variables are retired: the API refuses to start while one is set and names it.
+Remove them. To make the platform know a sensor product of your own for the whole
+installation, give it a product file with `SENSOR_PRODUCTS_FILE` (the `versions.yaml`
+product format); for one organization, use custom products (below).
+
+`GET /api/v1/sensors/stats` reports where each product's "latest" comes from in
+`latest_source`:
+
+| `latest_source` | Meaning |
+|---|---|
+| `feed` | Learned from the signed release feed. |
+| `built_in` | The version this platform release was built with. It may be older than the newest release; the Sensors page says so. |
+| `operator` | From the installation's own `SENSOR_PRODUCTS_FILE`. |
+
+### The release feed
+
+The platform reads one public, signed file, `openctem-releases.json`, from the latest
+GitHub Release (`VERSION_CHECK_URL`). It lists the platform releases and security
+advisories, plus the newest stable release of each first-party sensor product and of the
+SDK, with the image digest. The feed is refreshed every 6 hours and on every release. An
+instance fetches it once a day and every replica picks up a change within the hour. Nothing
+about the instance is sent: no version, no id. The feed is display-only: the platform never
+downloads or runs anything because of it, the image repository always comes from the
+catalog built into the platform, and a learned version is used only when it is not older
+than the built-in one.
+
+The platform trusts only the feed signing key pinned in its own build (there is no setting
+to change it). **At v0.11.0 the build pins no feed key yet**: until a release pins one, the
+check does nothing, the console says "No release feed key in this build" and the sensor and
+SDK versions built into the release apply, as in earlier releases.
+
+Operators see it in the platform console under **Monitoring > Software updates**: the running
+and latest platform release, newer releases, security advisories that affect the running
+version, a **Sensors and SDK** list of the components the feed names, where the information
+came from (daily online check or imported file), the last check and the next one, and a
+switch for the daily online check (`VERSION_CHECK_ENABLED=false` turns it off for good). A
+banner on every console page announces an update, highlighted for a security release. If the
+feed cannot be read, the page says why (not published, signature invalid, unreachable,
+expired) and the API logs one warning when that state changes.
+
+**Air-gapped.** Set `VERSION_CHECK_ENABLED=false`. On a connected machine download
+`openctem-releases.json` from the latest release, carry it in, and a super administrator
+imports it under Monitoring > Software updates > Import (a fresh confirmation; the import is
+audited). It is verified exactly like the online file, including rollback and expiry. Or
+point `VERSION_CHECK_URL` at an internal https mirror of the file; a mirror on a private
+address also needs the private egress allowlist (`OPENCTEM_HTTPSEC_*`).
+
+### Sensors of your own
+
+An organization that builds its own sensor on sdk-go records, per product, the latest and an
+optional minimum release (Sensors > custom products, or
+`PUT /api/v1/sensors/custom-products/{product}`; owners and administrators, audited, at most 50
+products). Its sensors then get "update available" and "unsupported" verdicts, for that
+organization only. Product names starting with `openctemio-` and products the platform lists
+are refused, so an organization cannot change a first-party release line. A custom product
+without a recorded line keeps only the SDK and protocol verdicts. Nothing is fetched.
+
+### Where to look up versions
 
 The current versions of each product are in
 [`versions.yaml`](https://github.com/openctemio/openctem/blob/develop/versions.yaml)
-(`platform.release`, `sensor.latest`, `sdk.latest`, `ci.latest`, `chart.version`)
-and on each repository's releases page; this page does not repeat them, so it
-cannot go stale. A sensor, SDK or chart can ship after the platform release you
-run, so the defaults compiled into your platform may name an older sensor than
-the newest release. When the console's install snippets pin an older sensor tag
-than the newest release, set `SENSOR_LATEST_VERSION` (and
-`SENSOR_SDK_LATEST_VERSION`) on the API to the newer version, so new installs
-get the current sensor and older sensors show "update available". The chart's
-`appVersion` can likewise trail the platform: check
-`helm search repo openctem/openctem --versions`.
+(`platform.release`, `sensor.latest`, `sdk.latest`, `ci.latest`, `chart.version`) and on
+each repository's releases page; this page does not repeat them, so it cannot go stale. The
+Helm chart is published after the platform tag, so its `appVersion` can trail the platform:
+check `helm search repo openctem/openctem --versions` for the newest chart, and the
+[Kubernetes guide](../install/kubernetes.md) for the release it installs.
 
 ## Which version is running
 
