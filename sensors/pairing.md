@@ -122,7 +122,7 @@ Use this when you prepare the console first:
 A sensor that serves every organization of the installation (a
 [shared sensor](shared-sensors.md)) is not approved in an organization. A super
 administrator issues a single-use enrollment token in the admin console
-(**System > Platform scanning > Enroll a shared sensor**), and the sensor
+(**Scanning > Platform scanning > Enroll a shared sensor**), and the sensor
 starts with `SENSOR_INSTANCE_ENROLLMENT_TOKEN`: it pairs with its own key and is
 enrolled without a further approval, with no organization and the
 least-privilege grant. The token cannot be combined with

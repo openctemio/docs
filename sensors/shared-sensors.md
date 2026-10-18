@@ -17,6 +17,14 @@ work (see [Pairing and enrollment](pairing.md)).
 Shared sensors are in every edition. They are off until a super administrator
 turns them on, and an organization can always opt out.
 
+{: .warning }
+**Not available in v0.11.0.** This release does not enable shared sensors: the
+platform console shows "Shared sensors are not available in this release" on
+**Scanning > Platform scanning**, and no organization's scan goes to a shared
+sensor. The fleet, queue, zones and settings described below appear once a
+release enables them; the domain-proof policy on that page already applies to
+the platform sensors.
+
 {: .note }
 Shared mode and instance enrollment need a sensor release that includes them
 (`SENSOR_SHARED_MODE` and `SENSOR_INSTANCE_ENROLLMENT_TOKEN`). Sensor v0.23.2
@@ -52,7 +60,7 @@ install one.
 
 ## Turn shared sensors on
 
-In the platform admin console open **System > Platform scanning**. Only super
+In the platform admin console open **Scanning > Platform scanning**. Only super
 administrators change these settings; each change needs a fresh authenticator
 code and a reason, is written to the admin audit log and e-mailed to the other
 administrators.
@@ -75,7 +83,7 @@ A deny wins over the default.
 A shared sensor enrolls with a **single-use instance enrollment token** instead
 of an approval in an organization.
 
-1. In **System > Platform scanning**, card **Enroll a shared sensor**, give
+1. In **Scanning > Platform scanning**, card **Enroll a shared sensor**, give
    the sensor a name (optional) and a lifetime (5 to 60 minutes) and choose
    **Issue token**. Confirm with a reason and your authenticator code.
 2. Copy the token (`octe_` followed by 49 letters or digits). It is shown once
@@ -139,7 +147,7 @@ sensors are turned on and the organization is allowed.
 
 ## Operate the fleet
 
-**System > Shared sensors** lists the shared fleet, the queue and who uses it:
+**Scanning > Platform scanning > Shared sensors** lists the shared fleet, the queue and who uses it:
 
 - **Fleet**: status (*Active*, *Paused*, *Retired*), health, version, tools and
   current jobs per sensor. **Pause** stops a sensor taking new jobs (the jobs
@@ -161,7 +169,7 @@ and `POST /api/v1/admin/shared-sensors/enrollment-tokens`.
 
 An **instance scan zone** is a set of private ranges that shared sensors may
 scan for the organizations you assign the zone to, while **Shared sensors may
-scan internal zones** is on. In **System > Platform scanning > Instance scan
+scan internal zones** is on. In **Scanning > Platform scanning > Instance scan
 zones** choose **Add zone** and enter:
 
 - **Name** and **Description**;
