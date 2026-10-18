@@ -70,13 +70,16 @@ Over the API (tenant from the access token):
 | `GET /api/v1/audit-logs/user/{id}` | `audit:read` and full data access, or the caller's own id | Activity of one user |
 | `GET /api/v1/audit-logs/verify` | owner or admin | Verify the hash chain |
 
-**Export.** The audit log page has an **Export** button (CSV or JSON lines) that applies the
-filters currently on screen. CSV cells that start with a formula character (`=`, `+`, `-`, `@`) are
-neutralised so a spreadsheet does not run them. Each export is itself recorded as an
-`audit_log.exported` event, with who exported and the filters. To archive the log in another system
-on a schedule, call the export or page through `GET /api/v1/audit-logs` with a `since` filter.
-Organization API keys are read-only and can call these routes if the key has the `audit:read` scope
-(see [API authentication](../api/authentication.md)).
+**Export** on the audit log page downloads the events that match the current filters as **CSV**
+or **JSON lines**, newest first, up to 50,000 events (narrow the filters when more match). The
+export is itself recorded in the log (`audit_log.exported`), and CSV cells that start with a
+spreadsheet formula character are neutralised. Over the API: `GET /api/v1/audit-logs/export?format=csv`
+(or `jsonl`) with the list's filters, the same permission as the list; the response carries
+`X-Export-Truncated: true` when the cap cut it short. To archive the log in another system, run the
+export or page through `GET /api/v1/audit-logs` with a `since` filter from a scheduled job, signed
+in as a person who holds `audit:read` and full data access. Organization API keys cannot read the
+audit log: a key never has full data access (see
+[API authentication](../api/authentication.md)).
 
 Platform administrators read the administrators' audit log in the platform console (**Security >
 Admin activity**) or with `GET /api/v1/admin/audit-logs`.

@@ -23,7 +23,7 @@ keep that volume; nothing else on the host matters.
    from your version to the new one. Look for **Upgrade notes** entries.
 2. Check the console: **Discovery > Sensors** marks a sensor whose version or
    SDK is outdated or unsupported, and names the newest release the platform
-   knows.
+   knows (see [How the console judges a sensor's version](#how-the-console-judges-a-sensors-version)).
 3. Upgrade one sensor first, check it, then the rest.
 
 Notes that stop a sensor if missed:
@@ -46,6 +46,25 @@ Notes that change what a sensor does:
 | v0.23.0 or later | nuclei runs a task over several hosts in up to 4 waves of whole hosts. Each wave's findings are delivered and its hosts freed when the wave ends, so the next step of a workflow starts on them while later waves run. Each extra wave loads the templates again (about 5 s with 10,000 templates). A failed wave keeps the earlier waves' results; its targets and the later ones run again. |
 | v0.22.2 or later | The target guard refuses per target: a refused target is left out with its reason and the others run. |
 | v0.22.0 or later | A sensor with semgrep and no rules configured runs the signed OpenCTEM rules pack instead of semgrep's registry rules. Set `SENSOR_CONTENT_SEMGREP_RULESETS` to keep registry rules. The sensor needs HTTPS to `api.github.com`, `github.com` and `release-assets.githubusercontent.com` for the pack, or a mirror ([Network](network.md)). |
+
+## How the console judges a sensor's version
+
+A sensor is judged by what it reports (the protocol it speaks, the SDK it was
+built with, its product and version), against ranges the platform owns. You
+never need a platform upgrade to run a newer sensor release.
+
+| Check | Comes from | What you see |
+|---|---|---|
+| Product version, first-party sensors (`openctemio-*`: the scanning sensor, the Tenable.sc connector) | The newest release comes from the platform's signed release feed, checked daily; the minimum comes with the platform release | **latest**, **update available** or **unsupported** (older than the minimum: upgrade it) |
+| Product version, a sensor your organization builds | The latest and minimum release you record under [Settings › Scanning › Sensor products](../user-guide/10-settings-and-integrations.md#sensor-products) | The same verdicts, for your organization only; nothing recorded means no version verdict |
+| SDK (sensors built with sdk-go) | The newest SDK release from the feed, a minimum and security advisories from the platform | An older SDK shows as outdated; one below the minimum, or with a published advisory, marks the sensor degraded (rebuild it with a newer SDK) |
+| Protocol | The API versions the platform serves | A protocol the platform no longer serves cannot connect at all |
+
+When the installation has no current release information (an air-gapped
+instance, or the feed could not be read), the newest version the platform knows
+is the one it was released with, and the sensor's check says so: "Newer releases
+may exist". The install commands on the Sensors page follow the same newest
+release.
 
 ## Upgrade
 

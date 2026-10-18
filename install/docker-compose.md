@@ -230,6 +230,23 @@ described in [the console guide](../user-guide/11-platform-administration.md). T
 control; the controls are the separate origin, the network list, the console's
 own sign-in with a second factor, step-up and its audit log.
 
+{: .warning }
+**Known gap: security keys need `ADMIN_PUBLIC_URL`.** The API defaults it to the
+origin of `APP_URL` (`https://<host>`), but the console is on another origin, so
+registering a security key or passkey fails ("The security key response was not
+accepted"; the API log says `Error validating origin`). Set it to the console's
+exact origin and apply it. The stack does not pass it
+yet, so use `docker-compose.override.yml` (host mode: `https://<OPENCTEM_ADMIN_HOST>`):
+
+```yaml
+services:
+  api:
+    environment:
+      ADMIN_PUBLIC_URL: https://ctem.example.com:8443
+```
+
+Then `docker compose up -d api`. Changing it later makes registered keys unusable.
+
 ## Setting other variables
 
 The `api` service passes a fixed list of variables from `.env` to the API:

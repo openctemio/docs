@@ -169,6 +169,16 @@ Notes:
   most 365; see [Sign-up and invitations](sign-up-and-invitations.md#people-outside-the-organization)).
 - Counts on teams, business units and the scoping and attack surface summaries cover only the assets
   the reader can see.
+- Dashboards and their summaries (finding counts, the executive summary, MTTR, threat-intel EPSS and
+  KEV counts, validation and scan coverage, attack-path summaries) count the reader's own scope. A
+  restricted reader whose role holds `dashboard:aggregate` gets the organization's totals instead,
+  with breakdown buckets under 5 left out; lists of findings (top risks, recent activity) stay in
+  their own scope either way. Organization-wide history (risk trend, program metrics, CTEM cycle
+  trends and a cycle's charter evaluation) needs `dashboard:aggregate` or full data access. See
+  [Whose data the dashboard shows](../user-guide/01-getting-started.md#whose-data-the-dashboard-shows).
+- Pentest findings follow the campaign: anyone who is not an owner or admin sees and counts a pentest
+  finding only as a member of its campaign, and the campaign's client role never sees a draft or
+  in-review finding. This holds on dashboards too.
 - The audit log needs full data access in addition to `audit:read`, and API keys never read it.
 
 ### Teams that carry roles
