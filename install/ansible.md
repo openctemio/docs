@@ -26,7 +26,11 @@ one path:
 
 Other ways to install (Docker Compose from the release checkout, the all-in-one
 image, Helm) are described in [Install](index.md). The guides here describe the kit
-as of OpenCTEM v0.10.1.
+as of OpenCTEM v0.11.0, but the kit's `versions.yml` pins images by digest per release,
+and its newest entry is **v0.10.1**. Until the kit adds a v0.11.0 entry (a `git pull` of
+the kit; check `versions.yml`), `openctem_version: v0.10.1` is the newest value it
+accepts, and the guides below use it. The settings that v0.11.0 adds
+([audit sink](#hosted-service-the-administrators-audit-sink)) work in the kit already.
 
 1. TOC
 {:toc}
@@ -168,7 +172,7 @@ there.
 | Variable | Default | Meaning |
 |---|---|---|
 | `openctem_app_host` | none, required | The one public host name of the console, the API, sensors and CI. DNS name only. |
-| `openctem_version` | none, required | The release to deploy. Must be a key of `openctem_releases` in `versions.yml` (v0.10.1, v0.9.7, v0.9.6). |
+| `openctem_version` | none, required | The release to deploy. Must be a key of `openctem_releases` in `versions.yml` (v0.10.1, v0.9.7, v0.9.6 at the time of writing). |
 | `openctem_ingress` | `cloudflared` | `cloudflared`: Cloudflare Tunnel. `loopback`: the gateway listens on `127.0.0.1:openctem_loopback_port` for a TLS proxy you run on the VM. |
 | `openctem_loopback_port` | `8080` | Loopback ingress only: the port the gateway publishes on 127.0.0.1. |
 | `admin_cidrs` | none | IPv4 networks that may reach SSH. The firewall stage refuses to run when your controller is outside them. |
@@ -179,6 +183,12 @@ there.
 | `openctem_signup_mode` | `disabled` | `disabled`, `domain` or `open` ([Sign-up and invitations](../identity/sign-up-and-invitations.md)). `open` also needs the platform e-mail and, on the internet, Turnstile keys. |
 | `openctem_api_env` | `{}` | Extra non-secret API settings, for example `ASSET_COVERAGE_DAILY_BUDGET`. The role refuses names it manages itself and secret-looking names. |
 | `openctem_job_signer` | `false` | Sign sensor jobs; the key is created on the VM. |
+| `openctem_captcha_turnstile_site_key` | empty | Public Turnstile site key for `openctem_signup_mode: open`; the secret goes in `/opt/openctem/secrets/captcha_turnstile_secret` on the VM. |
+| `openctem_admin_audit_sink` | empty | Off-database copy of the platform administrators' audit log: empty (off), `file` or an `https://` URL. Sets the API's `ADMIN_AUDIT_SINK`. Required for a hosted service ([below](#hosted-service-the-administrators-audit-sink)). |
+| `openctem_admin_audit_sink_head_interval` | empty (API default, 15 minutes) | How often the signed chain head is sent, for example `5m`. Only with a sink. |
+| `openctem_admin_audit_sink_dir` | `/opt/openctem/admin-audit` | `file` mode: the host directory that holds `admin-audit.jsonl`. |
+| `openctem_wal_archive`, `backup_wal_bucket`, `backup_wal_prefix`, `backup_wal_remote_conf`, `backup_wal_retention_days` | `false`, empty, project name, `/opt/openctem/secrets/backup_remote.conf`, `14` | Continuous archiving to an S3-compatible bucket and point-in-time restore ([below](#continuous-archiving-and-point-in-time-restore)). |
+| `openctem_egress_policy`, `openctem_egress_allow` | `restricted` with `open` sign-up, else `open`; empty | Outbound policy of the API container ([below](#outbound-firewall-of-the-stacks-containers)). |
 | `backup_age_recipient` | empty | Your age public key. Empty is local mode: plaintext, on the VM only. |
 | `backup_offsite_command` | empty | A command that copies a finished backup directory (`$1`) off the VM. Needs `backup_age_recipient`. |
 | `backup_keep_days` | `14` | Local retention. |
@@ -255,10 +265,12 @@ sudo openctem-bootstrap-admin -email=admin@example.com -backup-email=breakglass@
 
 Optionally create the first organization and its owner in the same call
 (`-org-name="Example Security" -org-owner-email=owner@example.com`). The options are
-those of [First administrator](first-admin.md). Sign in to the platform console with the
+those of [First administrator](first-admin.md); the wrapper runs the tool in the `api`
+container of the kit's project. Platform administrators sign in on the console's own
+address, not on `/login` (the tool's closing text says otherwise). Sign in to the platform console with the
 printed temporary password, change it and enroll an authenticator app (the console
 requires one). Store the break-glass credentials offline, and sign in with them once to
-prove they work. Then configure the platform e-mail (System, E-mail) so invitations can
+prove they work. Then configure the platform e-mail (Settings, E-mail) so invitations can
 be sent.
 
 ## Backups and the restore drill
@@ -303,7 +315,8 @@ sudo openctem-restore-drill /var/backups/openctem/<UTC time> /root/drill.key
 sudo rm -f /root/drill.key
 ```
 
-**Full restore** over the running stack stops the gateway, web console and API, replaces
+**Full restore** over the running stack stops the tunnel connector, gateway, web console,
+platform console and API, replaces
 the database and the files, re-applies the database roles, starts the stack and verifies:
 
 ```bash
@@ -314,6 +327,82 @@ On a **new VM**, deploy the release named in the backup's `VERSION` file first, 
 `--with-secrets` so the generated secrets (and with them the encryption key) match the
 data, and re-run `playbooks/50-openctem.yml` to reset file owners. The restore
 procedure in general is described in [Backup and restore](../operations/backup-restore.md).
+
+## Continuous archiving and point-in-time restore
+
+The nightly backup loses up to a day. With `openctem_wal_archive: true` the database also
+ships every finished WAL segment, encrypted to your age key, to an S3-compatible bucket you
+provide, plus a weekly base backup. A host loss then costs about six minutes of data, and a
+bad change can be undone with `sudo openctem-restore --pitr "<UTC time>" <identity file>
+--yes`. It is off by default, needs a dedicated bucket key in a root-only file on the VM
+(`backup_wal_remote_conf`, never in the inventory), the same `backup_age_recipient` as the
+nightly backups, and one brief PostgreSQL restart when it is first switched on. The monitor
+alerts when the archive lags by more than 15 minutes. The kit's
+[BACKUP-PITR guide](https://github.com/openctemio/openctem-ansible/blob/main/docs/BACKUP-PITR.md)
+has the exact order of the three plays, the recovery steps, the monthly drill
+(`openctem-restore-drill --pitr latest`) and key rotation. Point-in-time recovery covers
+the database only; uploaded files and secrets come from the nightly backup. For the general
+procedure see [Backup and restore](../operations/backup-restore.md).
+
+## Hosted service: the administrators' audit sink
+
+The platform console keeps a hash-chained audit log of what platform administrators do. The
+sink writes a copy outside the database, so a database-level rewrite shows up as a
+disagreement. A **hosted multi-tenant service** (`MANAGED_SERVICE: "true"` in
+`openctem_api_env`) must have one: from v0.11.0 the API refuses to start in production with
+`MANAGED_SERVICE=true` and no `ADMIN_AUDIT_SINK`. The kit's preflight stops first: a release
+flagged `admin_audit_sink_required` in `versions.yml` fails `50-openctem.yml` before the host
+is touched when the inventory sets `MANAGED_SERVICE` without `openctem_admin_audit_sink`.
+(The flag is set on the kit's release entries after v0.10.1.) A self-managed install needs
+none of this.
+
+```yaml
+openctem_api_env:
+  MANAGED_SERVICE: "true"
+openctem_admin_audit_sink: https://audit.example.com/ingest   # or: file
+```
+
+- **`https://host/path`**: the API posts each batch, signed with an HMAC key, to a receiver
+  you run. Create the key on the VM first, at least 32 bytes and mode 0600 or 0400, and give
+  the same key to the receiver; the kit never puts it in the inventory:
+
+  ```bash
+  sudo sh -c 'umask 077; openssl rand -hex 32 > /opt/openctem/secrets/admin_audit_sink_secret'
+  ```
+
+  This is the real off-box copy when a different party or host runs the receiver. With
+  `openctem_egress_policy: restricted`, a receiver on a private address needs an
+  `openctem_egress_allow` entry.
+- **`file`**: the kit creates `openctem_admin_audit_sink_dir`, mounts it into the API and
+  appends `admin-audit.jsonl` there. It protects against rewrites inside the database and
+  travels with the nightly backup (`admin-audit.tar.gz`), but anyone with root on the VM can
+  edit both, so it is not an off-box copy while the backups stay on the VM.
+- `syslog+tls://` is supported by the API but not by this kit yet; the checks refuse it.
+
+Do not set `ADMIN_AUDIT_SINK*` through `openctem_api_env`; the kit refuses it.
+`openctem_admin_audit_sink_head_interval` changes how often the signed chain head is sent.
+
+## Outbound firewall of the stack's containers
+
+Only the API container (network `egress_api`) and the tunnel connector can reach the
+internet; the other containers sit on internal networks. `openctem_egress_policy: restricted`
+adds a network-layer second guard for the API: its outbound networks cannot reach the
+private ranges (`10/8`, `172.16/12`, `192.168/16`), link-local and cloud metadata
+(`169.254/16`), loopback, `100.64/10` or the host itself, in case a tenant-supplied webhook
+or identity-provider URL slipped past the application's SSRF guard. The default is
+`restricted` with `openctem_signup_mode: open` and `open` otherwise. Approve an internal
+destination (an SMTP relay, Jira) with one entry per host and port:
+
+```yaml
+openctem_egress_allow:
+  - { cidr: 192.0.2.25/32, port: 587 }
+```
+
+`35-firewall.yml` installs the rules (`sudo openctem-egress status` shows them); rerun it
+after changing a resolver or the list. It needs Docker's iptables backend. The kit's
+[FIREWALL guide](https://github.com/openctemio/openctem-ansible/blob/main/docs/FIREWALL.md)
+has the networks, the acceptance matrix and the caveat that a port a container publishes
+bypasses ufw (the stack publishes nothing beyond loopback).
 
 ## Monitoring
 
@@ -335,7 +424,10 @@ release:
    then reinstall the collections if `requirements.yml` changed. Read the kit's README
    section for the release and the platform's release notes.
 2. **Check the settings** the release adds or removes. Upgrading to v0.10.x needs one
-   decision from you, covered next.
+   decision from you, covered next. Upgrading to v0.11.0 adds the audit sink rule for a
+   hosted service ([above](#hosted-service-the-administrators-audit-sink)); its migrations
+   only add objects, and the kit's `db-roles` and `db-grants` jobs give the console's new
+   `admin_approvals` table its grants on the same run, so there is no separate role script.
 3. **Rehearse** (`--check --diff`, see [The apply cycle](#the-apply-cycle)) and apply:
 
    ```bash

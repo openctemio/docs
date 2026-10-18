@@ -33,11 +33,14 @@ flowchart LR
     subgraph host["OpenCTEM host (internal network)"]
         G["gateway (Caddy)"]
         W["web console :3000"]
+        C["platform console :3000"]
         A["API :8080"]
         P[(PostgreSQL)]
         R[(Redis)]
         G -->|"sensor, SCIM, MCP, inbound, SAML,<br/>WebSocket and token requests"| A
         G -->|"everything else, including the<br/>browser's /api/v1 calls"| W
+        G -->|"console site (own port or host name)"| C
+        C -->|"console listener :8081"| A
         W -->|"session-authenticated proxy"| A
         A --> P
         A --> R
@@ -191,9 +194,9 @@ fails when the two disagree.
 | Request | Goes to |
 |---|---|
 | `/api/v2/sensor/*`, `/api/v3/sensor/*` | API: sensors (protocol v2, and the HTTPS transport of protocol v3) |
-| `/api/v1/webhooks/incoming/*` (and `/hooks/*`, reserved for inbound webhooks) | API: inbound Jira and GitHub webhooks (HMAC-verified) |
+| `/hooks/*` and `/api/v1/webhooks/incoming/*` | API: inbound webhooks (Jira at `/hooks/jira-integrations/{id}`, GitHub at `/api/v1/webhooks/incoming/github`; HMAC-verified) |
 | `/scim/v2/*` | API: SCIM provisioning |
-| `/api/v1/mcp` | API: MCP server (`oct_` API key) |
+| `/api/v1/mcp`, `/.well-known/oauth-*`, `/oauth/*` | API: MCP server (`oct_` API key, and its OAuth endpoints) |
 | `/api/v1/auth/saml/*`, `/api/v1/auth/backchannel-logout` | API: called by the identity provider |
 | `/api/v1/ws` | API: the browser's WebSocket (session cookie) |
 | `/health`, `/openapi.yaml`, `/docs` | API: liveness and API reference |
@@ -228,7 +231,7 @@ gateway serves on a site of its own, never under the main address.
 The site answers only clients in `OPENCTEM_ADMIN_ALLOWED_CIDRS` (loopback and
 private networks by default) and the console's own routes
 (`/login`, `/api/v1/admin/*` through the console app); the main site answers
-404 for `/api/v1/admin/*`. Behind a proxy or tunnel, make sure the gateway sees
+404 for `/api/v1/admin/*`. The console site sends HSTS. Behind a proxy or tunnel, make sure the gateway sees
 the real client address (`OPENCTEM_TRUSTED_PROXIES`,
 `OPENCTEM_CLIENT_IP_HEADERS`), or the list matches the proxy instead. See
 [First administrator](first-admin.md#sign-in) for how to reach it.
@@ -264,7 +267,7 @@ curl --cacert openctem-root-ca.crt https://ctem.example.com/health
 | REST API with an `oct_` key | `https://ctem.example.com/api/v1/...` |
 | SCIM 2.0 | `https://ctem.example.com/scim/v2` |
 | MCP | `https://ctem.example.com/api/v1/mcp` |
-| Inbound webhooks | `https://ctem.example.com/api/v1/webhooks/incoming/jira`, `.../github` |
+| Inbound webhooks | `https://ctem.example.com/hooks/jira-integrations/{id}`, `.../api/v1/webhooks/incoming/github` |
 | SAML (service-provider metadata, ACS) | `https://ctem.example.com/api/v1/auth/saml/...` |
 | OIDC back-channel logout | `https://ctem.example.com/api/v1/auth/backchannel-logout` |
 | API reference | `https://ctem.example.com/docs` |

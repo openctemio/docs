@@ -9,7 +9,7 @@ permalink: /install/
 {: .no_toc }
 
 OpenCTEM is self-hosted. Pick a deployment, check the requirements below, then
-follow the guide. These pages describe OpenCTEM v0.10.1; notes say where an
+follow the guide. These pages describe OpenCTEM v0.11.0; notes say where an
 older release differs. [Versioning](../operations/versioning.md) lists how the
 platform, sensor and chart versions fit together.
 
@@ -27,7 +27,7 @@ the order of work from an empty host to a monitored installation with a tested r
 |---|---|---|
 | [Docker Compose](docker-compose.md) | Gateway, web console, platform console, API, PostgreSQL and Redis on one host, from `api/deploy/docker-compose.yml`. | Most single-host installs. Everything included, TLS between all parts. |
 | [All-in-one image](all-in-one.md) | `ghcr.io/openctemio/openctem`: gateway, web console, platform console and API in one container. PostgreSQL and Redis are yours. | You already run PostgreSQL and Redis (managed or self-hosted). |
-| [Kubernetes (Helm)](kubernetes.md) | The `openctem` chart from `openctemio/helm-charts`. | Clusters, external managed datastores, GitOps. |
+| [Kubernetes (Helm)](kubernetes.md) | The `openctem` chart from `openctemio/helm-charts`. The newest chart (0.29.0) targets v0.10.1; there is no chart for v0.11.0 yet. | Clusters, external managed datastores, GitOps. |
 | [One VM with Ansible](ansible.md) | The `openctem-ansible` kit: a hardened Ubuntu VM, signed images, encrypted backups and a monitor. Two guides: [with Cloudflare Tunnel and Access](ansible-cloudflare.md) (no inbound port) and [without Cloudflare](ansible-without-cloudflare.md) (your own TLS, public or private). | A production single host you want hardened and operated the same way every time. |
 
 All of them expose the platform on one HTTPS port through the same gateway: see
@@ -62,8 +62,8 @@ flowchart LR
 
 ### All-in-one container
 
-One container runs the gateway, the web console and the API; PostgreSQL and
-Redis are yours (managed or self-hosted).
+One container runs the gateway, the web console, the platform console and the
+API; PostgreSQL and Redis are yours (managed or self-hosted).
 
 ```mermaid
 flowchart LR
@@ -71,7 +71,9 @@ flowchart LR
     subgraph aio["ghcr.io/openctemio/openctem"]
         GW["gateway"] --> WEB["web<br/>127.0.0.1:3000"]
         GW --> API["api<br/>127.0.0.1:8080"]
+        GW -->|"console site"| CON["console<br/>127.0.0.1:3001"]
         WEB --> API
+        CON -->|"console listener"| API
     end
     API -->|TLS| PG[("Your PostgreSQL")]
     API -->|TLS| RD[("Your Redis")]
@@ -79,7 +81,7 @@ flowchart LR
 
 ### Kubernetes with Helm
 
-The chart runs the API, the web console and the migrations, and exposes them
+The chart runs the API, the web console, the platform console and the migrations, and exposes them
 through one entry point: its own Caddy gateway, an Ingress or a Gateway API
 HTTPRoute (`gateway.mode`). PostgreSQL and Redis are external in production.
 
@@ -89,7 +91,9 @@ flowchart LR
     subgraph k8s["Kubernetes cluster"]
         ENT["Entry point:<br/>Caddy gateway, Ingress<br/>or HTTPRoute"] --> WEB["web<br/>(Deployment)"]
         ENT --> API["api<br/>(Deployment, 1 replica)"]
+        ENT -->|"console site"| CON["console<br/>(Deployment)"]
         WEB --> API
+        CON --> API
         MIG["migrations Job"]
         BS["bundled sensor<br/>(optional)"] -->|"in-cluster"| API
     end
@@ -159,8 +163,9 @@ flowchart TB
   on (see [Shared sensors](../sensors/shared-sensors.md) and
   [Sensors](../sensors/how-it-works.md#organization-sensors-and-platform-sensors)).
 - Whether platform sensors need a verified domain before they scan a target
-  is an admin console setting (**System > Platform scanning**), off by
-  default (see [Scope](../scanning/scope.md#platform-guardrails)).
+  is a platform console setting (**Scanning > Platform scanning**), off by
+  default on a self-managed install and on by default when the API runs with
+  `MANAGED_SERVICE=true`, a hosted service (see [Scope](../scanning/scope.md#platform-guardrails)).
 
 ## Images
 
@@ -248,7 +253,8 @@ mutual-TLS listener on 9443 when the sensor passthrough is on; see
 | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog for prioritization. | Recommended. |
 | `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery. | Optional (`CERT_MONITOR_ENABLED=false` turns it off). |
 | `ctem.org` | CTEM-ID catalog feed. | Optional. |
-| Your SMTP server | Invitations, verification and password-reset email. | Recommended. |
+| Your SMTP server | Invitations, verification and password-reset email (set in the platform console, Settings, E-mail). | Recommended. |
+| `github.com` (the signed release feed) | Once a day the API downloads the feed of releases to show newer and security releases. Nothing about the instance is sent; GitHub sees the server's address. | Optional (`VERSION_CHECK_ENABLED=false` turns it off; import the file in the console, Monitoring, Software updates). |
 | Integration endpoints | Jira, GitHub or GitLab, Slack, Teams, Telegram, webhook channels, identity providers, AI providers. | Per integration. |
 
 Webhook and integration URLs that resolve to private addresses (RFC 1918) are

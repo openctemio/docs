@@ -68,7 +68,8 @@ Read the release notes and the upgrade notes of the release.
    `FINGERPRINT_KEY` is required in production and must stay stable for the
    life of the installation: it keys the identity of every secret finding.
    Never rotate it with `APP_ENCRYPTION_KEY`. `AUTH_JWT_SECRET` is optional;
-   the session secret is derived from the encryption key. `setup.sh` generates
+   the session secret (and the platform console's CSRF key) is derived from the
+   encryption key, except with `AUTH_PROVIDER=oidc`, where you set it. `setup.sh` generates
    all of these for the Compose stack.
 
    The API refuses to start with example-file text in a secret.
@@ -78,6 +79,11 @@ Read the release notes and the upgrade notes of the release.
 4. Decide the sign-up ceiling (`SIGNUP_MODE`): `disabled` (default, for a
    self-hosted install), `domain` or `open`. See
    [Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations).
+   If you run a hosted multi-tenant service, set `MANAGED_SERVICE=true`: in
+   production the API then refuses to start unless `ADMIN_AUDIT_SINK` (an off-box
+   copy of the platform administrators' audit log) is set too
+   ([Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)).
+   The Ansible kit's preflight stops a managed inventory without one.
    Decide where the platform console lives (`OPENCTEM_ADMIN_SITE`: `port`,
    `host` or `off`) and which networks may reach it
    (`OPENCTEM_ADMIN_ALLOWED_CIDRS`); a host name of its own is recommended.
@@ -109,7 +115,7 @@ gateway sends HSTS and the web console sends a Content-Security-Policy.
 cd api/deploy
 docker compose pull
 docker compose up -d
-docker compose ps -a     # every service healthy; db-roles, migrate and db-grants exited 0
+docker compose ps -a     # every service healthy; the one-shot jobs exited 0
 ```
 
 Migrations run once, before the API starts, as the schema owner; the API
@@ -126,7 +132,7 @@ least two platform administrators.
 ## 8. Sign-in and identity
 
 - Local accounts: the platform e-mail must work (verification and
-  password-reset e-mails): set it in the platform console, **System > E-mail**,
+  password-reset e-mails): set it in the platform console, **Settings > E-mail**,
   and send a test e-mail.
 - Single sign-on: configure the identity provider ([OIDC](../identity/sso-oidc.md),
   [SAML](../identity/sso-saml.md)) and sign in once with a test account.
@@ -148,6 +154,12 @@ and prove a restore before going live ([Backup and restore](../operations/backup
 ./backup.sh verify     # restores into a throwaway PostgreSQL and compares row counts
 ```
 
+The nightly backup loses up to a day of data. On the Ansible kit you can add
+continuous WAL archiving to an S3-compatible bucket and restore to a point in
+time (about six minutes of data at risk): see
+[Install with Ansible](ansible.md#backups-and-the-restore-drill) and
+[Backup and restore](../operations/backup-restore.md).
+
 ## 11. Sensors
 
 Deploy at least one sensor and pair it ([Sensors](../sensors/index.md)). Run
@@ -160,7 +172,7 @@ one small scan on a target you own and check the findings arrive.
 | Only the HTTPS port is reachable | `nmap` the host from outside |
 | `/metrics` is not public | `curl -k https://<host>/metrics` answers 404 |
 | Security headers | `curl -kI https://<host>/login` shows HSTS, CSP, X-Frame-Options |
-| No demo data or test accounts | Console > Organizations and Users |
+| No demo data or test accounts | Platform console > Organizations and Users |
 | Backups ran | `openctem_backup_last_success_timestamp_seconds` is recent |
 | Alerts delivered | the test alert of step 9 arrived |
 | Restore tested | step 10 |
@@ -170,6 +182,7 @@ one small scan on a target you own and check the findings arrive.
 Database migrations are not rolled back in production. To roll back an
 upgrade: set `OPENCTEM_VERSION` back to the previous release, then restore the
 backup taken before the upgrade (`./backup.sh restore <dir> --yes`; it stops
-the API, web and gateway (v0.10.1 leaves the platform console
-running: run `docker compose stop console` first; later releases stop it too), restores, and starts the stack on that version). Take that backup before every upgrade
+the gateway, web console, platform console and API (from v0.11.0; the v0.10.1
+script leaves the platform console running, so run `docker compose stop console`
+first when you restore with it), restores, and starts the stack on that version). Take that backup before every upgrade
 ([Upgrading](../operations/upgrade.md)).

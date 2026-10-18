@@ -35,7 +35,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.10.1         # the release you deploy
+git checkout v0.11.0         # the release you deploy
 cd api/deploy
 ```
 
@@ -47,7 +47,7 @@ cd api/deploy
 | `docker-compose.sensor-passthrough.yml` | Overlay: sensors reach the platform on the same port 443, routed to the API's mutual-TLS listener (see [Transport](../sensors/transport.md)). |
 | `docker-compose.sensor.yml` | Overlay: a bundled sensor, enrolled as a shared sensor of the installation (see [Overlays](#overlays)). |
 | `docker-compose.clamav.yml` | Overlay: malware scanning of uploaded files (see [File storage](../configuration/file-storage.md)). |
-| `docker-compose.job-signer.yml` | Overlay: signed jobs. A separate signer container with its own key signs every job before a sensor gets it; off by default. |
+| `docker-compose.job-signer.yml` | Overlay: signed jobs. A separate signer container with its own key signs every job before a sensor gets it; off by default (see [Signed jobs](#signed-jobs)). |
 | `setup.sh` | Writes `.env` with generated secrets (see step 2). |
 | `.env.example` | Settings template. |
 | `backup.sh` | Backup, restore check and restore (see [Backup and restore](../operations/backup-restore.md)). |
@@ -88,7 +88,7 @@ OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
 `OPENCTEM_VERSION` is optional: the compose file and `.env.example` of a
-release default to that release (`v0.10.1` in the v0.10.1 files) and to the
+release default to that release (`v0.11.0` in the v0.11.0 files) and to the
 current image names (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
 `openctem-console`, `openctem-gateway`, `migrations`). Set it only to run another release than the
 files you checked out, which is not recommended.
@@ -118,8 +118,19 @@ to initialise the database and to create the others), `DB_MIGRATE_USER`
 (`openctem_migrator`, owns the schema and runs migrations), `DB_USER`
 (`openctem_app`, the API: read and write rows only) and `DB_ADMIN_USER`
 (`openctem_console`, the only role that writes the platform console's identity
-tables: administrators and console sessions). Leaving `DB_MIGRATE_USER` unset
-runs everything as `DB_USER` instead.
+tables: administrators, console sessions and approvals). Leaving
+`DB_MIGRATE_USER` unset runs everything as `DB_USER` instead. The `db-roles` job
+creates the roles on every `up`, and `db-grants` runs the same script again after
+the migrations so a table a release adds gets its grants before the API starts
+(see [Upgrading to a new release](#upgrading-to-a-new-release)).
+
+Platform e-mail (SMTP), the legal texts and the CAPTCHA keys are not part of
+`.env`: set them in the platform console (**Settings**, **E-mail**, **Legal**,
+**CAPTCHA**; see [Console settings](../console/settings.md)). The old `SMTP_*` and
+`LEGAL_*` variables are gone and the API refuses to start while an `SMTP_*`
+server variable is set. The CAPTCHA keys can be pinned from the environment
+(`CAPTCHA_TURNSTILE_SITE_KEY` with `CAPTCHA_TURNSTILE_SECRET`, in a
+`docker-compose.override.yml`); the console then shows them as locked.
 
 ## 3. Start the stack
 
@@ -185,10 +196,15 @@ rotated at 50 MB with 5 files kept.
 |---|---|---|
 | `postgres-data` | The database. | Yes, with `backup.sh` (see [Backup and restore](../operations/backup-restore.md)). |
 | `api-data` | Uploaded attachments, finding evidence and the sensor CA that signs sensor gRPC certificates (`/app/data`). | Yes. Losing the sensor CA makes sensors on gRPC stop until they get a certificate from the new one (see [Sensor transport](../sensors/transport.md#platform-side-the-sensor-ca)). |
+| `api-tmp` | The API's system temp directory (`/tmp`): uploaded archives and form files are spooled here, and feed bundles are staged here. | No. |
 | `gateway-data` | Certificates, the ACME account and the internal CA's private key. | Yes, in TLS mode `internal`: losing it creates a new CA that sensors and browsers do not trust. |
 | `gateway-config` | Caddy's runtime configuration. | No. |
 | `datastore-tls` | The private CA and certificates of PostgreSQL and Redis. | No (re-issued when missing). |
 | `redis-data` | Redis append-only file. | No. |
+
+The bundled shared sensor and the job signer add their own volumes (`sensor-data`;
+`signer-keys`, `signer-state`, `signer-socket`), described under
+[Overlays](#overlays).
 
 Never run `docker compose down -v`: it deletes the volumes.
 
@@ -209,7 +225,8 @@ gateway. In port mode `OPENCTEM_ADMIN_BIND` publishes the console port on one
 interface (a private or VPN address): a published port is not filtered by the
 host firewall, so prefer that, or an SSH tunnel
 (`ssh -L 8443:127.0.0.1:8443 you@<host>`), over a public interface.
-`setup.sh` prints the address it configured. The port is not a security
+`setup.sh` prints the address it configured. What the console offers is
+described in [the console guide](../console/index.md). The port is not a security
 control; the controls are the separate origin, the network list, the console's
 own sign-in with a second factor, step-up and its audit log.
 
@@ -223,9 +240,12 @@ The `api` service passes a fixed list of variables from `.env` to the API:
 `APP_ENCRYPTION_KEY`, `APP_ENCRYPTION_KEY_PREVIOUS`, `FINGERPRINT_KEY`,
 `APP_TEMPLATE_SIGNING_KEY`, `APP_CONTENT_SIGNING_KEY`, `SIGNUP_MODE`,
 `SELF_SERVICE_START_LIMITS`, `VERSION_CHECK_ENABLED`, `VERSION_CHECK_URL` and
-`METRICS_TOKEN` (empty: `/metrics` off). Platform email (SMTP) is
-not an environment variable: set it in the admin console, **System > E-mail**
-(see [Email](../configuration/email.md)). It passes the public origin to the API as `APP_URL`
+`METRICS_TOKEN` (empty: `/metrics` off). `AUTH_JWT_SECRET` is optional: unset,
+the session secret (and the platform console's CSRF key) is derived from
+`APP_ENCRYPTION_KEY`. The API in production refuses to start without one of
+the two; with `AUTH_PROVIDER=oidc` set `AUTH_JWT_SECRET` yourself. Platform
+email (SMTP) is not an environment variable: set it in the platform console,
+**Settings > E-mail** (see [Email](../configuration/email.md)). It passes the public origin to the API as `APP_URL`
 (`OPENCTEM_PUBLIC_URL`, else `https://<OPENCTEM_HOSTNAME>`), and the API derives
 `CORS_ALLOWED_ORIGINS`, `SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
 (`<APP_URL>/auth/callback`, where SSO sign-ins land) from it.
@@ -242,6 +262,39 @@ services:
 ```
 
 Then apply with `docker compose up -d`.
+
+### Hosted service and the audit sink
+
+`MANAGED_SERVICE=true` is for an operator who runs OpenCTEM as a hosted,
+multi-tenant service for organizations it does not control; leave it unset on a
+self-managed install. It changes defaults only (for example, platform sensors
+need a verified domain before they scan a target). In production
+(`APP_ENV=production`) the API **refuses to start** with `MANAGED_SERVICE=true`
+unless `ADMIN_AUDIT_SINK` is set: an off-box copy of the platform
+administrators' hash-chained audit log, so someone who controls the database
+cannot rewrite its history unnoticed. The stack does not pass either variable
+by default; add them in `docker-compose.override.yml`:
+
+```yaml
+services:
+  api:
+    environment:
+      MANAGED_SERVICE: "true"
+      ADMIN_AUDIT_SINK: https://audit.example.com/ingest
+      ADMIN_AUDIT_SINK_SECRET: ${ADMIN_AUDIT_SINK_SECRET:?set it in .env}
+```
+
+`ADMIN_AUDIT_SINK` accepts `https://…` (a signed POST per batch; the receiver
+verifies `X-OpenCTEM-Signature` with `ADMIN_AUDIT_SINK_SECRET`, at least 32
+bytes, required for https), `syslog+tls://host:6514` (optionally mutual TLS, with
+`ADMIN_AUDIT_SINK_SYSLOG_CA_FILE`, `_CLIENT_CERT` and `_CLIENT_KEY` mounted into
+the container) or `file:///path` (one JSON batch per line; the directory must be
+a writable bind mount owned by the API's user, because the root filesystem is
+read-only). A file on the same host only protects against rewrites inside the
+database; an https receiver run by someone else is the real off-box copy.
+Plaintext `syslog+tcp://` and `syslog+udp://` are not supported, and a
+destination that cannot be used stops the start-up. The chain head is also sent
+every `ADMIN_AUDIT_SINK_HEAD_INTERVAL` (15 minutes by default).
 
 Memory limits default to 2 GB for the API, 1 GB for the web console, 512 MB
 for the platform console and 512 MB for the gateway; change them with
@@ -312,16 +365,55 @@ organizations without anyone installing a sensor. It adds two services:
   tools (unprivileged user namespaces must be allowed).
 
 It takes no organization's work until a super administrator turns shared
-sensors on (platform console, **System > Platform scanning**). Shared mode
-needs a sensor release that has it; sensor v0.23.2 and older do not, and the
-overlay's default `SENSOR_VERSION` is v0.23.0. Such a sensor enrolls but
-receives no shared job, because the platform sends shared jobs only to a sensor
-that reports shared-mode isolation. Set `SENSOR_VERSION` to the first release
-that supports shared mode when it is published. See
+sensors on (platform console, **Scanning > Platform scanning**). Shared mode
+needs a sensor release built with the shared-mode SDK: the overlay's default
+`SENSOR_VERSION` is v0.23.2, which has it. A sensor without it (v0.23.0 and
+older) enrolls but receives no shared job, because the platform sends shared
+jobs only to a sensor that reports shared-mode isolation. See
 [Shared sensors](../sensors/shared-sensors.md) for the settings, the fleet page
 and what organizations see.
 
 Use the same `-f` list for every later `docker compose` command.
+
+### Signed jobs
+
+`docker-compose.job-signer.yml` adds a `signer` container from the API image,
+with no network and its own key volume that is never mounted into the API. The
+API reaches it only through a Unix socket (`SIGNER_SOCKET`), and a command the
+signer does not sign is not handed to a sensor, so start it before the API and
+keep it up. Create the key once, then start with the overlay:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.job-signer.yml \
+  run --rm signer keygen -out /var/lib/openctem-signer/keys/signer.pem
+docker compose -f docker-compose.yml -f docker-compose.job-signer.yml up -d
+```
+
+Record the key id and public key that `keygen` prints. The API logs "sensor jobs
+are signed by the job signer" and `GET /api/v2/sensor/hello` lists the
+`signed_jobs` feature. The comments in the overlay describe the optional key set
+signed by an offline root key and the scope ledger. Back up the `signer-keys`
+volume offline; `signer-state` holds the sequence numbers and the signing log.
+
+## Upgrading to a new release
+
+Check out the new release, read its upgrade notes, and run
+`docker compose pull && docker compose up -d` (see [Upgrading](../operations/upgrade.md)).
+The `db-roles` and `db-grants` jobs re-apply
+`postgres/least-privilege-roles.sql` on every `up` using `DB_SUPERUSER`, so new
+tables get their grants without a manual step. This includes the console's new
+tables in v0.11.0 (`admin_approvals`) when `DB_ADMIN_USER` is set. If you run
+your own PostgreSQL and the `db-roles` job does not connect as a superuser, run
+the script yourself after every upgrade, with the `admin_user` and
+`admin_password` variables when you use `DB_ADMIN_USER`:
+
+```bash
+psql "$SUPERUSER_URL" -v ON_ERROR_STOP=1 \
+  -v app_user="$DB_USER" -v app_password="$DB_PASSWORD" \
+  -v migrator_user="$DB_MIGRATE_USER" -v migrator_password="$DB_MIGRATE_PASSWORD" \
+  -v admin_user="$DB_ADMIN_USER" -v admin_password="$DB_ADMIN_PASSWORD" \
+  -f postgres/least-privilege-roles.sql
+```
 
 ## Next steps
 
