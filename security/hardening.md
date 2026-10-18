@@ -38,9 +38,11 @@ In production mode the API refuses to start when:
 - with local accounts: `AUTH_PASSWORD_MIN_LENGTH` is below 8 or `AUTH_REQUIRE_EMAIL_VERIFICATION`
   is not `true`;
 - with an OAuth social provider enabled: `OAUTH_STATE_SECRET` is missing;
-- `SIGNUP_MODE=open` without the Turnstile keys (`CAPTCHA_TURNSTILE_SECRET`,
-  `CAPTCHA_TURNSTILE_SITE_KEY`) or `SIGNUP_CAPTCHA=off-i-understand`, and `SIGNUP_MODE=domain` or
-  `open` without the platform e-mail configured.
+- `SIGNUP_MODE=domain` or `open` without the platform e-mail configured. `SIGNUP_MODE=open` with no
+  CAPTCHA does not stop the start-up any more: open sign-up stays closed at run time until a CAPTCHA
+  is configured (Console > Settings > CAPTCHA, or the Turnstile keys in the environment) or
+  `SIGNUP_CAPTCHA=off-i-understand` is set;
+- `MANAGED_SERVICE=true` without `ADMIN_AUDIT_SINK` (see [Platform console](#platform-console)).
 
 A failed start prints the reason; fix the setting rather than working around the check.
 
@@ -94,8 +96,9 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
   development credentials.
 - The gateway answers `404` for `/ready`, `/metrics` and `/debug/*`. `/health` is public and returns
   only status.
-- The API reference (`/docs`, `/openapi.yaml`) is always served and reachable through the gateway.
-  It contains no data, but block it at your edge if you do not want to publish the API surface.
+- In production the API does not serve the interactive API reference at `/docs`, and
+  `/openapi.yaml` needs a signed-in user. The public reference is on docs.openctem.io. Platform
+  administrators read both through the console session. Outside production both stay public.
 - Outbound calls of the API (webhooks, integrations, SMTP) cannot reach private addresses unless you
   list a range in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. List only the subnets of the services you
   integrate with: the list applies to every organization. `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` (every
@@ -111,20 +114,94 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
 
 ## Platform console
 
-The platform console (organizations, sign-up policy, system settings, platform sensors) is its own
-app with its own API listener, served by the gateway on a site of its own and never on the main
-site (the main site answers `404` for `/api/v1/admin`).
+The platform console (organizations, sign-up policy, settings, platform sensors) is its own app
+(`openctem-console`) with its own API listener, served by the gateway on a site of its own and
+never on the main site (the main site answers `404` for `/api/v1/admin`). There is no `/admin`
+path on the main site and no redirect from it.
 
 | Setting | Default | Use |
 |---|---|---|
 | `OPENCTEM_ADMIN_SITE` | `port` in the compose file | `host` serves the console on its own DNS name (`OPENCTEM_ADMIN_HOST`, recommended for production: a separate origin), `port` on `https://<OPENCTEM_HOSTNAME>:<OPENCTEM_ADMIN_PORT>` (default `8443`), `off` not at all. |
 | `OPENCTEM_ADMIN_BIND` | `GATEWAY_BIND` | Publish the console port on one private or VPN address only: a published port is not filtered by the host firewall. |
-| `OPENCTEM_ADMIN_ALLOWED_CIDRS` | private networks | Client networks that may reach the console site; everyone else gets `403`. The compose file passes the same list to the API as `ADMIN_ALLOWED_CIDRS`. Open it to the internet only if you must. |
+| `OPENCTEM_ADMIN_ALLOWED_CIDRS` | private networks | Client networks that may reach the console site; everyone else gets `403` (the API answers `403 ADMIN_NETWORK_NOT_ALLOWED`). The compose file passes the same list to the API as `ADMIN_ALLOWED_CIDRS`. Open it to the internet only if you must. A sign-in from an address other than the administrator's last one is audited and e-mailed to every administrator. |
 | `ADMIN_LISTEN_ADDR` | `<net>.12:8081` in the compose file | The console API's own internal listener (plain HTTP on the private stack network). |
-| `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` | unset | A separate database role that alone writes the console's identity tables (administrators, console sessions). |
+| `ADMIN_PUBLIC_URL` | origin of `APP_URL` | The console's own origin. Security keys and passkeys are bound to its host: set it to the console site, and note that changing it later makes registered keys unusable. |
+| `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` | unset | The console database role: a separate role that alone writes the console's identity tables (administrators, console sessions and credentials, the platform identity provider, the four-eyes approvals). After an upgrade that adds a console table, run `least-privilege-roles.sql` again with `admin_user` (the Compose `db-grants` job does it on every `up`), or the console role lacks the new table (v0.11.0 adds `admin_approvals`). See [database-roles.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/database-roles.md). |
+| `ADMIN_AUDIT_SINK` | unset | Streams the administrators' audit log off the host. **Required with `MANAGED_SERVICE=true` in production**: the API refuses to start without it. See [Audit log](audit-log.md#the-administrators-audit-log-and-its-off-box-copy). |
+| `MANAGED_SERVICE` | `false` | Set `true` only on a hosted, multi-tenant service you run for organizations you do not control. It changes defaults (for example platform sensors need a verified domain until an administrator stores a value) and requires the audit sink. Self-managed installations leave it unset. |
 
-Console sessions last 8 hours at most and end after 15 minutes idle, and every sign-in needs a TOTP
-code. Enrol a security key or passkey too, and keep at least two `super_admin` accounts.
+What the console does for you, with no setting to change:
+
+- **Own origin and strict headers.** Every console response carries a nonce-based Content Security
+  Policy (`frame-ancestors 'none'`, `base-uri 'none'`, `form-action 'self'`, no third-party script),
+  `Cross-Origin-Opener-Policy` and `Cross-Origin-Resource-Policy` `same-origin`,
+  `Referrer-Policy: no-referrer` and `Cache-Control: no-store`. The gateway adds
+  `Strict-Transport-Security` on the console site.
+- **Session-bound CSRF.** Every console write must come from the console's own origin and carry a
+  token that is bound to the console session (an HMAC of the session under a key derived from
+  `AUTH_JWT_SECRET`), kept only in the page's memory. A cookie planted by another site on the same
+  host cannot satisfy it. With several API replicas every one must hold the same `AUTH_JWT_SECRET`;
+  production refuses to start without a session secret ([Scaling](../operations/scaling.md#the-consoles-csrf-key-must-be-shared)).
+- **Short sessions.** A console session ends after 15 minutes without use and after 8 hours at most;
+  background refreshes of an idle tab do not count as use. An administrator holds at most three
+  sessions; opening a fourth ends the oldest (`console.session_evicted`). A password reset or change
+  of the administrator's account ends their console sessions.
+- **Second factor at every sign-in**, and step-up (a fresh code or a security key) for protected
+  actions. Administrators can register **security keys and passkeys** (WebAuthn, user verification
+  required) and ten one-time recovery codes. A super admin can turn on **Require security keys**
+  (Security > Admin sign-in): it turns on only when the administrator has at least two keys and
+  recovery codes; other administrators then reach only the enrolment page until they comply (they
+  keep the authenticator code for 7 days), the last two keys cannot be removed, and an administrator
+  who holds a key can no longer use the authenticator code (break-glass accounts keep it).
+- **Write-ahead audit.** Before a super administrator's write runs, the API records it in the
+  administrators' audit log. If that row cannot be written, the request is refused with
+  `503 AUDIT_UNAVAILABLE` and nothing changes. Request bodies are redacted by key (`secret`,
+  `password`, `_key`, `_token`, `code`, `totp`, recovery codes).
+- **Administrator accounts stay off the organization site.** The account of a platform
+  administrator cannot sign in on the main site (password, second factor, token exchange, social
+  and SSO sign-in): the answer is the wrong-password one, with no session, and the API logs
+  `alert=platform_admin_main_site_sign_in`. Organization SSO can never authenticate a platform
+  administrator.
+- **Four-eyes approvals** (below).
+- **Roster notices.** Every change to the administrators, their identity provider or the
+  security-key policy is e-mailed to every other active administrator.
+
+Keep at least two named `super_admin` accounts (and a break-glass account that only you hold) so
+that four-eyes approval can work.
+
+### Four-eyes approvals
+
+These actions need a second super admin to approve them when one exists:
+
+| Action | Needs approval when |
+|---|---|
+| Make a super admin | A new super admin, a promotion or reactivation to an active super admin, or the break-glass marker removed. |
+| Remove a super admin | An active super admin is demoted, deactivated, marked break-glass or removed. |
+| Stop requiring security keys | The policy goes from on to off. |
+| Remove or relax the administrators' identity provider | Removed, switched off, or no longer required. |
+| Open sign-up | The stored sign-up policy opens wider than before. |
+| Re-sign an organization's audit chain | Always. |
+| Delete an organization at once ("Delete now") | Always, when approvals are on. |
+
+The protected route answers `428 SECOND_APPROVAL_REQUIRED`. The requesting super admin gives a
+reason and asks (with a step-up); the other super admins are e-mailed; another super admin
+approves under **Security > Approvals** with a fresh code or security-key confirmation (or
+rejects); the requester repeats the action within 24 hours. An approval is bound to the requester,
+the action and its exact target and works once. Nobody approves their own request, and a
+break-glass account never approves and does not count as a second super admin. With only one named
+super admin, the actions run on that administrator's own step-up, recorded as critical
+(`approval.single_admin`) and e-mailed to every administrator.
+
+### Suspending an organization or blocking an account
+
+Under **Customers > Organizations** an `ops_admin` or `super_admin` can suspend an organization
+(and lift the suspension), and under **Customers > Users** block an account platform-wide. Each
+needs a fresh authenticator code and a reason and is a critical audit row; nothing is deleted. A
+suspended organization is refused to every credential from the next request on (sessions, API
+keys, MCP tokens, sensor keys, SCIM tokens, CI tokens and inbound webhooks answer `403
+ORGANIZATION_SUSPENDED`), its live connections close and its scheduled work is skipped. A blocked
+account cannot sign in, its sessions end and its API keys stop working. See
+[Data handling](data-handling.md#suspension-and-deletion).
 
 ## Use least-privilege database roles
 

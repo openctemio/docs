@@ -21,7 +21,7 @@ the sizes in [Sizing](../install/sizing.md) and use the
 | Component | Scales | Notes |
 |---|---|---|
 | API | Vertically: one instance | Runs the request handlers and every background job (schedulers, ingest worker, feed refreshes, notification outbox, retention). |
-| Web console and admin console app | Horizontally | Stateless; run two or more behind the gateway or a Service. |
+| Web console and platform console app | Horizontally | Stateless; run two or more behind the gateway or a Service. |
 | PostgreSQL | Vertically, or a managed service | Holds all data; usually the first thing to grow. |
 | Redis | Vertically | Small: caches, rate-limit state, queues. |
 | Sensors | Horizontally | Add sensors to share scanning work. |
@@ -52,11 +52,22 @@ CPU and memory, and use the knobs below.
 | `RATE_LIMIT_RPS`, `RATE_LIMIT_BURST`, `RATE_LIMIT_READ_PER_MIN` | `100`, `200`, `120` | Many users behind one address, or dashboards that issue many reads. |
 | `SERVER_REQUEST_TIMEOUT` | `30s` | Long reports or exports time out. |
 
-## Web console
+## Web console and platform console
 
-The console holds no state of its own: sessions are cookies validated by the
+Neither app holds state of its own: sessions are cookies validated by the
 API. Run two or more replicas for availability. The Helm chart's production
 example runs 2 to 6 with a HorizontalPodAutoscaler and a PodDisruptionBudget.
+
+### The console's CSRF key must be shared
+
+The platform console binds each write to its session with a CSRF token: an HMAC of the
+console session under a key derived from the API's session secret. Every process that serves
+the console API must therefore hold the **same** `AUTH_JWT_SECRET` (set it explicitly and give
+every replica the same value; unset, it is derived from `APP_ENCRYPTION_KEY`, which must then
+be identical too). Production refuses to start without a valid session secret. Outside
+production, with no secret, each process uses its own random key and a token verifies only on
+the process that issued it, so a second replica answers 401 to console writes. Changing
+`AUTH_JWT_SECRET` signs everyone out, administrators included.
 
 ## PostgreSQL
 

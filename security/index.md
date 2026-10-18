@@ -58,7 +58,7 @@ flowchart LR
 | Automation | Organization API key `oct_...` | Read-only on the REST API, acts as its creator with a subset of their permissions |
 | Identity provider (provisioning) | SCIM token `oct_scim_...` | One organization per token |
 | Sensor | A client certificate from the platform's sensor CA (protocol v3, mTLS), an Ed25519 key-bound identity (paired sensors), or a sensor key | Accepted only on sensor routes |
-| Platform administrator | Separate console session with TOTP (or a security key) | Accepted only on admin routes |
+| Platform administrator | Separate console session with a second factor (authenticator code or a security key or passkey) | Accepted only on admin routes; the same account cannot sign in on the organization site |
 
 Each credential works only on its own set of routes: a sensor key is refused on user routes, an
 organization token on admin routes, and so on.
@@ -297,19 +297,47 @@ platform identity are what stop a compromised platform from directing it. The en
 ## Audit log
 
 Security-relevant actions are written to a per-organization audit log, linked into a SHA-256 hash
-chain that is verified hourly. Platform administrator actions have their own log. See
-[Audit log](audit-log.md).
+chain that is verified hourly, and owners and administrators can export it (CSV or JSON lines, up to
+50,000 rows, itself audited). Platform administrator actions have their own append-only log, which
+can be copied off the box. See [Audit log](audit-log.md).
 
 ## Platform administration
 
-Platform administrators use a separate platform console, its own app on its own site (a separate
-port or host name; `OPENCTEM_ADMIN_SITE`), which only the networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS`
-reach (private networks by default). It has its own sessions (8 hours absolute, 15 minutes idle), a TOTP
-code at every sign-in, and three roles (`super_admin`, `ops_admin`, `readonly`). The riskiest console
-actions (sign-up policy, audit chain rebaseline) need a fresh code. Organization SSO can never
-authenticate a platform administrator. Public sign-up is bounded by the deployment's `SIGNUP_MODE`
-(`disabled` by default), which no console setting can exceed. Console actions are recorded in the platform audit
-log, and actions inside an organization also in that organization's log.
+Platform administrators use a separate platform console: its own app (`openctem-console`) on its
+own site (a separate port or host name; `OPENCTEM_ADMIN_SITE`), with its own API listener. Only the
+networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS` reach it (private networks by default); the main site
+answers `404` for the console API. The controls:
+
+- **Sign-in.** Its own sessions (8 hours absolute, 15 minutes idle, at most three per administrator),
+  a second factor at every sign-in (authenticator code, or security keys and passkeys with a
+  console policy that can require them), and three roles (`super_admin`, `ops_admin`, `readonly`).
+  Organization SSO can never authenticate a platform administrator, and an administrator's account
+  cannot sign in on the organization site at all.
+- **Browser isolation.** Strict headers (nonce CSP with no third-party script, `frame-ancestors
+  'none'`, same-origin opener and resource policies, `no-store`), HSTS on the console site, and a
+  CSRF token bound to the console session, so a script on a tenant page of the same host can
+  neither read nor forge it.
+- **Protected actions.** The riskiest actions need a fresh code or security-key confirmation, and
+  some also need a second super admin's approval (`428 SECOND_APPROVAL_REQUIRED`): making or
+  removing a super admin, turning off the security-key requirement, relaxing the administrators'
+  identity provider, opening sign-up, re-signing an audit chain, deleting an organization at once.
+- **Records.** A super administrator's write is logged before it runs (and refused with `503
+  AUDIT_UNAVAILABLE` if the log cannot be written). The administrators' audit log is append-only
+  and hash-chained, and can be streamed to a destination outside the database. A hosted service
+  (`MANAGED_SERVICE=true`) must have that destination. Roster changes are e-mailed to every other
+  administrator. Actions inside an organization are also written to that organization's log.
+- **Limits on reach.** The console's identity tables can be written by a separate database role
+  (`DB_ADMIN_USER`), so a SQL injection in tenant-facing code cannot add an administrator. Public
+  sign-up is bounded by the deployment's `SIGNUP_MODE` (`disabled` by default), which no console
+  setting can exceed. Secrets (CAPTCHA, AI and alert-webhook credentials) are write-only in the
+  console, and the console cannot read database credentials, encryption keys or its own allowed
+  networks.
+- **Kill switches.** A platform administrator can suspend an organization or block an account
+  without deleting anything; an organization an owner deletes waits 14 days before its data is
+  purged.
+
+See [Production hardening](hardening.md#platform-console) for the settings and the
+[Audit log](audit-log.md#the-administrators-audit-log-and-its-off-box-copy) page for the log.
 
 ## Secure development
 

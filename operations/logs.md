@@ -113,10 +113,25 @@ Problems:
 | `database schema check failed — refusing to start` | ERROR | The schema is behind, dirty or older than the migration baseline. Run the migrations; see [Upgrading](upgrade.md). |
 | `failed to connect to database` / `failed to connect to redis` | ERROR | Host, credentials or TLS settings. |
 | `jira webhook preflight: connected Jira integrations have no webhook secret` | WARN | Their inbound webhook deliveries are refused (401) until the organization sets a secret in **Settings > Integrations > Ticketing > Inbound webhook**. |
-| `email service not configured, skipping ... email` | WARN | No platform SMTP server is set (admin console, **System > E-mail**); verification and password-reset email is not sent. See [Email (SMTP)](../configuration/email.md). |
+| `email service not configured, skipping ... email` | WARN | No platform SMTP server is set (platform console, **Settings > E-mail**); verification and password-reset email is not sent. See [Email (SMTP)](../configuration/email.md). |
 | `email task handlers NOT registered - SMTP is not configured; other job handlers still run` | WARN | Same cause. |
 | `panic recovered` | ERROR | A handler or background task panicked; the request got 500. Counted by `openctem_panics_recovered_total`. |
 | `shutting down...`, `application stopped` | INFO | Graceful shutdown (`SERVER_SHUTDOWN_TIMEOUT`). |
+
+### Alert lines
+
+Platform-level alerts carry an `alert` attribute, so one filter finds them
+(`docker compose logs api | grep alert=`). They are also sent to the platform
+administrators by e-mail and to the alert webhook (Settings > Alerts) when those are set up.
+
+| `alert` | Level | Meaning |
+|---|---|---|
+| `system_storage`, `system_backup`, `system_cert` | WARN | Free space, backup age or certificate expiry got worse (Monitoring > Health). |
+| `signup_burst` | WARN | Many sign-ups from one network or e-mail domain. See [Monitoring](monitoring.md). |
+| `alert_webhook_failed` | WARN | The alert webhook did not accept a delivery; `host` names the receiver. |
+| `audit_chain_break` | ERROR | The audit log hash chain has a new break. Treat it as a security incident. |
+| `platform_setting_changed` | WARN | A platform setting changed in the console. |
+| `platform_admin_main_site_sign_in` | WARN | A platform administrator's account tried to sign in on the organization site, where it is refused. |
 
 ## Web console and admin console
 

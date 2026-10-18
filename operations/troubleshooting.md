@@ -40,6 +40,7 @@ docker compose exec api wget -qO- localhost:8080/ready
 | `AUTH_JWT_SECRET is a known development default` / `APP_ENCRYPTION_KEY is the docker-compose default` | A published example secret outside `APP_ENV=development`. | Generate real values (`openssl rand -hex 64` / `openssl rand -hex 32`). Changing the encryption key on an existing database needs a [key rotation](backup-restore.md#rotating-the-encryption-key). |
 | `KEYCLOAK_BASE_URL must be set in production` | `AUTH_PROVIDER` is `oidc` or `hybrid` (the default is `local`) without a Keycloak URL. | Set `AUTH_PROVIDER=local`, or set the Keycloak variables. |
 | `FINGERPRINT_KEY is required when APP_ENV="production"` (or `must be at least 32 characters`) | The secret that keys the identity of secret findings is missing or short. | Generate one with `openssl rand -hex 32`. On an installation that already stores secret findings set it to the current `APP_ENCRYPTION_KEY` value, and never change it afterwards. |
+| `MANAGED_SERVICE in production requires the off-box administrators' audit sink` | `MANAGED_SERVICE=true` without `ADMIN_AUDIT_SINK`. | Set `ADMIN_AUDIT_SINK` to an `https://`, `syslog+tls://` or `file:///` destination (the Ansible kit: `openctem_admin_audit_sink`), or unset `MANAGED_SERVICE` on a self-managed installation. See [Hardening](../security/hardening.md#platform-console). |
 | `database schema check failed — refusing to start` | Migrations did not run, failed (dirty), or the database predates the migration baseline. | See [Migrations](#migrations). |
 | `failed to connect to database` | Host, credentials, or TLS (`DB_SSLMODE`). | Check `DB_*`; production refuses `DB_SSLMODE=disable`. |
 | `failed to connect to redis` | Host, password, or TLS. | Check `REDIS_*`; production requires TLS and a 32+ character password. |
@@ -89,6 +90,11 @@ docker compose run --rm db-roles
 docker compose restart api
 ```
 
+If you use the console database role (`DB_ADMIN_USER`), a release can add console tables
+(v0.11.0 adds `admin_approvals`). The `db-grants` job in the Compose stack re-grants after
+every migration; elsewhere run `least-privilege-roles.sql` again with `admin_user` and
+`admin_password` set. Without it the console fails with `permission denied` on those tables.
+
 ## Cannot sign in
 
 | Symptom | Cause | Fix |
@@ -98,7 +104,13 @@ docker compose restart api
 | `401 Session has expired` soon after sign-in | Clock skew between hosts, or a short `SESSION_TIMEOUT_MINUTES`. | Sync time (NTP); check the setting. |
 | An account is locked | `AUTH_MAX_LOGIN_ATTEMPTS` failures within the lockout window. | Wait for `AUTH_LOCKOUT_DURATION` (default 15 minutes). |
 | No user can sign in on a new install | No accounts exist yet. | Create them with [`bootstrap-admin`](../install/first-admin.md). |
-| A platform administrator lost the authenticator or password | The admin console requires the password and a TOTP code. | Another platform administrator (for example the break-glass one) resets the credentials in the admin console, under **Administrators**. |
+| A platform administrator lost the authenticator or password | The platform console requires the password and a second factor (an authenticator code or a security key). | Another platform administrator (for example the break-glass one) resets the credentials in the platform console, under **Security > Administrators**. |
+| A platform administrator cannot sign in on the organization site | By design: an administrator's account is refused there with the same answer as a wrong password, and the API logs `alert=platform_admin_main_site_sign_in`. | Sign in at the platform console (`https://<host>:8443` or your console host name). |
+| The platform console answers `403` | Your address is outside the console's allowed networks (`OPENCTEM_ADMIN_ALLOWED_CIDRS`, private ranges by default). | Reach it from an allowed network (VPN) or widen the list on the server. |
+| Signed out of the console after a few minutes | Console sessions end after 15 minutes without use and 8 hours at most; an administrator holds at most 3 sessions, and opening a fourth ends the oldest. | Sign in again. Page refreshes in an idle tab do not count as activity. |
+| A console change fails with `401` right after an upgrade or restart | The session-bound CSRF token no longer matches (a different `AUTH_JWT_SECRET`, or a console tab open across an upgrade). | Reload the page, or sign in again. With several API replicas every one must hold the same `AUTH_JWT_SECRET` ([Scaling](scaling.md#the-consoles-csrf-key-must-be-shared)). |
+| A console change fails with `503 AUDIT_UNAVAILABLE` | A super administrator's write is recorded before it runs; the audit log could not be written, so nothing changed. | Check the database and the API log, then repeat the change. |
+| A console change fails with `428 SECOND_APPROVAL_REQUIRED` | The action needs a second super admin ([four-eyes approvals](../security/hardening.md#four-eyes-approvals)). | Ask for approval in the dialog; the other super admin approves under **Security > Approvals**; then repeat the action within 24 hours. |
 
 ## Users see no assets or findings
 
@@ -109,7 +121,7 @@ access see everything. Add the user to a group that holds the assets: see
 
 ## Email is not delivered
 
-When no platform SMTP server is set, the API logs `email service not configured, skipping ... email`
+When no platform SMTP server is set (**Settings > E-mail** in the platform console, or `BOOTSTRAP_SMTP_*` on a headless install), the API logs `email service not configured, skipping ... email`
 each time it would have sent one (verification, password reset, ...).
 See [Email (SMTP)](../configuration/email.md#troubleshooting).
 
