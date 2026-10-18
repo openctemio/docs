@@ -21,7 +21,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Permission | Roles |
 |---|---|
-| `attack_surface:programs:read` | Owner, Administrator, Researcher |
+| `attack_surface:programs:read` | Owner, Administrator, Researcher, Bug-bounty triager |
 | `attack_surface:programs:write` | Owner, Administrator, Researcher |
 | `integrations:manage` | Owner, Administrator |
 
@@ -29,19 +29,19 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Method | Path | Requires | Data scope | Step-up | Roles that pass |
 |---|---|---|---|---|---|
-| GET | `/api/v1/programs` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
+| GET | `/api/v1/programs` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher, Bug-bounty triager |
 | POST | `/api/v1/programs` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 | yes | Owner, Administrator, Researcher |
-| GET | `/api/v1/programs/catalog` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
+| GET | `/api/v1/programs/catalog` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher, Bug-bounty triager |
 | POST | `/api/v1/programs/preview` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
 | POST | `/api/v1/programs/subscriptions` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
-| GET | `/api/v1/programs/{id}` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
-| POST | `/api/v1/programs/{id}/attest` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
-| GET | `/api/v1/programs/{id}/delivery` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
+| GET | `/api/v1/programs/{id}` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher, Bug-bounty triager |
+| POST | `/api/v1/programs/{id}/attest` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher, Bug-bounty triager |
+| GET | `/api/v1/programs/{id}/delivery` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher, Bug-bounty triager |
 | POST | `/api/v1/programs/{id}/end` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
 | DELETE | `/api/v1/programs/{id}/notification-channels/{integration_id}` | `attack_surface:programs:write`, `integrations:manage` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator |
 | PUT | `/api/v1/programs/{id}/notification-channels/{integration_id}` | `attack_surface:programs:write`, `integrations:manage` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 | yes | Owner, Administrator |
 | PUT | `/api/v1/programs/{id}/org-channels` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 | yes | Owner, Administrator, Researcher |
-| GET | `/api/v1/programs/{id}/pending` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher |
+| GET | `/api/v1/programs/{id}/pending` | `attack_surface:programs:read` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 |  | Owner, Administrator, Researcher, Bug-bounty triager |
 | POST | `/api/v1/programs/{id}/pending/apply` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 | yes | Owner, Administrator, Researcher |
 | POST | `/api/v1/programs/{id}/reactivate` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 | yes | Owner, Administrator, Researcher |
 | PUT | `/api/v1/programs/{id}/scope` | `attack_surface:programs:write` | scoped: bug-bounty programs (RFC-065): a caller sees only programs whose group has them unless full-data; another program is 404 | yes | Owner, Administrator, Researcher |

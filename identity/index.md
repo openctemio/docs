@@ -84,7 +84,7 @@ provider. SSO never grants the owner or admin role. Details:
 | Account created by an organization admin (with a one-time set-password link) | organization owners and admins |
 | Just-in-time provisioning at the first SSO sign-in, for email domains the organization has proven with DNS | platform administrator (SSO) and organization owner (approval) |
 | SCIM 2.0 provisioning from the identity provider | organization owner (token), identity provider admin |
-| Creating your own organization, when the installation allows it | platform administrator (sign-up policy) |
+| Signing up and creating your own organization, when the installation allows it (`SIGNUP_MODE`: `disabled`, `domain` or `open`) | operator (`SIGNUP_MODE`) and platform administrator (System > Sign-up) |
 
 See [Sign-up and invitations](sign-up-and-invitations.md) and [SCIM provisioning](scim.md).
 
@@ -96,8 +96,8 @@ OpenCTEM separates two kinds of administrator:
 |---|---|---|
 | Purpose | Runs the installation: creates organizations and their first owner, configures organization SSO, verified SSO domains, sign-up policy, plans, platform sensors, threat-intel feeds | Runs one organization: members, roles, teams, scope, scans, integrations, organization security settings |
 | Account | A normal account that belongs to no organization, linked to a platform admin record with a console role (`super_admin`, `ops_admin` or `readonly`) | A member of the organization with the owner or admin role |
-| Sign-in | The normal `/login` page, then the admin console at `/admin/login` with a TOTP code every time. Optionally through a platform identity provider (generic OIDC), still followed by TOTP. An organization's SSO can never sign in a platform administrator. | Any method the organization allows |
-| API | `/api/v1/admin/*` with the console session only; no API keys | `/api/v1/*` with an access token or an organization API key |
+| Sign-in | The console's own sign-in page, on the console's own site (its own port or host name, not a path of the main app), with a second step every time: an authenticator code, a recovery code or a registered security key. Optionally through a platform identity provider (generic OIDC; the second step still follows). An organization's SSO can never sign in a platform administrator. | Any method the organization allows |
+| API | `/api/v1/admin/*` on the console site with the console session only; no API keys | `/api/v1/*` with an access token or an organization API key |
 
 The first platform administrator is created with the `bootstrap-admin` command during installation
 (see [First administrator](../install/first-admin.md)). Further administrators are added by a super

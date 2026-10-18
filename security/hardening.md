@@ -26,15 +26,21 @@ In production mode the API refuses to start when:
 
 - `AUTH_JWT_SECRET` is shorter than 64 characters or is a known development value;
 - `APP_ENCRYPTION_KEY` is missing, malformed or the known development value;
+- `FINGERPRINT_KEY` is missing or shorter than 32 characters (required in every environment except
+  `development`);
 - `AUTH_COOKIE_SECURE` is not `true`, or `AUTH_COOKIE_SAMESITE` is not `strict`, `lax` or `none`;
 - `CORS_ALLOWED_ORIGINS` contains `*`;
 - `DB_SSLMODE` is `disable`;
 - `REDIS_PASSWORD` is shorter than 32 characters, `REDIS_TLS_ENABLED` is not `true`, or
   `REDIS_TLS_SKIP_VERIFY` is `true`;
+- the Redis pool size is outside 10 to 500;
 - `RATE_LIMIT_ENABLED` is `false`, `APP_DEBUG` is `true` or `LOG_LEVEL` is `debug`;
 - with local accounts: `AUTH_PASSWORD_MIN_LENGTH` is below 8 or `AUTH_REQUIRE_EMAIL_VERIFICATION`
   is not `true`;
-- with an OAuth social provider enabled: `OAUTH_STATE_SECRET` is missing.
+- with an OAuth social provider enabled: `OAUTH_STATE_SECRET` is missing;
+- `SIGNUP_MODE=open` without the Turnstile keys (`CAPTCHA_TURNSTILE_SECRET`,
+  `CAPTCHA_TURNSTILE_SITE_KEY`) or `SIGNUP_CAPTCHA=off-i-understand`, and `SIGNUP_MODE=domain` or
+  `open` without the platform e-mail configured.
 
 A failed start prints the reason; fix the setting rather than working around the check.
 
@@ -47,8 +53,9 @@ start-up in every environment, with a message naming the variable.
 | Secret | Generate with | Notes |
 |---|---|---|
 | `APP_ENCRYPTION_KEY` | `openssl rand -hex 32` | 32 bytes (64 hex, 44 base64 or 32 raw characters). Encrypts stored credentials and keys hashes of API keys, SCIM tokens and sensor keys. Losing it makes stored secrets unreadable; see [Encryption key](#protect-and-rotate-the-encryption-key). |
+| `FINGERPRINT_KEY` | `openssl rand -hex 32` | At least 32 characters. Keys the identity of every secret finding. Never rotate it with the encryption key. On an installation that already stores secret findings, set it to the current `APP_ENCRYPTION_KEY` value. Back it up with the database. |
 | `AUTH_JWT_SECRET` | `openssl rand -hex 64` | At least 64 characters in production. Changing it signs everyone out. |
-| `DB_PASSWORD`, `DB_MIGRATE_PASSWORD`, `DB_SUPERUSER_PASSWORD` | `openssl rand -hex 24` | All three different. The API does not check database password strength. |
+| `DB_PASSWORD`, `DB_MIGRATE_PASSWORD`, `DB_SUPERUSER_PASSWORD` (and `DB_ADMIN_PASSWORD` if you set `DB_ADMIN_USER`) | `openssl rand -hex 24` | All different. The API does not check database password strength. |
 | `REDIS_PASSWORD` | `openssl rand -hex 24` | At least 32 characters in production. |
 | `METRICS_TOKEN` | `openssl rand -hex 32` | Only if you scrape `/metrics` (section 9). |
 | `OAUTH_STATE_SECRET` | `openssl rand -hex 32` | Only if you enable a social login provider. |
@@ -79,8 +86,9 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
 
 ## Limit network exposure
 
-- Publish only the gateway (443, and 80 if you use the HTTP-to-HTTPS redirect overlay). In the
-  bundled production compose file the web console, API, PostgreSQL and Redis are not published.
+- Publish only the gateway: 443, 80 if you use the HTTP-to-HTTPS redirect overlay, and the platform
+  console's port (see [Platform console](#platform-console)). In the bundled production compose file
+  the web console, the platform console app, the API, PostgreSQL and Redis are not published.
 - Never use the development compose files (`api/docker-compose.yml`, `api/docker-compose.dev.yml`)
   in production: they publish PostgreSQL, Redis and a debugger port on all interfaces with
   development credentials.
@@ -92,10 +100,31 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
   list a range in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. List only the subnets of the services you
   integrate with: the list applies to every organization. `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` (every
   private range) stops the API outside `APP_ENV=development`.
+- Sensors using protocol v3 reach the API's mTLS listener (`:9443`) through the gateway: with the
+  sensor overlay (`api/deploy/docker-compose.sensor-passthrough.yml`) the gateway passes TLS
+  connections that offer the sensor ALPN id through on the main HTTPS port, and can route a
+  dedicated sensor host name by SNI. Do not publish `:9443` of the API container directly.
 - Sensors only make outbound connections to the platform; they need no inbound access. See
   [Network requirements](../sensors/network.md).
 - Restrict SSH and management access to the host, and keep the container runtime and host OS
   patched.
+
+## Platform console
+
+The platform console (organizations, sign-up policy, system settings, platform sensors) is its own
+app with its own API listener, served by the gateway on a site of its own and never on the main
+site (the main site answers `404` for `/api/v1/admin`).
+
+| Setting | Default | Use |
+|---|---|---|
+| `OPENCTEM_ADMIN_SITE` | `port` in the compose file | `host` serves the console on its own DNS name (`OPENCTEM_ADMIN_HOST`, recommended for production: a separate origin), `port` on `https://<OPENCTEM_HOSTNAME>:<OPENCTEM_ADMIN_PORT>` (default `8443`), `off` not at all. |
+| `OPENCTEM_ADMIN_BIND` | `GATEWAY_BIND` | Publish the console port on one private or VPN address only: a published port is not filtered by the host firewall. |
+| `OPENCTEM_ADMIN_ALLOWED_CIDRS` | private networks | Client networks that may reach the console site; everyone else gets `403`. The compose file passes the same list to the API as `ADMIN_ALLOWED_CIDRS`. Open it to the internet only if you must. |
+| `ADMIN_LISTEN_ADDR` | `<net>.12:8081` in the compose file | The console API's own internal listener (plain HTTP on the private stack network). |
+| `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` | unset | A separate database role that alone writes the console's identity tables (administrators, console sessions). |
+
+Console sessions last 8 hours at most and end after 15 minutes idle, and every sign-in needs a TOTP
+code. Enrol a security key or passkey too, and keep at least two `super_admin` accounts.
 
 ## Use least-privilege database roles
 
@@ -203,8 +232,10 @@ proxy, do not strip these headers.
 
 - Create the first administrator with the documented bootstrap procedure
   ([First administrator](../install/first-admin.md)) and enrol their authenticator.
-- Keep self-registration closed unless you run a public service (see
-  [Sign-up and invitations](../identity/sign-up-and-invitations.md)).
+- Keep `SIGNUP_MODE=disabled` (the default) unless you run a public service. `domain` lets people
+  with an address on an organization's verified domain join that organization; `open` lets anyone
+  create an organization. No console setting can exceed it. See
+  [Sign-up and invitations](../identity/sign-up-and-invitations.md).
 - Require 2FA in each organization (**Settings > Authentication > Require two-factor authentication**), or SSO
   through the organization's identity provider.
 - Set an IP allowlist for organizations whose users work from known networks.
@@ -215,7 +246,7 @@ proxy, do not strip these headers.
 The platform does not back itself up: schedule a backup job. Back up:
 
 - PostgreSQL (`pg_dump -Fc` or your platform's snapshots), encrypted and stored off the host;
-- the `api-data` volume (uploaded evidence and attachments when stored locally);
+- the `api-data` volume (uploaded evidence and attachments when stored locally, and the sensor CA in `SENSOR_MTLS_CA_DIR`, which every sensor trusts: losing it means re-pairing or reconfiguring every sensor);
 - `AUDIT_ARCHIVE_DIR`, if you prune the audit log;
 - the gateway's `gateway-data` volume (it holds the internal CA in `internal` TLS mode);
 - your `.env` or secret store, **separately** from the database backups.

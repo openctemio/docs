@@ -58,8 +58,10 @@ example a high CIA rating or compliance impact) can move up one class (never
 into P0); an AI-triage false-positive verdict can lower it one class; a finding on
 an asset with **no owner** is never lower than P2; and a finding on an asset whose
 ownership is **not yet confirmed** is held at P2 at most, so nobody is paged for
-an asset that may not be yours. Finally, [priority rules](#priority-rules) can
-override the class.
+an asset that may not be yours. Informational findings are pinned to P3 and skip every adjustment. When nothing
+says whether the asset is reachable, exploitation evidence (KEV, or high EPSS)
+still raises a finding to P1, and other findings stay at P2 until reachability is
+known. Finally, [priority rules](#priority-rules) can override the class.
 
 Each class comes with a remediation deadline from your organization's
 [SLA policy](08-mobilization.md#sla-policies). The platform defaults are P0 two

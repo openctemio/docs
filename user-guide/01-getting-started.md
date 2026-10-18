@@ -33,11 +33,14 @@ Open the console and go to **Sign in** (`/login`).
    **Google**, **GitHub** and **Microsoft**. Each appears only when the platform
    operator has configured that provider; if none is configured, the block is
    hidden.
-3. If your organization uses single sign-on, your administrator gives you a sign-in
-   link that ends in `?org=<your-organization>`. That page shows an
-   **Organization SSO** section with a **Sign in with {provider}** button. SSO
-   for an organization is set up by the platform administrator (see
+3. If your organization uses single sign-on, type your work email: when its
+   domain signs in through an organization's SSO, an **Organization SSO**
+   section with a **Sign in with {provider}** button appears. A sign-in link
+   that ends in `?org=<your-organization>` shows the same section. SSO for an
+   organization is set up by the platform administrator (see
    [Identity and access](../identity/index.md)).
+4. After repeated failed sign-ins from your network the page asks for a
+   **Security check** before you try again.
 
 ### Two-factor authentication at sign-in
 
@@ -56,10 +59,10 @@ code with an authenticator app (or type the secret key), enter the code, click
 
 | You are | You land on |
 |---|---|
-| A platform administrator | The admin console at `/admin` (see [Platform administration](11-platform-administration.md)) |
+| A platform administrator | Nowhere in this app: the page says to sign in on the platform console, a separate site with its own sign-in (see [Platform administration](11-platform-administration.md)) |
 | A member of one organization | That organization's dashboard (or the page you were sent to) |
-| A member of several organizations | **Select a Team**, where you pick one |
-| A member of no organization | A page that explains how to get access (see below) |
+| A member of several organizations | **Select a team**, where you pick one |
+| A member of no organization | The onboarding page (see below) |
 
 ### Forgot your password
 
@@ -82,22 +85,33 @@ a new one.
 
 ## Create an account
 
-By default, accounts are created by administrators and through invitations; open
-sign-up is off. The **Sign up** link on the sign-in page appears only when the
-platform allows open registration, or when you arrive from an invitation link.
-When registration is off, `/register` shows **Registration is disabled**.
+By default, accounts are created by administrators and through invitations,
+SSO or SCIM; public sign-up is off. The platform operator sets the ceiling
+(`SIGNUP_MODE`: `disabled`, `domain` or `open`, see
+[Sign-up and invitations](../identity/sign-up-and-invitations.md)) and the
+platform console's sign-up policy stays at or below it. The **Sign up** link on
+the sign-in page appears only when the policy allows public sign-up, or when you
+arrive from an invitation link. When registration is off, `/register` shows
+**Registration is disabled**.
 
 When registration is available:
 
 1. Click **Sign up** (or open the link from your invitation).
 2. Fill in **First Name**, **Last Name**, **Email**, **Password** and
-   **Confirm Password**, and click **Create Account**. The password must be at
-   least 12 characters (the platform default).
-3. If the platform requires email verification, confirm your address from the
-   email you receive, then sign in.
+   **Confirm Password** (and the **Security check**, when the platform shows
+   one), and click **Create Account**. The password must meet the platform's
+   password policy (at least 12 characters by default).
+3. Under public sign-up every address is verified: confirm it from the email
+   you receive, then sign in. (An invited account follows the organization's
+   email verification setting.)
 
 If you came from an invitation, the email is pre-filled and the invitation is
-carried through registration.
+carried through registration. If the sign-up policy refuses the address, you see
+**Your organization isn't set up yet**, which says nothing about whether the
+address has an account; with **Request access** on, that page also offers a
+request form that an administrator reviews. If your address belongs to an
+organization that requires single sign-on, you are sent to the sign-in page to
+continue with your organization's SSO.
 
 ## Choose or create an organization
 
@@ -107,30 +121,49 @@ with its own assets, findings, members and settings.
 - **Several organizations:** you land on **Select a Team**. Click the
   organization to work in. A search box appears when you belong to more than six.
   **Sign out and use a different account** is at the bottom.
-- **No organization:** what you see depends on how the platform is set up.
-  - On most installations only the platform administrator creates
-    organizations. You see **You are not a member of any organization yet**: ask
-    your administrator to add you, or open the invitation link you received.
-  - On installations that allow self-service sign-up you see **Set up your first
-    team**: enter a **Team name** (the **Team URL** is filled in for you; it may
-    contain lowercase letters, numbers and hyphens), an optional **Description**
-    and optionally pick **Products** (leave it empty to get the full platform),
-    then click **Create team**.
+- **No organization:** the onboarding page offers what applies to you, after
+  your email address is verified:
+  - **Invitations** waiting for your address, each with **Accept**.
+  - **Your company on {product}**: an organization that verified your email domain
+    and lets colleagues join, with **Join** (at once) or **Ask to join** (an
+    administrator approves; **Waiting for approval** until then, and you get an
+    email when they decide).
+  - **Or start fresh**, when the installation lets you create an organization:
+    **Set up your first team** with a **Team name** (the **Team URL** is filled
+    in for you; it may contain lowercase letters, numbers and hyphens), an
+    optional **Description** and optionally **Products** (leave it empty to get
+    every module), then **Create team**. The data region is shown and fixed once
+    the organization exists.
+  - On installations where only the platform administrator creates
+    organizations (the default) and nothing else applies, you see **You are not a
+    member of any organization yet**: ask your administrator to add you, or open
+    the invitation link you received.
 
-When self-service creation is allowed, **Create a new team** is also offered on
-**Select a Team** and **Create organization** in the organization switcher.
+When you may create another organization, **Create a new team** is also offered
+on **Select a team** and **Create organization** in the organization switcher.
+
+To leave an organization yourself, use **Leave organization** in **Settings >
+Organization > General** (the only owner cannot leave; transfer ownership
+first, see [Team and access](02-team-and-access.md#transfer-ownership)).
 
 ## Accept an invitation
 
-An invitation link opens **Team Invitation**. It shows the organization, the
-**role** you will get, **Invited by**, **Invitation for** (the invited email) and,
-when three days or fewer remain, when it expires. Invitations last seven days by
-default.
+An invitation link opens **Invitation**: "{name} invited you to join
+{organization}". It shows the organization, **Invited by**, **Invitation for**
+(the invited email) and, when three days or fewer remain, when it expires.
+**What you get** lists your **Role** (or **Roles**) and the **Teams** you join
+(with no team you see data only once a team includes you, unless your role sees
+all of the organization's data). It also says when the invitation changes how you
+sign in: if you join from outside the organization, members see an **External**
+badge next to your name and your access may end on a date; if the organization,
+or your roles, require two-factor authentication, you set it up before you can
+open the organization. Invitations last seven days by default.
 
 - **Not signed in:** click **Sign in to accept**, or **Create your account** if
   you are new.
-- **Signed in:** click **Accept Invitation** to join, or **Decline**. If you were
-  invited under a different email, use **Log in with different account**.
+- **Signed in:** click **Accept invitation** to join, or **Decline** (it asks for
+  confirmation). If you were invited under a different email, choose **Sign in
+  with a different account**.
 
 If the invitation has expired or was already used, the page says so; ask the
 person who invited you for a new one.
@@ -139,7 +172,8 @@ person who invited you for a new one.
 
 ### The sidebar
 
-- The top group holds **Dashboard**, **My Work** and **Findings**.
+- The top group holds **Dashboard**, **My Work**, **Findings** and **Approvals**
+  (the false-positive and accepted-risk requests waiting for decisions).
 - Below it are the CTEM stage groups (**Scoping**, **Discovery**,
   **Prioritization**, **Validation**, **Mobilization**) and **Insights**.
 - The footer holds **Settings** and **Help** (**Documentation**, **Keyboard
@@ -150,7 +184,7 @@ person who invited you for a new one.
 ### The organization switcher
 
 The card at the top of the sidebar shows the current organization. Open it to see
-your role, the plan, the member count and the **Organization ID** (with a copy
+your role, the member count and the **Organization ID** (with a copy
 button), and to **Switch organization**.
 
 ### The header
@@ -164,8 +198,8 @@ From left to right:
   read** and **View all notifications**.
 - The **theme** switch: Light, Dark or System.
 - Your **avatar menu**: the **My account** pages (Profile, Security,
-  Preferences, Notifications, Activity), **All settings**, **Language** (English
-  or Vietnamese) and **Sign out**.
+  Preferences, Notifications, Activity, Connected applications), **All
+  settings**, **Language** (English or Vietnamese) and **Sign out**.
 
 ![The dashboard in the dark theme]({{ site.baseurl }}/assets/images/overview/dashboard-dark.png)
 *Figure: The dark theme, chosen with the theme switch in the header.*
@@ -225,7 +259,10 @@ From top to bottom:
 
 When the organization has no data yet, each block shows an empty state (for
 example "Nothing exploitable right now" or "No crown jewels designated") instead
-of sample numbers.
+of sample numbers. When a change to the scoring (a new scoring model, the risk
+scoring settings, the priority rules or an SLA policy) moves the numbers, the
+trend charts mark that date and say that values before and after it are not
+directly comparable.
 
 ### The Classic view
 
@@ -274,8 +311,10 @@ custom dashboard opens, and otherwise the CTEM view.
 
 ## My work
 
-**My Work** (`/my-work`) is your personal triage queue: findings assigned to you
-or on assets you own.
+**My Work** (`/my-work`) is your personal queue: findings assigned to you or on
+assets you own, and remediation tasks assigned to you or your teams. The tabs
+**Findings** and **Tasks** switch between them (**Tasks** appears when you can
+read remediation).
 
 ![The My work page listing the findings assigned to the signed-in user]({{ site.baseurl }}/assets/images/user-guide/my-work.png)
 *Figure: My work: the findings assigned to you or on assets you own.*
@@ -285,6 +324,9 @@ or on assets you own.
 - The table lists the top 15 by priority (Finding, Severity, Status, SLA,
   Created). Click a row to open the finding, or **View all** for the full list.
 - When nothing is assigned to you, the page says **You're all caught up**.
+- **Tasks** lists your open remediation tasks, earliest deadline first, with
+  **View all tasks** for the full list
+  ([Mobilization](08-mobilization.md)); with none it says **No open tasks**.
 
 ## Notifications
 
@@ -321,7 +363,7 @@ provider and the creation and update dates.
 
 ### Security
 
-**Security** (`/account/security`) has three cards.
+**Security** (`/account/security`) has four cards.
 
 ![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
 *Figure: Setting up two-factor authentication (the QR code and key are blurred here).*
@@ -349,6 +391,12 @@ provider and the creation and update dates.
   IP address, sign-in time, last activity); your current one is marked **This
   device**. Sign out a single session, or click **Sign out all others**. Both ask
   for confirmation.
+- **Delete account**: **Delete my account** (you confirm by typing your email
+  address) signs you out everywhere, revokes your API keys and schedules the
+  deletion in 14 days. Signing in again within 14 days cancels it; after that your
+  account leaves every organization and your personal data is erased. It is
+  refused while you are the only owner of an organization: transfer ownership or
+  delete the organization first.
 
 See also [Two-factor authentication](../identity/two-factor.md).
 
@@ -374,8 +422,11 @@ receive:
 - **Severity filter**: the **Minimum severity** you are notified about.
 - **Notification types**: switches for new findings, assignments, status
   changes, comments, mentions, scan started, completed or failed, asset
-  discovered, member invited or joined, role changes, SLA breaches and system
-  alerts.
+  discovered, member invited or joined, role changes, SLA breaches, system
+  alerts, **Approval requests** (a false-positive or accepted-risk request waits
+  for your decision), **AI application requests** and the **Approvals digest**
+  (a daily summary of the requests waiting for you, also sent by email; muting it
+  stops the email).
 
 Click **Save changes**. Organization-wide channels such as Slack or email are set
 up by an administrator under
@@ -386,3 +437,10 @@ up by an administrator under
 **Activity** (`/account/activity`) is a read-only log of your recent account
 actions, ten per page. A **Security Tip** reminds you to review it regularly;
 your signed-in devices are listed under **Security**.
+
+### Connected applications
+
+**Connected applications** (`/account/connected-apps`) lists the AI applications
+you allowed to work with the organization's data as you, under **Your AI
+applications**. Disconnect one to end its access at once. See
+[Connect an AI assistant](12-connect-an-ai-assistant.md).

@@ -6,7 +6,7 @@ nav_order: 3
 
 # Terms of Service
 
-**Last Updated: April 2026**
+**Last Updated: October 2026**
 
 ## 1. Acceptance of Terms
 
@@ -27,7 +27,7 @@ OpenCTEM is an open-source Continuous Threat Exposure Management (CTEM) platform
 
 ### 3.1 Account Creation
 
-- Accounts are created through invitation by a tenant administrator or self-registration (if enabled by the platform operator).
+- Accounts are created through invitation by a tenant administrator an organization's single sign-on, or self-registration (if the platform operator's sign-up policy allows it).
 - You must provide accurate and complete information during registration.
 - You are responsible for maintaining the confidentiality of your credentials.
 
@@ -85,9 +85,9 @@ You agree NOT to:
 
 ### 6.3 Data Retention
 
-- Your Data is retained as long as your account is active.
-- Upon account deletion, Your Data will be permanently removed within 30 days.
-- Audit logs may be retained for up to 90 days for security and compliance purposes.
+- Your Data is retained until you or your organization delete it. Retention periods that apply automatically are listed in [Data handling and privacy](../security/data-handling.md).
+- When an organization is deleted, its data and uploaded files are deleted immediately. When a person deletes their account, their personal data is erased after a 14-day grace period.
+- Audit logs are kept for at least 365 days by default for security and compliance purposes. Backups are managed by the platform operator.
 
 See our [Privacy Policy](privacy-policy.md) for detailed information on data handling.
 

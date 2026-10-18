@@ -32,10 +32,20 @@ organization, their roles and pending invitations.
 
 There are two ways:
 
-- **Invite user**: enter the **Email address**, tick one or more roles under
-  **Assign roles** and send. The invitation link is shown once with a copy
-  button; when email is configured the person also receives it by email. They
-  join with the roles you chose when they open the link.
+- **Invite user**: enter the **Email address**, choose the **Role** (use **Add
+  another role** only when the person needs more) and, optionally, the
+  **Teams** they join (without a team, a member who does not see all data sees
+  nothing). Roles are grouped as **Built-in roles** and **Custom roles**, each
+  with a risk label from **Low risk** to **Full control**. Send the invitation:
+  its link is shown once with a copy button, and when email is configured the
+  person also receives it by email. They join with the roles and teams you
+  chose when they open the link. For an address outside your organization the
+  dialog says so and asks for an **End of access** date (required when the
+  organization's invitation policy says so, see **Who can be invited** under [Sign-in policy](#sign-in-policy));
+  such people are marked **External** wherever members are listed, and a role
+  above member makes them use two-factor authentication. A role above member
+  also asks you to confirm your identity when you send. The dialog warns when the
+  address reaches the same mailbox as an existing member.
 - **Add user**: create the account yourself with a **Name**, **Email** and
   roles. The person receives a link to set their password (see
   [Accounts created by an administrator](01-getting-started.md#accounts-created-by-an-administrator)).
@@ -48,11 +58,19 @@ the organization **owner** can make someone an administrator.
 Pending invitations are listed under **Pending invitations**, with **Resend
 email**, **Cancel invitation** and a copy-link action.
 
+When the organization lets people with a verified address on its domain ask to
+join (**Settings › Organization › Domains**), **Requests to join** appears above
+the list: choose a role (viewer or member, never administrator) and **Approve**
+or **Reject**. Requests expire after 30 days. See
+[Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain).
+
 ### Manage members
 
 The metric strip at the top (**Members**, **Active**, **Disabled**,
-**Offboarded**, **Pending invitations**) doubles as a quick filter. Each member's
-menu offers:
+**Offboarded**, **Pending invitations**) doubles as a quick filter; the filters
+next to the search box narrow by status (**Current members**, **Active**,
+**Disabled**, **Offboarded**, **Everyone**), by **Internal** or **External**
+people and by role. Each member's menu offers:
 
 - **View details**: their roles, what they own and what they can access (access
   groups, direct grants, API keys, owned assets and schedules, assigned
@@ -62,6 +80,8 @@ menu offers:
   password alone until they set up two-factor authentication again (at their
   next sign-in if the organization requires it). Use it only after confirming
   their identity. The member is notified by email and the reset is audited.
+- **Transfer ownership...** (owner only, on another active member who has
+  two-factor authentication on): see [Transfer ownership](#transfer-ownership).
 - **Disable** / **Re-enable**: disabling ends the member's access at once
   (sessions end, API keys are suspended, the scans, report schedules and
   workflows they own are paused) but keeps their groups, grants and ownership so
@@ -78,10 +98,30 @@ menu offers:
 
 Protections:
 
-- The **owner** cannot be disabled, offboarded or removed.
+- The **owner** cannot be disabled, offboarded or removed, and the owner role
+  is never granted through **Change roles**: ownership moves only with
+  **Transfer ownership**.
 - Only the owner can change, disable or offboard another **administrator**, or
   reset an administrator's or owner's two-factor authentication. Other
   administrators see these actions disabled with that explanation.
+
+### Transfer ownership
+
+An owner asks another active member to become the owner: **Transfer
+ownership...** in that member's menu, then choose what you become afterwards
+(administrator, member or viewer) and **Ask to transfer**. Nothing changes until
+the person accepts, within 72 hours, after signing in again; a banner on
+**Members** shows the request to both of you, with **Accept ownership**,
+**Decline** and, for the current owner, **Cancel transfer**. The new owner must
+be active, have two-factor authentication on and not be managed by another
+organization. A service account cannot own an organization.
+
+### Leave the organization
+
+Any member can leave from **Settings › Organization › General**, **Leave
+organization**: access ends at once and the member's API keys for this
+organization are revoked. The only owner cannot leave; transfer ownership
+first.
 
 ## Roles
 
@@ -93,8 +133,9 @@ the union of the permissions their roles grant. There are no deny rules.
 
 **Settings › Access › Roles** (`/settings/roles`) lists the roles. The cards
 **Roles**, **System roles** and **Custom roles** also act as filters. Columns:
-**Role**, **Permissions** (the count, limited to the modules your organization
-has enabled), **Level** and **Created**.
+**Role**, **Risk** (a label from **Low risk** to **Full control** with a line
+such as "Changes assets, findings and 2 more"), **Data access**, **Level** and
+**Created**.
 
 The four built-in **system roles**, from most to least powerful:
 
@@ -109,7 +150,11 @@ System roles cannot be edited or deleted.
 
 ### Create a custom role
 
-1. Click **Create Role**.
+1. Click **Create Role**. Optionally **Start from a template** (for example
+   Security analyst, Remediation owner, AppSec engineer or Auditor): it fills in
+   the description, permissions and data access, which you can still change.
+   The templates are listed in the
+   [role and permission matrix](../identity/authorization/roles-matrix.md).
 2. Enter a **Role Name** and an optional description.
 3. Choose the **Permissions** (search, or use the shortcuts to select all read
    or all write permissions).
@@ -120,7 +165,10 @@ System roles cannot be edited or deleted.
 You can only put permissions into a role that you hold yourself, so you cannot
 create or edit a role more powerful than you. **Edit role** and **Delete role**
 are available on custom roles only; deleting a role removes its permissions from
-everyone who holds it.
+everyone who holds it. A role created from a template never changes when the
+template does: when a newer template version exists, the role shows **Template
+update available** with what it would add and remove, and **Apply update** keeps
+your own changes (full data access is never changed by an update).
 
 Permissions come **only** from roles. Teams decide which data a member sees,
 never what they can do.
@@ -179,25 +227,60 @@ organization's sign-in rules. Changing them needs an owner or admin.
 ![The Authentication settings page with the two-factor and sensor identity switches]({{ site.baseurl }}/assets/images/identity/authentication.png)
 *Figure: Settings, Authentication.*
 
+The **Sign-in** card:
+
 - **Require two-factor authentication**: members who sign in with a password
   must set up an authenticator app at their next sign-in. Members who sign in
   through SSO use their identity provider's two-factor settings.
+- **Require two-factor authentication for owners and admins**: the same for the
+  roles that can change the organization, even when other members do not need
+  it. On for every new organization; an organization created before the setting
+  existed keeps it off until an owner turns it on.
+- **Approve new SSO members**: people your SSO admits for the first time wait,
+  with no access, until an administrator approves them in **Members** (their
+  menu offers **Approve** instead of **Re-enable**).
+- **Private targets need a sensor-local policy**, **Require key-bound sensor
+  identity**, **Require approval of sensor keys**, **Never use shared sensors**
+  (owner only), **Allow out-of-band callbacks (interactsh) in sensor jobs**,
+  **Allow custom templates in sensor jobs**, **User-Agent of scan tools** and
+  **Refuse tools that skip TLS certificate verification**: how sensors and scan
+  tools may behave for this organization, explained in
+  [Sensors](../sensors/index.md). Turning the two sensor opt-ins on is audited
+  and alerted.
 - **Email verification**: **Auto (Recommended)** requires verification only when
   email (SMTP) is configured; **Always require** forces it (SMTP must work);
   **Never require** skips it. Use **Never require** only on closed internal
-  deployments: it lets anyone register with any address.
+  deployments: it lets anyone register with any address. It governs accounts
+  invited into this organization; under public sign-up the platform verifies
+  every address regardless.
+
+Further cards:
+
 - **Access restrictions**: **Allowed email domains** and an **IP allowlist**
   (one IP address or CIDR range per line; empty means no IP restriction). The
-  page shows your current IP so you do not lock yourself out.
-- **Private targets need a sensor-local policy** and **Require key-bound sensor
-  identity**: sensor policies explained in [Sensors](../sensors/index.md).
+  page shows your current IP so you do not lock yourself out, and refuses a list
+  that would lock you out.
+- **Who can be invited**: **Anyone**,
+  **Verified domains only** or **Verified and allowed domains**. It applies when
+  an invitation is sent and when it is accepted; people outside the organization
+  are always marked as such. **Require an end of access for people outside**
+  asks for an end date (90 days by default, 365 at most) for outside people no
+  organization manages, such as personal addresses.
+- **Personal accounts**: **Allowed with two-factor** (they prove a second factor
+  at every sign-in), **Allowed** or **Blocked** (they cannot be invited, and
+  existing ones cannot open the organization; nothing is deleted). When the
+  organization enforces SSO, an owner can add a member as an **SSO exception**
+  (with a **Reason** and an **Until** date) so they can sign in without it.
 
 **Single sign-on** (SAML or OIDC) and verified domains are configured per
 organization by the **platform administrator**, not on this page; the page says
 so and tells you whom to contact. When the platform administrator proposes an SSO
 change, an owner approves or rejects it under **Settings › Access › SSO
 approvals** (`/settings/sso-approvals`); nothing takes effect until an owner
-approves it. See [Identity and access](../identity/index.md).
+approves it. Once a domain is verified for SSO, an owner decides under
+**Settings › Organization › Domains** who may join with it (see
+[Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain)).
+See [Identity and access](../identity/index.md).
 
 ## Directory sync (SCIM)
 
@@ -225,7 +308,8 @@ and tools that call the API.
 2. Enter a **Name** and an optional description.
 3. Tick the **Scopes** the key needs (for example `assets:read`,
    `findings:read`, `scans:write`). Scope each key to the minimum it needs.
-4. Choose when it **Expires** (30 days, 90 days, 1 year or never).
+4. Choose when it **Expires**: 30 days, 90 days (the default) or 1 year. Every
+   key expires.
 5. Copy the key. It is shown once.
 
 Each key shows its scopes, expiry and last use; you can **Revoke** or **Delete**
@@ -235,24 +319,46 @@ it. See [Authentication and API keys](../api/authentication.md).
 
 **Settings › Access › AI assistants (MCP)** (`/settings/mcp`) connects an AI
 assistant (any Model Context Protocol client) to your organization's data, as
-the person who connects it. Most people connect with the sign-in flow on the
-**Connect** tab. If your organization has not approved the application, choose
-**Request access** on the consent screen and an administrator decides under
-**Applications**. For a script, use an API key:
+the person who connects it and never beyond what that person can see. A strip
+under the title shows the state: **On** or **Off**, **Read-only** or **Read and
+comment**, **Approved applications only**, how long connections last and the
+highest TLP. The tabs:
 
-1. On the **Connect** tab choose **Generate key**.
-2. Give it a **Name** (for example "Claude on my laptop"), pick the **Purpose**
-   (**General read access** or **Pentest report writing**) and an expiry.
-3. Copy the key (shown once) and the **Client configuration** snippet into your
-   client.
+- **Connect**: the server URL and the **Client configuration** for your
+  assistant. Most people connect with the sign-in flow here: no key to copy. If
+  your organization has not approved the application, choose **Request access**
+  on the consent screen. For a script without a person, **Generate key** (the
+  button in the page header) creates an API key: give it a **Name** (for example
+  "Claude on my laptop"), pick the **Purpose** (**General read access** or
+  **Pentest report writing**) and an expiry, then copy the key (shown once) and
+  the snippet into your client.
+- **Applications** (people who can read settings): the **Access requests**
+  members made, which an administrator **Approves** (every member can then
+  connect applications from that publisher, each person still approving what it
+  may do) or **Declines**; the **Approved publishers** (host names, plus the
+  ones the platform trusts); and, under **Advanced**, whether **Allow
+  unverified applications** (not recommended).
+- **Connections** (owners and administrators): every connected application in
+  the organization, each of which can be disconnected.
+- **Policy** (people who can read settings; saving needs the settings write
+  permission and a recent sign-in): **AI assistants** on or off, **What
+  assistants may do** (what they may read; whether they may add comments), and
+  the limits **Connections last (days)**, **Highest TLP sent to AI applications**,
+  **API keys on the MCP server** and **Require proof of possession (DPoP)**.
+  Changes apply to existing connections at once.
 
-See [Connect an AI assistant](12-connect-an-ai-assistant.md) and [MCP server](../api/mcp.md).
+Your own connections are under **Settings › My account › Connected
+applications**. See [Connect an AI assistant](12-connect-an-ai-assistant.md) and
+[MCP server](../api/mcp.md).
 
 ## Audit log
 
 **Settings › Organization › Audit log** (`/settings/audit-log`) records who did
-what, when and with what result. Reading it needs the audit permission; without
-it the page shows **Access denied**.
+what, when and with what result. Reading it needs the audit permission (owners
+and administrators) and **full data access**, because the log names assets and
+findings: without the permission the page shows **Access denied**, and with a
+restricted data scope it shows **Full data access required**; ask an
+administrator to widen your data access.
 
 ![The Audit log page listing recent actions with actor, resource, result and severity]({{ site.baseurl }}/assets/images/security/audit-log.png)
 *Figure: Settings, Audit log.*

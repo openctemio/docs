@@ -26,18 +26,27 @@ Related pages:
 ```mermaid
 flowchart LR
   B[Browser] -->|HTTPS| G[Gateway]
-  S[Sensor] -->|HTTPS, signed requests| G
+  S[Sensor] -->|HTTPS signed requests, or mTLS gRPC| G
   I[Identity provider] -.->|OIDC / SAML / SCIM| G
   G --> W[Web console]
   G --> A[API]
+  G --> C[Platform console]
+  C --> A
   W --> A
   A --> P[(PostgreSQL)]
   A --> R[(Redis)]
   A --> F[(File storage)]
 ```
 
-- The **gateway** terminates TLS and is the only published service in the production deployment.
-- The **API** makes every authorization decision. The web console holds no authority of its own.
+- The **gateway** terminates TLS and is the only published service in the production deployment. It
+  serves the web console, the API and, on its own site (a separate port or host name, limited to
+  private networks by default), the platform console.
+- The **API** makes every authorization decision. The web console and the platform console hold no
+  authority of their own. The platform console's API is served by a separate internal listener
+  (`ADMIN_LISTEN_ADDR`), and the main API listener answers `404` for it.
+- Sensors that use protocol v3 reach the API's mTLS listener (`SENSOR_MTLS_LISTEN_ADDR`, `:9443`),
+  either through the gateway on the main HTTPS port (the gateway passes connections that offer the
+  sensor ALPN id through) or directly.
 - **Sensors** run in the networks they scan and only make outbound connections to the platform.
 - PostgreSQL, Redis and file storage are reached only by the API.
 
@@ -48,8 +57,8 @@ flowchart LR
 | Person | Session from email and password (with optional TOTP 2FA), organization SSO (OIDC, SAML), or social sign-in | Short-lived access tokens, rotating refresh tokens |
 | Automation | Organization API key `oct_...` | Read-only on the REST API, acts as its creator with a subset of their permissions |
 | Identity provider (provisioning) | SCIM token `oct_scim_...` | One organization per token |
-| Sensor | Ed25519 key-bound identity (paired sensors), or a sensor key | Accepted only on sensor routes |
-| Platform administrator | Separate console session with TOTP | Accepted only on admin routes |
+| Sensor | A client certificate from the platform's sensor CA (protocol v3, mTLS), an Ed25519 key-bound identity (paired sensors), or a sensor key | Accepted only on sensor routes |
+| Platform administrator | Separate console session with TOTP (or a security key) | Accepted only on admin routes |
 
 Each credential works only on its own set of routes: a sensor key is refused on user routes, an
 organization token on admin routes, and so on.
@@ -116,11 +125,14 @@ session (a TOTP code, a password, or a fresh sign-in at the identity provider). 
 Three layers apply to every organization request:
 
 1. **Roles and permissions**: built-in roles (owner, admin, member, viewer) and custom roles made of
-   about 160 permissions. Custom roles cannot hold more than their creator holds, and some sensor and
-   CI permissions are reserved for owners and admins.
+   about 170 permissions. Custom roles cannot hold more than their creator holds. The permissions that
+   hand out or change sensor credentials, scan zones and CI trust configurations are reserved for the
+   built-in owner and admin roles, and the owner role is never assigned through the Roles API: a
+   system role reaches a person only through their membership. The audit log needs a role with full
+   data access.
 2. **Data scope**: members and viewers see only the assets assigned to their teams or granted to them
    directly, and the findings and other records linked to those assets. With no assignment they see
-   nothing. Out-of-scope records answer `404`.
+   nothing. Out-of-scope records answer `404`. Dashboards and suppressions follow the same scope.
 3. **Modules**: a disabled module answers `403 MODULE_NOT_ENABLED`. Modules are a product switch, not
    a security boundary.
 
@@ -266,6 +278,9 @@ platform identity are what stop a compromised platform from directing it. The en
 
 ## Secrets
 
+- **`FINGERPRINT_KEY`** (at least 32 characters, required outside development) keys the fingerprint
+  of every reported secret finding, so a leaked value is never stored as a plain hash. Do not rotate
+  it with `APP_ENCRYPTION_KEY`: changing it changes every secret finding's identity.
 - **`APP_ENCRYPTION_KEY`** (32 bytes, required outside development) encrypts stored secrets with
   AES-256-GCM: integration credentials and webhook secrets, SSO client secrets, user and admin TOTP
   secrets, file-storage credentials, bring-your-own AI keys, the secret store, and leaked-credential
@@ -287,10 +302,13 @@ chain that is verified hourly. Platform administrator actions have their own log
 
 ## Platform administration
 
-Platform administrators use a separate console with its own sessions (8 hours absolute, 30 minutes
-idle), a TOTP code at every sign-in, and three roles (`super_admin`, `ops_admin`, `readonly`). The
-riskiest console actions (sign-up policy, audit chain rebaseline) need a fresh code. Organization SSO
-can never authenticate a platform administrator. Console actions are recorded in the platform audit
+Platform administrators use a separate platform console, its own app on its own site (a separate
+port or host name; `OPENCTEM_ADMIN_SITE`), which only the networks in `OPENCTEM_ADMIN_ALLOWED_CIDRS`
+reach (private networks by default). It has its own sessions (8 hours absolute, 15 minutes idle), a TOTP
+code at every sign-in, and three roles (`super_admin`, `ops_admin`, `readonly`). The riskiest console
+actions (sign-up policy, audit chain rebaseline) need a fresh code. Organization SSO can never
+authenticate a platform administrator. Public sign-up is bounded by the deployment's `SIGNUP_MODE`
+(`disabled` by default), which no console setting can exceed. Console actions are recorded in the platform audit
 log, and actions inside an organization also in that organization's log.
 
 ## Secure development
