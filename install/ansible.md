@@ -344,6 +344,17 @@ has the exact order of the three plays, the recovery steps, the monthly drill
 the database only; uploaded files and secrets come from the nightly backup. For the general
 procedure see [Backup and restore](../operations/backup-restore.md).
 
+## Security keys for the console
+
+The kit does not set `ADMIN_PUBLIC_URL`, so the API uses the origin of the app host
+and administrators cannot register security keys on the console's origin (a known
+gap). Set it through `openctem_api_env`:
+
+```yaml
+openctem_api_env:
+  ADMIN_PUBLIC_URL: https://admin.example.com   # openctem_admin_host
+```
+
 ## Hosted service: the administrators' audit sink
 
 The platform console keeps a hash-chained audit log of what platform administrators do. The

@@ -87,6 +87,9 @@ Read the release notes and the upgrade notes of the release.
    Decide where the platform console lives (`OPENCTEM_ADMIN_SITE`: `port`,
    `host` or `off`) and which networks may reach it
    (`OPENCTEM_ADMIN_ALLOWED_CIDRS`); a host name of its own is recommended.
+   Set `ADMIN_PUBLIC_URL` to the console's exact origin, or administrators cannot
+   register security keys (a known gap: no deployment sets it for you; see
+   [Docker Compose](docker-compose.md#platform-console)).
 5. Keep `APP_ENCRYPTION_KEY` and `FINGERPRINT_KEY` in a secret manager as well
    as in the deployment: without the first, the credentials stored in the
    database cannot be decrypted.
