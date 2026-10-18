@@ -7,8 +7,8 @@ nav_order: 3
 # Install the all-in-one image
 {: .no_toc }
 
-`ghcr.io/openctemio/openctem` runs the API, the web console and the gateway in
-one container. PostgreSQL and Redis are external: bring your own (managed or
+`ghcr.io/openctemio/openctem` runs the API, the web console, the platform
+console and the gateway in one container. PostgreSQL and Redis are external: bring your own (managed or
 self-hosted). Use it when you already operate PostgreSQL and Redis, or want a
 single container to manage. For a self-contained stack with bundled datastores,
 use [Docker Compose](docker-compose.md).
@@ -22,16 +22,17 @@ use [Docker Compose](docker-compose.md).
 
 | Process | Listens on | Notes |
 |---|---|---|
-| Gateway (Caddy) | `443` (`80` in TLS mode `http`) | Same configuration as the Compose gateway: [TLS and the gateway](tls-and-gateway.md). |
-| API | `127.0.0.1:8080` | `0.0.0.0:8080` with `GATEWAY=off`. |
+| Gateway (Caddy) | `443` (`80` in TLS mode `http`), `8443` for the platform console's site | Same configuration as the Compose gateway: [TLS and the gateway](tls-and-gateway.md). |
+| API | `127.0.0.1:8080`, its console listener on `127.0.0.1:8081` | `0.0.0.0:8080` with `GATEWAY=off`. |
 | Web console | `127.0.0.1:3000` | `0.0.0.0:3000` with `GATEWAY=off`. |
+| Platform console | `127.0.0.1:3001` | Reached only through the gateway's console site (`OPENCTEM_ADMIN_SITE`, default `port`). Not started with `GATEWAY=off`. |
 
 On start the container applies the database migrations (`MIGRATE_ON_START=true`)
 under a PostgreSQL advisory lock, so several replicas never migrate at once, and
-then starts the three processes. Each output line is prefixed `[api]`, `[web]`,
-`[gateway]`, `[migrate]` or `[supervise]`. If any process exits, the container
+then starts the processes. Each output line is prefixed `[api]`, `[web]`,
+`[console]`, `[gateway]`, `[migrate]` or `[supervise]`. If any process exits, the container
 stops with that process's exit code, so your restart policy restarts it. The
-image's health check passes only when all three answer.
+image's health check passes only when every process answers.
 
 The image is published from v0.9.0, for `linux/amd64` and `linux/arm64`.
 
@@ -52,7 +53,10 @@ start until the production checks pass. In particular it needs:
 - `DB_SSLMODE=require` or `verify-full` (the default `disable` is refused);
 - `REDIS_PASSWORD` of at least 32 characters and `REDIS_TLS_ENABLED=true`, plus
   `REDIS_TLS_CA_FILE` when the Redis certificate comes from a private CA;
-- `AUTH_JWT_SECRET` of at least 64 characters and an `APP_ENCRYPTION_KEY`.
+- an `APP_ENCRYPTION_KEY` and a `FINGERPRINT_KEY` (at least 32 characters
+  each; `FINGERPRINT_KEY` keys the identity of every secret finding, so keep it
+  stable and never rotate it with the encryption key). `AUTH_JWT_SECRET` is
+  optional: the session secret is derived from the encryption key.
 
 A secret that still holds example text (`openssl rand -hex 32`, `<CHANGE_ME...>`,
 `changeme`) is refused in every mode. The full list is in
@@ -73,7 +77,7 @@ extensions:
 
 ```bash
 git clone https://github.com/openctemio/openctem.git
-git -C openctem checkout v0.9.6
+git -C openctem checkout v0.10.1
 export APP_DB_PASSWORD="$(openssl rand -hex 24)"
 export MIGRATOR_DB_PASSWORD="$(openssl rand -hex 24)"
 psql "postgres://postgres@db.example.com:5432/openctem?sslmode=require" \
@@ -105,8 +109,8 @@ SENSOR_CA_CERT_FILE=/data/ca/openctem-root-ca.crt
 
 APP_ENV=production
 AUTH_PROVIDER=local
-AUTH_JWT_SECRET=$(openssl rand -hex 64)
 APP_ENCRYPTION_KEY=$(openssl rand -hex 32)
+FINGERPRINT_KEY=$(openssl rand -hex 32)
 
 DB_HOST=db.example.com
 DB_PORT=5432
@@ -133,7 +137,10 @@ If the Redis certificate is not publicly trusted, mount its CA certificate
 
 {: .warning }
 Back up `openctem.env`. `APP_ENCRYPTION_KEY` is needed to read the credentials
-stored in the database, and `AUTH_JWT_SECRET` signs sessions.
+stored in the database, and `FINGERPRINT_KEY` to recognize known secret
+findings. An install that already stores secret findings sets
+`FINGERPRINT_KEY` to its current `APP_ENCRYPTION_KEY` value, the key those
+fingerprints were made with.
 
 ## 3. Check the configuration
 
@@ -145,11 +152,11 @@ to nothing:
 ```bash
 docker run --rm --env-file openctem.env \
   --entrypoint /opt/openctem/api/server \
-  ghcr.io/openctemio/openctem:v0.9.6 -check-config
+  ghcr.io/openctemio/openctem:v0.10.1 -check-config
 ```
 
 ```text
-configuration valid: APP_ENV=production AUTH_PROVIDER=local TENANT_CREATION_MODE=admin_only
+configuration valid: APP_ENV=production AUTH_PROVIDER=local SIGNUP_MODE=disabled
 ```
 
 A refusal names the setting, for example
@@ -163,10 +170,10 @@ To verify the image signature before you run it, see
 ```bash
 docker volume create openctem-data
 docker run -d --name openctem --restart unless-stopped \
-  -p 443:443 \
+  -p 443:443 -p 127.0.0.1:8443:8443 \
   -v openctem-data:/data \
   --env-file openctem.env \
-  ghcr.io/openctemio/openctem:v0.9.6
+  ghcr.io/openctemio/openctem:v0.10.1
 docker logs -f openctem
 ```
 
@@ -176,18 +183,28 @@ escalation:
 
 ```bash
 docker run -d --name openctem --restart unless-stopped \
-  -p 443:443 \
+  -p 443:443 -p 127.0.0.1:8443:8443 \
   -v openctem-data:/data \
   --read-only --tmpfs /tmp \
   --cap-drop ALL --cap-add NET_BIND_SERVICE \
   --security-opt no-new-privileges:true \
   --memory 3g --log-opt max-size=50m --log-opt max-file=5 \
   --env-file openctem.env \
-  ghcr.io/openctemio/openctem:v0.9.6
+  ghcr.io/openctemio/openctem:v0.10.1
 ```
 
 Keep `NET_BIND_SERVICE`: with `--cap-drop ALL` alone the gateway cannot start
 (`caddy: Operation not permitted`).
+
+`8443` is the platform console's site. It answers only the networks in
+`OPENCTEM_ADMIN_ALLOWED_CIDRS` (private networks by default), but Docker
+publishes a port past the host firewall, so do not rely on the list alone:
+publish it on a loopback or private address, as above (`127.0.0.1`, then an
+SSH tunnel: `ssh -L 8443:127.0.0.1:8443 you@<host>`), or give the console its
+own DNS name with `OPENCTEM_ADMIN_SITE=host` and `OPENCTEM_ADMIN_HOST` and
+reach it on 443. With rootless Docker or the userland proxy a client can appear
+as the bridge address, which the default list admits. `OPENCTEM_ADMIN_SITE=off`
+removes the console.
 
 Wait for the API's `application started` line, then check:
 
@@ -205,7 +222,9 @@ docker exec openctem /opt/openctem/api/bootstrap-admin \
   -org-name="Example Corp" -org-owner-email=owner@example.com
 ```
 
-It reads the database settings from the container's environment.
+It reads the database settings from the container's environment. Then sign in
+to the platform console (`https://localhost:8443/` through the tunnel, or your
+console host name), as described in [First administrator](first-admin.md#sign-in).
 
 ## The `/data` volume
 
@@ -237,7 +256,9 @@ sensors stop trusting the gateway. Back the volume up with the database.
 ## Without the gateway
 
 `GATEWAY=off` serves the API on port 8080 and the web console on port 3000
-directly, with no TLS. Your own proxy must then terminate TLS and route exactly
+directly, with no TLS, and does not start the platform console (set
+`OPENCTEM_CONSOLE_STANDALONE=true` to start it on `127.0.0.1:3001` when you
+front it in the same network namespace, and never publish 3001). Your own proxy must then terminate TLS and route exactly
 as the gateway does (sensor, SCIM, MCP, webhook, SAML and WebSocket paths, and
 API-key requests, to the API; everything else to the console). The routing table
 is in [TLS and the gateway](tls-and-gateway.md#routing). Prefer `GATEWAY=on` with
@@ -249,13 +270,13 @@ Pull the new tag and recreate the container with the same volume and env file.
 Migrations run on start. See [Upgrading](../operations/upgrade.md).
 
 ```bash
-NEW_VERSION=v0.9.6   # the release you upgrade to
+NEW_VERSION=v0.10.1   # the release you upgrade to
 docker pull ghcr.io/openctemio/openctem:$NEW_VERSION
 docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
   ghcr.io/openctemio/openctem:$NEW_VERSION -check-config
 docker rm -f openctem
 docker run -d --name openctem --restart unless-stopped \
-  -p 443:443 -v openctem-data:/data --env-file openctem.env \
+  -p 443:443 -p 127.0.0.1:8443:8443 -v openctem-data:/data --env-file openctem.env \
   ghcr.io/openctemio/openctem:$NEW_VERSION
 ```
 

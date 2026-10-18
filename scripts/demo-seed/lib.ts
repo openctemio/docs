@@ -11,6 +11,10 @@ import { fileURLToPath } from 'node:url'
 
 export const HERE = dirname(fileURLToPath(import.meta.url))
 export const API = (process.env.OPENCTEM_API_URL ?? 'http://127.0.0.1:18980').replace(/\/$/, '')
+// The platform console's own API listener (ADMIN_LISTEN_ADDR): /api/v1/admin is not served on the main listener.
+export const ADMIN_API = (process.env.OPENCTEM_ADMIN_API_URL ?? 'http://127.0.0.1:18981').replace(/\/$/, '')
+// The platform console's own site (its own origin, the gateway's console site).
+export const CONSOLE = (process.env.OPENCTEM_CONSOLE_URL ?? 'http://localhost:13981').replace(/\/$/, '')
 export const WEB = (process.env.OPENCTEM_WEB_URL ?? 'http://localhost:13980').replace(/\/$/, '')
 const STATE_FILE = process.env.DEMO_STATE_FILE ?? join(HERE, '.state.json')
 
@@ -170,22 +174,39 @@ export class AdminSession {
       const i = kv.indexOf('=')
       const k = kv.slice(0, i)
       const v = kv.slice(i + 1)
-      if (/max-age=0|expires=thu, 01 jan 1970/i.test(c) || v === '') this.jar.delete(k)
+      const cleared = /max-age=0|expires=thu, 01 jan 1970/i.test(c) || v === ''
+      // The console also clears an older copy of its CSRF cookie at "/", which
+      // must not remove the live one scoped to /api/v1/admin.
+      if (cleared && /;\s*path=\/\s*(;|$)/i.test(c)) continue
+      if (cleared) this.jar.delete(k)
       else this.jar.set(k, v)
     }
   }
 
-  async call<T = any>(method: string, path: string, body?: unknown): Promise<T> {
+  // Protected console actions (identity providers, verified domains) ask for a
+  // fresh authenticator code in X-Admin-Step-Up; the confirmation then covers
+  // the session's step-up window, so only the first one usually needs a code.
+  async protectedCall<T = any>(state: DemoState, email: string, method: string, path: string, body?: unknown): Promise<T> {
+    try {
+      return await this.call<T>(method, path, body)
+    } catch (e) {
+      if (!(e instanceof ApiError) || e.status !== 401 || !e.body.includes('ADMIN_STEP_UP_REQUIRED')) throw e
+    }
+    return this.call<T>(method, path, body, await freshCode(state, email))
+  }
+
+  async call<T = any>(method: string, path: string, body?: unknown, stepUpCode?: string): Promise<T> {
     const headers: Record<string, string> = { Accept: 'application/json' }
+    if (stepUpCode) headers['X-Admin-Step-Up'] = stepUpCode
     if (body !== undefined) headers['Content-Type'] = 'application/json'
     if (this.jar.size) headers.Cookie = [...this.jar].map(([k, v]) => `${k}=${v}`).join('; ')
     const csrf = this.jar.get('admin_csrf')
     if (csrf) headers['X-CSRF-Token'] = decodeURIComponent(csrf)
     let res: Response
     for (let attempt = 0; ; attempt++) {
-      res = await fetch(API + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
+      res = await fetch(ADMIN_API + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) })
       if (res.status !== 429 || attempt >= 6) break
-      await sleep(Math.min(Math.max(Number(res.headers.get(retry-after) ?? 20), 5), 65) * 1000)
+      await sleep(Math.min(Math.max(Number(res.headers.get('retry-after') ?? 20), 5), 65) * 1000)
     }
     this.absorb(res)
     const text = await res.text()
@@ -199,8 +220,7 @@ export class AdminSession {
 export async function adminSignIn(state: DemoState, email: string, tempPassword?: string): Promise<AdminSession> {
   const tryWith = async (password: string) => {
     const s = new AdminSession()
-    await s.call('POST', '/api/v1/auth/login', { email, password })
-    const start: any = await s.call('POST', '/api/v1/admin/auth/session')
+    const start: any = await s.call('POST', '/api/v1/admin/auth/login', { email, password })
     if (start.secret) {
       state.totp[email] = start.secret
       saveState(state)

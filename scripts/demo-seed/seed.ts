@@ -24,7 +24,8 @@ async function step<T>(name: string, fn: () => Promise<T>): Promise<T | undefine
     log('ok  ', name)
     return r
   } catch (e) {
-    if (e instanceof ApiError && e.status === 409) {
+    // Already there (a 409, or a 400 naming it, or a spent set-password token): a re-run goes on.
+    if (e instanceof ApiError && (e.status === 409 || /already exists|Invalid or expired reset token/i.test(e.body))) {
       log('skip', name, '(exists)')
       return undefined
     }
@@ -49,6 +50,8 @@ function sqlText(text: string) {
   if (r.status !== 0) throw new Error(`${text}: ${r.stderr || r.stdout}`)
   return (r.stdout || '').trim()
 }
+
+const list0 = (r: any): any[] => r?.data ?? r?.items ?? r?.sensors ?? (Array.isArray(r) ? r : [])
 
 async function list(s: Session, path: string): Promise<any[]> {
   const r: any = await call('GET', path, undefined, s.accessToken)
@@ -114,6 +117,9 @@ const targets = [
   { pattern: 'github.com/example-corp/*', target_type: 'repository', description: 'All repositories of the GitHub organization' },
   { pattern: 'AWS:123456789012', target_type: 'cloud_account', description: 'AWS production account' },
 ]
+// Scope approvals are opt-in governance (default: off). The demo organization
+// runs Strict scan approval, so a widening waits for a second administrator.
+sqlText(`UPDATE tenants SET scan_approval_policy = 'strict' WHERE id = '${alex.tenantId}'`)
 for (const t of targets) await step(`scope ${t.pattern}`, () => api('POST', '/api/v1/scope/targets', { ...t, tags: ['demo'] }))
 await step('scope exclusion', () =>
   api('POST', '/api/v1/scope/exclusions', { exclusion_type: 'domain', pattern: 'partners.example.com', reason: 'Hosted by a partner; not ours to test.' })
@@ -260,8 +266,15 @@ for (const n of ['customer-portal', 'payments-db', 'shop.example.org', 'aws:1234
 // ---------------------------------------------------------------------------
 const findings = await list(alex, '/api/v1/findings?per_page=200')
 const F = (title: string) => findings.find((f: any) => (f.title ?? f.message ?? '').startsWith(title))?.id
-const setStatus = (title: string, status: string, resolution?: string) => {
+const setStatus = async (title: string, status: string, resolution?: string) => {
   const id = F(title)
+  // Re-run: the finding is already there (the list is read once at the start).
+  const current = (await api('GET', `/api/v1/findings/${id}`).catch(() => undefined))?.status
+  const order = ['new', 'in_review', 'confirmed', 'in_progress', 'fix_applied', 'resolved']
+  if (id && current && (current === status || (order.includes(status) && order.indexOf(current) >= order.indexOf(status)))) {
+    log('skip', `status ${status}: ${title}`, '(already)')
+    return undefined
+  }
   return id ? step(`status ${status}: ${title}`, () => api('PATCH', `/api/v1/findings/${id}/status`, { status, resolution })) : undefined
 }
 const assign = (title: string, uid?: string) => {
@@ -291,6 +304,8 @@ for (const t of [
 for (const t of ['Fortinet FortiOS SSL-VPN', 'Jenkins < 2.442', 'Tainted SQL string', 'AWS Access Key ID', 'lodash: command injection'])
   await setStatus(t, 'in_progress')
 await setStatus('Git Configuration - Detect', 'in_progress')
+// Only the finding's own assignee (or its asset's owner) may mark it fixed.
+await assign('Git Configuration - Detect', st.ids.alex)
 await setStatus('Git Configuration - Detect', 'fix_applied', 'Blocked /.git/ in the nginx configuration of staging and redeployed.')
 
 await assign('Fortinet FortiOS SSL-VPN', st.ids.jordan)
@@ -299,7 +314,6 @@ await assign('Tainted SQL string', st.ids.sam)
 await assign('AWS Access Key ID', st.ids.sam)
 await assign('lodash: command injection', st.ids.sam)
 await assign('Apache Log4j2', st.ids.casey)
-await assign('Git Configuration - Detect', st.ids.casey)
 await assign('MS17-010', st.ids.alex)
 await assign('OpenSSH < 9.3p2', st.ids.alex)
 await assign('nginx < 1.20.1', st.ids.alex)
@@ -308,26 +322,28 @@ await comment('AWS Access Key ID', 'Key deactivated in IAM. Rotating the CI cred
 await comment('Apache Log4j2', 'Confirmed with an out-of-band DNS callback. legacy.example.net is due for decommissioning; isolating it behind the VPN this week.')
 await comment('Tainted SQL string', 'Fix in review: the query now uses a parameterised statement.')
 
-// Risk acceptance and false positive go through approval.
-const approval = async (title: string, status: string, justification: string) => {
+// Risk acceptance and false positive go through approval, from a triaged finding.
+await setStatus('TLS Version 1.0 Protocol Detection', 'confirmed')
+await setStatus('GraphQL Introspection Enabled', 'confirmed')
+const approval = async (title: string, status: string, closureReason: string, justification: string) => {
   const id = F(title)
   if (!id) return
   await step(`approval ${status}: ${title}`, () =>
-    api('POST', `/api/v1/findings/${id}/approvals`, { requested_status: status, justification, expires_at: new Date(Date.now() + 90 * 86400e3).toISOString() })
+    api('POST', `/api/v1/findings/${id}/approvals`, { requested_status: status, closure_reason: closureReason, justification, ...(status === 'accepted' ? { expires_at: new Date(Date.now() + 90 * 86400e3).toISOString() } : {}) })
   )
 }
-await approval('TLS Version 1.0 Protocol Detection', 'accepted', 'A legacy payment terminal still needs TLS 1.0; it is isolated and will be replaced in Q1.')
-await approval('GraphQL Introspection Enabled', 'false_positive', 'Introspection is only enabled for the public schema subset by design.')
+await approval('TLS Version 1.0 Protocol Detection', 'accepted', 'risk_accepted', 'A legacy payment terminal still needs TLS 1.0; it is isolated and will be replaced in Q1.')
+await approval('GraphQL Introspection Enabled', 'false_positive', 'detection_error', 'Introspection is only enabled for the public schema subset by design.')
 
 // ---------------------------------------------------------------------------
 // Remediation campaign
 // ---------------------------------------------------------------------------
 await step('campaign', async () => {
   const c: any = await api('POST', '/api/v1/remediation/campaigns', {
-    name: 'Patch internet-facing critical vulnerabilities',
-    description: 'Close every critical vulnerability on internet-facing assets within the 15-day SLA.',
+    name: 'Patch critical vulnerabilities',
+    description: 'Close every critical vulnerability within the 15-day SLA.',
     priority: 'critical',
-    finding_filter: { severities: ['critical'], exposure: 'public' },
+    finding_filter: { severities: ['critical'] },
     assigned_to: st.ids.jordan,
     start_date: new Date(Date.now() - 6 * 86400e3).toISOString(),
     due_date: new Date(Date.now() + 9 * 86400e3).toISOString(),
@@ -360,7 +376,7 @@ if (zone?.id) st.ids.zone = zone.id
 // Sensors pair with their own key (no API key). The real sensor image runs
 // only its `pair` command, which exits once approved: it never scans.
 async function pairSensor(name: string, profile: string) {
-  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.17.0'
+  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.23.2'
   const apiUrl = process.env.SENSOR_API_URL ?? 'http://127.0.0.1:18980'
   const proc = spawn('docker', ['run', '--rm', '--name', `openctem-demo-pair-${name}`, '--network', 'host', '--hostname', name, image, 'pair', '-api-url', apiUrl, '-name', name, '-state-dir', '/tmp/state'])
   let out = ''
@@ -390,8 +406,11 @@ async function pairSensor(name: string, profile: string) {
   log('     ', out.trim().split('\n').slice(-2).join(' | '))
 }
 if (process.env.PAIR_SENSORS !== '0') {
-  await step('pair sensor dc-a-scanner-01', () => pairSensor('dc-a-scanner-01', 'internal-network-scanner'))
-  await step('pair sensor edge-easm-01', () => pairSensor('edge-easm-01', 'easm-external'))
+  // A re-run must not pair a second copy of a sensor.
+  const have = new Set(list0(await api('GET', '/api/v1/sensors?per_page=100').catch(() => ({}))).map((s: any) => s.name))
+  for (const [name, profile] of [['dc-a-scanner-01', 'internal-network-scanner'], ['edge-easm-01', 'easm-external']])
+    if (have.has(name)) log('skip', `pair sensor ${name}`, '(exists)')
+    else await step(`pair sensor ${name}`, () => pairSensor(name, profile))
 }
 await step('sensor state', async () => sql('10-sensors.sql'))
 
@@ -617,9 +636,9 @@ for (const t of ['SSH Weak Key Exchange', 'SMTP Service Cleartext Login', 'semve
 if (process.env.ADMIN_TEMP_PASSWORD || st.totp['admin@example.com']) {
   const admin = await adminSignIn(st, 'admin@example.com', process.env.ADMIN_TEMP_PASSWORD)
   const base = `/api/v1/admin/tenants/${alex.tenantId}/sso`
-  await step('sso verified domain', () => admin.call('POST', `${base}/verified-domains`, { domain: 'example.com' }))
+  await step('sso verified domain', () => admin.protectedCall(st, 'admin@example.com', 'POST', `${base}/verified-domains`, { domain: 'example.com' }))
   await step('sso entra id', () =>
-    admin.call('POST', `${base}/identity-providers`, {
+    admin.protectedCall(st, 'admin@example.com', 'POST', `${base}/identity-providers`, {
       provider: 'entra_id', display_name: 'Example Corp (Microsoft Entra ID)', client_id: '00000000-0000-0000-0000-00000000c0de',
       client_secret: 'demo-client-secret-not-real', tenant_identifier: '11111111-2222-3333-4444-555555555555',
       allowed_domains: ['example.com'], auto_provision: true, default_role: 'member',
@@ -633,7 +652,7 @@ if (process.env.ADMIN_TEMP_PASSWORD || st.totp['admin@example.com']) {
     await step('approve sso change', () => api('POST', `/api/v1/tenants/${alex.tenantId}/settings/sso/changes/${pending[0].id}/approve`, {}))
   }
   await step('sso google workspace (pending)', () =>
-    admin.call('POST', `${base}/identity-providers`, {
+    admin.protectedCall(st, 'admin@example.com', 'POST', `${base}/identity-providers`, {
       provider: 'google_workspace', display_name: 'Example Corp (Google Workspace)', client_id: '123456789012-demo.apps.googleusercontent.com',
       client_secret: 'demo-client-secret-not-real', allowed_domains: ['example.org'], auto_provision: false, default_role: 'viewer',
     })

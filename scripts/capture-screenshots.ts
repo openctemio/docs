@@ -14,7 +14,7 @@ import { mkdirSync, statSync, unlinkSync, existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 import sharp from 'sharp'
-import { API, call, DEMO_PASSWORD, freshCode, HERE, loadState, signIn, WEB } from './demo-seed/lib.ts'
+import { API, call, CONSOLE, DEMO_PASSWORD, freshCode, HERE, loadState, signIn, WEB } from './demo-seed/lib.ts'
 
 const ROOT = join(HERE, '..', '..')
 const OUT = process.env.SHOTS_DIR ?? join(ROOT, 'assets', 'images')
@@ -56,7 +56,7 @@ async function prepare(page: Page) {
       for (const o of origins) if (n.textContent?.includes(o)) n.textContent = n.textContent.split(o).join(pub)
     for (const el of Array.from(document.querySelectorAll("input, textarea")) as HTMLInputElement[])
       for (const o of origins) if (el.value?.includes(o)) el.value = el.value.split(o).join(pub)
-  }, [new URL(WEB).origin, new URL(API).origin, WEB.replace("localhost", "127.0.0.1")])
+  }, [new URL(WEB).origin, new URL(CONSOLE).origin, new URL(API).origin, WEB.replace("localhost", "127.0.0.1")])
   await page.evaluate(() => {
     // API keys, sensor keys, JWTs, TOTP URIs and secrets (also in groups of
     // four), pairing codes, PEM blocks, webhook URLs, AWS key IDs.
@@ -127,7 +127,7 @@ async function shoot(ctx: BrowserContext, shot: Shot) {
   if (shot.height || shot.width) await page.setViewportSize({ width: shot.width ?? 1440, height: shot.height ?? 900 })
   try {
     if (shot.route) {
-      await page.goto(WEB + shot.route)
+      await page.goto((shot.as === 'admin' || shot.name.startsWith('console-') ? CONSOLE : WEB) + shot.route)
       await settle(page)
     }
     if (shot.open) {
@@ -202,14 +202,18 @@ async function context(browser: Browser, who: 'alex' | 'admin' | 'anon', dark = 
   const page = await ctx.newPage()
   if (who === 'alex') await uiSignIn(page, 'alex@example.com')
   else {
-    await uiSignIn(page, 'admin@example.com')
-    if (!/\/admin/.test(page.url())) await page.goto(WEB + '/admin/login')
+    // The platform console is its own site: email, password, then the code.
+    await page.goto(CONSOLE + '/login')
+    await settle(page, 500)
+    await page.getByLabel(/email/i).first().fill('admin@example.com')
+    await page.getByLabel(/password/i).first().fill(DEMO_PASSWORD)
+    await page.getByRole('button', { name: /sign in|log in|continue/i }).first().click()
     const code = page.locator('input[autocomplete="one-time-code"], input[name*="code" i], input[inputmode="numeric"]').first()
-    if (await code.isVisible({ timeout: 8000 }).catch(() => false)) {
-      await code.fill(await freshCode(st, 'admin@example.com'))
-      await page.keyboard.press('Enter')
-      await page.waitForURL((u) => /\/admin(?!\/login)/.test(u.pathname), { timeout: 20000 }).catch(() => {})
-    }
+    await code.waitFor({ timeout: 15000 })
+    await code.fill(await freshCode(st, 'admin@example.com'))
+    await page.keyboard.press('Enter')
+    await page.waitForURL((u) => !/\/login/.test(u.pathname), { timeout: 20000 })
+    await settle(page, 500)
   }
   await page.close()
   return ctx
@@ -240,7 +244,7 @@ const workflowId = workflows.find((w: any) => w.name === 'External attack surfac
 // code it prints. stopPairing() denies the request and removes the container.
 const pairing: { name?: string; code?: string } = {}
 async function startPairing(name: string): Promise<string> {
-  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.17.0'
+  const image = process.env.SENSOR_IMAGE ?? 'ghcr.io/openctemio/sensor:v0.23.2'
   const apiUrl = process.env.SENSOR_API_URL ?? 'http://127.0.0.1:18980'
   const proc = spawn('docker', ['run', '--rm', '--name', `openctem-demo-pair-${name}`, '--network', 'host', '--hostname', name, image, 'pair', '-api-url', apiUrl, '-name', name, '-state-dir', '/tmp/state'])
   let out = ''
@@ -290,6 +294,7 @@ const shots: Shot[] = [
   // Discovery
   { section: 'user-guide', name: 'assets-inventory', route: '/assets' },
   { section: 'user-guide', name: 'asset-detail', route: `/assets/${assetId('app.example.com')}` },
+  { section: 'user-guide', name: 'asset-drawer', route: '/assets', open: async (page: Page) => { await page.getByText('www.example.org', { exact: true }).first().click(); await page.waitForTimeout(1500) } },
   { section: 'user-guide', name: 'asset-groups', route: '/assets/groups' },
   { section: 'user-guide', name: 'components', route: '/components' },
 
@@ -351,7 +356,7 @@ const shots: Shot[] = [
     },
   },
   { section: 'user-guide', name: 'remediation', route: '/remediation' },
-  { section: 'user-guide', name: 'remediation-campaign', route: campaigns[0] ? `/remediation/${campaigns[0].id}` : '/remediation' },
+  { section: 'user-guide', name: 'remediation-campaign', route: campaigns[0] ? `/remediation/campaigns/${campaigns[0].id}` : '/remediation' },
   { section: 'user-guide', name: 'my-work', route: '/my-work' },
 
   // Insights
@@ -464,10 +469,12 @@ const shots: Shot[] = [
   { section: 'security', name: 'audit-log', route: '/settings/audit-log' },
 
   // Platform administration
-  { section: 'user-guide', name: 'admin-organizations', as: 'admin', route: '/admin/organizations' },
-  { section: 'identity', name: 'admin-organization-sso', as: 'admin', route: `/admin/organizations/${alex.tenantId}`, open: clickTab(/sso|single sign-on/i) },
-  { section: 'user-guide', name: 'admin-administrators', as: 'admin', route: '/admin/administrators' },
-  { section: 'operations', name: 'admin-system-logs', as: 'admin', route: '/admin/system-logs' },
+  { section: 'user-guide', name: 'admin-organizations', as: 'admin', route: '/organizations' },
+  { section: 'identity', name: 'admin-organization-sso', as: 'admin', route: `/organizations/${alex.tenantId}`, open: clickTab(/sso|single sign-on/i) },
+  { section: 'user-guide', name: 'admin-administrators', as: 'admin', route: '/security/administrators' },
+  { section: 'operations', name: 'admin-system-logs', as: 'admin', route: '/security/activity' },
+  { section: 'operations', name: 'console-system', as: 'admin', route: '/system' },
+  { section: 'identity', name: 'console-sign-in', as: 'anon', route: '/login', clip: { x: 440, y: 220, width: 560, height: 480 } },
 ]
 
 // ---------------------------------------------------------------------------

@@ -20,13 +20,15 @@ the details. Work through it top to bottom; do not skip the checks.
 
 | Deployment | Use it for | Page |
 |---|---|---|
-| Compose (`api/deploy/docker-compose.yml`) | One host, everything included (gateway, web, API, PostgreSQL, Redis) | [Docker Compose](docker-compose.md) |
+| Compose (`api/deploy/docker-compose.yml`) | One host, everything included (gateway, web, platform console, API, PostgreSQL, Redis) | [Docker Compose](docker-compose.md) |
 | All-in-one image (`ghcr.io/openctemio/openctem`) | One container, with your own PostgreSQL and Redis | [All-in-one](all-in-one.md) |
 | Helm chart | Kubernetes | [Kubernetes](kubernetes.md) |
 | Ansible kit (`openctem-ansible`) | One hardened Ubuntu VM, with or without Cloudflare | [Install with Ansible](ansible.md) |
 
-Every deployment publishes one HTTPS port. The API, the web console,
-PostgreSQL and Redis are never reachable from outside.
+Every deployment publishes one HTTPS port for browsers, sensors and API
+clients, plus the platform console's own site (a second port or its own host
+name, reachable only from your administrators' networks by default). The API,
+the web console, PostgreSQL and Redis are never reachable from outside.
 
 ## 2. Verify the release
 
@@ -35,7 +37,7 @@ OIDC) and carries a signed SBOM attestation. Check the image you deploy:
 
 ```bash
 VERSION=vX.Y.Z
-for img in openctem-api openctem-web migrations; do
+for img in openctem-api openctem-web openctem-console openctem-gateway migrations; do
   cosign verify ghcr.io/openctemio/$img:$VERSION \
     --certificate-identity-regexp '^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v' \
     --certificate-oidc-issuer https://token.actions.githubusercontent.com >/dev/null && echo "$img: signature OK"
@@ -59,19 +61,29 @@ Read the release notes and the upgrade notes of the release.
 2. Generate every secret; never reuse a value from an example file:
 
    ```bash
-   openssl rand -hex 64   # AUTH_JWT_SECRET
-   openssl rand -hex 32   # APP_ENCRYPTION_KEY, METRICS_TOKEN
+   openssl rand -hex 32   # APP_ENCRYPTION_KEY, FINGERPRINT_KEY, METRICS_TOKEN
    openssl rand -hex 24   # database and Redis passwords
    ```
+
+   `FINGERPRINT_KEY` is required in production and must stay stable for the
+   life of the installation: it keys the identity of every secret finding.
+   Never rotate it with `APP_ENCRYPTION_KEY`. `AUTH_JWT_SECRET` is optional;
+   the session secret is derived from the encryption key. `setup.sh` generates
+   all of these for the Compose stack.
 
    The API refuses to start with example-file text in a secret.
 3. Leave `APP_ENV` unset or set it to `production`. Production mode refuses a
    database or Redis connection without TLS, weak or missing secrets, cookies
    without the Secure flag, disabled rate limits and debug logging.
-4. Decide the sign-up policy (`TENANT_CREATION_MODE`): `admin_only` (default)
-   or `self_service`. See [Configuration](../configuration/index.md).
-5. Keep `APP_ENCRYPTION_KEY` in a secret manager as well as in the deployment:
-   without it, the credentials stored in the database cannot be decrypted.
+4. Decide the sign-up ceiling (`SIGNUP_MODE`): `disabled` (default, for a
+   self-hosted install), `domain` or `open`. See
+   [Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations).
+   Decide where the platform console lives (`OPENCTEM_ADMIN_SITE`: `port`,
+   `host` or `off`) and which networks may reach it
+   (`OPENCTEM_ADMIN_ALLOWED_CIDRS`); a host name of its own is recommended.
+5. Keep `APP_ENCRYPTION_KEY` and `FINGERPRINT_KEY` in a secret manager as well
+   as in the deployment: without the first, the credentials stored in the
+   database cannot be decrypted.
 6. Check the configuration before starting anything:
 
    ```bash
@@ -97,7 +109,7 @@ gateway sends HSTS and the web console sends a Content-Security-Policy.
 cd api/deploy
 docker compose pull
 docker compose up -d
-docker compose ps        # every service healthy; migrate and db-roles exited 0
+docker compose ps -a     # every service healthy; db-roles, migrate and db-grants exited 0
 ```
 
 Migrations run once, before the API starts, as the schema owner; the API
@@ -107,14 +119,15 @@ start on an older schema.
 ## 7. First administrator and organization
 
 Create the platform administrator, a break-glass administrator and the first
-organization ([First administrator](first-admin.md)). Sign in, change the
-temporary password and enroll an authenticator app. Keep at least two
-platform administrators.
+organization ([First administrator](first-admin.md)). Sign in to the platform
+console, change the temporary password and enroll an authenticator app. Keep at
+least two platform administrators.
 
 ## 8. Sign-in and identity
 
-- Local accounts: SMTP must work (verification and password-reset e-mails).
-  Send a test e-mail.
+- Local accounts: the platform e-mail must work (verification and
+  password-reset e-mails): set it in the platform console, **System > E-mail**,
+  and send a test e-mail.
 - Single sign-on: configure the identity provider ([OIDC](../identity/sso-oidc.md),
   [SAML](../identity/sso-saml.md)) and sign in once with a test account.
 
@@ -157,5 +170,6 @@ one small scan on a target you own and check the findings arrive.
 Database migrations are not rolled back in production. To roll back an
 upgrade: set `OPENCTEM_VERSION` back to the previous release, then restore the
 backup taken before the upgrade (`./backup.sh restore <dir> --yes`; it stops
-the API, web and gateway, restores, and starts the stack on that version). Take that backup before every upgrade
+the API, web and gateway (v0.10.1 leaves the platform console
+running: run `docker compose stop console` first; later releases stop it too), restores, and starts the stack on that version). Take that backup before every upgrade
 ([Upgrading](../operations/upgrade.md)).
