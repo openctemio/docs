@@ -97,9 +97,12 @@ started still has a log with the reason.
 | `This sensor is now key-bound: ...` | Not an error: a key-based sensor bound its own key. Back up its data volume and remove `SENSOR_API_KEY` from its configuration ([Bearer keys](pairing.md#bearer-keys-legacy)). |
 | `certificate chain does not contain the pinned CA` | `SENSOR_CA_FINGERPRINT` does not match the CA the platform presents, or a TLS-inspecting proxy is in between. |
 | An identity permission error at start | Run the `chmod` / `chown` it prints. On Kubernetes see [fsGroup](deploy-kubernetes.md#identity-files-and-fsgroup). |
-| `the platform rejected the API key (HTTP 401 ...)` | A key-based sensor whose key was revoked, regenerated or expired, or whose sensor was deleted. The sensor stays up and checks again (30 s, doubling to 10 min). Regenerate the key, or pair the sensor. |
+| `the platform rejected the API key (HTTP 401 ...)` | A key-based sensor whose key was revoked, regenerated or expired, or whose sensor was deleted. The sensor stays up and checks again (30 s, doubling to 10 min). Rotate the key, or pair the sensor. |
 | `SENSOR_ALLOW_PRIVATE_TARGETS="true" is not recognized` | Only `1` or `0` is accepted. |
 | `the platform does not serve sensor protocol v2` | The platform is older than the sensor supports. Upgrade the platform. A sensor older than v0.9.0 must be upgraded instead: the platform no longer serves protocol v1. |
+| A shared sensor cannot enroll (HTTP 401 at pairing) | Any unusable enrollment token answers the same 401: it was already used, expired (5 to 60 minutes after it was issued), or mistyped. Issue a new token under **System > Platform scanning** in the admin console ([Shared sensors](shared-sensors.md#enroll-a-shared-sensor)). The token cannot be combined with `SENSOR_PAIRING_CODE`. |
+| A shared sensor refuses to start in shared mode | `SENSOR_SHARED_MODE=1` needs the tool sandbox, network confinement and a local policy, and pinned job-signing keys; the sensor says why it stops. Run it under the sensor's seccomp profile. |
+| A shared sensor is online but takes no jobs | Shared sensors are off until a super administrator turns them on, the organization must be allowed (and not opted out), and the sensor image must advertise `shared.isolation@1` (a release with shared mode). |
 | A second sensor refuses to start on the same outbox | Each sensor needs its own outbox volume. |
 | `-platform mode has been removed` | An old command line. Remove `-platform`: the sensor runs as the daemon with platform commands by default. |
 
@@ -113,14 +116,16 @@ transport: grpc                                 # a later change
 transport: no binding, sending nothing (platform_certificate_refused): ...
 ```
 
-The console shows the same on the sensor's sheet (**Transport:**), and above
-the list what the platform offers. A sensor on `https` or `v2` works fully;
+The console shows the same on the sensor's sheet (**Transport:**), with the
+reason in plain words (hover for the code). What the platform itself offers is
+an installation detail that only platform administrators see, on
+**Console > Operations > Health** ([What the platform offers](transport.md#what-the-platform-offers)). A sensor on `https` or `v2` works fully;
 only the lines marked **stops** need action.
 
 | Reason | Transport | Cause | Fix |
 |---|---|---|---|
 | (none) | `grpc` | Best case. | |
-| `platform_without_grpc` | `https` | The platform offers no gRPC endpoint this sensor can use. The Sensors page says why (for example `foreign_certificate`: the stock gateway). A sensor older than v0.15.0 also gets this when the platform offers gRPC only on its own port. | Optional: [gRPC on port 443](transport.md#grpc-on-port-443-docker-compose), or a [dedicated host name](transport.md#a-dedicated-sensor-host-name) for older sensors. |
+| `platform_without_grpc` | `https` | The platform offers no gRPC endpoint this sensor can use. The platform administrator's Operations page says why (for example `foreign_certificate`: the stock gateway). A sensor older than v0.15.0 also gets this when the platform offers gRPC only on its own port. | Optional: [gRPC on port 443](transport.md#grpc-on-port-443-docker-compose), [TLS in the API itself](transport.md#the-api-terminates-tls-itself), or a [dedicated host name](transport.md#a-dedicated-sensor-host-name) for older sensors. |
 | `grpc_unreachable` | `https` | The sensor cannot connect to the gRPC endpoint (DNS, firewall, timeout), although the platform's own probe can. | Allow TCP 443 (or the sensor port) from the sensor to the endpoint. Retried after 30 min, then up to every 4 h. |
 | `handshake_failed` | `https` | TLS to the gRPC endpoint failed on the sensor's path. | A device on the path terminates or alters TLS. |
 | `http2_refused` | `https` | Something on the path (often an HTTP proxy) does not carry HTTP/2. | Let the proxy tunnel HTTP/2, or accept HTTPS. |
@@ -131,7 +136,7 @@ only the lines marked **stops** need action.
 | `platform_without_v3` | `v2` | The platform does not serve protocol v3 (an older platform, or `SENSOR_TRANSPORT_V3=off`). | Nothing, or upgrade the platform. |
 | `not_key_bound` | `v2` | The sensor uses an API key. | It binds its own key by itself from sensor v0.13.0 ([Bearer keys](pairing.md#bearer-keys-legacy)). |
 | `forced_by_config` | as set | `SENSOR_TRANSPORT` forces a transport. | Unset it for `auto`. |
-| `identity_refused` | **stops** (heartbeat only) | The platform refused the sensor's identity: key revoked, sensor disabled, revoked or deleted. Logged as `protocol v3: the platform refused the sensor's identity`. | Activate the sensor, or [re-pair](pairing.md#re-pair-a-sensor). |
+| `identity_refused` | **stops** (heartbeat only) | The platform refused the sensor's identity: key revoked, sensor disabled, revoked or deleted. Logged as `protocol v3: the platform refused the sensor's identity`. | Enable the sensor, or [re-pair](pairing.md#re-pair-a-sensor). |
 | `platform_certificate_refused` | **stops** (sends nothing) | See below. | See below. |
 
 ### `platform_certificate_refused`
@@ -179,7 +184,7 @@ Check, in this order:
 7. **Kill switch.** The sensor heartbeats `paused by local policy` while the
    kill switch file exists.
 8. **Disabled.** A disabled sensor heartbeats, logs `paused by platform` and
-   takes no jobs until it is activated again.
+   takes no jobs until it is enabled again.
 
 ## Results do not arrive
 

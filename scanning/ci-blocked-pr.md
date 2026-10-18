@@ -52,6 +52,8 @@ assign the repository to your team.
 | Scan failure | A scanner failed to run or to report: the run cannot be judged | Re-run; see the job log |
 | Expected scan missing | The repository must report this capability (for example SAST) and the run did not, often because the pipeline was edited | Restore the scan in the pipeline |
 | No baseline | The target branch was never scanned, so every finding counts as new (a note) | Run the pipeline once on the target branch |
+| Scan did not reach the platform | The job reported that a scan it ran did not fully reach the platform (it failed, was partial or was not uploaded) | Re-run the job; see the job log |
+| Too many findings to judge | The run reported more than 100,000 findings, more than the gate judges. The findings are still stored | Fix or exclude the noisy rule, then re-run |
 | Break-glass | An administrator let this commit through (a note) | Nothing; the reason is recorded |
 
 A finding whose accepted risk has ended counts again under its usual reason.

@@ -45,6 +45,9 @@ A scan has:
   and an address range are expanded when each run starts: see
   [Your first scan](index.md#your-first-scan).
 - **What to run**: a single tool with its settings, or a scan workflow.
+- **Sensor**: **Auto** (your organization's sensors first, then shared sensors),
+  **Organization sensors** or **Shared sensors**. Shared sensors take public
+  targets only and are described in [Shared sensors](../sensors/shared-sensors.md).
 - **Scan zone**: **Automatic** (route each target to its zone) or one zone
   ([Scan zones](../sensors/zones.md)).
 - **Schedule**: manual, once (at a date and time from a minute to a year

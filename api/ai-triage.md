@@ -12,9 +12,13 @@ result is advice stored next to the finding; it does not change the finding's se
 priority. AI triage never decides: at most it proposes a false positive for a person to approve
 (see [False-positive proposals](#false-positive-proposals)).
 
-AI triage is off unless the operator enables it (`AI_TRIAGE_ENABLED=true` and a provider; see
-[Environment variables](../configuration/environment-variables.md)) and the organization turns it
-on.
+AI triage is available when the operator configured at least one provider key (`ANTHROPIC_API_KEY`,
+`OPENAI_API_KEY` or `GEMINI_API_KEY`; the provider and model of platform mode are
+`AI_PLATFORM_PROVIDER` and `AI_PLATFORM_MODEL`, see
+[Environment variables](../configuration/environment-variables.md)) and the AI triage module is
+turned on for the organization. `AI_TRIAGE_ENABLED` is deprecated and ignored. Automatic triage of
+new findings is an organization setting (platform defaults `AI_AUTO_TRIAGE_DEFAULT_ENABLED`, off,
+and `AI_AUTO_TRIAGE_DEFAULT_SEVERITIES`, `critical,high`).
 
 ## Endpoints
 

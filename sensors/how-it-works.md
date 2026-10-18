@@ -31,15 +31,17 @@ identity; see [CI integration](../scanning/ci-integration.md).
 ## Organization sensors and platform sensors
 
 - **Organization sensors** are installed by an organization, appear on its
-  **Sensors** page and only ever take that organization's work. Every scan in
-  the current release runs on organization sensors.
-- **Platform sensors** are shared sensors that a platform operator runs and
-  manages in the platform admin console. They never appear on an
-  organization's Sensors page, and their output never names them. In the
-  current release no organization may send scans to platform sensors; the
-  scan option exists in the data model but is not offered. Where an operator
-  offers them, every target must be at or under a verified domain (see
-  [Scope](../scanning/scope.md#proof-of-control)).
+  **Sensors** page and only ever take that organization's work.
+- **Shared sensors** (also called platform sensors) belong to the installation.
+  The instance administrator enrolls and operates them in the platform admin
+  console, they never appear on an organization's Sensors page as nodes, and
+  their output never names them. They run public-target scans for the
+  organizations the administrator allows, in shared mode (every job sandboxed,
+  nothing shared between jobs). They are off until a super administrator turns
+  them on, and an organization can opt out. Where an operator requires it,
+  every target must be at or under a verified domain (see
+  [Scope](../scanning/scope.md#proof-of-control)). See
+  [Shared sensors](shared-sensors.md).
 
 ## How work reaches a sensor
 

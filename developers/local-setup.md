@@ -46,9 +46,11 @@ Edit `api/.env`:
 
 - `APP_ENV=development` must stay: an unset `APP_ENV` means `production`, which refuses to start
   without TLS to PostgreSQL and Redis.
-- `APP_ENCRYPTION_KEY` and `AUTH_JWT_SECRET` hold public development values that work as they
-  are. The API refuses them whenever `APP_ENV` is not `development`; for anything else generate
-  your own (`openssl rand -hex 32`, `openssl rand -hex 64`).
+- `APP_ENCRYPTION_KEY`, `FINGERPRINT_KEY` and `AUTH_JWT_SECRET` hold public development values
+  that work as they are. The API refuses them whenever `APP_ENV` is not `development`; for
+  anything else generate your own (`openssl rand -hex 32` for the first two,
+  `openssl rand -hex 64` for the JWT secret). `FINGERPRINT_KEY` is required outside
+  development.
 - `DB_*` and `REDIS_*` already match the development Compose file (`openctem` / `secret` on
   `localhost`).
 
@@ -73,7 +75,7 @@ make docker-migrate-up   # runs migrate in a container
 From the repository root:
 
 ```bash
-make dev-api             # go run ./cmd/server, on http://localhost:8080
+make dev-api             # runs the API (go run ./cmd/server) on http://localhost:8080
 ```
 
 or from `api/`, with hot reload:
@@ -121,9 +123,23 @@ SMTP_BASE_URL=http://localhost:3000 GOWORK=off go run ./cmd/bootstrap-admin \
   -org-name "Dev" -org-slug dev -org-owner-email you@example.com
 ```
 
-Open the printed one-time `/set-password?token=...` link to choose the Owner's password, then sign
-in at `http://localhost:3000/login`. The administrator signs in with the printed temporary
-password at `/admin`.
+Open the printed one-time `/set-password#token=...` link to choose the Owner's password, then sign
+in at `http://localhost:3000/login`. The platform administrator does not use the main
+application: it signs in on the platform console, a separate Next.js app (step 8).
+
+## 8. Run the platform console (optional)
+
+The platform console (organizations, sign-up policy, platform sensors, system e-mail) is its
+own application with its own site. To run it locally, start the API's console listener and the
+console app. In `api/.env` set `ADMIN_LISTEN_ADDR=127.0.0.1:8081` and restart the API; then:
+
+```bash
+cd web
+ADMIN_API_URL=http://localhost:8081 npm run dev:console   # http://localhost:3001
+```
+
+Sign in with the printed temporary password; the first sign-in asks you to choose a password
+and enroll an authenticator.
 
 ## Seed data
 
@@ -133,9 +149,10 @@ password at `/admin`.
 |---|---|---|
 | `seed_required.sql` | data the system needs (currently none; everything is created at run time) | `make -C api seed-required` or `make -C api docker-seed-required` |
 | `seed_test.sql` | a placeholder for development data | never in production |
+| `seed_components_demo.sql` | demo CVEs, assets, packages and findings; attaches to an existing organization whose name or slug matches `ORG` in the file | `go run ./cmd/seed -file migrations/seed/seed_components_demo.sql -db "$DATABASE_URL"` from `api/` |
 
-To start again from an empty database: `make -C api db-fresh` (drops the `public` schema, applies
-the migrations and the required seed).
+To start again from an empty database: `make -C api db-fresh` (drops the `public` schema in the
+Docker PostgreSQL, applies the migrations and the required seed).
 
 ## Optional: a sensor
 

@@ -20,15 +20,16 @@ queue can test several API changes together.
 | `api/api/openapi/swagger.yaml` | the handler annotations (`// @Router`, `// @Param`, request and response types) | `make -C api swagger` (swag, pinned version) |
 | `api/api/openapi/routes.txt` | the router: every registered route | `make -C api contract` |
 | `web/src/config/api-route-permissions.json` | the route authorization gates | `make -C api contract` |
+| `web/src/config/authz-matrix.json` | the authorization reference: permission catalog, roles, role templates, route gates and data-scope classes | `make -C api contract` (`cmd/gen-authz-docs`) |
 | `web/src/lib/api/generated/api.types.ts` | the spec (Swagger 2.0, converted to OpenAPI 3, then to TypeScript) | `npm run generate:api-types` in `web/` |
 
 Generate them after cloning, after every pull, and after changing a handler, a route or its gate:
 
 ```bash
-make generate          # all four; needs Go and Node (web/node_modules installed)
-make generate-api      # the three API files only (Go)
+make generate          # all five; needs Go and Node (web/node_modules installed)
+make generate-api      # the four API files only (Go)
 make generate-web      # the web types only (Node), from an existing spec
-make generate-docker   # all four in throwaway golang and node containers; needs only Docker
+make generate-docker   # all five in throwaway golang and node containers; needs only Docker
 ```
 
 `make generate-docker` (`scripts/generate-in-docker.sh`) keeps its caches in named Docker volumes,
@@ -66,6 +67,13 @@ files together.
 |---|---|---|
 | `configs/asset-types.yaml` (asset types, classes, inventory lenses) | `pkg/domain/asset/registry_generated.go`, `web/src/features/asset-types/registry.generated.ts` | `make generate-asset-types` |
 | `configs/relationship-types.yaml` (asset relationship types and constraints) | `pkg/domain/asset/relationship_types_generated.go`, `web/src/features/assets/types/relationship.types.generated.ts` | `make generate-relationships` |
+| `configs/modules/<id>.yaml` (the module registry: one file per top-level module, its sub-modules inside) | `pkg/domain/module/registry_generated.go`, `web/src/config/modules.generated.ts` | `make generate-modules` |
+| `internal/config/env_registry.yaml` (every environment variable) | `api/.env.example`, `api/docs/configuration/environment-variables.md` | `make env-docs` (a test fails when they are stale) |
+
+A change to the module catalog rows needs a migration whose body is the output of
+`make modules-sql`; `make modules-check` (CI) fails on drift. The RFC index
+`api/docs/rfcs/README.md` is generated too: give an RFC a `# RFC-NNN: Title` heading and a
+`Status` line and run `python3 scripts/rfc_index.py` from the repository root; never edit its rows.
 
 When asset class, lens or alias data changes, also add a migration whose body is the output of
 `make asset-types-sql`. `make asset-types-check` (CI: Asset Types Drift) fails when the YAML, the

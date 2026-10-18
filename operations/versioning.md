@@ -24,7 +24,8 @@ the maintainers' working reference is
   [openctemio/openctem](https://github.com/openctemio/openctem). The API and the
   web console share it.
 - One tag publishes every image from the same commit: `openctem-api`,
-  `openctem-web`, the all-in-one `openctem`, `migrations`, `seed` and
+  `openctem-web`, `openctem-console` (the platform admin console app),
+  `openctem-gateway`, the all-in-one `openctem`, `migrations`, `seed` and
   `admin-cli`, all under `ghcr.io/openctemio/`, for amd64 and arm64, signed with
   cosign and with SBOMs on the GitHub Release.
 - Run all platform images at the same version.
@@ -38,7 +39,7 @@ attestation, so you can check where the SBOM came from as well as download it.
 The release notes of each version carry these commands with the tag filled in:
 
 ```bash
-TAG=v0.9.6
+TAG=v0.10.1
 IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v'
 ISSUER=https://token.actions.githubusercontent.com
 
@@ -51,8 +52,8 @@ cosign verify-attestation --type spdxjson "ghcr.io/openctemio/openctem-api:$TAG"
   --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER"
 ```
 
-Run the same for every image you deploy (`openctem-web`, `openctem`,
-`migrations`). The SBOM files are also attached to the GitHub Release as
+Run the same for every image you deploy (`openctem-web`, `openctem-console`,
+`openctem-gateway`, `openctem`, `migrations`). The SBOM files are also attached to the GitHub Release as
 `sbom-<image>-<version>.spdx.json`. Signed SBOM attestations start with the first
 release after v0.8.0.
 
@@ -116,13 +117,13 @@ After each platform release, the chart's `appVersion` is bumped to it.
 The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older
 sensors cannot connect at all).
 
-The newest releases at the time of writing are platform **v0.9.6**, sensor **v0.23.0**,
-SDK **v0.32.0**, CI runner **v0.3.0** and chart **0.23.3** (`appVersion` v0.9.5; the chart for v0.9.6 follows). A sensor or SDK can
-ship after the platform release you run, so the defaults compiled into it may
-name an older sensor. When the console's install snippets pin an older sensor
-tag than the newest release, set `SENSOR_LATEST_VERSION=v0.23.0` (and
-`SENSOR_SDK_LATEST_VERSION=v0.32.0`) on the API so new installs get the
-current sensor and older sensors show "update available".
+The newest releases at the time of writing are platform **v0.10.1**, sensor **v0.23.2**,
+SDK **v0.34.0**, CI runner **v0.3.1** and chart **0.28.0** (`appVersion` v0.9.7; the chart for
+v0.10.1 follows). A sensor or SDK can ship after the platform release you run, so the defaults
+compiled into it may name an older sensor (v0.10.1 names sensor v0.23.0 and SDK v0.32.0). When the
+console's install snippets pin an older sensor tag than the newest release, set
+`SENSOR_LATEST_VERSION=v0.23.2` (and `SENSOR_SDK_LATEST_VERSION=v0.34.0`) on the API so new installs
+get the current sensor and older sensors show "update available".
 
 ## Which version is running
 

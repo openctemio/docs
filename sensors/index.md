@@ -201,7 +201,7 @@ sheet shows **Transport:** and, when it is not gRPC, the reason in plain words
 
 All three transports run every scan; gRPC only delivers jobs faster. Platform
 admins see which transport the platform offers, and why gRPC is not offered,
-on Console > Operations ([What the platform offers](transport.md#what-the-platform-offers)).
+on Console > Operations > Health ([What the platform offers](transport.md#what-the-platform-offers)).
 
 ### 5. Let it run active scans
 
@@ -246,14 +246,11 @@ nothing is configured on the sensor.
 | Web console and API behind your own TLS-terminating proxy (gateway in mode `http`, nginx, HAProxy) | **HTTPS** | Nothing; the proxy must not buffer responses (see the [nginx example](../install/tls-and-gateway.md#http-behind-your-own-tls-proxy)) | [Transport](transport.md#what-the-platform-offers) |
 | A TCP (layer 4) load balancer or nginx `stream` / HAProxy `mode tcp` in front of the built-in gateway | **gRPC** on 443, as in the first row | The override; the balancer passes TCP through without terminating TLS | [Transport](transport.md#grpc-on-port-443-docker-compose) |
 | A load balancer that only terminates TLS (layer 7) | **HTTPS** | Response buffering off, idle timeout above 30 seconds | [Transport](transport.md#what-the-platform-offers) |
+| No gateway: the API is exposed directly and terminates TLS itself (`SERVER_TLS_CERT_FILE`, `SERVER_TLS_KEY_FILE`) | **gRPC** on the API's own port, with no extra port | The two certificate variables on the API | [Transport](transport.md#the-api-terminates-tls-itself) |
+| Your own proxy that routes TCP by ALPN (nginx `stream` with `ssl_preread`, HAProxy `mode tcp`) | **gRPC** on 443 | Route the ALPN id `openctem-sensor/3` to the API's `:9443` | [Transport](transport.md#your-own-alpn-routing-proxy) |
 | Kubernetes behind an ingress | **HTTPS** | Nothing | [Kubernetes](deploy-kubernetes.md#transport-on-kubernetes) |
 | Sensor behind a corporate HTTP proxy | gRPC through `CONNECT` when the proxy allows HTTP/2, otherwise **HTTPS** | `HTTPS_PROXY` or `SENSOR_CONTROL_PROXY` on the sensor | [Proxies](network.md#proxies) |
 | Sensor behind a TLS-inspecting proxy | **HTTPS** | `SENSOR_TRANSPORT=https` and the proxy's CA, or exempt the platform host from inspection | [Proxies](network.md#tls-inspecting-proxies) |
-
-{: .note }
-Single-port gRPC in the API itself, without the built-in gateway in front, is
-**coming**. Until then a setup without the gateway uses HTTPS, or gRPC on a
-[port of its own](transport.md#a-port-of-its-own) if you choose to open one.
 
 gRPC on the platform's own port requires **sensor v0.15.0 or later** (sdk-go
 v0.21.0 or later): it offers the routing id the gateway looks for.
@@ -267,6 +264,9 @@ name or a port of its own, and use HTTPS otherwise.
 | [Docker and Compose](deploy-docker.md) | Most installs. The image pins every scanner. |
 | [Kubernetes](deploy-kubernetes.md) | A sensor in a cluster, paired like a Docker sensor, or the chart's bundled sensor. |
 | [Binary](deploy-binary.md) | Hosts without containers; you install the scanners. |
+
+An instance administrator who wants a sensor that scans for every
+organization enrolls a [shared sensor](shared-sensors.md) instead.
 
 Then: [Tool settings](tool-settings.md), [Scanner content and content packs](content-delivery.md), [Upgrade, back up and remove](operate.md), [Security notes](security.md)
 and [Troubleshooting](troubleshooting.md).

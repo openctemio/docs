@@ -29,11 +29,25 @@ scan cannot be trusted. A broken scan never exits 0.
 
 ## Refused pipelines (codes)
 
-Every refused exchange answers the job with the same
-`401 The CI token was not accepted`, so the job learns nothing about your
-configuration. Owners and administrators see the reason in **Trust and gate ›
-Recent refused pipelines** (the latest 50) and in the audit log
-(`ci_run.token_refused`). Only tokens that verified are listed.
+A refused exchange answers the job with `401 The CI token was not accepted`.
+What the job is told depends on how far the token got:
+
+- **Before a trust configuration admitted it** (no matching configuration, or
+  any rule such as owner, repository, ref, environment, event, fork, workflow
+  or protected ref), the answer is the same generic `CI_TOKEN_NOT_TRUSTED`,
+  so a stranger's token learns nothing about your configuration. Owners and
+  administrators see the reason in **Trust and gate › Recent refused
+  pipelines** (the latest 50) and in the audit log (`ci_run.token_refused`).
+  Only tokens that verified are listed.
+- **After it admitted the token**, the caller is your own pipeline, and the
+  answer carries the reason as the error code `CI_TOKEN_<REASON>` (for
+  example `CI_TOKEN_REPOSITORY_BINDING` or `CI_TOKEN_REPLAY_LIMIT`) with a
+  message naming only that pipeline's own token and run. These are the codes
+  `repository_binding`, `owner_id_mismatch`, `pipeline_identity`,
+  `legacy_audience`, `aggregate_no_run_id`, `pipeline_rate`, `pipeline_cap`,
+  `replay`, `replay_limit`, `replay_run_closed` and `run_mismatch`.
+- When the provider's signing keys cannot be fetched right now, the answer is
+  `503 CI_ISSUER_UNAVAILABLE` with `Retry-After: 30`; retry the same token.
 
 ![Recent refused pipelines: a fork pull request, an organization not in the trust, and a branch that is not protected, each with its fix]({{ site.baseurl }}/assets/images/scanning/ci/ci-refusals.png)
 
@@ -54,7 +68,9 @@ Recent refused pipelines** (the latest 50) and in the audit log
 | `repository_binding` | The repository name is bound to a different repository that reported first. | If the repository was recreated, retire its old pipeline first. |
 | `pipeline_identity` | The token does not identify the pipeline. | Use a supported CI provider job with its OIDC token. |
 | `ssh_rerun` | The job is a re-run with SSH access (CircleCI). | Re-run the job without SSH. |
-| `replay` | The same token was used twice. | Each job must exchange its own fresh token; check for copied tokens. |
+| `replay` | A different token was presented under a token id that was already exchanged, or the token belongs to another organization. | Each job must exchange its own fresh token; check for copied tokens. |
+| `replay_limit` | The same token was exchanged more than 5 times. A job may exchange its own valid token again (up to 5 times) to renew its run token for the same run. | Re-run the job for a new token; check for a loop that exchanges again and again. |
+| `replay_run_closed` | The token was exchanged again after its run stopped accepting results (it was evaluated, ended or is too old). | Re-run the job for a new token. |
 | `runner_outdated` | The CI scanner is older than the minimum version. | Pin openctemio/ci v0.3.0 or later. The job log names the exact line to change (see below). |
 | `pipeline_cap` | The organization reached its number of pipelines. | Retire unused pipelines. |
 | `pipeline_rate` | This pipeline started too many runs in a short time. | Wait and retry; check for a loop in the pipeline. |

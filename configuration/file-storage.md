@@ -95,7 +95,7 @@ source is never changed. `-verify` also checks files already copied,
 ## An organization's own bucket
 
 An organization administrator can store the organization's files in its own
-S3-compatible bucket (Settings > Organization > Storage; needs a second
+S3-compatible bucket (Settings > Organization > General, **Storage** tab; needs a second
 factor, audited). Its endpoint must be reachable and is checked against
 internal addresses. When that bucket cannot be used, uploads fail with 503
 instead of landing on the server storage.

@@ -69,14 +69,14 @@ widen it.
 | `vuln.templates` | web and network services → findings | T1 | nuclei |
 | `dast.web` | web applications → findings | T2 | zap |
 | `secrets.code` | repository → findings | T0 | betterleaks, trufflehog, gitleaks |
-| `sast.code` | repository → findings | T0 | semgrep, codeql |
+| `sast.code` | repository → findings | T0 | semgrep, opengrep, codeql |
 | `sca.deps` | repository, container → findings | T0 | trivy, osv-scanner, grype |
 | `iac.misconfig` | repository → findings | T0 | checkov, kics, trivy |
 | `container.image` | container → findings | T0 | trivy, grype |
 | `network_va.connector` | addresses, hosts, networks → findings | T1 | tenable_sc |
 
 The official sensor ships subfinder, dnsx, naabu, httpx, katana, nuclei,
-semgrep, trivy and betterleaks (see [Tools](tools.md)). A step whose
+opengrep, semgrep, trivy and betterleaks (see [Tools](tools.md)). A step whose
 capability has no tool on any of your sensors cannot run. Further
 capabilities (for example `check.takeover`, `check.tls`, `cloud.posture`)
 are defined but **planned**: they are listed as unavailable and cannot be

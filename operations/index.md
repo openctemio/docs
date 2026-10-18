@@ -16,6 +16,7 @@ settings in [Configuration](../configuration/index.md).
 | [Upgrading](upgrade.md) | The upgrade procedure for Compose, the all-in-one image and Helm, release-specific guides, rollback. |
 | [Versioning and releases](versioning.md) | Version numbers, the release train, hotfixes, where changes are recorded, sensor and chart compatibility. |
 | [Backup and restore](backup-restore.md) | What to back up (database, secrets, volumes) and tested backup and restore commands. |
+| [Vulnerability and program feeds](feeds.md) | The signed vulnerability and program feeds: pinning the root key, mirrors, air-gapped import. |
 | [Monitoring](monitoring.md) | Health endpoints, Prometheus metrics, the monitoring stack and alerts. |
 | [Scaling](scaling.md) | What scales how, and the knobs that matter. |
 | [Troubleshooting](troubleshooting.md) | Start-up failures, migrations, sign-in, refused requests, disk. |

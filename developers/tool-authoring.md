@@ -13,7 +13,7 @@ add your own. You can wrap an existing command-line scanner without writing code
 in any language, or write the tool in Go with the SDK.
 
 The contract is **tool contract v1**, implemented by
-[openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.32.0 at the time of writing; pin the
+[openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.34.0 at the time of writing; pin the
 version you install). The platform side is described in
 [tool-contract.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/tool-contract.md).
 
@@ -68,7 +68,7 @@ Capabilities marked `routed` are the ones the platform places in scan workflows 
 ## 1. Scaffold
 
 ```bash
-go install github.com/openctemio/sdk-go/cmd/openctem@v0.32.0
+go install github.com/openctemio/sdk-go/cmd/openctem@v0.34.0
 openctem tool init --kind exec-json --capability scan.ports@1 --name acme-ports acme-ports
 ```
 
@@ -151,7 +151,8 @@ Rules that keep a tool safe and portable:
 - **`argv` is never a shell.** Placeholders are a closed set: `{{target.value}}`,
   `{{target.host}}`, `{{target.port}}`, `{{target.url}}`, `{{task.targets_file}}`,
   `{{task.targets_json}}`, `{{task.config_file}}`, `{{task.web_scope_file}}`, `{{task.output}}`,
-  `{{task.workdir}}`, and a config key in one of four forms:
+  `{{task.workdir}}`, `{{http.user_agent}}`, `{{http.headers:-flag}}` (the flag, then one
+  `Name: value` argument per header), and a config key in one of four forms:
 
   | Form | Expands to |
   |---|---|
@@ -161,6 +162,13 @@ Rules that keep a tool safe and portable:
   | `{{config.k?:--flag}}` | a boolean key: the literal flag when true, nothing otherwise |
 
   A substituted value that starts with `-` or contains control characters is refused.
+- **Job identification.** A job can carry an HTTP identification that the organization requires
+  (a User-Agent and headers, for example the header a bug-bounty program asks of its researchers).
+  An exec tool that can send HTTP to its targets passes `{{http.user_agent}}` and
+  `{{http.headers:-flag}}` on its argv, or declares `features.http_identity: true` and applies the
+  identification itself (a Go tool does it through `Context.HTTP`). Otherwise the task is refused
+  (`refused_by_policy`). Port scans, host discovery, DNS lookups and tools that reach no target are
+  not affected.
 - **Unknown keys are errors.** The descriptor is loaded strictly.
 - **Secrets are never config.** Declare them under `permissions.credentials`; the sensor operator
   stores them, and the tool receives them only in the run message, never in the environment, argv

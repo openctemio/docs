@@ -12,7 +12,8 @@ OpenCTEM has one credential per audience. Use the one that matches what you are 
 |---|---|---|
 | A person in the web console | a session (cookies, managed by the console) | yes, within your role |
 | A script, report job or dashboard reading data | a tenant API key `oct_...` | no, keys are read-only |
-| An AI assistant | a tenant API key `oct_...` on the [MCP server](mcp.md) | no |
+| An AI assistant | an OAuth connection a person approves, or a tenant API key `oct_...`, on the [MCP server](mcp.md) | no (one comment tool, confirmed by the person) |
+| An integration that needs its own identity (SIEM export, ticketing bridge) | an API key minted for a [service account](#service-accounts) | no, keys are read-only |
 | A sensor | a sensor key `octs_...` (obtained by pairing or an enrollment token `octe_...`) | sensor results only |
 | A CI job | the CI system's OIDC identity, exchanged for a short-lived run token | CI results only |
 | Your identity provider (provisioning) | a SCIM token | SCIM only |
@@ -78,15 +79,15 @@ and acts as the user who created it.
 
 ### Create a key
 
-In the console: **Settings > API keys > Generate API key**. Choose a name, an expiry (30 days,
+In the console: **Settings > Access > API keys > Generate API Key**. Choose a name, an expiry (30 days,
 90 days or 1 year) and the scopes. The secret (`oct_...`) is shown **once**; store it in your
 secret manager.
 
 ![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
 *Figure: Settings, API keys.*
 
-**Settings > AI assistants (MCP)** creates a key with the scopes the MCP tools need; see
-[MCP server](mcp.md).
+**Settings > Access > AI assistants (MCP)** creates a key with the scopes the MCP tools need; see
+[MCP server](mcp.md). Most assistants connect with OAuth and need no key.
 
 You need `integrations:api_keys:write` to create keys and `integrations:api_keys:read` to list
 them. By default only Owners and Administrators hold the write permission. Owners and
@@ -152,9 +153,10 @@ cookie.
 - **Data scope applies.** A key sees only the data its user may see (asset groups, pentest
   campaign membership).
 - **Refused areas.** A key is refused (`403`) on `/api/v1/api-keys`, `/api/v1/scim-tokens`,
-  `/api/v1/me`, `/api/v1/notifications`, `/api/v1/ws`, `/api/v1/platform`, `/api/v1/users`,
-  `/api/v1/auth`, `/api/v1/admin`, `/api/v1/tenants` and `/api/v1/invitations`. A key can never
-  mint, list or revoke keys, change a password or reach the admin console.
+  `/api/v1/service-accounts`, `/api/v1/me`, `/api/v1/notifications`, `/api/v1/ws`,
+  `/api/v1/platform`, `/api/v1/users`, `/api/v1/auth`, `/api/v1/admin`, `/api/v1/tenants`,
+  `/api/v1/invitations`, `/api/v1/oauth` and `/api/v1/mcp-access`. A key can never mint, list or
+  revoke keys, change a password, change the MCP policy or reach the admin console.
 - **Network policy.** The organization's IP allowlist applies to keys exactly as to sessions
   (`403 IP_NOT_ALLOWED` from outside it).
 - **Stops working** (`401`, the same answer in every case) when it is revoked or expired, when its
@@ -167,8 +169,9 @@ in [Roles, groups and permissions](../identity/roles-and-permissions.md).
 
 ### Limits and audit
 
-- Each key has one token bucket sized from its `rate_limit` (requests per hour, a full hour's
-  budget as burst), shared by the REST API and MCP. When it is exhausted the API answers `429`.
+- Each key has one token bucket sized from its `rate_limit` (requests per hour), shared by the
+  REST API and MCP. The bucket is at most 60 deep: a key (or an MCP connection) can make at most 60
+  requests at once, then continues at the hourly rate. When it is exhausted the API answers `429`.
   The general rate limits in [Conventions](conventions.md#rate-limits) apply as well.
 - Every request records the key's last use time and address. Audit entries written during a key
   request name the key's user as the actor and add `auth_method=api_key`, the key id and its
@@ -184,6 +187,21 @@ in [Roles, groups and permissions](../identity/roles-and-permissions.md).
 - Never put a key in a URL, a repository or a log. The gateway strips `X-API-Key` from its access
   log; your own proxies should too.
 
+## Service accounts
+
+A service account is an organization-owned identity for an integration. It has no password and
+never signs in, starts with no role, takes custom roles and teams like a member, and can never be an
+Owner or Administrator or hold full data access. It acts only through API keys minted for it; such
+a key carries at most what the account holds and, like every key, is read-only on the REST API.
+Create one in **Settings > Integrations > Service accounts**.
+
+| Route | Needs |
+|---|---|
+| `GET`, `POST /api/v1/service-accounts`, `DELETE /api/v1/service-accounts/{id}` | `team:members:read`, `team:members:write` |
+| `GET`, `POST /api/v1/service-accounts/{id}/api-keys`, `DELETE .../{key_id}` | the member permission together with `integrations:api_keys:read`, `:write` or `:delete`; minting and deleting need a recent sign-in, and you must hold every scope you grant |
+
+Deleting the account removes its roles, team memberships and keys at once.
+
 ## Sensor credentials
 
 Sensors authenticate on the sensor plane (`/api/v2/sensor`) only, with a sensor key (`octs_...`,
@@ -195,6 +213,8 @@ else. See [Pairing and enrollment](../sensors/pairing.md).
 ## Admin console and SCIM
 
 - The platform admin console (`/api/v1/admin/...`) accepts only an admin console session, signed
-  in at `/admin`. It has no API key.
+  in on the console's own site (`OPENCTEM_ADMIN_SITE`, see
+  [Environment variables](../configuration/environment-variables.md)); the tenant web app no longer
+  serves `/admin`. It has no API key.
 - SCIM provisioning (`/scim/v2/...`) uses a SCIM bearer token created by an organization Owner.
   See [SCIM](../identity/scim.md).

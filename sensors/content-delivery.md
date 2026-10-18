@@ -9,7 +9,8 @@ nav_order: 6.5
 
 Scanners need content: nuclei templates, SAST rules, the trivy database,
 wordlists. This page says where a sensor gets it today, what content packs
-are, and how the platform serves packs to sensors by digest.
+are, how the platform serves packs to sensors by digest, and how signed
+packages from the content catalog are installed.
 
 1. TOC
 {:toc}
@@ -18,7 +19,7 @@ are, and how the platform serves packs to sensors by digest.
 
 ## What a sensor scans with today
 
-Sensor releases up to v0.23.0 manage their own content. Each sensor
+Sensor releases up to v0.23.2 (the current ones) manage their own content. Each sensor
 downloads it from its upstream, verifies it, and switches to it atomically:
 
 | Content | Where from | Verified by |
@@ -125,8 +126,61 @@ sequenceDiagram
 
 The client side of these routes is in sdk-go v0.32.0 (`contentcache`, with
 delta installs, conditional requests, a jittered prefetch and hit, miss and
-bytes-saved counters). **Sensor v0.23.0 does not use these routes yet**: it
+bytes-saved counters). **Current sensor releases (up to v0.23.2) do not use these routes yet**: it
 keeps managing its content as described in
 [What a sensor scans with today](#what-a-sensor-scans-with-today), and
 scans do not run content packs. There is nothing to configure on the sensor
 for content packs.
+
+## Content catalog
+
+The **content catalog** is a second, separate way to bring content in: signed
+packages (rules, templates, wordlists, scan profiles, report templates,
+playbooks, policy packs, feeds, tool adapters, sensors) that an organization
+installs for itself. Everything is verified offline: the instance never needs
+to reach a catalog server.
+
+**Trust.** A signed catalog bundle is imported by a platform super
+administrator (admin console, with a reason and a fresh authenticator code;
+`POST /api/v1/admin/content-catalog/import`, audited). The import checks the
+bundle against the catalog roots pinned in the release, the signed index and
+the revocation list, and every package's digests and publisher signature
+(Sigstore keyless, checked offline against the trusted root embedded in the
+release). With no trusted root, imports are refused. Packages whose version is
+revoked are left out.
+
+To add your own root or a newer Sigstore trusted root, set
+`CONTENT_TRUST_ROOT_KEY_IDS` (comma-separated `SHA256:<hex>` key ids) or
+`CONTENT_SIGSTORE_TRUSTED_ROOT` (path of the trusted root JSON). Setting either
+writes a high-severity admin audit entry at start-up. A separate secret,
+`APP_CONTENT_SIGNING_KEY`, is the master of each organization's content pack
+signing key; see [Environment variables](../configuration/environment-variables.md).
+
+**Use it.** **Settings > Content catalog** (needs `content:read`, held by every
+default role):
+
+| Tab | What it does |
+|---|---|
+| **Catalog** | Imported packages, filtered by type or installed state. A row opens the package: versions, what each asks for (tier, side effects, network, declared hosts, credentials, data scopes), license, dependencies, and signatures and provenance. |
+| **Installed** | What the organization runs, with **Update**, **Roll back**, **Pin** (stops automatic updates) and **Uninstall**. |
+| **Requests** | Pending install requests when approval is required. |
+| **Settings** | **Require approval**: every install, update, rollback and uninstall becomes a request that another member with `content:install` approves or rejects. Turning it on is immediate; turning it off takes effect 24 hours later, and owners and administrators are notified meanwhile. |
+
+Installing, updating, rolling back, uninstalling and deciding requests need
+**Install content** (`content:install`: owners and administrators) and a recent
+sign-in. A version whose license does not allow use as a service needs an
+explicit acknowledgement, which is audited. An unpinned installation follows
+the newest compatible, non-revoked version that asks for no more than the
+installed one. A revoked version cannot be installed, and its installations
+become revoked. An executable type (sensors, tool adapters) is refused while the
+revocation list is missing or expired.
+
+**Private packages.** A member with **Publish private content**
+(`content:publish`) can publish a package for the own organization only
+(`POST /api/v1/content/private-packages`); a super administrator can publish
+one for every organization (`POST /api/v1/admin/content-catalog/packages`).
+Private packages hold rules, templates or wordlists, never ask for
+credentials, and become content packs of the organization or the platform.
+
+Installed catalog packages are not yet delivered to sensors by digest;
+sensors keep using their own content as described above.
