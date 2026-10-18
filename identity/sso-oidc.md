@@ -84,7 +84,7 @@ instead of a password. Any provider that publishes OpenID discovery
    `https://<console-origin>/login/callback`, where `<console-origin>` is the admin console's own
    site (its own host name, or the gateway's console port, `OPENCTEM_ADMIN_PORT`, 8443 by default;
    the shipped default is `https://<OPENCTEM_HOSTNAME>:8443`).
-2. In the admin console, **System > Admin sign-in** (super admins only), turn the provider on and
+2. In the platform console, **Security › Admin sign-in** (super admins only), turn the provider on and
    enter the **Button label**, **Issuer URL** (https, as published in the discovery document),
    **Client ID**, **Client secret**, **Redirect URI** and **Scopes**.
 3. Each administrator is matched by email at the first provider sign-in and bound to the provider's
