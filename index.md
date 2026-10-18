@@ -25,6 +25,7 @@ reachable; sensors connect out to the platform, so nothing has to reach into you
 | Install it | [Install](install/): Docker Compose, the all-in-one image, or Kubernetes with Helm |
 | Configure it | [Configuration](configuration/) and the [environment variables reference](configuration/environment-variables.md) |
 | Run it in production | [Operations](operations/): upgrades, backups, monitoring, troubleshooting |
+| Administer the installation | [Platform console](console/): organizations, users, approvals, settings, health |
 | Understand its security model or report a vulnerability | [Security](security/) |
 | Connect your identity provider | [Identity and access](identity/) |
 | Scan your environment | [Sensors](sensors/) and [Scanning](scanning/) |

@@ -19,7 +19,149 @@ with breaking changes has its own upgrade guide; read it first.
 
 | From | To | Guide |
 |---|---|---|
+| v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, `ADMIN_AUDIT_SINK` for managed services, re-run of the database role script, console pages moved, second super admin approvals. |
+| v0.9.x | v0.10.x | [From v0.9 to v0.10](#from-v09-to-v010) below: the platform console becomes its own service on its own site, new required settings, removed variables, migrations that need the API stopped. Plan a maintenance window. |
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
+
+Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0), with a
+backup before each step.
+
+### From v0.10 to v0.11.0
+
+Migrations `002908` to `002915` are all additive; the API can keep running while
+they apply. Then check:
+
+- **Managed services need the administrators' audit sink.** With
+  `MANAGED_SERVICE=true` and `APP_ENV=production` the API refuses to start unless
+  `ADMIN_AUDIT_SINK` is set (`https://...` with `ADMIN_AUDIT_SINK_SECRET`,
+  `syslog+tls://...`, or `file://...`). Set it before upgrading. The Ansible kit sets
+  it from `openctem_admin_audit_sink` (`file` or `https`). Self-managed
+  installations (`MANAGED_SERVICE` unset) are not affected. See
+  [Audit log](../security/audit-log.md).
+- **Re-run the database role script when the console has its own role.**
+  Installations with `DB_ADMIN_USER` re-run `deploy/postgres/least-privilege-roles.sql`
+  with `admin_user` after the migrations, so the console role gets the new
+  `admin_approvals` table and the API role loses it. The Compose stack does this on
+  `up` (the `db-grants` job runs after `migrate`); other deployments run the script
+  themselves ([Docker Compose](../install/docker-compose.md),
+  [Backup and restore](backup-restore.md)).
+- **Console pages moved.** The console has one **Health** page (`/health`) and one
+  **Platform scanning** page (`/scanning/platform`); `/operations`, `/system`,
+  `/system/platform-scanning` and `/system/shared-sensors` no longer exist and
+  have no redirects. The sidebar groups are now Customers, Scanning, Security,
+  Settings and Monitoring ([Platform console](../console/index.md)).
+- **A second super admin approves the most dangerous console actions.** With two or
+  more named super admins, making or removing a super admin, turning off the
+  security-key requirement, removing or relaxing the administrators' identity
+  provider, opening sign-up, re-signing an audit chain and deleting an organization
+  now need another super admin's approval ([Approvals](../console/security.md#approvals)).
+- **Settings moved to the console.** CAPTCHA keys, the deployment region, the
+  default storage quota, an alert webhook and the platform AI provider are set in
+  the console ([Console settings](../console/settings.md)). Nothing to do:
+  `CAPTCHA_TURNSTILE_*`, `DEPLOYMENT_REGION` and the AI provider keys still work
+  and lock their setting; `STORAGE_TENANT_QUOTA_MB` stays the default until the
+  console stores one. `SIGNUP_MODE=open` no longer stops start-up without CAPTCHA
+  keys: open sign-up stays closed until a CAPTCHA is configured.
+- **Deleting an organization waits 14 days.** An owner's deletion now schedules it
+  (`DELETE /api/v1/tenants/{tenant}` answers `202` with `deletion_due_at`) and any
+  owner can cancel from the sign-in page; a super admin can still **Delete now**
+  ([Delete an organization](../console/organizations-and-users.md#delete-an-organization)).
+- **Suspension and account blocking.** Organizations can be suspended and accounts
+  blocked from the console; a suspended organization's credentials get
+  `403 ORGANIZATION_SUSPENDED`.
+- **Console sessions.** At most three console sessions per administrator; a super
+  admin's write is refused with `503 AUDIT_UNAVAILABLE` when the admin activity log
+  cannot be written; administrator accounts can no longer sign in on the
+  organization site. A console tab open during the upgrade may need a reload.
+- **API clients.** Dashboard SLA and MTTR fields may be `null` when they cannot be
+  measured. `GET /api/v1/admin/platform-users` no longer requires `q`. The program
+  feed admin routes (`/api/v1/admin/program-feed`) are removed.
+- **Helm and Ansible.** Use the chart and kit release that names v0.11.0
+  ([Kubernetes](../install/kubernetes.md), [Ansible](../install/ansible.md)); at
+  the time of writing the newest chart and kit target v0.10.1.
+
+### From v0.9 to v0.10
+
+Several migrations of v0.10.0 drop columns the previous API reads. **Stop the API
+while the migrations run** (Compose: `docker compose stop api web` before
+`docker compose up -d`), then start the new release. Before upgrading:
+
+- **Set `FINGERPRINT_KEY`** (required outside development, at least 32
+  characters). On an existing installation set it to the current
+  `APP_ENCRYPTION_KEY` value, so every stored secret fingerprint stays valid, and
+  never rotate it.
+- **Replace `TENANT_CREATION_MODE` with `SIGNUP_MODE`** and remove
+  `AUTH_ALLOW_REGISTRATION`; the API refuses to start while they are set.
+  `admin_only` is `SIGNUP_MODE=disabled` (the default); `self_service` is
+  `SIGNUP_MODE=open`, which needs the platform e-mail and, for self-service
+  organizations, starting limits (`SELF_SERVICE_START_LIMITS`, or limits saved in
+  the console) before start.
+- **Remove the retired sensor version variables** `SENSOR_LATEST_VERSION`,
+  `SENSOR_MIN_VERSION`, `SENSOR_SDK_LATEST_VERSION` and `SENSOR_SDK_MIN_VERSION`:
+  the API refuses to start while one is set. `SENSOR_IMAGE` still points the
+  install snippets at a mirror. Edited sensor templates move to the
+  `configs/sensor-products` layout (`SENSOR_CONFIG_TEMPLATES_DIR`).
+- **Note your legal settings.** `LEGAL_*`, `SECURITY_CONTACT`, `SECURITY_POLICY_URL`,
+  `SECURITY_TXT_ENABLED` and `NEXT_PUBLIC_TERMS_URL`/`NEXT_PUBLIC_PRIVACY_URL` are no
+  longer read: enter them in the console under **Settings › Legal** after the
+  upgrade.
+- **Reconfigure the admin audit sink** if it used `ADMIN_AUDIT_SINK_TOKEN`,
+  `syslog+tcp://` or `syslog+udp://` (now `https://` with `ADMIN_AUDIT_SINK_SECRET`,
+  `syslog+tls://` or `file://`).
+
+The platform console:
+
+- **It is its own service on its own site.** The Compose stack runs the `console`
+  service (`ghcr.io/openctemio/openctem-console`); the gateway serves it at
+  `https://<host>:8443` (`OPENCTEM_ADMIN_SITE=port`, the default) or on its own
+  host name (`OPENCTEM_ADMIN_SITE=host` with `OPENCTEM_ADMIN_HOST`). There is no
+  `/admin` path on the main site. Publish port 8443 (the Compose file does; with
+  the all-in-one image add `-p 8443:8443`). Deployments other than this Compose
+  file add the console service.
+- **Who may reach it.** Only private networks by default: an operator who reaches
+  the console from a public address sets `OPENCTEM_ADMIN_ALLOWED_CIDRS` (and the
+  API's `ADMIN_ALLOWED_CIDRS` outside Compose) before upgrading, or the console
+  answers 403.
+- **Administrators sign in again** on the console's site, and press **Elevate**
+  before changing anything (`ADMIN_ELEVATION=off` keeps acting as their own role).
+  A platform identity provider's redirect URI becomes `<console origin>/login/callback`.
+- **Security keys** need `ADMIN_PUBLIC_URL` set to the console's origin
+  ([Where the console is](../console/index.md#where-the-console-is)).
+- **In production, the console's CSRF key** is derived from `AUTH_JWT_SECRET` (or
+  `APP_ENCRYPTION_KEY` when it is derived); with `AUTH_PROVIDER=oidc` set
+  `AUTH_JWT_SECRET` explicitly, the same on every replica.
+
+Sensors and scanning:
+
+- **The sensor mTLS listener moved from `:8443` to `:9443`.** Only a deployment
+  that publishes or proxies it itself changes its target (or sets
+  `SENSOR_MTLS_LISTEN_ADDR=:8443` and `SENSOR_MTLS_UPSTREAM=api:8443`); the Compose
+  overlays already use 9443.
+- **Update sensors to a release that reports `http.identity@1`** before upgrading,
+  and restart sensors that register a manifest afterwards; until then, jobs on
+  program targets that require identification wait.
+- **Jira inbound webhooks** move to the integration's own URL
+  (`/hooks/jira-integrations/{id}`): create the webhook again with the new URL and
+  secret.
+- Behind a Cloudflare Tunnel, set `OPENCTEM_CLIENT_IP_HEADERS=Cf-Connecting-Ip` so the
+  gateway passes the real client address.
+
+Data and access changes to plan for:
+
+- **Suppression rules need an end date.** A rule without one expires 90 days after
+  the upgrade and its findings reopen then; review the rules flagged **Review** in
+  Exceptions before that date.
+- **API keys** get 403 on `/audit-logs` (read the audit log with a user session),
+  and organization keys without a user are revoked: mint a new key (bound to its
+  creator).
+- **Remediation keys** of existing findings change on a backfill:
+  `refingerprint -remediation-keys` (dry run), then `-apply`. Campaigns that track
+  an old key are re-created from the new group. Optional: `repomerge` (dry run)
+  and `repomerge -apply` merge duplicate repository assets.
+- **API clients:** `GET /api/v1/fleet` is removed (use the sensor and CI pipeline
+  lists); system roles (`admin`, `member`, `viewer`) change only through the member
+  role route, not `/users/{id}/roles`; the Researcher role has an organization's own
+  ID (`GET /api/v1/roles`); `properties.technologies` is now `technologies`.
 
 Upgrades within v0.9 (v0.9.0 to v0.9.6) need no guide of their own. Check
 these points when you reach v0.9.5:
@@ -86,9 +228,11 @@ every version between yours and the target. How versions are numbered:
 - **Migrations are backward compatible by design** (expand, then contract in a
   later release), so the previous release keeps working against the new schema.
   Exceptions are called out in the release's upgrade guide.
-- **Sensors are released separately.** The platform shows each sensor's version
-  against `SENSOR_LATEST_VERSION` and `SENSOR_MIN_VERSION`. Upgrade the platform
-  first unless the release guide says otherwise.
+- **Sensors and the SDK are released separately.** The platform judges each
+  sensor against the compatibility ranges in its `versions.yaml` and learns newer
+  sensor and SDK releases from the signed release feed, without a platform release
+  ([Versioning](versioning.md)). Upgrade the platform first unless the release
+  guide says otherwise.
 
 The reasoning, the CI guard on destructive migrations and dirty-migration
 recovery are in
@@ -117,7 +261,7 @@ recovery are in
 In `api/deploy` of your checkout:
 
 ```bash
-NEW_VERSION=v0.9.6   # the release you upgrade to
+NEW_VERSION=v0.11.0   # the release you upgrade to
 git fetch --tags
 git checkout "$NEW_VERSION"
 diff <(grep -o '^[A-Z_]*=' .env | sort) <(grep -o '^[A-Z_]*=' .env.example | sort)
@@ -172,7 +316,9 @@ for every chart version you cross.
 ## After the upgrade
 
 - Check the API log for warnings at start-up (see [Log reference](logs.md)).
-- Update sensors when the release raises `SENSOR_MIN_VERSION` or the release
-  guide asks for it: [Sensors](../sensors/index.md).
+- Update sensors when the console or the Sensors page reports them outdated or
+  unsupported, or when the release guide asks for it: [Sensors](../sensors/index.md).
+- With `DB_ADMIN_USER`, check the API's start-up log: it logs an error when the API
+  role can still write the console's tables (the role script was not re-run).
 - Update API clients and CI pipelines for any removed or renamed routes listed
   in the release notes.

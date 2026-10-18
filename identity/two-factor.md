@@ -106,7 +106,7 @@ There is no way to turn it off.
   (one as a spare).
 - **Recovery codes.** Ten one-time codes per administrator, shown once, used at sign-in when no key
   is at hand. They never confirm a sensitive action.
-- **Require security keys** (**System > Admin sign-in**, super admin): administrators who hold a key
+- **Require security keys** (**Security › Admin sign-in** in the platform console, super admin): administrators who hold a key
   must use it and the authenticator app is refused for them, after a 7-day grace period for those
   who have none. It turns on only when the administrator enabling it has two keys and recovery codes.
   Break-glass administrators keep the authenticator app.

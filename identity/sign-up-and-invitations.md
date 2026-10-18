@@ -63,18 +63,20 @@ No API or console session can open sign-up beyond it:
 | `domain` | Public sign-up only for addresses on an organization's verified domain; those people join that organization and never create one. |
 | `open` | Anyone may sign up and create an organization (the hosted service). |
 
-`domain` and `open` need the platform e-mail (**System > E-mail** in the admin console, or
+`domain` and `open` need the platform e-mail (**Settings › E-mail** in the platform console, or
 `BOOTSTRAP_SMTP_*` for `bootstrap-admin`) and local accounts, or the server refuses to start, and
-public sign-up closes while the platform e-mail does not work. `open` in production also needs the
-Cloudflare Turnstile keys (`CAPTCHA_TURNSTILE_SECRET` and `CAPTCHA_TURNSTILE_SITE_KEY`) or
-`SIGNUP_CAPTCHA=off-i-understand`. Self-service organizations start with the limits in
-`SELF_SERVICE_START_LIMITS` until a super admin saves limits under **System > Limits**. The old
+public sign-up closes while the platform e-mail does not work. Open sign-up also stays closed until a
+CAPTCHA is set up: the Cloudflare Turnstile keys in the console (**Settings › CAPTCHA**) or on the
+server (`CAPTCHA_TURNSTILE_SECRET` and `CAPTCHA_TURNSTILE_SITE_KEY`), unless the server sets
+`SIGNUP_CAPTCHA=off-i-understand` (the API logs a warning while it is closed for this reason). Self-service organizations start with the limits in
+`SELF_SERVICE_START_LIMITS` until a super admin saves limits under **Settings › Limits** in the platform console. The old
 `TENANT_CREATION_MODE` and `AUTH_ALLOW_REGISTRATION` variables are gone: remove them from the
 environment (`TENANT_CREATION_MODE` stops start-up while set).
 
 **2. The sign-up policy**, a runtime switch below the ceiling. A super admin changes it in the admin
-console under **System > Sign-up** (a fresh authenticator code is required; every change is audited at
-critical severity and emailed to the other administrators). Any administrator can read it. The page
+console under **Settings › Sign-up** (a fresh authenticator code is required; every change is audited at
+critical severity and emailed to the other administrators; opening sign-up needs a second super admin's
+approval when there is one, see [Approvals](../console/security.md#approvals)). Any administrator can read it. The page
 shows the server setting and what is in force.
 
 | Setting | Choices |
@@ -84,7 +86,7 @@ shows the server setting and what is in force.
 | **Let people request access** | When only administrators create organizations, people who cannot sign in may ask for one. |
 
 ![The Sign-up page of the admin console with the server setting and the two choices]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
-*Figure: Admin console, System, Sign-up.*
+*Figure: Platform console, Settings, Sign-up.*
 
 A choice the ceiling does not allow is shown as locked (**Locked by the server configuration**) and
 saving it answers 409 `SIGNUP_LOCKED_BY_DEPLOYMENT`. Changing the policy never affects existing
@@ -97,7 +99,7 @@ With organization creation limited to administrators and **Let people request ac
 set up" page offers a request form (`/request-access`). Every accepted submission gets the same
 answer; limits per address (3 an hour) and per domain (5 a day) and disposable addresses drop
 requests silently, and the requester confirms by an emailed link first. Platform administrators see
-the queue under **Requests > Access requests** in the admin console; an ops admin approves (the
+the queue under **Customers › Access requests** in the platform console; an ops admin approves (the
 organization is created with the requester as its owner) or rejects (a neutral email). Unconfirmed
 requests are deleted after 24 hours and decided ones after 90 days.
 
