@@ -399,6 +399,47 @@ A dashboard overview is reused for 15 seconds per user session. The first load
 of the dashboard on a 525,000-finding organization takes 3-6 seconds (measured).
 Later loads take under 100 ms.
 
+## Capacity limits and growth path
+
+This section is for planning: how far one installation of the current release
+goes, where it stops scaling, and what changes at each step. Figures marked
+*measured* come from the performance test data set (525,000 findings); the
+others are estimates and are re-measured as the work below ships.
+
+### Scale points
+
+| Scale point | Organizations | Assets | Findings | Sensors | Hot database (findings + assets) | Database disk | Status in the current release |
+|---|---|---|---|---|---|---|---|
+| **S** — typical Community install | 1 | ~10,000 | 100,000–1M | ~10 | 0.4–4 GB | 10 GB | Runs comfortably |
+| **M** — enterprise self-managed | 1–10 | 100,000–1M | 1–10M | 100–1,000 | 4–40 GB | 100 GB | Dashboards and statistics slow down once one organization holds about 500,000 findings; very large imports take long |
+| **L** — large enterprise or one Cloud cell | 100–1,000 | 1–10M | 10–100M | 1,000–10,000 | 40–400 GB | 1 TB | Needs the growth steps below (connection pooling, sensor heartbeat path, incremental platform jobs) |
+| **XL** — Cloud with many cells | 1,000–10,000 | 10–100M | 100M–1B | 10,000–100,000 | 0.4–4 TB | 4–10 TB | Not a single-database target: split into cells of about 1–2 TB each |
+
+### Current limits
+
+| Area | Limit today | What lifts it |
+|---|---|---|
+| Dashboards and statistics | At 525,000 findings in one organization, 2 database vCPUs saturate at 13–18 requests per second (*measured*); cost grows with findings per organization | Precomputed per-asset dashboard data and snapshots; capped counts ("1,000+") instead of exact totals on large lists; keyset pagination |
+| Imports | About 900 new findings per second per stream, about 3M per hour per API instance | Parallel import workers; fewer indexes on the findings table |
+| Database connections | Each API process opens up to 25 connections; past two or three API instances the default PostgreSQL limit (100) is reached | A connection pooler in transaction mode |
+| Sensors | About 1,500 sensors per API instance at a 30-second heartbeat; each heartbeat writes to the database | Heartbeats kept in Redis and written to the database only on state changes and periodic checkpoints (estimated 4,500 → 95 writes per second at 10,000 sensors) |
+| Platform-wide jobs | Jobs that scan every organization become heavy at about 50–100M findings in total | Per-organization, incremental, single-runner jobs |
+
+### Growth path
+
+| Step | When | What |
+|---|---|---|
+| 1 | Now (S and M) | One API instance, one PostgreSQL with backups; follow the per-component sizes above |
+| 2 | One organization above ~500,000 findings, or more than ~10 concurrent analysts | Upgrade to a release with precomputed dashboards; add a PostgreSQL read replica for reports and exports |
+| 3 | More than two API instances, or more than ~1,500 sensors | Connection pooler; separate API and background-worker roles; Redis-backed sensor heartbeats |
+| 4 | 10–100M findings (L) | Time-partitioned event and audit tables, archive of old findings to object storage, high-availability PostgreSQL with point-in-time recovery |
+| 5 | Beyond ~1–2 TB of hot data, or many large organizations (XL) | Cells: each a full stack with its own database, organizations routed to a cell |
+
+Optional components are added only when measurements show the need: a
+columnar analytics store for very large statistics and long trends, and a
+dedicated search cluster for ranked full-text and global search. Community and
+small self-managed installs never require them.
+
 ## Service level objectives
 
 Use these as alert thresholds:
