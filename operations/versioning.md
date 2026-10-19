@@ -53,9 +53,23 @@ cosign verify-attestation --type spdxjson "ghcr.io/openctemio/openctem-api:$TAG"
 ```
 
 Run the same for every image you deploy (`openctem-web`, `openctem-console`,
-`openctem-gateway`, `openctem`, `migrations`). The SBOM files are also attached to the GitHub Release as
-`sbom-<image>-<version>.spdx.json`. Signed SBOM attestations start with the first
-release after v0.8.0.
+`openctem-gateway`, `openctem`, `migrations`). Signed SBOM attestations start with the first
+release after v0.8.0. Each image also carries a signed SLSA build provenance (the
+repository, workflow, tag and commit it was built from):
+
+```bash
+cosign verify-attestation --type slsaprovenance1 "ghcr.io/openctemio/openctem-api:$TAG" \
+  --certificate-identity "https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/$TAG" \
+  --certificate-oidc-issuer "$ISSUER"
+```
+
+The signatures and attestations are Sigstore bundles stored as OCI referrers of the image
+digest: use cosign v3, and copy them along when you mirror an image. Some releases (v0.10.1,
+v0.11.0) have no `sbom-*.spdx.json` files attached to the GitHub Release; the signed SBOM
+attestation is the reference, and
+[Air-gapped and controlled supply chain](../install/air-gapped.md#verify-the-signature-the-sbom-and-the-provenance)
+shows how to extract it, mirror the images with their signatures, and pin the exact identity
+of the release you approve.
 
 ## Version numbers
 

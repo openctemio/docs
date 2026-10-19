@@ -16,6 +16,7 @@ settings in [Configuration](../configuration/index.md).
 | [Upgrading](upgrade.md) | The upgrade procedure for Compose, the all-in-one image and Helm, release-specific guides, rollback. |
 | [Versioning and releases](versioning.md) | Version numbers, the release train, hotfixes, where changes are recorded, the signed release feed that tells the platform about sensor and SDK releases, sensor and chart compatibility. |
 | [Backup and restore](backup-restore.md) | What to back up (database, secrets, volumes), tested backup and restore commands, and point-in-time recovery with the Ansible kit. |
+| [Air-gapped and controlled supply chain](../install/air-gapped.md) | Taking a release in through your own registry: verifying signatures, SBOMs and provenance, countersigning, deploying by digest, feeds and upgrades without internet access. |
 | [Vulnerability and program feeds](feeds.md) | The signed vulnerability and program feeds: pinning the root key, mirrors, air-gapped import. |
 | [Monitoring](monitoring.md) | Health endpoints, the console Health page, administrator alerts (e-mail and webhook), Prometheus metrics, the monitoring stack and alerts. |
 | [Scaling](scaling.md) | What scales how, and the knobs that matter. |
