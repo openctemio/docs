@@ -104,6 +104,9 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_OUTBOX_MAX_BYTES"></span>`SENSOR_OUTBOX_MAX_BYTES` | bytes |  | `1GiB` |  | Outbox size limit. |
 | <span id="SENSOR_OUTBOX_MAX_AGE"></span>`SENSOR_OUTBOX_MAX_AGE` | duration |  | `168h` |  | Outbox age limit. |
 | <span id="SENSOR_OUTBOX_KEY_FILE"></span>`SENSOR_OUTBOX_KEY_FILE` | path |  |  |  | Outbox encryption key file (default &lt;outbox dir&gt;/outbox.key). |
+| <span id="SENSOR_STORE_DIR"></span>`SENSOR_STORE_DIR` | path |  |  |  | Directory of the encrypted local store (sealed outbox items, job journal, policy cache). Default: store/ next to the outbox directory; mount a persistent volume. |
+| <span id="SENSOR_STORE_KEY_FILE"></span>`SENSOR_STORE_KEY_FILE` | path |  |  |  | The local store's master key file (mode 0600), for example a mounted secret kept off the data volume. Default: master.key in the store directory, created on first start. |
+| <span id="SENSOR_WORKSPACE_DIR"></span>`SENSOR_WORKSPACE_DIR` | path |  |  |  | Directory of the per-job workspaces (0700, one directory per job, removed when the job ends and swept at start). Default: workspaces/ next to the outbox directory. |
 | <span id="SENSOR_REGION"></span>`SENSOR_REGION` | string |  |  |  | Deployment region reported to the platform. |
 | <span id="SENSOR_SCAN_ROOTS"></span>`SENSOR_SCAN_ROOTS` | list |  |  |  | Directories dispatched code scans may read (the scan workspace). |
 | <span id="SENSOR_DNS_RESOLVERS"></span>`SENSOR_DNS_RESOLVERS` | list |  |  |  | DNS resolvers for the recon tools (default: the system resolvers). |
