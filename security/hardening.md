@@ -344,7 +344,9 @@ job writes (`backup.sh` writes it when `METRICS_TEXTFILE_DIR` is set). Test a re
   service, the Helm pre-upgrade job, or the all-in-one image's start-up) with the migrator role.
 - Back up before every upgrade. Read the release notes for upgrade steps.
 - Verify the image signatures and SBOM attestations before you deploy a release (see
-  [Verify a release](../operations/versioning.md#verify-a-release)), and pin exact tags.
+  [Verify a release](../operations/versioning.md#verify-a-release)), and pin exact tags or, better,
+  digests. To approve each release and run it from your own registry, see
+  [Air-gapped and controlled supply chain](../install/air-gapped.md).
 - Subscribe to security advisories on the GitHub repositories and upgrade promptly when one is
   published. See [Upgrading](../operations/upgrade.md).
 

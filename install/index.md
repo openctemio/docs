@@ -30,6 +30,10 @@ the order of work from an empty host to a monitored installation with a tested r
 | [Kubernetes (Helm)](kubernetes.md) | The `openctem` chart from `openctemio/helm-charts`. The newest chart (0.29.0) targets v0.10.1; there is no chart for v0.11.0 yet. | Clusters, external managed datastores, GitOps. |
 | [One VM with Ansible](ansible.md) | The `openctem-ansible` kit: a hardened Ubuntu VM, signed images, encrypted backups and a monitor. Two guides: [with Cloudflare Tunnel and Access](ansible-cloudflare.md) (no inbound port) and [without Cloudflare](ansible-without-cloudflare.md) (your own TLS, public or private). | A production single host you want hardened and operated the same way every time. |
 
+Approving each release yourself, or no internet access in production? Every
+deployment above also runs from your own registry, pinned by digest: see
+[Air-gapped and controlled supply chain](air-gapped.md).
+
 All of them expose the platform on one HTTPS port through the same gateway: see
 [TLS and the gateway](tls-and-gateway.md). The platform console, where platform
 administrators work, is a separate app on its own site (its own port or host
@@ -170,8 +174,10 @@ flowchart TB
 ## Images
 
 Every release tag `vX.Y.Z` publishes these images to the GitHub Container
-Registry, for `linux/amd64` and `linux/arm64`, signed with cosign and with SBOMs
-attached to the release:
+Registry, for `linux/amd64` and `linux/arm64`, signed with cosign (keyless) and
+with a signed SBOM and a signed build provenance attached to each image digest
+([Verify a release](../operations/versioning.md#verify-a-release),
+[Air-gapped and controlled supply chain](air-gapped.md#what-a-release-contains)):
 
 | Image | Contents |
 |---|---|
@@ -256,6 +262,9 @@ mutual-TLS listener on 9443 when the sensor passthrough is on; see
 | Your SMTP server | Invitations, verification and password-reset email (set in the platform console, Settings, E-mail). | Recommended. |
 | `github.com` (the signed release feed) | Once a day the API downloads the feed of releases to show newer and security releases. Nothing about the instance is sent; GitHub sees the server's address. | Optional (`VERSION_CHECK_ENABLED=false` turns it off; import the file in the console, Monitoring, Software updates). |
 | Integration endpoints | Jira, GitHub or GitLab, Slack, Teams, Telegram, webhook channels, identity providers, AI providers. | Per integration. |
+
+Without internet access, turn these off or replace them one by one: see
+[What the platform contacts](air-gapped.md#what-the-platform-contacts).
 
 Webhook and integration URLs that resolve to private addresses (RFC 1918) are
 refused unless their range is listed in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`;

@@ -253,7 +253,9 @@ recovery are in
    that tightens the console's CSRF checks, a browser tab opened before the upgrade gets one
    `403` on its first write; reloading the page fixes it.
 4. **Verify the images** of the new release with the `cosign` commands in its
-   release notes ([Verify a release](versioning.md#verify-a-release)).
+   release notes ([Verify a release](versioning.md#verify-a-release)). In a controlled or
+   air-gapped environment, follow
+   [the upgrade procedure there](../install/air-gapped.md#6-upgrades-in-a-controlled-environment).
 5. **Rehearse** large upgrades on a copy of production.
 
 ## Docker Compose
