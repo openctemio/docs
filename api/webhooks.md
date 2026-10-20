@@ -120,6 +120,11 @@ Jira and GitHub Issues integrations create tickets from findings and remediation
 organization's own credentials (console: **Settings > Integrations > Ticketing**). Status changes
 come back through the inbound webhooks below.
 
+An organization with several Jira integrations names one with `integration_id` in the body of
+`POST /api/v1/findings/{id}/create-ticket`, `POST /api/v1/findings/{id}/ticket-links` and
+`POST /api/v1/remediation/tasks/{task_id}/ticket-links`; without it the newest connected Jira
+integration is used. Later status pushes and comments go to the integration that owns the issue.
+
 ## Inbound webhooks
 
 Inbound webhooks are public endpoints (no session, no API key). Each is checked against the secret
@@ -145,6 +150,10 @@ In Jira, create a webhook with that URL and secret for issue updates.
 - A valid delivery answers `200`. A delivery that fails to process answers `5xx` and is forgotten, so
   Jira's retry is processed.
 - With no secret configured the endpoint refuses every request.
+- A delivery acts only on the integration in its URL. With several Jira integrations (two sites,
+  or Cloud and Data Center), a change to `SEC-1` on one site never moves what is linked to `SEC-1`
+  on another. Issues are matched by their Jira id first, so an issue moved to another project
+  (new key) stays linked.
 
 API for the console dialog (`integrations:manage`; changing the secret needs a recent sign-in):
 `GET /api/v1/integrations/{id}/jira-webhook`, `POST /api/v1/integrations/{id}/jira-webhook/secret/rotate`
