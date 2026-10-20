@@ -44,8 +44,6 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/integrations` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer |
 | POST | `/api/v1/integrations` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/defectdojo/sync` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
-| GET | `/api/v1/integrations/github/webhook-secret` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
-| POST | `/api/v1/integrations/github/webhook-secret/rotate` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | GET | `/api/v1/integrations/jira/projects` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer |
 | GET | `/api/v1/integrations/notifications` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer |
 | POST | `/api/v1/integrations/notifications` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
@@ -78,6 +76,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/integrations/{id}/coverage/reactivate` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/disable` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/enable` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
+| GET | `/api/v1/integrations/{id}/github-webhook` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
+| POST | `/api/v1/integrations/{id}/github-webhook/secret/rotate` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | GET | `/api/v1/integrations/{id}/jira-webhook` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | PUT | `/api/v1/integrations/{id}/jira-webhook/secret` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/jira-webhook/secret/rotate` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
@@ -95,5 +95,5 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | DELETE | `/api/v1/notification-outbox/{id}` | `integrations:manage`, `integrations:notifications:delete` | config: delivery queue, channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/notification-outbox/{id}` | `integrations:manage`, `integrations:notifications:read` | config: delivery queue, channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/notification-outbox/{id}/retry` | `integrations:manage`, `integrations:notifications:write` | config: delivery queue, channel-manager only (L-03) |  | Owner, Administrator |
-| POST | `/api/v1/webhooks/incoming/github` | no permission: inbound webhook HMAC per-tenant | config: inbound Jira/GitHub webhooks (HMAC); the outbound webhook API is removed |  | see Requires |
+| POST | `/hooks/github-integrations/{integration_id}` | no permission: public: the URL names one GitHub integration and its own secret (X-Hub-Signature-256, HMAC-SHA256 over the raw body) is the credential, verified before anything is parsed; replays refused by body hash and delivery id (store mandatory); events for repositories outside the integration's organization refused; per-IP and per-integration limits | system: inbound GitHub webhook: the integration named in the URL and its own HMAC secret decide the one tenant |  | see Requires |
 | POST | `/hooks/jira-integrations/{integration_id}` | no permission: public: the URL names one Jira integration and its own secret (X-Hub-Signature, HMAC-SHA256 over the raw body) is the credential, verified before anything is parsed; replayed and stale deliveries refused; per-IP and per-integration limits | system: inbound Jira webhook: the integration named in the URL and its own HMAC secret decide the one tenant |  | see Requires |
