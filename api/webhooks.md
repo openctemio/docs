@@ -124,6 +124,11 @@ An organization with several Jira integrations names one with `integration_id` i
 `POST /api/v1/findings/{id}/create-ticket`, `POST /api/v1/findings/{id}/ticket-links` and
 `POST /api/v1/remediation/tasks/{task_id}/ticket-links`; without it the newest connected Jira
 integration is used. Later status pushes and comments go to the integration that owns the issue.
+A retried create never opens a second issue: each Jira issue OpenCTEM creates carries the issue
+property `openctem` and the label `openctem-ref-<object id>`, and each GitHub issue ends with a
+hidden `<!-- openctem:... -->` line. Before creating, OpenCTEM looks for that marker and reuses the
+issue it finds (for example after a timeout where Jira created the issue but the reply was lost).
+Keep the label and the hidden line on the issue.
 
 ## Inbound webhooks
 
