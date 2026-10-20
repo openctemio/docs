@@ -108,11 +108,26 @@ they say so and link to the assets.
   entry points to assets with KEV or critical findings, ranked by urgency. Each
   chain is the shortest path from a public entry point to such an asset. Hover to
   trace a path; click any node to open it. The cards show the entry points, the
-  targets at risk and the chains shown.
+  targets at risk and the chains shown. The page lists up to 100 chains; the
+  figures on the cards count every chain you may see.
 - **Attack Paths** (`/attack-paths`): assets ranked by how many public entry
-  points reach them. Patching or isolating the top-ranked asset breaks the most
-  attack paths. The page also shows the crown jewels at risk, the maximum chain
-  depth and the top entry points.
+  points reach them (the 50 highest-ranked among the assets you may see). The
+  ranking shows how widely each asset is exposed; it does not tell you which
+  single fix would break the most paths. The page also shows the crown jewels at
+  risk, the maximum chain depth and the top entry points. Only open findings
+  raise an asset's score.
+
+If the page cannot load the data it says so and offers **Retry**; that is
+different from "No relationship data yet", which means the read worked and the
+organization has no relationships.
+
+### What you see when you can access only some assets
+
+Paths follow the whole asset graph, but you only see assets in your scope. An
+exposure chain is shown when its target is an asset you may see. A step on the
+way that you may not see appears as **Outside your access**, with no name or
+type, so you can tell that your asset is reachable without learning what lies in
+between.
 
 ## Threat intelligence
 

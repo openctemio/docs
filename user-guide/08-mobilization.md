@@ -113,6 +113,19 @@ Click a task to open it.
   another fix, or empties this task), to take them out of any task, or to
   **Split** them into a new task of the same fix. You can also drag findings
   onto a task of the same fix. Every move can be undone from its message.
+- Each finding row has a **status menu**. It lists only the moves you may make
+  on that finding; a move you cannot make is greyed out with the reason. Claiming
+  a fix or resolving asks for a note or evidence, and marking a finding a false
+  positive or accepting its risk sends an approval request. If someone else
+  changed the finding in the meantime, it reloads and nothing is overwritten.
+- Click a finding to read it in a side panel without leaving the task. The link
+  in the address bar can be shared, **Back** closes the panel, and the panel
+  shows "Finding 4 of 13" with **Previous** and **Next**. Press `j` and `k` to
+  move through the list (with or without the panel open) and `Enter` to open the
+  highlighted finding. After you start a finding or claim its fix, the panel
+  moves to the next finding that still needs work; untick **Go to the next open
+  finding after an action** to stay. **Open full details** shows the finding
+  page, with a link back to the task above it.
 - **Mark fixed** claims the fix for every open finding of the task (a note is
   required, and you can claim only findings on assets you own). Each finding is
   then checked again on its own; nothing closes until its own check passes.
@@ -128,6 +141,24 @@ Managing tasks needs the remediation write permission; **Mark fixed** also needs
 the permission to mark findings fixed. Members who see only part of the
 organization see a task through their own findings and cannot change a task
 that has findings outside their access.
+
+### Choosing a task owner who cannot see the findings
+
+When you pick an owner for a task (today in the **Split** dialog), the picker
+marks each person or team that cannot see some of the findings: "Needs access to
+3 findings on 2 assets", or for a team "4 of 9 members need access to 3
+findings". It shows counts only, never finding titles. People who can see all of
+them are listed first.
+
+- With the permission to assign findings you can still pick such an owner. A
+  consent line says who will be able to see which findings, and you tick it
+  before saving. The choice is written to the audit log with the counts.
+- Without that permission those candidates cannot be picked. **Request access**
+  leaves an internal comment on one of the findings for someone who may assign
+  them; it grants nothing.
+- The same rule applies when you create a task, change its owner or add findings
+  through the API: the request is refused with `422` unless the caller holds the
+  assign permission and sends `confirm_owner_access: true`.
 
 ### Campaigns
 
