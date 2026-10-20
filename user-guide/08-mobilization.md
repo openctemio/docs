@@ -142,6 +142,24 @@ the permission to mark findings fixed. Members who see only part of the
 organization see a task through their own findings and cannot change a task
 that has findings outside their access.
 
+### Choosing a task owner who cannot see the findings
+
+When you pick an owner for a task (today in the **Split** dialog), the picker
+marks each person or team that cannot see some of the findings: "Needs access to
+3 findings on 2 assets", or for a team "4 of 9 members need access to 3
+findings". It shows counts only, never finding titles. People who can see all of
+them are listed first.
+
+- With the permission to assign findings you can still pick such an owner. A
+  consent line says who will be able to see which findings, and you tick it
+  before saving. The choice is written to the audit log with the counts.
+- Without that permission those candidates cannot be picked. **Request access**
+  leaves an internal comment on one of the findings for someone who may assign
+  them; it grants nothing.
+- The same rule applies when you create a task, change its owner or add findings
+  through the API: the request is refused with `422` unless the caller holds the
+  assign permission and sends `confirm_owner_access: true`.
+
 ### Campaigns
 
 **Campaigns** (`/remediation/campaigns`) are programs that track many fixes
