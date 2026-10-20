@@ -112,7 +112,7 @@ Permissions are named `module[:resource]:action`, for example `findings:triage` 
 |---|---|
 | Core | `dashboard:read`, `dashboard:aggregate`, `audit:read`, `settings:read`, `settings:write` |
 | Assets | `assets:read/write/delete/import/export`; `assets:groups:*`; `assets:components:*` |
-| Findings | `findings:read/write/delete/assign/comment/triage/severity/status/export/bulk_update/approve/fix_apply/verify`; `findings:lifecycles:write`; `findings:exposures:*` and `findings:exposures:triage`; `findings:suppressions:read/write/delete/approve`; `findings:vulnerabilities:read`; `findings:credentials:read/write/reveal`; `findings:evidence:reveal`; `findings:remediation:read/write`; `findings:workflows:read/write` |
+| Findings | `findings:read/write/delete/assign/comment/triage/severity/status/export/bulk_update/approve/fix_apply/verify`; `findings:lifecycles:write`; `findings:retest_checks:write`; `findings:exposures:*` and `findings:exposures:triage`; `findings:suppressions:read/write/delete/approve`; `findings:vulnerabilities:read`; `findings:credentials:read/write/reveal`; `findings:evidence:reveal`; `findings:remediation:read/write`; `findings:workflows:read/write` |
 | Scans | `scans:read/write/delete/execute/approve`; `scans:profiles:*`, `scans:sources:*`, `scans:tools:*`, `scans:templates:*`, `scans:secret_store:*`, `scans:workflows:*`; `scans:content:read/write`; `scans:tenant_tools:read/write`; `scans:windows:manage/override`; `scans:ci:read/write/policy/override` |
 | Content catalog | `content:read`, `content:install`, `content:publish` |
 | Sensors | `sensors:read/write/delete`; `sensors:commands:read/write`; `sensors:zones:*`; `sensors:pair`, `sensors:approve`, `sensors:revoke`; `sensors:grant:narrow`, `sensors:grant:widen` |

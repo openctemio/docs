@@ -141,7 +141,7 @@ connection that holds `mcp:findings.comment`.
 | `list_active_cves` | `kev_only`, `min_epss` (0 to 1), `severity`, `limit` | CVEs active in the organization, ordered by KEV and EPSS | `findings:read` |
 | `explain_finding_priority` | `finding_id` | why a finding has its priority (KEV, EPSS, reachability, severity weighting) | `findings:read` |
 | `list_finding_transitions` | `finding_id` | the status moves of a finding the caller may make, each with how (direct, approval request, duplicate picker), the inputs it needs, or the reason codes why not | `findings:read` |
-| `get_exposure_chains` | none | shortest attack paths from public entry points to KEV or crown-jewel assets | `assets:read` |
+| `get_exposure_chains` | none | shortest attack paths from public entry points to KEV or crown-jewel assets; steps outside the key owner's data scope come back as hidden steps without name or type | `assets:read` |
 | `list_remediation_groups` | none | remediation groups (findings fixed by the same solution) | `findings:read` |
 | `list_assets` | `exposure` (`public`, `private`, `unknown`), `criticality`, `search`, `limit` | assets | `assets:read` |
 | `compliance_posture` | none | framework and control totals, overdue controls | `compliance:frameworks:read` |

@@ -170,6 +170,36 @@ breached.
 permission) re-runs the detection and reports Fixed, Still vulnerable,
 Regression (reopened), Not reproduced or Inconclusive.
 
+**Retest check** (any finding, for example a pentest, bug bounty, manual or DAST
+finding that has no automatic retest): attach a check so **Retest now** and the
+proof of fix can re-run it on a sensor. **Add check** (needs the
+`findings:retest_checks:write` permission) opens an editor with two tabs:
+
+- **HTTP assertion**: method (GET, HEAD, POST or OPTIONS), a path relative to the
+  finding's target, headers, a body for POST, and matchers (status codes, words or
+  regular expressions in the body or headers, optionally "must not appear"),
+  combined with "All must match" or "Any may match". No code.
+- **Nuclei template**: paste YAML, upload a `.yaml`/`.yml` file (up to 256 KB), or
+  pick a template from the organization's template library.
+
+**Validate** shows errors per field, the tier (T0 passive, T1 active, T2
+intrusive) with its reason and the template that will run; **Save** is enabled
+after a valid validation of exactly what is in the form. **Remove** detaches the
+check; its template stays in the library. Rules:
+
+- The check always runs against the finding's own target, and credentials
+  (Authorization or Cookie headers) are not allowed.
+- A match means the issue is still there. A check proves a fix only after it has
+  matched this finding once (**Calibrated**); until then a no-match reads "not
+  reproduced", not fixed. A check that cannot load or run is inconclusive and
+  never resolves the finding.
+- An intrusive (T2) check runs only after a second person with scope approval
+  rights clicks **Approve** (a recent sign-in is asked for). The author of a
+  version cannot approve it. Editing a check resets its approval and calibration.
+- While the template awaits approval for your sensors, a note links to the
+  template library. Retest history shows "Checked with custom check <name>
+  (sha256:…)" for retests that ran the check.
+
 **Why it matters.** The priority class and the deadline to fix it, the reason
 sentence, and risk-signal chips grouped into exploitation, exposure and business
 impact. **Set manually** marks an overridden class, "Set by rule" names the

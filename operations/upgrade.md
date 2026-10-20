@@ -143,6 +143,11 @@ Sensors and scanning:
 - **Jira inbound webhooks** move to the integration's own URL
   (`/hooks/jira-integrations/{id}`): create the webhook again with the new URL and
   secret.
+- **GitHub inbound webhooks** move to the integration's own URL
+  (`/hooks/github-integrations/{id}`); `/api/v1/webhooks/incoming/github?tenant=` is
+  removed. Change the URL of each GitHub webhook. A secret already generated keeps
+  working on the organization's first GitHub integration; generate one for any other
+  GitHub integration.
 - Behind a Cloudflare Tunnel, set `OPENCTEM_CLIENT_IP_HEADERS=Cf-Connecting-Ip` so the
   gateway passes the real client address.
 
