@@ -160,6 +160,7 @@ them are listed first.
 - The same rule applies when you create a task, change its owner or add findings
   through the API: the request is refused with `422` unless the caller holds the
   assign permission and sends `confirm_owner_access: true`.
+
 #### If you own a task
 
 The owner of a task, or a member of the team that owns it, can open the task's
