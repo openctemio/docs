@@ -17,8 +17,8 @@ identity provider's. The platform admin console has its own second step, which i
 
 In **Settings > My account > Security**:
 
-1. Select **Set up two-factor authentication**. Scan the QR code (or enter the secret) in your
-   authenticator app.
+1. Next to **Two-factor authentication**, select **Set up**. Scan the QR code (or enter the secret)
+   in your authenticator app.
 2. Enter your current password and a code from the app.
 3. Save the **10 recovery codes** shown. Each works once. They are shown only now.
 
@@ -27,13 +27,26 @@ In **Settings > My account > Security**:
 
 Turning 2FA on signs out every other session of your account.
 
-From then on, sign-in asks for a code after the password. A recovery code can be used instead of a
-code; using one is audited and emailed to you.
+From then on, sign-in asks for a code after the password. **Use a recovery code instead** switches to
+a recovery code; using one is audited and emailed to you.
+
+### Entering a code
+
+Every screen that asks for a code (sign-in, set-up, step-up, self-approvals, the platform console)
+uses the same field:
+
+- The six digits show in separate boxes, but it is one field: paste the whole code (spaces or dashes
+  are ignored), or let your phone or password manager fill it in.
+- When the code is the last thing the screen asks for, it is sent as soon as the sixth digit is in;
+  otherwise select the button.
+- A refused code is cleared so you can type the next one; wait for the app to show a new code rather
+  than retyping the same one (a code works once).
+- A recovery code is typed in one field, with or without its dash (`abcde-fghjk`).
 
 | Action (Settings > My account > Security) | Needs |
 |---|---|
 | Turn 2FA on | password and a code |
-| Turn 2FA off | password and a code or an unused recovery code; you are emailed |
+| Turn 2FA off | password and a code, or **Use a recovery code instead**; you are emailed |
 | New recovery codes (replaces all) | a code from the app |
 | Change password | current password; other sessions are signed out and you are emailed |
 | See and sign out sessions | signed in; one session or all except the current one |

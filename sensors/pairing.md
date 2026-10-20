@@ -79,7 +79,8 @@ Owners and administrators hold all of them.
    With Docker, read it with `docker logs <container>`; on Kubernetes with
    `kubectl logs`.
 3. In the console open **Discovery > Sensors > Pair a sensor**, tab
-   **Enter code**, and type the code.
+   **Enter code**, and type or paste the code (with or without the dash). The
+   console looks it up as soon as all eight characters are in.
 4. The console shows the fingerprint, the host name, system and sensor
    version the sensor reported, and the address the request came from.
    **Compare the fingerprint word for word.** If anything differs, or the
