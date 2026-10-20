@@ -622,6 +622,29 @@ ticket** on findings and **Create Jira Epic** on remediation campaigns. Jira is
 the only ticketing system the console connects to; for GitHub Issues, use your
 GitHub source-control connection.
 
+#### What a ticket may contain
+
+Every ticket, ticket update and workflow ticket action passes one outbound
+check, for Jira and GitHub Issues alike:
+
+- **Pentest findings** go to a tracker only from their campaign: the campaign
+  lead's **Create tickets for open findings** under the campaign's Jira epic. **Create Jira
+  ticket** on the finding, remediation task issues and workflow ticket actions
+  refuse them (403, `TICKET_EGRESS_REFUSED`).
+- **TLP:** a campaign marked TLP:RED is never sent. A campaign above the
+  organization's tracker limit is refused, and updates to its existing tickets
+  stop. The limit is the pentest setting `ticket_max_tlp`
+  (`PATCH /api/v1/tenants/{tenant}/settings/pentest`, owners and
+  administrators): `clear`, `green`, `amber` (default) or `amber_strict`.
+- **Secret findings** send the location only: never the value, its masked
+  preview, the code snippet or the fingerprint.
+- **Findings that expose data** (a data exposure risk above none) send the
+  severity, status and location only, under the title "Data exposure finding".
+
+**Link an existing issue** on a finding needs the fix-claim permission
+(`findings:fix_apply`) as well as `findings:write`: moving a linked issue to
+Done claims the fix.
+
 ### Notification channels
 
 **Notification channels** (`/settings/integrations/notifications`) sends

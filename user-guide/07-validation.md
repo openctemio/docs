@@ -83,6 +83,63 @@ verify permission). A retest proves reachability with its own probe and then
 settles the finding: fixed and resolved, still vulnerable, regression (reopened)
 or inconclusive. See [Exposures and findings](05-exposures-and-findings.md#the-full-page).
 
+### Retest checks: retest findings that have no template
+
+A finding that no scanner template can re-run (a manual or bug-bounty finding,
+a web issue from a pentest report, a DAST finding) can get a **retest check**:
+someone on the security team reads the finding and attaches the check that
+reproduces it. **Retest now** and the automatic proof of fix then run that check.
+
+Open the finding, then **Retest check**:
+
+1. Write the check, in one of two ways:
+   - **HTTP assertion**: the request (method GET, HEAD, POST or OPTIONS, a path
+     relative to the finding's target, headers, a body for POST) and what the
+     response shows while the issue is there (status codes, words or regular
+     expressions in the body or headers, each optionally negated). No YAML needed.
+   - **Nuclei template**: paste or upload a template, or pick one from the
+     organization's template library.
+2. **Validate**: shows any problem per field, the check's tier and the template
+   that will run.
+3. **Save**. A check you write is stored in the template library, tagged
+   `retest-check`.
+
+What a check may do: send HTTP requests to the finding's own target only. Every
+path is relative to the target, raw requests use `Host: {{Hostname}}`,
+redirects to other hosts, out-of-band callbacks, fuzzing and code are refused,
+and a check never holds credentials (no `Authorization`, `Cookie` or API-key
+values). The target is always the finding's own asset; a check has no target
+field.
+
+How a result counts:
+
+- **The check matched**: the finding is still vulnerable. The first match also
+  **calibrates** the check.
+- **The check did not match** on the target's answered endpoint: verified fixed,
+  but only once the check is calibrated. A check that never matched the finding
+  proves nothing about a fix, so its no-match is "not reproduced". Run the check
+  once before the fix is deployed to calibrate it.
+- **The check could not load or run**, or the target did not answer: inconclusive.
+  The finding is never resolved by a check that failed.
+
+Changing a check resets its calibration and approval. An **intrusive** check
+(tier T2: it changes state, for example `PUT` or `DELETE`, or sends many
+requests) runs only after someone else with the scope-approval permission
+approves that exact version (**Approve**, with a recent sign-in); the author
+cannot approve their own check. If your organization requires template versions
+to be approved for sensors, the check also waits for that approval.
+
+A retest with a check needs an organization sensor whose version runs delivered
+checks (it reports the capability `retest-templates:nuclei`); shared sensors
+never run organization checks. Without one, **Retest now** is not offered and
+the reason is shown.
+
+Permission: attaching, changing and removing a check needs
+`findings:retest_checks:write` (owner, admin and the Security analyst,
+Vulnerability manager, AppSec engineer and Validation engineer role templates);
+reading it needs `findings:read`. Every change and approval is audited, and each
+retest records which check and which exact version ran.
+
 The share of findings with validation evidence, and the share of validated
 findings downgraded, are shown on
 [Program health](09-insights-and-reports.md#program-health).
