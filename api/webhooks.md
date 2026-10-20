@@ -145,6 +145,10 @@ In Jira, create a webhook with that URL and secret for issue updates.
 - A valid delivery answers `200`. A delivery that fails to process answers `5xx` and is forgotten, so
   Jira's retry is processed.
 - With no secret configured the endpoint refuses every request.
+- Every delivery, with or without a status change, records the issue's Jira assignee (account id and
+  display name), status category and change time on the linked tickets. Ticket links return them as
+  `external_assignee`, `external_status_category` and `external_updated_at`. The assignee is a label
+  only: it is never an OpenCTEM assignee and gives no access; unlinking the issue clears it.
 
 API for the console dialog (`integrations:manage`; changing the secret needs a recent sign-in):
 `GET /api/v1/integrations/{id}/jira-webhook`, `POST /api/v1/integrations/{id}/jira-webhook/secret/rotate`
