@@ -114,7 +114,8 @@ Click a task to open it.
   **Split** them into a new task of the same fix. You can also drag findings
   onto a task of the same fix. Every move can be undone from its message.
 - **Mark fixed** claims the fix for every open finding of the task (a note is
-  required, and you can claim only findings on assets you own). Each finding is
+  required; you can claim the findings you own or are assigned, and, as the
+  task's owner, every finding of the task). Each finding is
   then checked again on its own; nothing closes until its own check passes.
 - **Put on hold**, **Resume** and **Cancel task** (with a reason; a canceled
   task releases its findings) are in the menu.
@@ -128,6 +129,22 @@ Managing tasks needs the remediation write permission; **Mark fixed** also needs
 the permission to mark findings fixed. Members who see only part of the
 organization see a task through their own findings and cannot change a task
 that has findings outside their access.
+
+#### If you own a task
+
+The owner of a task, or a member of the team that owns it, can open the task's
+findings even when the findings' assets are outside their access, and see a short
+card of each asset. They see only the findings of that task, never the asset's
+other findings. They can comment, start work, go back to confirmed, **Mark fixed**,
+add an evidence note and request a re-check, each with its usual permission.
+Marking a finding a false positive, accepting its risk, resolving it, changing its
+severity, reassigning it and deleting it need access to the finding's asset; those
+moves show greyed out in the status menu, with the reason.
+
+The access lasts only while you own the task: it ends when the owner changes, when
+a finding leaves the task, when the task is closed or canceled, and when your team
+membership ends or expires. Each move made this way is recorded in the audit log as
+"task owner moved finding".
 
 ### Campaigns
 
