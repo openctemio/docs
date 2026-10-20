@@ -134,7 +134,7 @@ unsigned or badly signed request is `401`, and nothing is read from it.
 | Endpoint | Sender | Signature | Effect |
 |---|---|---|---|
 | `POST /hooks/jira-integrations/{integration_id}` | Jira | `X-Hub-Signature` (`sha256=` and the hex HMAC-SHA256 of the raw body, the header Jira sends for a webhook with a secret) under that Jira integration's own secret | issue updates sync the linked finding's status |
-| `POST /api/v1/webhooks/incoming/github?tenant=<organization id>` | GitHub | `X-Hub-Signature-256` (GitHub's scheme) with the organization's GitHub webhook secret | `issues` events (closed, reopened) update the linked finding; `push` events update branch state; other events (including `ping`) are acknowledged |
+| `POST /hooks/github-integrations/{integration_id}` | GitHub | `X-Hub-Signature-256` (GitHub's scheme) under that GitHub integration's own secret | `issues` events (closed, reopened) move the linked findings; `push` events update branch state; other events (including `ping`) are acknowledged |
 
 ### Jira
 
@@ -161,15 +161,35 @@ and `PUT /api/v1/integrations/{id}/jira-webhook/secret`.
 
 ### GitHub
 
-Point a repository or organization webhook at
-`https://openctem.example.com/api/v1/webhooks/incoming/github?tenant=<organization id>` with content
-type `application/json`, and the organization's webhook secret (read it with
-`GET /api/v1/integrations/github/webhook-secret` and change it with
-`POST /api/v1/integrations/github/webhook-secret/rotate`; both need `integrations:manage` and a
-recent sign-in).
-The `tenant` value only selects which of that organization's secrets the signature is checked
-against. Each delivery needs its `X-GitHub-Delivery` header (a replayed delivery id is acknowledged
-and ignored for 24 hours) and a body of at most 5 MiB. Valid deliveries answer `200`.
+Each GitHub integration has its own webhook URL,
+`https://openctem.example.com/hooks/github-integrations/{integration_id}`, so no organization id is
+sent and one integration's secret never authenticates another's events. Create the repository or
+organization webhook in GitHub with that URL, content type `application/json`, the integration's
+secret, and the `issues` and `push` events. Get the URL with
+`GET /api/v1/integrations/{id}/github-webhook` (`integrations:manage`) and generate the secret with
+`POST /api/v1/integrations/{id}/github-webhook/secret/rotate` (`integrations:manage`,
+`integrations:scm:write` and a recent sign-in). The secret is shown once, stored encrypted and never
+returned; generating a new one stops the old one at once and is recorded as a critical audit event.
+
+- Replays are refused for 24 hours by the body hash and by the `X-GitHub-Delivery` header (required):
+  the same signed body sent again with a new delivery id is acknowledged and ignored.
+- A `push` or `issues` event must name its repository. When the integration is bound to a GitHub
+  organization, an event for a repository outside it is `403`.
+- Bodies over 5 MiB are `400`. The route is rate limited per client address and per integration.
+- A valid delivery answers `200`. A delivery that fails to process answers `5xx` and is forgotten, so
+  a redelivery from GitHub is processed.
+
+What an issue event does to the findings linked to the issue (every linked finding of the
+organization):
+
+| Issue event | Linked findings |
+|---|---|
+| Closed as completed | The fix is claimed (the findings move to fix applied) and a verification (retest or covered scan) is requested. A ticket never closes a finding. |
+| Closed as not planned | A risk acceptance request is opened for each finding and waits for an approver. No fix is claimed. |
+| Closed as duplicate | Nothing changes. |
+| Reopened | The findings go back to in progress. |
+
+Findings already closed and pentest findings are never moved by an issue.
 
 The `/api/v1/webhooks/incoming/` prefix is closed to new routes; inbound webhooks are served under
 `/hooks/{provider}`.

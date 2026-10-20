@@ -194,7 +194,7 @@ fails when the two disagree.
 | Request | Goes to |
 |---|---|
 | `/api/v2/sensor/*`, `/api/v3/sensor/*` | API: sensors (protocol v2, and the HTTPS transport of protocol v3) |
-| `/hooks/*` and `/api/v1/webhooks/incoming/*` | API: inbound webhooks (Jira at `/hooks/jira-integrations/{id}`, GitHub at `/api/v1/webhooks/incoming/github`; HMAC-verified) |
+| `/hooks/*` and `/api/v1/webhooks/incoming/*` | API: inbound webhooks (Jira at `/hooks/jira-integrations/{id}`, GitHub at `/hooks/github-integrations/{id}`; HMAC-verified) |
 | `/scim/v2/*` | API: SCIM provisioning |
 | `/api/v1/mcp`, `/.well-known/oauth-*`, `/oauth/*` | API: MCP server (`oct_` API key, and its OAuth endpoints) |
 | `/api/v1/auth/saml/*`, `/api/v1/auth/backchannel-logout` | API: called by the identity provider |
@@ -267,7 +267,7 @@ curl --cacert openctem-root-ca.crt https://ctem.example.com/health
 | REST API with an `oct_` key | `https://ctem.example.com/api/v1/...` |
 | SCIM 2.0 | `https://ctem.example.com/scim/v2` |
 | MCP | `https://ctem.example.com/api/v1/mcp` |
-| Inbound webhooks | `https://ctem.example.com/hooks/jira-integrations/{id}`, `.../api/v1/webhooks/incoming/github` |
+| Inbound webhooks | `https://ctem.example.com/hooks/jira-integrations/{id}`, `.../hooks/github-integrations/{id}` |
 | SAML (service-provider metadata, ACS) | `https://ctem.example.com/api/v1/auth/saml/...` |
 | OIDC back-channel logout | `https://ctem.example.com/api/v1/auth/backchannel-logout` |
 | API reference | `https://ctem.example.com/docs` |
