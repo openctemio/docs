@@ -500,7 +500,7 @@ receive:
   remediation task when you comment on it, change its status, are assigned it or
   request an approval on it, so you hear about what happens next. Turn it off to
   watch only what you add yourself with the bell; see
-  [People on a finding](05-exposures-and-findings.md#finding-details).
+  [People on a finding](05-exposures-and-findings.md#a-single-finding).
 
 Click **Save changes**. Organization-wide channels such as Slack or email are set
 up by an administrator under

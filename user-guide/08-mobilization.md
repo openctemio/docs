@@ -149,7 +149,7 @@ A task's detail page has the same **People** section as a finding: its owner, it
 **watchers** and a **bell**. Watchers hear about the task's status changes and
 assignments; adding or removing another person needs the permission to write
 remediation tasks, and watching grants no access to the task's findings. See
-[People on a finding](05-exposures-and-findings.md#finding-details) for who is
+[People on a finding](05-exposures-and-findings.md#a-single-finding) for who is
 told, how you start watching and how to turn the automatic start off.
 
 When a member is offboarded, their open remediation tasks and campaigns go to the
