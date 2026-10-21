@@ -66,6 +66,9 @@ http://proxy.example.com:3128#backup
   `socks5`: the sensor always connects to the address it has already checked.
 - The order of the lines is the priority order. At most 64 proxies per pool,
   labels up to 64 characters, user name and password up to 255 characters each.
+- In a user name or password, write `@` as `%40`, `:` as `%3A`, `/` as `%2F`
+  and `#` as `%23`. A label cannot contain `@`, `:` or `/`, so a password
+  with an unencoded `#` is refused instead of being cut at the `#`.
 - The host is an IP address or a DNS name. Loopback, link-local, cloud
   metadata, multicast, unspecified and reserved addresses, and `localhost`, are
   refused when you save. The page shows the line number of a bad line.
@@ -109,7 +112,8 @@ A pool that sensors still use cannot be deleted: the console answers
 `PROXY_POOL_IN_USE` until you move those sensors to another path.
 
 **Shared sensors** run by the platform operator never use your organization's
-proxies.
+proxies: a scan that runs on a shared sensor goes out directly from the
+platform's addresses, even when your organization has a default pool.
 
 ## Health: healthy, probation, quarantined
 
@@ -174,6 +178,35 @@ refused. Private addresses are allowed, so an internal proxy works.
   problem and not counted against the proxy. Use SOCKS5, or widen the proxy's
   `CONNECT` rules.
 - **SOCKS5 proxies** have no such limit.
+
+## Which tools use the pool
+
+The pool carries every TCP connection a confined tool makes, through the
+tool's forwarder on the sensor:
+
+| Tool | Through the pool |
+|---|---|
+| nuclei, httpx, katana | Yes: every request to a target |
+| naabu (connect scan, the default) | Yes: each probed port is one tunnel |
+| naabu SYN scan | No: raw packets cannot pass a proxy, so a job with a pool is refused (`egress_unavailable`) |
+| subfinder | Yes, for its passive sources |
+| dnsx, and DNS of every tool | No: names are resolved by the sensor; DNS never goes through the proxy |
+| trivy-image (registry pulls), ASN and RDAP lookups | Yes |
+| trivy vulnerability database | No while content management is on (the default): the sensor installs it on the content path and trivy runs with `--skip-db-update`. With `SENSOR_CONTENT=off`, trivy downloads it itself during the job, through the pool |
+| codeql (whatever it downloads during the job, such as query packs) | Yes |
+| semgrep, only on sensors where its binary is installed (registry rule downloads during the job) | Yes |
+| opengrep, betterleaks | Nothing to carry: they use no network (opengrep runs the rules the sensor installed on the content path) |
+| UDP | No: only TCP goes through the pool |
+
+The pool carries what a tool fetches itself while the job runs. Scanner
+content the sensor manages for its tools (nuclei templates, the trivy
+database, opengrep rules) is downloaded by the sensor on its content path
+(`SENSOR_CONTENT_PROXY`), not through the pool. A code scan's repository is
+cloned by the sensor before the tools start, from the sensor's own network:
+not through the pool and not through the content proxy. A job with a
+pool is refused (`egress_unavailable`) on a sensor whose tools would not run
+behind the forwarder: tools run in process (`SENSOR_TOOL_RUNTIME=in-process`),
+a sandbox without network confinement, or CI mode.
 
 ## Troubleshooting
 
