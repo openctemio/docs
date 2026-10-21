@@ -186,6 +186,29 @@ toward one goal and deadline. A campaign's status is one of **Draft**,
 findings, to **Resolve open findings** (each is claimed fixed and checked again
 on its own) and to **Create Jira Epic**.
 
+### Jira issue types for findings, tasks and campaigns
+
+Each kind of issue the platform creates in Jira can use its own issue type, custom
+types included: for example findings as **Security Finding**, remediation tasks as
+**Remediation Task** and campaigns as **Initiative**.
+
+1. Open **Settings → Integrations → Ticketing**, choose the Jira connection and
+   **Configure** (needs `integrations:manage`).
+2. Choose the **Default project**. Under **Issue types**, pick a type for
+   **Findings**, **Remediation tasks** and **Campaigns (epic)** from the project's
+   list. **Use …** applies the suggested type; **Default** keeps Bug, Task or Epic.
+3. If the type has required custom fields (team, CVSS, due date…), follow
+   **Map fields and statuses** to create the field mapping for that type, map the
+   fields and its workflow statuses, preview it and publish it.
+4. **Save.** The platform checks the choice with Jira first: the type must exist in
+   the project, must not be a sub-task type, and every required field must be
+   filled. A choice that would make tickets fail is refused with the fields to map.
+
+Each type keeps its own workflow: a status change in Jira is read with the mapping
+of the issue's own type. If Jira later refuses a ticket (a field became required,
+a type was removed), the mapping shows **Jira changed** or the issue type row shows
+the refused fields until the next ticket succeeds.
+
 ### The engineering ticket brief
 
 A ticket is only useful if an engineer can fix the issue without coming back with
