@@ -166,6 +166,32 @@ human-sourced findings (pentest, bug bounty, red team, manual) Status, Severity
 and Assignee are read-only here. A callout appears when the SLA is overdue or
 breached.
 
+**People** (in the side panel of the finding page and of the drawer): the
+assignee, the **watchers** with the reason each one watches (commented, was
+added, was assigned, and so on), the owners of the asset as context, and a
+**bell** to watch the finding or stop watching it.
+
+- A watcher is told about comments, status changes (a fix claim included) and
+  assignments on the finding, in addition to its assignee. Watching grants no
+  access: only active members who can read the finding at that moment are told,
+  never the person who made the change, never someone who stopped watching, and a
+  team-only comment on a pentest finding never reaches a campaign client. Changes
+  made by a scanner, the system, an integration or AI still reach the assignee only.
+- You start watching when you comment, change the status of one finding or claim
+  its fix, are assigned it, or request an approval on it. A bulk status change
+  subscribes nobody. Stopping on one finding always wins over starting again.
+  **Settings › My account › Notifications › Watch what I take part in** (on by
+  default) turns the automatic start off; the bell still works.
+- **Add** (for people who may assign findings) adds up to 10 watchers at once, all
+  or none; the picker lists only members who can read the finding. A finding has
+  at most 50 watchers. People who can see the member list see names; others see the
+  count. Viewers and pentest clients can still use their own bell. You can remove
+  yourself, and anyone with permission to assign can remove others.
+- Notifications to a watcher say "Finding assigned" instead of "You have been
+  assigned", and notifications about the same finding that come within 10 minutes
+  fold into the unread one instead of adding rows.
+- Offboarding a member removes their watches.
+
 **Retest** (nuclei findings with a rule ID): **Retest now** (needs the verify
 permission) re-runs the detection and reports Fixed, Still vulnerable,
 Regression (reopened), Not reproduced or Inconclusive.

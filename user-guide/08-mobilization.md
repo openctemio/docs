@@ -143,6 +143,20 @@ the permission to mark findings fixed. Members who see only part of the
 organization see a task through their own findings and cannot change a task
 that has findings outside their access.
 
+### People on a task
+
+A task's detail page has the same **People** section as a finding: its owner, its
+**watchers** and a **bell**. Watchers hear about the task's status changes and
+assignments; adding or removing another person needs the permission to write
+remediation tasks, and watching grants no access to the task's findings. See
+[People on a finding](05-exposures-and-findings.md#finding-details) for who is
+told, how you start watching and how to turn the automatic start off.
+
+When a member is offboarded, their open remediation tasks and campaigns go to the
+person chosen for their findings, or become unowned when the findings are returned
+to the queue. Finished tasks and campaigns, and tasks owned by a team, stay as
+they are; each reassigned task records the change in its timeline.
+
 ### Choosing a task owner who cannot see the findings
 
 When you pick an owner for a task (today in the **Split** dialog), the picker

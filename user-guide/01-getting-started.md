@@ -496,6 +496,12 @@ receive:
   (a daily summary of the requests waiting for you, also sent by email; muting it
   stops the email).
 
+- **Watch what I take part in** (on by default): you start watching a finding or
+  remediation task when you comment on it, change its status, are assigned it or
+  request an approval on it, so you hear about what happens next. Turn it off to
+  watch only what you add yourself with the bell; see
+  [People on a finding](05-exposures-and-findings.md#finding-details).
+
 Click **Save changes**. Organization-wide channels such as Slack or email are set
 up by an administrator under
 [Integrations](10-settings-and-integrations.md#notification-channels).
