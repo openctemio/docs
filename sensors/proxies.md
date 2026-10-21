@@ -191,12 +191,19 @@ tool's forwarder on the sensor:
 | naabu SYN scan | No: raw packets cannot pass a proxy, so a job with a pool is refused (`egress_unavailable`) |
 | subfinder | Yes, for its passive sources |
 | dnsx, and DNS of every tool | No: names are resolved by the sensor; DNS never goes through the proxy |
-| trivy, semgrep, codeql (registry and rule downloads), ASN and RDAP lookups | Yes |
-| betterleaks, opengrep | Nothing to carry: they use no network |
+| trivy-image (registry pulls), ASN and RDAP lookups | Yes |
+| trivy vulnerability database | No while content management is on (the default): the sensor installs it on the content path and trivy runs with `--skip-db-update`. With `SENSOR_CONTENT=off`, trivy downloads it itself during the job, through the pool |
+| codeql (whatever it downloads during the job, such as query packs) | Yes |
+| semgrep, only on sensors where its binary is installed (registry rule downloads during the job) | Yes |
+| opengrep, betterleaks | Nothing to carry: they use no network (opengrep runs the rules the sensor installed on the content path) |
 | UDP | No: only TCP goes through the pool |
 
-Scanner content (templates, databases) and code-scan repository fetches use
-the sensor's content path (`SENSOR_CONTENT_PROXY`), not the pool. A job with a
+The pool carries what a tool fetches itself while the job runs. Scanner
+content the sensor manages for its tools (nuclei templates, the trivy
+database, opengrep rules) is downloaded by the sensor on its content path
+(`SENSOR_CONTENT_PROXY`), not through the pool. A code scan's repository is
+cloned by the sensor before the tools start, from the sensor's own network:
+not through the pool and not through the content proxy. A job with a
 pool is refused (`egress_unavailable`) on a sensor whose tools would not run
 behind the forwarder: tools run in process (`SENSOR_TOOL_RUNTIME=in-process`),
 a sandbox without network confinement, or CI mode.
