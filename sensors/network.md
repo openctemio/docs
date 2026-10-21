@@ -77,17 +77,16 @@ A proxy that decrypts and re-encrypts TLS presents its own certificate:
   needed and the sensor can use gRPC.
 
 A network segment that is reachable only through a proxy is best served by
-its own sensor inside it, in its own [scan zone](zones.md).
+its own sensor inside it, in its own [scan zone](zones.md), or by a sensor
+whose Network path is a proxy pool ([Proxies for scans](proxies.md)).
 
 On a confined sensor each scan task already reaches the network only through
 its own forwarder, which admits the job's targets and enforces the job's web
 scope ([Tool confinement](security.md#tool-confinement)).
 
-{: .note }
-Per-zone egress profiles (proxies configured on the platform per scan zone,
-used by that forwarder) are **planned**
-([RFC-034](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-034-sensor-network-egress.md)).
-Today proxies are set on the sensor host only.
+Proxies for **scan traffic** can also be managed from the console: paste a
+list under **Settings > Scanning > Proxies**, and pick a pool per sensor. See
+[Proxies for scans](proxies.md).
 
 ## Scanner content without internet access
 
