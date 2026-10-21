@@ -459,6 +459,27 @@ The add and edit form sets the type's fields, the **Criticality**, **Zone**,
 [Scoping](03-scoping.md#how-business-context-raises-criticality)), an **Owner
 Reference** and, for some types, the group.
 
+**Lowering an asset's risk needs a reason, and sometimes approval.** Raising the
+**Criticality** or **Exposure**, or setting the crown-jewel flag, applies at once.
+Lowering the criticality, marking an internet-facing asset isolated or removing the
+crown-jewel flag drops the priority class of the findings on the asset, so when
+that would move an open P0 or P1 finding to a lower class the edit dialog shows
+the impact (how many open findings move, and how many from P0 or P1), asks for a
+**reason** and then follows the organization's approval policy and level, the same
+one as a false positive (**Settings › Findings › Finding approvals**):
+
+- A person the policy lets decide alone is applied at once and audited at high
+  severity.
+- Otherwise the lowered fields are held and the dialog shows "waiting for
+  approval" while the rest of the edit applies. The requester and the asset's
+  owners never approve; an approver (permission `findings:approve`) decides
+  through the API for now (`POST /assets/{id}/risk-requests/{request_id}/approve`
+  or `/reject`), and the requester can cancel. The console has no approval banner
+  on the asset page yet.
+- A lowering that drops no open P0 or P1 finding applies as before. In the
+  inventory, **Set criticality** on several assets decides each asset the same
+  way: an asset that needs a reason or an approval is reported as failed.
+
 ### Asset details
 
 Clicking an asset in a list opens its detail panel (a drawer; the expand icon in
