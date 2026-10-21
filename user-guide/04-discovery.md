@@ -126,11 +126,30 @@ scanner), schedule and next run, last run and run count.
   clone keeps every setting and starts paused; editing a scan's targets
   under scan approvals needs a new approval.
 - Select several to **Activate**, **Disable** or **Delete** them.
+- **Origin** filters the list to scans made by **People** or by the **System**.
+  Scans of the **System** origin are the platform's own continuous coverage and
+  enrichment scans (see [Managed scans](#managed-scans)).
 - Click a scan to open its page (`/scans/{id}`): run statistics (runs, success
   rate, successful, partial, failed, next run), the upcoming runs of its
   schedule, its configuration (scan type, sensor preference, targets per job,
   targets, tags, scan workflow) and its recent runs. **Delete scan** removes the
   scan and its schedule; past runs and findings stay.
+
+### Managed scans
+
+Continuous coverage and automatic enrichment create scans of their own. Such a
+scan shows a **System** badge, the banner "Managed by the platform · Continuous
+coverage" and **Automatic coverage** as its trigger. It is read-only:
+
+- There is no **Edit**, **Run now**, schedule, **Take ownership** or **Delete**,
+  and the API answers `409 SCAN_MANAGED_BY_POLICY` to any such change, so a member
+  cannot reshape or pause the platform's coverage.
+- **Clone** reads **Clone as my scan** and makes an ordinary scan that you own.
+- A scan you created with the same name as a coverage scan is never adopted or
+  rewritten by coverage; coverage creates its own under another name. Scans a
+  person created or took over are never managed.
+- A run's status says how many targets were unreachable or skipped, for example
+  "Completed · 3 unreachable", without changing the status.
 
 ### Runs
 
@@ -439,6 +458,27 @@ The add and edit form sets the type's fields, the **Criticality**, **Zone**,
 **Exposure**, the **Business Impact (CIA)** ratings (see
 [Scoping](03-scoping.md#how-business-context-raises-criticality)), an **Owner
 Reference** and, for some types, the group.
+
+**Lowering an asset's risk needs a reason, and sometimes approval.** Raising the
+**Criticality** or **Exposure**, or setting the crown-jewel flag, applies at once.
+Lowering the criticality, marking an internet-facing asset isolated or removing the
+crown-jewel flag drops the priority class of the findings on the asset, so when
+that would move an open P0 or P1 finding to a lower class the edit dialog shows
+the impact (how many open findings move, and how many from P0 or P1), asks for a
+**reason** and then follows the organization's approval policy and level, the same
+one as a false positive (**Settings › Findings › Finding approvals**):
+
+- A person the policy lets decide alone is applied at once and audited at high
+  severity.
+- Otherwise the lowered fields are held and the dialog shows "waiting for
+  approval" while the rest of the edit applies. The requester and the asset's
+  owners never approve; an approver (permission `findings:approve`) decides
+  through the API for now (`POST /assets/{id}/risk-requests/{request_id}/approve`
+  or `/reject`), and the requester can cancel. The console has no approval banner
+  on the asset page yet.
+- A lowering that drops no open P0 or P1 finding applies as before. In the
+  inventory, **Set criticality** on several assets decides each asset the same
+  way: an asset that needs a reason or an approval is reported as failed.
 
 ### Asset details
 
