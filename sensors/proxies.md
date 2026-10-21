@@ -66,6 +66,9 @@ http://proxy.example.com:3128#backup
   `socks5`: the sensor always connects to the address it has already checked.
 - The order of the lines is the priority order. At most 64 proxies per pool,
   labels up to 64 characters, user name and password up to 255 characters each.
+- In a user name or password, write `@` as `%40`, `:` as `%3A`, `/` as `%2F`
+  and `#` as `%23`. A label cannot contain `@`, `:` or `/`, so a password
+  with an unencoded `#` is refused instead of being cut at the `#`.
 - The host is an IP address or a DNS name. Loopback, link-local, cloud
   metadata, multicast, unspecified and reserved addresses, and `localhost`, are
   refused when you save. The page shows the line number of a bad line.
@@ -109,7 +112,8 @@ A pool that sensors still use cannot be deleted: the console answers
 `PROXY_POOL_IN_USE` until you move those sensors to another path.
 
 **Shared sensors** run by the platform operator never use your organization's
-proxies.
+proxies: a scan that runs on a shared sensor goes out directly from the
+platform's addresses, even when your organization has a default pool.
 
 ## Health: healthy, probation, quarantined
 
