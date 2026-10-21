@@ -277,16 +277,25 @@ From top to bottom:
 
 4. **Fix next** (findings ranked by exposure) next to **Attack paths → crown
    jewels** (crown jewels on an attack path that is reachable now).
-5. **Threat intel context** (EPSS and KEV figures) next to **Coverage &
-   hygiene**: **Connector dispatch freshness** (assets whose scans were
+5. **Known exploited exposure** next to **Coverage & hygiene**. The first
+   counts your organization's open findings only: **Open findings in KEV**
+   (opens that list), **KEV past due date**, **KEV with ransomware use** and
+   **EPSS 50 % or more**. The size of the global KEV catalog is not shown on
+   the dashboard: it is the same for every organization. **Coverage &
+   hygiene** shows **Connector dispatch freshness** (assets whose scans were
    dispatched recently enough), **Validation** and **Open within SLA**.
 6. **CTEM maturity**, when the CTEM cycles module is on.
-7. **Analyst detail**: findings trend, severity distribution, asset distribution
+7. **Analyst detail**: **New findings per month** (columns by severity, the
+   legend in severity order), **Open findings by severity**, **Assets by type**
    and recent activity.
 
 When the organization has no data yet, each block shows an empty state (for
 example "Nothing exploitable right now" or "No crown jewels designated") instead
-of sample numbers. When a change to the scoring (a new scoring model, the risk
+of sample numbers. With no open finding in your scope, **Active exposure** says
+**No open findings** and links to scans instead of showing a large 0. A CTEM
+loop stage with nothing to measure (or whose data failed to load) is grey,
+never green or amber. If one card fails to draw, it shows its own error with
+**Retry** and the rest of the dashboard still renders. When a change to the scoring (a new scoring model, the risk
 scoring settings, the priority rules or an SLA policy) moves the numbers, the
 trend charts mark that date and say that values before and after it are not
 directly comparable.
@@ -305,6 +314,10 @@ directly comparable.
 - A figure with nothing to measure shows a dash (**—**), never 0 % or 100 %: for
   example the SLA share when no open finding has an SLA, or the time to fix
   when nothing was fixed in the period.
+- Clicking a figure opens the findings list counted with the same filter, so
+  the list total equals the figure (for example **Mine · open** opens your open
+  findings, and each row of **Open findings by severity** opens that
+  severity). A figure whose exact list cannot be opened yet is not a link.
 - Unpublished pentest findings (draft, in review) are never counted, and
   findings found only on a branch are left out.
 
@@ -321,7 +334,7 @@ The dashboard counts what you may see:
   [Groups and data scope](../identity/roles-and-permissions.md#groups-and-data-scope))
   sees counts for the assets of their teams and direct grants, and those assets'
   findings. A member with no team sees zeros.
-- A limited member whose role holds `dashboard:aggregate` sees the
+- A limited member whose role holds `dashboards:org:view` sees the
   organization's totals, but small breakdown buckets (under 5) are left out so a
   total cannot point at an asset they cannot see.
 - Lists of actual findings (**Fix next**, top risks, recent activity) always
@@ -329,7 +342,7 @@ The dashboard counts what you may see:
 - A pentest finding is counted or listed only for members of its campaign, and
   never while it is a draft or in review for the campaign's client role.
 - Organization-wide history (the risk trend, the program metrics and the CTEM
-  cycle trends) needs `dashboard:aggregate` or full data access: without it the
+  cycle trends) needs `dashboards:org:view` or full data access: without it the
   risk trend stays empty and the program and cycle figures are not shown.
 
 ### The Classic view
@@ -376,6 +389,31 @@ You can build personal dashboards next to the built-in views.
 
 The view you last chose is remembered in your browser; otherwise your default
 custom dashboard opens, and otherwise the CTEM view.
+
+### Stored dashboard figures and Refresh now
+
+Custom dashboard figures are computed ahead of time from stored per-asset
+facts and kept as a snapshot, so opening a dashboard does not recompute them:
+
+- Each dashboard refreshes on its schedule (manual, every 5 or 15 minutes,
+  hourly, every 6 hours or daily; the organization default is hourly) and
+  shows when its figures were computed. Figures older than twice the schedule,
+  or kept after a failed refresh, are marked stale.
+- **Refresh now** recomputes a dashboard at once: once a minute per person and
+  dashboard, and 30 times an hour per organization.
+- A personal dashboard always shows your own data scope. When your access
+  changes, the next open recomputes it for your new scope; figures computed for
+  your earlier access are never shown.
+- An organization dashboard shows organization-wide figures to everyone allowed
+  to view it (`dashboards:org:view`, and its audience when one is set); lists of
+  findings on it still leave out pentest findings of campaigns you are not a
+  member of.
+
+The same data is available through the API for integrations:
+`GET /api/v1/me/dashboards/{id}/data`, `GET /api/v1/organization/dashboards/{id}/data`,
+`POST …/{id}/refresh`, `POST /api/v1/me/dashboards/widget-preview` and the
+metric catalog at `GET /api/v1/me/dashboards/widget-catalog`. Details are in
+[Dashboards](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/dashboards.md).
 
 ## My work
 
