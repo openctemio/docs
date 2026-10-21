@@ -209,6 +209,38 @@ of the issue's own type. If Jira later refuses a ticket (a field became required
 a type was removed), the mapping shows **Jira changed** or the issue type row shows
 the refused fields until the next ticket succeeds.
 
+### Which findings become Jira issues automatically
+
+Automations can open a Jira issue for every finding they see. To keep Jira for the
+work that matters, each Jira connection has a create policy.
+
+1. Open **Settings → Integrations → Ticketing**, open the connection's menu and
+   choose **When to create issues**.
+2. Set what is enough for an issue. Any one of these is enough:
+   - **Severity at least** (default Medium). Info lets everything through.
+   - **Or priority class at least** (default P2), from your priority rules. Choose
+     **Not used** to look at severity only.
+   - **Always for known exploited (KEV)** (on by default): a finding in the KEV
+     catalog always gets an issue.
+3. **Daily limit** (default 200) is the most issues automations may create per day
+   (UTC). 0 means no limit. Findings over the limit wait for the next day, most
+   severe first.
+4. **Preview** counts how many findings first seen in the last 30 days would get an
+   issue, and how many findings held now would be created after saving.
+5. **Save.** The change applies to the next automatic issue and is recorded in the
+   audit log.
+
+A finding an automation held back shows **Not sent to Jira — below the create
+policy** (or **today's limit is reached**) next to its tickets. It is created later
+by itself when it rises above the policy (its severity or priority goes up, or it
+is added to KEV) or when you loosen the policy, within the daily limit. People who
+may create tickets can still choose **Create anyway**; the platform asks for a
+confirmation and records it in the audit log.
+
+The policy only reduces noise. Sharing limits (TLP) still apply to every issue, and
+tightening the policy never closes issues that already exist. Campaign tickets and
+remediation task issues are always created when someone asks for them.
+
 ### The engineering ticket brief
 
 A ticket is only useful if an engineer can fix the issue without coming back with
@@ -332,6 +364,13 @@ assign it to a senior engineer, alert Slack and open a Jira ticket".
    - **Visual builder**: the canvas.
 3. **New workflow** asks for a **Name** and an optional description. The new
    automation starts with a manual trigger; then open the builder.
+
+An automation's **Create ticket** step follows the Jira connection's create policy
+(see [Which findings become Jira issues automatically](#which-findings-become-jira-issues-automatically)):
+a finding below it is held instead of filed, and the run shows the step as held.
+To decide by severity, prefer the connection's policy to a severity filter on the
+trigger: a held finding is created later if it becomes more severe, while a finding
+the trigger skipped is not looked at again.
 
 ### The visual builder
 
