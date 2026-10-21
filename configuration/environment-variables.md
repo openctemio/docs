@@ -563,18 +563,18 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 | `AI_AUTO_TRIAGE_DELAY` | duration | `60s` |  |  | Delay before an automatic triage job runs. |
 | `AI_MAX_TOKENS` | int | `4096` |  |  | Maximum tokens per request. |
 | `AI_PLATFORM_MODEL` | string | `claude-sonnet-4-20250514` |  |  | Model name passed to the provider. |
-| `AI_PLATFORM_PROVIDER` | string | `claude` |  |  | Provider used for organizations in platform mode: `claude`, `openai` or `gemini`. |
+| `AI_PLATFORM_PROVIDER` | string | `claude` |  |  | Provider used for organizations in platform mode: `claude`, `openai` or `gemini`. A self-hosted or gateway model (`openai_compatible`, with a base URL) is set in the console, not here. |
 | `AI_RATE_LIMIT_RPM` | int | `60` |  |  | Completions per minute per API key. `0` or less turns the cap off. |
+| `AI_RATE_LIMIT_TENANT_RPM` | int | `20` |  |  | Each organization's share of the platform key's completions per minute (a bucket per organization in front of `AI_RATE_LIMIT_RPM`), so one organization cannot starve the others. `0` turns it off. Organizations with their own key have their own allowance. |
 | `AI_TEMPERATURE` | float | `0.1` |  |  | Sampling temperature (0.0 to 1.0). |
 | `AI_TIMEOUT_SECONDS` | int | `30` |  |  | Timeout of one provider call. |
-| `AI_TRIAGE_BUDGET_DEFAULT_TOKENS` | int | `0` |  |  | Monthly token budget of an organization without its own. |
-| `AI_TRIAGE_BUDGET_ENABLED` | bool | `false` |  |  | Enforce the per-organization monthly token budget. |
+| `AI_TRIAGE_BUDGET_DEFAULT_TOKENS` | int | `2000000` |  |  | Monthly platform AI token budget of an organization, set on its month's budget row when the row is created. `0` means unlimited. |
+| `AI_TRIAGE_BUDGET_ENABLED` | bool | `true` |  |  | Enforce the per-organization monthly token budget (the tokens of an organization count whichever key pays for them, so an organization on its own provider is stopped at the cap too). |
 | `AI_TRIAGE_BUDGET_STRICT` | bool | `false` |  |  | With the budget on: refuse triage when the budget store cannot be read (otherwise log and continue). |
-| `AI_TRIAGE_ENABLED` | bool | `false` |  |  | Deprecated and ignored: availability follows the provider keys and the AI triage module. |
 | `AI_TRIAGE_RECOVERY_BATCH_SIZE` | int | `50` |  |  | Jobs recovered per run. |
-| `AI_TRIAGE_RECOVERY_ENABLED` | bool | `true` |  |  | Requeue triage jobs stuck in processing. |
+| `AI_TRIAGE_RECOVERY_ENABLED` | bool | `true` |  |  | Mark triage jobs stuck in pending or processing as failed (stuck_timeout). Transient provider errors are retried by the job queue before that. |
 | `AI_TRIAGE_RECOVERY_INTERVAL` | duration | `5m` |  |  | How often stuck jobs are looked for. |
-| `AI_TRIAGE_RECOVERY_STUCK_DURATION` | duration | `15m` |  |  | Age after which a processing job counts as stuck. |
+| `AI_TRIAGE_RECOVERY_STUCK_DURATION` | duration | `15m` |  |  | Age after which a pending or processing job counts as stuck. |
 | `ANTHROPIC_API_KEY` | string | empty |  | yes | Platform key for the `claude` provider. Any platform key pins the platform AI provider to the environment (the console shows it locked); without one, a super admin sets the provider and key in the console (Settings > AI provider), off by default. |
 | `GEMINI_API_KEY` | string | empty |  | yes | Platform key for the `gemini` provider. |
 | `OPENAI_API_KEY` | string | empty |  | yes | Platform key for the `openai` provider. |
@@ -740,6 +740,7 @@ The API refuses to start while one of these is set, and says what to do instead.
 | `GRPC_PORT` | unset it; nothing listened on it, sensors reach protocol v3 on SENSOR_MTLS_LISTEN_ADDR |
 | `LOG_SKIP_HEALTH` | unset it; health, readiness and metrics requests are never written to the request log |
 | `AI_MAX_CONCURRENT_JOBS` | unset it; it limited nothing, AI triage jobs run on the background job queue |
+| `AI_TRIAGE_ENABLED` | unset it; a provider key (environment or console) makes platform AI available, and each organization turns AI triage on in Settings > AI |
 | `AUTH_ALLOW_REGISTRATION` | unset it; who may sign up is the sign-up policy (Console > Settings > Sign-up) |
 | `TENANT_CREATION_MODE` | unset it and set SIGNUP_MODE: admin_only is SIGNUP_MODE=disabled (the default), self_service is SIGNUP_MODE=open |
 | `SMTP_ENABLED` | unset it; the platform SMTP server is set in the admin console (Settings > E-mail); headless installs pass BOOTSTRAP_SMTP_* to bootstrap-admin |
