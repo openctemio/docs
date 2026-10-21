@@ -166,15 +166,29 @@ down) belong in your server monitoring: see [Monitoring](../operations/monitorin
 ## AI provider
 
 **AI provider** is the platform AI provider for organizations that use AI triage
-in platform mode, without their own key. It is a cost and a processor of their
+in platform mode, without their own provider. It is a cost and a processor of their
 data, so it is off by default.
 
 - **Offer platform AI** (off: organizations in platform mode cannot run AI triage);
-- **Provider** (Anthropic Claude, OpenAI or Google Gemini), **Model** and
-  **API key**;
+- **Provider** (Anthropic Claude, OpenAI, Google Gemini or an **OpenAI-compatible
+  server**), **Model** and **API key**. An OpenAI-compatible server (Azure OpenAI,
+  vLLM, Ollama, LM Studio, LiteLLM, OpenRouter or a gateway) takes a **Base URL**
+  and its key is optional;
+- **Allow private addresses** lets the base URL sit on a private network (10.x,
+  172.16-31.x, 192.168.x) and use http, for a self-hosted model. Loopback,
+  link-local and cloud-metadata addresses stay refused, and the toggle never
+  applies to an organization's own provider;
+- a **model allow-list** limits the platform model;
 - **Test the key** asks the provider whether it accepts the key.
 
-Organizations can always use their own key. Changing the provider needs a reason.
+**Allow organizations to use their own provider** (on by default) is a policy of
+its own: organizations may send their findings to their own AI provider with their
+own key (**Settings › Security › AI**, see
+[AI](../user-guide/10-settings-and-integrations.md#ai)). Turning it off stops every
+own provider at its next call; none falls back to the platform key.
+
+Changing the provider, the private-address toggle or the policy needs a reason and
+a fresh step-up, and is recorded as a critical audit event.
 `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` or `GEMINI_API_KEY` on the server lock the
 setting. See [AI triage](../api/ai-triage.md).
 

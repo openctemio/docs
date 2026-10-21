@@ -15,7 +15,7 @@ the settings area the sidebar is replaced by the settings rail.
 |---|---|
 | My account | Profile, Security, Preferences, Notifications, Activity, Connected applications: see [Your account](01-getting-started.md#your-account) |
 | Organization | General, Modules, Usage & limits |
-| Security | Security overview, Authentication, Domains, Trusted organizations, SSO approvals, Support access, Audit log |
+| Security | Security overview, Authentication, Domains, Trusted organizations, SSO approvals, Support access, AI, Audit log |
 | Access | Members, Teams, Roles, Directory sync (SCIM), API keys, Service accounts, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
 | Findings & assets | Finding lifecycle, Finding approvals, Risk scoring, SLA policies, Vulnerability matching, License policy, Asset sources, Asset lifecycle, Pentest methodology |
 | Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan profiles, Tools, Tool defaults, Sensor products, Capabilities |
@@ -175,6 +175,54 @@ them) lists partner organizations whose people sign in here with their own
 company's single sign-on, and organizations that trust this one. A trust
 applies only once both owners agree.
 
+### AI
+
+**Settings › Security › AI** (`/settings/ai`, shown while the AI triage module is
+on) decides whether this organization's findings may be sent to an AI provider
+for triage, and which provider reads them. Everyone with settings access can read
+the page; only owners and administrators can change it, and a change needs a
+recent sign-in and is recorded in the [audit log](02-team-and-access.md#audit-log)
+(never the key). Nothing is sent until **Turn on AI triage for this
+organization** is on; turning it on asks you to confirm what is sent. The result
+of a triage is a suggestion: nothing on a finding changes without a person.
+
+- **What is sent** lists the data of one analysis: the finding's title,
+  description, severity and score, source and tool, file path and code snippet,
+  CVE, CWE and OWASP ids, and whether the asset is internet-facing. Detected
+  secrets are masked first. A pentest finding follows your AI data policy
+  (**Settings › AI assistants (MCP)**, Policy): a campaign above your TLP limit
+  for AI, or with AI turned off by its lead, is never sent.
+- **AI source** chooses who runs the analysis:
+
+  | Source | What it does |
+  |---|---|
+  | **Platform AI** | The provider your platform administrator set up. It counts toward your monthly allowance. |
+  | **Own provider** | Your own account with a provider or a server you run: **Anthropic Claude**, **OpenAI**, **Google Gemini** or an **OpenAI-compatible server** (for example Azure OpenAI, vLLM, Ollama, LiteLLM or OpenRouter). Finding content goes to that provider; the platform never sees your key. |
+  | **Off** | No AI triage, even when it is turned on above. |
+
+- **Own provider** takes a **Provider**, a **Model** and an **API key**. An
+  OpenAI-compatible server also needs a **Base URL**, which must be a public
+  https address (private network, loopback and link-local addresses are refused);
+  its key is optional. The key is **write-only**: the page shows only that a key
+  is set, its last four characters and when it was set, and leaving the field
+  empty keeps the saved key. A saved key is sent only to the provider and address
+  it was entered for: changing either removes it, and **Remove the saved key**
+  removes it on demand. **Test connection** makes one small request with no
+  finding data and answers with a fixed reason when it fails (key refused, rate
+  limited, timeout, unreachable, address not allowed).
+- **Monthly token cap.** The page shows the tokens used this month. The cap is
+  set by the platform administrator and counts your organization's tokens
+  whichever key pays for them, so it also limits an organization on its own
+  provider; at the cap triage stops until the next month.
+- If the platform administrator turns off own providers for the installation
+  (Console › **AI provider**), a saved own provider stops at its next call and
+  the page says so; switch to **Platform AI** or **Off**. It never falls back to
+  the platform key by itself.
+- Saving fails with a message when someone else saved a change in the meantime;
+  reload and apply yours again.
+
+See [AI triage](../api/ai-triage.md) for what the analysis returns.
+
 ### Audit log
 
 See [Audit log](02-team-and-access.md#audit-log).
@@ -193,6 +241,23 @@ borrows a person's key. A new account holds no permission: give it a role under
 on this page; the secret is shown once, and only scopes you hold yourself can be
 given. A service account is never an owner or administrator, never has full data
 access and never signs in.
+
+- **Who can manage them.** Creating or deleting a service account and creating or
+  deleting its keys needs the `service_accounts:manage` permission, which owners
+  and administrators hold and a custom role can carry. If a custom role created
+  service accounts through member management before, add `service_accounts:manage`
+  to it. The **Keys** of an account (prefixes, scopes, creators) are visible to
+  owners and administrators only, and the last-used address of a key is shown to
+  administrators only.
+- **Read-only keys.** API keys are read-only, so the key dialog offers read scopes
+  only (`*:read` or `*:view`); a key with a write scope is refused.
+- **No full data through a team.** A service account cannot be given full data
+  access by joining a team or a team role either; the platform refuses it.
+- **Keys end with the person who made them.** When a member who created keys is
+  offboarded or leaves, or an administrator or owner is demoted to member or
+  viewer, the active keys they created are revoked and audited. The member access
+  report lists them and the offboarding result counts them; recreate those keys
+  under a person who stays.
 
 ## Findings & assets
 

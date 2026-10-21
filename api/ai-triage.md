@@ -12,7 +12,17 @@ result is advice stored next to the finding; it does not change the finding's se
 priority. AI triage never decides: at most it proposes a false positive for a person to approve
 (see [False-positive proposals](#false-positive-proposals)).
 
-AI triage is available when the operator configured at least one provider key (`ANTHROPIC_API_KEY`,
+An organization chooses the **AI source** in **Settings > Security > AI** (see
+[AI](../user-guide/10-settings-and-integrations.md#ai)): the platform's provider, its own provider
+(Claude, OpenAI, Gemini or an OpenAI-compatible server at a public https base URL, with a write-only
+key) or off. `GET` and `PUT /api/v1/organization/settings/ai` read and change it (the `PUT` is a
+partial change and returns 409 when another change was saved first), and
+`POST /api/v1/organization/settings/ai/test` checks the connection with one tiny prompt that carries no
+finding data. Saving needs an owner or administrator with `settings:write` and a recent sign-in, and
+is audited without the key. An own provider is subject to the same consent, data-egress policy,
+monthly token cap and rate limit as platform mode; each result records the provider and model.
+
+AI triage is available in platform mode when the operator configured at least one provider key (`ANTHROPIC_API_KEY`,
 `OPENAI_API_KEY` or `GEMINI_API_KEY`; the provider and model of platform mode are
 `AI_PLATFORM_PROVIDER` and `AI_PLATFORM_MODEL`, see
 [Environment variables](../configuration/environment-variables.md)) and the AI triage module is
