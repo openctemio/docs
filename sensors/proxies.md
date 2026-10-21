@@ -175,6 +175,28 @@ refused. Private addresses are allowed, so an internal proxy works.
   `CONNECT` rules.
 - **SOCKS5 proxies** have no such limit.
 
+## Which tools use the pool
+
+The pool carries every TCP connection a confined tool makes, through the
+tool's forwarder on the sensor:
+
+| Tool | Through the pool |
+|---|---|
+| nuclei, httpx, katana | Yes: every request to a target |
+| naabu (connect scan, the default) | Yes: each probed port is one tunnel |
+| naabu SYN scan | No: raw packets cannot pass a proxy, so a job with a pool is refused (`egress_unavailable`) |
+| subfinder | Yes, for its passive sources |
+| dnsx, and DNS of every tool | No: names are resolved by the sensor; DNS never goes through the proxy |
+| trivy, semgrep, codeql (registry and rule downloads), ASN and RDAP lookups | Yes |
+| betterleaks, opengrep | Nothing to carry: they use no network |
+| UDP | No: only TCP goes through the pool |
+
+Scanner content (templates, databases) and code-scan repository fetches use
+the sensor's content path (`SENSOR_CONTENT_PROXY`), not the pool. A job with a
+pool is refused (`egress_unavailable`) on a sensor whose tools would not run
+behind the forwarder: tools run in process (`SENSOR_TOOL_RUNTIME=in-process`),
+a sandbox without network confinement, or CI mode.
+
 ## Troubleshooting
 
 | You see | Cause and fix |

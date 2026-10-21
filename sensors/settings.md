@@ -86,6 +86,8 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_CONTENT_PROXY"></span>`SENSOR_CONTENT_PROXY` | url |  |  | yes | Proxy for content downloads (may carry credentials: presence only). |
 | <span id="SENSOR_SCAN_PROXY"></span>`SENSOR_SCAN_PROXY` | url |  |  | yes | Scanner proxy: direct, inherit, or a proxy URL (may carry credentials: presence only). |
 | <span id="OPENCTEM_SDK_SCANNER_PROXY"></span>`OPENCTEM_SDK_SCANNER_PROXY` | url |  |  | yes | SDK name of the scanner proxy setting. |
+| <span id="SENSOR_SCAN_EGRESS"></span>`SENSOR_SCAN_EGRESS` | enum |  | `platform` |  | Organization proxy pools for scan traffic: platform accepts the pool a job carries (its tools' connections go through it, never direct); direct-only refuses every pooled job (egress_refused_by_host) and does not report egress.upstream@1. See [Proxies for scans](proxies.md#controls-on-the-sensor-host). |
+| <span id="SENSOR_SCAN_EGRESS_ALLOW"></span>`SENSOR_SCAN_EGRESS_ALLOW` | list |  |  |  | Comma list of host:port (or host, any port) proxy endpoints this sensor accepts in a job's pool; a job naming another endpoint is refused (egress_refused_by_host). Empty: any endpoint that passes validation. |
 | <span id="HTTPS_PROXY"></span>`HTTPS_PROXY` | url |  |  | yes | Environment proxy (may carry credentials: presence only). |
 | <span id="HTTP_PROXY"></span>`HTTP_PROXY` | url |  |  | yes | Environment proxy (may carry credentials: presence only). |
 | <span id="NO_PROXY"></span>`NO_PROXY` | list |  |  |  | Hosts the environment proxy is not used for. |
