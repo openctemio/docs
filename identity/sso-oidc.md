@@ -18,9 +18,11 @@ Organization SSO does not accept an arbitrary OIDC issuer: each provider type ha
 issuer rules. For any other identity provider, use [SAML 2.0](sso-saml.md), which most providers
 support (including Keycloak, Okta, Entra ID, ADFS).
 
-Every token is verified the same way: signature against the provider's published keys (RS256, RS384,
-RS512, PS256 or ES256; never `none` or HMAC), issuer, audience, expiry, and a nonce bound to the
-sign-in. Key fetches go through an outbound guard that refuses private and loopback addresses.
+Every sign-in token is verified the same way: an id_token is required, its signature is checked
+against the provider's published keys (RS256, PS256 or ES256 only; never RS384/RS512, `none` or
+HMAC), then the issuer, the audience (and `azp` when there are several audiences), the expiry and a
+nonce bound to the sign-in. A provider set to sign id_tokens with another algorithm must be switched
+to RS256. Key fetches go through an outbound guard that refuses private and loopback addresses.
 
 ## Organization SSO with Okta
 

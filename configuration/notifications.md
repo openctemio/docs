@@ -64,12 +64,16 @@ the value they had; open the channel and check it.
 ### Webhook payload
 
 A webhook channel receives a `POST` with `Content-Type: application/json`,
-`User-Agent: OpenCTEM-Notification/1.0` and, when the event has one, an
-`Idempotency-Key` header for de-duplicating retried deliveries:
+`User-Agent: OpenCTEM-Notification/1.0`, an `Idempotency-Key` header for
+de-duplicating retried deliveries, and the signature headers `webhook-id`,
+`webhook-timestamp` and `webhook-signature`:
 
 ```json
 {
   "event_type": "new_finding",
+  "event_version": 1,
+  "idempotency_key": "outbox-...",
+  "occurred_at": "2026-10-08T07:29:58Z",
   "timestamp": "2026-10-08T07:30:00Z",
   "title": "...",
   "body": "...",
@@ -80,9 +84,11 @@ A webhook channel receives a `POST` with `Content-Type: application/json`,
 }
 ```
 
-The request is not signed: use an HTTPS URL that is hard to guess, and treat
-the content as untrusted input (titles and bodies can carry text from scanned
-targets; control characters are removed and lengths are capped before sending).
+Deliveries are signed with the channel's own secret once one is generated:
+see [Verifying generic webhooks](../api/webhooks.md#verifying-generic-webhooks)
+for the secret, its rotation and receiver code. Use HTTPS, and treat the content
+as untrusted input (titles and bodies can carry text from scanned targets;
+control characters are removed and lengths are capped before sending).
 
 ## Events
 
@@ -112,8 +118,11 @@ programs list go only to the channels attached to those programs.
 ## Delivery
 
 Events are written to an outbox in the same database transaction as the change
-that caused them, then delivered by a background worker every few seconds, with
-retries and back-off. **Settings**, **Integrations**, **Notification channels** shows the
+that caused them, then delivered by a background worker every few seconds. Each
+channel is retried on its own (after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and
+24 h), so one failing channel does not affect the others, and a channel that got
+the event is not sent it again. A delivery can be sent again from its history
+(`POST /api/v1/integrations/{id}/deliveries/{delivery_id}/redeliver`). **Settings**, **Integrations**, **Notification channels** shows the
 queue (**Queue**) and each channel's delivery history (**View events**), with the
 result per channel.
 

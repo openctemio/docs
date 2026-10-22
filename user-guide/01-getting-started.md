@@ -262,8 +262,36 @@ widget that fails never blanks the page.
   you may view organization dashboards), then the first organization
   dashboard, then your first own dashboard.
 - On your very first visit, when there is no dashboard for you at all, you get
-  a personal copy of the **Overview** template, computed for your own access.
+  a personal copy of the **CTEM** template, computed for your own access.
   A line under the header offers **Customize** and **Choose another**.
+- If your dashboard is a copy of the **Overview** template made before it
+  showed the CTEM loop, a one-time line offers **Add the CTEM loop** (added
+  after the first row of figures), **Switch to the CTEM template** (a new CTEM
+  dashboard; your Overview stays) or dismiss. Your dashboard never changes
+  until you choose.
+
+### The CTEM loop
+
+The CTEM loop widget shows the five stages of the program for the assets you
+can see, in order. Each figure opens the list it counts.
+
+| Stage | Figure | Second figure |
+|---|---|---|
+| **Scoping** | Crown jewels designated | How many have an open P0 or P1 finding |
+| **Discovery** | Share of the assets the coverage ledger tracks that had a successful scan in the last 30 days | Assets not scanned in 30 days |
+| **Prioritize** | Open P0 findings | Open findings in the KEV catalog |
+| **Validate** | Share of open findings with validation evidence | Retests run in the last 30 days |
+| **Mobilize** | Share of open findings with an SLA that are within it | Findings past their SLA |
+
+Each stage says whether it is **On track**, **Needs attention**, **Off track**
+or **Not measured** (with the reason, for example "No scannable assets in your
+scope"; never a 0). The stage with the largest gap is marked **Act here**.
+
+**Attack paths to crown jewels** counts your crown jewels that a public entry
+point reaches through known relationships, and lists the top ones with how many
+entry points reach them. It shows only crown jewels you can see; entry points
+and the assets in between are not named. With no crown jewel designated, it
+links to **Crown jewels** to designate them.
 
 ### The header
 
@@ -305,11 +333,12 @@ only on request).
 
 ### Templates
 
-**Dashboards** (`/dashboards`) lists your dashboards and four templates:
+**Dashboards** (`/dashboards`) lists your dashboards and five templates:
 
 | Template | What it shows |
 |---|---|
-| **Overview** | Priority exposure, KEV on your assets, open within SLA and time to fix, each with its change and target; open exposure by priority over 90 days; new versus fixed per week; Fix next; SLA at risk; open findings by severity and age |
+| **CTEM** | Active exposure (priority exposure, KEV on your assets, crown jewels with open P0/P1 findings, open within SLA); the CTEM loop; Fix next; attack paths to crown jewels; open exposure by priority over 90 days |
+| **Overview** | Priority exposure, KEV on your assets, open within SLA and time to fix, each with its change and target; the CTEM loop; open exposure by priority over 90 days; new versus fixed per week; Fix next; SLA at risk; open findings by severity and age |
 | **Executive** | The same four figures over a year with targets; exposure by priority per month; time to fix by priority; new versus fixed per month |
 | **Vulnerability program** | Within SLA, priority exposure, open findings and time to fix; SLA at risk; new versus fixed; time to fix by priority; age of open findings |
 | **Triage** | Open, priority and KEV counts; open findings by SLA state and by severity; new findings per day; Fix next |
@@ -323,8 +352,8 @@ four columns; widgets keep their share of the row), **Set as my default** and
 
 1. Choose **Customize**. The dashboard switches to editing; **Undo**, **Redo**,
    **Add widget**, **Cancel** and **Save** sit in the toolbar.
-2. **Add widget** opens the gallery: widgets grouped by goal (**Exposure**,
-   **Remediation and SLA**, **Threat intel**, and **Advanced** for a
+2. **Add widget** opens the gallery: widgets grouped by goal (**CTEM**,
+   **Exposure**, **Remediation and SLA**, **Threat intel**, and **Advanced** for a
    **Note**), with search. Each card shows a live preview from your own data.
 3. Adding a widget opens its configuration: the **Metric**, filters (for
    example severity or KEV), **Group by**, the time **Range** and

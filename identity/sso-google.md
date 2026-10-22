@@ -82,6 +82,9 @@ OAUTH_STATE_SECRET=<openssl rand -hex 32>
 it only when the web app is not at `APP_URL`. `OAUTH_STATE_SECRET` is optional (derived from the
 session secret when unset). Register `https://<app>/auth/callback/google` as an authorized redirect
 URI; its origin must match `OAUTH_FRONTEND_CALLBACK_URL`. Only Google accounts with a verified email are accepted.
+The account and its email are taken from Google's signed id_token (checked against Google's keys, the
+client id and Google's issuer), so the `openid` scope is required: keep it in `OAUTH_GOOGLE_SCOPES`
+if you override the default (`openid email profile`).
 
 Social sign-in creates an account only when the sign-up policy admits it (see
 [Sign-up and invitations](sign-up-and-invitations.md#creating-organizations)) or the person has a

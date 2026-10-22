@@ -30,9 +30,14 @@ severity filters match.
 
 Delivery rules that apply to every channel:
 
-- **At least once.** A failed delivery is retried with exponential backoff (3 attempts by default).
+- **At least once, per channel.** Each channel an event goes to is delivered and retried on its
+  own: a failure on one channel never stops the retries of another, and a channel that got the
+  event is not sent it again. A failed channel is retried after 1 minute, 5 minutes, 30 minutes,
+  2 hours, 6 hours, 12 hours and 24 hours (8 attempts, about 45 hours), then given up.
   Each delivery carries an `Idempotency-Key` header (`outbox-<event id>`), identical across
-  retries, so a receiver can drop duplicates.
+  retries and redeliveries, so a receiver can drop duplicates.
+- **No redirects.** A `3xx` answer is a failed delivery: the body is never forwarded to another
+  host.
 - **Outbound address checks.** Webhook and HEC URLs are checked when the channel is saved and again
   when connecting: loopback, link-local, private and cloud-metadata addresses are refused, even if
   DNS changes later.
@@ -43,9 +48,14 @@ Delivery rules that apply to every channel:
   Control, bidirectional-control and zero-width characters are removed, lengths are capped (title
   300 characters, field 2,000, body 20,000) and each channel escapes its own markup.
 - **History.** Each channel's delivery history is in the console, and through
-  `GET /api/v1/integrations/{id}/notification-events` (needs `integrations:manage`). Pending and
-  failed entries are under `/api/v1/notification-outbox` (list, stats, `POST .../{id}/retry`,
-  `DELETE .../{id}`).
+  `GET /api/v1/integrations/{id}/notification-events` (needs `integrations:manage`), with each
+  channel's result and number of attempts. Pending and failed entries are under
+  `/api/v1/notification-outbox` (list, stats, `POST .../{id}/retry`, `DELETE .../{id}`).
+- **Redelivery.** `POST /api/v1/integrations/{id}/deliveries/{delivery_id}/redeliver` (needs
+  `integrations:manage`, 30 a minute per organization, audited) sends an event from the history
+  (`delivery_id` is its `id`) again to that channel only. It keeps the original `webhook-id` and
+  `Idempotency-Key`, and is retried like any delivery. An event that never went to that channel
+  answers `404`.
 - **Credentials** (bot tokens, HEC tokens, SMTP passwords) are encrypted at rest with
   `APP_ENCRYPTION_KEY`.
 
@@ -56,11 +66,17 @@ POST /your/endpoint HTTP/1.1
 Content-Type: application/json
 User-Agent: OpenCTEM-Notification/1.0
 Idempotency-Key: outbox-3f0d6c1e-5b8a-4a51-9a59-0c2b7d1e8f42
+webhook-id: outbox-3f0d6c1e-5b8a-4a51-9a59-0c2b7d1e8f42
+webhook-timestamp: 1791451800
+webhook-signature: v1,K5oZfzN95Z9UVu1EsfQmfVNQhnkZ2pj9o9NDN/H/pI4=
 ```
 
 ```json
 {
-  "event_type": "notification",
+  "event_type": "new_finding",
+  "event_version": 1,
+  "idempotency_key": "outbox-3f0d6c1e-5b8a-4a51-9a59-0c2b7d1e8f42",
+  "occurred_at": "2026-10-08T09:29:58Z",
   "timestamp": "2026-10-08T09:30:00Z",
   "title": "New critical finding: ...",
   "body": "...",
@@ -73,8 +89,11 @@ Idempotency-Key: outbox-3f0d6c1e-5b8a-4a51-9a59-0c2b7d1e8f42
 
 | Field | Meaning |
 |---|---|
-| `event_type` | always `notification` |
-| `timestamp` | when the delivery was built, RFC 3339 UTC |
+| `event_type` | the event type, for example `new_finding`, `sensor.offline` or `ci.gate_failing` (list in [Notification channels](../configuration/notifications.md#events)); `test` for a test delivery |
+| `event_version` | version of this event type's payload (`1` today); an incompatible change to a type raises it and is announced in the changelog |
+| `idempotency_key` | the same value as the `Idempotency-Key` and `webhook-id` headers |
+| `occurred_at` | when the event happened, RFC 3339 UTC |
+| `timestamp` | when this attempt was sent, RFC 3339 UTC |
 | `title`, `body` | the rendered message (a channel's message template, if set, is applied) |
 | `severity` | `critical`, `high`, `medium`, `low` or `info` |
 | `url` | link to the object in the console, when there is one |
@@ -85,10 +104,111 @@ Idempotency-Key: outbox-3f0d6c1e-5b8a-4a51-9a59-0c2b7d1e8f42
 Any `2xx` answer is success; anything else, or no answer within 30 seconds, is a failure and is
 retried. Only the first 1 MiB of a response body is read.
 
-{: .warning }
-Generic webhook deliveries are **not signed**. Treat the endpoint URL as a secret (use a long,
-random path), accept only HTTPS, and validate the content before acting on it. If you need a
-verifiable sender, put the endpoint behind a proxy that checks a secret you include in the URL.
+Older releases sent `"event_type": "notification"` for every event; match the event types instead.
+
+### Verifying generic webhooks
+
+Deliveries are signed in the [Standard Webhooks](https://www.standardwebhooks.com/) format, so any
+library for that format verifies them:
+
+| Header | Value |
+|---|---|
+| `webhook-id` | `outbox-<event id>`, the same on every retry and redelivery of the event (`msg_<random>` for a test delivery) |
+| `webhook-timestamp` | Unix seconds when this attempt was sent |
+| `webhook-signature` | `v1,<base64 HMAC-SHA256>` over `<webhook-id>.<webhook-timestamp>.<raw body>`; two space-separated signatures while a rotated secret overlaps |
+
+**The secret.** Each webhook channel has its own secret, `whsec_` followed by base64. Generate it
+(the first time) or rotate it with `POST /api/v1/integrations/{id}/signing-secret/rotate`
+(`integrations:manage` and [step-up](../identity/two-factor.md#step-up-re-authentication)); the
+response shows the secret **once**. It is stored encrypted and never shown again;
+`GET /api/v1/integrations/{id}/signing-secret` only says whether one is set and when it was
+rotated. After a rotation the previous secret keeps signing for 24 hours, so deliveries carry both
+signatures until the receiver uses the new secret. A channel without a secret sends unsigned
+deliveries (still with `webhook-id` and `webhook-timestamp`): generate one and turn verification
+on in the receiver. A test delivery (**Send test**) is signed too.
+
+**The receiver** must:
+
+1. take the key: the secret without `whsec_`, base64-decoded;
+2. compute HMAC-SHA256 with that key over `webhook-id`, `.`, `webhook-timestamp`, `.` and the raw
+   request body, exactly as received (before any JSON parsing), and base64-encode it;
+3. accept the delivery if it equals any `v1,` signature in `webhook-signature`, compared in
+   constant time;
+4. refuse a `webhook-timestamp` more than 5 minutes away from its own clock (replay);
+5. drop a `webhook-id` it has already processed (retries and redeliveries reuse it).
+
+Python:
+
+```python
+import base64, hashlib, hmac, time
+
+def verify(secret: str, headers, body: bytes, tolerance: int = 300) -> bool:
+    msg_id = headers["webhook-id"]
+    ts = headers["webhook-timestamp"]
+    if abs(time.time() - int(ts)) > tolerance:
+        return False
+    key = base64.b64decode(secret.removeprefix("whsec_"))
+    signed = msg_id.encode() + b"." + ts.encode() + b"." + body
+    expected = base64.b64encode(hmac.new(key, signed, hashlib.sha256).digest()).decode()
+    for part in headers["webhook-signature"].split():
+        version, _, sig = part.partition(",")
+        if version == "v1" and hmac.compare_digest(sig, expected):
+            return True
+    return False
+```
+
+Node.js:
+
+```js
+const crypto = require('node:crypto')
+
+function verify(secret, headers, rawBody, toleranceSeconds = 300) {
+  const id = headers['webhook-id']
+  const ts = headers['webhook-timestamp']
+  if (Math.abs(Date.now() / 1000 - Number(ts)) > toleranceSeconds) return false
+  const key = Buffer.from(secret.replace(/^whsec_/, ''), 'base64')
+  const expected = crypto
+    .createHmac('sha256', key)
+    .update(`${id}.${ts}.`)
+    .update(rawBody) // a Buffer with the exact bytes received
+    .digest()
+  return headers['webhook-signature'].split(' ').some((part) => {
+    const [version, sig] = part.split(',')
+    if (version !== 'v1' || !sig) return false
+    const got = Buffer.from(sig, 'base64')
+    return got.length === expected.length && crypto.timingSafeEqual(got, expected)
+  })
+}
+```
+
+Go:
+
+```go
+func verify(secret string, h http.Header, body []byte, now time.Time) bool {
+	id, ts := h.Get("webhook-id"), h.Get("webhook-timestamp")
+	sec, err := strconv.ParseInt(ts, 10, 64)
+	if err != nil || math.Abs(now.Sub(time.Unix(sec, 0)).Seconds()) > 300 {
+		return false
+	}
+	key, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(secret, "whsec_"))
+	if err != nil {
+		return false
+	}
+	m := hmac.New(sha256.New, key)
+	m.Write([]byte(id + "." + ts + "."))
+	m.Write(body)
+	want := base64.StdEncoding.EncodeToString(m.Sum(nil))
+	for _, part := range strings.Fields(h.Get("webhook-signature")) {
+		if v, sig, ok := strings.Cut(part, ","); ok && v == "v1" && hmac.Equal([]byte(sig), []byte(want)) {
+			return true
+		}
+	}
+	return false
+}
+```
+
+Still accept only HTTPS and treat titles and bodies as untrusted text: a valid signature proves
+the delivery came from your OpenCTEM, not that text quoted from a scan target is safe.
 
 ### Splunk HEC
 
@@ -102,7 +222,7 @@ The Splunk channel posts to `<endpoint>/services/collector/event` with
   "index": "security",
   "source": "openctem.io",
   "event": {
-    "event_type": "notification",
+    "event_type": "new_finding",
     "title": "...",
     "body": "...",
     "severity": "high",
