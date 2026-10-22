@@ -290,7 +290,8 @@ guidance, never a secret from the finding.
     way. Each warning and each breach is sent **once per SLA clock** and is
     recorded on the finding's timeline, whatever made the finding overdue (for
     example reopening it after its deadline). Notifications name the finding by
-    its title.
+    its title; a pentest finding, which only its campaign members can see, is
+    named by its id.
   - the warning is measured from the start of the **current clock**: a finding
     whose clock starts again (a regression, the end of a risk acceptance, a
     withdrawn false positive) is not warned at once.
