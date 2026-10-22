@@ -287,7 +287,13 @@ guidance, never a secret from the finding.
     its window has passed, and **overdue** at the deadline;
   - **Deadline notifications** (on by default) decide whether the warning and the
     breach are sent to your notification channels. The status changes either
-    way.
+    way. Each warning and each breach is sent **once per SLA clock** and is
+    recorded on the finding's timeline, whatever made the finding overdue (for
+    example reopening it after its deadline). Notifications name the finding by
+    its title.
+  - the warning is measured from the start of the **current clock**: a finding
+    whose clock starts again (a regression, the end of a risk acceptance, a
+    withdrawn false positive) is not warned at once.
 - Without a policy the platform defaults apply: **P0 2 days, P1 5, P2 15,
   P3 30**. Create the default policy to set your own windows.
 - Click **New policy**, give it a **Name** and **Description**, set the windows
