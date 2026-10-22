@@ -15,7 +15,7 @@ Most dashboards need the dashboard read permission. Some are modules: if a
 module is off you see "Module not enabled", and if you lack the permission you see
 a "You don't have access" message rather than the numbers. Every figure follows
 your data scope and leaves out unpublished pentest findings; what the numbers
-count is explained in [The dashboard](01-getting-started.md#what-the-numbers-count).
+count is explained in [The dashboard](01-getting-started.md#reading-a-widget).
 For a question no dashboard answers (for example "open critical findings in the
 KEV catalog on internet-facing assets, by asset type"), use the
 [query language](../api/query.md) over the API.
@@ -97,7 +97,7 @@ whatever the period you choose. With too little data you see messages such as
 have been resolved".
 
 The figures count what you may see, like the dashboard: see
-[Whose data the dashboard shows](01-getting-started.md#whose-data-the-dashboard-shows).
+[Whose data the dashboard shows](01-getting-started.md#scope-and-freshness).
 For a member whose data scope is limited, the top risks are their own top
 findings, and the change of the risk score from the previous period is not
 shown.

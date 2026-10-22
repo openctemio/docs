@@ -175,7 +175,7 @@ Notes:
   with breakdown buckets under 5 left out; lists of findings (top risks, recent activity) stay in
   their own scope either way. Organization-wide history (risk trend, program metrics, CTEM cycle
   trends and a cycle's charter evaluation) needs `dashboard:aggregate` or full data access. See
-  [Whose data the dashboard shows](../user-guide/01-getting-started.md#whose-data-the-dashboard-shows).
+  [Whose data the dashboard shows](../user-guide/01-getting-started.md#scope-and-freshness).
 - Pentest findings follow the campaign: anyone who is not an owner or admin sees and counts a pentest
   finding only as a member of its campaign, and the campaign's client role never sees a draft or
   in-review finding. This holds on dashboards too.
