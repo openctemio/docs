@@ -249,150 +249,99 @@ this guide, you most likely do not have the permission, or the module is off.
 
 ## The dashboard
 
-**Dashboard** (`/`) gives you the state of exposure in the current organization:
-what is exploitable now and what to do about it. The header has **Refresh**, a
-view switcher and an **Options** menu.
+**Dashboard** (`/`) shows one of your stored dashboards: how exposed you are,
+whether it is getting better, and what to fix next. Every widget is drawn from
+the dashboard's stored figures, and each one has its own error state, so one
+widget that fails never blanks the page.
 
-![The CTEM view of the dashboard: active exposure, priority classes over time, the CTEM loop and the Fix next list]({{ site.baseurl }}/assets/images/overview/dashboard.png)
-*Figure: The CTEM view of the dashboard.*
+### Which dashboard opens
 
-### The CTEM view (default)
+- The dashboard you chose last time (remembered in your browser while it still
+  exists and you can still open it).
+- Otherwise your own default, then the organization's default dashboard (when
+  you may view organization dashboards), then the first organization
+  dashboard, then your first own dashboard.
+- On your very first visit, when there is no dashboard for you at all, you get
+  a personal copy of the **Overview** template, computed for your own access.
+  A line under the header offers **Customize** and **Choose another**.
 
-From top to bottom:
+### The header
 
-1. **Active exposure**: the number of open P0 findings (exploitable now), with
-   the risk score, KEV chains, **Crown jewels with open findings** and **Within
-   SLA**, and a 90-day P0 burn-down that says whether you are gaining or losing
-   ground.
-2. **Priority classes over time**: open P0 to P3 findings over 90 days.
-3. **The CTEM loop**: five tiles, one per stage, each opening the matching page.
+- **The dashboard switcher** lists **Organization** dashboards (only when your
+  role holds `dashboards:org:view` or `dashboards:org:manage`) and **Mine**,
+  with a search box once there are more than eight, plus **New dashboard** and
+  **Manage dashboards**.
+- **Customize** edits the dashboard in place: your own dashboards, and
+  organization dashboards when you hold `dashboards:org:manage`.
+- The **⋯** menu has **Duplicate to mine** (an organization dashboard copied
+  to your own dashboards), **Set as my default** or **Set as organization
+  default** (managers), **Edit details** and **Delete** (your own dashboards).
 
-   | Tile | Opens | Shows |
-   |---|---|---|
-   | Scoping | Scoping overview | How many readiness checks are met, the number of crown jewels and how many of them have open findings; a flag if no crown jewels are designated |
-   | Discovery | Scans | Scan coverage and unscanned assets |
-   | Prioritize | Findings | Open P0 findings and your open findings in the KEV catalog (not the size of the catalog) |
-   | Validate | Compensating controls | Share of findings validated |
-   | Mobilize | Remediation | Open findings within their SLA and the number breached |
+### Scope and freshness
 
-4. **Fix next** (findings ranked by exposure) next to **Attack paths → crown
-   jewels** (crown jewels on an attack path that is reachable now).
-5. **Known exploited exposure** next to **Coverage & hygiene**. The first
-   counts your organization's open findings only: **Open findings in KEV**
-   (opens that list), **KEV past due date**, **KEV with ransomware use** and
-   **EPSS 50 % or more**. The size of the global KEV catalog is not shown on
-   the dashboard: it is the same for every organization. **Coverage &
-   hygiene** shows **Connector dispatch freshness** (assets whose scans were
-   dispatched recently enough), **Validation** and **Open within SLA**.
-6. **CTEM maturity**, when the CTEM cycles module is on.
-7. **Analyst detail**: **New findings per month** (columns by severity, the
-   legend in severity order), **Open findings by severity**, **Assets by type**
-   and recent activity.
+Under the header a badge says whose figures these are: **Organization-wide**
+(the whole organization, for everyone allowed to view the dashboard) or **Your
+scope** (computed for the assets you can see). Lists you open from a widget
+always follow your own access.
 
-When the organization has no data yet, each block shows an empty state (for
-example "Nothing exploitable right now" or "No crown jewels designated") instead
-of sample numbers. With no open finding in your scope, **Active exposure** says
-**No open findings** and links to scans instead of showing a large 0. A CTEM
-loop stage with nothing to measure (or whose data failed to load) is grey,
-never green or amber. If one card fails to draw, it shows its own error with
-**Retry** and the rest of the dashboard still renders. When a change to the scoring (a new scoring model, the risk
-scoring settings, the priority rules or an SLA policy) moves the numbers, the
-trend charts mark that date and say that values before and after it are not
-directly comparable.
+Next to it the freshness line shows when the figures were computed and when the
+next scheduled refresh runs, marks figures that are stale or kept after a
+failed refresh, and has **Refresh now**. The owner of a personal dashboard, and
+managers of an organization dashboard, also see the **Refresh schedule**
+(organization default, every 5 or 15 minutes, hourly, every 6 hours, daily or
+only on request).
 
-### What the numbers count
+### Reading a widget
 
-- **Open** means new, confirmed, in progress or fix applied. Finding totals and
-  the severity breakdown count open findings only; resolved, false positive,
-  accepted and duplicate findings are not in them.
-- **Within SLA** (or **Open within SLA**) is the share of open findings that
-  have an SLA and are not past it. **Overdue** counts the open findings past
-  their SLA.
-- **Crown jewels with open findings** counts crown jewels that have at least one
-  open finding; **crown jewels on an attack path** (on the attack paths card)
-  counts those an attacker can reach now. The two are different numbers.
-- A figure with nothing to measure shows a dash (**—**), never 0 % or 100 %: for
-  example the SLA share when no open finding has an SLA, or the time to fix
-  when nothing was fixed in the period.
-- Clicking a figure opens the findings list counted with the same filter, so
-  the list total equals the figure (for example **Mine · open** opens your open
-  findings, and each row of **Open findings by severity** opens that
-  severity). A figure whose exact list cannot be opened yet is not a link.
-- Unpublished pentest findings (draft, in review) are never counted, and
-  findings found only on a branch are left out.
+- Each widget has a title, **How this is counted** (the definition), when its
+  figures were computed, and, where it makes sense, the change against the
+  previous period (green when it is better, red when it is worse, whichever
+  direction that is) and a target.
+- Clicking a figure, a bar or a row opens the findings list with the same
+  filter, so the list matches the number.
+- A figure that cannot be measured shows "—" with the reason (for example
+  "Too few findings were fixed in this period to measure"), never 0. While the
+  organization's dashboard data is built for the first time, widgets say so.
 
-The formulas are documented in
-[Dashboard metrics](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/dashboard-metrics.md).
+### Templates
 
-### Whose data the dashboard shows
+**Dashboards** (`/dashboards`) lists your dashboards and four templates:
 
-The dashboard counts what you may see:
+| Template | What it shows |
+|---|---|
+| **Overview** | Priority exposure, KEV on your assets, open within SLA and time to fix, each with its change and target; open exposure by priority over 90 days; new versus fixed per week; Fix next; SLA at risk; open findings by severity and age |
+| **Executive** | The same four figures over a year with targets; exposure by priority per month; time to fix by priority; new versus fixed per month |
+| **Vulnerability program** | Within SLA, priority exposure, open findings and time to fix; SLA at risk; new versus fixed; time to fix by priority; age of open findings |
+| **Triage** | Open, priority and KEV counts; open findings by SLA state and by severity; new findings per day; Fix next |
 
-- Owners, administrators and roles with full data access see the whole
-  organization.
-- A member or viewer whose data scope is limited (see
-  [Groups and data scope](../identity/roles-and-permissions.md#groups-and-data-scope))
-  sees counts for the assets of their teams and direct grants, and those assets'
-  findings. A member with no team sees zeros.
-- A limited member whose role holds `dashboards:org:view` sees the
-  organization's totals, but small breakdown buckets (under 5) are left out so a
-  total cannot point at an asset they cannot see.
-- Lists of actual findings (**Fix next**, top risks, recent activity) always
-  stay within your own scope, whatever the permission.
-- A pentest finding is counted or listed only for members of its campaign, and
-  never while it is a draft or in review for the campaign's client role.
-- Organization-wide history (the risk trend, the program metrics and the CTEM
-  cycle trends) needs `dashboards:org:view` or full data access: without it the
-  risk trend stays empty and the program and cycle figures are not shown.
+**Use template** copies a template into your own dashboards; **New blank**
+starts empty. Each card has **Open**, **Edit** (name, description and one to
+four columns; widgets keep their share of the row), **Set as my default** and
+**Delete**, which asks first.
 
-### The Classic view
+### Customize a dashboard
 
-Choose **Classic** in the view switcher for the earlier layout:
-
-- **Quick Actions**: **New Scan**, **View Findings**, **Remediation Tasks** and
-  **Generate Report**. A button is disabled, with a tooltip, when you lack the
-  permission (`scans:write`, `findings:read`, `remediation:read`,
-  `reports:read`).
-- **CTEM Process**: a stepper that works out the current stage from your data.
-  No assets yet means Scoping; assets but no findings means Discovery; findings
-  means Prioritization; triaged findings means Validation; resolved or closed
-  findings means Mobilization.
-- Stat cards: **Total Assets**, **Active Findings**, **Avg CVSS Score**,
-  **Repositories**.
-- **Findings Trend** (by severity over six months) and **Severity
-  Distribution**.
-- **Asset Distribution** (by asset type), **Recent Activity** (up to ten
-  events) and **Quick Stats** (**Open findings**, **Open critical findings**,
-  **Overdue** and **Repositories with Issues**).
-
-If the dashboard cannot load its data, a banner **Failed to load dashboard data**
-appears with **Retry**.
-
-### Custom dashboards
-
-You can build personal dashboards next to the built-in views.
-
-![The Dashboards page with the built-in templates and a saved dashboard]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
-*Figure: Dashboards: start from a template or a blank canvas.*
-
-- Open the view switcher and choose **Manage dashboards…**, or **Options › New
-  dashboard**. This opens **Dashboards** (`/dashboards`).
-- **Start from a template** (Executive, SOC / Triage, Vulnerability Management,
-  My Work, AppSec / Developer) with **Use template**, or click **New blank**.
-- Under **Your dashboards**, each card has **Open**, **Edit**, **Set as default**
-  (the star) and **Delete** (the bin), which asks for confirmation first.
-- **Edit** sets the **Name**, **Description** and the number of columns (one to
-  four).
-- To add or arrange widgets, open the dashboard and choose **Options › Customize
-  widgets**: **Add component**, drag widgets to reorder, set each widget's size,
-  then **Save**.
-
-The view you last chose is remembered in your browser; otherwise your default
-custom dashboard opens, and otherwise the CTEM view.
+1. Choose **Customize**. The dashboard switches to editing; **Undo**, **Redo**,
+   **Add widget**, **Cancel** and **Save** sit in the toolbar.
+2. **Add widget** opens the gallery: widgets grouped by goal (**Exposure**,
+   **Remediation and SLA**, **Threat intel**, and **Advanced** for a
+   **Note**), with search. Each card shows a live preview from your own data.
+3. Adding a widget opens its configuration: the **Metric**, filters (for
+   example severity or KEV), **Group by**, the time **Range** and
+   **Compare** with the previous period, the **Visualization** (only those
+   that fit the data; the default is marked), a **Target** for single figures,
+   and the **Title** (leave it empty to use the translated name). The preview
+   at the top follows your changes. **Apply** keeps them.
+4. Move and resize widgets with the buttons on each widget or by dragging its
+   handle. With the keyboard, focus a widget and use the arrow keys to move it,
+   Shift and the arrow keys to resize it, Enter to configure, D to duplicate
+   and Delete to remove (with **Undo**). Ctrl+Z and Ctrl+Shift+Z (Cmd on a
+   Mac) undo and redo.
+5. **Save** stores the dashboard; **Cancel** drops every change.
 
 ### Stored dashboard figures and Refresh now
 
-Custom dashboard figures are computed ahead of time from stored per-asset
+Dashboard figures are computed ahead of time from stored per-asset
 facts and kept as a snapshot, so opening a dashboard does not recompute them:
 
 - Each dashboard refreshes on its schedule (manual, every 5 or 15 minutes,
