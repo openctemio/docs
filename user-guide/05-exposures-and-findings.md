@@ -74,6 +74,28 @@ verification** (fixes waiting to be verified; opens the
   matching finding (up to 100,000 rows; audit-logged); otherwise the current page
   is exported.
 
+### When the list is empty, or fails
+
+The list tells three empty states apart, each with the next step:
+
+- **No findings in this organization yet** (nothing narrows the list and the
+  organization has none): **Import results**, **Set up a scan** and a link to
+  **Integrations**.
+- **No findings match** (filters, the search or the state hide findings): it
+  says how many findings of the viewed state are hidden and by what ("1,204 open
+  findings are hidden by 2 filters and your search"), with **Clear filters** (or
+  **Clear search**) and **Search all statuses**.
+- **You do not have access to these findings**: your role cannot read findings
+  here; the message names the missing permission when the server does.
+
+If the list fails to load, the error appears in the table area with **Retry** and
+**Copy request ID** (quote it to support). The page header, search and filters
+stay, and there is no second pop-up message. While the list reloads, the rows
+stay on screen with a thin progress bar above the table.
+
+The findings list, its filters, the table controls, the bulk bar and saved views
+are translated into English and Vietnamese.
+
 ### Columns and badges
 
 Columns: **Title**, **Severity**, **Priority** (P0 to P3), **Location**,
