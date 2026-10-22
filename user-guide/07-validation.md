@@ -83,6 +83,42 @@ verify permission). A retest proves reachability with its own probe and then
 settles the finding: fixed and resolved, still vulnerable, regression (reopened)
 or inconclusive. See [Exposures and findings](05-exposures-and-findings.md#the-full-page).
 
+### The Verification panel: how a finding can be verified
+
+The finding drawer and page have a **Verification** panel. The platform works out,
+for that finding, which ways of verifying a fix apply, and the panel lists them:
+
+| Method | When it is available | Counts as proof |
+|---|---|---|
+| **Retest** | The finding's tool and rule can be re-run on its target by a sensor of your organization | Yes |
+| **Covered scan** | A full scan with the same tool covers the asset and no longer finds it: always for a repository's default branch, and for other assets when automatic closing by scan is on. Never for secrets or for findings a person reported | Yes, the finding closes on its own |
+| **Reachability check** | An active asset with a network address (not a secret) | No, it only says whether the target answers |
+| **Rotation proof** | Leaked secrets: the credential was revoked at the provider and replaced, recorded in the checklist | Yes |
+| **Evidence review** | Any open finding: the verification checklist | Yes |
+
+A method that cannot be used says why (for example "A leaked secret is verified by
+rotating it, not by a re-check", or "No sensor of your organization can re-check
+it"). The panel also states what resolving needs for the finding's risk tier:
+
+- **Critical, P0 or KEV:** a passing retest, or the checklist completed by
+  **another person** than the one who resolves.
+- **High or P1:** a passing retest or the completed checklist.
+- **Everything else:** a note.
+
+Proof older than the last time the finding was seen or reopened does not count.
+
+**Fill in the checklist:** click **Checklist** in the panel (needs the verification
+checklist permission), tick each item and add notes and evidence links. For a
+secret the items describe the rotation; give the key reference's last four
+characters only, never the secret. Completing every item records you as the person
+who verified the fix. For a critical finding the panel then tells you that another
+person must resolve it, and their status menu offers **Resolved**.
+
+In the status menu a move you cannot make shows a lock and the reason under it
+(for example "Needs proof: a passing retest, or the checklist completed by another
+person"). The **Check reachability** button (needs the verify permission) appears
+only where a reachability check can run.
+
 ### Retest checks: retest findings that have no template
 
 A finding that no scanner template can re-run (a manual or bug-bounty finding,
