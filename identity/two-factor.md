@@ -132,17 +132,19 @@ There is no way to turn it off.
 Some actions could hand the organization to someone who has stolen a session. For those, the API
 requires that the session proved the user's identity within the last **10 minutes**:
 
-- creating or deleting an API key; creating a SCIM token;
+- creating or deleting an API key; creating or rotating a SCIM token;
 - changing organization security settings (2FA requirement, IP allowlist, allowed domains, SSO
-  settings); approving an SSO change;
+  settings); approving an SSO change; turning modules on or off (including resetting them and
+  applying a preset);
 - deleting the organization; offboarding or erasing a member; removing a member's 2FA;
 - making someone an admin; transferring ownership; renaming the organization's slug;
 - changing who may join with a verified domain (**Settings > Domains**); inviting someone outside the
   organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;
   allowing bearer-key sensors again;
-- revealing a stored credential; reading or rotating an inbound webhook secret; changing where
-  evidence files are stored; overriding the CI security gate;
+- revealing a stored credential; creating, changing, rotating or deleting a secret in the secret
+  store; reading or rotating an inbound webhook secret; rotating an outbound webhook signing
+  secret; changing where evidence files are stored; overriding the CI security gate;
 - widening scope (creating, approving or extending scope entries, turning on discovery, removing
   exclusions).
 
