@@ -39,7 +39,7 @@ code, containers, attack-surface scanning, pentest, imports, manual).
 ![The findings list with severity, priority, source, location and status, KEV and EPSS badges]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
 *Figure: The findings list.*
 
-### Header and metrics
+### Header and quick views
 
 - **Approvals** opens the [approval requests](#approval-requests); it is also an
   entry under **Findings** in the sidebar, with the number of requests waiting
@@ -48,17 +48,38 @@ code, containers, attack-surface scanning, pentest, imports, manual).
   [Import results](#import-results)).
 - **Add finding** records a finding by hand (title, description, severity,
   source, asset and location).
+- The first row of the list names the view you are looking at and how many
+  findings it holds. When fixes wait for a verifier and you may verify, an
+  **Awaiting verification** button there opens the
+  [verify view](#verify-fixes).
 
-The metric strip is also a set of quick filters: **Total**, **Open**,
-**Critical open**, **High open**, **Overdue SLA**, **In CISA KEV** and **Awaiting
-verification** (fixes waiting to be verified; opens the
-[verify view](#verify-fixes)).
+**Quick views.** While the findings list is open, the sidebar lists seven
+built-in views under **Findings**, each with a live count:
+
+| View | What it shows |
+| --- | --- |
+| **Active** | findings that still need work |
+| **Needs triage** | findings with status New |
+| **My queue** | open findings assigned to you |
+| **SLA breached** | open findings past their remediation deadline (the count is red when above zero) |
+| **Pending approval** | findings with a false-positive or acceptance request waiting |
+| **Accepted · expiring** | accepted risks that lapse within 30 days |
+| **Closed** | fixed and dispositioned findings together |
+
+A view is a link to the list with its own filter, so its count is exactly the
+number of rows the list then shows, in your own data scope: a teammate with
+access to fewer assets sees smaller numbers. A view with no findings shows no
+number. The counts replace the metric cards and the state tabs the list used to
+have; the dashboard keeps the organization-wide figures.
 
 ### Search, filter, group and save views
 
 - Search by title, CVE, rule or location.
-- **Finding state**: **Open** (default), **Fixed**, **Dispositioned** (false
-  positive, accepted risk or duplicate; never counted as fixed) or **All**.
+- The state of the list comes from the quick view you opened: **Active** shows
+  open findings, **Closed** shows fixed and dispositioned findings (false
+  positive, accepted risk or duplicate; a disposition is never counted as
+  fixed). A link can also ask for **Fixed**, **Dispositioned** or **All**
+  findings with `state=fixed`, `state=dispositioned` or `state=all`.
 - The filter panel: **Assigned to me** (yours, on assets you own, or your
   team's), **Severity**, **Hide informational**, **Priority** (P0 to P3),
   **In CISA KEV**, **Reachable**, **Status**, **SLA**, **Branch** (only on a
@@ -144,7 +165,7 @@ In the grouped view:
 
 ### Verify fixes
 
-The **Awaiting verification** metric opens the verify view: fixes marked
+The **Awaiting verification** button opens the verify view: fixes marked
 **Fix Applied**, grouped by CVE. People with the verify permission click
 **Approve** to accept the fix, or **Reject** with a reason (for example
 "Vulnerability still present"); rejected findings go back to the assignee as In
