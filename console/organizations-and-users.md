@@ -60,12 +60,21 @@ Open an organization for its tabs:
   sensors, API keys, platform scans a day and storage (`storage_mb`, which
   overrides the default storage quota). No limit applies unless one is set. A
   lower limit never removes anything: additions over it are refused. Changing a
-  limit needs an operations admin and a confirmation, and is audited.
+  limit needs an operations admin and a confirmation, and is audited. Features
+  can also be denied to an organization: besides modules, the sign-in features
+  `sso.connections` (adding or changing SAML and OIDC connections),
+  `sso.enforcement` (requiring SSO), `scim` (the SCIM API) and
+  `sso.group_links` (SCIM group to role mappings). A denied feature refuses new
+  configuration with `403 FEATURE_NOT_INCLUDED`. Nothing is taken away at once:
+  sign-in through configured connections keeps working, SCIM keeps working for
+  the 30-day grace, and SSO enforcement is switched off after that grace (the
+  owners are told), so members are never locked out. Two-factor, session and
+  audit controls are never features.
 - **Single sign-on** (changes need a super admin): SAML 2.0 and OIDC identity
   providers, **Verified domains** (proved by a DNS TXT record; automatic joining
   through SSO admits only addresses on them) and **Require single sign-on**
-  (available once a provider is set up; the owner can always still use a
-  password). SSO changes made here apply only after the organization's owner
+  (available once a provider is set up and a domain is verified for SSO; the
+  owner can always still use a password). SSO changes made here apply only after the organization's owner
   approves them under **Settings › Security › SSO approvals**. See
   [Identity and access](../identity/index.md).
 - **Scope**: the organization's scan approval policy and its modules. Modules are

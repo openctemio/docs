@@ -79,7 +79,7 @@ switch on:
   requirement turned on mid-session takes effect within one access-token lifetime (15 minutes by
   default).
 - A session from **this organization's own** SSO (OIDC or SAML) passes: the organization's identity
-  provider owns the second factor.
+  provider owns the second factor, unless **SSO must prove two-factor** is on (below).
 - Any other federated session (social sign-in with Google, GitHub or Microsoft, or another
   organization's SSO) is refused for this organization; the person signs in with password and 2FA, or
   through this organization's SSO.
@@ -88,6 +88,24 @@ switch on:
 
 ![The Authentication settings with the switches that require two-factor authentication]({{ site.baseurl }}/assets/images/identity/authentication.png)
 *Figure: Settings, Authentication.*
+
+### SSO must prove two-factor
+
+By default, a sign-in through the organization's own identity provider counts as two-factor: the
+provider is trusted to have asked for a second factor. An owner can turn on **SSO must prove
+two-factor** under **Settings > Authentication > Two-factor authentication** (with step-up). With it
+on, a member who must use 2FA and signs in through the organization's SSO gets access only if the
+provider says, in its signed response, that a second factor was used:
+
+- OIDC: the id_token's `amr` claim contains `mfa`.
+- SAML: the assertion's authentication context is a multi-factor one (for example
+  `http://schemas.microsoft.com/claims/multipleauthn` or `https://refeds.org/profile/mfa`).
+
+Otherwise the token is refused (`403 MFA_ENROLLMENT_REQUIRED`), and the person signs in again
+through the provider with multi-factor authentication. Turn multi-factor authentication on in the
+identity provider before turning this on. Sessions that already exist without that proof end
+within one access-token lifetime. Members who do not have to use 2FA are not affected. Turning the
+switch off is recorded as a High audit event and the owners and admins are told.
 
 ## Recovery
 
