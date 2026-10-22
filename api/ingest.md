@@ -64,7 +64,7 @@ Rules that matter in practice:
 
 ## Upload a report another tool exported
 
-`POST /api/v1/findings/import` takes a file exported by another security tool, converts it to
+`POST /api/v1/findings/imports` takes a file exported by another security tool, converts it to
 CTIS with the `ctis/importer` package, and ingests it with the uploader's rights. In the console
 this is **Findings > Import results**.
 
@@ -91,10 +91,12 @@ Request (`multipart/form-data`):
 | `?dry_run=true` | parse and count only; nothing is written |
 | `?format=` | force the format of a single file |
 | `?min_severity=` | drop findings below `info`, `low`, `medium`, `high` or `critical` |
+| `?coverage=full&asset_id=…` | the file is a complete scan of these assets (1 to 100) by its tool: their open findings of that tool that the file does not report are closed (needs `findings:status`, see below) |
+| `Idempotency-Key` header | 1 to 128 printable ASCII characters: a retry of the same upload returns the first answer instead of importing again |
 
 ```bash
 # A preview first: parse and count, write nothing.
-curl -X POST "https://openctem.example.com/api/v1/findings/import?dry_run=true" \
+curl -X POST "https://openctem.example.com/api/v1/findings/imports?dry_run=true" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -F "file=@scan-results.nessus"
 ```
@@ -104,12 +106,23 @@ session access token as above. It needs `findings:write`, `assets:write` and `as
 
 What to expect:
 
-- The response has one entry per file: the detected format, counts (assets, findings by severity,
-  components, VEX statements, skipped records), parse problems with line and column, and the
-  `import_id` of the import record.
+- An import answers `201` with `Location: /api/v1/findings/imports/{id}` and its **receipt**:
+  what it did to your findings (`created`, `updated` = still detected, `reactivated`, `closed`,
+  `untouched`, `skipped`, `failed`). A preview answers `200` and has no receipt.
+- The response also has one entry per file: the detected format, counts (assets, findings by
+  severity, components, VEX statements, skipped records) and parse problems with line and column.
 - Limits: 110 MiB request, 10 minutes, 6 imports per minute per organization. ZIP archives: at
   most 50 files, 100 MiB per file, 400 MiB in total, no nested archives or links.
-- An import never auto-resolves findings that are absent from the file.
+- By default an import never closes findings that are absent from the file. Only an upload that
+  declares `coverage=full` for explicit `asset_id` values closes the open findings of its tool on
+  those assets that it did not report. That needs `findings:status`, every asset must be in your
+  data scope, and nothing closes if a file failed. Findings from pentests and other human sources
+  and leaked secrets are never closed this way, and a close of too large a share of the open
+  findings is held.
+- With `Idempotency-Key`, a retry of the same files returns the first answer and receipt
+  (`Idempotent-Replayed: true`); the same key with other files is refused (422), a key still in
+  use answers 409, and if the server cannot check the key it refuses the upload (503) without
+  importing anything. Keys are kept 24 hours, per user or API key.
 - A member with a restricted data scope only adds findings to assets in their scope and creates
   no new assets.
 - VEX `not_affected` statements never set a status on their own. `INGEST_VEX` (default `dry_run`)
@@ -118,6 +131,21 @@ What to expect:
   `findings:approve` decides, like any other false positive. Findings from pentests and other human
   sources are not affected.
 - Every import is audit-logged (file names and counts, never content).
+
+### Receipts
+
+Every upload and every sensor run (a scan run, a CI run, a connector sync) gets a receipt:
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/v1/findings/imports` | receipts, newest first; filters `source_kind` (`upload`, `scan_run`, `command`, `ci_run`, `connector`, `sensor`) and `source_ref`; `per_page` at most 100; an unknown parameter is refused with 400 |
+| `GET /api/v1/findings/imports/{id}` | one receipt, with its actions counted by severity |
+| `GET /api/v1/findings/imports/{id}/actions` | the findings it created, saw again, reopened or closed |
+| `GET /api/v1/findings/{id}/imports` | the uploads and runs that acted on one finding |
+
+They need `findings:read`. Receipt counts cover the whole organization, so only members who see
+the whole organization (or hold `dashboards:org:view`) read other people's receipts; everyone
+else sees the uploads they made. The per-finding lists only show findings you can see.
 
 Other upload endpoints:
 
