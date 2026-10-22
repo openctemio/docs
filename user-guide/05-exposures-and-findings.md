@@ -89,15 +89,28 @@ exists.
 
 ### Row and bulk actions
 
-A row's menu: **View Details**, **Assign**, **Change Status**, **Mark as False
-Positive**, **Create Jira Ticket** (when ticketing is set up), **Add to
-remediation**, **Copy ID**, **Copy Link** and **Delete** (permanent, asks for
+Click anywhere on a row to open the finding. A row's menu: **View details**,
+**Open to assign…**, **Open to change status…**, **Open to mark as false
+positive…** (these three open the finding, where the assignee picker and the
+approval flow live), **Create Jira Ticket** (when ticketing is set up), **Add to
+remediation**, **Copy ID**, **Copy link** and **Delete** (permanent, asks for
 confirmation).
 
 Select rows to **Assign to…**, create a **Remediation task**, or change the
 **Status** to Confirmed, In Progress or Resolved (Resolved needs the verify
 permission). False positive and accepted risk are never offered in bulk because
 they need approval.
+
+- A selection belongs to the rows on screen. Changing the page, the page size,
+  the sort, the search, a filter, the view or the grouping clears it, so a bulk
+  action never reaches a finding you cannot see.
+- A bulk assignment asks you to confirm your identity again when your
+  organization requires it for the change, and shows the server's message when
+  it is refused.
+- On a phone, every finding card has the same checkbox and the same menu as a
+  table row. Tapping the card opens the finding; the checkbox selects it.
+- While a finding is open in the side panel, **J** and **K** open the next and
+  previous finding of the list (see **Help**, **Keyboard shortcuts**).
 
 In the grouped view:
 
