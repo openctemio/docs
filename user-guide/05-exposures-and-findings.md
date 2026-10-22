@@ -85,6 +85,24 @@ have; the dashboard keeps the organization-wide figures.
   **In CISA KEV**, **Reachable**, **Status**, **SLA**, **Branch** (only on a
   feature branch) and **Source**. Draft and In Review pentest findings are hidden
   until you filter on a status.
+- **Filter chips.** Every active filter is a chip under the toolbar, the panel's
+  filters included ("Severity is Critical, High", "EPSS score ≥ 0.5"). The x on a
+  chip removes only that filter. Filters that come from the saved view you
+  opened show a lock and cannot be removed here: switch or edit the view.
+- **Add filter** (or press **F**) opens a searchable list of every field the
+  server offers you, grouped as **Exploitation**, **Finding**, **Asset** and
+  **Work**. Pick a field and set it the way it works: choices for a status or a
+  severity, a condition and a number for a score or a port, a quick range ("7 days
+  ago", "30 days from now") or a date for time fields, **Yes** or **No**, **Is
+  empty**, or a person from your members. New fields the server adds show up
+  here without an update of the console. Asset-based fields (asset tag,
+  criticality, group, owner) are offered only if you can read assets. A field the
+  open saved view already sets is greyed out, because a filter on it would
+  override the view.
+- A link can carry a filter the console does not know (a typo such as
+  `sevrity=high`). It is shown as **Unknown filter** with an x, and the list
+  still loads without it. If the server refuses it, the list says "This link has
+  a filter we do not know" and offers **Remove it**.
 - **Group** the list by CVE, rule, asset, owner, severity, source, component,
   type or family (findings sharing one fix). Each group shows its progress (open, fixing, applied,
   resolved). Groups count only the findings that match the list's search and
