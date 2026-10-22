@@ -17,19 +17,26 @@ or let provisioned people set a password.
 
 In the organization, **Settings > Directory sync (SCIM)** (the owner generates and revokes tokens; admins can view them):
 
-1. Select **Generate token**, give it a name (for example `Okta production`) and confirm with
-   [step-up re-authentication](two-factor.md#step-up-re-authentication).
+1. Select **Generate token**, give it a name (for example `Okta production`), choose when it
+   expires (30, 90, 180 or 365 days; the API accepts 1 to 365 as `expires_in_days`) and confirm
+   with [step-up re-authentication](two-factor.md#step-up-re-authentication).
 2. Copy the token (`oct_scim_...`). It is shown once. It is stored only as a keyed hash.
 
 | Action | Who |
 |---|---|
 | List tokens, edit group mappings (except to `admin`) | owner or admin |
-| Create a token | owner, with step-up |
+| Create or rotate a token | owner, with step-up |
 | Revoke a token | owner |
 | Map a group to `admin` | owner |
 
-Tokens do not expire; revoke a token when the integration is retired. One token belongs to one
-organization, and the organization is always taken from the token, never from the request.
+Every token expires. Before it does, select **Rotate** on its row (or
+`POST /api/v1/scim-tokens/{id}/rotate`, optionally with `expires_in_days`): a new token with the
+same name is shown once, and the old one keeps working for 24 hours so you can paste the new
+value into the identity provider. The list shows each token's expiry; an expired token shows as
+**Expired** and is refused like an unknown one. Tokens created before expiry existed expire 90 days
+after the upgrade that introduced it: rotate them before then. Revoke a token when the
+integration is retired. One token belongs to one organization, and the organization is always
+taken from the token, never from the request.
 
 ## 2. Configure the identity provider
 
@@ -96,7 +103,7 @@ id and prefix in the metadata. Role changes are high severity. See [Audit log](.
 
 | Symptom | Cause |
 |---|---|
-| `401` | The token is revoked or wrong. Generate a new one (the old value cannot be shown again). |
+| `401` | The token is revoked, expired or wrong. Rotate it, or generate a new one (the old value cannot be shown again). |
 | Everyone is `viewer` | Expected without a group mapping. Map a group to `member` or higher. |
 | Admin group members are not promoted | The admin mapping was not saved by an owner. Have an owner save the mappings again. |
 | `403` when saving mappings | Only an owner may change a mapping to `admin`. |
