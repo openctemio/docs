@@ -124,6 +124,16 @@ CycloneDX, SPDX, OSV, CSAF, OpenVEX, DefectDojo, or a ZIP of these. Click
 only on assets you can change, and an import never resolves other findings. See
 also [Ingesting results](../api/ingest.md).
 
+After an import the dialog shows its **receipt**: how many findings were
+**New**, **Still detected**, **Reopened**, **Closed**, **Untouched**, **Skipped**
+and **Failed**, and whether the upload's coverage could close anything (an
+import from the console always has partial coverage, so it closes nothing).
+Before you choose a file, the dialog lists your **Recent imports**.
+
+The same counts appear on a scan run's page as **What this run did to
+findings**, and a finding's overview shows **Last seen in**: the newest import
+or run that created, saw again, reopened or closed it.
+
 ## A single finding
 
 Click a row to open the **drawer**; click **Open full details** (or press
