@@ -41,13 +41,17 @@ code, containers, attack-surface scanning, pentest, imports, manual).
 
 ### Header and quick views
 
+- **Triage** is the page's main button, with the number of findings still to
+  decide (status New). **T** does the same. It opens the **Needs triage** view and
+  the first finding in the side panel; use **J** and **K** to move on. With
+  nothing to triage it stays as **Triage view**. A focused one-finding-at-a-time
+  triage mode is planned.
+- **Add** opens a menu: **Add finding** records a finding by hand (title,
+  description, severity, source, asset and location) and **Import results** loads
+  a scanner report (see [Import results](#import-results)).
 - **Approvals** opens the [approval requests](#approval-requests); it is also an
   entry under **Findings** in the sidebar, with the number of requests waiting
   for you when you are an approver.
-- **Import results** loads a scanner report (see
-  [Import results](#import-results)).
-- **Add finding** records a finding by hand (title, description, severity,
-  source, asset and location).
 - The first row of the list names the view you are looking at and how many
   findings it holds. When fixes wait for a verifier and you may verify, an
   **Awaiting verification** button there opens the
@@ -107,8 +111,13 @@ have; the dashboard keeps the organization-wide figures.
   type or family (findings sharing one fix). Each group shows its progress (open, fixing, applied,
   resolved). Groups count only the findings that match the list's search and
   every filter, and the search box stays available in the grouped view.
-- **Views**: save the current filters as a view, for yourself or shared with
-  your groups.
+- **Views**: save the current filters, sort, grouping, columns and density as a
+  view, for yourself or shared with your groups. Organization-wide views need the
+  **Share Findings Views with the Organization** permission (`findings:views:share`). A view shares the filters, never the
+  findings: everyone sees the rows they are allowed to see. When the list differs
+  from the view you opened (a filter on top, other columns, another density), the
+  view button shows a dot and the menu says what changed, with **Save changes**
+  (only for your own views), **Save as new view…** and **Discard changes**.
 - **Export** as CSV or JSON. With the export permission the server exports every
   matching finding (up to 100,000 rows; audit-logged); otherwise the current page
   is exported.
@@ -137,9 +146,13 @@ are translated into English and Vietnamese.
 
 ### Columns and badges
 
-Columns: **Title**, **Severity**, **Priority** (P0 to P3), **Location**,
-**Status** and **Due / SLA**. **Source** and **Created** are hidden until you
-turn them on in **View**. **Location** shows the asset on one line and the
+Columns: **Title** and **Priority** (P0 to P3) are always shown, even before any
+finding has a priority. **Severity**, **Location**, **Status** and **Due / SLA**
+follow the view: in **Active**, **Severity** is hidden (the priority already
+includes it) and it is shown in every other view, such as **Needs triage**.
+**Source** and **Created** start hidden. Turn the others on or off in **View**,
+where columns are listed by name; the choice, and the row density, stay in the
+page link and are saved with a view. **Location** shows the asset on one line and the
 place on it below (URL path, file and line, or port). A long path is cut in
 the middle, so its end stays visible; the tooltip has the full value. On a
 phone, each card shows the location too. The title carries
