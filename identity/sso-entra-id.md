@@ -108,7 +108,10 @@ Users then sign in at `https://<app>/login?org=<organization-slug>` and choose t
 ### Enforcing SSO
 
 A platform administrator can turn on **SSO enforcement** for the organization (admin console, same
-tab), once a working provider exists. Members must then sign in through the organization's identity
+tab), once a working provider exists **and at least one of the organization's domains is verified
+for SSO** (DNS TXT record). If a verified domain later fails its daily DNS check, it stops admitting
+new people, and the owners and admins are alerted. SSO enforcement stays on, so removing the DNS
+record cannot reopen password sign-in. Members must then sign in through the organization's identity
 provider; a password session or another organization's SSO is refused for this organization. The
 organization **owner** can always sign in with a password, so the organization cannot be locked out.
 The owner can grant time-limited exceptions to named members (`sso_exceptions`, at most 90 days, 2FA

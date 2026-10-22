@@ -66,7 +66,7 @@ A platform administrator (super admin) configures SAML:
    |---|---|
    | IdP entity ID (issuer) | The issuer of your IdP |
    | IdP SSO URL | The IdP single sign-on endpoint |
-   | IdP signing certificate (PEM) | The IdP signing certificate. Responses are verified against it. |
+   | IdP signing certificate (PEM) | The IdP signing certificate. Responses are verified against it. An expired certificate is refused; the card shows when the stored one expires. |
    | Allowed email domains | Optional email-domain allow-list |
    | Default role for new users | `viewer` (default) or `member` for just-in-time members. Admins and owners are never provisioned by SSO. |
    | Auto-provision users | Create memberships at first sign-in |
@@ -81,7 +81,22 @@ A platform administrator (super admin) configures SAML:
    fingerprint with the one in the IdP. Pending changes expire after 7 days.
 
 Signature validation, conditions and replay checks are done by an established SAML library
-(`crewjam/saml`); the stored certificate is the only trust anchor.
+(`crewjam/saml`); the stored certificate is the only trust anchor. On top of it:
+
+- The IdP must **sign the assertion** itself. Signing only the whole response is not enough. A response
+  must carry exactly one assertion, and encrypted assertions are not accepted.
+- **SHA-1 is refused.** Set the IdP to sign with RSA-SHA256 (or stronger) and a SHA-256 digest.
+- Each assertion is accepted **once**: its ID is remembered (in Redis) until it can no longer be
+  valid, and a second use is refused. If Redis cannot be reached, SAML sign-in is refused.
+- Only the HTTP-POST binding is accepted (no artifact binding).
+
+## Certificate expiry
+
+Sign-in stops working when the IdP signing certificate expires. The organization's owners get an
+in-app alert and an email 30, 7 and 1 day(s) before it expires, and again when it has expired. Ask
+the IdP administrator for the new certificate and save it in the SAML settings (as a pending change
+if the organization has an owner). Each alert is sent once per certificate; saving a new
+certificate starts over.
 
 ## Who is admitted
 
@@ -94,7 +109,9 @@ Signature validation, conditions and replay checks are done by an established SA
 - Every failure redirects to `/login?error=saml` without saying why; details are in the API log.
 
 A session from the organization's SAML IdP counts as the organization's SSO: it satisfies SSO
-enforcement and the organization's 2FA requirement, for this organization only. For
+enforcement and the organization's 2FA requirement, for this organization only (when the organization
+turned on [SSO must prove two-factor](two-factor.md#sso-must-prove-two-factor), only if the assertion
+states a multi-factor authentication context). For
 [step-up re-authentication](two-factor.md#step-up-re-authentication), OpenCTEM sends
 `ForceAuthn="true"` and requires an `AuthnInstant` no older than 5 minutes.
 
@@ -102,7 +119,7 @@ enforcement and the organization's 2FA requirement, for this organization only. 
 
 | Symptom | Cause |
 |---|---|
-| Redirect to `/login?error=saml` | Check the API log. Common causes: wrong certificate, clock skew, the response was not for a request OpenCTEM sent (IdP-initiated), audience mismatch with the entity ID, email domain not verified, the person is not a member and auto-provision is off. |
+| Redirect to `/login?error=saml` | Check the API log. Common causes: wrong or expired certificate, the IdP signs only the response and not the assertion, SHA-1 signing, a response posted twice, clock skew, the response was not for a request OpenCTEM sent (IdP-initiated), audience mismatch with the entity ID, email domain not verified, the person is not a member and auto-provision is off. |
 | Sign-in works but lands on `localhost:3000` | `APP_URL` is not set. Set it (or `OAUTH_FRONTEND_CALLBACK_URL`) to the web app origin. |
 | Sign-in fails over plain HTTP | SAML needs HTTPS (secure cookie). |
 | The SP URLs shown in the admin console differ from the metadata | The admin console shows its own origin; the metadata uses `APP_URL`. Register the `APP_URL` values. |
