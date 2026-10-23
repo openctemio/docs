@@ -131,8 +131,8 @@ diagram, including regression reopen, is in
 
 A decision such as false positive or accepted risk stays with the finding
 when it is reported again, also by another scanner engine. On a finding,
-such a decision is a request that a second person approves (an accepted risk
-always; a false positive by default, at the level the organization sets under
+such a decision is a request that a second person approves (a false positive
+and an accepted risk by default, each at the level the organization sets under
 **Settings > Finding approvals**; on an exposure event, when it is high or
 critical), and repository ignore comments become requests for the security
 team. See
