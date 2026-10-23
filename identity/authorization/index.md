@@ -26,29 +26,29 @@ A refused permission answers 403 with `details.missing_permissions` (or `details
 
 | Feature | Modules | Routes |
 |---|---|---|
-| [Findings](features/findings.md) | `ai_triage` | 115 |
+| [Findings](features/findings.md) | `ai_triage` | 140 |
 | [Exposures and leaked credentials](features/exposures.md) | `credentials`, `exposures` | 30 |
-| [Assets and inventory](features/assets.md) | `branches`, `components`, `relationships` | 128 |
+| [Assets and inventory](features/assets.md) | `branches`, `components`, `relationships` | 133 |
 | [Attack surface and EASM](features/attack-surface.md) | `attack_surface` | 30 |
 | [Scope](features/scope.md) | `scope_config` | 37 |
 | [Bug-bounty programs](features/programs.md) | `scope_config` | 20 |
 | [CTEM program](features/ctem-program.md) | `attacker_profiles`, `business_services`, `business_units`, `compensating_controls`, `ctem_cycles`, `threat_model` | 46 |
 | [Prioritization and SLAs](features/prioritization.md) | `priority_rules` | 13 |
-| [Remediation and automation](features/remediation.md) | `remediation`, `suppressions`, `workflows` | 69 |
+| [Remediation and automation](features/remediation.md) | `remediation`, `suppressions`, `workflows` | 95 |
 | [Scans and workflows](features/scans.md) | `scan_workflows`, `scanner_templates`, `scans`, `template_sources` | 172 |
-| [Sensors and scan zones](features/sensors.md) |  | 89 |
+| [Sensors and scan zones](features/sensors.md) |  | 101 |
 | [CI pipelines](features/ci.md) | `scans` | 46 |
 | [Penetration testing](features/pentest.md) | `pentest` | 42 |
 | [Validation and simulation](features/validation.md) | `attack_simulation`, `control_testing` | 18 |
-| [Threat intelligence](features/threat-intel.md) | `iocs`, `threat_intel` | 19 |
+| [Threat intelligence](features/threat-intel.md) | `iocs`, `threat_intel` | 22 |
 | [Compliance](features/compliance.md) | `compliance` | 12 |
-| [Dashboards and reports](features/dashboards-reports.md) | `reports` | 22 |
-| [Integrations and API keys](features/integrations.md) | `integrations`, `scans` | 61 |
-| [Members, roles and teams](features/access.md) |  | 94 |
-| [Organization settings and audit](features/organization.md) |  | 81 |
+| [Dashboards and reports](features/dashboards-reports.md) | `reports` | 43 |
+| [Integrations and API keys](features/integrations.md) | `integrations`, `scans` | 64 |
+| [Members, roles and teams](features/access.md) |  | 95 |
+| [Organization settings and audit](features/organization.md) |  | 88 |
 | [MCP and AI clients](features/mcp.md) |  | 28 |
-| [Sign-in and own account](features/account.md) |  | 58 |
-| [Platform admin console](features/admin-console.md) |  | 168 |
+| [Sign-in and own account](features/account.md) |  | 59 |
+| [Platform admin console](features/admin-console.md) |  | 200 |
 | [System endpoints](features/system.md) |  | 14 |
 
 ## Data scope classes

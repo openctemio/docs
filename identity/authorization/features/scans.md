@@ -120,8 +120,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/scan-profiles/{id}` | `scans:profiles:write` | config: scan profiles |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator |
 | POST | `/api/v1/scan-profiles/{id}/clone` | `scans:profiles:write` | config: scan profiles |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator |
 | POST | `/api/v1/scan-profiles/{id}/evaluate-quality-gate` | `scans:profiles:read` | config: scan profiles |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager, AppSec engineer, CI integrator, Scan operator, Validation engineer, Researcher |
-| PUT | `/api/v1/scan-profiles/{id}/quality-gate` | `scans:profiles:write` | config: scan profiles |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator |
-| POST | `/api/v1/scan-profiles/{id}/set-default` | `scans:profiles:write` | config: scan profiles |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator |
+| PUT | `/api/v1/scan-profiles/{id}/quality-gate` | `scans:profiles:write` + team role admin | config: scan profiles |  | Owner, Administrator |
+| POST | `/api/v1/scan-profiles/{id}/set-default` | `scans:profiles:write` + team role admin | config: scan profiles |  | Owner, Administrator |
 | GET | `/api/v1/scan-runs` | `scans:read` | gap: L-06 (run reads) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Researcher, Auditor |
 | GET | `/api/v1/scan-runs/{id}` | `scans:read` | gap: L-06 (run reads) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Researcher, Auditor |
 | POST | `/api/v1/scan-runs/{id}/cancel` | `scans:write` | gap: L-06 (run reads) |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator, Researcher |
@@ -211,11 +211,11 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/scans/{id}/trigger` | `scans:execute`, `scans:write` | gap: L-06 (scan reads and targets; D9) |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator, Researcher |
 | POST | `/api/v1/scans/{id}/trigger` | `scans:execute`, `scans:write` | gap: L-06 (scan reads and targets; D9) |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator, Researcher |
 | GET | `/api/v1/secret-store` | `scans:secret_store:read` | config: scanner credentials |  | Owner, Administrator, Member |
-| POST | `/api/v1/secret-store` | `scans:secret_store:write` + team role admin | config: scanner credentials |  | Owner, Administrator |
-| DELETE | `/api/v1/secret-store/{id}` | `scans:secret_store:delete` | config: scanner credentials |  | Owner, Administrator |
+| POST | `/api/v1/secret-store` | `scans:secret_store:write` + team role admin | config: scanner credentials | yes | Owner, Administrator |
+| DELETE | `/api/v1/secret-store/{id}` | `scans:secret_store:delete` + team role admin | config: scanner credentials | yes | Owner, Administrator |
 | GET | `/api/v1/secret-store/{id}` | `scans:secret_store:read` | config: scanner credentials |  | Owner, Administrator, Member |
-| PUT | `/api/v1/secret-store/{id}` | `scans:secret_store:write` + team role admin | config: scanner credentials |  | Owner, Administrator |
-| POST | `/api/v1/secret-store/{id}/rotate` | `scans:secret_store:write` + team role admin | config: scanner credentials |  | Owner, Administrator |
+| PUT | `/api/v1/secret-store/{id}` | `scans:secret_store:write` + team role admin | config: scanner credentials | yes | Owner, Administrator |
+| POST | `/api/v1/secret-store/{id}/rotate` | `scans:secret_store:write` + team role admin | config: scanner credentials | yes | Owner, Administrator |
 | GET | `/api/v1/template-sources` | `scans:sources:read` | config: template sources |  | Owner, Administrator, Member, Viewer, Scan operator |
 | POST | `/api/v1/template-sources` | `scans:sources:write` | config: template sources |  | Owner, Administrator |
 | DELETE | `/api/v1/template-sources/{id}` | `scans:sources:delete` | config: template sources |  | Owner, Administrator |
@@ -231,8 +231,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/tool-categories/{id}` | `scans:tools:write` | config: tool categories (platform + own custom) |  | Owner, Administrator |
 | GET | `/api/v1/tools` | `scans:tools:read` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator, Member, Viewer, Vulnerability manager, AppSec engineer, CI integrator, Scan operator, Sensor operator |
 | POST | `/api/v1/tools` | `scans:tools:write` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |
-| PATCH | `/api/v1/tools/settings` | `scans:tenant_tools:write` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator, Member |
+| PATCH | `/api/v1/tools/settings` | `scans:tenant_tools:write` + team role admin | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |
 | DELETE | `/api/v1/tools/{id}` | `scans:tools:delete` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |
 | GET | `/api/v1/tools/{id}` | `scans:tools:read` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator, Member, Viewer, Vulnerability manager, AppSec engineer, CI integrator, Scan operator, Sensor operator |
 | PUT | `/api/v1/tools/{id}` | `scans:tools:write` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |
-| PATCH | `/api/v1/tools/{id}/settings` | `scans:tenant_tools:write` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator, Member |
+| PATCH | `/api/v1/tools/{id}/settings` | `scans:tenant_tools:write` + team role admin | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |

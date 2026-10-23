@@ -27,8 +27,10 @@ engineering-grade tickets in Jira, SLA policies, program health and a scope
 refinement loop back to Scoping. Repeating scans with a multi-step **scan
 workflow** is part of [Discovery](04-discovery.md#scan-workflows).
 
-Creating and editing tasks needs the remediation write permission; creating and
-running automations needs the workflows write permission.
+Creating and editing tasks needs the remediation write permission. Editing
+automations, previewing them and running them by hand needs
+`automations:write`; making one live, approving another person's version,
+pausing and deleting need `automations:publish`.
 
 ## Remediation tasks
 
@@ -395,22 +397,65 @@ the trigger skipped is not looked at again.
 
 ### The visual builder
 
-- Click or drag steps onto the canvas: **Trigger**, **Condition**, **Action**
-  and **Notification**, then connect them from a step's handle. A condition has
-  **Yes** and **No** branches.
-- Select a step to set it up:
-  - **Trigger**: **Manual**, **Finding Created**, **Finding Status Changed**,
-    **Asset Discovered** or **Scan Completed**, with an optional JSON filter.
-  - **Condition**: an expression such as `finding.severity == critical`.
-  - **Action**: **Assign User**, **Update Status**, **Add Tags**, **Remove
-    Tags**, **Create Ticket**, **Update Ticket**, **Trigger Scan** (pick a saved
-    scan) or **HTTP Request**.
-  - **Notification**: pick one of your notification channels.
-- An automation needs at least one trigger. Click **Save workflow**.
+- Add steps from the palette: **Trigger**, **Condition**, **Action** and
+  **Notification**, then connect them. A condition has **Yes** and **No**
+  branches. The palette offers only the step types the platform runs; a type
+  you lack the permission for is shown disabled with the permission it needs.
+- Triggers: **Manual**, **Finding Created**, **Finding Status Changed**,
+  **Asset Discovered**, **Scan Completed** and the AI triage results.
+- Actions: **Assign User**, **Update Status** (to *Confirmed* or *In progress*
+  only), **Add Tags**, **Remove Tags**, **Create Ticket**, **Update Ticket**,
+  **Trigger Scan**, **Request AI triage**, **Request false positive** and
+  **Request risk acceptance**. The two request actions only create a request:
+  a person always decides it, even when your organization lets one person
+  decide their own false positives. An automation never marks a finding a
+  false positive, accepted, resolved or duplicate itself.
+- Notifications go through a notification integration (Slack, Teams, webhook)
+  or by email.
+- An automation that holds a step type the platform removed (for example the
+  old HTTP request action) is switched off and shows **Removed type**; replace
+  the step to switch it on again.
 
-Older automations that use a trigger or action the platform no longer supports
-are marked **Uses an unsupported step** and never fire with it; choose another
-before saving.
+### Simulate first, then go live
+
+Every new automation starts in **Simulate**: it runs on real events, works out
+what each step would do (the tags it would add, the status it would set, the
+ticket or message it would send) and changes nothing. Messages and tickets it
+would send are listed as **Would send** and are never sent.
+
+- **Preview** runs the current draft against your latest findings (or assets)
+  that you can see, 20 to 100 of them, and shows per step how many would be
+  acted on and why the others were left alone. Nothing is stored.
+- **Validate** lists what blocks going live (a missing setting, an integration
+  that does not exist, a permission you lack) and warnings (not simulated since
+  the last change). Click a problem to select its step.
+- **Go live** publishes the draft as a new version. What it needs depends on
+  what the automation can do:
+
+  | The automation | Going live needs |
+  |---|---|
+  | only tags findings | the publish permission |
+  | changes status, assigns, opens tickets, sends notifications or requests AI triage | the publish permission and a fresh sign-in |
+  | starts scans, requests false positives or risk acceptances, lets other automations trigger it, or allows more than 250 changes per run | a fresh sign-in, and a second person with the publish permission approves that exact version |
+
+- A live automation keeps running its published version while you edit the
+  draft; **Unpublished changes** shows until you publish again. **Versions**
+  lists every version and lets you roll back (the same rules apply).
+  Switching back to **Simulate** or pausing takes one click.
+- Automations that were switched on before versions existed were published as
+  version 1 and keep running live.
+
+### Runs
+
+Open a run from **Recent executions** to see each step: how many subjects
+reached it, how many it acted on, why the rest were left alone, and the
+messages and tickets it sent (live) or would have sent (simulate). Simulate
+runs are kept 30 days, live runs 180 days; each run shows its date. You see
+only runs about findings and assets in your data scope.
+
+A live run stops after 250 changes (the limit can be set from 1 to 1,000 per
+automation) and waits as **Paused**; someone with the publish permission can
+**Continue** it or cancel it.
 
 ## Measure results and close the loop
 

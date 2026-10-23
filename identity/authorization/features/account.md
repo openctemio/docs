@@ -39,6 +39,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/auth/oauth/{provider}/callback` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/onboarding/accept` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/onboarding/options` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| POST | `/api/v1/auth/organization-deletion/cancel` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/providers` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/refresh` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/register` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
