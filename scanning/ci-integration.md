@@ -30,6 +30,7 @@ image per tool. Both produce the same CTIS reports.
 | Decide what fails a pipeline, safely | [Gate policies](ci-policies.md) | AppSec admin |
 | Let one urgent commit through | [Break-glass](ci-break-glass.md) | AppSec admin, owner |
 | Roll out to every repository of an organization | [Organization rollout](ci-rollout.md) | AppSec admin, CISO |
+| Send reports my pipeline's own scanners already write (SARIF, trivy, ZAP, ...) | [Upload existing reports](ci-upload.md) | Developer, AppSec admin |
 | Fix a refused pipeline or a failing upload | [Troubleshooting](ci-troubleshooting.md) | Everyone |
 | Look up an input, a variable, an exit code or a version pin | [Reference](ci-reference.md) | Everyone |
 
