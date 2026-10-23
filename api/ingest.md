@@ -106,11 +106,24 @@ session access token as above. It needs `findings:write`, `assets:write` and `as
 
 What to expect:
 
-- An import answers `201` with `Location: /api/v1/findings/imports/{id}` and its **receipt**:
-  what it did to your findings (`created`, `updated` = still detected, `reactivated`, `closed`,
-  `untouched`, `skipped`, `failed`). A preview answers `200` and has no receipt.
-- The response also has one entry per file: the detected format, counts (assets, findings by
-  severity, components, VEX statements, skipped records) and parse problems with line and column.
+- An import is **applied in the background**. It answers `202` with the receipt's id (receipt
+  `status: queued`) and `Location: /api/v1/findings/imports/{id}`; the ingest worker then applies
+  the files and finishes the receipt. Read the outcome with
+  `GET /api/v1/findings/imports/{id}/result?wait=10` (`findings:read`, visible to the same people as
+  the receipt): it waits up to 10 seconds, then answers `queued`, `processing`, `applied` or
+  `failed`. `applied` carries the receipt counts (`created`, `updated` = still detected,
+  `reactivated`, `closed`, `untouched`, `skipped`, `failed`) and one entry per file; `failed` carries
+  a fixed `error_code`, never text from your file. A preview (`dry_run=true`) still answers `200`
+  in the request and has no receipt.
+- The per-file entry holds the detected format, counts (assets, findings by severity, components,
+  VEX statements, skipped records) and parse problems with line and column.
+- The files are stored encrypted for your organization until they are applied, then deleted
+  (kept 7 days after a failure so it can be investigated); they are never served back.
+- Back-pressure: an organization with too many unfinished ingest jobs
+  (`INGEST_MAX_PENDING_PER_TENANT`) gets `429` with code `INGEST_QUEUE_FULL` and a `Retry-After`
+  computed from how fast its jobs drain; send the same upload again after that many seconds. If
+  the server cannot read the queue depth it answers `503` with `Retry-After` and stores nothing.
+  A refused import leaves no receipt.
 - Limits: 110 MiB request, 10 minutes, 6 imports per minute per organization. ZIP archives: at
   most 50 files, 100 MiB per file, 400 MiB in total, no nested archives or links.
 - By default an import never closes findings that are absent from the file. Only an upload that
@@ -119,10 +132,15 @@ What to expect:
   data scope, and nothing closes if a file failed. Findings from pentests and other human sources
   and leaked secrets are never closed this way, and a close of too large a share of the open
   findings is held.
+- Without an `Idempotency-Key`, the same files sent again by the same caller within 10 minutes
+  are the same import: you get the first receipt, not a second import.
 - With `Idempotency-Key`, a retry of the same files returns the first answer and receipt
   (`Idempotent-Replayed: true`); the same key with other files is refused (422), a key still in
   use answers 409, and if the server cannot check the key it refuses the upload (503) without
   importing anything. Keys are kept 24 hours, per user or API key.
+- Files are applied with the rights the uploader had when the file was sent, read again when the
+  worker runs: a narrowed data scope applies, and an uploader who lost access meanwhile has the
+  import refused (`failed`).
 - A member with a restricted data scope only adds findings to assets in their scope and creates
   no new assets.
 - VEX `not_affected` statements never set a status on their own. `INGEST_VEX` (default `dry_run`)
@@ -140,12 +158,39 @@ Every upload and every sensor run (a scan run, a CI run, a connector sync) gets 
 |---|---|
 | `GET /api/v1/findings/imports` | receipts, newest first; filters `source_kind` (`upload`, `scan_run`, `command`, `ci_run`, `connector`, `sensor`) and `source_ref`; `per_page` at most 100; an unknown parameter is refused with 400 |
 | `GET /api/v1/findings/imports/{id}` | one receipt, with its actions counted by severity |
-| `GET /api/v1/findings/imports/{id}/actions` | the findings it created, saw again, reopened or closed |
+| `GET /api/v1/findings/imports/{id}/result` | the outcome of an upload: `?wait=` (up to 10 seconds) holds the request until it is `applied` or `failed` |
+| `GET /api/v1/findings/imports/{id}/actions` | the findings it created, saw again, reopened, closed or suppressed (filter `disposition=`) |
+| `GET /api/v1/findings/imports/{id}/items` | the reported items that did not become findings (filter `disposition=`) |
 | `GET /api/v1/findings/{id}/imports` | the uploads and runs that acted on one finding |
+
+#### Dispositions
+
+Every reported item ends in one disposition on the receipt:
+
+| Disposition | Meaning | Listed by |
+|---|---|---|
+| `created` | a new finding | `/actions` |
+| `still_detected` | an open finding seen again | `/actions` |
+| `reopened` | a closed finding that came back | `/actions` |
+| `closed` | a finding the upload closed (full coverage only) | `/actions` |
+| `suppressed` | a new finding a suppression rule suppressed; the entry names the rule and the **policy version** that decided it (`policy`, `policy_id`, `policy_version`) | `/actions` |
+| `out_of_scope` | an item dropped by a scope exclusion, or because it is outside the uploader's data scope | `/items` |
+| `rejected` | an item with no target asset | `/items` |
+| `quarantined` | an item a sensor report held for review | `/items` |
+| `filtered`, `held` | reserved (ingest filters, review gate); not produced yet | |
+
+A suppressed new finding counts as suppressed only, no longer also as created. An item that did
+not become a finding has a fixed reason code, the deciding policy and its version, an identity
+hash, the asset, tool, title (up to 200 characters) and severity. No evidence is kept for it.
+The receipt detail counts items per disposition. Suppression rules and scope exclusions are
+applied from a snapshot that is versioned by every change to them; if the snapshot cannot be
+loaded the ingest fails and is retried, it never runs with suppression switched off.
 
 They need `findings:read`. Receipt counts cover the whole organization, so only members who see
 the whole organization (or hold `dashboards:org:view`) read other people's receipts; everyone
-else sees the uploads they made. The per-finding lists only show findings you can see.
+else sees the uploads they made. The per-finding lists only show findings you can see. In
+`/items`, items on assets outside your data scope are hidden, and items without an asset are
+shown only to members who see the whole organization.
 
 Other upload endpoints:
 
@@ -154,7 +199,47 @@ Other upload endpoints:
 | `POST /api/v1/components/import` | an SBOM for the components inventory (`components:write`) |
 | `POST /api/v1/assets/import/csv` | assets from CSV (`assets:write` and `assets:import`) |
 | `POST /api/v1/pentest/campaigns/{id}/findings/import` | findings into a pentest campaign |
-| `POST /api/v1/ci/runs/{id}/results` | a CI run's results: CTIS, or a tool's output file in any importer format (or a ZIP), filed on the run's repository; used by `openctem-ci` with the run token |
+| `POST /api/v1/ci/runs/{id}/results` | a CI run's results: CTIS, or a tool's output file in any importer format (or a ZIP), filed on the run's repository; used by `openctem-ci` with the run token. Answers `202` (see below) |
+
+### CI results are applied in the background
+
+`POST /api/v1/ci/runs/{id}/results` stores the report and answers `202` with an `upload_id` and
+`Location: /api/v1/ci/runs/{id}/results/{report_id}`. Before it stores anything it decodes the
+report and checks that it names only the run's repository. The ingest worker applies it, and
+the result is read with the run token:
+
+```
+GET /api/v1/ci/runs/{id}/results/{report_id}?wait=10
+```
+
+`wait` holds the request up to 10 seconds. The answer is `queued`, `processing`, `applied`
+(the counts and the `known` list of results already decided) or `failed` with a fixed
+`error_code`. A `dry_run` is not a CI upload. The same body sent twice to one run is one upload,
+and an `Idempotency-Key` is kept 24 hours (`503` when the key store cannot be read).
+
+Accepting is refused with `429 INGEST_QUEUE_FULL` and `Retry-After` when the organization's queue
+is full, as for imports. The gate (`POST /api/v1/ci/runs/{id}/evaluate`) waits up to 10 seconds
+for the run's uploads, then answers `503 INGEST_PENDING` with `Retry-After`; a verdict is never
+saved while an upload of the run is pending. An upload that could not be applied fails the run
+with `upload_not_applied`. See [CI reference](../scanning/ci-reference.md#platform-api).
+
+### Sensor reports
+
+A sensor report is applied by the same worker, from the same queue, as the lowest-priority lane.
+Reports held in the sensor results **quarantine** are marked accepted only after they have been
+applied: while an accept is applying, a second accept or a discard of the same item answers `409`;
+if applying fails the item stays pending and can be accepted again.
+
+### How the queue is shared
+
+Jobs have a lane: urgent (a CI report that has a critical finding or a CVE in the known-exploited
+catalog, decided by the server from the report), interactive (imports and other CI uploads) and
+bulk (sensor reports). Urgent work goes first, and within a lane organizations take turns.
+Only one job per repository (CI), per organization (imports) or per sensor report runs at a time.
+Finished jobs and stored files are deleted by an hourly retention job (finished jobs after 30
+days). Operators tune it with `INGEST_WORKERS`, `INGEST_MAX_RUNNING_PER_TENANT`,
+`INGEST_MAX_PENDING_PER_TENANT` and `DB_INGEST_MAX_CONNS`
+([Environment variables](../configuration/environment-variables.md)).
 
 ## Send CTIS over the sensor protocol
 

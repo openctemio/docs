@@ -47,6 +47,7 @@ CPU and memory, and use the knobs below.
 | Setting | Default | When to change |
 |---|---|---|
 | `DB_MAX_OPEN_CONNS` / `DB_MAX_IDLE_CONNS` | `25` / `5` | Requests wait for database connections (`ApiDbPoolSaturated` alert). Keep the total below PostgreSQL's `max_connections`. |
+| `DB_INGEST_MAX_CONNS`, `INGEST_WORKERS`, `INGEST_MAX_RUNNING_PER_TENANT` | `8`, `4`, `4` | CI results and file imports are always stored, answered `202` and applied by the ingest workers, on their own database pool. Raise workers and pool together, and keep both pools below PostgreSQL's `max_connections`. |
 | `INGEST_MODE` | `sync` | `async` stores scan results, answers `202` and processes them in the background, which smooths bursts from many sensors. `INGEST_MAX_PENDING_PER_TENANT` bounds each organization's queue. |
 | `MAX_CONCURRENT_REQUESTS` | `1000` | Requests beyond it get `503`. |
 | `RATE_LIMIT_RPS`, `RATE_LIMIT_BURST`, `RATE_LIMIT_READ_PER_MIN` | `100`, `200`, `120` | Many users behind one address, or dashboards that issue many reads. |

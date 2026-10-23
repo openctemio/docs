@@ -150,7 +150,7 @@ in [Sensors: troubleshooting](../sensors/troubleshooting.md).
 
 | Status | Cause |
 |---|---|
-| `429` | Rate limit: `RATE_LIMIT_RPS` / `RATE_LIMIT_BURST` per client, `RATE_LIMIT_READ_PER_MIN` per user for reads, stricter limits on sign-in, and for an API key or MCP connection its hourly limit and a burst of 60. In `INGEST_MODE=async`, an organization's ingest queue is full (`INGEST_MAX_PENDING_PER_TENANT`). |
+| `429` | Rate limit: `RATE_LIMIT_RPS` / `RATE_LIMIT_BURST` per client, `RATE_LIMIT_READ_PER_MIN` per user for reads, stricter limits on sign-in, and for an API key or MCP connection its hourly limit and a burst of 60. An organization's ingest queue is full (`INGEST_MAX_PENDING_PER_TENANT`; code `INGEST_QUEUE_FULL`, with `Retry-After`) for a CI upload, an import or (in `INGEST_MODE=async`) a scan result. |
 | `503 Server at capacity, please retry later` | More than `MAX_CONCURRENT_REQUESTS` requests in progress. |
 | `413` | Body larger than the route's limit or the gateway's `GATEWAY_MAX_BODY_SIZE`. |
 | `404` on `/metrics` | No `METRICS_TOKEN` set or the wrong token, or the request went through the gateway (which never serves it). |

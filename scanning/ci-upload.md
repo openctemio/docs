@@ -84,11 +84,26 @@ a secret scanner for the same reason.
 The file is streamed from disk with its length; it is never held in memory.
 A larger report is split by the tool (one file per target or per scan).
 
+## The platform applies the upload in the background
+
+The platform stores each file and answers `202` with an upload id; its ingest
+worker applies the report. `openctem-ci upload` then reads the upload's result
+(`GET /api/v1/ci/runs/{id}/results/{upload_id}?wait=10`) until it is applied
+or failed, and prints the counts below. A failed upload names the platform's
+fixed error code. If the result cannot be read in time (the command's
+`OPENCTEM_UPLOAD_TIMEOUT`), the file counts as stored with zero counts; with
+`--gate` the verdict still judges everything, and waits for the run's uploads
+(see [Reference](ci-reference.md#waiting-for-uploads)).
+
+When the organization has too many unfinished uploads, the platform answers
+`429` with `Retry-After` and the command waits and retries.
+
 ## Retries never import twice
 
 Each file goes up with an `Idempotency-Key` derived from the run id and the
-file's SHA-256. The platform keeps the first answer for a key for one hour
-and replays it for a request with the same key and content, so:
+file's SHA-256. The platform keeps the first answer for a key for 24 hours
+and replays it for a request with the same key and content. The same body
+sent to a run is one upload even without the key. So:
 
 - a request repeated after a network error, 429, 5xx, or a 409 while the
   first request is still being imported (honouring `Retry-After`) is
@@ -99,7 +114,9 @@ and replays it for a request with the same key and content, so:
 - the same content named twice on one command line is sent once.
 
 Retries: `OPENCTEM_RETRIES` (default 3) and `OPENCTEM_UPLOAD_TIMEOUT`
-(default 5 minutes per request) as for `scan`.
+(default 5 minutes per request) as for `scan`. With `--gate` the verdict
+request is retried while the platform answers `503 INGEST_PENDING`, for up to
+`OPENCTEM_GATE_WAIT` (default 10 minutes).
 
 ## Uploads are partial
 
