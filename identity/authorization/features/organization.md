@@ -34,6 +34,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | Method | Path | Requires | Data scope | Step-up | Roles that pass |
 |---|---|---|---|---|---|
 | GET | `/api/v1/audit-logs` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
+| GET | `/api/v1/audit-logs/export` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
 | GET | `/api/v1/audit-logs/resource/{type}/{id}` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
 | GET | `/api/v1/audit-logs/stats` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
 | GET | `/api/v1/audit-logs/user/{id}` | `audit:read` + the permission, or the caller's own record | config: audit log (admin) |  | Owner, Administrator, Auditor |
@@ -50,11 +51,17 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/invitations/{token}/preview` | no permission: invitation token IS the authorization | system: invitation acceptance (token) |  | see Requires |
 | GET | `/api/v1/module-presets` | no permission: auth-only catalog read (public preset list) | system: module preset catalog |  | see Requires |
 | GET | `/api/v1/organization/limits` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
+| GET | `/api/v1/organization/security-overview` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
+| GET | `/api/v1/organization/settings/ai` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
+| PUT | `/api/v1/organization/settings/ai` | `settings:write` + team role admin | config: organization settings | yes | Owner, Administrator |
+| POST | `/api/v1/organization/settings/ai/test` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/asset-reconciliation` | team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/asset-reconciliation` | team role admin | config: organization settings |  | Owner, Administrator |
 | POST | `/api/v1/organization/settings/asset-reconciliation/preview` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/cycles` | team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/cycles` | team role admin | config: organization settings |  | Owner, Administrator |
+| GET | `/api/v1/organization/settings/emerging-threats` | team role admin | config: organization settings |  | Owner, Administrator |
+| PUT | `/api/v1/organization/settings/emerging-threats` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/evidence` | team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/evidence` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/finding-correlation` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
@@ -94,12 +101,12 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PATCH | `/api/v1/tenants/{tenant}/settings/branding` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | PATCH | `/api/v1/tenants/{tenant}/settings/general` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | GET | `/api/v1/tenants/{tenant}/settings/modules` | `settings:read` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
-| PATCH | `/api/v1/tenants/{tenant}/settings/modules` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
+| PATCH | `/api/v1/tenants/{tenant}/settings/modules` | `settings:write` + team role admin | config: organization administration (team roles) | yes | Owner, Administrator |
 | GET | `/api/v1/tenants/{tenant}/settings/modules/graph` | `settings:read` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | GET | `/api/v1/tenants/{tenant}/settings/modules/presets` | `settings:read` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
-| POST | `/api/v1/tenants/{tenant}/settings/modules/presets/{presetId}/apply` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
+| POST | `/api/v1/tenants/{tenant}/settings/modules/presets/{presetId}/apply` | `settings:write` + team role admin | config: organization administration (team roles) | yes | Owner, Administrator |
 | POST | `/api/v1/tenants/{tenant}/settings/modules/presets/{presetId}/preview` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
-| POST | `/api/v1/tenants/{tenant}/settings/modules/reset` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
+| POST | `/api/v1/tenants/{tenant}/settings/modules/reset` | `settings:write` + team role admin | config: organization administration (team roles) | yes | Owner, Administrator |
 | POST | `/api/v1/tenants/{tenant}/settings/modules/validate` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | GET | `/api/v1/tenants/{tenant}/settings/pentest` | `settings:read` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | PATCH | `/api/v1/tenants/{tenant}/settings/pentest` | `settings:write` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |

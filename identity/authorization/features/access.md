@@ -11,7 +11,7 @@ nav_order: 28
 
 Members, invitations, roles, teams (access groups) and their data scope, trusted organizations and SCIM provisioning.
 
-- **Permissions:** `integrations:api_keys:delete`, `integrations:api_keys:read`, `integrations:api_keys:write`, `settings:read`, `settings:write`, `team:groups:assets`, `team:groups:delete`, `team:groups:members`, `team:groups:read`, `team:groups:write`, `team:members:invite`, `team:members:read`, `team:members:write`, `team:read`, `team:roles:assign`, `team:roles:delete`, `team:roles:read`, `team:roles:write`
+- **Permissions:** `integrations:api_keys:delete`, `integrations:api_keys:read`, `integrations:api_keys:write`, `service_accounts:manage`, `settings:read`, `settings:write`, `team:groups:assets`, `team:groups:delete`, `team:groups:members`, `team:groups:read`, `team:groups:write`, `team:members:invite`, `team:members:read`, `team:members:write`, `team:read`, `team:roles:assign`, `team:roles:delete`, `team:roles:read`, `team:roles:write`
 
 ## Who can do it
 
@@ -22,6 +22,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | `integrations:api_keys:delete` | Owner, Administrator |
 | `integrations:api_keys:read` | Owner, Administrator, Member, Viewer |
 | `integrations:api_keys:write` | Owner, Administrator |
+| `service_accounts:manage` | Owner, Administrator |
 | `settings:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | `settings:write` | Owner, Administrator |
 | `team:groups:assets` | Owner, Administrator |
@@ -109,14 +110,15 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/scim-tokens` | team role admin | config: SCIM tokens |  | Owner, Administrator |
 | POST | `/api/v1/scim-tokens` | team role owner | config: SCIM tokens | yes | Owner |
 | GET | `/api/v1/scim-tokens/group-mappings` | team role admin | config: SCIM tokens |  | Owner, Administrator |
-| PUT | `/api/v1/scim-tokens/group-mappings` | team role admin | config: SCIM tokens |  | Owner, Administrator |
+| PUT | `/api/v1/scim-tokens/group-mappings` | team role admin | config: SCIM tokens | yes | Owner, Administrator |
 | DELETE | `/api/v1/scim-tokens/{id}` | team role owner | config: SCIM tokens |  | Owner |
+| POST | `/api/v1/scim-tokens/{id}/rotate` | team role owner | config: SCIM tokens | yes | Owner |
 | GET | `/api/v1/service-accounts` | `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
-| POST | `/api/v1/service-accounts` | `team:members:write` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
-| DELETE | `/api/v1/service-accounts/{id}` | `team:members:write` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
-| GET | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:read`, `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer |
-| POST | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:write`, `team:members:write` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
-| DELETE | `/api/v1/service-accounts/{id}/api-keys/{key_id}` | `integrations:api_keys:delete`, `team:members:write` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
+| POST | `/api/v1/service-accounts` | `service_accounts:manage` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
+| DELETE | `/api/v1/service-accounts/{id}` | `service_accounts:manage` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
+| GET | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:read`, `team:members:read` + team role admin | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
+| POST | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:write`, `service_accounts:manage` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
+| DELETE | `/api/v1/service-accounts/{id}/api-keys/{key_id}` | `integrations:api_keys:delete`, `service_accounts:manage` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
 | GET | `/api/v1/users/{userId}/roles` | `team:roles:read` | system: the caller's own account |  | Owner, Administrator, Member, Viewer, Auditor |
 | POST | `/api/v1/users/{userId}/roles` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |
 | PUT | `/api/v1/users/{userId}/roles` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |

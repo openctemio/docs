@@ -72,6 +72,9 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `attack_surface:scope:read` | View Scope: View scope configuration | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  | ✓ | ✓ | ✓ | ✓ |  | ✓ | ✓ |  | ✓ |  |
 | `attack_surface:scope:write` | Manage Scope: Configure scope rules | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `audit:read` | View Audit Logs: See audit history | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |
+| `automations:publish` | Publish Automations: Make an automation live (with step-up, and a second publisher for high-risk rules), approve versions, roll back, change mode, switch on or off and delete automations | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `automations:read` | View Automations: View automations, their versions, runs and trace | ✓ | ✓ | ✓ | ✓ |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `automations:write` | Edit Automations: Edit automation drafts, preview, validate and start manual runs | ✓ | ✓ |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `compliance:assessments:read` | View Compliance Assessments: View control assessments | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  | ✓ | ✓ |  |
 | `compliance:assessments:write` | Manage Compliance Assessments: Update control assessments | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |  |
 | `compliance:frameworks:read` | View Compliance Frameworks: View compliance frameworks and controls | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  | ✓ | ✓ |  |
@@ -85,15 +88,16 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `ctem:business_services:read` | ctem:business_services:read | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  | ✓ | ✓ | ✓ |
 | `ctem:business_services:write` | ctem:business_services:write | ✓ | ✓ | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `ctem:compensating_controls:read` | ctem:compensating_controls:read | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  | ✓ |  |  |  |  | ✓ | ✓ |  |
-| `ctem:compensating_controls:write` | ctem:compensating_controls:write | ✓ | ✓ | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `ctem:compensating_controls:write` | ctem:compensating_controls:write | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `ctem:cycles:read` | ctem:cycles:read | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  | ✓ | ✓ | ✓ |
 | `ctem:cycles:write` | ctem:cycles:write | ✓ | ✓ | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `ctem:priority_rules:read` | ctem:priority_rules:read | ✓ | ✓ |  |  | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |
 | `ctem:priority_rules:write` | ctem:priority_rules:write | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `ctem:verification_checklists:read` | ctem:verification_checklists:read | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  | ✓ |  |  |  |  |  | ✓ |  |
 | `ctem:verification_checklists:write` | ctem:verification_checklists:write | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| `dashboard:aggregate` | View Organization Totals: See organization-wide dashboard totals even with a restricted data scope (breakdowns under 5 are hidden) | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `dashboard:read` | View Dashboard: View main dashboard | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `dashboards:org:manage` | Manage Organization Dashboards: Create, edit, order, delete organization dashboards and set their default, audience and refresh schedule | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `dashboards:org:view` | dashboards:org:view | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `findings:approve` | Approve Findings: Approve or reject finding status change requests | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |  |
 | `findings:assign` | Assign Findings: Assign findings to users/groups | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  | ✓ |  |  |  |  |  |  | ✓ |  |  |  |  |
 | `findings:bulk_update` | Bulk Update: Update multiple findings at once | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -113,6 +117,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `findings:read` | View Findings: View security findings | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `findings:remediation:read` | View Remediation: View remediation tasks | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ |  | ✓ |  |  | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `findings:remediation:write` | Manage Remediation: Create and update tasks | ✓ | ✓ | ✓ |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `findings:retest_checks:write` | Manage Finding Retest Checks: Attach, change and remove the custom check a finding's retest runs | ✓ | ✓ |  |  |  | ✓ | ✓ |  | ✓ |  |  |  | ✓ |  |  |  |  |  |  |  |
 | `findings:severity` | Change Finding Severity: Change the severity and classification of findings | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  | ✓ |  |  |  | ✓ |  |  | ✓ | ✓ |  |  |  |
 | `findings:status` | Change Status: Update finding status | ✓ | ✓ | ✓ |  |  | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  | ✓ | ✓ |  |  |  |  |
 | `findings:suppressions:approve` | Approve Suppressions: Approve suppression requests | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |  |
@@ -122,8 +127,6 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `findings:triage` | Triage Findings: Triage and categorize findings | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  | ✓ |  |  |  |  |  | ✓ | ✓ | ✓ |  |  |  |
 | `findings:verify` | Verify Findings: Verify and resolve fix-applied findings (security action) | ✓ | ✓ |  |  |  | ✓ | ✓ |  | ✓ |  |  |  | ✓ |  |  |  |  |  |  |  |
 | `findings:vulnerabilities:read` | View Vulnerabilities: View vulnerability database | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ |  | ✓ |  |  | ✓ | ✓ | ✓ | ✓ |  |
-| `findings:workflows:read` | View Workflows: View automation workflows | ✓ | ✓ | ✓ | ✓ |  | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| `findings:workflows:write` | Manage Workflows: Create and update workflows | ✓ | ✓ |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `findings:write` | Update Findings: Modify finding details | ✓ | ✓ | ✓ |  |  | ✓ | ✓ | ✓ | ✓ |  |  |  | ✓ |  | ✓ | ✓ | ✓ |  |  |  |
 | `integrations:api_keys:delete` | Delete API Keys: Revoke API keys | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `integrations:api_keys:read` | View API Keys: View API key list | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -148,6 +151,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `pentest:retests:write` | Manage Pentest Retests: Create and update retests | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |
 | `pentest:templates:read` | View Pentest Templates: View finding templates | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |
 | `pentest:templates:write` | Manage Pentest Templates: Create and edit finding templates | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |
+| `reports:manage` | Manage Report Schedules: Pause, resume and delete report schedules created by other members and see their recipients | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `reports:read` | View Reports: View reports and analytics | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ |  |  |  |  |  |  |  | ✓ | ✓ | ✓ | ✓ |
 | `reports:write` | Create Reports: Generate custom reports | ✓ | ✓ | ✓ |  | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  | ✓ |  |  |
 | `scans:approve` | Approve Scans: Approve or reject scan approval requests and start emergency runs (RFC-073) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -187,6 +191,9 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `sensors:commands:read` | View Commands: View sensor commands | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `sensors:commands:write` | Send Commands: Send commands to sensors | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |
 | `sensors:delete` | Delete Sensors: Remove sensors (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `sensors:egress:delete` | Delete Sensor Proxies: Delete proxy pools (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `sensors:egress:read` | View Sensor Proxies: View proxy pools, their endpoints and health, and which sensors use them | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `sensors:egress:write` | Manage Sensor Proxies: Create and change proxy pools and their credentials, and choose the network path of sensors (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:grant:narrow` | Narrow Sensor Grants: Narrow what a sensor may do (zones, tools, tier, targets, credentials, push ingest) and demote its trust level (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:grant:widen` | Widen Sensor Grants: Widen what a sensor may do and promote its trust level (audited, all administrators notified) (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:pair` | Pair Sensors: Look up a pairing code, expect a sensor and deny pairing requests (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -196,6 +203,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `sensors:zones:delete` | Delete Scan Zones: Delete scan zones (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:zones:read` | View Scan Zones: View scan zones, their ranges, assigned sensors and coverage | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `sensors:zones:write` | Manage Scan Zones: Create and edit scan zones and assign sensors to them (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `service_accounts:manage` | Manage Service Accounts: Create and delete service accounts and mint and delete their API keys | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `settings:read` | View Settings: See workspace configuration | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ |  | ✓ |  |  | ✓ | ✓ | ✓ | ✓ |  |
 | `settings:sla:delete` | Delete SLA: Remove SLA policies | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `settings:sla:read` | View SLA: View SLA policies and status | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  | ✓ | ✓ | ✓ |

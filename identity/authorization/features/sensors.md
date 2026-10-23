@@ -12,7 +12,7 @@ nav_order: 20
 The sensor fleet: registration, pairing and grants, scan zones and the sensor protocol.
 
 - **CTEM stages:** discovery
-- **Permissions:** `sensors:approve`, `sensors:delete`, `sensors:grant:narrow`, `sensors:grant:widen`, `sensors:pair`, `sensors:read`, `sensors:revoke`, `sensors:write`, `sensors:zones:delete`, `sensors:zones:read`, `sensors:zones:write`
+- **Permissions:** `sensors:approve`, `sensors:delete`, `sensors:egress:delete`, `sensors:egress:read`, `sensors:egress:write`, `sensors:grant:narrow`, `sensors:grant:widen`, `sensors:pair`, `sensors:read`, `sensors:revoke`, `sensors:write`, `sensors:zones:delete`, `sensors:zones:read`, `sensors:zones:write`
 
 ## Who can do it
 
@@ -22,6 +22,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 |---|---|
 | `sensors:approve` | Owner, Administrator |
 | `sensors:delete` | Owner, Administrator |
+| `sensors:egress:delete` | Owner, Administrator |
+| `sensors:egress:read` | Owner, Administrator |
+| `sensors:egress:write` | Owner, Administrator |
 | `sensors:grant:narrow` | Owner, Administrator |
 | `sensors:grant:widen` | Owner, Administrator |
 | `sensors:pair` | Owner, Administrator |
@@ -36,6 +39,15 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 
 | Method | Path | Requires | Data scope | Step-up | Roles that pass |
 |---|---|---|---|---|---|
+| GET | `/api/v1/proxy-pools` | `sensors:egress:read` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| POST | `/api/v1/proxy-pools` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| GET | `/api/v1/proxy-pools/assignments` | `sensors:egress:read` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| PUT | `/api/v1/proxy-pools/assignments/{sensor_id}` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| DELETE | `/api/v1/proxy-pools/{id}` | `sensors:egress:delete` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| GET | `/api/v1/proxy-pools/{id}` | `sensors:egress:read` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| PATCH | `/api/v1/proxy-pools/{id}` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| PUT | `/api/v1/proxy-pools/{id}/endpoints` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| PATCH | `/api/v1/proxy-pools/{id}/endpoints/{endpoint_id}` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
 | GET | `/api/v1/scan-zones` | `sensors:zones:read` | config: scan zones |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | POST | `/api/v1/scan-zones` | `sensors:zones:write` | config: scan zones |  | Owner, Administrator |
 | GET | `/api/v1/scan-zones/coverage` | `sensors:zones:read` | config: scan zones |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
@@ -56,6 +68,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/sensors/content-policy` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | PUT | `/api/v1/sensors/content-policy` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | POST | `/api/v1/sensors/content/refresh` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
+| GET | `/api/v1/sensors/custom-products` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
+| DELETE | `/api/v1/sensors/custom-products/{product}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
+| PUT | `/api/v1/sensors/custom-products/{product}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | GET | `/api/v1/sensors/grant-profiles` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | GET | `/api/v1/sensors/grant-summaries` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | GET | `/api/v1/sensors/identity-policy` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
