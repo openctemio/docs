@@ -258,8 +258,8 @@ break-glass). A repository that a CI trust names also appears as a scope entry
 
 ## Attack surface
 
-**Discovery › Attack surface** has four tabs: **Overview**, **Suggestions**,
-**Lookalikes** and **Changes**. See also
+**Discovery › Attack surface** has five tabs: **Overview**, **Review**,
+**Lookalikes**, **Changes** and **Web surface**. See also
 [Attack surface monitoring](../scanning/easm.md).
 
 ### Overview
@@ -285,7 +285,7 @@ changed this week.
   **Screenshots of web assets** (off by default; kept for 30 days) and the
   **Weekly digest** (see [Changes](#changes)).
 - **Asset breakdown**, **Exposed assets** (**View all** opens the external
-  attack surface list) and **Recent changes** (**View all** opens What changed).
+  attack surface list) and **Recent changes** (**View all** opens Assets › Activity).
 
 **Continuous Certificate Transparency monitoring.** Besides scans, the platform
 watches public Certificate Transparency logs (crt.sh, with Cert Spotter as a
@@ -310,9 +310,9 @@ its service facts, risk, findings and labels. Filter by type and risk, **Export*
 to CSV, **Scan this page**, or **Add asset** (an external domain, subdomain, IP
 address, service or certificate).
 
-### Suggestions
+### Review
 
-**Suggestions** (`/attack-surface/review`) collects the decisions that still
+**Review** (`/attack-surface/review`) collects the decisions that still
 need a person. Confirming a name or address as yours adds its exact scope
 entry; addresses are never added because a name points at them.
 
@@ -373,10 +373,28 @@ administrators and the notification channels that receive attack surface events
 get a **Weekly digest** of these changes (the day and hour are set in the
 Monitoring card; a week without changes sends nothing).
 
+### Web surface
+
+**Web surface** (`/attack-surface/web`) shows what your web origins serve: endpoints,
+their parameters (names only), the same path across origins, and what changed.
+
+- The cards: **Endpoints**, **Sensitive, no auth**, **Excluded, untested** and
+  **Sensitive and untested**.
+- The views: **Origins**, **Endpoints** (filter by method, kind and sensitive
+  only), **Path patterns** and **Changes** (appeared, gone, status or auth
+  changed, new parameter).
+- An endpoint under a scope exclusion shows **Never tested** with a link to the
+  exclusion.
+
+Web surface fills in when a scan workflow with a web crawl step runs. The
+origins come from the HTTP probe: each probed origin is its own asset, named
+by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
+the subdomain or address it runs on.
+
 ## The asset inventory
 
-**Discovery › Assets** has six tabs: **Inventory**, **Groups**, **What
-changed**, **Timeline**, **Web surface** and **Suggestions**.
+**Discovery › Assets** has four tabs: **Inventory**, **Needs attention**,
+**Groups** and **Activity**.
 
 ### Inventory
 
@@ -385,16 +403,21 @@ changed**, **Timeline**, **Web surface** and **Suggestions**.
 ![The asset inventory with repositories, subdomains and IP addresses, their criticality, exposure and owner]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
 *Figure: The asset inventory.*
 
-- The cards: **All assets**, **Critical**, **Internet-facing**, **Unowned**,
-  **High risk** and **With findings**. Click one to filter by it.
-- The **lens bar** above the table groups asset types: **All**, then **External
-  surface**, **Applications**, **Cloud & infrastructure**, **Containers &
-  Kubernetes**, **Code**, **Identities**, **Data** and **Network**, each with
-  its count. Lenses with no asset are hidden, and **Other** collects assets
-  whose type belongs to no lens. Pick a lens to see its asset types as chips
-  with their counts; select one or more chips to filter by type (`?types=`).
-  Counts cover only the assets you can see.
-- Search by name, description or alias. The filter panel narrows by signals
+- While the inventory is open, the sidebar lists its **views** under
+  **Assets**: **All assets**, then the lenses **External surface**,
+  **Applications**, **Cloud & infrastructure**, **Containers & Kubernetes**,
+  **Code**, **Identities**, **Data** and **Network**, each with its count
+  (`/assets?lens=external_surface`). Lenses with no asset are hidden, and
+  **Other** collects assets whose type belongs to no lens. Counts cover only
+  the assets you can see. The first line of the list names the open view, its
+  total and what the lens holds.
+- Every active filter is a chip under the search box ("Criticality is
+  Critical, High"); click its **×** to remove it. **Add filter** (or the `f`
+  key) lists the filters by group with a search box; pick one and tick its
+  values, and the list follows as you tick. The asset type is one of these
+  filters (**Type**, with the types of the open view and their counts). On a
+  phone or a narrow window, **Filters** opens the same filters in a sheet.
+- Search by name, description or alias. The filters narrow by signals
   (crown jewel or not, has findings or not, not seen for 30+ days or seen
   recently), tags, **Technologies** (what probes fingerprinted on the assets: web
   servers, frameworks and CMS, languages and runtimes, JavaScript libraries, CDN,
@@ -404,9 +427,15 @@ changed**, **Timeline**, **Web surface** and **Suggestions**.
   saved filters, among them **Not in scope (passive only)**, **Discovered**,
   **Out of scope** and **New since last visit**.
 - The list includes what discovery found. Names awaiting a decision and
-  names marked not yours are hidden until you choose **Show all**.
+  names marked not yours are hidden; the chip **Hiding names awaiting review
+  and not ours** says so, and its **Show** lists every name.
+- Rows are one line. A long name is cut in the middle so both ends stay
+  readable, and the copy button next to it copies the full name. A certificate
+  shows its subject name, with its stored name (often a fingerprint) below and
+  its other names, issuer and expiry in the tooltip.
 - Columns: name, type, service facts, criticality, exposure, internet-facing,
-  owner, risk, findings, last seen, labels and **Scope** (**In scope** when a
+  owner, risk, findings, last seen, labels (off by default; turn it on under
+  **View**) and **Scope** (**In scope** when a
   scope entry covers the asset). The scope labels say "passive only" for
   assets no entry covers; such an asset gets what **Scan unclassified
   assets** allows, low-impact checks by default
@@ -427,7 +456,7 @@ review**. A lens with no assets says how to discover them, and **Other**
 holds assets whose type belongs to no lens. With no assets yet, it shows **No
 assets discovered yet** with **Run a discovery scan** and **Open scope**. When
 the correlator finds likely duplicates, an alert with **Review** appears here
-(see [Duplicates](#duplicates)).
+(see [Possible duplicates](#possible-duplicates)).
 
 Each asset is also described along further axes: **Criticality** (Critical,
 High, Medium, Low), **Zone** (Internal, External, Cloud, Partner, Vendor, Shadow
@@ -438,15 +467,14 @@ criticality, exposure and findings; see
 
 ### One asset type
 
-Every asset type is a filter of the inventory: pick its chip in the lens bar,
-or open a link such as `/assets?types=host` (`&sub_type=` for a sub-type, for
+Every asset type is a filter of the inventory: pick it under **Add filter ›
+Type**, or open a link such as `/assets?types=host` (`&sub_type=` for a sub-type, for
 example IAM users). With one type selected, the list becomes that type's
 page:
 
 - The header names the type, and the columns after the name are the type's
   own (for example DNS for a domain, ports for an IP address, issuer and
-  validity for a certificate). The filter panel adds the type's properties
-  and yes/no counts.
+  validity for a certificate). **Add filter** adds the type's properties.
 - **Add {type}** (needs `assets:write`) opens a form built from the type's
   fields, and **Export** writes the list as CSV.
 - A scannable type shows, per row, whether scans can reach the asset.
@@ -589,39 +617,36 @@ Deleting a group unassigns its assets; the assets themselves are kept. A group's
 page shows its asset distribution, finding severity and risk, and its assets and
 findings.
 
-### What changed
+### Activity
 
-**What changed** (`/assets/changes`) shows new, gone and newly exposed assets
-over a period (24 hours, 7 days, 30 days or 90 days).
+**Activity** (`/assets/changes`) shows what changed on your assets.
 
-- The views: **Appeared**, **Disappeared** (no scan has seen the asset within the
-  stale threshold), **Newly exposed**, **Exposure changes** and **Shadow IT**.
-- **Internet-facing only** narrows the list.
-- Each change shows the asset, the change (appeared, disappeared, seen again,
-  exposure, internet reachability, renamed, reclassified), the old and new
-  value, the current exposure, the source and when.
+- The kinds of change, with their counts in the period: **Appeared**,
+  **Disappeared** (no scan has seen the asset within the stale threshold),
+  **Newly exposed**, **Exposure changes**, **Shadow IT** and **Values**.
+- For the first five, pick the period (24 hours, 7 days, 30 days or 90 days);
+  **Internet-facing only** narrows the list. Each change shows the asset, the
+  change (appeared, disappeared, seen again, exposure, internet reachability,
+  renamed, reclassified), the old and new value, the current exposure, the
+  source and when.
+- **Values** (`/assets/changes?view=values`) lists every change of an asset
+  value or of the source that decides it, newest first, filtered by
+  attribute, source or asset tag.
 
-### Web surface
+### Needs attention
 
-**Web surface** (`/assets/web`) shows what your web origins serve: endpoints,
-their parameters (names only), the same path across origins, and what changed.
+**Needs attention** (`/assets/attention`) gathers the inventory's data-quality
+work. Its reasons are tabs:
 
-- The cards: **Endpoints**, **Sensitive, no auth**, **Excluded, untested** and
-  **Sensitive and untested**.
-- The views: **Origins**, **Endpoints** (filter by method, kind and sensitive
-  only), **Path patterns** and **Changes** (appeared, gone, status or auth
-  changed, new parameter).
-- An endpoint under a scope exclusion shows **Never tested** with a link to the
-  exclusion.
+- **No owner**, **Criticality not set** and **Not scanned** (no successful
+  scan in 30 days) list the assets with that gap, with the inventory's bulk
+  actions (**Assign owner**, **Set criticality**, tags) and **Open in the
+  inventory** for the same filter.
+- **Relationships** and **Possible duplicates** are described below.
 
-Web surface fills in when a scan workflow with a web crawl step runs. The
-origins come from the HTTP probe: each probed origin is its own asset, named
-by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
-the subdomain or address it runs on.
+#### Relationships
 
-### Suggestions
-
-**Suggestions** (`/assets/suggestions`) lists relationships the platform detected
+**Relationships** (`/assets/suggestions`) lists relationships the platform detected
 between assets. Approving one creates the link, which enriches the graph that
 [exposure chains and attack paths](06-prioritization.md#exposure-chains-and-attack-paths)
 use.
@@ -637,11 +662,12 @@ use.
 
 Approving needs the assets write permission.
 
-### Duplicates
+#### Possible duplicates
 
 When the correlator flags assets that are likely the same (shared IP address,
-shared identifier, renamed host, name or IP match), the category view shows an
-alert with **Review**, which opens **Duplicate Review** (`/assets/duplicates`).
+shared identifier, renamed host, name or IP match), **Needs attention ›
+Possible duplicates** (`/assets/duplicates`) lists them, and the category view
+shows an alert with **Review** that opens the same page.
 For each set it shows which asset to keep (with its findings) and which to merge
 into it. **Merge** moves all findings onto the kept asset; **Keep separate**
 leaves them apart. Both need the asset delete permission. An asset's merge

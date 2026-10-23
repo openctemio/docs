@@ -146,7 +146,7 @@ under every scan approval setting.
   reach them).
 - **Review discovered assets first**: off (the default), what discovery
   finds joins the inventory at once. On, names outside every permanent entry
-  wait in **Attack surface > Suggestions** before they join the inventory.
+  wait in **Attack surface > Review** before they join the inventory.
   It never changes what may be scanned.
 - **Confirming an asset adds it to scope**: a person who confirms a domain,
   subdomain or public address as yours also adds the scope entry for exactly
@@ -172,8 +172,8 @@ actively scanned. Besides scope, an asset must not be refused by its
 
 Names covered by a permanent scope entry are confirmed automatically.
 Decisions on the rest, and on the addresses your names resolve to, are on
-**Attack surface > Suggestions**. See
-[Attack surface monitoring](easm.md#suggestions).
+**Attack surface > Review**. See
+[Attack surface monitoring](easm.md#review).
 
 ## Unclassified assets
 
@@ -212,7 +212,7 @@ guardrailed asset scannable.
 (80, 443, 8080, 8443) while an address the name resolves to may not be
 probed on its own, or nothing is known about its addresses (refusal
 `web_ports_only`). This applies to names in scope too. Add the address, or
-your own prefix offered on **Attack surface > Suggestions**, to scope for a
+your own prefix offered on **Attack surface > Review**, to scope for a
 full port scan.
 
 ## Web paths

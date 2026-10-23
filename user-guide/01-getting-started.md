@@ -204,7 +204,7 @@ person who invited you for a new one.
 - The footer holds **Settings** and **Help** (**Documentation**, **Keyboard
   shortcuts**, **Report an issue**, **About OpenCTEM**).
 - Some pages have sub-pages shown as tabs at the top of the page (for example
-  **Assets**: Inventory, Groups, What changed, Web surface, Suggestions).
+  **Assets**: Inventory, Needs attention, Groups, Activity).
 
 ### The organization switcher
 

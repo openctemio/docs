@@ -16,7 +16,7 @@ and what is wrong with them:
 
 It needs the **Attack surface** module. The pages are under
 **Discovery › Attack surface** (`/attack-surface`, tabs **Overview**,
-**Suggestions**, **Lookalikes** and **Changes**). Only your own attack surface
+**Review**, **Lookalikes**, **Changes** and **Web surface**). Only your own attack surface
 is covered, under your own scope.
 
 ![The Attack surface overview: total and exposed assets, critical exposures, the external surface by attribution and freshness, and the top external risks]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
@@ -127,7 +127,7 @@ templates and DAST have a web target; the subdomain or address keeps its own
 row and type (v0.9.6). On an existing inventory, the next HTTP probe adds the
 origins.
 
-## Suggestions
+## Review
 
 Every internet-facing asset carries an **attribution**: `confirmed`,
 `needs_review`, `candidate`, `dependency` (your name on a provider's
@@ -140,7 +140,7 @@ infrastructure), `monitor_only` or `rejected`.
   default) do names outside every permanent entry wait for a person before
   they join the inventory.
 
-**Attack surface > Suggestions** collects the decisions that still need a
+**Attack surface > Review** collects the decisions that still need a
 person. Its **Waiting for your decision** section has:
 
 - **Addresses your in-scope names resolve to.** Adding them scans every port
