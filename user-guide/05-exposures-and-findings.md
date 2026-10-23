@@ -211,6 +211,10 @@ CycloneDX, SPDX, OSV, CSAF, OpenVEX, DefectDojo, or a ZIP of these. Click
 only on assets you can change, and an import never resolves other findings. See
 also [Ingesting results](../api/ingest.md).
 
+A file none of these formats covers (any CSV, JSON or XML) can be imported through
+a saved **import mapping**: see
+[Import any CSV, JSON or XML with a mapping](import-mappings.md).
+
 After an import the dialog shows its **receipt**: how many findings were
 **New**, **Still detected**, **Reopened**, **Closed**, **Untouched**, **Skipped**
 and **Failed**, and whether the upload's coverage could close anything (an
