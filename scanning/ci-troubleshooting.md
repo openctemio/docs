@@ -2,7 +2,7 @@
 title: Troubleshooting
 parent: CI/CD integration
 grand_parent: Scanning
-nav_order: 6
+nav_order: 7
 ---
 
 # CI/CD troubleshooting

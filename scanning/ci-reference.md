@@ -2,7 +2,7 @@
 title: Reference
 parent: CI/CD integration
 grand_parent: Scanning
-nav_order: 7
+nav_order: 8
 ---
 
 # CI/CD reference
@@ -140,7 +140,11 @@ kept accepting keys turns it on, see [Require OIDC for CI](ci-integration.md#req
 |---|---|
 | `0` | The gate passed |
 | `1` | The gate failed |
-| `2` | The scan cannot be trusted: a tool, parse, upload or configuration error |
+| `2` | The scan cannot be trusted: a tool, parse, upload or configuration error. For `openctem-ci upload`: a file was not stored in full (unless `--on-upload-error warn`), a file failed the checks (format, size, count), or the run could not be opened |
+
+`openctem-ci upload` exits `0` when every file was stored (and, with
+`--gate`, the gate passed) and `1` when `--gate` was asked and the gate
+failed ([Upload existing reports](ci-upload.md)).
 
 ## Platform API
 
