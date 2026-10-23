@@ -424,7 +424,7 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 |---|---|---|---|---|---|
 | `INGEST_COVERAGE_AUTO_RESOLVE` | string | `dry_run` |  |  | Coverage-scoped auto-resolve of non-repository findings: `off`, `dry_run` (log, metric and audit entry only) or `enforce`. |
 | `INGEST_MAX_PENDING_PER_TENANT` | int | `100` |  |  | Unfinished ingest jobs per organization (CI uploads, imports, sensor report segments); a further upload gets `429` (`INGEST_QUEUE_FULL`) with a `Retry-After` computed from how fast the organization's jobs drain. A depth that cannot be read refuses the upload (`503`). `0` turns the check off. |
-| `INGEST_MAX_RUNNING_PER_TENANT` | int | `4` |  |  | Ingest jobs of one organization processing at once, across servers, so one organization cannot hold every worker. |
+| `INGEST_MAX_RUNNING_PER_TENANT` | int | `2` |  |  | Ingest jobs of one organization processing at once, across servers, so one organization cannot hold every worker. Keep it below `INGEST_WORKERS` times the number of servers. |
 | `INGEST_MODE` | string | `sync` |  |  | `sync`: scan results are processed in the request. `async`: results are stored, answered with `202` and processed by the ingest worker. |
 | `INGEST_WORKERS` | int | `4` |  |  | Ingest jobs one server processes at once. Jobs of one asset scope (one repository, one organization's imports, one sensor report) never run together; size it to `DB_INGEST_MAX_CONNS`. |
 | `INGEST_SOURCE_RESOLVE` | string | `dry_run` |  |  | Resolve a finding when a connector source reports it mitigated: `off`, `dry_run` or `enforce`. |

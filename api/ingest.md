@@ -234,7 +234,10 @@ if applying fails the item stays pending and can be accepted again.
 
 Jobs have a lane: urgent (a CI report that has a critical finding or a CVE in the known-exploited
 catalog, decided by the server from the report), interactive (imports and other CI uploads) and
-bulk (sensor reports). Urgent work goes first, and within a lane organizations take turns.
+bulk (sensor reports). Urgent work goes first, and within a lane the organization with fewer jobs
+running goes first. An organization's urgent lane goes ahead of others for one job at a time; its
+further urgent jobs wait as interactive, so a report full of critical findings cannot take every
+worker.
 Only one job per repository (CI), per organization (imports) or per sensor report runs at a time.
 Finished jobs and stored files are deleted by an hourly retention job (finished jobs after 30
 days). Operators tune it with `INGEST_WORKERS`, `INGEST_MAX_RUNNING_PER_TENANT`,

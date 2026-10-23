@@ -96,7 +96,8 @@ fixed error code. If the result cannot be read in time (the command's
 (see [Reference](ci-reference.md#waiting-for-uploads)).
 
 When the organization has too many unfinished uploads, the platform answers
-`429` with `Retry-After` and the command waits and retries.
+`429` with `Retry-After`. The command waits (honouring `Retry-After`, at most
+2 minutes each time) and retries, up to `OPENCTEM_RETRIES` times.
 
 ## Retries never import twice
 

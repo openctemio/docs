@@ -28,7 +28,7 @@ backup before each step.
 
 ### Ingest: uploads are applied in the background
 
-This applies to the first release after v0.11.0 that contains the ingest queue
+This applies to v0.15.0, the release that contains the ingest queue
 changes. The migrations only add columns and tables; deploy the API and its workers
 together. Then check:
 
@@ -48,9 +48,14 @@ together. Then check:
 - **A second database pool.** The ingest worker writes through its own pool of
   `DB_INGEST_MAX_CONNS` connections (default 8), apart from `DB_MAX_OPEN_CONNS`. Check that
   PostgreSQL's `max_connections` covers both pools on every server, with room for the other
-  clients. New settings: `INGEST_WORKERS` (4) and `INGEST_MAX_RUNNING_PER_TENANT` (4).
+  clients. New settings: `INGEST_WORKERS` (4) and `INGEST_MAX_RUNNING_PER_TENANT` (2).
 - **Uploads are stored encrypted** with a key derived from `APP_ENCRYPTION_KEY` until applied;
-  keep that key as for any other encrypted data.
+  keep that key as for any other encrypted data. An upload that fails for good with a fixed
+  code is deleted at once; one that ran out of retries (`apply_failed`) is kept 7 days so the
+  same upload sent again can be retried.
+- **Imports run with the uploader's rights at apply time.** A member removed or suspended
+  while the upload waited is refused (`uploader_not_permitted`); a demoted administrator
+  imports with the member's data scope.
 - **Quarantine.** A quarantined sensor report is marked accepted only after it was applied.
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
