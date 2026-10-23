@@ -473,18 +473,31 @@ an SLA or an export counts: they keep reading the status.
 
 ### Approval rules
 
-- **False Positive** and **Risk Accepted** always need approval. Choosing
-  them opens **Request Status Approval**: enter a justification (up to 2,000
-  characters) and, for Risk Accepted, the date the acceptance ends, then
-  **Submit for Approval**.
+- **False Positive** and **Risk Accepted** need approval by default. Choosing
+  them opens **Request Status Approval**: pick a reason, enter a justification
+  (up to 2,000 characters) and, for Risk Accepted, the date the acceptance ends,
+  then **Submit for Approval**. When your organization's approval policy lets
+  you decide this finding alone (see below), the dialog says so and the change
+  applies at once (**Mark as false positive** or **Accept the risk**); the
+  decision is still recorded with your name and reason.
 - An accepted risk always ends. The date is 90 days ahead by default and at
   most one year ahead. When it passes, the finding reopens as Confirmed, and
   the CI gate stops honoring the acceptance on that date. A false positive has
   no end date.
 - Resolving a finding by hand needs the verify permission.
 - Who approves, and how many people, is set under **Settings › Findings ›
-  Finding approvals** (see [Settings](10-settings-and-integrations.md#findings--assets)):
-  by the risk of the finding, with a security pool and an expiry for the decision.
+  Finding approvals** (see [Settings](10-settings-and-integrations.md#findings--assets)).
+  The **Approval policy** card has two separate settings, **False positive** and
+  **Risk acceptance**, each **Always** (a second person, the default), **Only
+  for serious findings** (a second person for critical or high findings, known
+  exploited vulnerabilities, P0 or P1, a validated exploit, or a crown-jewel or
+  internet-exposed asset) or **Never** (anyone with approval permission decides
+  alone). Bulk changes, suppression rules, task exceptions, imports and
+  automation always need a second person. A decision made by one person is
+  audited, listed in the next daily approvals digest of the other approvers and
+  flagged for review when the finding later becomes more serious. Below it,
+  approvals are tiered by the risk of the finding, with a security pool and an
+  expiry for the decision.
   A request made by a ticket, a VEX statement or AI triage, with no person behind
   it, needs one more sign-off. When VEX `not_affected` statements in a scan report
   request false positives (`INGEST_VEX=enforce`), the approvers in scope are

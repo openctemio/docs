@@ -265,14 +265,23 @@ access and never signs in.
   sub-statuses, the moves between statuses and the requirements each move
   needs. See [Exposures and findings](05-exposures-and-findings.md).
 - **Finding approvals** (`/settings/finding-approvals`): who decides false
-  positives and accepted risks, and who is told. It sets the approval level for
-  false positives (**False-positive approval**: **Always**, **Only for serious findings** or **Never**; see
-  [Known false positives](known-false-positives.md)), an **Approval policy** (how many people approve each kind of
-  request by how risky the finding is, a security pool, how long a decision
-  lasts) and a **Backup contact**, an advisor or auditor outside the
-  organization who is emailed when the only member approves their own request.
-  A relaxing change takes effect 24 hours after you save it; a stricter one
-  applies at once. Changing it needs `settings:write`.
+  positives and accepted risks, and who is told. The **Approval policy** card
+  sets, separately, whether a second person approves a **False positive** and a
+  **Risk acceptance**: **Always** (the default), **Only for serious findings** or
+  **Never** (see [Known false positives](known-false-positives.md)). Whoever
+  decides, a reason is required, the decision is audited, and an accepted risk
+  ends on its date. Below it, **Approval tiers and approvers** sets how many
+  people approve each kind of request by how risky the finding is, a security
+  pool and how long a decision lasts; and a **Backup contact** is an advisor or
+  auditor outside the organization who is emailed when the only member approves
+  their own request. An organization with one member can accept a risk alone
+  only when **Risk acceptance** is **Only for serious findings** or **Never**;
+  such an acceptance ends sooner (7 days for P0 or known exploited, 45 for P1,
+  90 otherwise). A lower level or other relaxing change takes effect 24 hours
+  after you save it, while it shows as waiting with a **Cancel the change**
+  button, and every owner, administrator and approver is told; a stricter one
+  applies at once. Changing it needs an owner or administrator with
+  `settings:write` and a recent sign-in.
 - **Vulnerability matching** (`/settings/vulnerability-matching`): opens
   findings when a published CVE affects a product version your assets run.
   Changing it needs `team:update`.
