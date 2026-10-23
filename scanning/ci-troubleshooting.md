@@ -127,6 +127,10 @@ sensor minimum off too.
 | A finding under a `nosemgrep` comment, or in a `.semgrepignore` path, still blocks | Inline ignore comments and ignore files are claims, not decisions. After the change reaches the default branch, each becomes a pending suppression request; it stops counting once approved ([Reference](ci-reference.md#what-a-scan-does-not-read)). |
 | A false positive still shows in the job log or SARIF | The job hides results already decided only when the upload succeeded. A scan-only run (fork, no tenant id, upload failure) cannot know. |
 | An accepted risk blocks again | The acceptance ended. Every accepted risk has an end date (90 days unless set, at most a year), and the gate stops honoring it then. Request a new acceptance. |
+| `503 INGEST_PENDING` on the verdict | The run's uploads are still being applied. `openctem-ci` retries within `OPENCTEM_GATE_WAIT` (default 10 minutes); a script calling the API retries after `Retry-After`. |
+| `429 INGEST_QUEUE_FULL` on upload | The organization has too many unfinished ingest jobs. Retry after `Retry-After`; an operator can raise `INGEST_MAX_PENDING_PER_TENANT` or check that the ingest worker is running. |
+| The run failed with `upload_not_applied` | An upload of the run could not be applied (unreadable report, a report for another repository, or retries ran out). The upload's result names the error code; fix the report and run the job again. |
+| The job log shows results that are already false positives | The platform answered `202` and the job could not read the upload's result, or `openctem-ci` is older than the release that follows `202`; update it. |
 | `REPORT_OUT_OF_SCOPE` on upload | The report names an asset other than the job's repository. |
 | `401` on upload after a long run | The 15-minute run token expired. GitHub and Azure jobs renew it. Elsewhere, the first upload starts the clock: shorten the time from the first upload to the gate. |
 | "This run is not available to you" in the console | The run's repository is not in your access. Ask an administrator. |

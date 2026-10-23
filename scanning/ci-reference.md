@@ -151,10 +151,21 @@ failed ([Upload existing reports](ci-upload.md)).
 | Route | Auth | Purpose |
 |---|---|---|
 | `POST /api/v1/ci/oidc/exchange` | the job's OIDC token | Exchange it for a 15-minute run token |
-| `POST /api/v1/ci/runs/{id}/results` | run token | Upload one report: CTIS, SARIF 2.1.0, or a format the platform's importers read ([Ingesting results](../api/ingest.md)). The answer lists the results already decided (`known`) |
+| `POST /api/v1/ci/runs/{id}/results` | run token | Upload one report: CTIS, SARIF 2.1.0, or a format the platform's importers read ([Ingesting results](../api/ingest.md)). Answers `202` with an `upload_id`; the platform applies the report in the background. `429 INGEST_QUEUE_FULL` and `Retry-After` when the organization's queue is full |
+| `GET /api/v1/ci/runs/{id}/results/{report_id}?wait=10` | run token | The upload's outcome: `queued`, `processing`, `applied` (counts and the results already decided, `known`) or `failed` (a fixed `error_code`). `wait` is at most 10 seconds |
 | `POST /api/v1/ci/runs/{id}/baseline-diff` | run token | Split a list of fingerprints into new and already open on the repository's default branch (for inline notes on new findings) |
-| `POST /api/v1/ci/runs/{id}/evaluate` | run token | Ask for the verdict (the first verdict is final) |
+| `POST /api/v1/ci/runs/{id}/evaluate` | run token | Ask for the verdict (the first verdict is final). Waits up to 10 seconds for the run's uploads, then answers `503 INGEST_PENDING` with `Retry-After` while one is still being applied; an upload that could not be applied fails the run (`upload_not_applied`) |
 | `/api/v1/ci/trust-configs`, `/gate-policies`, `/gate-overrides`, `/coverage`, `/pipelines`, `/runs`, `/settings` | console session, `scans:ci:*` | What the console's CI/CD page does |
+
+### Waiting for uploads
+
+`openctem-ci` follows the `202` for you: it reads the upload's result until it is applied, and
+retries the verdict request on `503 INGEST_PENDING`, honouring `Retry-After`, for up to
+`OPENCTEM_GATE_WAIT` (default 10 minutes; a duration such as `90s` or a number of seconds, `0` to
+60 minutes; `0` asks once). Use a `openctem-ci` release that includes this; an older one still
+works, but its job log shows every result, because the list of results already decided (`known`)
+is empty. The verdict is not affected. A pipeline that calls the API directly must read the
+`Location` (or the result read above) instead of expecting the counts in the upload's answer.
 
 ## Platform settings (operators)
 

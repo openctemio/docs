@@ -26,6 +26,36 @@ with breaking changes has its own upgrade guide; read it first.
 Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0), with a
 backup before each step.
 
+### Ingest: uploads are applied in the background
+
+This applies to the first release after v0.11.0 that contains the ingest queue
+changes. The migrations only add columns and tables; deploy the API and its workers
+together. Then check:
+
+- **API clients see `202`.** `POST /api/v1/ci/runs/{id}/results` and a committed
+  `POST /api/v1/findings/imports` no longer apply the report in the request. They answer
+  `202` (an `upload_id` or the receipt's id, and a `Location`), and the ingest worker applies
+  the report. A client that read the counts from the `201` body must read the `Location`, or
+  `GET /api/v1/ci/runs/{id}/results/{report_id}?wait=10` and
+  `GET /api/v1/findings/imports/{id}/result?wait=10`. A dry run still answers `200`.
+- **The CI gate can answer `503 INGEST_PENDING`** with `Retry-After` while uploads are applied,
+  and fails a run with `upload_not_applied` when an upload could not be applied. `openctem-ci`
+  retries for `OPENCTEM_GATE_WAIT` (default 10 minutes); update it so it also reads the upload's
+  result. An older one keeps working, but its log shows results the platform has already decided.
+- **Back-pressure.** Past `INGEST_MAX_PENDING_PER_TENANT` unfinished jobs an upload gets
+  `429 INGEST_QUEUE_FULL` with `Retry-After`; when the queue depth cannot be read it gets `503`
+  (sensor segments used to be accepted).
+- **A second database pool.** The ingest worker writes through its own pool of
+  `DB_INGEST_MAX_CONNS` connections (default 8), apart from `DB_MAX_OPEN_CONNS`. Check that
+  PostgreSQL's `max_connections` covers both pools on every server, with room for the other
+  clients. New settings: `INGEST_WORKERS` (4) and `INGEST_MAX_RUNNING_PER_TENANT` (4).
+- **Uploads are stored encrypted** with a key derived from `APP_ENCRYPTION_KEY` until applied;
+  keep that key as for any other encrypted data.
+- **Quarantine.** A quarantined sensor report is marked accepted only after it was applied.
+- **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
+
+See [Ingesting results](../api/ingest.md).
+
 ### From v0.10 to v0.11.0
 
 Migrations `002908` to `002915` are all additive; the API can keep running while

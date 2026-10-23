@@ -103,6 +103,8 @@ sequenceDiagram
   API->>API: trust rules, repository and owner binding, runner version, single use
   API-->>Job: run token (15 min, this run only)
   Job->>API: POST /ci/runs/{id}/results (one report per capability)
+  API-->>Job: 202 + upload id (applied in the background)
+  Job->>API: GET /ci/runs/{id}/results/{upload_id}?wait=10
   API-->>Job: counts + known: the results already decided
   Job->>API: POST /ci/runs/{id}/evaluate
   API->>API: gate policy, new vs base branch, expected capabilities, break-glass
@@ -304,7 +306,7 @@ the upload tokens of their running jobs.
 
 ## Results already decided
 
-The upload answers with `known`: the results of that report that already
+The upload's result (read after the platform applied the report) carries `known`: the results of that report that already
 carry a decision in OpenCTEM, by their position in the report. A decision is
 a false positive, a duplicate, an accepted risk that has not ended, or an
 approved suppression rule. `openctem-ci` leaves them out of its log summary,

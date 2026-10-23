@@ -215,10 +215,19 @@ A file none of these formats covers (any CSV, JSON or XML) can be imported throu
 a saved **import mapping**: see
 [Import any CSV, JSON or XML with a mapping](import-mappings.md).
 
-After an import the dialog shows its **receipt**: how many findings were
+An import is applied in the background: after you click **Import** the dialog
+follows it until it is applied. If too many imports of your organization are
+waiting, the import is refused and you try again shortly. Sending the same
+files again within 10 minutes does not import them twice.
+
+When it is applied the dialog shows its **receipt**: how many findings were
 **New**, **Still detected**, **Reopened**, **Closed**, **Untouched**, **Skipped**
 and **Failed**, and whether the upload's coverage could close anything (an
 import from the console always has partial coverage, so it closes nothing).
+The receipt also counts findings a suppression rule suppressed (with the rule and
+the version of the rules that decided it) and items that did not become findings
+because they were out of scope, had no target asset, or were held in quarantine.
+You see the items on assets in your data scope.
 Before you choose a file, the dialog lists your **Recent imports**.
 
 The same counts appear on a scan run's page as **What this run did to

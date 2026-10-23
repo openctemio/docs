@@ -335,7 +335,7 @@ Sensors send results as CTIS reports bound to their task. The platform
 accepts a report only from the sensor that holds the task's current lease,
 for that task's tool and targets, and only with the asset types the tool is
 declared to produce. Out-of-contract assets are, by default, held in the
-sensor results quarantine for review instead of applied. Findings and assets then appear under **Findings**, **Assets** and
+sensor results quarantine for review instead of applied. A quarantined report is marked accepted only once it has been applied; an accept or discard while it applies answers `409`. Findings and assets then appear under **Findings**, **Assets** and
 **Attack surface**, with the scan run as their source.
 
 A finding that a later scan no longer sees is not resolved automatically by
