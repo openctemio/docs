@@ -57,7 +57,7 @@ The formats are those of the importers: `csaf`, `cyclonedx`, `defectdojo`,
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--format` | `auto` | the format every file must have; `auto` detects each file. A file of another format fails the command (catches a wrong path before it reaches OpenCTEM) |
+| `--format` | `auto` | the format every file must have; `auto` detects each file. A file of another format fails the command (catches a wrong path before it reaches OpenCTEM). `mapping:<name>[@<version>]` reads every file through a saved [import mapping](../user-guide/import-mappings.md) (CSV, JSON or XML the formats above do not cover; one file at a time, never a ZIP; always partial) |
 | `--gate` | `false` | ask the platform's gate for the run's verdict after the upload |
 | `--aggregate` | `false` | upload into the run shared by all jobs of the pipeline; the pipeline's final `openctem-ci gate` job judges everything in it. Not with `--gate` |
 | `--receipt` | | write the receipt as JSON to this file |

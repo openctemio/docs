@@ -89,7 +89,7 @@ Request (`multipart/form-data`):
 | `file` (up to 10) | an exported file, or a ZIP of them |
 | `knowledge_base` | the Qualys KnowledgeBase XML; send it **before** `file` |
 | `?dry_run=true` | parse and count only; nothing is written |
-| `?format=` | force the format of a single file |
+| `?format=` | force the format of a single file, or `mapping:<name>[@<version>]` (or `mapping:<id>`) to read the file through a saved import mapping; always partial coverage, unknown mapping answers `400 unknown_mapping` (see [Import with a mapping](../user-guide/import-mappings.md)) |
 | `?min_severity=` | drop findings below `info`, `low`, `medium`, `high` or `critical` |
 | `?coverage=full&asset_id=…` | the file is a complete scan of these assets (1 to 100) by its tool: their open findings of that tool that the file does not report are closed (needs `findings:status`, see below) |
 | `Idempotency-Key` header | 1 to 128 printable ASCII characters: a retry of the same upload returns the first answer instead of importing again |

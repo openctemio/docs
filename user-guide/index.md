@@ -71,6 +71,8 @@ That is the most important workflow in the product; it is covered first in
    workbench, triage, approvals, re-verification and the exposure views.
    [Known false positives](known-false-positives.md): how a decision is
    requested, approved, kept across scanners and re-opened.
+   [Import any CSV, JSON or XML with a mapping](import-mappings.md): describe a
+   file once, then import it as findings from the console, the API or a pipeline.
 6. [Prioritization](06-prioritization.md): priority classes, exposure chains and
    attack paths, threat intelligence, business impact, compensating controls,
    priority rules and risk scoring.
