@@ -421,7 +421,7 @@ approval mode and that scope checks are always on.
   permanent entry stay *discovered*, in the inventory, until a person
   confirms them (a scope entry still lets scans reach them).
 - **Review discovered assets first** makes names outside every permanent
-  entry wait in **Attack surface › Suggestions** before they join the
+  entry wait in **Attack surface › Review** before they join the
   inventory. It never changes what may be scanned.
 - **Confirming an asset adds it to scope** adds the exact entry when a
   person confirms a domain, subdomain or public address as yours. Under
