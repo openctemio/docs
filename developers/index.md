@@ -20,6 +20,7 @@ platform, and authors of tools and integrations.
 | [Generated files](generated-files.md) | The OpenAPI spec, web API types and registry codegen |
 | [Release process](release-process.md) | Release train, tags, images, signatures and SBOMs |
 | [Writing a tool](tool-authoring.md) | Add a tool sensors can run: descriptor, settings, testing, and how it joins your tool catalog |
+| [Build your first tool](build-your-first-tool.md) | One tool end to end: scaffold, local run and tests, install on a sensor, run it from a scan |
 
 To call the API from your own code, start with the [API](../api/index.md) section instead.
 
