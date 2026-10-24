@@ -514,7 +514,7 @@ Clicking an asset in a list opens its detail panel (a drawer; the expand icon in
 its header, or **Open full page** in the row menu, opens the same details as the
 full page `/assets/{id}`):
 
-![The detail drawer of the subdomain www.example.org: state and scope badges, Key facts, risk, scope and scanning, ownership and exposure]({{ site.baseurl }}/assets/images/user-guide/asset-drawer.png)
+![The detail drawer of the subdomain www.example.com: state and scope badges, Key facts, risk, scope and scanning, ownership and exposure]({{ site.baseurl }}/assets/images/user-guide/asset-drawer.png)
 *Figure: The asset drawer.*
 
 - The header shows the asset's state with the scan-scope answer next to it
@@ -545,6 +545,17 @@ full page `/assets/{id}`):
     scope**, **Mark out of scope**, and **Confirm and allow scanning** for a
     name that resolves only through a wildcard DNS record. Each action is
     hidden without its permission.
+    A certificate has no address of its own, so a scope entry cannot match its
+    fingerprint. Its card judges the certificate by the endpoints that served
+    it: "In scope because *host* serves it and the scope entry *pattern* covers
+    that endpoint" when one of them passes the scope check, or "Held because
+    *host* is *reason*" (third-party infrastructure, a wildcard DNS name, not
+    covered by a scope entry, marked not yours, held by a platform guardrail)
+    with a link to the endpoint. With no known endpoint there is nothing to
+    scan. Endpoints outside your data scope are not named. The card also says
+    whether the certificate is yours (a name in it is under one of your domains
+    or a verified domain) or a third party's. Ownership never authorizes a
+    probe, and a certificate never brings its endpoint into scope.
   - **All properties** is folded until opened, with a search. Record lists
     (DNS records, open ports) read as tables, and dates as local dates.
   - **Related assets** lists one line per kind of relationship, with its
@@ -635,14 +646,24 @@ findings.
 
 ### Needs attention
 
-**Needs attention** (`/assets/attention`) gathers the inventory's data-quality
-work. Its reasons are tabs:
+**Needs attention** (`/assets/attention`) is a list of the reasons an asset
+needs attention, in two groups, each row with a count and a line on why. The
+counts come from the same lists the queues show, so they cover only assets you
+may open.
 
-- **No owner**, **Criticality not set** and **Not scanned** (no successful
-  scan in 30 days) list the assets with that gap, with the inventory's bulk
-  actions (**Assign owner**, **Set criticality**, tags) and **Open in the
-  inventory** for the same filter.
-- **Relationships** and **Possible duplicates** are described below.
+- **Fix on the asset**: **No owner** (`/assets/attention/no-owner`),
+  **Criticality not set** and **Not scanned** (no successful scan in 30 days).
+  The queue lists the assets with that gap, with the inventory's bulk actions
+  (**Assign owner**, **Set criticality**, tags) and **Open in the inventory** for
+  the same filter.
+- **Review**: **Relationships** (listed only while that module is on) and
+  **Possible duplicates**, described below.
+
+Each reason page has a back link, the reason as a heading that opens a menu to
+switch reason (with counts), the why line and **Open in the inventory**.
+
+![The Needs attention page: reasons in two groups, Fix on the asset and Review, each with a count]({{ site.baseurl }}/assets/images/user-guide/assets-needs-attention.png)
+*Figure: Assets > Needs attention.*
 
 #### Relationships
 

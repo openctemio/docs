@@ -66,10 +66,10 @@ OpenCTEM is an open-source, self-hosted platform. The platform operator (your or
 
 We use your information solely to:
 
-- **Provide the Service** — Authenticate users, enforce access control, manage assets and findings.
-- **Security** — Detect unauthorized access, rate limit abuse, audit privileged actions.
-- **Notifications** — Send alerts via configured channels (email, Slack, Teams, Telegram, webhooks).
-- **Compliance** — Track compliance framework status, generate reports.
+- **Provide the Service**: Authenticate users, enforce access control, manage assets and findings.
+- **Security**: Detect unauthorized access, rate limit abuse, audit privileged actions.
+- **Notifications**: Send alerts via configured channels (email, Slack, Teams, Telegram, webhooks).
+- **Compliance**: Track compliance framework status, generate reports.
 
 We do NOT:
 
@@ -217,4 +217,4 @@ For privacy-related questions:
 
 ---
 
-**OpenCTEM** — Open-Source Continuous Threat Exposure Management
+**OpenCTEM**: Open-Source Continuous Threat Exposure Management

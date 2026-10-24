@@ -53,6 +53,12 @@ existing one). The editor has three panes:
 
 Nothing is imported by the editor: the preview never writes data.
 
+![The Import mappings list with one mapping, its source format and version]({{ site.baseurl }}/assets/images/user-guide/import-mappings.png)
+*Figure: Settings > Integrations > Import mappings.*
+
+![The mapping editor: the sample file, the fields table with a transform for each field and the identity members]({{ site.baseurl }}/assets/images/user-guide/import-mapping-editor.png)
+*Figure: A mapping built from the generic CSV starter.*
+
 ### Starter templates
 
 **New mapping** offers three starting points, each with a matching sample:

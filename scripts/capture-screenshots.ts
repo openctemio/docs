@@ -58,6 +58,12 @@ async function prepare(page: Page) {
     for (const el of Array.from(document.querySelectorAll("input, textarea")) as HTMLInputElement[])
       for (const o of origins) if (el.value?.includes(o)) el.value = el.value.split(o).join(o.includes('://') ? pub : new URL(pub).host)
   }, [new URL(WEB).origin, new URL(CONSOLE).origin, new URL(API).origin, WEB.replace("localhost", "127.0.0.1"), new URL(WEB).host])
+  // A request that came from the Docker bridge shows a private address: show a documentation address instead.
+  await page.evaluate(() => {
+    const priv = /\b(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)\b/g
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) if (priv.test(n.textContent ?? '')) n.textContent = (n.textContent ?? '').replace(priv, '192.0.2.45')
+  })
   await page.evaluate(() => {
     // API keys, sensor keys, JWTs, TOTP URIs and secrets (also in groups of
     // four), pairing codes, PEM blocks, webhook URLs, AWS key IDs.
@@ -118,7 +124,7 @@ interface Shot {
   clip?: { x: number; y: number; width: number; height: number }
   fullPage?: boolean
   dark?: boolean
-  as?: 'alex' | 'admin' | 'anon'
+  as?: 'alex' | 'admin' | 'adminro' | 'anon'
   height?: number
   width?: number
 }
@@ -128,7 +134,7 @@ async function shoot(ctx: BrowserContext, shot: Shot) {
   if (shot.height || shot.width) await page.setViewportSize({ width: shot.width ?? 1440, height: shot.height ?? 900 })
   try {
     if (shot.route) {
-      await page.goto((shot.as === 'admin' || shot.name.startsWith('console-') ? CONSOLE : WEB) + shot.route)
+      await page.goto((shot.as === 'admin' || shot.as === 'adminro' || shot.name.startsWith('console-') ? CONSOLE : WEB) + shot.route)
       await settle(page)
     }
     if (shot.open) {
@@ -185,7 +191,7 @@ async function uiSignIn(page: Page, email: string) {
   await settle(page, 500)
 }
 
-async function context(browser: Browser, who: 'alex' | 'admin' | 'anon', dark = false): Promise<BrowserContext> {
+async function context(browser: Browser, who: 'alex' | 'admin' | 'adminro' | 'anon', dark = false): Promise<BrowserContext> {
   const ctx = await browser.newContext({
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 1,
@@ -202,7 +208,7 @@ async function context(browser: Browser, who: 'alex' | 'admin' | 'anon', dark = 
   if (who === 'anon') return ctx
   const page = await ctx.newPage()
   if (who === 'alex') await uiSignIn(page, 'alex@example.com')
-  else {
+  else {  // the platform console
     // The platform console is its own site: email, password, then the code.
     await page.goto(CONSOLE + '/login')
     await settle(page, 500)
@@ -215,6 +221,21 @@ async function context(browser: Browser, who: 'alex' | 'admin' | 'anon', dark = 
     await page.keyboard.press('Enter')
     await page.waitForURL((u) => !/\/login/.test(u.pathname), { timeout: 20000 })
     await settle(page, 500)
+    // A console session starts read-only. 'admin' elevates (the pictures show
+    // the banner "Acting as Super admin"); 'adminro' stays read-only.
+    if (who === 'admin') {
+      await page.getByRole('button', { name: 'Elevate' }).first().click()
+      const dialog = page.getByRole('dialog')
+      await dialog.locator('textarea').fill('Documentation screenshots of the platform console')
+      await dialog.getByRole('button', { name: 'Elevate' }).click()
+      const stepUp = page.locator('input[autocomplete="one-time-code"], input[inputmode="numeric"]').first()
+      await stepUp.waitFor({ timeout: 10000 })
+      await stepUp.fill(await freshCode(st, 'admin@example.com'))
+      // The code field submits itself once all six digits are in.
+      await page.getByRole('dialog').getByRole('button', { name: 'Confirm' }).click({ timeout: 3000 }).catch(() => {})
+      await page.getByText(/acting as super admin/i).first().waitFor({ timeout: 15000 })
+      await settle(page, 500)
+    }
   }
   await page.close()
   return ctx
@@ -294,9 +315,16 @@ const shots: Shot[] = [
   { section: 'scanning', name: 'easm-overview', route: '/attack-surface' },
 
   // Discovery
-  { section: 'user-guide', name: 'assets-inventory', route: '/assets' },
+  // 1680 wide, scaled to 1440 on save: at 1440 the inventory's Name column shrinks to one letter.
+  { section: 'user-guide', name: 'assets-inventory', route: '/assets', width: 1680, height: 1050 },
   { section: 'user-guide', name: 'asset-detail', route: `/assets/${assetId('app.example.com')}` },
-  { section: 'user-guide', name: 'asset-drawer', route: '/assets', open: async (page: Page) => { await page.getByText('www.example.org', { exact: true }).first().click(); await page.waitForTimeout(1500) } },
+  { section: 'user-guide', name: 'asset-drawer', route: '/assets', width: 1680, height: 1050, open: async (page: Page) => {
+      await page.getByPlaceholder(/search name/i).first().fill('www.example.com')
+      await page.waitForTimeout(1500)
+      await page.getByText('www.example.com', { exact: true }).first().click()
+      await page.waitForTimeout(1500)
+      await page.getByPlaceholder(/search name/i).first().fill('')
+    } },
   { section: 'user-guide', name: 'asset-groups', route: '/assets/groups' },
   { section: 'user-guide', name: 'components', route: '/components' },
 
@@ -321,6 +349,29 @@ const shots: Shot[] = [
   { section: 'user-guide', name: 'exposure-chains', route: '/exposure-chains' },
   { section: 'user-guide', name: 'priority-rules', route: '/priority-rules' },
   { section: 'user-guide', name: 'threat-intel', route: '/threat-intel' },
+
+  { section: 'user-guide', name: 'assets-needs-attention', route: '/assets/attention' },
+  {
+    section: 'user-guide',
+    name: 'finding-identity',
+    route: `/findings/${findingId('Apache Log4j2')}`,
+    crop: (page) => page.getByText('Why this is one finding', { exact: true }).first().locator('xpath=ancestor::*[self::section or contains(@class,"card") or contains(@class,"rounded")][1]'),
+    open: async (page) => {
+      await page.getByText('Why this is one finding', { exact: true }).first().waitFor({ timeout: 15000 })
+      await page.getByText('Why this is one finding', { exact: true }).first().scrollIntoViewIfNeeded()
+    },
+  },
+  { section: 'user-guide', name: 'import-mappings', route: '/settings/integrations/import-mappings' },
+  {
+    section: 'user-guide',
+    name: 'import-mapping-editor',
+    route: '/settings/integrations/import-mappings',
+    open: async (page) => {
+      await page.getByText('vendor-pentest-csv', { exact: false }).first().click()
+      await page.waitForURL(/import-mappings\/[0-9a-f-]+/, { timeout: 15000 })
+      await page.waitForTimeout(1500)
+    },
+  },
 
   // Validation and mobilization
   { section: 'user-guide', name: 'validation', route: '/validation' },
@@ -399,9 +450,10 @@ const shots: Shot[] = [
   // CI/CD quickstart (scanning/ci): step 3 of the Connect a pipeline wizard for
   // a new organization (example-org; its trust from an earlier capture is removed
   // first, so the wizard creates one instead of reusing it).
-  {
+  // The wizard steps: each shot walks the wizard as far as its step.
+  ...[1, 2, 3, 4].map((step): Shot => ({
     section: 'scanning/ci',
-    name: 'ci-wizard-3-snippet',
+    name: ['', 'ci-wizard-1-provider', 'ci-wizard-2-organization', 'ci-wizard-3-snippet', 'ci-wizard-4-waiting'][step],
     route: '/ci-cd',
     width: 1280,
     open: async (page) => {
@@ -411,16 +463,70 @@ const shots: Shot[] = [
       await clickTab(/trust and gate/i)(page)
       await page.getByRole('button', { name: /connect a pipeline/i }).first().click()
       const dialog = page.getByRole('dialog')
-      await dialog.getByRole('radio', { name: /github/i }).first().click()
-      await dialog.getByRole('button', { name: /^next$/i }).click()
-      await dialog.locator('#ci-setup-owners').fill('example-org')
-      await dialog.getByRole('button', { name: /create trust/i }).click()
-      await dialog.getByRole('button', { name: /wait for the first run/i }).waitFor()
+      if (step > 1) {
+        await dialog.getByRole('radio', { name: /github/i }).first().click()
+        await dialog.getByRole('button', { name: /^next$/i }).click()
+        await dialog.locator('#ci-setup-owners').fill('example-org')
+      }
+      if (step > 2) {
+        await dialog.getByRole('button', { name: /create trust/i }).click()
+        await dialog.getByRole('button', { name: /wait for the first run/i }).waitFor()
+      }
+      if (step > 3) await dialog.getByRole('button', { name: /wait for the first run/i }).click()
       // The dialog surface is slightly translucent: hide the page behind it.
       await page.addStyleTag({ content: 'main { visibility: hidden !important; }' })
     },
     crop: (page) => page.getByRole('dialog'),
+  })),
+  {
+    section: 'scanning/ci',
+    name: 'ci-gate-policy-edit',
+    route: '/ci-cd',
+    width: 1280,
+    open: async (page) => {
+      await clickTab(/trust and gate/i)(page)
+      await page.getByRole('tab', { name: /gate policy/i }).first().click()
+      await page.getByRole('button', { name: /^edit$/i }).first().click()
+      await page.getByRole('dialog').waitFor()
+      await page.addStyleTag({ content: 'main { visibility: hidden !important; }' })
+    },
+    crop: (page) => page.getByRole('dialog'),
   },
+  {
+    section: 'scanning/ci',
+    name: 'ci-gitlab-connect',
+    route: '/ci-cd',
+    width: 1280,
+    open: async (page) => {
+      await clickTab(/trust and gate/i)(page)
+      await page.getByRole('tab', { name: /pull request feedback/i }).first().click()
+      await page.getByRole('button', { name: /connect gitlab group/i }).first().click()
+      await page.getByRole('dialog').waitFor()
+      await page.addStyleTag({ content: 'main { visibility: hidden !important; }' })
+    },
+    crop: (page) => page.getByRole('dialog'),
+  },
+  {
+    section: 'scanning/ci',
+    name: 'ci-break-glass-dialog',
+    route: '/ci-cd',
+    width: 1280,
+    open: async (page) => {
+      await clickTab(/trust and gate/i)(page)
+      await page.getByRole('tab', { name: /break-glass/i }).first().click()
+      await page.getByRole('button', { name: /^\+?\s*break-glass$/i }).first().click()
+      const dialog = page.getByRole('dialog')
+      await dialog.waitFor()
+      const repo = assetId('github.com/example-corp/payments-api')
+      await dialog.getByLabel(/repository asset id/i).fill(repo ?? '')
+      await dialog.getByLabel(/^commit/i).fill('96fcf1efb95d61b5cd191c8be0b459cecd6c572f')
+      await dialog.getByLabel(/reason/i).fill('Release blocker reviewed by AppSec, ticket SEC-101')
+      await page.addStyleTag({ content: 'main { visibility: hidden !important; }' })
+    },
+    crop: (page) => page.getByRole('dialog'),
+  },
+  { section: 'user-guide', name: 'settings-security-overview', route: '/settings/security' },
+  { section: 'identity', name: 'settings-domains', route: '/settings/domains' },
   { section: 'scanning', name: 'tools', route: '/settings/scanning/tools' },
   { section: 'sensors', name: 'sensor-products', route: '/settings/scanning/sensor-products' },
 
@@ -440,8 +546,10 @@ const shots: Shot[] = [
       const code = await startPairing('dc-b-scanner-02')
       if (code) {
         await page.getByRole('dialog').locator('input').first().fill(code)
-        await page.getByRole('dialog').getByRole('button', { name: /find sensor/i }).click()
-        await page.waitForTimeout(1500)
+        // The lookup runs once the code is complete; older consoles had a button.
+        await page.getByRole('dialog').getByRole('button', { name: /find sensor/i }).click({ timeout: 2000 }).catch(() => {})
+        await page.getByText('Hostname', { exact: true }).first().waitFor({ timeout: 15000 })
+        await page.waitForTimeout(1000)
       }
     },
   },
@@ -471,12 +579,61 @@ const shots: Shot[] = [
   { section: 'user-guide', name: 'settings-general', route: '/settings/general' },
   { section: 'security', name: 'audit-log', route: '/settings/audit-log' },
 
+  // The website (openctemio/website, src/assets/shots)
+  { section: 'website', name: 'dashboard-dark', route: '/', dark: true },
+  { section: 'website', name: 'scope-entries', route: '/scope' },
+  { section: 'website', name: 'assets-domains', route: '/assets?types=domain,subdomain', width: 1680, height: 1050 },
+  { section: 'website', name: 'exposure-chains', route: '/exposure-chains' },
+  { section: 'website', name: 'retest-queue', route: '/validation/retests' },
+  { section: 'website', name: 'remediation', route: '/remediation' },
+
   // Platform administration
   { section: 'user-guide', name: 'admin-organizations', as: 'admin', route: '/organizations' },
   { section: 'identity', name: 'admin-organization-sso', as: 'admin', route: `/organizations/${alex.tenantId}`, open: clickTab(/sso|single sign-on/i) },
   { section: 'user-guide', name: 'admin-administrators', as: 'admin', route: '/security/administrators' },
   { section: 'operations', name: 'admin-system-logs', as: 'admin', route: '/security/activity' },
-  { section: 'operations', name: 'console-system', as: 'admin', route: '/system' },
+  // The platform console (docs/console). The session is elevated, as the banner in the pictures shows.
+  { section: 'console', name: 'overview', as: 'admin', route: '/' },
+  { section: 'console', name: 'health', as: 'admin', route: '/health' },
+  { section: 'console', name: 'organizations', as: 'admin', route: '/organizations' },
+  { section: 'console', name: 'organization-detail', as: 'admin', route: `/organizations/${alex.tenantId}` },
+  { section: 'console', name: 'users', as: 'admin', route: '/users' },
+  { section: 'console', name: 'access-requests', as: 'admin', route: '/requests' },
+  { section: 'console', name: 'signups', as: 'admin', route: '/requests/sign-ups' },
+  { section: 'console', name: 'platform-scanning', as: 'admin', route: '/scanning/platform' },
+  { section: 'console', name: 'content-catalog', as: 'admin', route: '/scanning/content-catalog' },
+  { section: 'console', name: 'administrators', as: 'admin', route: '/security/administrators' },
+  { section: 'console', name: 'activity', as: 'admin', route: '/security/activity' },
+  { section: 'console', name: 'sessions', as: 'admin', route: '/security/sessions' },
+  { section: 'console', name: 'approvals-approver', as: 'admin', route: '/security/approvals' },
+  { section: 'console', name: 'ai-provider', as: 'admin', route: '/system/ai-provider' },
+  { section: 'console', name: 'alerts', as: 'admin', route: '/system/alerts' },
+  { section: 'console', name: 'captcha', as: 'admin', route: '/system/captcha' },
+  { section: 'console', name: 'configuration', as: 'admin', route: '/system/configuration' },
+  { section: 'console', name: 'limits', as: 'admin', route: '/system/limits' },
+  { section: 'console', name: 'software-updates', as: 'admin', route: '/system/software-updates' },
+  { section: 'identity', name: 'admin-system-signup', as: 'admin', route: '/system/sign-up' },
+  {
+    section: 'console',
+    name: 'elevate',
+    as: 'adminro',
+    route: '/',
+    open: async (page) => {
+      await page.getByRole('button', { name: 'Elevate' }).first().click()
+      await page.getByRole('dialog').waitFor()
+    },
+  },
+  {
+    section: 'console',
+    name: 'language',
+    as: 'admin',
+    route: '/',
+    clip: { x: 0, y: 560, width: 380, height: 340 },
+    open: async (page) => {
+      await page.getByRole('button', { name: /^language/i }).first().click()
+      await page.waitForTimeout(600)
+    },
+  },
   { section: 'identity', name: 'console-sign-in', as: 'anon', route: '/login', clip: { x: 440, y: 220, width: 560, height: 480 } },
 ]
 
@@ -493,22 +650,22 @@ for (const shot of shots) {
 }
 
 // First run of a new member: the set-password page, then two-factor setup in
-// the account settings. Morgan Diaz is created for this (or gets a new link).
+// the account settings. Drew Park is created for this (or gets a new link).
 if (!FILTER || FILTER.test('install/set-password') || FILTER.test('identity/two-factor-setup')) {
   let token = ''
   try {
-    const r: any = await call('POST', `/api/v1/tenants/${alex.tenantId}/users`, { email: 'morgan@example.com', name: 'Morgan Diaz', role_ids: ['00000000-0000-0000-0000-000000000003'] }, alex.accessToken)
+    const r: any = await call('POST', `/api/v1/tenants/${alex.tenantId}/users`, { email: 'drew@example.com', name: 'Drew Park', role_ids: ['00000000-0000-0000-0000-000000000003'] }, alex.accessToken)
     token = r.setup_token
   } catch {
     const members = rows(await get(`/api/v1/tenants/${alex.tenantId}/members?limit=100`))
-    const m = members.find((x: any) => (x.email ?? x.user?.email) === 'morgan@example.com')
+    const m = members.find((x: any) => (x.email ?? x.user?.email) === 'drew@example.com')
     const r: any = await call('POST', `/api/v1/tenants/${alex.tenantId}/users/${m?.user_id ?? m?.id}/setup-link`, {}, alex.accessToken).catch(() => ({}))
     token = r.setup_token ?? ''
   }
-  if (!token) log('skip first-run shots: no setup link for morgan@example.com')
+  if (!token) log('skip first-run shots: no setup link for drew@example.com')
   else {
     const ctx = await context(browser, 'anon')
-    await shoot(ctx, { section: 'install', name: 'set-password', route: `/set-password?token=${encodeURIComponent(token)}`, clip: { x: 440, y: 220, width: 560, height: 500 } })
+    await shoot(ctx, { section: 'install', name: 'set-password', route: `/set-password?token=${encodeURIComponent(token)}`, clip: { x: 440, y: 110, width: 560, height: 620 } })
     const page = await ctx.newPage()
     await page.goto(WEB + `/set-password?token=${encodeURIComponent(token)}`)
     await settle(page, 500)
@@ -518,7 +675,7 @@ if (!FILTER || FILTER.test('install/set-password') || FILTER.test('identity/two-
     await page.waitForTimeout(2500)
     await page.goto(WEB + '/login')
     await settle(page, 500)
-    await page.getByLabel(/email/i).first().fill('morgan@example.com')
+    await page.getByLabel(/email/i).first().fill('drew@example.com')
     const pw = page.getByLabel(/password/i).first()
     if (!(await pw.isVisible().catch(() => false))) await page.getByRole('button', { name: /continue|next/i }).first().click()
     await pw.fill(DEMO_PASSWORD)

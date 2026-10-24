@@ -78,7 +78,9 @@ have; the dashboard keeps the organization-wide figures.
 
 ### Search, filter, group and save views
 
-- Search by title, CVE, rule or location.
+- Search matches the title, the file path and the rule ID (contains), any of the
+  finding's CVE IDs (exact) and the asset name. It does not search the
+  description: the API has the opt-in parameter `description_contains` for that.
 - The state of the list comes from the quick view you opened: **Active** shows
   open findings, **Closed** shows fixed and dispositioned findings (false
   positive, accepted risk or duplicate; a disposition is never counted as
@@ -119,8 +121,10 @@ have; the dashboard keeps the organization-wide figures.
   view button shows a dot and the menu says what changed, with **Save changes**
   (only for your own views), **Save as new view…** and **Discard changes**.
 - **Export** as CSV or JSON. With the export permission the server exports every
-  matching finding (up to 100,000 rows; audit-logged); otherwise the current page
-  is exported.
+  matching finding in the list's sort order (up to 10,000 rows; narrow the filter
+  for more; audit-logged); otherwise the current page is exported. An export
+  carries 40 listed columns only: no evidence, scanner output, descriptions, fix
+  code or secret details. One export per person runs at a time.
 
 ### When the list is empty, or fails
 
@@ -160,6 +164,15 @@ inline badges: **KEV** for a CVE in the CISA Known Exploited Vulnerabilities
 catalog (with its remediation date), **EPSS x%** for the probability of
 exploitation in the next 30 days, and an icon when attack-path (data-flow) data
 exists.
+
+Labels follow one system everywhere a finding appears. **Priority** (P0 to P3) is
+the only filled label in a row: a box with a three-bar icon and, where there is
+room, the class name; P3 is neutral on purpose. **Severity** is a shape with
+coloured text, **Status** is a lozenge tinted by its workflow category (New,
+Confirmed, In progress, Fix applied, Resolved, False positive, Risk accepted, In
+review), and **KEV** and **EPSS** are neutral chips where only the KEV bolt is
+red. The assignee column shows the member's name (an assignee who is not an
+active member of your organization shows no profile).
 
 ### Row and bulk actions
 
@@ -275,6 +288,38 @@ by, First seen, Last seen, Occurrences, Resolved, Tickets, Tags and ID. For
 human-sourced findings (pentest, bug bounty, red team, manual) Status, Severity
 and Assignee are read-only here. A callout appears when the SLA is overdue or
 breached.
+
+**Why this is one finding** (Overview tab and drawer) explains the finding's
+identity: the rule that keyed it (for example package vulnerability, code issue,
+secret, web application issue, network vulnerability, misconfiguration, or a
+manual or pentest key), the names of the fields the key was built from ("Findings
+are one when they share: asset, package without version, vulnerability"), the
+tools that reported it (**Reported by**) and the duplicates merged into it
+(**Merged duplicates**, with the reason: marked duplicate by a person, assets
+merged, same key after re-keying). It shows field names only, never a value, key
+or fingerprint, and lists only duplicates on assets you may read. A finding keyed
+by an earlier recipe says so and moves to the current one the next time a scanner
+reports it.
+
+![The Why this is one finding card: the rule that keyed the finding, the fields it was built from, the tool that reported it and the merged duplicates]({{ site.baseurl }}/assets/images/user-guide/finding-identity.png)
+*Figure: Why this is one finding.*
+
+**One finding per vulnerability across tools.** A finding that names only an
+advisory ID (a GitHub advisory, or an OSV ID such as PYSEC or GO) is keyed on the
+CVE the signed vulnerability feed ties it to, so one tool reporting the advisory
+and another reporting the CVE for the same package on the same asset give one
+finding. An advisory that leads to two CVEs fuses nothing. A network or package
+finding that names several CVEs is one finding per CVE.
+
+**Same issue in other tools** (finding page) lists findings that report one issue
+and are linked, not merged: two code scanners that flag overlapping lines of a
+file with the same weakness (CWE), one secret value found in several files or
+repositories, or the same vulnerability under another identifier on the same
+asset. **Why linked** names the rule and **First reported** marks the earliest.
+Each finding keeps its own status, severity, SLA, ticket, task and approvals, and
+the dashboard counts the group once. **Unlink** (needs the triage permission)
+takes a finding out of the group, records it on both timelines and in the audit
+log, and the pair is never linked again automatically.
 
 **People** (in the side panel of the finding page and of the drawer): the
 assignee, the **watchers** with the reason each one watches (commented, was
@@ -545,7 +590,7 @@ in [Known false positives](known-false-positives.md).
 **Discovery › Exposures** has five tabs: **Overview**, **Vulnerabilities**,
 **Secrets**, **Code weaknesses** and **Misconfigurations**.
 
-![The Exposures overview listing misconfigurations, secrets and names seen in Certificate Transparency]({{ site.baseurl }}/assets/images/user-guide/exposures.png)
+![The Exposures overview listing misconfigurations and secrets]({{ site.baseurl }}/assets/images/user-guide/exposures.png)
 *Figure: Exposures.*
 
 ### Overview: exposure events

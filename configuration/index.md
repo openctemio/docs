@@ -54,7 +54,7 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | Platform console address and who may reach it | `OPENCTEM_ADMIN_SITE` (`port`, `host`, `off`), `OPENCTEM_ADMIN_HOST` or `OPENCTEM_ADMIN_PORT`, `OPENCTEM_ADMIN_BIND`, `OPENCTEM_ADMIN_ALLOWED_CIDRS` | `port` on `8443`, private networks only (Compose) |
 | Off-box copy of the administrators' audit log (required with `MANAGED_SERVICE=true`) | `ADMIN_AUDIT_SINK` | off |
 | Metrics | `METRICS_TOKEN` | off |
-| Audit log retention | `AUDIT_RETENTION_DAYS`, `AUDIT_ARCHIVE_DIR`, `ADMIN_AUDIT_RETENTION_*` | keep everything; admin audit pruning in dry run |
+| Audit log retention | `AUDIT_RETENTION_ENABLED`, `AUDIT_RETENTION_DAYS`, `ADMIN_AUDIT_RETENTION_*` | 365 days, then archived through the storage provider; admin audit pruning in dry run |
 | Attachment storage ([File storage](file-storage.md)) | `STORAGE_PROVIDER`, `STORAGE_SSE`, `STORAGE_CLAMD_ADDRESS`; the per-organization quota is in the console, **Settings > Limits** | `local`, bucket default, no malware scan, 20 GiB per organization |
 
 Generate every secret (`AUTH_JWT_SECRET`, `APP_ENCRYPTION_KEY`, `FINGERPRINT_KEY`, database and

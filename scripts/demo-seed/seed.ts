@@ -173,8 +173,19 @@ async function importFile(f: fx.Fixture, format?: string) {
   const fd = new FormData()
   fd.append('file', new Blob([f.body], { type: f.type }), f.name)
   const q = format ? `?format=${format}` : ''
-  const r: any = await api('POST', `/api/v1/findings/import${q}`, fd)
-  for (const file of r.files ?? []) log('     ', file.name, file.format, JSON.stringify(file.ingest ?? file.error ?? {}))
+  // An import is applied in the background: 202 with a receipt, then read the result.
+  const r: any = await api('POST', `/api/v1/findings/imports${q}`, fd)
+  const id = r.id ?? r.receipt_id ?? r.receipt?.id
+  if (!id) return log('     ', JSON.stringify(r).slice(0, 200))
+  for (let i = 0; i < 30; i++) {
+    const res: any = await api('GET', `/api/v1/findings/imports/${id}/result?wait=10`)
+    if (res.status === 'applied' || res.status === 'failed') {
+      log('     ', f.name, res.status, JSON.stringify(res.counts ?? res.error_code ?? {}))
+      if (res.status === 'failed') throw new Error(`import failed: ${res.error_code}`)
+      return
+    }
+  }
+  throw new Error('import still running after 5 minutes')
 }
 if (process.env.SKIP_IMPORTS !== '1') {
   await step('import nessus', () => importFile(fx.nessusReport()))
@@ -309,11 +320,11 @@ await assign('Git Configuration - Detect', st.ids.alex)
 await setStatus('Git Configuration - Detect', 'fix_applied', 'Blocked /.git/ in the nginx configuration of staging and redeployed.')
 
 await assign('Fortinet FortiOS SSL-VPN', st.ids.jordan)
-await assign('Jenkins < 2.442', st.ids.casey)
-await assign('Tainted SQL string', st.ids.sam)
-await assign('AWS Access Key ID', st.ids.sam)
-await assign('lodash: command injection', st.ids.sam)
-await assign('Apache Log4j2', st.ids.casey)
+await assign('Jenkins < 2.442', st.ids.jordan)
+await assign('Tainted SQL string', st.ids.jordan)
+await assign('AWS Access Key ID', st.ids.jordan)
+await assign('lodash: command injection', st.ids.jordan)
+await assign('Apache Log4j2', st.ids.jordan)
 await assign('MS17-010', st.ids.alex)
 await assign('OpenSSH < 9.3p2', st.ids.alex)
 await assign('nginx < 1.20.1', st.ids.alex)
@@ -351,8 +362,21 @@ await step('campaign', async () => {
   })
   st.ids.campaign = c.id
   await api('PATCH', `/api/v1/remediation/campaigns/${c.id}/status`, { status: 'active' }).catch((e) => log('     campaign status', e.message))
-  await api('POST', `/api/v1/remediation/campaigns/${c.id}/refresh`).catch((e) => log('     campaign refresh', e.message))
 })
+// Remediation tasks: each holds findings that one fix closes; the first campaign groups two of them.
+const task = (title: string, description: string, findingTitles: string[], assignee: string | undefined, days: number, campaign?: string) =>
+  step(`task ${title}`, async () => {
+    const finding_ids = findingTitles.map(F).filter(Boolean)
+    if (!finding_ids.length) throw new Error(`no findings for ${title}`)
+    return api('POST', '/api/v1/remediation/tasks', {
+      title, description, finding_ids, assignee_user_id: assignee, campaign_id: campaign,
+      deadline: new Date(Date.now() + days * 86400e3).toISOString(),
+    })
+  })
+await task('Upgrade FortiOS on vpn.example.net', 'Install the fixed FortiOS release from the vendor advisory and restart the SSL-VPN service.', ['Fortinet FortiOS SSL-VPN'], st.ids.jordan, 5, st.ids.campaign)
+await task('Update Jenkins on build.example.com', 'Move the build server to a Jenkins release that fixes the arbitrary file read.', ['Jenkins < 2.442'], st.ids.jordan, 9, st.ids.campaign)
+await task('Patch OpenSSH on api.example.com', 'Upgrade OpenSSH to 9.3p2 or later.', ['OpenSSH < 9.3p2'], st.ids.alex, 14)
+
 await step('campaign 2', () =>
   api('POST', '/api/v1/remediation/campaigns', {
     name: 'Upgrade vulnerable npm dependencies',
@@ -483,21 +507,22 @@ await step('ci trust config', () =>
 await step('ci gate policy', () =>
   api('POST', '/api/v1/ci/gate-policies', { enabled: true, mode: 'enforce', fail_on_severity: 'high', fail_on_kev: true, new_findings_only: true, scope_type: 'tenant' })
 )
-await step('dashboard', () =>
-  api('POST', '/api/v1/me/dashboards', {
-    name: 'Security leadership',
-    description: 'Weekly posture review',
-    columns: 4,
-    layout: [
-      { widget_type: 'risk_score', x: 0, y: 0, w: 1, h: 1 },
-      { widget_type: 'open_findings', x: 1, y: 0, w: 1, h: 1 },
-      { widget_type: 'sla_compliance', x: 2, y: 0, w: 1, h: 1 },
-      { widget_type: 'mttr_critical', x: 3, y: 0, w: 1, h: 1 },
-      { widget_type: 'findings_by_severity', x: 0, y: 1, w: 2, h: 2 },
-      { widget_type: 'overdue_sla', x: 2, y: 1, w: 2, h: 2 },
-    ],
-  })
+// Dashboards from the console's templates (demo-seed/dashboard-templates.json is a copy of
+// web/src/features/dashboards/templates.json): two for the organization (the first is the
+// default) and one personal.
+const templates: any[] = JSON.parse(readFileSync(join(HERE, 'dashboard-templates.json'), 'utf8'))
+const fromTemplate = (key: string, name: string, description: string) => {
+  const t = templates.find((x) => x.key === key)
+  return { name, description, columns: t.columns, layout: t.widgets.map((w: any, i: number) => ({ widget_type: w.widget_type, x: 0, y: i, w: w.w, h: w.h, config: w.config })) }
+}
+await step('organization dashboard CTEM', async () => {
+  const d: any = await api('POST', '/api/v1/organization/dashboards', fromTemplate('ctem', 'CTEM', 'Active exposure, the CTEM loop and the attack paths to the crown jewels'))
+  await api('POST', `/api/v1/organization/dashboards/${d.id}/default`)
+})
+await step('organization dashboard executive', () =>
+  api('POST', '/api/v1/organization/dashboards', fromTemplate('executive', 'Executive', 'Program figures against their targets over a year, for leadership'))
 )
+await step('dashboard', () => api('POST', '/api/v1/me/dashboards', fromTemplate('program', 'Security leadership', 'Weekly posture review')))
 await step('report schedule', () =>
   api('POST', '/api/v1/reports/schedules', {
     name: 'Weekly executive summary', report_type: 'executive_summary', format: 'pdf', cron_expression: '0 8 * * 1', timezone: 'Europe/London',
@@ -511,7 +536,7 @@ await step('report schedule 2', () =>
   })
 )
 await step('api key', () => api('POST', '/api/v1/api-keys', { name: 'SIEM export', description: 'Read-only export of findings to the SIEM', scopes: ['findings:read', 'assets:read'], expires_in_days: 90 }))
-await step('api key 2', () => api('POST', '/api/v1/api-keys', { name: 'Asset sync (CMDB)', description: 'Nightly asset synchronisation', scopes: ['assets:read', 'assets:write'], expires_in_days: 180 }))
+await step('api key 2', () => api('POST', '/api/v1/api-keys', { name: 'Asset sync (CMDB)', description: 'Nightly read of the asset inventory', scopes: ['assets:read', 'findings:read'], expires_in_days: 180 }))
 await step('sla policy', () =>
   api('POST', '/api/v1/sla-policies', { name: 'Default remediation SLA', description: 'Days to fix, by severity', is_default: true, critical_days: 15, high_days: 30, medium_days: 90, low_days: 180, warning_threshold_pct: 80, escalation_enabled: true })
 )
@@ -658,6 +683,27 @@ if (process.env.ADMIN_TEMP_PASSWORD || st.totp['admin@example.com']) {
     })
   )
 }
+
+// An automation (it starts in Simulate) and an import mapping, for the pictures of both.
+await step('automation', () =>
+  api('POST', '/api/v1/workflows', {
+    name: 'Tag critical findings for review', description: 'When a critical finding is created, tag it so the on-call engineer sees it first.', tags: ['triage'],
+    nodes: [
+      { node_key: 'trigger', node_type: 'trigger', name: 'Finding created', ui_position: { x: 80, y: 120 }, config: { trigger_type: 'finding_created', trigger_config: {} } },
+      { node_key: 'cond', node_type: 'condition', name: 'Is critical', ui_position: { x: 380, y: 120 }, config: { condition_expr: 'severity == "critical"' } },
+      { node_key: 'tag', node_type: 'action', name: 'Add tag', ui_position: { x: 700, y: 60 }, config: { action_type: 'add_tags', action_config: { tags: ['needs-review'] } } },
+    ],
+    edges: [
+      { source_node_key: 'trigger', target_node_key: 'cond', source_handle: '', label: '' },
+      { source_node_key: 'cond', target_node_key: 'tag', source_handle: 'yes', label: 'Yes' },
+    ],
+  })
+)
+await step('import mapping', async () => {
+  const t: any = await api('GET', '/api/v1/import-mappings/templates')
+  const csv = (t.items ?? []).find((x: any) => x.key === 'generic-csv')
+  return api('POST', '/api/v1/import-mappings', { name: 'vendor-pentest-csv', description: 'The findings export of an external test team', mapping: csv.mapping, note: 'First version' })
+})
 
 await step('notification slack', () =>
   api('POST', '/api/v1/integrations/notifications', {

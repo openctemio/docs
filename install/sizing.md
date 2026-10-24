@@ -185,8 +185,9 @@ Example (Medium):
   growth and local backups.
 
 **Retention.** The audit log dominates long-term growth at higher user counts.
-Lower `AUDIT_RETENTION_DAYS`, or archive with `AUDIT_ARCHIVE_DIR`, before you buy
-disk for it. Closed findings stay until the retention jobs remove their scanner
+Entries older than `AUDIT_RETENTION_DAYS` (365 days at least) are archived to the file
+storage and pruned from the database, so the archive grows in the storage provider
+instead. Size that storage for it before you buy disk. Closed findings stay until the retention jobs remove their scanner
 output.
 
 ### Redis
@@ -410,10 +411,10 @@ others are estimates and are re-measured as the work below ships.
 
 | Scale point | Organizations | Assets | Findings | Sensors | Hot database (findings + assets) | Database disk | Status in the current release |
 |---|---|---|---|---|---|---|---|
-| **S** — typical Community install | 1 | ~10,000 | 100,000–1M | ~10 | 0.4–4 GB | 10 GB | Runs comfortably |
-| **M** — enterprise self-managed | 1–10 | 100,000–1M | 1–10M | 100–1,000 | 4–40 GB | 100 GB | Dashboards and statistics slow down once one organization holds about 500,000 findings; very large imports take long |
-| **L** — large enterprise or one Cloud cell | 100–1,000 | 1–10M | 10–100M | 1,000–10,000 | 40–400 GB | 1 TB | Needs the growth steps below (connection pooling, sensor heartbeat path, incremental platform jobs) |
-| **XL** — Cloud with many cells | 1,000–10,000 | 10–100M | 100M–1B | 10,000–100,000 | 0.4–4 TB | 4–10 TB | Not a single-database target: split into cells of about 1–2 TB each |
+| **S**: typical Community install | 1 | ~10,000 | 100,000–1M | ~10 | 0.4–4 GB | 10 GB | Runs comfortably |
+| **M**: enterprise self-managed | 1–10 | 100,000–1M | 1–10M | 100–1,000 | 4–40 GB | 100 GB | Dashboards and statistics slow down once one organization holds about 500,000 findings; very large imports take long |
+| **L**: large enterprise or one Cloud cell | 100–1,000 | 1–10M | 10–100M | 1,000–10,000 | 40–400 GB | 1 TB | Needs the growth steps below (connection pooling, sensor heartbeat path, incremental platform jobs) |
+| **XL**: Cloud with many cells | 1,000–10,000 | 10–100M | 100M–1B | 10,000–100,000 | 0.4–4 TB | 4–10 TB | Not a single-database target: split into cells of about 1–2 TB each |
 
 ### Current limits
 

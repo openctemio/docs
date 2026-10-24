@@ -87,7 +87,7 @@ flowchart TD
 - A repository policy can be created, changed or deleted only for a
   repository in your access.
 
-![The Edit gate policy dialog: mode, severity, EPSS, new findings only, KEV and fixable only]({{ site.baseurl }}/assets/images/scanning/ci/ci-gate-policy-edit.png)
+![The Edit gate policy dialog: mode, severity, EPSS, new findings only, KEV, fixable only, the baseline settings and the locks for business units and repositories]({{ site.baseurl }}/assets/images/scanning/ci/ci-gate-policy-edit.png)
 
 ## Expected scans
 

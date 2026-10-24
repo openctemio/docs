@@ -324,7 +324,7 @@ The platform does not back itself up: schedule a backup job. Back up:
 
 - PostgreSQL (`pg_dump -Fc` or your platform's snapshots), encrypted and stored off the host;
 - the `api-data` volume (uploaded evidence and attachments when stored locally, and the sensor CA in `SENSOR_MTLS_CA_DIR`, which every sensor trusts: losing it means re-pairing or reconfiguring every sensor);
-- `AUDIT_ARCHIVE_DIR`, if you prune the audit log;
+- the file storage, which also holds the audit archives (the only copy of pruned audit entries);
 - the gateway's `gateway-data` volume (it holds the internal CA in `internal` TLS mode);
 - your `.env` or secret store, **separately** from the database backups.
 

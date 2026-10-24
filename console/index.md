@@ -151,7 +151,7 @@ nothing changes.
 
 ## Find your way
 
-![The console Overview: the Needs attention list with refused actions, an overdue break-glass test, low disk space, access requests waiting and backups not reported, above the counts of organizations, sensors, refused actions and the schema version]({{ site.baseurl }}/assets/images/console/overview.png)
+![The console Overview: the Needs attention list with a service that does not answer, refused actions, an overdue break-glass test, low disk space and backups not reported, above the counts of organizations, sensors, refused actions and the schema version]({{ site.baseurl }}/assets/images/console/overview.png)
 *Figure: Platform console, Overview.*
 
 The sidebar groups the pages by what you are doing. Items marked with a role are
