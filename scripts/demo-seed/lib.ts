@@ -226,6 +226,10 @@ export async function adminSignIn(state: DemoState, email: string, tempPassword?
       saveState(state)
     }
     await s.call('POST', '/api/v1/admin/auth/mfa', { code: await freshCode(state, email) })
+    // Sessions start read-only; elevate (step-up with a fresh code) to change anything.
+    await s
+      .call('POST', '/api/v1/admin/auth/elevate', { role: 'super_admin', minutes: 60, reason: 'Seeding the demo organization' }, await freshCode(state, email))
+      .catch((e) => console.log('[seed] elevate skipped:', (e as Error).message.slice(0, 160)))
     return s
   }
   try {

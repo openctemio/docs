@@ -46,6 +46,9 @@ the API list `GET /api/v1/findings/remediation-groups` and the MCP tool
 
 ### The fix plan
 
+![The Remediation page on the Fix plan tab: open tasks, suggestions to review and the tasks ordered by risk, each with its state and deadline]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
+*Figure: Remediation, Fix plan.*
+
 **Mobilization › Remediation › Fix plan** (`/remediation`) lists the fixes that
 remove the most risk, whether they are already tasks or still suggestions, with
 counts of open tasks, overdue tasks, suggestions to review and your own tasks.
@@ -201,6 +204,9 @@ toward one goal and deadline. A campaign's status is one of **Draft**,
 (`/remediation/campaigns/{id}`) to see its progress, dates, owner, validator and
 findings, to **Resolve open findings** (each is claimed fixed and checked again
 on its own) and to **Create Jira Epic**.
+
+![A campaign page: progress, owner, due date and the tasks it holds]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
+*Figure: A campaign.*
 
 ### Jira issue types for findings, tasks and campaigns
 

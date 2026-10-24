@@ -254,6 +254,9 @@ whether it is getting better, and what to fix next. Every widget is drawn from
 the dashboard's stored figures, and each one has its own error state, so one
 widget that fails never blanks the page.
 
+![The CTEM dashboard: priority exposure, KEV on your assets, open within SLA, time to fix and the CTEM loop with its five stages]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+*Figure: The CTEM dashboard of the demo organization.*
+
 ### Which dashboard opens
 
 - The dashboard you chose last time (remembered in your browser while it still
@@ -347,6 +350,9 @@ only on request).
 starts empty. Each card has **Open**, **Edit** (name, description and one to
 four columns; widgets keep their share of the row), **Set as my default** and
 **Delete**, which asks first.
+
+![The Dashboards page: five templates and the list of your own dashboards]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
+*Figure: Dashboards.*
 
 ### Customize a dashboard
 

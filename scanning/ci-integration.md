@@ -43,7 +43,7 @@ flowchart LR
   ciso["CISO / owner"]
   pr["Pull request:<br/>OpenCTEM gate check + comment"]
   runs["CI/CD › Runs<br/>run detail: why blocked"]
-  setup["CI/CD › Trust and gate<br/>trust · policy · break-glass · PR feedback"]
+  setup["CI/CD › Trust and gate<br/>trust, policy, break-glass, PR feedback"]
   cov["CI/CD › Pipelines and Coverage<br/>freshness, gaps, failing gates"]
   dev --> pr
   dev -->|repositories their team owns| runs

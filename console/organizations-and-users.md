@@ -23,7 +23,7 @@ members, single sign-on setup and creation date. Search by name or slug and filt
 by owner (**With an owner**, **Without an owner**). A status badge marks an
 organization that is **Suspended** or has **Deletion scheduled**.
 
-![The Organizations page listing five organizations, one marked Suspended and one marked Deletion scheduled]({{ site.baseurl }}/assets/images/console/organizations.png)
+![The Organizations page listing Example Corp with its owner, limits, members and single sign-on providers]({{ site.baseurl }}/assets/images/console/organizations.png)
 *Figure: Platform console, Organizations.*
 
 ### Create an organization
@@ -42,7 +42,7 @@ set) and has no limits until you set some.
 
 ### One organization
 
-![An organization page with the Deletion scheduled badge, the Delete now button, the notice that an owner scheduled the deletion and its date, and the Overview tab]({{ site.baseurl }}/assets/images/console/organization-detail.png)
+![An organization page with the Suspend organization and Delete now buttons, its tabs and the Overview cards]({{ site.baseurl }}/assets/images/console/organization-detail.png)
 *Figure: An organization whose owner scheduled its deletion.*
 
 Open an organization for its tabs:
@@ -136,7 +136,7 @@ email, name or user ID (at least three characters). The list shows account facts
 only, never what an organization holds, and every list view is recorded in the
 admin activity log.
 
-![The Users page with the state tabs All, Active, Not verified, Locked, Blocked, No MFA and Platform admins, and a list of accounts with one Blocked and one Locked]({{ site.baseurl }}/assets/images/console/users.png)
+![The Users page with the state tabs All, Active, Not verified, Locked, Blocked, No MFA and Platform admins, and a list of accounts with their state, sign-in method and organizations]({{ site.baseurl }}/assets/images/console/users.png)
 *Figure: Platform console, Users.*
 
 Open an account for its organizations, linked identities, active sessions and the

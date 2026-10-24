@@ -34,7 +34,7 @@ the site links to them.
 ## Preview locally
 
 ```bash
-docker run --rm -it -p 4000:4000 -v "$PWD":/site -w /site ruby:3.3 \
+docker run --rm -it -p 4000:4000 -v "$PWD":/site -w /site ruby:3.1 \
   bash -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
 ```
 
@@ -62,6 +62,21 @@ release:
    The script signs in as the demo accounts, blurs anything that looks like a
    credential, and writes palette PNGs (WebP above 300 KB). Review every image before
    committing it.
+
+   Notes for a run against a current release:
+
+   - Start the scratch stack with `CERT_MONITOR_ENABLED=false`. Certificate
+     Transparency discovery reads real public logs for `example.com` and adds names that
+     belong to other people to the inventory.
+   - Run the seed once per database. Campaigns, tasks and some other steps are not
+     idempotent and a second run creates duplicates.
+   - Re-run `demo-seed/sql/90-refresh.sql` just before capturing the sensor and scan
+     pages, or the sensors show as late.
+   - The `website` section of the script writes `assets/images/website/`. Copy those
+     images to `src/assets/shots/` in the website repository (and run `node scripts/og.mjs`
+     there); do not commit them here.
+   - The inventory at 1440 pixels wide gives the Name column almost no room, so the
+     asset shots use a 1680 pixel viewport that is scaled down to 1440 on save.
 
 ## Contributing
 

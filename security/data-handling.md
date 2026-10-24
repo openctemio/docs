@@ -20,7 +20,6 @@ OpenCTEM sends no usage telemetry to the project, and the web console loads no t
 | PostgreSQL | Everything durable: accounts (email, name, password hash, optional avatar and phone, preferences), memberships and roles, sessions (IP address, user agent, times), requests for access (email address, a hash of the requester's IP address), organization settings, assets, findings, evidence, scan configuration and results, sensor records, integrations, AI assistant (MCP) connections, audit logs, notifications. |
 | Redis | Short-lived state: session revocations, refresh-token and permission caches, rate-limit counters, sensor heartbeat state and request nonces, the background job queue (email jobs include the recipient address). |
 | File storage | Uploaded attachments and evidence files. Local disk by default (`STORAGE_PROVIDER=local`, `STORAGE_LOCAL_PATH`), or S3-compatible storage (`STORAGE_PROVIDER=s3` or `minio`, with `STORAGE_BUCKET`, `STORAGE_REGION`, `STORAGE_ENDPOINT` and credentials). An organization can point its own files at its own bucket. |
-| `AUDIT_ARCHIVE_DIR` | Archives of pruned audit log entries (gzip JSON lines), when audit retention is enabled. |
 | Logs (standard output) | Request logs with method, path, status, client IP address and user agent; application events. |
 
 Personal data in an installation is mostly account data of the people who use it, plus whatever the
@@ -48,7 +47,7 @@ Retention is automatic only where the table says so. Everything else stays until
 | Sessions and refresh tokens | Session ends after `AUTH_SESSION_DURATION` (30 days); refresh tokens after `AUTH_REFRESH_TOKEN_DURATION` (7 days). Expired and revoked rows are deleted hourly. | lifetimes only |
 | 2FA sign-in challenges | Deleted hourly after expiry (5 minutes) | no |
 | Platform console sessions | 8 hours absolute, 15 minutes idle, at most 3 per administrator | no |
-| Organization audit log | Indefinitely, unless `AUDIT_ARCHIVE_DIR` is set; then entries older than `AUDIT_RETENTION_DAYS` (default and minimum 365) are archived to that directory and deleted | yes |
+| Organization audit log | Entries older than `AUDIT_RETENTION_DAYS` (default and minimum 365) are archived through the file storage provider and deleted from the database; `AUDIT_RETENTION_ENABLED=false` keeps everything | yes |
 | Administrators' audit log | Indefinitely by default: the retention job only reports (`ADMIN_AUDIT_RETENTION_DRY_RUN=true`). With dry-run off, entries older than `ADMIN_AUDIT_RETENTION_DAYS` are deleted, never any newer than one year. A copy sent to `ADMIN_AUDIT_SINK` is kept by whoever runs the destination | yes |
 | Requests for access (when sign-up is closed) | Unconfirmed requests 24 hours; decided requests 90 days | no |
 | Sign-up events (the platform console's sign-up feed and burst alerts) | 90 days. An event keeps only the registrable e-mail domain, the client network prefix (/24 for IPv4, /48 for IPv6), the kind and the time: never the address, a name or a user agent | no |
@@ -181,7 +180,7 @@ an integration, in particular AI triage.
 
 ## Backups
 
-OpenCTEM has no built-in backup job (the Compose stack and the Ansible kit ship scripts). Back up PostgreSQL, the file storage, `AUDIT_ARCHIVE_DIR` and
+OpenCTEM has no built-in backup job (the Compose stack and the Ansible kit ship scripts). Back up PostgreSQL, the file storage (it also holds the audit archives) and
 your secrets yourself, encrypt the backups, and keep `APP_ENCRYPTION_KEY` separate from them. Deletion
 and erasure do not reach existing backups: expire backups on a schedule that matches your retention
 policy. See [Backup and restore](../operations/backup-restore.md).

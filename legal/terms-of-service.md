@@ -60,7 +60,7 @@ You agree NOT to:
 ### 5.1 Authorization
 
 - You are solely responsible for ensuring you have proper authorization before scanning any target.
-- The Service provides tools for security scanning — you must only use them against assets you own or have written permission to test.
+- The Service provides tools for security scanning. You must only use them against assets you own or have written permission to test.
 - Unauthorized scanning may violate laws including the Computer Fraud and Abuse Act (CFAA) or equivalent local legislation.
 
 ### 5.2 Findings and Data
@@ -149,4 +149,4 @@ For questions about these Terms, please contact the platform administrator. For 
 
 ---
 
-**OpenCTEM** — Open-Source Continuous Threat Exposure Management
+**OpenCTEM**: Open-Source Continuous Threat Exposure Management

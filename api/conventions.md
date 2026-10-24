@@ -105,8 +105,25 @@ with the request's own parameters overriding it field by field.
 
 ### Export
 
-`GET /api/v1/findings/export` (or `POST` with a filter document) streams CSV or NDJSON, at most
-100,000 rows, and needs `findings:export`. Exports are audit-logged.
+`GET /api/v1/findings/export` (or `POST` with a filter document) streams CSV or NDJSON in the
+list's `sort` order from one database snapshot, at most 10,000 rows, and needs `findings:export`.
+`X-Export-Max-Rows` states the cap and the `X-Export-Truncated` trailer reports a cut: narrow the
+filter for a larger set. Rows (CSV and NDJSON alike) carry only 40 allowlisted columns: no
+evidence, scanner output, descriptions, free-form metadata or secret details. An unknown filter
+parameter answers `400 INVALID_FILTER`. One export per user runs at a time. Exports are
+audit-logged.
+
+### Bulk change by filter
+
+`POST /api/v1/findings/bulk/by-filter/status` and `POST /api/v1/findings/bulk/by-filter/assignee`
+apply a change to every finding the list's filter selects, recompiled on the server in the
+caller's data scope. Send `expected_count`: when the selection no longer matches it the answer is
+`409 SELECTION_CHANGED` with the new count. The cap is 10,000 findings; up to 1,000 run in the
+request and more run in the background as an operation you read with `GET /api/v1/operations/{id}`
+(only its creator can). False positive, accepted risk and duplicate are never set by filter, and a
+closing status needs a fresh step-up and a note. An organization may change 20,000 findings by
+filter per hour, and a person may have one operation running. Every run writes a summary audit row
+and every changed finding its own.
 
 ## Embedding related data: `include=`
 

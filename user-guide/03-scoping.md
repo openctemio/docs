@@ -279,6 +279,17 @@ approver.
    log) and an optional description.
 6. Click **Add to scope** or **Send request**.
 
+Only entries that name a network location authorize probes: domain, IP address,
+IP range, URL (with a concrete host) and repository entries. A wildcard (`*`) is
+accepted only where the type has a wildcard matcher (a domain as `*.example.com`
+or a host name); the API refuses it elsewhere (`SCOPE_WILDCARD_NOT_ALLOWED`) and
+refuses new entries of types that name no network location
+(`SCOPE_TARGET_TYPE_RETIRED`). A URL entry needs `http://`, `https://` or `*://`
+(any scheme) and a concrete host. A host entry is a name, `*.name` or one address;
+use a range or CIDR entry for a network. Stored entries that the platform
+guardrails refuse (a public suffix, the deny list, an oversized range) cover
+nothing.
+
 The dialog tells you whether the entry needs approvals (Strict only) or takes
 effect at once; you are asked to confirm your identity first. Under Strict, a
 member's request is limited to one name or address (no wildcard or range), is

@@ -164,20 +164,22 @@ database ([Backup and restore](../operations/backup-restore.md)).
 
 | Setting | Default | Effect |
 |---|---|---|
-| `AUDIT_RETENTION_DAYS` | `365` (minimum 365) | Age after which organization audit entries may be pruned |
-| `AUDIT_ARCHIVE_DIR` | empty | Directory for the archive files. **While empty, nothing is pruned**: entries stay in the database indefinitely and the API logs one warning |
+| `AUDIT_RETENTION_ENABLED` | `true` | Archives and prunes organization audit entries past the retention period. `false` keeps all audit history |
+| `AUDIT_RETENTION_DAYS` | `365` (minimum 365) | Age after which organization audit entries are archived and pruned |
 | `ADMIN_AUDIT_RETENTION_ENABLED` | `true` | Runs the administrators' audit log retention job |
 | `ADMIN_AUDIT_RETENTION_DRY_RUN` | `true` | Only reports what it would delete. Set `false` to delete |
 | `ADMIN_AUDIT_RETENTION_DAYS` | `365` | Age threshold for the administrators' audit log. Deletion never removes an entry newer than one year, whatever the value, and re-anchors the chain where it stopped |
 | `ADMIN_AUDIT_RETENTION_INTERVAL` | `24h` | How often the job runs |
 
-When `AUDIT_ARCHIVE_DIR` is set, an hourly job takes the oldest entries of each chain that are past
-the retention period, writes them (chain row and audit row) to
-`AUDIT_ARCHIVE_DIR/<organization>/audit-<first>-<last>-<time>.jsonl.gz` (file mode 0600), records an
-anchor row with the archive's SHA-256 and the last pruned hash, and deletes them. It only ever
-removes the oldest contiguous prefix, so the remaining chain still verifies from the anchor. To
-check a pruned period, recompute the hashes from the archive lines, oldest first; the last hash must
-equal the anchor.
+An hourly job takes the oldest entries of each chain that are past the retention period, writes
+them (chain row and audit row) as a gzip JSON lines archive through the server's file storage
+provider (`STORAGE_PROVIDER`: local disk or an S3-compatible bucket, namespace `audit-archive`),
+records an anchor row with the archive's SHA-256 and the last pruned hash, and deletes them.
+Nothing is deleted when the archive cannot be written. It only ever removes the oldest contiguous
+prefix, so the remaining chain still verifies from the anchor. The chain of a suspended
+organization (how a legal hold is applied) or one pending deletion is skipped until it is active
+again. To check a pruned period, recompute the hashes from the archive lines, oldest first; the
+last hash must equal the anchor.
 
-Keep the archive directory on durable storage and include it in your backups: it is the only copy
-of pruned entries.
+Keep the file storage on durable storage and include it in your backups: the archive is the only
+copy of pruned entries.
