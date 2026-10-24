@@ -13,8 +13,9 @@ add your own. You can wrap an existing command-line scanner without writing code
 in any language, or write the tool in Go with the SDK.
 
 The contract is **tool contract v1**, implemented by
-[openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.34.0 at the time of writing; pin the
-version you install). The platform side is described in
+[openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.37.0 at the time of writing; pin the
+version you install). New to it? [Build your first tool](build-your-first-tool.md) walks through
+one tool end to end, from an empty directory to findings. The platform side is described in
 [tool-contract.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/tool-contract.md).
 
 Once a sensor runs your tool, the tool joins your organization's tool catalog by itself (platform
@@ -68,7 +69,7 @@ Capabilities marked `routed` are the ones the platform places in scan workflows 
 ## 1. Scaffold
 
 ```bash
-go install github.com/openctemio/sdk-go/cmd/openctem@v0.34.0
+go install github.com/openctemio/sdk-go/cmd/openctem@v0.37.0
 openctem tool init --kind exec-json --capability scan.ports@1 --name acme-ports acme-ports
 ```
 
@@ -422,6 +423,11 @@ SENSOR_ADAPTER_DIRS=/etc/openctem/tools
   **Setup & health** checklist (`adapter_refused`).
 - A tool whose name a tool of the sensor already has is not loaded.
 - The sensor-local policy still applies: its `tools.allow` list, target ranges and rate cap.
+- The program must be able to run on the sensor host. The published container image has no
+  shell and no interpreter, so in it only static binaries (a Go tool, for example) run as tools;
+  a Python or shell tool needs a sensor installed as a binary on a host with the interpreter, or
+  your own image built from the sensor binary
+  ([Build your first tool](build-your-first-tool.md#a-sensor-in-a-container)).
 
 Restart the sensor to load a new or changed tool.
 
@@ -458,9 +464,12 @@ flowchart LR
      bring it back; switching it off works.
    - An organization holds at most 128 such tools. Tools of one organization are never visible to
      another, and a platform-operated sensor adds nothing to any catalog.
-4. **Scans use it.** A workflow step that asks for one of its capabilities can pick it, and the
-   tool's availability follows the sensors that report it, like any catalog tool
-   ([Tools and capabilities](../scanning/tools.md)).
+4. **Scans use it.** A workflow step pinned to the tool runs it. On platform releases after
+   v0.14.0, a step that names one of its capabilities also offers it: after the built-in
+   implementations, or first when the step's preferred tools list it; the step's standard params
+   reach it under the config keys its `implements[].params` names, and its command names the
+   capability, so the sensor checks the output against it. The tool's availability follows the
+   sensors that report it, like any catalog tool ([Tools and capabilities](../scanning/tools.md)).
 5. **Settings are delivered in the signed job.** Administrators set the tool's options per sensor
    on the sensor's **Tool settings** tab, a form built from the settings schema. The platform
    validates the values when they are saved. When the sensor claims a job, the platform puts the

@@ -53,6 +53,9 @@ version refreshes them. Nothing in the platform has to change.
 - It never takes the name of a platform tool or replaces a tool a member
   added. An organization holds at most 128 of them, and they are never
   visible to another organization. Platform-operated sensors declare nothing.
+- A step pinned to it runs it; on platform releases after v0.14.0 a step
+  that names one of its capabilities offers it too, after the built-in
+  implementations (or first when the step prefers it).
 - It grants nothing. Such a tool is **unverified** and runs as T2
   (intrusive): only on a Trusted sensor whose grant allows T2, and only on
   targets whose scope allows T2.
