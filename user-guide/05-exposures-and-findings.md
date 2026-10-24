@@ -493,9 +493,28 @@ How a finding was closed is recorded as its resolution method, not as a status:
 `source_mitigated`, `source_retired` or `vex_not_affected`. The API refuses an
 unknown status, in a status change and in a list filter, with `400`.
 
-A finding that was resolved and is reported again is reopened as
-`confirmed` and flagged as a **regression** (its reopen count goes up),
-unless it was closed as a false positive, an accepted risk or a duplicate.
+A finding that was resolved and is reported again is reopened on the same
+record, unless it was closed as a false positive, an accepted risk or a
+duplicate (those stay as they are; an accepted risk whose end has passed
+returns to `confirmed`). It comes back as `confirmed` if anyone had triaged it
+and as `new` if nobody had. What it counts as depends on the close:
+
+- **Verified fix regressed**: a retest or a security review had verified the
+  fix. The timeline and the notification say so.
+- **Regression**: a person closed it, or an automatic close lasted at least
+  7 days. The finding is flagged as a regression (its reopen count goes up),
+  its SLA clock starts again from the reopen (its age still counts from the
+  first detection), and its assignee and watchers are notified.
+- **Seen again**: the platform closed it on its own (a scan covered the asset
+  and did not report it) and a scan reports it again within 7 days. It
+  reopens, but it is not counted as a regression, the SLA clock keeps running
+  and nobody is notified, so a finding that flaps between found and not found
+  does not inflate the numbers.
+
+A partial scan, a run that did not complete or another tool's scan never closes
+a finding, so the next sighting is an ordinary sighting. A duplicate that a scan
+reports again counts as a sighting of the finding it was folded into, which is
+kept open and reopens if it had been closed.
 
 Pentest findings use the same statuses plus **Draft** and **In Review**:
 **Draft → In Review → Confirmed → In Progress → Fix Applied → Resolved**. A
