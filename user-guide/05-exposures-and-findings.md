@@ -349,7 +349,19 @@ added, was assigned, and so on), the owners of the asset as context, and a
 
 **Retest** (nuclei findings with a rule ID): **Retest now** (needs the verify
 permission) re-runs the detection and reports Fixed, Still vulnerable,
-Regression (reopened), Not reproduced or Inconclusive.
+Regression (reopened), Not reproduced or Inconclusive. The retest runs exactly
+the finding's own template, whatever its severity. An Inconclusive result never
+changes the finding, and the card says why and what to do next:
+
+- **Check not installed on the sensor**: the sensor's template set does not
+  include the check. Update the sensor's templates (or the sensor), then retest.
+- **Check not allowed by the sensor policy**: the check is installed, but the
+  sensor never runs destructive, intrusive, brute-force or default-login checks
+  for a retest. Verify the finding by hand or in a planned test window.
+- **The tool gave no verdict**: the tool stopped early or never reached the
+  target. Retest again; if it repeats, check the sensor and the run log.
+- **Target unreachable** or **blocked**: the sensor could not connect to the
+  target, or its network confinement refused it.
 
 **Retest check** (any finding, for example a pentest, bug bounty, manual or DAST
 finding that has no automatic retest): attach a check so **Retest now** and the
