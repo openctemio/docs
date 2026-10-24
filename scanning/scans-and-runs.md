@@ -186,6 +186,28 @@ A finished run never changes again: a late result, a cancel racing a
 completion or a duplicate report cannot reopen it or count its findings
 twice.
 
+### Success rate and recent runs
+
+The scan list's **Recent runs** column shows a scan's latest ten runs, oldest
+to newest, as the same status icons the run list uses, followed by the success
+rate over those runs. Hover or focus it for the breakdown.
+
+- A run counts as a success when it did its job and kept results: `completed`,
+  or `partial` (finished with coverage gaps). A host that did not answer is a
+  fact about that host, not a scan failure, so it never lowers the rate.
+- Only `failed` and `timeout` runs (the sensor, the scanner or the platform
+  failed) count against it.
+- `blocked`, `canceled` and running runs are not counted.
+- With fewer than three counted runs the rate shows "-".
+
+The scan page and the scan drawer apply the same rule to all of a scan's runs.
+
+When a scan's latest run is `blocked`, the list says why under its status, on
+a phone too, with a link to where you fix it: targets not authorized for
+active scanning or excluded go to **Scope**, no available sensor goes to
+**Sensors**, a scan window that never opens goes to **Scan windows**, a
+disabled scanner goes to **Scanners**. Open the run for the full message.
+
 ### Run deadline
 
 A run has no fixed default deadline. Its deadline is the scan's **Max
