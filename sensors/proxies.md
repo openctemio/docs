@@ -106,10 +106,23 @@ On a sensor's page, **Network path** picks what that sensor uses:
 |---|---|
 | Inherit (organization default) | Public targets through the default pool, if one is on; everything else direct |
 | Direct | No proxy, whatever the default says |
-| A pool | All scan traffic of this sensor through that pool |
+| A pool | All scan and validation traffic of this sensor through that pool |
 
 A pool that sensors still use cannot be deleted: the console answers
 `PROXY_POOL_IN_USE` until you move those sensors to another path.
+
+Turning a pool off depends on how sensors reach it:
+
+- **The organization default, off**: proxies are off. Sensors set to Inherit
+  scan directly.
+- **A pool chosen on a sensor, off**: that sensor's scans **fail** (reason
+  `egress_unavailable`) until you turn the pool back on or choose another
+  path. They never go direct; Direct is only ever your explicit choice. The
+  Network path list marks such a pool "(disabled, scans fail)".
+
+The Network path section also tells you when a sensor receives no scan jobs
+(a pool applies and the sensor does not report proxy support), when its chosen
+pool is off, and when its validation jobs wait.
 
 **Shared sensors** run by the platform operator never use your organization's
 proxies: a scan that runs on a shared sensor goes out directly from the
@@ -151,6 +164,15 @@ A scan never silently leaves a proxy:
   and the proxy capability, from a recent sensor version) **receives no scan
   jobs** while a pool applies to it. Upgrade it, or set its Network path to
   **Direct**.
+- Validation jobs (re-checks of findings) contact the target too. A sensor
+  that a pool applies to receives them only when its version sends them
+  through the pool; until then they wait for a sensor without a pool or one
+  set to Direct.
+- When the pool cannot carry a connection (every proxy down, credentials
+  refused, or the proxy's own rules refuse the port), that host is listed as
+  a coverage gap (`proxy_unavailable`) and the scan ends **partial**. A scan
+  that reached nothing never reads as "no findings", and never closes
+  findings.
 - If every proxy of the pool is quarantined, a job fails with the reason
   `egress_unavailable`. It does not run directly.
 - A pool is never combined with "direct" as a fallback.
@@ -174,9 +196,10 @@ refused. Private addresses are allowed, so an internal proxy works.
 
 - **HTTP and HTTPS proxies** must allow the `CONNECT` method to the ports that
   are scanned. Many proxies allow `CONNECT` to port 443 only; scans of other
-  ports then fail with a refusal from the proxy, which is reported as a target
-  problem and not counted against the proxy. Use SOCKS5, or widen the proxy's
-  `CONNECT` rules.
+  ports are then refused by the proxy. The refused hosts show as coverage
+  gaps (`proxy_unavailable`), the scan ends partial, and neither the proxy's
+  score nor the target is blamed. Use SOCKS5, or widen the proxy's `CONNECT`
+  rules.
 - **SOCKS5 proxies** have no such limit.
 
 ## Which tools use the pool
@@ -218,3 +241,6 @@ a sandbox without network confinement, or CI mode.
 | Save fails with `INVALID_PROXY_ENDPOINT` | The line number is shown; check scheme, host, port and the refused address classes |
 | A proxy is stuck in probation | It gets a small share of traffic: run a scan through it, or wait for the next job |
 | Scans of non-443 ports fail through an HTTP proxy | The proxy refuses `CONNECT` to those ports; see [Requirements for your proxies](#requirements-for-your-proxies) |
+| A scan is partial with `proxy_unavailable` gaps | The pool could not carry those connections: proxies down, credentials refused, or a port the proxy does not allow. Check the pool's health table |
+| Jobs fail with `egress_unavailable` right after you turned a pool off | Sensors chosen to use that pool fail closed. Turn it back on, or set their Network path to another pool or Direct |
+| Validation jobs stay pending | The sensors a pool applies to do not yet send validation through the pool. Upgrade them, or run validation from a sensor set to Direct |
