@@ -256,9 +256,13 @@ searches (for example "Search name, host, IP, version or tool…"); the × in th
 box or <kbd>Esc</kbd> clears it. Where the list has a filter panel, the filter
 button is joined to the start of the search box and shows how many filters are
 applied; while the panel is open the button looks pressed. Status and kind
-selects follow the search box. Group, export, refresh and the **View** menu
+selects follow the search box. Group, export, refresh and the **Display** menu
 (row density and columns) sit at the far end. Active filters show as chips in
-a row under the toolbar; past six, the rest are behind a **+N** button.
+one line under the toolbar: chips that do not fit are behind **+N more**, which
+lists them. **Add filter** and **Clear filters** follow the chips, and the
+number of results stays at the end of the line. What a list always hides (on
+**Assets**, names awaiting review and names marked not ours) shows first as a
+chip with a lock and a **Show** button.
 
 ## The dashboard
 
