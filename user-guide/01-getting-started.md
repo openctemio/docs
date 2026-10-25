@@ -246,6 +246,19 @@ this guide, you most likely do not have the permission, or the module is off.
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>C</kbd> | In a finding drawer: add a comment (when no text is selected) |
 | <kbd>C</kbd> | On a finding: open the activity and write a comment |
 | <kbd>Esc</kbd> | In lists: clear the selected rows |
+| <kbd>/</kbd> | In lists: put the cursor in the list's search box |
+| <kbd>F</kbd> | In lists: open the filters (on findings and assets: **Add filter**) |
+
+### List toolbars
+
+Every list has the same toolbar. The search box comes first and names what it
+searches (for example "Search name, host, IP, version or tool…"); the × in the
+box or <kbd>Esc</kbd> clears it. Where the list has a filter panel, the filter
+button is joined to the start of the search box and shows how many filters are
+applied; while the panel is open the button looks pressed. Status and kind
+selects follow the search box. Group, export, refresh and the **View** menu
+(row density and columns) sit at the far end. Active filters show as chips in
+a row under the toolbar; past six, the rest are behind a **+N** button.
 
 ## The dashboard
 
