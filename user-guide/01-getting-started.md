@@ -280,16 +280,71 @@ widget that fails never blanks the page.
 - On your very first visit, when there is no dashboard for you at all, you get
   a personal copy of the **CTEM** template, computed for your own access.
   A line under the header offers **Customize** and **Choose another**.
-- If your dashboard is a copy of the **Overview** template made before it
-  showed the CTEM loop, a one-time line offers **Add the CTEM loop** (added
-  after the first row of figures), **Switch to the CTEM template** (a new CTEM
-  dashboard; your Overview stays) or dismiss. Your dashboard never changes
-  until you choose.
+- If your dashboard is an earlier copy of the **CTEM** or **Overview**
+  template, a one-time line names the widgets the template has gained (for
+  example the exposure flow) and offers **Add them to this dashboard** (each
+  is placed where the template has it), **Switch to the new layout** (a fresh
+  copy; your dashboard stays) or dismiss. Your dashboard never changes until
+  you choose.
+
+### The exposure flow
+
+The first widget of the CTEM and Overview templates follows findings from
+where they come from to where they go, for the period of the widget (30 days
+by default).
+
+- **Sources** (left): each tool that sent findings, by kind (sensor, CI,
+  connector, import), with how many it sent. A source whose last import or run
+  failed says **Failed** and its line is dotted red; a source that has gone
+  quiet for more than twice its usual interval says **Stale** and its line is
+  dotted amber. Each count opens that source's receipts.
+- **Received, new or reopened, actionable** (top of the centre): what came in,
+  what became new work, and the open findings with a priority class now.
+- **The ring**: actionable findings by priority class (P0 to P3). Each arc is
+  labelled with its count and opens the findings of that class; the number in
+  the middle is the sum of the arcs.
+- **The five stages** under the ring: the same stages as the CTEM loop (below),
+  each with its state and its figure; the stage to act on is filled.
+- **Outcomes** (right): open findings with their severity split, those past
+  their SLA, in progress, and those fixed, accepted or closed as false
+  positive in the period. Under them: how many findings imports still
+  detected and how many approved rules removed.
+
+Point at a figure, move to it with the keyboard, or tap it once on a phone to
+light its path and open a short explanation with a link to its list; tap again
+(or click) to open the list. **Esc** closes the explanation. **Show table**
+gives every figure as a table. On a phone the three columns stack.
+
+Source counts come from the import and run receipts, which cover the whole
+organization: they show on organization dashboards and for the organization
+owner. On a personal dashboard of anyone else, the flow shows the findings
+figures for the assets you can see and says that source volumes are
+organization figures.
+
+### Intake and noise reduction
+
+The last widget of the CTEM template shows what each source sent and what
+OpenCTEM did with it:
+
+- every source with its receipts and health, wired into a summary (new, still
+  detected, reopened, resolved by the source); pointing at a source shows its
+  own summary;
+- **Noise reduction**: what was received, split into **new or reopened**,
+  **merged** into findings that already exist, **suppressed by rules**
+  (approved suppression rules) and **not stored** (out of scope, excluded,
+  invalid or failed); the parts add up to what was received;
+- the findings closed as false positive in the period;
+- the same figures per source as a table.
+
+Every figure opens **Import and run receipts** (`/findings/imports`) with the
+same source and period; the totals at the top of that list are the figure you
+clicked.
 
 ### The CTEM loop
 
-The CTEM loop widget shows the five stages of the program for the assets you
-can see, in order. Each figure opens the list it counts.
+The CTEM loop widget (in the widget gallery; the exposure flow carries the same
+stages) shows the five stages of the program for the assets you can see, in
+order. Each figure opens the list it counts.
 
 | Stage | Figure | Second figure |
 |---|---|---|
@@ -353,8 +408,8 @@ only on request).
 
 | Template | What it shows |
 |---|---|
-| **CTEM** | Active exposure (priority exposure, KEV on your assets, crown jewels with open P0/P1 findings, open within SLA); the CTEM loop; Fix next; attack paths to crown jewels; open exposure by priority over 90 days |
-| **Overview** | Priority exposure, KEV on your assets, open within SLA and time to fix, each with its change and target; the CTEM loop; open exposure by priority over 90 days; new versus fixed per week; Fix next; SLA at risk; open findings by severity and age |
+| **CTEM** | The exposure flow; priority exposure, KEV on your assets, open within SLA and time to fix; discovery coverage; open exposure by priority; attack paths to crown jewels; Fix next; new versus fixed; open findings by severity and age; intake and noise reduction |
+| **Overview** | The exposure flow; priority exposure, KEV on your assets, open within SLA and time to fix, each with its change and target; discovery coverage; open exposure by priority; new versus fixed per week; open findings by severity and age; Fix next; attack paths to crown jewels |
 | **Executive** | The same four figures over a year with targets; exposure by priority per month; time to fix by priority; new versus fixed per month |
 | **Vulnerability program** | Within SLA, priority exposure, open findings and time to fix; SLA at risk; new versus fixed; time to fix by priority; age of open findings |
 | **Triage** | Open, priority and KEV counts; open findings by SLA state and by severity; new findings per day; Fix next |
