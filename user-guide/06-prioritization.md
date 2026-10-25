@@ -101,7 +101,7 @@ they say so and link to the assets.
 ![The Exposure chains page ranking chains from internet-facing entry points to assets with KEV findings]({{ site.baseurl }}/assets/images/user-guide/exposure-chains.png)
 *Figure: Exposure chains.*
 
-![The Attack paths page ranking assets by how many public entry points reach them]({{ site.baseurl }}/assets/images/user-guide/attack-paths.png)
+![The Attack paths page drawing the routes from the internet through an entry point and hops to a crown jewel, with choke points and the path score]({{ site.baseurl }}/assets/images/user-guide/attack-paths.png)
 *Figure: Attack paths.*
 
 - **Exposure Chains** (`/exposure-chains`): attack paths from internet-facing
@@ -110,12 +110,30 @@ they say so and link to the assets.
   trace a path; click any node to open it. The cards show the entry points, the
   targets at risk and the chains shown. The page lists up to 100 chains; the
   figures on the cards count every chain you may see.
-- **Attack Paths** (`/attack-paths`): assets ranked by how many public entry
-  points reach them (the 50 highest-ranked among the assets you may see). The
-  ranking shows how widely each asset is exposed; it does not tell you which
-  single fix would break the most paths. The page also shows the crown jewels at
-  risk, the maximum chain depth and the top entry points. Only open findings
-  raise an asset's score.
+- **Attack Paths** (`/attack-paths`): how the internet reaches one asset.
+  Pick the target at the top (crown jewels first; a chain on Exposure Chains
+  opens its target here with **Open attack paths**). The graph runs left to
+  right from **Internet** through entry points and hops to the target. Each
+  edge names the finding that lets an attacker take that step and its weight;
+  thicker lines are likelier steps.
+  - **Shortest** shows the most likely shortest route; **All** shows every
+    short route (up to 12; the footer says when there are more).
+  - Hover or focus a step to light every route through it. With the keyboard,
+    Tab into the graph, use the arrow keys to follow the edges, `[` and `]` to
+    switch routes, Enter to open the findings of a step and Escape to clear.
+    **List view** shows the same routes as a list; it is the default on a
+    phone.
+  - **Choke points** ranks the steps whose findings, once fixed, cut the most
+    routes ("Fix this to cut 2 of 3 paths"). **View finding** opens the
+    finding behind the step and **View N findings** opens exactly the N open
+    findings on that asset. **Create task for choke point** puts the first
+    one's finding in a remediation task.
+  - **Path score** breaks the selected route into its step weights and their
+    product, the path likelihood. A step weighs the open finding most likely to
+    let an attacker onto that asset: its EPSS score, at least 0.9 when it is
+    known exploited, and at least 0.5, 0.3, 0.1 or 0.05 for a critical, high,
+    medium or low finding. A step with no open finding counts as 1: the
+    relationship alone is taken to allow it. **How** on the page repeats this.
 
 If the page cannot load the data it says so and offers **Retry**; that is
 different from "No relationship data yet", which means the read worked and the
@@ -124,10 +142,12 @@ organization has no relationships.
 ### What you see when you can access only some assets
 
 Paths follow the whole asset graph, but you only see assets in your scope. An
-exposure chain is shown when its target is an asset you may see. A step on the
-way that you may not see appears as **Outside your access**, with no name or
-type, so you can tell that your asset is reachable without learning what lies in
-between.
+exposure chain is shown when its target is an asset you may see, and Attack
+Paths opens only targets you may see. A step on the way that you may not see
+appears as **Outside your access**, with no name, type, findings or weight, so
+you can tell that your asset is reachable without learning what lies in
+between. A route through such a step shows its likelihood as **Withheld**, and
+the step is never a choke point.
 
 ## Threat intelligence
 
