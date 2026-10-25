@@ -26,7 +26,7 @@ internal network still needs a sensor inside it (option B or
 
 By default the bundled sensor **pairs**: it makes its own key in its data
 volume and logs a code and a fingerprint, which you approve under
-**Discovery > Sensors > Pair a sensor** as for any sensor ([Pairing](pairing.md)).
+**Discovery > Sensors > Add sensor** as for any sensor ([Pairing](pairing.md)).
 Nothing secret goes through Helm values.
 
 ```bash

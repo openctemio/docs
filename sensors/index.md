@@ -98,7 +98,7 @@ Change three things:
 - To scan private addresses (RFC 1918, IPv6 ULA), list them and add
   `-e SENSOR_ALLOW_PRIVATE_TARGETS=1`.
 
-If an administrator already created a code with **Expect a sensor**, add
+If an administrator already created a code with **Create a pairing code first**, add
 `-e SENSOR_PAIRING_CODE=XXXX-XXXX` (that code): the sensor attaches to it on
 first start and you skip step 2. The variable is ignored once the sensor is
 paired and is never logged.
@@ -140,7 +140,7 @@ docker logs openctem-sensor
 ```
 
 ```
-Pair this sensor in OpenCTEM: Sensors > Pair a sensor
+Pair this sensor in OpenCTEM: Sensors > Add sensor > Pair a sensor that shows a code
   Code:        K7QM-4ZTD
   Fingerprint: 821 · melon · basil · bagel    (expires 10:42)
   Key:         SHA256:...
@@ -151,7 +151,7 @@ A code is valid for 10 minutes; the sensor starts a new one when it expires.
 
 ### 3. Approve it in the console
 
-1. Open **Discovery > Sensors > Pair a sensor**, tab **Enter code**, and type
+1. Open **Discovery > Sensors > Add sensor**, choose **Pair a sensor that shows a code**, and type
    the code.
 2. Compare the fingerprint word for word with the sensor's log. If it
    differs, deny the request.
