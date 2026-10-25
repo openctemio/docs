@@ -275,14 +275,37 @@ automatically in the background.
 ## Risk scoring
 
 **Settings › Findings & assets › Risk scoring** (`/settings/risk-scoring`) sets how each
-**asset's risk score** (0 to 100) is computed. The score is shown across the
-console and drives pages such as Business Impact.
+**asset's risk score** (0 to 100) is computed. The score answers "how urgently
+does this asset need work". It is shown across the console and drives pages
+such as Business Impact.
+
+The default model reads risk as likelihood times impact:
+
+> `Risk = findings score × exposure % × criticality % × (1 − compensating control reduction)`
+
+- **Findings score**: the worst open severity sets it, with diminishing returns
+  for more findings of the same severity, so many low findings never outrank one
+  high. A finding in CISA KEV, with EPSS of 0.5 or more, or with a known exploit
+  counts one severity higher. Informational findings add nothing.
+- **Exposure %** and **criticality %** scale that score. An asset whose exposure
+  is unknown is not treated as safe, and a criticality that is not rated counts
+  as medium. A crown jewel counts as critical, and an asset takes the highest
+  criticality of its business units and services.
+- **No open finding means "No open risk" (0)**, in every model: exposure and
+  criticality are not risk on their own.
+
+The asset page's **Why this score?** shows the figures of the formula and the
+findings that drive the score. A small clock next to a score means one of its
+inputs changed and the new score is being computed; it clears within seconds.
+**Score last changed** on the asset page is when the score last moved.
+
+The other compositions (**Multiply**, **Amplify headroom**, used by the Legacy
+and industry presets) add weighted exposure, criticality, findings and CTEM
+points, then apply the exposure multiplier:
 
 > `Score = (Exposure × W1 + Criticality × W2 + Findings × W3 + CTEM × W4) × Multiplier`
 
-Each component produces 0 to 100 and is weighted by its percentage; the exposure
-multiplier adjusts the result, which is clamped to 0 to 100. When CTEM is turned
-off, its weight is spread over the other components.
+They follow the same rule: an asset without an open finding scores 0.
 
 1. **Presets**: start from Legacy, Default, Banking, Healthcare, E-commerce or
    Government. Any manual change makes the preset **Custom**.
