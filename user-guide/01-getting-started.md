@@ -414,22 +414,37 @@ metric catalog at `GET /api/v1/me/dashboards/widget-catalog`. Details are in
 
 ## My work
 
-**My Work** (`/my-work`) is your personal queue: findings assigned to you or on
-assets you own, and remediation tasks assigned to you or your teams. The tabs
-**Findings** and **Tasks** switch between them (**Tasks** appears when you can
-read remediation).
+**My Work** (`/my-work`) is your personal start page: what waits on you, your
+team, and your requests. Each tab is one queue with its count, and the count is
+always the total of the list it opens.
 
-![The My work page listing the findings assigned to the signed-in user]({{ site.baseurl }}/assets/images/user-guide/my-work.png)
-*Figure: My work: the findings assigned to you or on assets you own.*
+![The My work page with the Assigned to me queue open]({{ site.baseurl }}/assets/images/user-guide/my-work.png)
+*Figure: My work: your open findings, the nearest deadline first.*
 
-- The metric strip shows **Open · assigned to me**, **Critical / high** and
-  **Overdue (SLA)**; each opens the findings list with that filter.
-- The table lists the top 15 by priority (Finding, Severity, Status, SLA,
-  Created). Click a row to open the finding, or **View all** for the full list.
-- When nothing is assigned to you, the page says **You're all caught up**.
-- **Tasks** lists your open remediation tasks, earliest deadline first, with
-  **View all tasks** for the full list
-  ([Mobilization](08-mobilization.md)); with none it says **No open tasks**.
+- **Assigned to me**: open findings assigned to you or your groups, or on
+  assets you own, the nearest SLA deadline first. **SLA due in 72 hours**
+  narrows the list to the ones due soon (overdue included).
+- **My team**: open findings held by the people who share a group with you, or
+  by the group.
+- **Awaiting my review** (when you can approve): false-positive and
+  risk-acceptance requests you may decide. Each row shows who asked and why,
+  what changed since the request (for example **now in CISA KEV**), and the
+  facts to weigh. **Approve** asks you to confirm your sign-in; **Reject** asks
+  for a reason. You never see your own requests here: another person decides
+  them. With a row selected, `j` and `k` move, Enter opens the finding, `a`
+  approves and `r` rejects.
+- **Requested by me**: your requests waiting for a decision. **Remind
+  approvers** (once an hour) or **Withdraw**.
+- **Acceptances expiring**: accepted risks on your findings that end within
+  30 days, when the finding reopens.
+- **My tasks** (when you can read remediation): your open remediation tasks,
+  earliest deadline first ([Mobilization](08-mobilization.md)).
+- The SLA column shows the time left or past due (in hours under two days) and
+  **KEV cap** when the known-exploited rule set the deadline.
+- **View all** opens the same list on **Findings**; **Triage these** and the
+  header's **Triage** button open triage mode.
+- An empty queue suggests the next step, such as **Next: triage 4 new
+  findings**.
 
 ## Notifications
 
