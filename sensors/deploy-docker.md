@@ -11,7 +11,8 @@ The sensor runs as a long-running daemon that executes the scans the platform
 dispatches to it. It needs outbound HTTPS to the platform and no inbound port.
 For the shortest path, follow the
 [quickstart](index.md#quickstart-a-working-sensor-in-five-minutes); this page
-is the reference behind it.
+is the reference behind it. For one guide from prerequisites to
+troubleshooting, read [Run the sensor](run-the-sensor.md).
 
 1. TOC
 {:toc}
@@ -253,6 +254,11 @@ container, and the sensor warns at start when its state or outbox is not on a
 mounted volume. `SENSOR_STATE_DIR`, `SENSOR_OUTBOX_DIR` and
 `SENSOR_CONTENT_DIR` move a directory elsewhere (for example the content
 cache to other storage).
+
+A **named volume** (as above) is created with the sensor's owner. A **bind
+mount** of a host directory is not: `chown -R 999:999` it first (1001 on the
+per-tool images, 65532 on the slim image), or the sensor stops at start with
+the path, the owner and the fix. See [Run the sensor](run-the-sensor.md#a-bind-mount-instead-of-a-named-volume).
 
 Other mounts:
 
