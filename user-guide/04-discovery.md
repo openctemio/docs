@@ -231,10 +231,13 @@ dependencies between steps. Scans run either one scanner or one workflow. See
 Scans run on **sensors**: the OpenCTEM scanning component you deploy where your
 targets are, or the instance's shared sensors for public targets. **Discovery ›
 Sensors** (`/sensors`) lists your fleet with each sensor's health, jobs, version,
-tools and zone, and lets administrators **Install sensor** (create the sensor
-and copy its install command and key) or **Pair a sensor** (the sensor makes its
-own key; you approve it by comparing a fingerprint), group sensors into **Scan
-zones**, and edit, disable, rotate the key of, revoke or delete a sensor.
+tools and zone, and lets administrators **Add sensor** (pick Docker, Docker
+Compose, Kubernetes or a Linux service, copy the exact command, and pair: the
+sensor makes its own key and you approve it by comparing a fingerprint; an
+organization that still allows API keys can install with a key from the same
+panel), create **Enrollment tokens** for unattended installs of many sensors,
+group sensors into **Scan zones**, and edit, disable, rotate the key of, revoke
+or delete a sensor.
 
 ![The Sensors page with two online sensors, their version, jobs and tools]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
 *Figure: Discovery, Sensors.*

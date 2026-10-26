@@ -184,7 +184,7 @@ refuses every scan with network targets. Keep it in line with the scope from
 step 4. The seccomp profile lets the sensor confine each scan's network to its
 targets. No mode or tool flags are needed: the sensor runs as the daemon and
 enables every tool in the image that works. If an administrator created a code
-with **Expect a sensor** first, add `-e SENSOR_PAIRING_CODE=XXXX-XXXX` and the
+with **Create a pairing code first** first, add `-e SENSOR_PAIRING_CODE=XXXX-XXXX` and the
 sensor attaches to it on first start.
 
 With TLS mode `internal`, give the sensor the platform's CA as well: mount
@@ -193,7 +193,7 @@ With TLS mode `internal`, give the sensor the platform's CA as well: mount
 
 The log shows a pairing **code** and a **fingerprint**. In the console:
 
-1. Open **Discovery > Sensors > Pair a sensor**, tab **Enter code**, and type
+1. Open **Discovery > Sensors > Add sensor**, choose **Pair a sensor that shows a code**, and type
    the code.
 2. Compare the fingerprint word for word with the sensor's log. If it differs,
    deny the request.

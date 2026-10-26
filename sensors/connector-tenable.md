@@ -28,8 +28,7 @@ never shares a process with the keys.
 
 ## Install
 
-1. In OpenCTEM, **Discovery > Sensors > Pair a sensor**, tab **Expect a
-   sensor**: the console shows a single-use pairing code; copy it. (The
+1. In OpenCTEM, **Discovery > Sensors > Add sensor**, keep **Create a pairing code first**: the console shows a single-use pairing code; copy it. (The
    connector settings dialog under **Settings > Integrations > Vulnerability
    scanners > Connect Tenable.sc** also shows the install command, under
    **No connector yet? Run it next to Tenable.sc**.)

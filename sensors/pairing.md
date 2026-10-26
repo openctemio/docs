@@ -39,7 +39,7 @@ sequenceDiagram
     Note over S,P: From now on every request is signed with the sensor's key (RFC 9421).<br/>The sensor starts its heartbeat and work loop.
 ```
 
-With **Expect a sensor** (below) the order of the first steps changes: the
+With **Create a pairing code first** (below) the order of the first steps changes: the
 console creates the code first, and the sensor sends it in its first request
 (`openctemio-sensor pair <CODE>`); the administrator then sees the
 fingerprint on the expectation and approves it the same way. The work loop that
@@ -69,7 +69,7 @@ Owners and administrators hold all of them.
    fingerprint, when the code expires (10 minutes) and its key:
 
    ```
-   Pair this sensor in OpenCTEM: Sensors > Pair a sensor
+   Pair this sensor in OpenCTEM: Sensors > Add sensor > Pair a sensor that shows a code
      Code:        K7QM-4ZTD
      Fingerprint: 821 · melon · basil · bagel    (expires 10:42)
      Key:         SHA256:...
@@ -78,8 +78,8 @@ Owners and administrators hold all of them.
 
    With Docker, read it with `docker logs <container>`; on Kubernetes with
    `kubectl logs`.
-3. In the console open **Discovery > Sensors > Pair a sensor**, tab
-   **Enter code**, and type or paste the code (with or without the dash). The
+3. In the console open **Discovery > Sensors > Add sensor**, choose
+   **Pair a sensor that shows a code**, and type or paste the code (with or without the dash). The
    console looks it up as soon as all eight characters are in.
 4. The console shows the fingerprint, the host name, system and sensor
    version the sensor reported, and the address the request came from.
@@ -97,7 +97,7 @@ working. Every administrator of the organization is notified.
 
 Use this when you prepare the console first:
 
-1. **Discovery > Sensors > Pair a sensor**, tab **Expect a sensor**. The
+1. **Discovery > Sensors > Add sensor**, keep **Create a pairing code first**. The
    console shows a code and the command to run.
 2. On the sensor host run:
 
@@ -145,7 +145,7 @@ has neither an API key nor an identity.
 | `-platform-key` | `SENSOR_PLATFORM_KEY` | Thumbprint of the platform's pairing key; a pairing signed by another key is refused |
 | `-repair` | | Replace this sensor's key (see below) |
 
-`CODE` is an **Expect a sensor** code; without it the command prints the
+`CODE` is an **Create a pairing code first** code; without it the command prints the
 sensor's own code to approve. The daemon reads the same code from
 `SENSOR_PAIRING_CODE` instead (see above); the `pair` command takes it only as
 an argument.
@@ -296,3 +296,27 @@ the Helm chart currently uses a key; see
 | The sensor stops at start with an identity permission error | Run the `chmod` or `chown` it printed. On Kubernetes see [the fsGroup note](deploy-kubernetes.md#identity-files-and-fsgroup). |
 | The container exits during pairing with `connection refused` | The platform was not reachable. The restart policy starts it again; check [Network requirements](network.md). |
 | The sensor is online but gets no nuclei or port scans | It is still **New**. Promote it to Trusted. |
+
+## Many sensors: enrollment tokens
+
+For unattended installs (Kubernetes, Terraform, a fleet of hosts) an
+administrator with **Approve sensors** opens **Discovery > Sensors >
+Enrollment tokens > Create token** (a recent sign-in is asked for). A token
+has:
+
+- an expiry (1 hour to 30 days) and a limit on how many sensors it may enroll
+  (1 to 1000; a sensor asking again with the same key counts once);
+- the scan zones, grant profile and labels every sensor it enrolls gets;
+- optional allowed source addresses (CIDRs);
+- an optional **Approve each sensor**: sensors then wait under **Waiting for
+  approval** until you compare the fingerprint and approve them.
+
+The token is shown once. Put it in a root-only file or a Kubernetes Secret
+and point the sensor at it with
+[`SENSOR_ENROLLMENT_TOKEN_FILE`](settings.md#SENSOR_ENROLLMENT_TOKEN_FILE)
+(this needs a sensor release that reads it). Each sensor that starts with it
+pairs with its own key and joins the organization at trust level New; you
+are notified of every enrollment, and every creation, enrollment, refusal and
+revocation is in the audit log. **Revoke** stops the token at once; sensors it
+already enrolled keep working until you revoke them.
+
