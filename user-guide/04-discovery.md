@@ -619,7 +619,9 @@ scan targets and team scopes.
 2. **New group** (needs the asset-groups write permission) opens a wizard:
    **Basic Info** (name, description, **Environment**: Production, Staging,
    Development or Testing; **Criticality**; optional business unit, owner and
-   tags) → **Add Assets** → **Review** → **Create Group**.
+   tags) → **Members** (a rule, a pick or a pasted list; see
+   [Groups that update themselves](groups-that-update-themselves.md)) →
+   **Review** → **Create Group**.
 3. Filter by environment, criticality, findings and risk score; search; **Export
    as CSV** or **Export as JSON**.
 4. A row's menu: **Quick view**, **Open full page**, **Edit**, **Add assets**,
@@ -628,8 +630,10 @@ scan targets and team scopes.
    **Delete** them.
 
 Deleting a group unassigns its assets; the assets themselves are kept. A group's
-page shows its asset distribution, finding severity and risk, and its assets and
-findings.
+page shows its asset distribution, finding severity and risk, its assets (with
+how each one joined), its findings and its **History**. On the Assets page, a
+filter can become a group (**Save filter as group**) or be added to one
+(**Add all N matching to group**).
 
 ### Activity
 
