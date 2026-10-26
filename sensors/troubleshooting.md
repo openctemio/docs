@@ -107,6 +107,11 @@ started still has a log with the reason.
 | `the sensor's data directory is not usable: ... permission denied` (older sensors: `Error: content: mkdir /var/lib/openctem/content: permission denied`) | A host directory mounted at `/var/lib/openctem` is not owned by the sensor's user. `sudo chown -R 999:999 <host dir>` (1001 on the per-tool images, 65532 on the slim image) or use a named volume. See [Permission denied on /var/lib/openctem](run-the-sensor.md#permission-denied-on-varlibopenctem). |
 | `-platform mode has been removed` | An old command line. Remove `-platform`: the sensor runs as the daemon with platform commands by default. |
 
+## Permission denied on /var/lib/openctem
+{: #permission-denied-on-varlibopenctem }
+
+The sensor exits at start with `the sensor's data directory is not usable` and names the directory, its owner and the user the sensor runs as. A host directory mounted at `/var/lib/openctem` is not owned by that user. The fix (a `chown` to the sensor's uid, or a named volume) is in [Run the sensor](run-the-sensor.md#permission-denied-on-varlibopenctem).
+
 ## Transport
 
 The sensor prints its transport at start and on every change:
