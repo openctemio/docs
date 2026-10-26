@@ -100,7 +100,7 @@ email domain is in the organization's allowed email domains, when it has any.
 - An owner can turn on **Approve new SSO members**: first-time people wait with no access until an
   administrator approves them under **Settings > Members**.
 
-## Enforcing SSO and break-glass {#enforcing-sso-and-break-glass}
+## Enforcing SSO and break-glass
 
 When a working provider exists and at least one of the organization's domains is verified, a platform
 administrator can turn on **SSO enforcement** (same tab). Members must then sign in through the

@@ -87,7 +87,7 @@ When an organization enforces SSO, or requires 2FA, a social session does not sa
 must sign in with password and 2FA, or through that organization's own SSO. See
 [Two-factor authentication](two-factor.md).
 
-### Existing accounts {#existing-accounts}
+### Existing accounts
 
 On the first social sign-in the account is bound to the provider's identity. Matching rules:
 
