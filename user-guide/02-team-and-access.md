@@ -15,7 +15,8 @@ Access control has three layers that work together:
 
 - **Roles** decide what a member can **do** (permissions).
 - **Teams** and **assignment rules** decide which assets and findings a member
-  can **see** (data scope).
+  can **see** (data scope). A team can also carry what its members can do, with
+  no role to manage: see [Give a team access](#give-a-team-access).
 - **Members** is where you invite people and give them roles.
 
 For the full model see [Roles, groups and permissions](../identity/roles-and-permissions.md).
@@ -191,7 +192,7 @@ that control which assets they can see.
 - Click **Create team**, enter a **Team name** (for example "Security Team" or
   "DevOps") and an optional description.
 - Click a team to open its details, with the tabs **Overview**, **Members**,
-  **Assets** and **Scope rules**:
+  **Access**, **Roles**, **Assets** and **Scope rules**:
   - **Members**: **Add Member** (pick the member and their role in the group) or
     remove one.
   - **Assets**: **Assign Asset** or **Bulk Add**, choosing an **Ownership Type**:
@@ -206,6 +207,37 @@ that control which assets they can see.
     matches, are already assigned and would be added; **Reconcile** applies it.
 - Each row shows the team's **Members** and **Assets**. **Edit team** and
   **Delete team** are in the row menu (deleting asks for confirmation).
+
+### Give a team access
+
+Instead of creating a role first, let a team carry what its members can do and
+which assets they see. Everyone you add to the team inherits both at once, and
+loses both when they leave the team or their membership ends.
+
+1. Open the team and go to the **Access** tab (the **Create team** form has the
+   same **Access** section).
+2. Under **What members can do**, tick one or more **presets**. Each preset is a
+   ready-made set of permissions for one kind of person, such as Security
+   analyst, Vulnerability manager, Remediation owner, Auditor or CTEM program
+   lead, and shows what it is for. Several presets combine: members get
+   everything any of them allows. Tick none for a team that only scopes data.
+3. Under **What members can see**, keep **Specific assets** (the team's scope
+   rules and assigned assets) or choose **All assets** (only an owner can).
+4. **Save access**, then add people on the **Members** tab, with an optional end
+   date. A member's profile lists what they inherit under **Access from teams**.
+
+A team that sees all assets, or whose preset sees all assets, is marked
+**Elevated access**. Only an owner sets or changes it (after signing in again),
+every change is audited, and adding or removing people needs the members
+permission, so a team lead cannot put someone in. People from outside your
+organization and service accounts cannot join a team that sees all assets, and
+owner and administrator are never granted through a team.
+
+When a preset's template changes, the team shows **Update available**; review it
+and choose **Apply update**. Nothing changes until you do. The role behind a
+preset is managed by the team: it does not appear in **Settings › Access ›
+Roles** and cannot be edited or assigned by hand. The **Roles** tab of the team
+still lists roles you bound by hand, with presets marked **Preset**.
 
 ### Assignment rules
 
