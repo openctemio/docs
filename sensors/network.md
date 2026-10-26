@@ -153,7 +153,23 @@ callbacks (`refused by local policy: no_local_policy: ...`) and logs
 API-key sensors accept any target outside the built-in deny list and log a
 warning. `SENSOR_REQUIRE_LOCAL_POLICY=true` or `false` overrides either.
 
-The quickest policy is the shorthand, without a file:
+**The quickest way to a policy is the console's suggestion.** Open the
+sensor (Sensors, then the sensor's drawer): a sensor without a policy shows
+"Suggested local policy", built from the sensor's scan zones, or from your
+organization's scope when it has no zone (active scope entries become
+`targets.allow`, active network and name exclusions become `targets.deny`,
+and a private range turns `allow_private` on). The install commands carry the
+same file. Review it, remove what this sensor must not reach, and run the
+command it shows on the sensor host: it writes
+`/etc/openctem/sensor-policy.yaml`. Then reload the sensor with
+`docker kill -s HUP <container>`; a container started without
+`-v /etc/openctem:/etc/openctem:ro` must be started again with that volume
+and `SENSOR_LOCAL_POLICY=/etc/openctem/sensor-policy.yaml` (keep its data
+volume so it keeps its identity). The suggestion is text the platform
+proposes: once the file is on the host, the platform cannot change it.
+Members whose role cannot read the scope get the zones only.
+
+Without the console, the shorthand works without a file:
 
 ```bash
 -e SENSOR_ALLOWED_RANGES='203.0.113.0/24,*.example.com' \
