@@ -104,6 +104,7 @@ started still has a log with the reason.
 | A shared sensor refuses to start in shared mode | `SENSOR_SHARED_MODE=1` needs the tool sandbox, network confinement and a local policy, and pinned job-signing keys; the sensor says why it stops. Run it under the sensor's seccomp profile. |
 | A shared sensor is online but takes no jobs | Shared sensors are off until a super administrator turns them on, the organization must be allowed (and not opted out), and the sensor image must advertise `shared.isolation@1` (a release with shared mode). |
 | A second sensor refuses to start on the same outbox | Each sensor needs its own outbox volume. |
+| `the sensor's data directory is not usable: ... permission denied` (older sensors: `Error: content: mkdir /var/lib/openctem/content: permission denied`) | A host directory mounted at `/var/lib/openctem` is not owned by the sensor's user. `sudo chown -R 999:999 <host dir>` (1001 on the per-tool images, 65532 on the slim image) or use a named volume. See [Permission denied on /var/lib/openctem](run-the-sensor.md#permission-denied-on-varlibopenctem). |
 | `-platform mode has been removed` | An old command line. Remove `-platform`: the sensor runs as the daemon with platform commands by default. |
 
 ## Transport
