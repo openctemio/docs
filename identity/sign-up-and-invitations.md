@@ -180,6 +180,9 @@ last). A person whose email domain the organization does not hold is **outside**
 - Invitation refusals carry a code that the invite dialog explains: `INVITEE_NOT_ON_VERIFIED_DOMAIN`,
   `INVITEE_DOMAIN_NOT_ALLOWED`, `PERSONAL_ACCOUNTS_BLOCKED`, `INVITATION_NO_LONGER_VALID`.
 
+For the rules in one place, including how to give an outside member full access, see
+[Outside members](access/outside-members.md).
+
 ### Personal email addresses
 
 The organization's **personal accounts** policy (owner; security settings API

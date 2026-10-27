@@ -118,5 +118,6 @@ routes.
 - [Sign-up and invitations](sign-up-and-invitations.md)
 - [Roles, groups and permissions](roles-and-permissions.md)
 - [Two-factor authentication](two-factor.md)
+- [Who can see and do what](access/index.md): roles, teams, outside members, two-factor requirements, refusals and AI assistants
 
 For the security model behind these controls, see [Security](../security/index.md).

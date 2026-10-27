@@ -20,6 +20,8 @@ Access control has three layers that work together:
 - **Members** is where you invite people and give them roles.
 
 For the full model see [Roles, groups and permissions](../identity/roles-and-permissions.md).
+Common situations (a member who sees nothing, outside members, two-factor rules, refused changes) are
+explained in [Who can see and do what](../identity/access/index.md).
 
 ## Members
 
