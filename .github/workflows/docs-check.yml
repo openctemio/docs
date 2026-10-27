@@ -20,6 +20,9 @@ jobs:
       # Fails when the repository tracks commercial, internal-planning,
       # research or review material (listed in .gitignore; this also catches
       # git add -f and merges that bring such folders back).
+      - name: Retired logo shapes
+        run: bash .github/scripts/check-brand.sh
+
       - name: Private paths (self-test)
         run: bash .github/scripts/check-private-paths.test.sh >/dev/null
 
