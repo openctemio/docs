@@ -32,7 +32,8 @@ Open the console and go to **Sign in** (`/login`).
 2. Below the form, under **Or continue with**, you may see icon buttons for
    **Google**, **GitHub** and **Microsoft**. Each appears only when the platform
    operator has configured that provider; if none is configured, the block is
-   hidden.
+   hidden. If you already have a password account with the same email, see
+   [Google sign-in for an existing account](#google-sign-in-for-an-existing-account).
 3. If your organization uses single sign-on, type your work email: when its
    domain signs in through an organization's SSO, an **Organization SSO**
    section with a **Sign in with {provider}** button appears. A sign-in link
@@ -54,6 +55,21 @@ it up yet, the second step is **Set up two-factor authentication**: scan the QR
 code with an authenticator app (or type the secret key), enter the code, click
 **Turn on and continue**, then save the recovery codes it shows (**Copy** or
 **Download**), tick **I have saved my recovery codes** and click **Continue**.
+
+### Google sign-in for an existing account
+
+If you registered with a password using your Gmail (or company Google Workspace)
+address, **Google** signs you in to that same account. The first time, Google is
+linked to your account and your other sessions are signed out; you get an email
+about it. If you use two-factor authentication, the second step still asks for
+your code.
+
+If the sign-in page says **You already have an account**, Google could not be
+linked automatically (for example your address is not verified yet, or the
+platform operator turned automatic linking off). Sign in with your password
+(**Forgot your password? Reset it** if needed), then open **Account > Security >
+Connected sign-in methods** and click **Link** next to Google. GitHub is always
+linked this way.
 
 ### Where you land after signing in
 
@@ -536,7 +552,7 @@ provider and the creation and update dates.
 
 ### Security
 
-**Security** (`/account/security`) has four cards.
+**Security** (`/account/security`) has five cards.
 
 ![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
 *Figure: Setting up two-factor authentication (the QR code and key are blurred here).*
@@ -560,6 +576,12 @@ provider and the creation and update dates.
     authentication; if you turn it off you must set it up again at your next
     sign-in.
   - SSO accounts use their identity provider's two-factor settings.
+- **Connected sign-in methods** (when the platform offers Google, GitHub or
+  Microsoft sign-in): your password and each provider, **Linked** or **Not
+  linked**. **Link** asks you to confirm it is you, then sends you to the
+  provider and back. **Unlink** asks for the same confirmation; your only way to
+  sign in cannot be removed. Organization single sign-on is shown as managed by
+  your organization. You receive an email for every change.
 - **Sessions** lists the devices signed in to your account (browser and system,
   IP address, sign-in time, last activity); your current one is marked **This
   device**. Sign out a single session, or click **Sign out all others**. Both ask
