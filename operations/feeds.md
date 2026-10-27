@@ -17,8 +17,9 @@ one you copied to it), verifies it against a key you pin, and imports it.
 | Program feed | Public bug-bounty and vulnerability-disclosure programs: owner, policy, bounty, published scope | **Scoping > Scope > Programs** (the public program monitor) | [`openctemio/programfeed`](https://github.com/openctemio/programfeed) |
 
 The platform never calls the vulnerability sources or the bug-bounty
-platforms. KEV and EPSS are separate threat-intelligence sources the
-platform reads directly; they are not these feeds.
+platforms. CISA KEV and EPSS travel with each vulnerability release too (see
+[KEV and EPSS](#kev-and-epss)); the platform can also fetch them from CISA and
+FIRST itself.
 
 1. TOC
 {:toc}
@@ -75,6 +76,30 @@ gh release download --repo openctemio/vulnfeed --dir bundle
 git clone https://github.com/openctemio/vulnfeed && (cd vulnfeed && go build -o ../vulnfeed-bin ./cmd/vulnfeed)
 ./vulnfeed-bin verify --dir bundle --root-key-id "$(cat vulnfeed/keys/root-keyid.txt)"
 ```
+
+## KEV and EPSS
+
+Each vulnerability release carries two more signed files: the CISA Known
+Exploited Vulnerabilities catalog and the EPSS scores, with their data dates
+and attribution. The platform verifies them with the same pinned root key and
+applies each one only when its data date is newer than the data it already
+holds, so an older or replayed release never rolls them back. A release from
+before this feature carries no such files and is imported as before.
+
+The platform also fetches both itself (KEV hourly, EPSS daily). Where they come
+from is a setting in the console, **System > Threat intelligence > Where KEV
+and EPSS come from** (super administrator, asks for the step-up, audited):
+
+| Setting | Default | Meaning |
+|---|---|---|
+| Use the signed release as the source | off | Off: the platform's own fetch supplies the data and the release copy is applied when newer. On: the release supplies the data, and the platform fetches from CISA and FIRST only when the release's copy was last read more than 6 hours ago (KEV) or 48 hours ago (EPSS). Switch it on once the release has been fresh for a week. |
+| Allow the platform to call CISA and FIRST | on | Off for installs with strict egress rules: the platform never calls CISA or FIRST (the scheduled and the manual sync both refuse), the release is the only source, and a stale copy is shown as stale. |
+
+The page lists, per feed, when the release's copy was last read and whether it
+is fresh, and which path supplied the data held. **Strict egress**: allow only
+the release host (or set `VULNFEED_MIRRORS` to an internal mirror, or use
+`VULNFEED_BUNDLE_DIR` when air-gapped), then turn off "Allow the platform to
+call CISA and FIRST".
 
 ## Program feed
 
