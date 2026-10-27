@@ -1,6 +1,7 @@
 title: OpenCTEM Documentation
 description: Documentation for OpenCTEM, the open-source Continuous Threat Exposure Management platform
 baseurl: ""
+logo: "/brand/lockup.svg"
 url: "https://docs.openctem.io"
 
 # Build settings
@@ -66,6 +67,8 @@ callouts:
 # Exclude from build
 exclude:
   - README.md
+  - brand/README.md
+  - brand/LICENSE-Sora.txt
   - CONTRIBUTING.md
   - CLA.md
   - CLA-CORPORATE.md
