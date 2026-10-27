@@ -24,7 +24,7 @@ inside is described in [How sensors work](how-it-works.md).
 | Scan hosts, web applications and networks the platform cannot reach (ports, HTTP, nuclei templates, subdomains) | **Sensor** (`openctemio/sensor`) | A host or cluster inside the network to scan | [Quickstart](#quickstart-a-working-sensor-in-five-minutes) |
 | Bring in a Tenable Security Center you run (its findings, and scans launched from OpenCTEM) | **Tenable.sc connector** (`openctemio/connector-tenable`) | A host or cluster that can reach your Tenable.sc | [Tenable.sc connector](connector-tenable.md) |
 | Scan code and dependencies in a pipeline | **CI integration** (no sensor) | GitHub Actions or GitLab CI | [CI integration](../scanning/ci-integration.md) |
-| Match your software inventory against known vulnerabilities | **Vulnerability feed** (`openctemio/vulnfeed`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
+| Match your software inventory against known vulnerabilities | **Vulnerability feed** (`openctemio/vulnfeed-bundles`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
 | Follow public bug-bounty and disclosure programs | **Program feed** (`openctemio/programfeed`) | Nothing to install: the platform imports signed bundles | [Vulnerability and program feeds](../operations/feeds.md) |
 
 A sensor connects out to the platform, needs no inbound port and appears
