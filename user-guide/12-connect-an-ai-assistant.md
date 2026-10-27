@@ -142,6 +142,7 @@ The consent screen is the one place where you decide. Read it before you choose 
 | **Unverified: registered itself** with an **Unverified** badge | Nobody vouches for the name. See [Unverified applications](#unverified-applications). |
 | **Organization** | The organization the connection is for. If you belong to several, choose the right one in this list. The assistant sees only this organization's data. |
 | **It will be able to, as you:** | The access you grant, one line per permission group: **Read findings, vulnerabilities, priorities and remediation groups**, **Read assets and attack paths**, **Read compliance posture**, **Read pentest campaigns, findings, retests and templates**. A line with a check mark is granted. A struck-through line is not: you do not hold that access in this organization, or **(not allowed by your organization)**. A line with the **Changes data** badge is the comment tool; every comment it makes asks for your confirmation. |
+| **Allow access to all organization data** | Shown only if your role has access to all organization data (owner, administrator, or a role with full data access). Off by default: the assistant then sees only the assets your own groups give you. If you turn it on, OpenCTEM asks you to confirm your identity, the assistant sees every asset and finding of the organization (private bug-bounty program assets you are not a member of stay hidden, as for you), and the connection ends sooner: after 7 days, with a refresh token that expires after 24 hours unused and an access token that lasts 5 minutes. It stops seeing everything the moment your role loses this access, and the organization's audit log records that you allowed it. API keys never get this access. |
 | **You will be sent back to** | The address your browser returns to after you choose. For Claude on the web it is a `claude.ai` address; for an application on your computer it is `127.0.0.1` or `localhost`. If it is a host you do not recognize, choose **Cancel**. |
 | **Only continue if you started this** | The application runs on your own computer, where any program could use the same name. Continue only if you just asked the assistant to connect. |
 | **Your organization has not approved this application** | The organization has not approved the application's publisher. **Allow** is disabled. Members see **Request access**; administrators see **Allow {host} for {organization}**. See [the next section](#if-your-organization-has-not-approved-the-application). |
@@ -151,6 +152,10 @@ The consent screen is the one place where you decide. Read it before you choose 
 
 The page also says: it sees only what you can see in this organization, and loses access when you
 do. You can disconnect it at any time.
+
+A connection with the all-data option shows an **All organization data** badge in **Your AI applications** and in
+the organization's list of connected applications. Choose **Limit to own data** there to set it back to the
+scoped view without disconnecting it (you, or an organization administrator); **Disconnect** ends it.
 
 ### If your organization has not approved the application
 

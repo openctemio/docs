@@ -64,6 +64,16 @@ them to the API):
   token can do at most what its scopes allow and the person still holds; suspending or removing the
   person ends it at once. A call that needs another scope gets an `insufficient_scope` challenge so
   the client can ask for it.
+- **Data scope.** A connection reads only the assets the person's groups and scope rules allow, as `oct_`
+  keys do, even for an owner or administrator. One opt-in exception: a person whose role has full
+  organization data access can choose **Allow access to all organization data** on the consent screen
+  (off by default; needs a fresh sign-in confirmation). The connection then reads all organization data
+  while the person still holds that role, checked on every request, and lives shorter: 7 days in total,
+  refresh token 24 hours unused, access token 5 minutes. Private program assets and pentest campaign
+  membership apply as for the person in the console. The person or an organization administrator can set
+  it back to scoped (`POST /api/v1/mcp-access/my-connections/{id}/scoped`,
+  `POST /api/v1/mcp-access/connections/{id}/scoped`) or revoke it; the audit log records
+  `mcp_grant.full_data_allowed` and `mcp_grant.full_data_removed`. API keys never get this.
 - **DPoP.** A client that supports DPoP (RFC 9449) gets tokens bound to its own key: every refresh
   and every MCP request carries a single-use proof (ES256 or EdDSA, at most 60 seconds old). An
   organization can require DPoP in its policy; bearer-only connections then stop working.
