@@ -150,7 +150,7 @@ them, so in a network with limited egress allow them at the firewall.
 | `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery | On | `CERT_MONITOR_ENABLED=false` |
 | `stat.ripe.net` | Lookups of network seeds an organization adds for attack-surface discovery | Only when an organization adds network seeds | Turn network lookups off in the organization's attack-surface settings, or add no network seeds |
 | `ctem.org` | CTEM-ID catalog feed | On | Leave unreachable, or set `CTEM_ID_FEED_URL` to an internal https copy |
-| `github.com` (`openctemio/vulnfeed`, `openctemio/programfeed`) | Vulnerability and program feeds | Off until you pin a root key | Keep off, or import from a directory ([Feeds](#vulnerability-and-program-feeds)) |
+| `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`) | Vulnerability and program feeds | Off until you pin a root key | Keep off, or import from a directory ([Feeds](#vulnerability-and-program-feeds)) |
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme` | Only in mode `acme` | Use TLS mode `internal` or `files` ([TLS](tls-and-gateway.md)) |
 | Integrations, SSO, SMTP, AI providers | Only what you configure | Off | Point them at internal services |
 

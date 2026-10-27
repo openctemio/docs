@@ -29,7 +29,7 @@ There is no egress proxy support yet (see [known gaps](#known-gaps)).
 
 | Feed | What it needs | Offline path today | Cadence | What degrades without it |
 |---|---|---|---|---|
-| Vulnerability catalog (vulnfeed) | `VULNFEED_ROOT_KEY_ID`, source enabled | Signed bundles from `VULNFEED_BASE_URL` or `VULNFEED_MIRRORS` (a Nexus raw proxy of `github.com/openctemio/vulnfeed/releases`), or files in `VULNFEED_BUNDLE_DIR` | Import every 20 minutes; stale warning after 3 days | CVE catalog and inventory matching go stale |
+| Vulnerability catalog (vulnfeed) | `VULNFEED_ROOT_KEY_ID`, source enabled | Signed bundles from `VULNFEED_BASE_URL` or `VULNFEED_MIRRORS` (a Nexus raw proxy of `github.com/openctemio/vulnfeed-bundles/releases`), or files in `VULNFEED_BUNDLE_DIR` | Import every 20 minutes; stale warning after 3 days | CVE catalog and inventory matching go stale |
 | Public program feed (programfeed) | `PROGRAMFEED_ROOT_KEY_ID` for signed sources | `PROGRAMFEED_URL` or `PROGRAMFEED_MIRRORS`, or a signed bundle in `PROGRAMFEED_DIR`, or an **unsigned** bundle in `PROGRAMFEED_LOCAL_BUNDLE_DIR` | not stated | No public program catalog |
 | Content catalog | `CONTENT_TRUST_ROOT_KEY_IDS` (optional `CONTENT_SIGSTORE_TRUSTED_ROOT`) | Admin import: `POST /api/v1/admin/content-catalog/import` | On import | The catalog is not updated |
 | Platform content packs | Platform admin | Admin upload | On upload | Packs not updated |

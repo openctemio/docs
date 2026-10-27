@@ -13,7 +13,7 @@ one you copied to it), verifies it against a key you pin, and imports it.
 
 | Feed | Gives | Used by | Source |
 |---|---|---|---|
-| Vulnerability feed | Products, CVEs and affected version ranges (from the NVD) | Matching the software inventory of your assets against known vulnerabilities | [`openctemio/vulnfeed`](https://github.com/openctemio/vulnfeed) |
+| Vulnerability feed | Products, CVEs and affected version ranges (from the NVD) | Matching the software inventory of your assets against known vulnerabilities | Feed: [`openctemio/vulnfeed-bundles`](https://github.com/openctemio/vulnfeed-bundles); collector code: [`openctemio/vulnfeed`](https://github.com/openctemio/vulnfeed) |
 | Program feed | Public bug-bounty and vulnerability-disclosure programs: owner, policy, bounty, published scope | **Scoping > Scope > Programs** (the public program monitor) | [`openctemio/programfeed`](https://github.com/openctemio/programfeed) |
 
 The platform never calls the vulnerability sources or the bug-bounty
@@ -27,19 +27,26 @@ platform reads directly; they are not these feeds.
 
 ## Status
 
-{: .warning }
-Neither feed has published a signed release yet: the signing keys of both
-projects are still to be created, so
-`https://github.com/openctemio/vulnfeed/releases/latest/download/latest.dsse.json`
-(and the same for `programfeed`) answers 404, and there is no root key id to
-pin. Until the first release, a platform imports no vulnerability bundle, and
-the public program monitor shows only the programs of a
-[local bundle](#program-feed-a-local-bundle) you build yourself. This page
-describes the setup that applies once they publish.
+The vulnerability feed publishes a signed release every hour in
+[`openctemio/vulnfeed-bundles`](https://github.com/openctemio/vulnfeed-bundles)
+(tags `v1-N`); the platform release that makes this repository its default
+pins the official root key id, so nothing needs configuring. The program feed
+has not published a signed release yet:
+`https://github.com/openctemio/programfeed/releases/latest/download/latest.dsse.json`
+answers 404 and there is no root key id to pin; until then the public program
+monitor shows only the programs of a [local bundle](#program-feed-a-local-bundle)
+you build yourself.
+
+{: .note }
+The feed used to be published in the releases of `openctemio/vulnfeed`, which
+now holds only the collector code and a copy of the feed for a transition
+period. Platforms older than the release that changed the default keep reading
+that copy; to switch an older platform now, set `VULNFEED_BASE_URL` to
+`https://github.com/openctemio/vulnfeed-bundles/releases`.
 
 ## How it works
 
-Each feed publishes a GitHub release once a day: a signed pointer
+Each feed publishes GitHub releases (the vulnerability feed hourly): a signed pointer
 (`latest.dsse.json`), signed manifests and the record files, in whole
 bundles (v1) and in chunks (v2, only the changed chunks are fetched). The
 platform checks, before it imports anything:
@@ -56,14 +63,14 @@ A bundle that fails a check is not imported; the previous data stays.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `VULNFEED_ROOT_KEY_ID` | empty | The pinned root key id (`SHA256:...`, from `keys/root-keyid.txt` of the vulnfeed repository). **Empty: no bundle is imported.** |
-| `VULNFEED_BASE_URL` | `https://github.com/openctemio/vulnfeed/releases` | Where the releases are |
+| `VULNFEED_ROOT_KEY_ID` | the official root | The pinned root key id (`SHA256:...`, `keys/root-keyid.txt` of the vulnfeed-bundles repository). Set it only to trust a feed you sign yourself. Platforms older than the release that built the official root in need it set. |
+| `VULNFEED_BASE_URL` | `https://github.com/openctemio/vulnfeed-bundles/releases` | Where the releases are |
 | `VULNFEED_MIRRORS` | empty | Comma-separated https mirrors, tried after the release |
 | `VULNFEED_BUNDLE_DIR` | empty | Air-gapped: a directory holding the files of one release |
 | `FEED_CACHE_DIR` | `<system temp dir>/openctem-feeds` | Cache of verified chunks between imports |
 
-The `vuln-feed-import` worker runs every hour. With `VULNFEED_ROOT_KEY_ID`
-unset it imports nothing and logs nothing; the `vulnfeed` row of the
+The `vuln-feed-import` worker runs every 20 minutes. On a platform older than
+the built-in root, with `VULNFEED_ROOT_KEY_ID` unset it imports nothing; the `vulnfeed` row of the
 threat-intelligence sync status stays `pending`.
 
 **Air-gapped**: on a connected machine, download a release and verify it
@@ -71,7 +78,7 @@ with the feed's own tool, then copy the directory to the platform and point
 `VULNFEED_BUNDLE_DIR` at it:
 
 ```bash
-gh release download --repo openctemio/vulnfeed --dir bundle
+gh release download --repo openctemio/vulnfeed-bundles --dir bundle
 git clone https://github.com/openctemio/vulnfeed && (cd vulnfeed && go build -o ../vulnfeed-bin ./cmd/vulnfeed)
 ./vulnfeed-bin verify --dir bundle --root-key-id "$(cat vulnfeed/keys/root-keyid.txt)"
 ```
