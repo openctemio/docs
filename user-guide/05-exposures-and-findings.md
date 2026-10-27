@@ -709,9 +709,10 @@ findings**, which opens the findings list filtered to that kind.
 
 - **Vulnerabilities** (`/exposures/vulnerabilities`): vulnerability findings and
   the CVEs behind them. The **Summary** tab shows totals, a severity
-  distribution, the status mix and the finding trend. **Active CVEs** (CVEs
-  affecting your assets) and **CVE catalog** (the global catalog, with CVSS,
-  EPSS, public exploit and CISA KEV flags) need `vulnerabilities:read`.
+  distribution, the status mix and the finding trend. **CVE catalog** (the
+  global catalog, with CVSS, EPSS, public exploit and CISA KEV flags) needs
+  `vulnerabilities:read`. The CVEs affecting your assets are listed in
+  [the vulnerabilities list](vulnerabilities.md).
 - **Secrets** (`/exposures/secrets`): secrets committed to code (API keys,
   tokens, passwords): totals, repositories affected, critical secrets ("Rotate
   immediately"), risk score, severity distribution, status and remediation

@@ -44,7 +44,7 @@ every stage uses them.
 | Stage | Goal | Chapter |
 |---|---|---|
 | **Scoping** | Decide what is in scope and attach business context | [Scoping](03-scoping.md) |
-| **Discovery** | Find assets and the exposures on them | [Discovery and the asset inventory](04-discovery.md), [Exposures and findings](05-exposures-and-findings.md), [Known false positives](known-false-positives.md) |
+| **Discovery** | Find assets and the exposures on them | [Discovery and the asset inventory](04-discovery.md), [Exposures and findings](05-exposures-and-findings.md), [The vulnerabilities list](vulnerabilities.md), [Known false positives](known-false-positives.md) |
 | **Prioritization** | Rank what to fix first | [Prioritization](06-prioritization.md) |
 | **Validation** | Prove that exposures are real and that fixes and controls work | [Validation](07-validation.md) |
 | **Mobilization** | Drive remediation to closure and automate the routine | [Mobilization](08-mobilization.md) |
@@ -69,6 +69,8 @@ That is the most important workflow in the product; it is covered first in
    credential leaks and software components (SBOM).
 5. [Exposures and findings](05-exposures-and-findings.md): the findings
    workbench, triage, approvals, re-verification and the exposure views.
+   [The vulnerabilities list](vulnerabilities.md): one row per CVE across your
+   assets, saved views, and actions on many vulnerabilities at once.
    [Known false positives](known-false-positives.md): how a decision is
    requested, approved, kept across scanners and re-opened.
    [Import any CSV, JSON or XML with a mapping](import-mappings.md): describe a
