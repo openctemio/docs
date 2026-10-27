@@ -347,14 +347,37 @@ added, was assigned, and so on), the owners of the asset as context, and a
   fold into the unread one instead of adding rows.
 - Offboarding a member removes their watches.
 
-**Retest** (nuclei findings with a rule ID): **Retest now** (needs the verify
-permission) re-runs the detection and reports Fixed, Still vulnerable,
-Regression (reopened), Not reproduced or Inconclusive. The retest runs exactly
-the finding's own template, whatever its severity. An Inconclusive result never
-changes the finding, and the card says why and what to do next:
+**Retest** (needs the verify permission) re-checks a finding the way what
+raised it allows, and the button's tooltip says how:
+
+- **A scanner rule** (a nuclei template, or a tool with its own retest):
+  **Retest now**, "Run the check <template> against the target". The retest
+  runs exactly the finding's own template, whatever its severity, on the sensor
+  that reported the finding or one with the same template release or newer.
+  When every online sensor has an older template release, the retest is not
+  started and the card says to update the sensor's templates.
+- **A version-based finding** (raised because the asset runs a software
+  version in a CVE's affected range): **Re-check version**. The fingerprint that
+  read the version (the HTTP probe, or the port scan for a service) runs again on
+  the asset, and the version it reads decides: the same or another affected
+  version keeps the finding open with the new version as evidence, a version
+  outside every affected range is a verified fix, and no version read is
+  Inconclusive (a hidden version is not a fixed one). When a check named after
+  the CVE has already run on one of your sensors, **Active check** runs it as an
+  optional extra; it is never required.
+- **A finding a person reported** (manual, pentest, bug bounty, red team): no
+  automatic retest. The button is disabled with the reason; attach a retest
+  check (below) to retest it.
+
+A retest reports Fixed, Still vulnerable, Regression (reopened), Not reproduced
+or Inconclusive. An Inconclusive result never changes the finding, and the card
+says why and what to do next:
 
 - **Check not installed on the sensor**: the sensor's template set does not
   include the check. Update the sensor's templates (or the sensor), then retest.
+- **Version not detected**: the fingerprint did not read the software version,
+  or read one that cannot be compared. Check that the service still answers, or
+  verify the installed version by hand.
 - **Check not allowed by the sensor policy**: the check is installed, but the
   sensor never runs destructive, intrusive, brute-force or default-login checks
   for a retest. Verify the finding by hand or in a planned test window.
