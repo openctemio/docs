@@ -31,7 +31,7 @@ again on later requests.
 | Email and password (local account), with optional TOTP 2FA | users themselves; organizations can require 2FA | any organization the account belongs to | [Two-factor authentication](two-factor.md) |
 | Organization SSO with OpenID Connect: Microsoft Entra ID, Okta, Google Workspace | platform administrator, approved by the organization owner | one organization | [Entra ID](sso-entra-id.md), [Google](sso-google.md), [OIDC and Okta](sso-oidc.md) |
 | Organization SSO with SAML 2.0 | platform administrator, approved by the organization owner | one organization | [SAML 2.0](sso-saml.md) |
-| Social sign-in: Google, GitHub, Microsoft | operator, with environment variables | the installation (does not join anyone to an organization) | [Google](sso-google.md#social-sign-in-with-google), [Entra ID](sso-entra-id.md#social-sign-in-with-microsoft) |
+| Social sign-in: Google, GitHub, Microsoft | operator, in the platform console or with environment variables | the installation (does not join anyone to an organization) | [Social login](social-login.md): [Google](social-google.md), [GitHub](social-github.md), [Microsoft](social-microsoft.md) |
 
 ### Organization SSO sign-in, step by step
 
@@ -72,8 +72,7 @@ sequenceDiagram
 ```
 
 An existing password account is never taken over by an SSO sign-in with the
-same email: its owner signs in with the password first and links the identity
-provider. SSO never grants the owner or admin role. Details:
+same email: the sign-in is refused. SSO never grants the owner or admin role. Details:
 [Verified domains and just-in-time provisioning](sign-up-and-invitations.md#verified-domains-and-just-in-time-provisioning).
 
 ## Ways into an organization
@@ -108,8 +107,11 @@ routes.
 
 ## In this section
 
+- [Sign-in methods overview](sign-in-methods.md)
+- [Social login](social-login.md) (Google, GitHub, Microsoft)
+- [Sign-in configuration reference](sign-in-configuration.md)
 - [Microsoft Entra ID](sso-entra-id.md)
-- [Google](sso-google.md)
+- [Google Workspace](sso-google.md)
 - [Generic OIDC and Okta](sso-oidc.md)
 - [SAML 2.0](sso-saml.md)
 - [SCIM provisioning](scim.md)

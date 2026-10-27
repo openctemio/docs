@@ -172,23 +172,8 @@ signed state.
 
 ## Social sign-in with Microsoft
 
-Set on the API and restart:
-
-```bash
-OAUTH_ENABLED=true
-OAUTH_MICROSOFT_ENABLED=true
-OAUTH_MICROSOFT_CLIENT_ID=<application-client-id>
-OAUTH_MICROSOFT_CLIENT_SECRET=<client-secret-value>
-OAUTH_STATE_SECRET=<openssl rand -hex 32>
-```
-
-`OAUTH_FRONTEND_CALLBACK_URL` defaults to `APP_URL/auth/callback`; set it only when the web app is not at
-`APP_URL`. Register `https://<app>/auth/callback/microsoft` as the redirect URI; its origin must match
-it. The `xms_edov` claim is required here too. Social sign-in creates an
-account only when the sign-up policy admits it (see
-[Sign-up and invitations](sign-up-and-invitations.md#creating-organizations)) or the person has a
-pending invitation; it never adds anyone to an organization, and
-it does not satisfy an organization's SSO enforcement or 2FA requirement.
+The installation-wide "Sign in with Microsoft" button is a separate feature with its own registration
+and its own redirect URI. See [Social login with Microsoft](social-microsoft.md).
 
 ## Troubleshooting
 
