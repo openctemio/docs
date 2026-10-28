@@ -12,6 +12,14 @@ result is advice stored next to the finding; it does not change the finding's se
 priority. AI triage never decides: at most it proposes a false positive for a person to approve
 (see [False-positive proposals](#false-positive-proposals)).
 
+Every AI result is a governed **suggestion** with provenance: what it would change, the evidence it
+cites, and the model, prompt and data that produced it. Each organization chooses per use case
+whether suggestions wait for a person or apply on their own, and risk-lowering changes always need
+approval. See [AI suggestions and approval](../user-guide/ai-suggestions-and-approval.md),
+[Settings > AI: use cases](../user-guide/ai-use-cases.md) and
+[Settings > AI: data masking](../user-guide/ai-data-masking.md). Third-party analysts follow the
+[AI analyze contract](ai-analyze-contract.md).
+
 An organization chooses the **AI source** in **Settings > Security > AI** (see
 [AI](../user-guide/10-settings-and-integrations.md#ai)): the platform's provider, its own provider
 (Claude, OpenAI, Gemini or an OpenAI-compatible server at a public https base URL, with a write-only
@@ -95,10 +103,24 @@ positive, the platform opens a pending false-positive
 - Nothing is proposed when the model's output needed correcting or the finding contained text
   that looks like a prompt injection.
 
+## Suggestion endpoints
+
+| Method and path | Purpose | Needs |
+|---|---|---|
+| `GET /api/v1/findings/{id}/ai/suggestions` | the finding's AI suggestions | `findings:read` and `ai_triage:read` |
+| `GET /api/v1/ai/runs/{id}` | one run with its provenance | same, within your data scope |
+| `POST /api/v1/ai/suggestions/{id}/apply`, `/dismiss`, `/undo` | decide a suggestion | same, plus the permission of the change |
+| `POST /api/v1/ai/runs/{id}/undo` | undo everything a run applied | same |
+| `GET /api/v1/organization/settings/ai/use-cases`, `PUT .../use-cases/{use_case}` | the per-use-case mode, data class ceiling and minimum confidence | owner or administrator; a recent sign-in to turn on auto-apply or raise the ceiling |
+
+Every AI response carries `origin: "ai"`. Undo answers 409 `AI_UNDO_CONFLICT` when the field changed
+since.
+
 ## Limits and data handling
 
 - Triage requests are rate limited per organization (10 per minute by default) and by the
   organization's monthly token limit when one is set.
-- The finding's details are sent to the configured model provider. Decide on the provider with
-  that in mind.
+- The finding's details are sent to the configured model provider, with hosts, addresses, people
+  and secrets replaced by placeholders first (see
+  [data masking](../user-guide/ai-data-masking.md)). Decide on the provider with that in mind.
 - Automatic triage of new findings (by severity) is an organization setting, off by default.
