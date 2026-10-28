@@ -27,6 +27,7 @@ column of a queued task says what it waits for:
 | **Waiting for a sensor** | No sensor has taken it yet. Open **Why waiting?** for the reason. |
 | **Waiting for its hosts: another task is scanning them** | Another task of your organization is scanning one of its hosts. See [Waiting for its hosts](#waiting-for-its-hosts). |
 | **Handed back: its sensor is still scanning one of its hosts** | A sensor took it, found one of its hosts busy on that sensor, and gave it back. |
+| **Withheld:** *reason* | A sensor asked for work and its checks kept this task from it: its grant, its local policy, or the scan's intensity. The reason is the same one the panel lists (see [Reasons that rule out one sensor](#reasons-that-rule-out-one-sensor)). |
 
 **Why waiting?** on the task row opens the placement panel. It needs
 `scans:read`; the per-sensor verdicts in it need `sensors:read` as well. The
@@ -49,6 +50,13 @@ The panel starts with one summary line:
 
 At most 100 sensors are checked; with more, the panel says **Only the first
 sensors by name were checked.**
+
+**The last sensor that asked for work withheld this task:** followed by a
+reason appears when a sensor's own checks (grant, local policy, intensity)
+kept the task from it the last time it asked for work. It also shows for a
+task that waits for platform scanning or for shared sensors, whose sensors
+are never named: only the reason is shown. The API returns it as `withheld`
+with `withheld_at`.
 
 ## Reasons that hold the task for every sensor
 
@@ -149,10 +157,38 @@ A few things delay a task without being listed as a reason. They show as
 - **A scheduled start.** A task held for a later time (for example a scan
   window opening) is not offered before it.
 
+## Automatic coverage stops runs that cannot succeed
+
+Automatic coverage (the scans the platform starts on its own to keep every
+asset covered) learns from its runs instead of repeating them:
+
+- **No sensor takes its runs.** When three coverage runs of one capability
+  in a row end with no sensor taking the work, the capability is paused for
+  your organization. The asset's **Coverage** section shows it as *Paused:
+  no sensor took its last runs*, and administrators get a "Coverage paused"
+  alert. It resumes by itself when your sensors, their grants or local
+  policies, their zones or the shared-sensor setting change, or else with
+  one trial run after 2 hours. Each further trial no sensor takes doubles
+  the wait, up to 48 hours. Open **Why waiting?** on a task of a recent run
+  to see the reason, often the sensor's grant.
+- **A target does not answer.** A target that times out or cannot be
+  reached is not run again every few hours. It is checked again after 1 day,
+  3 days, then weekly, as long as the same sensor or scan zone still cannot
+  reach it. A different sensor or zone gets a fresh try at once. The asset's
+  **Coverage** section says *unreachable from your sensors* (or from the
+  named sensor or zone of your organization), and administrators get an
+  alert with the number of unreachable assets per capability. Check that a
+  sensor in the target's network can reach it, or retire assets that are
+  gone.
+
 ## Related
 
 - A run whose tasks no sensor claims at all is failed after 1 hour (4 hours
   for a scheduled run), except while it waits for a scan window or its hosts.
+  When a sensor's checks withheld its tasks, the run's message names the
+  reason (for example "withheld by sensor permissions: credentials") and its
+  tasks keep showing **Withheld:** *reason*. Fix that reason (often the
+  sensor's grant) before running it again.
 - A running task that stops making progress is stopped and its unfinished
   targets are queued again: [Liveness and stalls](scans-and-runs.md#liveness-and-stalls).
 - A sensor that is online but takes no work:
