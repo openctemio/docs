@@ -15,7 +15,7 @@ instance-wide settings and watch the health of the installation. They work in th
 and its own image (`ghcr.io/openctemio/openctem-console`). It is not a part of the
 organization web app, and an administrator account belongs to no organization.
 
-These pages describe OpenCTEM v0.11.0.
+These pages describe OpenCTEM v0.15.5.
 
 1. TOC
 {:toc}
@@ -54,12 +54,15 @@ Set the API's `ADMIN_PUBLIC_URL` to the console's origin (for example
 `https://ctem.example.com:8443` or `https://admin.ctem.example.com`) before anyone
 registers a security key. Its default is the origin of `APP_URL`, the main site,
 so on the console's own site the browser's key response is refused ("The security
-key response was not accepted"). The v0.11.0 Compose file does not pass this
-variable to the API, and neither does the all-in-one image; keys are bound to
-this host, so changing it later makes registered keys unusable.
+key response was not accepted"). The Compose file sets it from
+`OPENCTEM_ADMIN_PUBLIC_URL` (which `setup.sh` writes), and the all-in-one image derives it
+from the gateway's console site settings unless you set it; on Kubernetes and the other
+deployments set it yourself. Keys are bound to this host, so changing it later makes
+registered keys unusable.
 
-With Docker Compose, add a `docker-compose.override.yml` next to
-`docker-compose.yml` and run `docker compose up -d api`:
+With Docker Compose, `setup.sh` already sets it. To change it, set
+`OPENCTEM_ADMIN_PUBLIC_URL` in `.env` and run `docker compose up -d api`, or override it
+in a `docker-compose.override.yml`:
 
 ```yaml
 services:
@@ -68,7 +71,7 @@ services:
       ADMIN_PUBLIC_URL: https://ctem.example.com:8443
 ```
 
-With the all-in-one image, pass `-e ADMIN_PUBLIC_URL=https://ctem.example.com:8443`.
+With the all-in-one image, to override the derived value pass `-e ADMIN_PUBLIC_URL=https://ctem.example.com:8443`.
 
 Installation details: [Docker Compose](../install/docker-compose.md),
 [All-in-one image](../install/all-in-one.md), [TLS and gateway](../install/tls-and-gateway.md),

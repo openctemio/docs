@@ -39,7 +39,7 @@ attestation, so you can check where the SBOM came from as well as download it.
 The release notes of each version carry these commands with the tag filled in:
 
 ```bash
-TAG=v0.11.0
+TAG=v0.15.5
 IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v'
 ISSUER=https://token.actions.githubusercontent.com
 
@@ -171,9 +171,9 @@ catalog built into the platform, and a learned version is used only when it is n
 than the built-in one.
 
 The platform trusts only the feed signing key pinned in its own build (there is no setting
-to change it). **At v0.11.0 the build pins no feed key yet**: until a release pins one, the
-check does nothing, the console says "No release feed key in this build" and the sensor and
-SDK versions built into the release apply, as in earlier releases.
+to change it). Releases before v0.15.5 pin no feed key: on those the check does nothing, the
+console says "No release feed key in this build" and the sensor and SDK versions built into
+the release apply.
 
 Operators see it in the platform console under **Monitoring > Software updates**: the running
 and latest platform release, newer releases, security advisories that affect the running

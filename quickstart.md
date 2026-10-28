@@ -49,7 +49,7 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.11.0         # the release you deploy
+git checkout v0.15.5         # the release you deploy
 cd api/deploy
 ./setup.sh ctem.example.com  # writes .env: the host name and generated secrets
 ```

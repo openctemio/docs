@@ -19,12 +19,14 @@ with breaking changes has its own upgrade guide; read it first.
 
 | From | To | Guide |
 |---|---|---|
+| v0.11.x | v0.12.0 and later | [From v0.11 to v0.12.0](#from-v011-to-v0120) below: signed jobs on by default (a job signer is required in production), `AI_TRIAGE_ENABLED` removed, campaigns hold tasks. |
 | v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, `ADMIN_AUDIT_SINK` for managed services, re-run of the database role script, console pages moved, second super admin approvals. |
 | v0.9.x | v0.10.x | [From v0.9 to v0.10](#from-v09-to-v010) below: the platform console becomes its own service on its own site, new required settings, removed variables, migrations that need the API stopped. Plan a maintenance window. |
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
-Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0), with a
-backup before each step.
+Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0, then onward to
+v0.12.0 and the later releases), with a backup before each step. v0.15.5 is the newest
+release at the time of writing.
 
 ### Ingest: uploads are applied in the background
 
@@ -60,6 +62,38 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.11 to v0.12.0
+
+The release notes of v0.13.0 to v0.15.5 add no further deployment step beyond
+[ingest uploads](#ingest-uploads-are-applied-in-the-background) (v0.15.0); apply the
+steps below once, when you cross v0.12.0.
+
+- **Signed jobs are on by default.** The Compose file now runs the job signer
+  (`signer`) and sets `SIGNER_SOCKET`; the signer creates its key on first start. A
+  production API refuses to start without `SIGNER_SOCKET` unless
+  `SIGNER_DANGEROUS_ALLOW_UNSIGNED_JOBS=true`. Pull the new Compose file (or add the
+  signer to your own deployment) before the upgrade. On an install that already has
+  scopes, run the scope ledger bootstrap described in `docker-compose.job-signer.yml`,
+  or set `SIGNER_LEDGER=audit` in `.env` until it is done. The all-in-one image starts
+  the signer itself, with its key under `/data/signer`. Back up the `signer-keys` volume
+  offline.
+- **Remove `AI_TRIAGE_ENABLED`** from the environment: start-up refuses it. A provider
+  key makes platform AI available, and each organization turns AI triage on itself in
+  **Settings > AI**; organizations that already used it stay on.
+- **All-in-one image.** Each process runs under its own user with only its own
+  settings, and the gateway's storage moves from `/data/caddy` to
+  `/data/gateway/caddy` on the first start (automatic). In TLS mode `files`, the key
+  under `/certs` must be readable by uid 1004.
+- **Bundled Compose sensor.** It no longer shares a network with PostgreSQL and Redis.
+- **Remediation campaigns hold tasks.** The campaign finding filters and the endpoints
+  built on them are removed (`GET /api/v1/remediation/campaigns/{id}/findings`,
+  `POST .../{id}/resolve`, `POST .../{id}/refresh`); what a campaign tracked becomes its
+  tasks.
+- **Helm.** Chart 0.32.0 and later add the job signer; the newest chart is 0.33.0
+  (`appVersion` v0.12.0). See [Kubernetes](../install/kubernetes.md).
+
+Source: `api/CHANGELOG.md`, section v0.12.0 (Security and Removed entries).
 
 ### From v0.10 to v0.11.0
 
@@ -113,7 +147,7 @@ they apply. Then check:
   feed admin routes (`/api/v1/admin/program-feed`) are removed.
 - **Helm and Ansible.** Use the chart and kit release that names v0.11.0
   ([Kubernetes](../install/kubernetes.md), [Ansible](../install/ansible.md)); at
-  the time of writing the newest chart and kit target v0.10.1.
+  the time of writing the newest kit entry is v0.15.5 and the newest chart is 0.33.0.
 
 ### From v0.9 to v0.10
 
@@ -303,7 +337,7 @@ recovery are in
 In `api/deploy` of your checkout:
 
 ```bash
-NEW_VERSION=v0.11.0   # the release you upgrade to
+NEW_VERSION=v0.15.5   # the release you upgrade to
 git fetch --tags
 git checkout "$NEW_VERSION"
 diff <(grep -o '^[A-Z_]*=' .env | sort) <(grep -o '^[A-Z_]*=' .env.example | sort)

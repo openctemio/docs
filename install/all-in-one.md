@@ -77,7 +77,7 @@ extensions:
 
 ```bash
 git clone https://github.com/openctemio/openctem.git
-git -C openctem checkout v0.11.0
+git -C openctem checkout v0.15.5
 export APP_DB_PASSWORD="$(openssl rand -hex 24)"
 export MIGRATOR_DB_PASSWORD="$(openssl rand -hex 24)"
 psql "postgres://postgres@db.example.com:5432/openctem?sslmode=require" \
@@ -160,7 +160,7 @@ to nothing:
 ```bash
 docker run --rm --env-file openctem.env \
   --entrypoint /opt/openctem/api/server \
-  ghcr.io/openctemio/openctem:v0.11.0 -check-config
+  ghcr.io/openctemio/openctem:v0.15.5 -check-config
 ```
 
 ```text
@@ -181,7 +181,7 @@ docker run -d --name openctem --restart unless-stopped \
   -p 443:443 -p 127.0.0.1:8443:8443 \
   -v openctem-data:/data \
   --env-file openctem.env \
-  ghcr.io/openctemio/openctem:v0.11.0
+  ghcr.io/openctemio/openctem:v0.15.5
 docker logs -f openctem
 ```
 
@@ -198,7 +198,7 @@ docker run -d --name openctem --restart unless-stopped \
   --security-opt no-new-privileges:true \
   --memory 3g --log-opt max-size=50m --log-opt max-file=5 \
   --env-file openctem.env \
-  ghcr.io/openctemio/openctem:v0.11.0
+  ghcr.io/openctemio/openctem:v0.15.5
 ```
 
 Keep `NET_BIND_SERVICE`: with `--cap-drop ALL` alone the gateway cannot start
@@ -280,7 +280,7 @@ Pull the new tag and recreate the container with the same volume and env file.
 Migrations run on start. See [Upgrading](../operations/upgrade.md).
 
 ```bash
-NEW_VERSION=v0.11.0   # the release you upgrade to
+NEW_VERSION=v0.15.5   # the release you upgrade to
 docker pull ghcr.io/openctemio/openctem:$NEW_VERSION
 docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
   ghcr.io/openctemio/openctem:$NEW_VERSION -check-config

@@ -35,7 +35,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.11.0         # the release you deploy
+git checkout v0.15.5         # the release you deploy
 cd api/deploy
 ```
 
@@ -47,7 +47,7 @@ cd api/deploy
 | `docker-compose.sensor-passthrough.yml` | Overlay: sensors reach the platform on the same port 443, routed to the API's mutual-TLS listener (see [Transport](../sensors/transport.md)). |
 | `docker-compose.sensor.yml` | Overlay: a bundled sensor, enrolled as a shared sensor of the installation (see [Overlays](#overlays)). |
 | `docker-compose.clamav.yml` | Overlay: malware scanning of uploaded files (see [File storage](../configuration/file-storage.md)). |
-| `docker-compose.job-signer.yml` | Overlay: signed jobs. A separate signer container with its own key signs every job before a sensor gets it; off by default (see [Signed jobs](#signed-jobs)). |
+| `docker-compose.job-signer.yml` | Overlay: the optional signed-jobs steps (key set, scope ledger). The signer itself is part of the base file (see [Signed jobs](#signed-jobs)). |
 | `setup.sh` | Writes `.env` with generated secrets (see step 2). |
 | `.env.example` | Settings template. |
 | `backup.sh` | Backup, restore check and restore (see [Backup and restore](../operations/backup-restore.md)). |
@@ -88,7 +88,7 @@ OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
 `OPENCTEM_VERSION` is optional: the compose file and `.env.example` of a
-release default to that release (`v0.11.0` in the v0.11.0 files) and to the
+release default to that release (`v0.15.5` in the v0.15.5 files) and to the
 current image names (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
 `openctem-console`, `openctem-gateway`, `migrations`). Set it only to run another release than the
 files you checked out, which is not recommended.
@@ -154,7 +154,7 @@ docker compose ps -a
 ```
 
 The one-shot jobs `datastore-tls`, `db-roles`, `migrate`, `db-grants` and
-`gateway-init` run and exit with code 0; `gateway`, `web`, `console`, `api`,
+`gateway-init` run and exit with code 0; `gateway`, `web`, `console`, `api`, `signer`,
 `postgres` and `redis` stay up. The first start takes a minute or two while
 PostgreSQL initialises and the migrations run.
 
@@ -178,7 +178,9 @@ Next: [create the first administrator and organization](first-admin.md).
 | `web` | `openctem-web` | Web console (Next.js), internal port 3000. |
 | `console` | `openctem-console` | Platform console (Next.js), internal port 3000: its own app, served by the gateway on its own site. It reaches the API's console listener (internal port 8081). |
 | `api` | `openctem-api` | API (Go), internal port 8080. Runs the background jobs too. |
+| `signer` | `openctem-api` | Job signer: signs every job before a sensor gets it, no network, internal socket to the API. |
 | `migrate` | `migrations` | Applies database migrations, then exits. |
+| `bootstrap-admin` | `openctem-api` | One-off (profile `tools`): creates the first administrator and organization; not started by `up`. |
 | `db-roles` | `postgres:17` | Creates or repairs the least-privilege roles before the migrations, then exits. |
 | `db-grants` | `postgres:17` | The same script again after the migrations, so tables a migration just created get their grants before the API starts, then exits. |
 | `datastore-tls` | `postgres:17` | Issues a private CA and server certificates for PostgreSQL and Redis, renews them when they are within 30 days of expiry, then exits. |
@@ -394,23 +396,23 @@ Use the same `-f` list for every later `docker compose` command.
 
 ### Signed jobs
 
-`docker-compose.job-signer.yml` adds a `signer` container from the API image,
-with no network and its own key volume that is never mounted into the API. The
-API reaches it only through a Unix socket (`SIGNER_SOCKET`), and a command the
-signer does not sign is not handed to a sensor, so start it before the API and
-keep it up. Create the key once, then start with the overlay:
+The default Compose file runs the `signer` container, from the API image, with no
+network and its own key volume that is never mounted into the API. The API reaches it
+only through a Unix socket (`SIGNER_SOCKET`), and a command the signer does not sign is
+not handed to a sensor, so keep it up. The signer creates its key on first start
+(`SIGNER_GENERATE_KEY`) and logs the key id; the bundled sensor pins the public key from
+the `signer-pub` volume, which the API cannot write. A production API refuses to start
+without `SIGNER_SOCKET` unless `SIGNER_DANGEROUS_ALLOW_UNSIGNED_JOBS=true`.
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.job-signer.yml \
-  run --rm signer keygen -out /var/lib/openctem-signer/keys/signer.pem
-docker compose -f docker-compose.yml -f docker-compose.job-signer.yml up -d
-```
-
-Record the key id and public key that `keygen` prints. The API logs "sensor jobs
-are signed by the job signer" and `GET /api/v2/sensor/hello` lists the
-`signed_jobs` feature. The comments in the overlay describe the optional key set
-signed by an offline root key and the scope ledger. Back up the `signer-keys`
+The API logs "sensor jobs are signed by the job signer" and
+`GET /api/v2/sensor/hello` lists the `signed_jobs` feature. Back up the `signer-keys`
 volume offline; `signer-state` holds the sequence numbers and the signing log.
+
+`docker-compose.job-signer.yml` is kept as an overlay for the optional steps its
+comments describe: creating the key by hand (`run --rm signer keygen -out
+/var/lib/openctem-signer/keys/signer.pem`), a key set signed by an offline root key, and
+the scope ledger bootstrap on an install that already has scopes (or
+`SIGNER_LEDGER=audit` in `.env` until it is done).
 
 ## Upgrading to a new release
 

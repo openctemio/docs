@@ -83,7 +83,7 @@ then edit `group_vars/all.yml`:
 
 ```yaml
 openctem_app_host: ctem.example.com
-openctem_version: v0.10.1
+openctem_version: v0.15.5
 
 openctem_ingress: cloudflared          # the default
 cloudflared_management: remote         # or local, see step 3
