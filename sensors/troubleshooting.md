@@ -202,10 +202,10 @@ With the sensor stopped, inspect the outbox on the same volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 -outbox-status
+  ghcr.io/openctemio/sensor:v0.28.0 -outbox-status
 # after fixing the cause of dead letters:
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 -outbox-requeue-dead
+  ghcr.io/openctemio/sensor:v0.28.0 -outbox-requeue-dead
 ```
 
 ## Cloned identity
@@ -223,7 +223,7 @@ the sensor and revoke the old key.
 rules). Content older than its limit makes the sensor `degraded` with
 `content_stale`; a failed refresh keeps the previous version and raises
 `content_refresh_failed`. **Refresh content** on the sensor, or
-**Settings > Scanning > Scanner content**, asks for a refresh now.
+**Settings > Scanner content > Content freshness**, asks for a refresh now.
 
 ## Setup check reference
 

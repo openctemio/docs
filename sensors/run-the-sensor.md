@@ -29,13 +29,13 @@ prerequisite to troubleshooting. For the settings behind it see
 
 ## Get a pairing code
 
-In the console open **Discovery > Sensors > Expect a sensor**, name the
-sensor and choose **Create a pairing code**. You get a code like `K7QM-4ZTD`
+In the console open **Discovery > Sensors > Add sensor**, keep **Create a
+pairing code first**, and choose **Create pairing code**. You get a code like `K7QM-4ZTD`
 and an install snippet that already holds your platform URL. Keep the code
 private until the sensor has used it; it is spent on first use.
 
 Without a code the sensor prints one at start, and an administrator enters it
-under **Pair a sensor**. Either way, compare the fingerprint the sensor prints
+under **Pair a sensor that shows a code**. Either way, compare the fingerprint the sensor prints
 with the one the console shows before approving.
 
 ## Start the sensor
@@ -131,7 +131,7 @@ The common ones. Every setting is in the
 | Group | Variable | Default | Meaning |
 |---|---|---|---|
 | Platform | `SENSOR_API_URL` | none (required) | The platform URL. Must reach the API directly; redirects are refused. |
-| Pairing | `SENSOR_PAIRING_CODE` | none | A code from **Expect a sensor** (`XXXX-XXXX`). Used while the sensor has no identity; ignored once paired. |
+| Pairing | `SENSOR_PAIRING_CODE` | none | A code from **Add sensor > Create a pairing code first** (`XXXX-XXXX`). Used while the sensor has no identity; ignored once paired. |
 | Pairing | `SENSOR_API_KEY` | none | A legacy bearer key instead of pairing. |
 | Pairing | `SENSOR_INSTANCE_ENROLLMENT_TOKEN` | none | A single-use token for a sensor shared by every organization. |
 | Identity | `SENSOR_NAME` | `sensor-<hostname>` | The name the sensor proposes; the approver may change it. |
@@ -212,7 +212,7 @@ Uninstall:
 3. Delete backups of the volume; they hold a revoked key.
 
 Re-pair (lost or corrupted identity, or a moved host): create a new code under
-**Expect a sensor**, remove the old volume (or run `pair -repair`, see
+**Add sensor > Create a pairing code first**, remove the old volume (or run `pair -repair`, see
 `openctemio-sensor -help`), and start the sensor with the new
 `SENSOR_PAIRING_CODE`.
 

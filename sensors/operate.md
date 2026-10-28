@@ -74,7 +74,7 @@ with it.
 **docker run**
 
 ```bash
-NEW=v0.23.0
+NEW=v0.28.0
 docker pull ghcr.io/openctemio/sensor:$NEW
 curl -fsSLo openctem-sensor-seccomp.json \
   https://raw.githubusercontent.com/openctemio/sensor/$NEW/docker/seccomp/sensor.json
@@ -164,7 +164,7 @@ docker stop openctem-sensor
 docker run --rm -it \
   -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 pair -repair
+  ghcr.io/openctemio/sensor:v0.28.0 pair -repair
 docker start openctem-sensor
 ```
 
@@ -213,11 +213,11 @@ volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 -outbox-status          # results waiting, dead letters
+  ghcr.io/openctemio/sensor:v0.28.0 -outbox-status          # results waiting, dead letters
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 -outbox-requeue-dead    # after fixing the cause
+  ghcr.io/openctemio/sensor:v0.28.0 -outbox-requeue-dead    # after fixing the cause
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 -content-status         # scanner content versions
+  ghcr.io/openctemio/sensor:v0.28.0 -content-status         # scanner content versions
 ```
 
 The outbox refuses a second process: with the sensor running, these commands
