@@ -52,10 +52,13 @@ What the page can see is set on the API:
 | `SYSTEM_TLS_CERT_FILES` | `name=path,...` PEM certificates whose expiry is shown | only the sensor CA |
 | `SYSTEM_WEB_HEALTH_URL`, `SYSTEM_GATEWAY_HEALTH_URL` | internal health URLs of the web app and the gateway (one GET, no redirects) | **Not configured** |
 
-The v0.11.0 Compose file passes none of these to the API, so Web and Gateway show
-**Not configured** and the backup is not reported. Set them in a
-`docker-compose.override.yml` (service `api`, `environment:`), with the backup
-status file mounted read-only. Metrics and alert rules for the host monitoring:
+The Compose file (v0.15.5) already passes the web and gateway health URLs and the
+backup status file to the API; `backup.sh` writes the status file to `BACKUP_STATUS_DIR`
+(default `./backup-status`), mounted read-only. Set `SYSTEM_WEB_HEALTH_URL`,
+`SYSTEM_GATEWAY_HEALTH_URL`, `SYSTEM_STORAGE_PATHS` or `SYSTEM_TLS_CERT_FILES` in `.env`
+to change them. Other deployments (all-in-one, Kubernetes, binaries) pass none of them,
+so Web and Gateway show **Not configured** and the backup is not reported until you set
+them. Metrics and alert rules for the host monitoring:
 [Monitoring](../operations/monitoring.md).
 
 ## Software updates

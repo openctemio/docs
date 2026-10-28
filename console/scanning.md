@@ -32,7 +32,7 @@ reason; the organization's administrators are told. See
 sensors and, once a release enables them, the shared sensor fleet.
 
 ![The Platform scanning page: the notice that shared sensors are not available in this release, and the Verified domain before platform sensors scan card with its switch off]({{ site.baseurl }}/assets/images/console/platform-scanning.png)
-*Figure: Scanning, Platform scanning (v0.11.0).*
+*Figure: Scanning, Platform scanning.*
 
 - **Verified domain before platform sensors scan**: whether an organization must
   prove it owns a domain before platform sensors scan a target. Off by default (an
@@ -42,7 +42,7 @@ sensors and, once a release enables them, the shared sensor fleet.
   else's systems. Either way, scope entries, exclusions, the platform deny list,
   scan zones for private addresses and tier ceilings stay in force.
 - **Shared sensors** (tabs **Policy**, **Fleet**, **Queue**, **Zones**,
-  **Egress**, **Anomalies**): v0.11.0 does not make shared sensors available, so
+  **Egress**, **Anomalies**): this release does not make shared sensors available, so
   the page shows the notice **Shared sensors are not available in this release**
   instead of the tabs. What they will do is described in
   [Shared sensors](../sensors/shared-sensors.md).

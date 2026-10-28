@@ -104,12 +104,12 @@ never prints a secret value. Run it before a deploy or as an init step:
 
 ```bash
 # API image (the entrypoint is the server binary)
-docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:v0.11.0 -check-config
+docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:v0.15.5 -check-config
 # Docker Compose, in api/deploy
 docker compose run --rm --no-deps api -check-config
 # All-in-one image
 docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
-  ghcr.io/openctemio/openctem:v0.11.0 -check-config
+  ghcr.io/openctemio/openctem:v0.15.5 -check-config
 ```
 
 ```text

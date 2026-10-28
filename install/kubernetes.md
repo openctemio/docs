@@ -37,19 +37,18 @@ The chart is released separately from the platform: a platform release is
 followed by a chart whose `appVersion` is that release, and
 `versions.yaml` in the openctem repository (`chart.version`) names the newest
 chart that targets the platform release ([Versioning](../operations/versioning.md#sensors-sdk-and-helm-chart)).
-The newest chart is **0.29.0**, whose `appVersion` is **v0.10.1**. **There is no
-chart for v0.11.0 yet**: the chart's release workflow opens the `appVersion`
-bump after a platform release is published, so check
+The newest chart is **0.33.0**, whose `appVersion` is **v0.12.0**: the chart
+release workflow did not publish a chart for the later platform releases, so the
+newest platform release (v0.15.5) has no chart of its own yet. Check
 `helm search repo openctem/openctem --versions` (and the
 [chart releases](https://github.com/openctemio/helm-charts/releases)) before you
-install. Until a chart whose `appVersion` is v0.11.0 exists, run v0.11.0 with
-chart 0.29.0 by setting the image tags of every platform component to v0.11.0
-in your values file, as the example below does. That combination is what you
-choose to run: the chart's own tests cover its `appVersion`. Once the
-v0.11.0 chart is published, drop the tag overrides. Chart 0.29.0 has the
-platform console as its own service, the console's database role
-(`database.console`), `api.signupMode` and `api.fingerprint` (the
-`FINGERPRINT_KEY`).
+install. To run v0.15.5 with chart 0.33.0, set the image tags of every platform
+component to v0.15.5 in your values file, as the example below does. That
+combination is what you choose to run: the chart's own tests cover its
+`appVersion`. Once a chart whose `appVersion` is the release you want is
+published, drop the tag overrides. Chart 0.33.0 has the platform console as its
+own service, the console's database role (`database.console`), `api.signupMode`,
+`api.fingerprint` (the `FINGERPRINT_KEY`) and the job signer.
 
 The chart is secure by default: `api.appEnv` is `production`, so the API refuses
 to start without TLS to PostgreSQL and Redis, a JWT secret of at least 64
@@ -122,7 +121,7 @@ Back up `openctem-api-secrets` and `openctem-fingerprint` outside the cluster.
 api:
   appEnv: production
   image:
-    tag: v0.11.0          # until a chart for v0.11.0 is published
+    tag: v0.15.5          # until a chart for v0.15.5 is published
   fingerprint:
     existingSecret: openctem-fingerprint
     keyRef: FINGERPRINT_KEY
@@ -138,7 +137,7 @@ api:
   migrations:
     sslMode: require
     image:
-      tag: v0.11.0
+      tag: v0.15.5
   signupMode: disabled
   bootstrapAdmin:
     enabled: true
@@ -171,10 +170,10 @@ redisConfig:
 
 ui:
   image:
-    tag: v0.11.0
+    tag: v0.15.5
 console:                   # the platform console
   image:
-    tag: v0.11.0
+    tag: v0.15.5
 admin:
   site:
     mode: host             # the console on its own DNS name (recommended)
@@ -187,7 +186,7 @@ gateway:
     - 10.244.0.0/16        # your cluster's pod CIDR
   caddy:
     image:
-      tag: v0.11.0
+      tag: v0.15.5
     tls:
       mode: acme
       acme:
@@ -351,7 +350,7 @@ api:
 ## Hosted service
 
 For a hosted multi-tenant service add `MANAGED_SERVICE: "true"` to `api.extraEnv`.
-With `api.appEnv: production` the API then refuses to start from v0.11.0 on unless
+With `api.appEnv: production` the API then refuses to start unless
 `ADMIN_AUDIT_SINK` is set as well: an `https://…` receiver (with
 `ADMIN_AUDIT_SINK_SECRET` from a Secret through `api.extraEnvFrom`, at least 32
 bytes), `syslog+tls://` or a `file:///` path on a writable volume. The chart has
@@ -371,7 +370,7 @@ Kubernetes objects only, not the database schema; see
 [Upgrading](../operations/upgrade.md). Read the chart README's "Upgrading to"
 sections for the chart versions you cross.
 
-**Upgrading the platform to v0.11.0.** The migrations (002908 to 002915) only add
+**Upgrading the platform from v0.10 to v0.11.0.** The migrations (002908 to 002915) only add
 objects. If you use `database.console`, re-run `least-privilege-roles.sql` as a
 superuser (with `admin_user` and `admin_password`) before the upgrade, so the
 console's new `admin_approvals` table gets its grants. API clients should expect
