@@ -54,7 +54,7 @@ and guest users whose email domain is not verified in the signing directory are 
 Organization SSO is configured by a **platform administrator** (super admin, with a fresh
 authenticator code for every change) in the admin console, not by the organization's own admins:
 
-1. **Admin console > Organizations >** the organization **> Single sign-on** (tab).
+1. **Console > Customers > Organizations >** the organization **> Single sign-on** (tab).
 2. Under **Verified domains**, add the organization's email domain. Publish the TXT record shown:
 
    | Host | Type | Value |
@@ -80,7 +80,7 @@ authenticator code for every change) in the admin console, not by the organizati
    is sent with the admin API (`scopes` on `POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`).
 
 4. If the organization already has an owner, the change is **pending** until an owner approves it in
-   the organization under **Settings > SSO approvals** (with step-up re-authentication). The owner
+   the organization under **Settings > Security > SSO approvals** (with step-up re-authentication). The owner
    sees the change and is notified in the app and by email. Pending changes expire after 7 days. An
    organization with no owner yet gets the change applied directly.
 
@@ -88,7 +88,7 @@ authenticator code for every change) in the admin console, not by the organizati
 *Figure: Admin console, organization, Single sign-on.*
 
 ![The SSO approvals page where the organization owner approves or rejects the proposed identity provider]({{ site.baseurl }}/assets/images/identity/sso-approvals.png)
-*Figure: The owner approves the change under Settings, SSO approvals.*
+*Figure: The owner approves the change under Settings, Security, SSO approvals.*
 
 Users then sign in at `https://<app>/login?org=<organization-slug>` and choose the provider.
 
@@ -119,7 +119,7 @@ required; an invitation to someone outside the organization says so when SSO is 
 
 An owner can also turn on **Approve new SSO members** (`jit_requires_approval`, owner with step-up): people the
 organization's SSO admits for the first time wait with no access until an administrator approves them
-under **Settings > Members**; rejecting offboards them.
+under **Settings > Access > Members**; rejecting offboards them.
 
 The platform administrator can also choose, per verified domain, whether new people from that domain
 are admitted at all and in which role (**New people** action on the domain: **Admit new people**,

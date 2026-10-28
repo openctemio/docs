@@ -94,14 +94,14 @@ On the first social sign-in the account is bound to the provider's identity. Mat
 | Situation | Result |
 |---|---|
 | The identity is already bound to an account | Signed in. The account follows the provider's email if it changed and no other account uses it. |
-| The email belongs to an account with a **password** | Linked automatically when all the conditions below hold; otherwise refused with `OAUTH_ACCOUNT_EXISTS`: the sign-in page says an account with this email already exists, to sign in with the password and link the provider in **Account > Security**. |
-| The email belongs to an account made by another provider (for example Google, now GitHub) | Refused with `OAUTH_ACCOUNT_EXISTS`. Sign in with the first provider and link the second one in **Account > Security**. |
+| The email belongs to an account with a **password** | Linked automatically when all the conditions below hold; otherwise refused with `OAUTH_ACCOUNT_EXISTS`: the sign-in page says an account with this email already exists, to sign in with the password and link the provider in **My account > Security**. |
+| The email belongs to an account made by another provider (for example Google, now GitHub) | Refused with `OAUTH_ACCOUNT_EXISTS`. Sign in with the first provider and link the second one in **My account > Security**. |
 | The email belongs to an invited account that has not set a password yet | Adopted only when every organization it belongs to has DNS-verified the email's domain; otherwise refused. |
 | No account | Created if the sign-up policy or a pending invitation admits it. |
 
 #### Linking a provider to your account
 
-Signed in, open **Account > Security > Connected sign-in methods** and click **Link** next to Google,
+Signed in, open **My account > Security > Connected sign-in methods** and click **Link** next to Google,
 GitHub or Microsoft. You confirm it is you (authenticator code or password), sign in at the provider,
 and come back with the provider linked. The provider account does not need the same email address.
 **Unlink** removes it after the same confirmation; your only remaining way to sign in cannot be
@@ -141,7 +141,7 @@ treat the session as before.
 | `callback_failed` right after consent | The code exchange failed: wrong client secret, a redirect URI that differs from the one registered, or the API cannot reach the provider (egress). The API log names the provider and the reason. |
 | `provider_error` | The person cancelled at the provider, or the provider returned an error (for example an app in testing mode). |
 | "Your organization isn't set up yet" | The sign-up policy is closed and the person has no invitation. Invite them, or change the policy. |
-| "An account with this email already exists" (`OAUTH_ACCOUNT_EXISTS`) | The address has a password account (or an account of another provider). Sign in with it, then link the provider in **Account > Security**. See [Existing accounts](#existing-accounts). Releases before v0.15.5 showed an internal error instead. |
+| "An account with this email already exists" (`OAUTH_ACCOUNT_EXISTS`) | The address has a password account (or an account of another provider). Sign in with it, then link the provider in **My account > Security**. See [Existing accounts](#existing-accounts). Earlier releases showed an internal error instead. |
 | The person signs in but sees no organization | Expected without a membership or invitation. See [What happens after sign-in](#what-happens-after-sign-in). |
 
 Every error that returns to the login page carries a fixed code, never the provider's own text.

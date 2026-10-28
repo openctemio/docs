@@ -72,7 +72,7 @@ organization token on admin routes, and so on.
   refresh token that was already used revokes the whole token family. A session ends after
   `AUTH_SESSION_DURATION` (default 30 days) regardless of activity.
 - A user can have at most `AUTH_MAX_ACTIVE_SESSIONS` (default 10) sessions; the oldest is revoked
-  beyond that. Users see and revoke their sessions under **Account > Security**.
+  beyond that. Users see and revoke their sessions under **My account > Security**.
 - Sign-out, password change, enabling 2FA, suspension and back-channel logout from an identity
   provider revoke sessions **immediately**: revoked session ids are checked on every request (through
   Redis; without Redis, access tokens stay valid until they expire).
@@ -125,7 +125,7 @@ session (a TOTP code, a password, or a fresh sign-in at the identity provider). 
 Three layers apply to every organization request:
 
 1. **Roles and permissions**: built-in roles (owner, admin, member, viewer) and custom roles made of
-   about 170 permissions. Custom roles cannot hold more than their creator holds. The permissions that
+   about 180 permissions. Custom roles cannot hold more than their creator holds. The permissions that
    hand out or change sensor credentials, scan zones and CI trust configurations are reserved for the
    built-in owner and admin roles, and the owner role is never assigned through the Roles API: a
    system role reaches a person only through their membership. The audit log needs a role with full

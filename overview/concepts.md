@@ -133,7 +133,7 @@ A decision such as false positive or accepted risk stays with the finding
 when it is reported again, also by another scanner engine. On a finding,
 such a decision is a request that a second person approves (a false positive
 and an accepted risk by default, each at the level the organization sets under
-**Settings > Finding approvals**; on an exposure event, when it is high or
+**Settings > Findings & assets > Finding approvals**; on an exposure event, when it is high or
 critical), and repository ignore comments become requests for the security
 team. See
 [Known false positives](../user-guide/known-false-positives.md). A SAST

@@ -19,7 +19,7 @@ Terms as OpenCTEM uses them, in the console, the API and these docs.
 | **Automation** | An event rule: when an event happens and conditions hold, take actions (assign, notify, open a ticket). |
 | **Break-glass administrator** | A local platform administrator for emergencies, never bound to an identity provider; every sign-in is audited and alerted. |
 | **CI run** | One execution of a customer's CI pipeline that reports to OpenCTEM through `openctem-ci`. |
-| **Content catalog** | The signed, versioned packages of scanner content and feeds that an instance or an organization installs, pins and rolls back from offline bundles (**Settings > Content catalog**). |
+| **Content catalog** | The signed, versioned packages of scanner content and feeds that an instance or an organization installs, pins and rolls back from offline bundles (**Settings > Scanner content > Content catalog**). |
 | **Content pack** | A signed, immutable archive of scanner content (nuclei templates, SAST rules, a wordlist), stored once and named by its SHA-256 digest. See [Scanner content and content packs](../sensors/content-delivery.md). |
 | **Crown jewel** | An asset marked as business-critical; findings on it are prioritised higher. |
 | **CTEM** | Continuous Threat Exposure Management: a repeating cycle of scoping, discovery, prioritization, validation and mobilization. |

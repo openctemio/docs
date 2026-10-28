@@ -74,6 +74,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/integrations/{id}` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer |
 | PUT | `/api/v1/integrations/{id}` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/coverage/reactivate` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
+| POST | `/api/v1/integrations/{id}/deliveries/{delivery_id}/redeliver` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/disable` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/enable` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | GET | `/api/v1/integrations/{id}/github-webhook` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
@@ -87,6 +88,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/integrations/{id}/notification-events` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/{id}/repositories` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer |
 | POST | `/api/v1/integrations/{id}/scans/run` | `scans:write` | scoped: scans assets by id through a connector: an asset outside the caller's data scope answers 404 (act scope) |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator, Researcher |
+| GET | `/api/v1/integrations/{id}/signing-secret` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
+| POST | `/api/v1/integrations/{id}/signing-secret/rotate` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/sync` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/test` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/{id}/test-notification` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |

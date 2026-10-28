@@ -111,7 +111,7 @@ separate owner action.
 
 ### Organizations
 
-An owner deletes an organization under **Settings > General** (`DELETE /api/v1/tenants/{tenant}`,
+An owner deletes an organization under **Settings > Organization > General** (`DELETE /api/v1/tenants/{tenant}`,
 step-up required). The deletion has a **14-day grace period**:
 
 - The request answers `202` with `deletion_due_at`. From that moment the organization is closed to
@@ -121,7 +121,7 @@ step-up required). The deletion has a **14-day grace period**:
   (`POST /api/v1/auth/organization-deletion/cancel`). Everything works again as before.
 - When the 14 days end, the `organization-delete` worker purges the organization.
 - A platform administrator can purge an organization at once from the platform console
-  (**Organizations > Delete now**: super admin, a fresh authenticator code, a reason, a critical
+  (**Customers > Organizations > Delete now**: super admin, a fresh authenticator code, a reason, a critical
   audit row, and a second super admin's approval when four-eyes approvals apply).
 
 The purge is **permanent**:
@@ -165,7 +165,7 @@ Nothing leaves the installation unless an administrator configures it:
 | Version check | One anonymous download a day of the signed release feed (no instance id, version or counts); the host of the file (GitHub by default) sees the source address | on by default; `VERSION_CHECK_ENABLED=false` stops it |
 | Email (SMTP) | Invitations, password and set-password links, security notices, notifications | operator / organization |
 | Notification channels (Slack, Microsoft Teams, Telegram, email, webhooks, Splunk HEC) | By default only the event type, severity and a link. With **Include details in notifications** on for a channel: finding titles, descriptions and asset names | organization admins |
-| AI assistants (MCP) | What a connected application asks for through the MCP server, limited to what the person who connected it can see and to the organization's settings under **Settings > AI assistants (MCP)** | each person connects an application; organization owners can turn AI assistants off |
+| AI assistants (MCP) | What a connected application asks for through the MCP server, limited to what the person who connected it can see and to the organization's settings under **Settings > Access > AI assistants (MCP)** | each person connects an application; organization owners can turn AI assistants off |
 | CAPTCHA (Cloudflare Turnstile) on registration, request access and sign-in after repeated failures | The visitor's browser contacts Cloudflare when the keys are set | platform administrator (Console > Settings > CAPTCHA) or the environment |
 | Administrator alert webhook | Alert text about the platform itself (low disk, stale backups, expiring certificates, setting changes, sign-up bursts): counts and names of checks, no organization data | platform administrator (Console > Settings > Alerts) |
 | Administrators' audit copy | Every administrators' audit row (no request body), to your own collector | operator (`ADMIN_AUDIT_SINK`) |

@@ -57,7 +57,7 @@ this organization, so a later email change at the IdP follows the same account.
 
 A platform administrator (super admin) configures SAML:
 
-1. **Admin console > Organizations >** the organization **> Single sign-on** (tab) **> Verified
+1. **Console > Customers > Organizations >** the organization **> Single sign-on** (tab) **> Verified
    domains:** add the organization's email domain, publish the TXT record shown
    (`_openctem-verify.<domain>`, value `openctem-domain-verification=<token>`), then **Verify now**.
 2. In the same tab, under **SAML 2.0** (every change needs a fresh authenticator code):
@@ -77,7 +77,7 @@ A platform administrator (super admin) configures SAML:
    `APP_URL`), not the origin shown there.
 
 3. If the organization has an owner, saving creates a **pending change**. An owner approves it in the
-   organization under **Settings > SSO approvals** (with step-up) after comparing the new certificate's SHA-256
+   organization under **Settings > Security > SSO approvals** (with step-up) after comparing the new certificate's SHA-256
    fingerprint with the one in the IdP. Pending changes expire after 7 days.
 
 Signature validation, conditions and replay checks are done by an established SAML library
