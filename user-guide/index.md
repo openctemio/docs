@@ -116,7 +116,7 @@ That is the most important workflow in the product; it is covered first in
   context: criticality, owner, business unit, crown-jewel status.
 - **Sensitive actions need a second person.** Accepting a risk always goes
   through an approval request, and so does marking a finding a false positive
-  (at the level your organization sets under **Settings > Finding approvals**).
+  (at the level your organization sets under **Settings > Findings & assets > Finding approvals**).
   Verifying a fix is a separate permission from triaging it.
 - **Lists start empty.** Until the first scan or import, most data pages show an
   honest empty state with a suggested next step, not sample numbers.
