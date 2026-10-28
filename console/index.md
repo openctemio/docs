@@ -13,7 +13,9 @@ suspend organizations, help people sign in, decide who may sign up, set the
 instance-wide settings and watch the health of the installation. They work in the
 **platform console**, a web app of its own with its own sign-in page, its own site
 and its own image (`ghcr.io/openctemio/openctem-console`). It is not a part of the
-organization web app, and an administrator account belongs to no organization.
+organization web app. An administrator signs in to the console with the same
+account they use in the organization web app, if they are also a member of an
+organization: the platform role counts only in the console.
 
 These pages describe OpenCTEM v0.15.5.
 
@@ -100,9 +102,23 @@ After repeated failures the sign-in asks for the CAPTCHA, when one is set up
 The first administrators are created on the server with `bootstrap-admin`:
 see [First administrator](../install/first-admin.md).
 
-An administrator account cannot sign in on the organization site (password,
-second factor, social or single sign-on): that sign-in fails as if the password
-were wrong, and the page tells administrators to use the platform console.
+### One account for the console and the organization web app
+
+The account you sign in to the console with is a normal account. It can also be a
+member of organizations (an organization invites it like anyone else) and sign in
+to the organization web app, where it has only its role in that organization:
+being a platform administrator gives nothing there, and the organization sees an
+ordinary member. The two sites keep separate sessions: being signed in to the
+organization web app never signs you in to the console, which always asks for its
+own sign-in and second step, and a console session never works in the
+organization web app.
+
+- A **break-glass** administrator account stays console-only: it cannot join an
+  organization.
+- Administrators cannot approve an access request made with their own e-mail;
+  another administrator decides it.
+- If you kept a second account to work in an organization, have the organization
+  invite your administrator account, then remove the old account from it.
 
 ### Sessions
 
@@ -117,15 +133,25 @@ were wrong, and the page tells administrators to use the platform console.
 
 ## Roles and elevation
 
-| Role | Can do |
-|---|---|
-| **Super admin** | Everything, including administrators, sessions, approvals, sign-in policy, platform settings and deleting an organization at once |
-| **Operations admin** | Create, suspend and reactivate organizations, set an organization's limits, find and block accounts, approve access requests, open support sessions, manage target mappings, sync threat intelligence |
-| **Read-only admin** | View only. Member lists show counts, not people; the Users page is not available |
+Every administrator has one **base role**, set on the Administrators page, and may
+hold **additional roles**, given on [Roles](security.md#roles):
+
+| Role | Kind | Can do |
+|---|---|---|
+| **Platform owner** (Super admin) | base | Everything, including administrators, roles, sessions, approvals, sign-in policy, platform settings and deleting an organization at once |
+| **Platform admin** (Operations admin) | base | Create, suspend and reactivate organizations, set an organization's limits, find and help accounts, approve access requests, open support sessions, announcements, threat-intelligence sync |
+| **Read-only** | base | View only. Member lists show counts, not people; the Users page is not available |
+| **Operator** | additional | Run the shared sensor fleet and the feeds; suspend an organization for abuse |
+| **Support** | additional | Help people sign in (Users), read member lists, open support sessions inside a grant |
+| **Security auditor** | additional | Read the admin activity log, the administrators and the approvals; change nothing |
+| **Billing** | additional | Set organizations' limits and plans |
+
+The full list of permissions per role and per console page is the
+[platform permission reference](security.md#roles). The console shows only what
+your roles allow.
 
 By default (`ADMIN_ELEVATION=required`) every administrator acts as read-only
-after sign-in. To change anything, click **Elevate**, choose a **Role** no higher
-than your own and a duration (**For**, 15 to 60 minutes), give a reason and
+after sign-in. To change anything, click **Elevate**, choose one of your **Roles** and a duration (**For**, 15 to 60 minutes), give a reason and
 confirm. The banner shows **Acting as {role} until {time}**; **End now** returns
 to read-only. Every elevation is in the admin activity log. With
 `ADMIN_ELEVATION=off`, administrators act as their own role from sign-in.

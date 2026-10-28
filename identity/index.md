@@ -94,7 +94,7 @@ OpenCTEM separates two kinds of administrator:
 | | Platform administrator | Organization owner or admin |
 |---|---|---|
 | Purpose | Runs the installation: creates organizations and their first owner, configures organization SSO, verified SSO domains, sign-up policy, plans, platform sensors, threat-intel feeds | Runs one organization: members, roles, teams, scope, scans, integrations, organization security settings |
-| Account | A normal account that belongs to no organization, linked to a platform admin record with a console role (`super_admin`, `ops_admin` or `readonly`) | A member of the organization with the owner or admin role |
+| Account | A normal account linked to a platform admin record with platform roles (owner, admin or read-only, plus operator, support, security auditor or billing). The same account may also be an ordinary member of organizations; the platform roles count only in the console | A member of the organization with the owner or admin role |
 | Sign-in | The console's own sign-in page, on the console's own site (its own port or host name, not a path of the main app), with a second step every time: an authenticator code, a recovery code or a registered security key. Optionally through a platform identity provider (generic OIDC; the second step still follows). An organization's SSO can never sign in a platform administrator. | Any method the organization allows |
 | API | `/api/v1/admin/*` on the console site with the console session only; no API keys | `/api/v1/*` with an access token or an organization API key |
 
@@ -103,7 +103,8 @@ The first platform administrator is created with the `bootstrap-admin` command d
 admin in the console.
 
 Organization tokens never work on admin routes, and console sessions never work on organization
-routes.
+routes. Platform roles are separate from organization roles: they are never listed among an
+organization's roles or members, and an organization administrator can neither see nor give them.
 
 ## In this section
 
