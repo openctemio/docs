@@ -19,7 +19,7 @@ packages from the content catalog are installed.
 
 ## What a sensor scans with today
 
-Sensor releases up to v0.23.2 (the current ones) manage their own content. Each sensor
+Sensor releases up to v0.28.0 (the current ones) manage their own content. Each sensor
 downloads it from its upstream, verifies it, and switches to it atomically:
 
 | Content | Where from | Verified by |
@@ -30,7 +30,7 @@ downloads it from its upstream, verifies it, and switches to it atomically:
 
 Mirrors, local paths and the refresh interval are sensor settings:
 [Scanner content without internet access](network.md#scanner-content-without-internet-access).
-The organization's content policy (**Settings > Scanning > Scanner content**)
+The organization's content policy (**Settings > Scanner content > Content freshness**)
 sets refresh intervals, maximum ages and pinned versions. Check what a
 sensor holds with `openctemio-sensor -content-status`, or in the sensor's
 sheet under **Discovery > Sensors**.
@@ -126,7 +126,7 @@ sequenceDiagram
 
 The client side of these routes is in sdk-go v0.32.0 (`contentcache`, with
 delta installs, conditional requests, a jittered prefetch and hit, miss and
-bytes-saved counters). **Current sensor releases (up to v0.23.2) do not use these routes yet**: it
+bytes-saved counters). **Current sensor releases (up to v0.28.0) do not use these routes yet**: it
 keeps managing its content as described in
 [What a sensor scans with today](#what-a-sensor-scans-with-today), and
 scans do not run content packs. There is nothing to configure on the sensor
@@ -156,7 +156,7 @@ writes a high-severity admin audit entry at start-up. A separate secret,
 `APP_CONTENT_SIGNING_KEY`, is the master of each organization's content pack
 signing key; see [Environment variables](../configuration/environment-variables.md).
 
-**Use it.** **Settings > Content catalog** (needs `content:read`, held by every
+**Use it.** **Settings > Scanner content > Content catalog** (needs `content:read`, held by every
 default role):
 
 | Tab | What it does |

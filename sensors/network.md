@@ -103,7 +103,7 @@ downloading anything. For hosts without internet access:
 | SAST rules (opengrep, semgrep) | `SENSOR_CONTENT_SEMGREP_RULES_PATH` (a local file or directory, for example an unpacked rules pack release), or `SENSOR_CONTENT_SAST_RULES_URL` (a mirror of the rules pack releases with `{version}` and `{bare_version}`; the signature is still verified) |
 
 `SENSOR_CONTENT=off` lets each tool fetch its own content instead. The
-platform's content policy (**Settings > Scanning > Scanner content**) can set
+platform's content policy (**Settings > Scanner content > Content freshness**) can set
 refresh intervals, maximum ages and pinned versions, but never where content
 comes from. See also [Scanner content and content packs](content-delivery.md).
 

@@ -21,6 +21,7 @@ to a sensor that reports it.
 |---|---|---|---|
 | subfinder | `discover.subdomains` | T0 | default |
 | dnsx | `resolve.dns` | T0 | default |
+| dnsx-enum (sensor v0.27.0 or later) | `enumerate.subdomains` (brute force with the label list the platform names in the signed job; the sensor has no list of its own) | T1 | default |
 | naabu | `scan.ports`, `discover.hosts` (live hosts first) | T1 | default |
 | httpx | `probe.http` | T1 | default |
 | katana | `crawl.web` | T1 | default |
@@ -152,7 +153,7 @@ local policy can always narrow further. See
 
 ## Custom templates
 
-**Settings > Scanning > Scanner templates** (`/api/v1/scanner-templates`)
+**Settings > Scanner content > Scanner templates** (`/api/v1/scanner-templates`)
 holds your own detection rules:
 
 | Type | Format | Max size | Max rules |
@@ -161,9 +162,18 @@ holds your own detection rules:
 | semgrep | YAML | 512 KB | 500 |
 | betterleaks | TOML | 256 KB | 1000 |
 
-**Settings > Scanning > Template sources** (`/api/v1/template-sources`) syncs
-templates from a Git repository, an S3-compatible bucket or an HTTP URL;
-**Source credentials** holds the credentials those sources need.
+**Rule sources** (`/api/v1/content-sources`, API only: there is no console
+screen yet) keep rules in sync from a Git repository over `https` (a branch,
+tag or commit). The platform is the only fetcher: it syncs on a schedule
+(hourly by default, at most every 5 minutes), on `POST
+/api/v1/content-sources/{id}/sync` or from a webhook, into an immutable, signed
+snapshot. A new snapshot is a candidate; it is promoted automatically when every
+check passes, and one that raises the tool tier always needs review by someone
+with `scans:sources:approve` other than the person who changed the source.
+Creating or changing a source, its credential and its webhook, and approving a
+snapshot, need a recent sign-in. The older template sources (Git over SSH, S3
+and HTTP, synced when a scan starts) and `/api/v1/template-sources` were
+removed in platform v0.15.0.
 
 Custom nuclei templates reach a sensor only when all of these hold:
 
@@ -195,7 +205,7 @@ and javascript types excluded.
 
 The sensor keeps each tool's content (nuclei templates, and on per-tool
 images the trivy database and the SAST rules) current itself and reports the
-versions. **Settings > Scanning > Scanner content** sets the organization's
+versions. **Settings > Scanner content > Content freshness** sets the organization's
 policy: refresh interval, maximum age per content, a pinned version, and the
 semgrep rule sets. The policy never chooses where content comes from; that is
 the sensor host's setting ([Network](../sensors/network.md#scanner-content-without-internet-access)).
@@ -225,9 +235,10 @@ network access during a scan.
 
 From platform v0.9.6, scans on platform-operated sensors never use registry
 rules. A platform scan whose tool is semgrep is refused when it is created,
-because semgrep falls back to registry rules when a sensor has no managed
-rules. Platform scans run
-static analysis with opengrep and the rules pack. The content policy a
+because platform scans run static analysis only with opengrep and the rules
+pack. Sensor v0.24.0 and later never run semgrep with `--config auto`: it
+refuses a registry name, a URL or a flag as its rules and runs with
+`--metrics off`. The content policy a
 platform-operated sensor receives never carries registry rule sets; your own
 sensors still get the rule sets your organization chose.
 

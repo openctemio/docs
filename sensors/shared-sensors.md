@@ -28,7 +28,7 @@ the platform sensors.
 {: .note }
 Shared mode and instance enrollment need a sensor release that includes them
 (`SENSOR_SHARED_MODE` and `SENSOR_INSTANCE_ENROLLMENT_TOKEN`). Sensor v0.23.2
-and older do not: such a sensor cannot enroll with a token, or enrolls but
+and older do not (both came with v0.24.0): such a sensor cannot enroll with a token, or enrolls but
 receives no shared job, because it does not advertise the `shared.isolation@1`
 capability the platform requires. Check the sensor's release notes before you
 install one.

@@ -115,8 +115,8 @@ Use this when you prepare the console first:
 3. The sensor prints its fingerprint; the console shows the fingerprint it
    received as soon as the sensor connects. Compare and approve as above.
 
-![The Expect a sensor tab with a single-use code (blurred) and the command to run]({{ site.baseurl }}/assets/images/sensors/pair-expect.png)
-*Figure: Expecting a sensor: the code is blurred here.*
+![The pairing code step of Add sensor with a single-use code (blurred) and the command to run]({{ site.baseurl }}/assets/images/sensors/pair-expect.png)
+*Figure: Creating a pairing code: the code is blurred here.*
 
 ## Enroll a shared sensor
 
@@ -197,7 +197,7 @@ stopped:
 docker stop openctem-sensor
 docker run --rm -it -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.0 pair -repair
+  ghcr.io/openctemio/sensor:v0.28.0 pair -repair
 docker start openctem-sensor
 ```
 

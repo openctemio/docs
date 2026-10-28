@@ -104,6 +104,7 @@ the console shows exactly what your sensor declares.
 | naabu | `rate` (`-rate`, common), `retries` (`-retries`, common), `ports` (`-p`), `top_ports` (`-top-ports`), `exclude_ports` (`-exclude-ports`) |
 | httpx | `rate_limit` (`-rl`, common), `threads` (`-threads`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `ports` (`-ports`), `follow_redirects` (`-follow-host-redirects`), `tech_detect` (`-tech-detect`), `tls_grab` (`-tls-grab`) |
 | dnsx | `rate_limit` (`-rl`, common), `threads` (`-t`, common), `timeout` (`-timeout`, common), `retries` (`-retry`, common), `record_types`, `wildcard_filter` (`-auto-wildcard`) |
+| dnsx-enum (sensor v0.27.0 or later) | `rate_limit` (`-rl`, common; a scan only lowers it, the sensor settings raise it to 500 at most), `threads` (`-t`, common, at most 200), `timeout` (common), `retries` (common), `max_queries` (first N labels of the job's list) |
 | subfinder | `rate_limit` (`-rl`, common), `timeout` (`-timeout`, common), `sources` (`-sources`), `recursive` (`-recursive`), `max_results` |
 | katana | `rate_limit` (`-rl`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retry`, common), `depth` (`-d`), `js_parse` (`-js-crawl`), `max_urls` |
 | trivy | `parallel` (`--parallel`, sensor only), `dev_deps` (`--include-dev-deps`), `os_pkgs` (`--pkg-types`), `frameworks` (`--misconfig-scanners`) |
@@ -115,7 +116,7 @@ the console shows exactly what your sensor declares.
 
 semgrep declares no options.
 
-These options are the ones the current sensor release (v0.23.2) declares (opengrep from v0.22.0); older sensors declare fewer.
+These options are the ones the current sensor release (v0.28.0) declares (opengrep from v0.22.0); older sensors declare fewer.
 
 ## API
 
