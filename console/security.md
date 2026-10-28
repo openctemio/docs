@@ -26,8 +26,8 @@ their status and last activity.
 ![The Administrators page listing two super admins, an operations admin, a read-only admin and a break-glass account]({{ site.baseurl }}/assets/images/console/administrators.png)
 *Figure: Platform console, Administrators.*
 
-- **New administrator**: name, email (an address that is not a member of any
-  organization) and role. If an account had to be created, its temporary password
+- **New administrator**: name, email (an address with no account yet) and base
+  role. If an account had to be created, its temporary password
   is shown once.
 - A row's menu (never on your own account): **Make {role}**, **Mark as
   break-glass** / **Unmark break-glass**, **Confirm last sign-in was a test**,
@@ -45,7 +45,30 @@ when the identity provider is required. Every break-glass sign-in alerts all
 administrators and shows a banner in that session; record planned test sign-ins
 so that real ones stand out. The Overview warns when a break-glass account has
 not been tested for 90 days. A break-glass account never approves a second-approval
-request.
+request, and it cannot be a member of an organization.
+
+## Roles
+
+**Roles** (any administrator reads it) lists the platform roles, what each allows
+and how many administrators hold it. Administrators who read the roster also see
+who holds which role.
+
+- A platform owner gives an **additional role** (Operator, Support, Security
+  auditor, Billing) with **Give a role**, or takes one with the cross on its
+  badge. Each change asks for a reason and a fresh confirmation, is in the admin
+  activity log and is emailed to the other administrators. Nobody changes their
+  own roles or gives a role with permissions they do not hold.
+- The **base role** (Platform owner, Platform admin, Read-only) is changed on
+  [Administrators](#administrators); making someone a platform owner needs a
+  second owner's approval.
+- The page warns while fewer than two named platform owners (not counting
+  break-glass accounts) exist: with one, approvals have no second approver.
+- Platform roles never apply inside an organization, and an organization never
+  sees them.
+
+Every console page and action needs a platform permission; the generated
+reference lists them per role and per route (`api/docs/architecture/platform-permissions.md`
+in the source).
 
 ## Sessions
 
