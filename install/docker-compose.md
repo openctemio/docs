@@ -320,7 +320,15 @@ for the platform console and 512 MB for the gateway; change them with
 `API_MEMORY_LIMIT`, `WEB_MEMORY_LIMIT`, `CONSOLE_MEMORY_LIMIT` and
 `GATEWAY_MEMORY_LIMIT` in `.env`. The bundled PostgreSQL's memory settings follow the
 `PG_*` variables in `.env.example`. [Sizing](sizing.md#docker-compose) has
-values for each installation size.
+values for each installation size. `PG_TOAST_COMPRESSION` (default `lz4`, or
+`pglz`) sets the compression of large `jsonb` and `text` values in the bundled
+PostgreSQL.
+
+`backup.sh` writes a status file that the console's Health page reads to show
+the last backup. It goes to `./backup-status` next to `docker-compose.yml`, and
+the stack mounts the same directory read-only into the API. To keep it
+elsewhere, set `BACKUP_STATUS_DIR` in `.env` (and in the environment of
+`backup.sh`, for example in the cron entry) to the same path.
 
 ## Managed PostgreSQL or Redis
 
@@ -391,6 +399,10 @@ older) enrolls but receives no shared job, because the platform sends shared
 jobs only to a sensor that reports shared-mode isolation. See
 [Shared sensors](../sensors/shared-sensors.md) for the settings, the fleet page
 and what organizations see.
+
+The sensor container is bounded to 2 GB of memory, 2 CPUs and 512 processes;
+change them with `SENSOR_MEMORY_LIMIT`, `SENSOR_CPUS` and `SENSOR_PIDS_LIMIT` in
+`.env`.
 
 Use the same `-f` list for every later `docker compose` command.
 
