@@ -14,8 +14,8 @@ from a scan. It takes about 20 minutes. The reference for every field is
 
 The example is **acme-headers**, a Python tool that reports web servers missing three security
 headers (`Strict-Transport-Security`, `Content-Security-Policy`, `X-Content-Type-Options`). The
-finished tool is in the SDK repository under
-[examples/tools/acme-headers](https://github.com/openctemio/sdk-go/tree/main/examples/tools).
+finished tool is not shipped as a sample; the closest runnable example in the SDK repository is
+[examples/python-adapter](https://github.com/openctemio/sdk-go/tree/main/examples/python-adapter).
 
 You need Python 3 and either the `openctem` CLI binary or Go 1.26.
 

@@ -34,7 +34,7 @@ the order of work from an empty host to a monitored installation with a tested r
 Approving each release yourself, or no internet access in production? Every
 deployment above also runs from your own registry, pinned by digest: see
 [Air-gapped and controlled supply chain](air-gapped.md), and the section
-[Air-gapped and private registry](../airgap/) for the tested supply paths
+[Air-gapped and private registry](/airgap/) for the tested supply paths
 (Nexus proxies, Harbor, a CI mirror job, offline transfer, in-house builds).
 
 All of them expose the platform on one HTTPS port through the same gateway: see

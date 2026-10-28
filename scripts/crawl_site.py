@@ -97,6 +97,10 @@ def main():
             if href.startswith(SKIP_SCHEMES) or href.startswith("#") and len(href) == 1:
                 continue
             target = urllib.parse.urljoin(url, href)
+            # Cloudflare rewrites mailto: links into /cdn-cgi/l/email-protection
+            # when the site is served through it; the path only exists there.
+            if "/cdn-cgi/" in urllib.parse.urlsplit(target).path:
+                continue
             sources.setdefault(target, set()).add(url)
             parts = urllib.parse.urlsplit(target)
             if parts.netloc == host:
