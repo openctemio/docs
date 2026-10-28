@@ -123,7 +123,7 @@ These pages describe what ships in the current release (v0.15.5). Work that is d
 | Shipped | Planned |
 |---|---|
 | The five CTEM stages in the console, multi-tenant with per-organization SSO (OpenID Connect, Entra ID, Google, SAML 2.0) and SCIM | Running more than one API instance for high availability (today one API instance; see [Scaling](../operations/scaling.md)) |
-| A platform console on its own site and port (or host name) for the operators of the installation, apart from the organizations' web console | An endpoint agent that reports about its own host |
+| A platform console on its own site and port (or host name) for the operators of the installation, apart from the organizations' web console | An endpoint sensor that reports about its own host |
 | Sign-up policy set by the operator (`SIGNUP_MODE`: `disabled`, `domain` or `open`), onboarding by invitation, verified domain or access request, and per-organization limits | |
 | Scanner sensors with pairing, grants, scan zones and scan windows, over sensor protocol v3 (gRPC with mutual TLS on the gateway's port by ALPN, or on a dedicated port; HTTPS fallback) or v2 | |
 | Collector sensors (platform and SDK runtime) and shared sensors that the operator runs for every organization | |

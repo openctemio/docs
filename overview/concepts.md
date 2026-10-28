@@ -164,7 +164,8 @@ A **sensor** is software you run where the targets are. It connects out to the
 platform with its own key, sends heartbeats, claims tasks it has the tools for,
 runs the scanners, and reports results. A sensor's **role** says what it does:
 **scanner** (assesses other hosts it can reach), **collector** (pushes data from
-systems inside your network) or **agent** (reports about the host it runs on).
+systems inside your network), **AI worker** (runs AI agents) or, planned,
+**endpoint** (reports about the host it runs on).
 
 ```mermaid
 flowchart LR
@@ -173,7 +174,7 @@ flowchart LR
     SC -->|"probes"| T["Hosts and services<br/>it can reach"]
     CO["Collector sensor"] -->|"pushes inventory<br/>on its own schedule"| P
     CO -->|"reads"| SYS["Systems inside<br/>your network"]
-    AG["Agent (planned)"] -.->|"reports about<br/>its own host"| P
+    AG["Endpoint sensor (planned)"] -.->|"reports about<br/>its own host"| P
 ```
 
 Every arrow starts at the sensor: sensors only connect out.
