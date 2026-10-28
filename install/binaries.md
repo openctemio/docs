@@ -31,7 +31,7 @@ only. The commands below use `vX.Y.Z` for the release you install.
 | `openctem-web-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 (glibc) | the web console as a Next.js standalone bundle, systemd unit, env example, `NODE_VERSION` |
 | `openctem-console-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 (glibc) | the platform console, same layout |
 | `bootstrap-admin-<v>-<os>-<arch>.tar.gz` (`.zip` on Windows) | linux, macOS amd64 and arm64, Windows amd64 | the first-administrator command (the `admin-cli` image) |
-| `openctem-image-kit-<v>.tar.gz` | any | the [private registry and air-gap kit](../airgap/) |
+| `openctem-image-kit-<v>.tar.gz` | any | the [private registry and air-gap kit](/airgap/) |
 | `*.spdx.json` | | an SPDX SBOM per archive |
 | `checksums-sha256.txt` and `checksums-sha256.txt.sigstore.json` | | sha256 of every archive and SBOM, signed keyless by the Release workflow |
 
@@ -196,7 +196,7 @@ Never run an older server on a schema it does not know.
 
 ## Related
 
-- [Air-gapped and private registry installs](../airgap/): get the archives
+- [Air-gapped and private registry installs](/airgap/): get the archives
   through a Nexus raw proxy or an offline transfer.
 - [Install targets with a private registry](../airgap/install-targets.md).
 - [Upgrade](../operations/upgrade.md).

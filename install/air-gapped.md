@@ -18,7 +18,7 @@ replace or turn off each of those downloads.
 
 For the tested supply paths, the scripts and templates of the release's image
 kit, and a decision guide, see the section
-[Air-gapped and private registry](../airgap/).
+[Air-gapped and private registry](/airgap/).
 
 The commands were checked against release v0.11.0 (chart 0.29.0 for v0.10.1,
 sensor v0.23.2). Replace the versions with the release you take in.
