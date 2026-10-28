@@ -221,7 +221,11 @@ of a triage is a suggestion: nothing on a finding changes without a person.
 - Saving fails with a message when someone else saved a change in the meantime;
   reload and apply yours again.
 
-See [AI triage](../api/ai-triage.md) for what the analysis returns.
+Under the page, **Use cases** and **Data masking** control what applies on its own and what
+the AI sees: see [Settings > AI: use cases](ai-use-cases.md) and
+[Settings > AI: data masking](ai-data-masking.md), and
+[AI suggestions and approval](ai-suggestions-and-approval.md) for how a person decides a
+suggestion. See [AI triage](../api/ai-triage.md) for what the analysis returns.
 
 ### Audit log
 
