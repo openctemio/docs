@@ -19,6 +19,7 @@ with breaking changes has its own upgrade guide; read it first.
 
 | From | To | Guide |
 |---|---|---|
+| v0.12.x | v0.13.0 to v0.15.5 | [From v0.12 to v0.15.5](#from-v012-to-v0155) below: audit archives move to the storage provider, API contract changes (ingest answers 202, strict findings filters, task versions), SAML and OIDC provider requirements, retired scan and rule source features, per-integration webhook URLs. |
 | v0.11.x | v0.12.0 and later | [From v0.11 to v0.12.0](#from-v011-to-v0120) below: signed jobs on by default (a job signer is required in production), `AI_TRIAGE_ENABLED` removed, campaigns hold tasks. |
 | v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, `ADMIN_AUDIT_SINK` for managed services, re-run of the database role script, console pages moved, second super admin approvals. |
 | v0.9.x | v0.10.x | [From v0.9 to v0.10](#from-v09-to-v010) below: the platform console becomes its own service on its own site, new required settings, removed variables, migrations that need the API stopped. Plan a maintenance window. |
@@ -63,11 +64,166 @@ together. Then check:
 
 See [Ingesting results](../api/ingest.md).
 
+### From v0.12 to v0.15.5
+
+Cross one minor version at a time (v0.13.0, v0.14.0, v0.15.0), with a backup before each
+step, and take the newest patch release of the last one (v0.15.5). The sections below list
+what an operator or an API client has to act on, by the release that introduced it. A
+few migrations (the rule source, automation and Jira issue type changes, and the ones that
+drop columns) cannot be read by the previous API: stop the running API before the migration
+runs on those steps (see [How upgrades work](#how-upgrades-work)).
+
+**v0.13.0**
+
+- **Audit retention is on by default.** Organization audit entries older than
+  `AUDIT_RETENTION_DAYS` (365, the minimum) are archived and pruned from the oldest end of
+  each chain. The archives go through the server storage provider (`STORAGE_PROVIDER`, local
+  disk or an S3-compatible bucket) in the `audit-archive` namespace. `AUDIT_ARCHIVE_DIR` is no
+  longer read: remove it and back up the storage provider like the database, because the
+  archive is the only copy of pruned entries. `AUDIT_RETENTION_ENABLED=false` keeps all audit
+  history. Nothing is deleted when the archive cannot be written.
+- **Database role timeouts.** The API's database role now has `statement_timeout = 60s` and
+  `idle_in_transaction_session_timeout = 60s`. Re-run the roles script (the Compose
+  `db-roles` job does it on every `up`) and restart the API. A query that runs longer is
+  cancelled with SQLSTATE 57014. `app_statement_timeout` and `app_idle_in_transaction_timeout`
+  in the script change the limits (`0` turns one off). The bundled PostgreSQL also starts with
+  `default_toast_compression=lz4` (`PG_TOAST_COMPRESSION=pglz` restores the old default).
+- **Bundled sensor over HTTPS.** `docker-compose.sensor.yml` now points the sensor at
+  `https://<OPENCTEM_HOSTNAME>` through the gateway and trusts the gateway's internal CA
+  from `./ca`. `OPENCTEM_HOSTNAME` must be a DNS name; run
+  `docker compose -f docker-compose.yml -f docker-compose.sensor.yml up -d` again. The
+  sensor keeps its identity in `sensor-data`.
+- **Off-host backup (optional).** The new overlay `docker-compose.backup.yml` adds WAL
+  archiving and encrypted weekly and daily backups through pgBackRest. Nothing changes
+  without it.
+- **Permissions that custom roles now need.** Bulk finding routes need `findings:status` and
+  `findings:assign` (not only `findings:bulk_update`). Reopening a decided finding needs
+  `findings:approve`. Creating service accounts needs `service_accounts:manage` (not
+  `team:members:write`). Built-in roles already hold them.
+- **Finding assignment.** A finding can only be assigned to an active member who can read it
+  (generic refusal `this person cannot be assigned this finding`).
+- **Task writes carry the task version.** `POST /api/v1/remediation/tasks/{id}/query/run`
+  needs a JSON body `{"version": <int>}`; `.../query/auto` and `.../exception` take `version`
+  in their bodies; a missing version is `400`, a stale one `409`.
+- **Managed scans are read-only.** Editing, scheduling, pausing, deleting or running by hand a
+  continuous-coverage or enrichment scan answers `409 SCAN_MANAGED_BY_POLICY`; clone it
+  instead.
+- **Runs.** Unreachable and skipped targets no longer make a run `partial`; the run API adds
+  `unreachable_target_count` and `skipped_target_count`.
+- **Risk acceptance.** A one-person organization must invite a second member (or use a false
+  positive) to accept a risk.
+- **GitHub inbound webhooks.** Each GitHub integration has its own URL,
+  `POST /hooks/github-integrations/{integration_id}`, verified with that integration's secret.
+  Replace the URL in each GitHub repository or organization webhook; other integrations than
+  the first need a secret generated.
+- **Secret findings.** Findings stored before the release keep a fingerprint derived from a
+  masked value until you run `refingerprint -reset-mask-secret-fingerprints` in the API
+  container (dry run by default, counts per tenant only). See "Secret fingerprints derived
+  from a mask" in the encryption key rotation guide of the repository.
+
+**v0.14.0**
+
+- **SAML.** Each assertion is accepted once (recorded in Redis; with Redis unreachable the
+  sign-in is refused), must carry its own valid signature, and SHA-1 signature or digest
+  methods are refused. Switch an identity provider that still signs with RSA-SHA1 to SHA-256,
+  and one that encrypts assertions to signed, unencrypted assertions, before upgrading.
+  See [Sign-in configuration](../identity/sign-in-configuration.md).
+- **Findings API.** Unknown query parameters on `GET /findings`, `/findings/stats`,
+  `/findings/groups` and `/findings/export` answer `400 INVALID_FILTER` (they used to be
+  ignored). `GET /meta/filters/findings` lists the accepted names. Exports carry a fixed
+  allowlist of 40 columns (no evidence, descriptions or secret details), follow the list's
+  sort and stop at 10,000 rows (`X-Export-Truncated`).
+- **Decisions need a fresh sign-in.** Approving a false positive, accepted risk or exception,
+  deleting a finding and bulk-closing findings answer `403 STEP_UP_REQUIRED` unless the
+  session stepped up recently. API keys and automation get `403 STEP_UP_UNAVAILABLE`: close
+  findings one at a time with `PATCH /api/v1/findings/{id}/status`, or run those decisions
+  from a signed-in session.
+- **Reachability check.** `POST /api/v1/findings/{id}/validate` needs `findings:verify` (was
+  `findings:write`).
+- **SLA policies.** A new policy is no longer made the default unless it is the first; the
+  default policy cannot be deactivated or deleted (`409 SLA_DEFAULT_POLICY_PROTECTED`). A
+  migration keeps only the oldest active default of an organization that had several.
+- **Mitigated findings** are not reopened by a new detection.
+- **Cross-organization lookups answer 404.** Asset owners and template sources of another
+  organization answer `404 NOT_FOUND`, as an unknown id does (was `403`).
+- **Dashboards.** The built-in CTEM and Classic dashboard views are removed; `/` shows stored
+  dashboards, and a person with none gets a copy of the Overview template.
+
+**v0.15.0**
+
+- **Ingest answers 202.** See [Ingest: uploads are applied in the background](#ingest-uploads-are-applied-in-the-background).
+  Scripts that posted to `/api/v1/findings/import` must use `/api/v1/findings/imports`
+  (receipts, `ingest_receipts` table); deploy the API and its workers together with the
+  migration.
+- **`SERVER_WRITE_TIMEOUT`** defaults to `SERVER_REQUEST_TIMEOUT + 5s` (35s, was 15s); the API
+  warns at start-up when an explicit value is not above the request timeout.
+- **Private egress and open sign-up.** The API refuses to start with
+  `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` set together with `SIGNUP_MODE=open`. Unset the
+  ranges or use `SIGNUP_MODE=disabled` or `domain`.
+- **Clock.** Keep the API host's clock synchronised (for example chrony with
+  `makestep 1 -1`): a signed sensor request more than 2 minutes off the server's clock answers `401` with a
+  clock-skew problem and the sensor prints the offset.
+- **OIDC.** An identity provider that signs id_tokens with RS384 or RS512 must switch to
+  RS256, PS256 or ES256. If `OAUTH_GOOGLE_SCOPES` was overridden, it must include `openid`.
+- **SCIM tokens** expire 90 days after the migration; rotate them in **Settings > Directory
+  sync (SCIM)** and paste the new token into the identity provider. A client that creates
+  tokens through the API sends `expires_in_days` (1 to 365).
+- **Organization email channels** must use port 25, 465, 587 or 2525; the platform relay is
+  not restricted.
+- **Webhooks.** `event_type` in a generic webhook body is the event's catalogue type
+  (`new_finding`, `sensor.offline`, a test delivery is `test`) instead of `notification`, so a
+  receiver that matched `notification` must match the catalogue types. Existing webhook
+  integrations send unsigned deliveries until their secret is rotated; rotate it and verify
+  on the receiver.
+- **Scope entries.** Only domain, address, range, CIDR, host, URL (with a concrete host) and
+  repository entries authorize active probes. A migration deactivates existing wildcard
+  entries of other types (audit event `scope_target.deactivated`, no in-app notice): tell
+  affected organizations. Probes that relied on them stop until a domain, address or network
+  entry covers them.
+- **Rule sources.** Template sources become rule sources (`/api/v1/content-sources`); the
+  `/api/v1/template-sources` API, s3 and http sources and ssh git URLs are removed. The
+  migration carries https git sources of the nuclei and semgrep kinds over and drops the
+  others, including gitleaks and betterleaks git sources: list them before upgrading and enter
+  each carried-over source's credential again. Stop the API during the migration.
+- **Automations.** The `schedule`, `finding_age`, `finding_updated` and `webhook` triggers,
+  the `assign_team`, `update_priority`, `run_script`, `http_request` and `trigger_pipeline`
+  actions and the `pagerduty` notification are removed (`400 UNSUPPORTED_WORKFLOW_FEATURE`);
+  automations that used them are switched off (`disabled_reason = uses_removed_type`), not
+  deleted. New automations start in simulate and go live when published; automations that were
+  on become version 1 and stay live. Stop the old API before migrating; clients that request
+  scopes by id use the new ids.
+- **API changes.** `PUT /api/v1/organization/settings/finding-approvals` is removed: send the
+  same body with `PATCH`. Findings `q` search matches title, file path, rule id, CVE id and
+  asset name (not the description; use `description_contains`). An enabled proxy pool must
+  hold a proxy (`400 PROXY_POOL_NEEDS_ENDPOINT`).
+- **Scans and assets.** Active scans of a wildcard or asset group skip names the platform has
+  never seen resolving (`include_unresolved` hands them over). An asset without an open
+  finding scores 0 in every risk model. Assets go stale on their last sighting only: expect
+  one batch of stale transitions after the upgrade. A finding seen again after a fix reopens
+  as `new` or `confirmed` by what it was.
+- **Search indexes.** Migrations `003319` to `003322` build trigram indexes with
+  `CREATE INDEX CONCURRENTLY`; on a large database the migrate step takes as long as the
+  builds.
+- **Re-link older findings (optional).** Run `refingerprint -links -apply` (after a dry run
+  without `-apply`) in the API container to link same-issue findings stored before the
+  release, and `refingerprint -vuln-aliases -apply` after the feed publishes its first alias
+  map.
+
+**v0.15.2 to v0.15.5**
+
+- **v0.15.2** pins the release feed key, so version and advisory checks, the Software
+  updates import and sensor install snippets work. Fixes for social login (v0.15.2 and
+  v0.15.3) and for the invitation two-factor step (v0.15.4) need no action.
+- **v0.15.5** makes ownership confirmation and the verified-domain requirement apply only to
+  jobs on platform sensors of a hosted service (`MANAGED_SERVICE=true`). On self-hosted
+  installs and on an organization's own sensors, discovered assets are treated as authorized
+  and a wildcard-only name covered by an active scope entry is scanned; rejected assets,
+  scope exclusions and the deny list still refuse.
+
 ### From v0.11 to v0.12.0
 
-The release notes of v0.13.0 to v0.15.5 add no further deployment step beyond
-[ingest uploads](#ingest-uploads-are-applied-in-the-background) (v0.15.0); apply the
-steps below once, when you cross v0.12.0.
+Apply the steps below once, when you cross v0.12.0. The later releases have
+their own steps in [From v0.12 to v0.15.5](#from-v012-to-v0155).
 
 - **Signed jobs are on by default.** The Compose file now runs the job signer
   (`signer`) and sets `SIGNER_SOCKET`; the signer creates its key on first start. A
@@ -78,6 +234,8 @@ steps below once, when you cross v0.12.0.
   or set `SIGNER_LEDGER=audit` in `.env` until it is done. The all-in-one image starts
   the signer itself, with its key under `/data/signer`. Back up the `signer-keys` volume
   offline.
+- **Remove `WORKER_HEALTH_CHECK_ENABLED` and `WORKER_HEALTH_CHECK_INTERVAL`** from the
+  environment as well: the legacy sensor health checker is gone and start-up refuses them.
 - **Remove `AI_TRIAGE_ENABLED`** from the environment: start-up refuses it. A provider
   key makes platform AI available, and each organization turns AI triage on itself in
   **Settings > AI**; organizations that already used it stay on.

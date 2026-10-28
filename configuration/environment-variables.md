@@ -170,7 +170,7 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 | `SERVER_REQUEST_TIMEOUT` | duration | `30s` |  |  | Per-request handler timeout. |
 | `SERVER_SHUTDOWN_TIMEOUT` | duration | `30s` |  |  | Grace period for in-flight requests on shutdown. |
 | `SERVER_TRUSTED_PROXIES` | list | empty |  |  | Comma-separated CIDRs or IPs of proxies whose `X-Real-IP` / `X-Forwarded-For` the API believes (audit log, rate limits, IP allowlists). Empty: the API treats every peer as the client. The Compose stack lists the gateway and the web console. |
-| `SERVER_WRITE_TIMEOUT` | duration | `15s` |  |  | HTTP server write timeout. |
+| `SERVER_WRITE_TIMEOUT` | duration | `SERVER_REQUEST_TIMEOUT + 5s (35s)` |  |  | HTTP server write timeout. Keep it above `SERVER_REQUEST_TIMEOUT`: at or below it the connection closes before the `503` timeout answer is written and the client sees EOF. The API logs a warning at startup when it is not. |
 | `SESSION_TIMEOUT_MINUTES` | int | `30` |  |  | Maximum age, in minutes, of an access token (from its issued-at time) before the API answers `401 Session has expired`. `0` turns the check off. |
 | `SERVER_TLS_CERT_FILE` | path | empty |  |  | PEM certificate (full chain) for the API listener to terminate TLS itself, when no TLS proxy is in front. Set together with `SERVER_TLS_KEY_FILE`. |
 | `SERVER_TLS_KEY_FILE` | path | empty |  |  | PEM key matching `SERVER_TLS_CERT_FILE`. |
@@ -463,10 +463,10 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 | `PROGRAMFEED_MIRRORS` | list | empty |  |  | Comma-separated https mirrors of the chunked program feed, tried after `PROGRAMFEED_URL`. |
 | `PROGRAMFEED_ROOT_KEY_ID` | string | empty |  |  | Pinned offline root key id of the public program feed. Unset: no program feed is imported. |
 | `PROGRAMFEED_URL` | url | empty |  |  | https release URL of the chunked public program feed, tried before `PROGRAMFEED_DIR`. |
-| `VULNFEED_BASE_URL` | url | `https://github.com/openctemio/vulnfeed-bundles/releases` |  |  | Release base URL of the signed vulnerability bundles. |
+| `VULNFEED_BASE_URL` | url | `https://github.com/openctemio/vulnfeed/releases` |  |  | Release base URL of the signed vulnerability bundles. |
 | `VULNFEED_BUNDLE_DIR` | path | empty |  |  | Air-gapped platforms: local directory holding a vulnerability bundle release's files. |
 | `VULNFEED_MIRRORS` | list | empty |  |  | Comma-separated https mirrors tried after the release for chunked vulnerability bundles. |
-| `VULNFEED_ROOT_KEY_ID` | string | empty |  |  | Pinned root key id of the vulnerability bundles. Unset: no bundle is imported. |
+| `VULNFEED_ROOT_KEY_ID` | string | `official root` |  |  | Pinned root key id of the vulnerability bundles. Defaults to the root of the official openctemio/vulnfeed releases; set it only for a private collector. |
 
 ### Integrations
 
