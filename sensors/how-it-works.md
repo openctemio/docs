@@ -23,7 +23,7 @@ Every sensor has one role. The role decides what work it may receive.
 |---|---|---|---|
 | Scanner | `worker` ("Worker (scans)" in the console) | Assesses other hosts and repositories: runs the scans the platform dispatches. Routed by [scan zone](zones.md). | Shipped: `openctemio/sensor` |
 | Collector | `collector` | Pushes inventory from systems inside your network on its own schedule. Takes no dispatched scans; its tools have the kind `collector` and cannot be picked in a scan. | Supported by the platform and the SDK runtime |
-| Agent (endpoint) | `sensor` ("Endpoint" in the console) | Reports only about the host it is installed on (grant profile `endpoint-agent`). | Planned: no endpoint agent is released yet |
+| Endpoint | `sensor` ("Endpoint" in the console) | Reports only about the host it is installed on (grant profile `endpoint-agent`). | Planned: no endpoint sensor is released yet |
 
 CI pipelines are not sensors. They report with their CI provider's OIDC
 identity; see [CI integration](../scanning/ci-integration.md).
