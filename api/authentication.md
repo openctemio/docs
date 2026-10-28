@@ -193,12 +193,14 @@ A service account is an organization-owned identity for an integration. It has n
 never signs in, starts with no role, takes custom roles and teams like a member, and can never be an
 Owner or Administrator or hold full data access. It acts only through API keys minted for it; such
 a key carries at most what the account holds and, like every key, is read-only on the REST API.
-Create one in **Settings > Integrations > Service accounts**.
+Create one in **Settings > Access > Service accounts**.
 
 | Route | Needs |
 |---|---|
-| `GET`, `POST /api/v1/service-accounts`, `DELETE /api/v1/service-accounts/{id}` | `team:members:read`, `team:members:write` |
-| `GET`, `POST /api/v1/service-accounts/{id}/api-keys`, `DELETE .../{key_id}` | the member permission together with `integrations:api_keys:read`, `:write` or `:delete`; minting and deleting need a recent sign-in, and you must hold every scope you grant |
+| `GET /api/v1/service-accounts` | `team:members:read` |
+| `POST /api/v1/service-accounts`, `DELETE /api/v1/service-accounts/{id}` | `service_accounts:manage` (owners and administrators); deleting needs a recent sign-in |
+| `GET /api/v1/service-accounts/{id}/api-keys` | owners and administrators with `team:members:read` and `integrations:api_keys:read` |
+| `POST /api/v1/service-accounts/{id}/api-keys`, `DELETE .../{key_id}` | `service_accounts:manage` together with `integrations:api_keys:write` or `:delete`; minting and deleting need a recent sign-in, and you must hold every scope you grant |
 
 Deleting the account removes its roles, team memberships and keys at once.
 

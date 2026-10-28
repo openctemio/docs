@@ -31,7 +31,7 @@ existing account or create one for them.
 | **Service accounts** | A service account cannot be an owner or administrator or have full data access. |
 | **End of access** | Optional, unless **Require an end of access for people outside** is on: then outside people no organization manages must have one (90 days by default, 365 at most). An expired membership is suspended automatically. |
 
-The organization settings that apply to outside people are on **Settings > Authentication**:
+The organization settings that apply to outside people are on **Settings > Security > Authentication**:
 **Who can be invited** (anyone, verified domains only, or verified and allowed domains),
 **Personal accounts** (allowed with two-factor, allowed, or blocked) and the end-of-access switch.
 See [Sign-up and invitations](../sign-up-and-invitations.md#people-outside-the-organization).
@@ -52,9 +52,9 @@ Before you start, check that the organization has no trust that caps this person
 organization (**Settings > Security > Trusted organizations**, see [Trusted organizations](../../user-guide/10-settings-and-integrations.md#trusted-organizations)) and that you hold full data access yourself
 (owners always do).
 
-1. Create the role if it does not exist: **Settings > Roles > Create role**, tick **Full data
+1. Create the role if it does not exist: **Settings > Access > Roles > Create role**, tick **Full data
    access**, choose the permissions the person needs, save.
-2. Open **Settings > Members**, find the person (filter **External** helps), open the row menu and
+2. Open **Settings > Access > Members**, find the person (filter **External** helps), open the row menu and
    choose **Change roles**.
 3. Add the role directly to the person (not to a team) and save.
 4. When the console asks you to confirm your identity, enter your authenticator code (or password,

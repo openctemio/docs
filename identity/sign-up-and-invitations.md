@@ -43,7 +43,7 @@ password.
 - Passwords are stored with bcrypt (cost 12).
 - Every self-registered account (sign-up mode `domain` or `open`) must verify its email address before it can
   sign in. For accounts invited into an organization, the organization's **email verification**
-  setting (`always`, `never` or `auto`; under **Settings > Authentication**) decides; with `auto`,
+  setting (`always`, `never` or `auto`; under **Settings > Security > Authentication**) decides; with `auto`,
   verification is required when the installation can send email. People who register through an
   invitation are verified by it. Verification links are valid for 24 hours (`AUTH_EMAIL_VERIFICATION_DURATION`);
   password reset links for 1 hour (`AUTH_PASSWORD_RESET_DURATION`).
@@ -106,7 +106,7 @@ requests are deleted after 24 hours and decided ones after 90 days.
 ### Joining by domain
 
 An organization owner decides, per domain the organization has verified for SSO, who may join with
-it (**Settings > Domains**; owners change, admins read; saving asks for step-up):
+it (**Settings > Security > Domains**; owners change, admins read; saving asks for step-up):
 
 | Setting | Meaning |
 |---|---|
@@ -117,10 +117,10 @@ it (**Settings > Domains**; owners change, admins read; saving asks for step-up)
 | **Include subdomains** | The settings also cover subdomains |
 
 ![The Domains settings page with the join, discoverability and single sign-on options of a verified domain]({{ site.baseurl }}/assets/images/identity/settings-domains.png)
-*Figure: Settings, Domains.*
+*Figure: Settings, Security, Domains.*
 
 Everything is off until an owner turns it on, and stops at once when the domain claim lapses. Join
-requests wait under **Requests to join** on **Settings > Members**: an administrator approves them as
+requests wait under **Requests to join** on **Settings > Access > Members**: an administrator approves them as
 viewer or member, or rejects them. One request per person and organization is pending, a person may
 ask 5 times a day, and requests expire after 30 days. Nobody becomes an administrator by request.
 
@@ -137,7 +137,7 @@ only emailed, never shown, and the action is audited at critical severity in the
 
 ## Inviting people
 
-Owners and admins invite from **Settings > Members** (`POST /api/v1/tenants/{tenant}/invitations`):
+Owners and admins invite from **Settings > Access > Members** (`POST /api/v1/tenants/{tenant}/invitations`):
 
 - An invitation names one or more roles. **Owner** is never offered; only an owner can invite an
   **admin**.
@@ -161,7 +161,7 @@ Owners and admins invite from **Settings > Members** (`POST /api/v1/tenants/{ten
 ### People outside the organization
 
 Anyone may be invited, to any role except owner, unless the organization restricts invitations
-(**Settings > Authentication**, **Who can be invited**: **Anyone** (default), **Verified domains
+(**Settings > Security > Authentication**, **Who can be invited**: **Anyone** (default), **Verified domains
 only**, or **Verified and allowed domains**; an organization with allowed email domains reads as the
 last). A person whose email domain the organization does not hold is **outside** the organization:
 
@@ -196,7 +196,7 @@ The organization's **personal accounts** policy (owner; security settings API
 
 ## Organization access policies
 
-Owners set these under **Settings > Authentication**
+Owners set these under **Settings > Security > Authentication**
 (`PATCH /api/v1/tenants/{tenant}/settings/security`, step-up required):
 
 - **Allowed email domains.** When set, only these exact domains (`example.com` does not admit

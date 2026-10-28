@@ -108,6 +108,6 @@ How to set them per deployment is in the
 | `callback_failed` (invalid state) | The state expired (10 minutes), was reused, or the person came back on another host name. Start again. |
 | Signed in, but no organization | Normal for a new person without membership or invitation. Invite the email of their Google account. |
 | "Your organization isn't set up yet" | Sign-up is closed and there is no invitation. See [Sign-up and invitations](sign-up-and-invitations.md). |
-| "An account with this email already exists" | The email already has a password account or an account made with another provider, and it could not be linked automatically. Sign in with the password, then link Google in **Account > Security**. See [existing accounts](social-login.md#existing-accounts). |
+| "An account with this email already exists" | The email already has a password account or an account made with another provider, and it could not be linked automatically. Sign in with the password, then link Google in **My account > Security**. See [existing accounts](social-login.md#existing-accounts). |
 
 More: [Social login troubleshooting](social-login.md#troubleshooting-all-providers).

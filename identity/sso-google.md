@@ -42,7 +42,7 @@ platform console's own site. Other providers: [Entra ID](sso-entra-id.md), [Okta
 
 Organization SSO admits people only for email domains the organization has proven with DNS. A
 platform administrator (super admin, with a fresh authenticator code for each change) opens
-**Platform console > Organizations >** the organization **> Single sign-on** and, under **Verified
+**Console > Customers > Organizations >** the organization **> Single sign-on** and, under **Verified
 domains**, adds the Workspace domain. Publish the TXT record shown, then select **Verify now**:
 
 | Host | Type | Value |
@@ -67,7 +67,7 @@ On the same tab, under **Identity providers**, add a provider:
 | Default role | `viewer` (default) or `member`. SSO never provisions admins or owners. |
 
 If the organization already has an owner, the change is **pending** until an owner approves it in the
-organization under **Settings > SSO approvals** (with step-up re-authentication). Pending changes
+organization under **Settings > Security > SSO approvals** (with step-up re-authentication). Pending changes
 expire after 7 days. An organization with no owner yet gets the change applied directly.
 
 Users then sign in at `https://<app>/login?org=<organization-slug>` and choose the provider.
@@ -98,7 +98,7 @@ email domain is in the organization's allowed email domains, when it has any.
   Otherwise they must be [invited](sign-up-and-invitations.md). The platform administrator can also set,
   per verified domain, whether new people are admitted and in which role.
 - An owner can turn on **Approve new SSO members**: first-time people wait with no access until an
-  administrator approves them under **Settings > Members**.
+  administrator approves them under **Settings > Access > Members**.
 
 ## Enforcing SSO and break-glass
 
@@ -140,4 +140,4 @@ do:
 | Sign-in refused with "domain not allowed" | The account is not a Workspace account (`hd` missing), or its domain is neither verified for the organization nor in the allowed domains. |
 | "You do not have access to this organization" | Just-in-time provisioning was not allowed: verify the domain, turn on auto-provision, or invite the user. |
 | "email is registered with a different login method" | The account belongs to another sign-in method or another Google user. This is the account-takeover guard. |
-| "waiting for an administrator's approval" | **Approve new SSO members** is on. An administrator approves the person under **Settings > Members**. |
+| "waiting for an administrator's approval" | **Approve new SSO members** is on. An administrator approves the person under **Settings > Access > Members**. |

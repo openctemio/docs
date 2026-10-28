@@ -61,8 +61,7 @@ stored as bcrypt hashes.
 
 ## Requiring 2FA in an organization
 
-An owner turns on **Require two-factor authentication** under **Settings > Authentication** (in the
-**Access** group). **Require two-factor authentication for owners and admins** is a narrower switch
+An owner turns on **Require two-factor authentication** under **Settings > Security > Authentication**. **Require two-factor authentication for owners and admins** is a narrower switch
 that is on for every organization created from now on (organizations created before keep it off until
 an owner turns it on; it is on and locked while the first switch is on). The creator of a new
 organization without 2FA gets the organization but no access token (`403 MFA_ENROLLMENT_REQUIRED`) and
@@ -87,13 +86,13 @@ switch on:
   `idp` for SSO users).
 
 ![The Authentication settings with the switches that require two-factor authentication]({{ site.baseurl }}/assets/images/identity/authentication.png)
-*Figure: Settings, Authentication.*
+*Figure: Settings, Security, Authentication.*
 
 ### SSO must prove two-factor
 
 By default, a sign-in through the organization's own identity provider counts as two-factor: the
 provider is trusted to have asked for a second factor. An owner can turn on **SSO must prove
-two-factor** under **Settings > Authentication > Two-factor authentication** (with step-up). With it
+two-factor** under **Settings > Security > Authentication > Two-factor authentication** (with step-up). With it
 on, a member who must use 2FA and signs in through the organization's SSO gets access only if the
 provider says, in its signed response, that a second factor was used:
 
@@ -112,7 +111,7 @@ switch off is recorded as a High audit event and the owners and admins are told.
 - **Lost device, recovery codes available:** sign in with a recovery code, then turn 2FA off and on
   again with the new device (or generate new codes).
 - **Lost device and codes:** an owner or admin of the organization resets it under
-  **Settings > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
+  **Settings > Access > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
   recovery codes, signs the person out everywhere, is audited and emailed to them. If the organization
   requires 2FA, they enrol again at the next sign-in.
 
@@ -156,7 +155,7 @@ requires that the session proved the user's identity within the last **10 minute
   applying a preset);
 - deleting the organization; offboarding or erasing a member; removing a member's 2FA;
 - making someone an admin; transferring ownership; renaming the organization's slug;
-- changing who may join with a verified domain (**Settings > Domains**); inviting someone outside the
+- changing who may join with a verified domain (**Settings > Security > Domains**); inviting someone outside the
   organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;
   allowing bearer-key sensors again;

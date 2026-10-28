@@ -15,7 +15,7 @@ or let provisioned people set a password.
 
 ## 1. Create a SCIM token
 
-In the organization, **Settings > Directory sync (SCIM)** (the owner generates and revokes tokens; admins can view them):
+In the organization, **Settings > Access > Directory sync (SCIM)** (the owner generates and revokes tokens; admins can view them):
 
 1. Select **Generate token**, give it a name (for example `Okta production`), choose when it
    expires (30, 90, 180 or 365 days; the API accepts 1 to 365 as `expires_in_days`) and confirm
@@ -24,7 +24,7 @@ In the organization, **Settings > Directory sync (SCIM)** (the owner generates a
 
 | Action | Who |
 |---|---|
-| List tokens, edit group mappings (except to `admin`) | owner or admin |
+| List tokens, edit group mappings (except to `admin`; saving needs step-up) | owner or admin |
 | Create or rotate a token | owner, with step-up |
 | Revoke a token | owner |
 | Map a group to `admin` | owner |

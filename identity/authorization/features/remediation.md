@@ -113,8 +113,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/suppressions/{id}/reviewed` | `findings:suppressions:approve` | scoped: an asset-bound rule needs its asset in the caller's scope to be read, edited, approved or deleted, and the list leaves out the others; an organization-wide rule needs full data access to create, edit, approve or delete |  | Owner, Administrator, CTEM program lead, Risk approver |
 | GET | `/api/v1/workflow-runs` | `automations:read` | scoped: a run about a finding or asset outside the caller's data scope is not listed and answers 404 (automations.md, run reads follow the scope) |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
 | GET | `/api/v1/workflow-runs/{id}` | `automations:read` | scoped: a run about a finding or asset outside the caller's data scope is not listed and answers 404 (automations.md, run reads follow the scope) |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
+| POST | `/api/v1/workflow-runs/{id}/approve` | `automations:publish` | scoped: a run about a finding or asset outside the caller's data scope is not listed and answers 404 (automations.md, run reads follow the scope) |  | Owner, Administrator |
 | POST | `/api/v1/workflow-runs/{id}/cancel` | `automations:write` | scoped: a run about a finding or asset outside the caller's data scope is not listed and answers 404 (automations.md, run reads follow the scope) |  | Owner, Administrator, Vulnerability manager |
-| POST | `/api/v1/workflow-runs/{id}/resume` | `automations:publish` | scoped: a run about a finding or asset outside the caller's data scope is not listed and answers 404 (automations.md, run reads follow the scope) |  | Owner, Administrator |
 | GET | `/api/v1/workflows` | `automations:read` | config: workflow definitions |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
 | POST | `/api/v1/workflows` | `automations:write` | config: workflow definitions |  | Owner, Administrator, Vulnerability manager |
 | GET | `/api/v1/workflows/catalog` | `automations:read` | config: workflow definitions |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
@@ -132,8 +132,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/workflows/{id}/publish` | `automations:publish` | config: workflow definitions |  | Owner, Administrator |
 | POST | `/api/v1/workflows/{id}/runs` | `automations:write` | config: workflow definitions |  | Owner, Administrator, Vulnerability manager |
 | GET | `/api/v1/workflows/{id}/trace` | `automations:read` | config: workflow definitions |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
-| POST | `/api/v1/workflows/{id}/validate` | `automations:write` | config: workflow definitions |  | Owner, Administrator, Vulnerability manager |
+| POST | `/api/v1/workflows/{id}/verify` | `automations:write` | config: workflow definitions |  | Owner, Administrator, Vulnerability manager |
 | GET | `/api/v1/workflows/{id}/versions` | `automations:read` | config: workflow definitions |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
-| GET | `/api/v1/workflows/{id}/versions/{versionId}` | `automations:read` | config: workflow definitions |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
-| POST | `/api/v1/workflows/{id}/versions/{versionId}/approve` | `automations:publish` | config: workflow definitions |  | Owner, Administrator |
-| POST | `/api/v1/workflows/{id}/versions/{versionId}/rollback` | `automations:publish` | config: workflow definitions |  | Owner, Administrator |
+| GET | `/api/v1/workflows/{id}/versions/{version_id}` | `automations:read` | config: workflow definitions |  | Owner, Administrator, Member, Viewer, Security analyst, Vulnerability manager |
+| POST | `/api/v1/workflows/{id}/versions/{version_id}/approve` | `automations:publish` | config: workflow definitions |  | Owner, Administrator |
+| POST | `/api/v1/workflows/{id}/versions/{version_id}/rollback` | `automations:publish` | config: workflow definitions |  | Owner, Administrator |

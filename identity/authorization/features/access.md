@@ -115,7 +115,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/scim-tokens/{id}/rotate` | team role owner | config: SCIM tokens | yes | Owner |
 | GET | `/api/v1/service-accounts` | `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | POST | `/api/v1/service-accounts` | `service_accounts:manage` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
-| DELETE | `/api/v1/service-accounts/{id}` | `service_accounts:manage` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
+| DELETE | `/api/v1/service-accounts/{id}` | `service_accounts:manage` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
 | GET | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:read`, `team:members:read` + team role admin | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
 | POST | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:write`, `service_accounts:manage` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
 | DELETE | `/api/v1/service-accounts/{id}/api-keys/{key_id}` | `integrations:api_keys:delete`, `service_accounts:manage` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |

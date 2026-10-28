@@ -42,7 +42,7 @@ issuer must be exactly that; a custom authorization server is not supported.
 
 ### Step 2: Configure it in OpenCTEM
 
-A platform administrator (super admin) opens **Admin console > Organizations >** the organization
+A platform administrator (super admin) opens **Console > Customers > Organizations >** the organization
 **> Single sign-on** (tab; every change needs a fresh authenticator code):
 
 1. **Verified domains:** add the organization's email domain and publish the TXT record shown
@@ -62,7 +62,7 @@ A platform administrator (super admin) opens **Admin console > Organizations >**
    (`POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`) if your provider rejects the
    Microsoft-only `User.Read`.
 
-3. An organization owner approves the change under **Settings > SSO approvals** (unless the
+3. An organization owner approves the change under **Settings > Security > SSO approvals** (unless the
    organization has no owner yet).
 
 Users sign in at `https://<app>/login?org=<organization-slug>`. The email comes from Okta's

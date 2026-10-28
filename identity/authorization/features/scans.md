@@ -9,11 +9,11 @@ nav_order: 19
 
 # Scans and workflows: permissions
 
-Scans, scan runs and workflows, profiles, tools, templates, content packs and the content catalog, the secret store and freeze windows.
+Scans, scan runs and workflows, profiles, tools, templates, rule sources, content packs and the content catalog, the secret store and freeze windows.
 
 - **CTEM stages:** discovery, validation
 - **Modules:** `scan_workflows`, `scanner_templates`, `scans`, `template_sources` (the routes answer `403 MODULE_NOT_ENABLED` when the module is off)
-- **Permissions:** `attack_surface:programs:read`, `attack_surface:scope:approve`, `attack_surface:scope:read`, `content:install`, `content:publish`, `content:read`, `scans:approve`, `scans:content:read`, `scans:content:write`, `scans:delete`, `scans:execute`, `scans:profiles:delete`, `scans:profiles:read`, `scans:profiles:write`, `scans:read`, `scans:secret_store:delete`, `scans:secret_store:read`, `scans:secret_store:write`, `scans:sources:delete`, `scans:sources:read`, `scans:sources:write`, `scans:templates:delete`, `scans:templates:read`, `scans:templates:write`, `scans:tenant_tools:write`, `scans:tools:delete`, `scans:tools:read`, `scans:tools:write`, `scans:windows:manage`, `scans:windows:override`, `scans:workflows:delete`, `scans:workflows:read`, `scans:workflows:write`, `scans:write`, `sensors:commands:read`, `sensors:commands:write`, `sensors:read`, `settings:write`
+- **Permissions:** `attack_surface:programs:read`, `attack_surface:scope:approve`, `attack_surface:scope:read`, `content:install`, `content:publish`, `content:read`, `scans:approve`, `scans:content:read`, `scans:content:write`, `scans:delete`, `scans:execute`, `scans:profiles:delete`, `scans:profiles:read`, `scans:profiles:write`, `scans:read`, `scans:secret_store:delete`, `scans:secret_store:read`, `scans:secret_store:write`, `scans:sources:approve`, `scans:sources:delete`, `scans:sources:read`, `scans:sources:write`, `scans:templates:delete`, `scans:templates:read`, `scans:templates:write`, `scans:tenant_tools:write`, `scans:tools:delete`, `scans:tools:read`, `scans:tools:write`, `scans:windows:manage`, `scans:windows:override`, `scans:workflows:delete`, `scans:workflows:read`, `scans:workflows:write`, `scans:write`, `sensors:commands:read`, `sensors:commands:write`, `sensors:read`, `settings:write`
 
 ## Who can do it
 
@@ -39,6 +39,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | `scans:secret_store:delete` | Owner, Administrator |
 | `scans:secret_store:read` | Owner, Administrator, Member |
 | `scans:secret_store:write` | Owner, Administrator |
+| `scans:sources:approve` | Owner, Administrator |
 | `scans:sources:delete` | Owner, Administrator |
 | `scans:sources:read` | Owner, Administrator, Member, Viewer, Scan operator |
 | `scans:sources:write` | Owner, Administrator |
@@ -79,6 +80,23 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/content-packs/{id}` | `scans:content:read` | config: content packs (RFC-061): the tenant own templates, rules and wordlists |  | Owner, Administrator, Scan operator |
 | GET | `/api/v1/content-packs/{id}/download` | `scans:content:read` | config: content packs (RFC-061): the tenant own templates, rules and wordlists |  | Owner, Administrator, Scan operator |
 | POST | `/api/v1/content-packs/{id}/revoke` | `scans:content:write` | config: content packs (RFC-061): the tenant own templates, rules and wordlists | yes | Owner, Administrator |
+| GET | `/api/v1/content-sources` | `scans:sources:read` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator, Member, Viewer, Scan operator |
+| POST | `/api/v1/content-sources` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| POST | `/api/v1/content-sources/test` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| DELETE | `/api/v1/content-sources/{id}` | `scans:sources:delete` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| GET | `/api/v1/content-sources/{id}` | `scans:sources:read` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator, Member, Viewer, Scan operator |
+| PUT | `/api/v1/content-sources/{id}` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| DELETE | `/api/v1/content-sources/{id}/credential` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator |
+| PUT | `/api/v1/content-sources/{id}/credential` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| POST | `/api/v1/content-sources/{id}/rollback` | `scans:sources:approve` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| GET | `/api/v1/content-sources/{id}/snapshots` | `scans:sources:read` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator, Member, Viewer, Scan operator |
+| GET | `/api/v1/content-sources/{id}/snapshots/{snapshot_id}` | `scans:sources:read` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator, Member, Viewer, Scan operator |
+| POST | `/api/v1/content-sources/{id}/snapshots/{snapshot_id}/approve` | `scans:sources:approve` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| POST | `/api/v1/content-sources/{id}/snapshots/{snapshot_id}/reject` | `scans:sources:approve` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator |
+| POST | `/api/v1/content-sources/{id}/sync` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator |
+| POST | `/api/v1/content-sources/{id}/test` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
+| DELETE | `/api/v1/content-sources/{id}/webhook` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) |  | Owner, Administrator |
+| POST | `/api/v1/content-sources/{id}/webhook` | `scans:sources:write` | config: rule sources: the organization's own sources and the offered platform sources (tenant-scoped repository reads) | yes | Owner, Administrator |
 | GET | `/api/v1/content/installs` | `content:read` | config: content catalog (RFC-099): instance catalog and the organization's private packages, installs, requests |  | Owner, Administrator, Member, Viewer |
 | POST | `/api/v1/content/installs` | `content:install` | config: content catalog (RFC-099): instance catalog and the organization's private packages, installs, requests | yes | Owner, Administrator |
 | DELETE | `/api/v1/content/installs/{namespace}/{name}` | `content:install` | config: content catalog (RFC-099): instance catalog and the organization's private packages, installs, requests | yes | Owner, Administrator |
@@ -107,7 +125,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/platform/scanning` | one of `scans:read`, `sensors:read` | system: platform sensors |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Researcher, Auditor |
 | GET | `/api/v1/scan-approvals` | `scans:read` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Researcher, Auditor |
 | GET | `/api/v1/scan-approvals/{id}` | `scans:read` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Researcher, Auditor |
-| POST | `/api/v1/scan-approvals/{id}/approve` | `scans:approve` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) |  | Owner, Administrator |
+| POST | `/api/v1/scan-approvals/{id}/approve` | `scans:approve` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) | yes | Owner, Administrator |
 | POST | `/api/v1/scan-approvals/{id}/cancel` | `scans:write` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator, Researcher |
 | POST | `/api/v1/scan-approvals/{id}/reject` | `scans:approve` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) |  | Owner, Administrator |
 | POST | `/api/v1/scan-approvals/{id}/remind` | `scans:write` | gap: L-06 (scan approval requests carry the scan definition and targets, as scan reads; D9) |  | Owner, Administrator, Member, Vulnerability manager, AppSec engineer, Scan operator, Researcher |
@@ -216,14 +234,6 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/secret-store/{id}` | `scans:secret_store:read` | config: scanner credentials |  | Owner, Administrator, Member |
 | PUT | `/api/v1/secret-store/{id}` | `scans:secret_store:write` + team role admin | config: scanner credentials | yes | Owner, Administrator |
 | POST | `/api/v1/secret-store/{id}/rotate` | `scans:secret_store:write` + team role admin | config: scanner credentials | yes | Owner, Administrator |
-| GET | `/api/v1/template-sources` | `scans:sources:read` | config: template sources |  | Owner, Administrator, Member, Viewer, Scan operator |
-| POST | `/api/v1/template-sources` | `scans:sources:write` | config: template sources |  | Owner, Administrator |
-| DELETE | `/api/v1/template-sources/{id}` | `scans:sources:delete` | config: template sources |  | Owner, Administrator |
-| GET | `/api/v1/template-sources/{id}` | `scans:sources:read` | config: template sources |  | Owner, Administrator, Member, Viewer, Scan operator |
-| PUT | `/api/v1/template-sources/{id}` | `scans:sources:write` | config: template sources |  | Owner, Administrator |
-| POST | `/api/v1/template-sources/{id}/disable` | `scans:sources:write` | config: template sources |  | Owner, Administrator |
-| POST | `/api/v1/template-sources/{id}/enable` | `scans:sources:write` | config: template sources |  | Owner, Administrator |
-| POST | `/api/v1/template-sources/{id}/sync` | `scans:sources:write` | config: template sources |  | Owner, Administrator |
 | GET | `/api/v1/tool-categories` | `scans:tools:read` | config: tool categories (platform + own custom) |  | Owner, Administrator, Member, Viewer, Vulnerability manager, AppSec engineer, CI integrator, Scan operator, Sensor operator |
 | POST | `/api/v1/tool-categories` | `scans:tools:write` | config: tool categories (platform + own custom) |  | Owner, Administrator |
 | DELETE | `/api/v1/tool-categories/{id}` | `scans:tools:delete` | config: tool categories (platform + own custom) |  | Owner, Administrator |
@@ -236,3 +246,4 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/tools/{id}` | `scans:tools:read` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator, Member, Viewer, Vulnerability manager, AppSec engineer, CI integrator, Scan operator, Sensor operator |
 | PUT | `/api/v1/tools/{id}` | `scans:tools:write` | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |
 | PATCH | `/api/v1/tools/{id}/settings` | `scans:tenant_tools:write` + team role admin | config: tool catalog (platform + own custom tools) with the tenant's settings of it |  | Owner, Administrator |
+| POST | `/hooks/content-sources/{id}` | no permission: public: the URL names one rule source and its own webhook secret (header, SHA-256 compared in constant time) is the credential; the call carries no content and only queues a sync; every refusal is the same 401; per-IP, per-source and per-hour limits | system: inbound rule source webhook: the source named in the URL and its own secret decide the one tenant; the call only queues a sync |  | see Requires |

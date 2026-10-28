@@ -170,6 +170,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `scans:secret_store:delete` | Delete Secrets: Remove secrets | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `scans:secret_store:read` | View Secret Store: View secret store | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `scans:secret_store:write` | Manage Secret Store: Create and update secrets | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `scans:sources:approve` | Approve Rule Source Snapshots: Promote, reject and roll back rule source snapshots | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `scans:sources:delete` | Delete Sources: Remove data sources | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `scans:sources:read` | View Sources: View data sources | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |
 | `scans:sources:write` | Manage Sources: Configure data sources | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

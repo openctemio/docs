@@ -34,7 +34,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | Method | Path | Requires | Data scope | Step-up | Roles that pass |
 |---|---|---|---|---|---|
 | GET | `/api/v1/audit-logs` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
-| GET | `/api/v1/audit-logs/export` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
+| GET | `/api/v1/audit-logs/export` | `audit:read` | config: audit log (admin) | yes | Owner, Administrator, Auditor |
 | GET | `/api/v1/audit-logs/resource/{type}/{id}` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
 | GET | `/api/v1/audit-logs/stats` | `audit:read` | config: audit log (admin) |  | Owner, Administrator, Auditor |
 | GET | `/api/v1/audit-logs/user/{id}` | `audit:read` + the permission, or the caller's own record | config: audit log (admin) |  | Owner, Administrator, Auditor |
@@ -66,8 +66,10 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/organization/settings/evidence` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/finding-correlation` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | PATCH | `/api/v1/organization/settings/finding-correlation` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
+| GET | `/api/v1/organization/settings/finding-views` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
+| PATCH | `/api/v1/organization/settings/finding-views` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/license-policy` | `settings:read` | config: organization settings |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
-| PUT | `/api/v1/organization/settings/license-policy` | `settings:write` | config: organization settings |  | Owner, Administrator |
+| PUT | `/api/v1/organization/settings/license-policy` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/retest` | team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/retest` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/shared-sensors` | team role admin | config: organization settings |  | Owner, Administrator |

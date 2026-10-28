@@ -27,7 +27,7 @@ OpenCTEM is an open-source Continuous Threat Exposure Management (CTEM) platform
 
 ### 3.1 Account Creation
 
-- Accounts are created through invitation by a tenant administrator an organization's single sign-on, or self-registration (if the platform operator's sign-up policy allows it).
+- Accounts are created through invitation by a tenant administrator, an organization's single sign-on, or self-registration (if the platform operator's sign-up policy allows it).
 - You must provide accurate and complete information during registration.
 - You are responsible for maintaining the confidentiality of your credentials.
 

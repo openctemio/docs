@@ -14,10 +14,10 @@ They add up: one satisfied rule does not switch off another.
 
 | Rule | Who it applies to | Set by |
 |---|---|---|
-| **Require two-factor authentication** (`mfa_required`) | Every member who signs in with a password | Owner, **Settings > Authentication** |
-| **Require two-factor authentication for owners and administrators** (`mfa_required_for_admins`) | Owners and administrators. On for every organization created recently; older organizations keep it off until an owner turns it on. It is on and locked while the first switch is on. | Owner, **Settings > Authentication** |
-| **Personal accounts: Allowed with two-factor** (`allowed_with_mfa`) | Members with a personal address. The default for new organizations. The other values are **Allowed** and **Blocked**. | Owner, **Settings > Authentication** |
-| **SSO must prove two-factor** | Members who must use two-factor and sign in through the organization's own identity provider | Owner, **Settings > Authentication** |
+| **Require two-factor authentication** (`mfa_required`) | Every member who signs in with a password | Owner, **Settings > Security > Authentication** |
+| **Require two-factor authentication for owners and administrators** (`mfa_required_for_admins`) | Owners and administrators. On for every organization created recently; older organizations keep it off until an owner turns it on. It is on and locked while the first switch is on. | Owner, **Settings > Security > Authentication** |
+| **Personal accounts: Allowed with two-factor** (`allowed_with_mfa`) | Members with a personal address. The default for new organizations. The other values are **Allowed** and **Blocked**. | Owner, **Settings > Security > Authentication** |
+| **SSO must prove two-factor** | Members who must use two-factor and sign in through the organization's own identity provider | Owner, **Settings > Security > Authentication** |
 | **Always on: a privileged outside member** | An [outside member](outside-members.md) who holds a privileged role (owner or admin, full data access, or a privileged permission), directly or through a team. There is no setting to turn this off. | The platform |
 
 A second factor counts when the person signed in with a password and has an authenticator app turned
@@ -42,12 +42,13 @@ the platform cannot read the person's roles or factor, it refuses.
 
 ## Recovering a blocked person
 
-Today the "organization 2FA" rules offer set-up at sign-in, but the always-on rule for privileged
-outside members and the personal-accounts rule do not always lead the person to set-up. A new
-outside administrator who accepts an invitation can end up with a membership but no way into the
-organization. To recover:
+From v0.15.4 a person whose session is refused for two-factor is taken to set-up (see
+[Set-up at the next sign-in](#set-up-at-the-next-sign-in)). On v0.15.3 and earlier, the always-on rule for privileged
+outside members and the personal-accounts rule did not lead the person to set-up: a new outside
+administrator who accepts an invitation could end up with a membership but no way into the
+organization. To recover on those releases:
 
-1. As owner, open **Settings > Members**, find the person, **Change roles**, and give them
+1. As owner, open **Settings > Access > Members**, find the person, **Change roles**, and give them
    **Viewer** only (replace the privileged role). This is allowed without their second factor,
    unless another rule in the table above also applies to them.
 2. The person signs in and opens **Settings > My account > Security > Two-factor authentication >
@@ -61,19 +62,17 @@ Notes:
 - If the person is a personal-address member and **Personal accounts** is **Allowed with
   two-factor**, or **Require two-factor authentication** is on, the viewer step does not help,
   because those rules apply to every role. They need two-factor first: for example by turning it on
-  in another organization they belong to (it follows the account), or you can wait for the change
-  below.
+  in another organization they belong to (it follows the account), or by upgrading to v0.15.4 or later.
 - Never weaken an organization-wide switch to let one person in.
 - To lose a device and recovery codes later, an owner or administrator resets their two-factor
   under **Members > Reset 2FA** ([Recovery](../two-factor.md#recovery)).
 
-### What changes once next-login set-up ships
+### Set-up at the next sign-in
 
-The next release adds set-up in place. After accepting an invitation that needs two-factor, the
+From v0.15.4 the console offers set-up in place. After accepting an invitation that needs two-factor, the
 person sees "You have joined the organization" and the set-up step right away, then opens the
 organization. A person whose session is refused for two-factor stays signed in and is taken to a full
 set-up page, which names the organization that requires it, and then returns to the page they were
 on. Password sign-in also offers set-up when only the outside-member or personal-account rule
 applies. Sessions from a social sign-in cannot set up in place and are told so.
-The temporary Viewer step is then no longer needed. Until the release is installed, use the steps
-above.
+The temporary Viewer step is then no longer needed; use the steps above only on v0.15.3 and earlier.
