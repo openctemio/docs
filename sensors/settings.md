@@ -67,6 +67,7 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_JOB_ID"></span>`SENSOR_JOB_ID` | string |  |  |  | Run the one platform command with this id and exit (or `-job`; a Kubernetes Job, see [Kubernetes](deploy-kubernetes.md)). It is not in the settings registry, so **Setup & health** lists it as unknown (`config.env_unknown`); that warning is harmless here. |
 | <span id="SENSOR_DRAIN_GRACE"></span>`SENSOR_DRAIN_GRACE` | duration |  | `30s` |  | How long running jobs may finish on shutdown. |
 | <span id="SENSOR_SCANNER_PRIORITY"></span>`SENSOR_SCANNER_PRIORITY` | enum |  | `low` |  | Priority of scanner processes. |
+| <span id="SENSOR_TOOL_CGROUPS"></span>`SENSOR_TOOL_CGROUPS` | enum |  | `auto` |  | Per-task cgroup limits for tools where the sensor's cgroup is delegated (`auto`), or rlimits only (`off`). Without a delegated cgroup the sensor falls back to rlimits and says so in its sandbox status. |
 | <span id="SENSOR_PROTECT_FROM_OOM"></span>`SENSOR_PROTECT_FROM_OOM` | bool |  | `false` |  | Protect the sensor itself from the OOM killer (needs CAP_SYS_RESOURCE). |
 | <span id="SENSOR_TOOLS"></span>`SENSOR_TOOLS` | list |  |  |  | Deprecated: narrows the installed tools to this comma-separated list (built-ins such as the reachability probe are kept). Unset: every installed tool. Narrow with the local policy's tools.allow instead. |
 | <span id="SENSOR_ADAPTER_DIRS"></span>`SENSOR_ADAPTER_DIRS` | string |  |  |  | Directories of operator-installed tools (tool.yaml with its program), separated by the OS path list separator. |
