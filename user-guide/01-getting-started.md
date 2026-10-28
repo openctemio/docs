@@ -352,9 +352,8 @@ OpenCTEM did with it:
 - the findings closed as false positive in the period;
 - the same figures per source as a table.
 
-Every figure opens **Import and run receipts** (`/findings/imports`) with the
-same source and period; the totals at the top of that list are the figure you
-clicked.
+The receipts behind the figures are listed by `GET /api/v1/findings/imports`
+(see [Ingest](../api/ingest.md)); the console has no receipts page.
 
 ### The CTEM loop
 

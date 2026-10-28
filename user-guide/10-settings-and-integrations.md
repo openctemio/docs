@@ -19,7 +19,7 @@ the settings area the sidebar is replaced by the settings rail.
 | Access | Members, Teams, Roles, Directory sync (SCIM), API keys, Service accounts, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
 | Findings & assets | Finding lifecycle, Finding approvals, Risk scoring, SLA policies, Vulnerability matching, License policy, Asset sources, Asset lifecycle, Pentest methodology |
 | Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan profiles, Tools, Tool defaults, Sensor products, Capabilities |
-| Scanner content | Content catalog, Scanner templates, Template sources, Source credentials, Content freshness |
+| Scanner content | Content catalog, Scanner templates, Source credentials, Content freshness |
 | Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Notification channels, SIEM |
 
 Pages that depend on a module or a limit appear only when it applies: for
@@ -559,7 +559,7 @@ on takes effect at once; turning it off takes effect 24 hours later.
 ### Scanner templates
 
 **Scanner templates** (`/settings/scanning/templates`) holds custom Nuclei,
-Semgrep and Betterleaks templates, uploaded here or synced from template sources,
+Semgrep and Betterleaks templates, uploaded here,
 validated and versioned.
 
 - **Upload template**: choose the **Template Type**, a **Name** and description,
@@ -569,25 +569,10 @@ validated and versioned.
 - A row's menu: **Download**, **Deprecate** (deprecated templates cannot be used
   in new scans; the template is not deleted) and **Delete**.
 
-### Template sources
-
-**Template sources** (`/settings/scanning/template-sources`) are external places
-custom templates are synced from.
-
-1. Click **Add source**, give it a **Name**, the **Template Type** and a cache
-   time.
-2. Choose the source: **Git** (repository URL, branch, optional path), **S3**
-   (bucket, region, optional prefix) or **HTTP** (URL, timeout).
-3. Pick the authentication and, if it needs one, a credential from **Source
-   credentials**.
-4. **Auto Sync on Scan** (on by default) refreshes the source before scans.
-
-A row's menu: **Sync now**, **Disable** / **Enable**, **Edit** and **Delete**.
-
 ### Source credentials
 
 **Source credentials** (`/settings/scanning/credentials`) stores, encrypted, the
-credentials that template sources use to authenticate: Git tokens, cloud keys and
+credentials stored for fetching scanner content: Git tokens, cloud keys and
 more. **Add credential** with a name, an optional expiry date (you are reminded
 before it expires) and the credential type (for example API key, basic, bearer
 token, SSH key, AWS role). Secret values are never shown again after you save
