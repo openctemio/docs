@@ -419,6 +419,16 @@ their parameters (names only), the same path across origins, and what changed.
   changed, new parameter).
 - An endpoint under a scope exclusion shows **Never tested** with a link to the
   exclusion.
+- Endpoints are labeled at ingest from their file extension (backup,
+  config, archive, database dump, source, log) and when they hold a password
+  form (login).
+- A new or changed in-scope endpoint that answers 2xx on a path of the
+  sensitive-path catalog is verified by a template, within a daily budget of
+  100 endpoints per organization, non-intrusive checks only, and never on an
+  excluded path. A finding is filed only from a template hit.
+- **Changes** and the weekly digest include a new sensitive path, a lost
+  authentication and a new sensitive parameter. A critical new sensitive path
+  and a lost authentication also alert at once, once per alert.
 
 Web surface fills in when a scan workflow with a web crawl step runs. The
 origins come from the HTTP probe: each probed origin is its own asset, named
