@@ -94,18 +94,37 @@ On the first social sign-in the account is bound to the provider's identity. Mat
 | Situation | Result |
 |---|---|
 | The identity is already bound to an account | Signed in. The account follows the provider's email if it changed and no other account uses it. |
-| The email belongs to an account with a **password** | Linked automatically when all the conditions below hold; otherwise refused with `OAUTH_ACCOUNT_EXISTS`: the sign-in page says an account with this email already exists, to sign in with the password and link the provider in **My account > Security**. |
-| The email belongs to an account made by another provider (for example Google, now GitHub) | Refused with `OAUTH_ACCOUNT_EXISTS`. Sign in with the first provider and link the second one in **My account > Security**. |
+| The email belongs to an account with a **password** | Refused with `OAUTH_ACCOUNT_EXISTS`; nothing on the account changes. The sign-in page says an account with this email already exists. Sign in with the password (and your second factor); the app then offers to link the provider (see below). Linked automatically only where the platform turned automatic linking on. |
+| The email belongs to an account made by another provider (for example Google, now GitHub) | Refused with `OAUTH_ACCOUNT_EXISTS`. Sign in with the first provider; the app then offers to link the second one. |
 | The email belongs to an invited account that has not set a password yet | Adopted only when every organization it belongs to has DNS-verified the email's domain; otherwise refused. |
 | No account | Created if the sign-up policy or a pending invitation admits it. |
 
 #### Linking a provider to your account
 
-Signed in, open **My account > Security > Connected sign-in methods** and click **Link** next to Google,
-GitHub or Microsoft. You confirm it is you (authenticator code or password), sign in at the provider,
-and come back with the provider linked. The provider account does not need the same email address.
-**Unlink** removes it after the same confirmation; your only remaining way to sign in cannot be
-removed. Each link and unlink is recorded in the audit log and e-mailed to you.
+A provider is never linked without your explicit confirmation, and every confirmation asks for a
+proof typed in the dialog at that moment:
+
+- the **code from your authenticator app** when two-factor authentication is on (a recovery code is
+  not accepted, and neither is the code you just used to sign in: wait for the next one);
+- otherwise your **password**.
+
+Having signed in a moment ago does not count. An account that signs in only through a provider and
+has no two-factor authentication must turn it on (**My account > Security**) before it can link or
+unlink a provider. Wrong codes or passwords count towards the account lockout.
+
+There are two ways to link:
+
+- **After a refused sign-in.** You tried to sign in with Google and the address already has an
+  account. Sign in to that account the usual way; the app asks **Link Google to your account?** with
+  the code (or password) field. **Link** links it and signs out your other sessions; **Not now**
+  forgets it. The offer lasts 10 minutes and works once, in the same browser.
+- **From your settings.** Open **My account > Security > Connected sign-in methods**, click **Link**
+  next to Google, GitHub or Microsoft, enter the code (or password), sign in at the provider, and come
+  back with the provider linked. The provider account does not need the same email address.
+
+**Unlink** removes a provider after the same proof; your only remaining way to sign in cannot be
+removed. Each link and unlink is recorded in the audit log (with the kind of proof used) and e-mailed
+to you.
 
 #### Automatic linking
 
@@ -117,7 +136,8 @@ only when all of these hold:
   in its Entra tenant (GitHub never links automatically);
 - the provider verified the address, and the account's own address is verified;
 - the platform allows it: **Console > Settings > Sign-up**, **Link Google and Microsoft sign-in to
-  existing accounts** (on by default).
+  existing accounts** (off by default, and switched off on upgrade; turning it on asks the
+  administrator for their authenticator code and is audited).
 
 Every other session of the account is then signed out, a pending password reset link stops working,
 and the account's mailbox gets a notice. Turn the setting off if accounts on your platform were ever
@@ -141,7 +161,9 @@ treat the session as before.
 | `callback_failed` right after consent | The code exchange failed: wrong client secret, a redirect URI that differs from the one registered, or the API cannot reach the provider (egress). The API log names the provider and the reason. |
 | `provider_error` | The person cancelled at the provider, or the provider returned an error (for example an app in testing mode). |
 | "Your organization isn't set up yet" | The sign-up policy is closed and the person has no invitation. Invite them, or change the policy. |
-| "An account with this email already exists" (`OAUTH_ACCOUNT_EXISTS`) | The address has a password account (or an account of another provider). Sign in with it, then link the provider in **My account > Security**. See [Existing accounts](#existing-accounts). Earlier releases showed an internal error instead. |
+| "An account with this email already exists" (`OAUTH_ACCOUNT_EXISTS`) | The address has a password account (or an account of another provider). Sign in with it, then confirm the link the app offers, or link the provider in **My account > Security**. See [Existing accounts](#existing-accounts). Earlier releases showed an internal error instead. |
+| "The code or password is not correct" when linking (`LINK_PROOF_FAILED`) | A wrong password, a wrong code, a recovery code, or the code already used to sign in. Wait for the next code and try again; repeated failures lock the account like failed sign-ins. |
+| "Turn on two-factor authentication before you change sign-in methods" (`LINK_PROOF_UNAVAILABLE`) | The account has no password and no authenticator app. Turn on two-factor authentication in **My account > Security**, then link or unlink. |
 | The person signs in but sees no organization | Expected without a membership or invitation. See [What happens after sign-in](#what-happens-after-sign-in). |
 
 Every error that returns to the login page carries a fixed code, never the provider's own text.
