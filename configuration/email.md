@@ -20,19 +20,47 @@ set-password links are not delivered.
 
 | Level | Configured by | Used for |
 |---|---|---|
-| Platform SMTP | A platform administrator, in the platform console: **Settings > E-mail** | Account email (invitations, welcome, email verification, password reset, set-password links) for every organization without its own relay, and the set-password link `bootstrap-admin` sends. |
-| Organization SMTP | An organization administrator, as an **Email** notification channel (see [Notification channels](notifications.md#email)) | That organization's account email and its email notifications. |
+| Platform SMTP | A platform administrator, in the platform console: **Settings > E-mail** | All account security email (account setup and set-password links, first owner and owner recovery links, email verification, password reset, two-factor and sign-in notices), the set-password link `bootstrap-admin` sends, and every organization's business mail unless its own relay carries it. |
+| Organization SMTP | An organization administrator, as an **Email** notification channel (see [Notification channels](notifications.md#email)) | That organization's email notifications, and its business mail (invitation notices, member notices, scheduled reports) when **Also send my organization's business mail through this server** is ticked and the platform allows it. |
 
-For account email, an organization's connected Email channel wins; otherwise
-the platform SMTP is used; with neither, the email is skipped and a warning is
+Account security email always goes through the platform SMTP, never through an
+organization's relay. Without a platform SMTP it is skipped and a warning is
 logged.
+
+### Organization relays: platform setting
+
+Whether an organization's relay may carry its business mail is the platform
+setting `email.tenant_relay` (console API `/api/v1/admin/settings/email-relay`;
+changing it needs a super administrator, a fresh step-up and a reason, and is
+audited as critical):
+
+| Value | Meaning |
+|---|---|
+| `off` | Organization relays carry only the organization's notifications. |
+| `verified_sender` | Business mail may use the organization's relay when its sender address is on a DNS-verified domain of the organization. Default with `MANAGED_SERVICE=true`. |
+| `on` | Business mail may use the organization's relay. Default on a self-managed install. |
+
+Until a super administrator stores a value, `ORG_EMAIL_RELAY_MODE` sets the
+default. The tick box is off on every channel until an owner or administrator
+ticks it. When an organization's relay cannot be used, invitation notices fall
+back to the platform SMTP and scheduled reports are not sent.
+
+On a hosted service (`MANAGED_SERVICE=true`) an organization's relay must use
+port 465, 587 or 2525 with a username, a password and TLS or STARTTLS; port 25 is
+refused when the channel is saved, tested and before every send. A channel that
+breaks the rule shows `INTEGRATION_EMAIL_RELAY_POLICY` with the reason and stops
+sending; its owners get a notice. Self-managed installs are not affected.
 
 ## Configure platform SMTP
 
 Open the platform console (its own address, not a path of the main application) as a platform administrator, go to
 **Settings > E-mail**, enter the relay (host, port, user, password, sender
 address and name, STARTTLS) and save. Saving needs a super administrator and a
-fresh authenticator code. **Send a test e-mail** sends a message to your own address.
+fresh authenticator code. Pointing platform email at another relay (a different
+host, port, connection security or SMTP username) also needs a second super
+administrator's approval, because the relay receives every set-password and
+password-reset link; rotating the password of the same login, changing the sender,
+sending a test and turning email off do not. **Send a test e-mail** sends a message to your own address.
 The setting applies to the next message, without a restart. The password is
 stored encrypted with `APP_ENCRYPTION_KEY`.
 

@@ -18,7 +18,6 @@ containers.
 | Node.js | 26 (`web/.nvmrc`) | the web console |
 | Docker with Compose | recent | PostgreSQL 17, Redis 7, optional containerized API |
 | GNU Make, Git | any recent | the root `Makefile` |
-| `golang-migrate` CLI | v4 | applying migrations outside a container (`make -C api install-tools`) |
 
 ## 1. Clone and install
 
@@ -66,8 +65,7 @@ The base Compose file publishes PostgreSQL on `5432` and Redis on `6379` (change
 ## 4. Apply the migrations
 
 ```bash
-make migrate-up          # needs the migrate CLI; or:
-make docker-migrate-up   # runs migrate in a container
+make migrate-up          # runs this tree's openctem-migrate with go run; nothing to install
 ```
 
 ## 5. Run the API
@@ -81,7 +79,7 @@ make dev-api             # runs the API (go run ./cmd/server) on http://localhos
 or from `api/`, with hot reload:
 
 ```bash
-make -C api install-tools   # once: air, golangci-lint, migrate, mockgen
+make -C api install-tools   # once: golangci-lint, staticcheck, air, mockgen
 make -C api dev             # air
 ```
 

@@ -48,30 +48,43 @@ docker compose exec api wget -qO- localhost:8080/ready
 
 ## Migrations
 
-Read the migration state:
+Since v0.16.0 the migration runner (`openctem-migrate`) records every applied
+migration in `schema_migrations_applied`; `schema_migrations` keeps one row, a
+fence version while the database is clean, or the failed migration's version and
+`dirty = t`. Read the state:
 
 ```bash
-docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version, dirty FROM schema_migrations"'
+set -a; . ./.env; set +a
+DBURL="postgres://${DB_MIGRATE_USER:-$DB_USER}:${DB_MIGRATE_PASSWORD:-$DB_PASSWORD}@postgres:5432/${DB_NAME:-openctem}?sslmode=${DB_SSLMODE:-require}"
+docker compose run --rm migrate -path=/migrations -database "$DBURL" status
 docker compose logs migrate
 ```
 
-- **Behind** (`version` lower than the release's newest migration): run
-  `docker compose up -d` again; the `migrate` job applies them before the API.
-- **Dirty** (`dirty = t`): a migration failed midway. The `migrate` log names the
-  version and the error, usually data that violates a new constraint. Fix the
-  cause, then mark the last cleanly applied version and run the migrations again.
-  `force` only rewrites the version marker; it runs no SQL:
+- **Behind** (a shipped migration is not applied; the API names it): run
+  `docker compose up -d` again; the `migrate` job applies every missing migration
+  before the API.
+- **Dirty**: a migration failed midway. The `migrate` log names the version and
+  the error, usually data that violates a new constraint. Fix the cause, then
+  clear the flag and run the migrations again. `force` runs no SQL:
 
   ```bash
-  set -a; . ./.env; set +a
-  DBURL="postgres://${DB_MIGRATE_USER:-$DB_USER}:${DB_MIGRATE_PASSWORD:-$DB_PASSWORD}@postgres:5432/${DB_NAME:-openctem}?sslmode=${DB_SSLMODE:-require}"
-  docker compose run --rm migrate -path=/migrations -database "$DBURL" version
-  docker compose run --rm migrate -path=/migrations -database "$DBURL" force <last-good-version>
+  # the failed migration applied nothing (or you undid it): clear the flag, up runs it again
+  docker compose run --rm migrate -path=/migrations -database "$DBURL" force -1
+  # it is in fact complete (you finished it by hand): record it instead
+  #   ... force <version>
   docker compose up -d
   ```
 
   If the failed migration created objects outside its transaction, remove them by
   hand first. When in doubt, restore the pre-upgrade backup.
+- **Refused on the first run after v0.16.0** (no release matches the database): the
+  database was migrated by a development build or left dirty by the earlier
+  runner. Check the schema, list every applied version one per line in a file and
+  run the runner once with `-assume-applied FILE ... up`. See
+  [safe-deploy-and-migrations.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/safe-deploy-and-migrations.md#dirty-migration-recovery).
+- **`no migration found for version 9223372036854775807`**: an older migrations
+  image ran against a database a newer release migrated. Roll back the API image
+  only, never the migration job (see [Rollback](upgrade.md#rollback)).
 - **Older than the baseline**: the database is from a release before the
   migration baseline. Upgrade in two steps as described in the release's
   [upgrade guide](upgrade.md#release-specific-guides).

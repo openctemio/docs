@@ -36,7 +36,7 @@ them at every step.
 
 | Artifact | Signed by (keyless, issuer `https://token.actions.githubusercontent.com`) | Check |
 |---|---|---|
-| Images: `openctem-api`, `openctem-web`, `openctem-console`, `openctem-gateway`, `migrations`, `seed`, `admin-cli` and the all-in-one `openctem` | `https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/<version>`, plus SLSA provenance and an SPDX SBOM attestation | `cosign verify`, `cosign verify-attestation` |
+| Images: `openctem-api`, `openctem-web`, `openctem-console`, `openctem-gateway`, `migrations`, `seed` and the all-in-one `openctem` | `https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/<version>`, plus SLSA provenance and an SPDX SBOM attestation | `cosign verify`, `cosign verify-attestation` |
 | Release files (`checksums-sha256.txt` covers every archive and SBOM) | `https://github.com/openctemio/openctem/.github/workflows/release.yml@refs/tags/<version>` (the signed checksum file is new from the next release), plus SLSA provenance per archive | `cosign verify-blob`, `sha256sum -c`, `gh attestation verify` |
 | Offline image bundle list `openctem-images-<version>.txt` | `.../docker-publish.yml@refs/tags/<version>` | `cosign verify-blob` |
 

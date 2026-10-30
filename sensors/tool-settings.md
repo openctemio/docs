@@ -116,7 +116,7 @@ the console shows exactly what your sensor declares.
 
 semgrep declares no options.
 
-These options are the ones the current sensor release (v0.28.0) declares (opengrep from v0.22.0); older sensors declare fewer.
+These options are the ones the current sensor release (v0.29.0) declares (opengrep from v0.22.0); older sensors declare fewer.
 
 ## API
 

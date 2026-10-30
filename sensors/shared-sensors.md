@@ -53,7 +53,16 @@ install one.
   its keys at enrollment; see [TLS and pinning](security.md#tls-and-pinning)). trivy tasks are refused in shared
   mode. 
 - It uses signed public content only, never an organization's own content
-  pack, tool settings or credentials.
+  pack, tool settings or credentials: it reads only the platform's `stable`
+  content packs, one copy for every organization, and an organization's pack
+  is never delivered to it.
+- It protects a target host across organizations: a shared job starts only
+  while fewer than two shared jobs of any organizations hold one of its hosts
+  (one for intrusive work). A waiting organization sees only that its job
+  waits for its hosts, never who else scans them.
+- Jobs are offered in rounds of five per organization, the organization with
+  the fewest jobs in flight first, so one organization's deep queue does not
+  hold up the others.
 - Results are written into the organization of the job it holds. Organizations
   see no sensor name, version or load: a task only says that it runs on shared
   sensors.

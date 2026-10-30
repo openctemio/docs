@@ -16,7 +16,7 @@ platform, and authors of tools and integrations.
 | [Repository layout](repository-layout.md) | The repositories and how they fit together |
 | [Contributing](contributing.md) | Branches, commits, changelog fragments, review |
 | [Testing](testing.md) | Unit and database-backed tests, web tests, what CI runs |
-| [Database migrations](migrations.md) | golang-migrate layout, the baseline, expand-contract |
+| [Database migrations](migrations.md) | migration layout and versions, the baseline, expand-contract |
 | [Generated files](generated-files.md) | The OpenAPI spec, web API types and registry codegen |
 | [Release process](release-process.md) | Release train, tags, images, signatures and SBOMs |
 | [Writing a tool](tool-authoring.md) | Add a tool sensors can run: descriptor, settings, testing, and how it joins your tool catalog |

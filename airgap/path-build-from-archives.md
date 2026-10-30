@@ -49,7 +49,7 @@ The release's `openctem-image-kit-<version>.tar.gz` unpacks to
 | Path | Purpose |
 |---|---|
 | `unpack.sh` | Verifies the release archives and unpacks them under `dist/<arch>/<component>/` |
-| `Dockerfile.api`, `.migrations`, `.seed`, `.admin-cli`, `.gateway`, `.web`, `.console` | One Dockerfile per image. COPY only, no `RUN` step |
+| `Dockerfile.api`, `.migrations`, `.seed`, `.gateway`, `.web`, `.console` | One Dockerfile per image. COPY only, no `RUN` step |
 | `rootfs/` | `etc/passwd` and `etc/group` files for the users, and an empty directory used to create writable paths with the right owner |
 | `links/` | The links of the API image's operator commands |
 
@@ -61,8 +61,8 @@ does two checks and unpacks nothing unless both pass:
 2. every archive it uses matches its line in `checksums-sha256.txt`.
 
 It refuses an existing `dist/` directory, so remove it before a second run.
-The archives it needs per architecture are the server, gateway, web, console
-and `bootstrap-admin` archives.
+The archives it needs per architecture are the server, gateway, web and console
+archives (`openctem-<component>-<version>-linux-<arch>.tar.gz`).
 
 Because the Dockerfiles have no `RUN` step, they build unprivileged and for
 `arm64` on `amd64` runners without emulation.
@@ -76,9 +76,8 @@ digest. The label `org.opencontainers.image.title` says "rebuilt from release
 | Image | Base | User | Ports | Entrypoint and notes |
 |---|---|---|---|---|
 | `openctem-api` | distroless static (Debian 13), nonroot | 1000:1000 (signer 1001 exists in `/etc/passwd`) | 8080, 9443 | `/app/server`; healthcheck `/app/server -healthcheck`; copies the server binaries, links, OpenAPI file, `migrations/` and `configs/`; creates the writable paths `/app/data/attachments`, `/var/lib/openctem-signer/{keys,state}` (0700), `/run/openctem-signer` (0770) and `/var/lib/openctem-signer-pub` |
-| `migrations` | alpine 3.24 | 65532 | none | `/usr/local/bin/openctem-migrate`; copies `migrate`, `openctem-migrate` and `migrations/` |
+| `migrations` | alpine 3.24 | 65532 | none | `/usr/local/bin/openctem-migrate`; copies `openctem-migrate` and `migrations/` |
 | `seed` | postgres 18 alpine | 65532 | none | the seed SQL files at `/seed`; empty entrypoint; default command lists the files |
-| `admin-cli` | distroless static, nonroot | 65532 | none | `/usr/local/bin/bootstrap-admin`, default `--help` |
 | `openctem-gateway` | alpine 3.24 | 1000:1000 | 80, 443, 443/udp, 2019 | Caddy with the layer4 module at `/usr/bin/caddy`; Compose mounts the gateway configuration at `/etc/caddy`; healthcheck on the admin endpoint `http://127.0.0.1:2019/config/` |
 | `openctem-web` | distroless Node.js (glibc), nonroot | 1001:1001 | 3000 | `/nodejs/bin/node server-with-ws.mjs`; the Next.js cache is the only writable path; healthcheck on `/api/health` |
 | `openctem-console` | distroless Node.js (glibc), nonroot | 1001:1001 | 3000 | `/nodejs/bin/node console/server.js`; same pattern as web |

@@ -26,10 +26,10 @@ one path:
 
 Other ways to install (Docker Compose from the release checkout, the all-in-one
 image, Helm) are described in [Install](index.md). The guides here describe the kit
-as of OpenCTEM v0.15.5. The kit's `versions.yml` pins images by digest per release,
-and its newest entry is **v0.15.5**. For a newer platform release, `git pull` the kit
+as of OpenCTEM v0.16.1. The kit's `versions.yml` pins images by digest per release,
+and its newest entry is **v0.16.1**. For a newer platform release, `git pull` the kit
 and check `versions.yml`: `openctem_version` accepts only a key listed there, and the
-guides below use v0.15.5.
+guides below use v0.16.1.
 
 1. TOC
 {:toc}
@@ -171,7 +171,7 @@ there.
 | Variable | Default | Meaning |
 |---|---|---|
 | `openctem_app_host` | none, required | The one public host name of the console, the API, sensors and CI. DNS name only. |
-| `openctem_version` | none, required | The release to deploy. Must be a key of `openctem_releases` in `versions.yml` (v0.15.5 down to v0.9.6 at the time of writing; list them with `grep -E "^  v" versions.yml`). |
+| `openctem_version` | none, required | The release to deploy. Must be a key of `openctem_releases` in `versions.yml` (v0.16.1 down to v0.9.6 at the time of writing; list them with `grep -E "^  v" versions.yml`). |
 | `openctem_ingress` | `cloudflared` | `cloudflared`: Cloudflare Tunnel. `loopback`: the gateway listens on `127.0.0.1:openctem_loopback_port` for a TLS proxy you run on the VM. |
 | `openctem_loopback_port` | `8080` | Loopback ingress only: the port the gateway publishes on 127.0.0.1. |
 | `admin_cidrs` | none | IPv4 networks that may reach SSH. The firewall stage refuses to run when your controller is outside them. |
@@ -441,7 +441,7 @@ release:
 3. **Rehearse** (`--check --diff`, see [The apply cycle](#the-apply-cycle)) and apply:
 
    ```bash
-   ansible-playbook -i $INV playbooks/50-openctem.yml -K -e apply_openctem=true -e openctem_version=v0.15.5
+   ansible-playbook -i $INV playbooks/50-openctem.yml -K -e apply_openctem=true -e openctem_version=v0.16.1
    ```
 
    then set `openctem_version` in your inventory so later runs keep it.

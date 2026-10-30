@@ -156,6 +156,22 @@ unchanged, and an organization whose slug exists is skipped. Re-run it to add a
 break-glass administrator or an organization to an existing installation. An
 email that already has an ordinary account cannot become a platform administrator.
 
+## More platform administrators
+
+Only the first install prints a temporary password. Every later platform
+administrator is invited: in the platform console the new administrator gets a
+single-use set-password link by e-mail and the account has no password until
+they use it. Without platform e-mail the console shows the link once, except
+for a super admin while second-approver approvals are on (refused with
+`INVITATION_NEEDS_EMAIL`). For that case, invite from the host:
+
+```bash
+docker compose run --rm bootstrap-admin invite -email=second-admin@example.com -role=super_admin
+```
+
+It prints the link once and writes a critical audit entry. Every administrator
+is told by e-mail when a new administrator signs in for the first time.
+
 ## Sign-up and more organizations
 
 `SIGNUP_MODE` is the installation's sign-up ceiling. The default,

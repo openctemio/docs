@@ -38,7 +38,7 @@ all.
 
 ## Quickstart: a working sensor in five minutes
 
-This quick start is written for platform v0.9.6 or later with sensor v0.28.0. It
+This quick start is written for platform v0.9.6 or later with sensor v0.29.0. It
 installs a hardened, confined sensor, pairs it, checks it and runs a first
 scan. The sensor needs no mode or tool flags: it runs as the daemon that takes
 the platform's commands and enables every tool in the image that works.
@@ -71,7 +71,7 @@ container:
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.28.0/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.29.0/docker/seccomp/sensor.json
 
 docker run -d --name openctem-sensor --restart unless-stopped \
   --stop-timeout 45 \
@@ -84,7 +84,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_SANDBOX_NETWORK=required \
   --dns-search . \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.28.0
+  ghcr.io/openctemio/sensor:v0.29.0
 ```
 
 Change three things:
@@ -217,7 +217,7 @@ choose **Promote to Trusted**. See [Grants and trust](pairing.md#grants-and-trus
    entry covers gets at most low-impact checks. See
    [Scope](../scanning/scope.md).
 2. **Discovery > Scans > New scan**, target `app.example.com`, workflow
-   **Discover**, then **Run now**.
+   **Subdomains**, keep **Run immediately** and choose **Start scan**.
 3. The run's **Tasks** tab shows the task on your sensor; the sensor's log
    shows `Executing command ...` and `Command ... completed`. Results appear
    on the asset within a minute.

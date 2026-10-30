@@ -13,7 +13,7 @@ add your own. You can wrap an existing command-line scanner without writing code
 in any language, or write the tool in Go with the SDK.
 
 The contract is **tool contract v1**, implemented by
-[openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.37.0 at the time of writing; pin the
+[openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.40.0 at the time of writing; pin the
 version you install). New to it? [Build your first tool](build-your-first-tool.md) walks through
 one tool end to end, from an empty directory to findings. The platform side is described in
 [tool-contract.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/tool-contract.md).
@@ -69,7 +69,7 @@ Capabilities marked `routed` are the ones the platform places in scan workflows 
 ## 1. Scaffold
 
 ```bash
-go install github.com/openctemio/sdk-go/cmd/openctem@v0.37.0
+go install github.com/openctemio/sdk-go/cmd/openctem@v0.40.0
 openctem tool init --kind exec-json --capability scan.ports@1 --name acme-ports acme-ports
 ```
 

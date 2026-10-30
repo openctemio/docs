@@ -19,6 +19,7 @@ with breaking changes has its own upgrade guide; read it first.
 
 | From | To | Guide |
 |---|---|---|
+| v0.15.x | v0.15.6, v0.16.x and v0.17.0 | [From v0.15 to v0.17](#from-v015-to-v017) below: a new migration runner (takes over on its first run; roll back the API, never the migration job), the platform version comes from the release tag, no `admin-cli` image, the vulnerability feed moves to `openctemio/vulnfeed-bundles`, a database role script re-run with `DB_ADMIN_USER`, queued sensor segments sealed at rest. |
 | v0.12.x | v0.13.0 to v0.15.5 | [From v0.12 to v0.15.5](#from-v012-to-v0155) below: audit archives move to the storage provider, API contract changes (ingest answers 202, strict findings filters, task versions), SAML and OIDC provider requirements, retired scan and rule source features, per-integration webhook URLs. |
 | v0.11.x | v0.12.0 and later | [From v0.11 to v0.12.0](#from-v011-to-v0120) below: signed jobs on by default (a job signer is required in production), `AI_TRIAGE_ENABLED` removed, campaigns hold tasks. |
 | v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, `ADMIN_AUDIT_SINK` for managed services, re-run of the database role script, console pages moved, second super admin approvals. |
@@ -26,8 +27,8 @@ with breaking changes has its own upgrade guide; read it first.
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
 Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0, then onward to
-v0.12.0 and the later releases), with a backup before each step. v0.15.5 is the newest
-release at the time of writing.
+v0.12.0 and the later releases), with a backup before each step. v0.16.1 is the newest
+published release at the time of writing; v0.17.0 is being prepared.
 
 ### Ingest: uploads are applied in the background
 
@@ -63,6 +64,107 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.15 to v0.17
+
+Cross the minor versions one at a time (v0.15.6, then v0.16.1, then v0.17.0 once it is
+published), with a backup before each step. The lists below name what an operator or an API
+client has to act on, by the release that introduced it.
+
+**v0.15.6** (no migrations)
+
+- Scan settings no longer read long host names as secrets, so quick and continuous coverage
+  scans of such names are no longer withheld from sensors whose grant forbids credentials.
+  Nothing to do. It is the last release that publishes the `admin-cli` image.
+
+**v0.16.0** (37 migrations; one drops a column that was never read,
+`tenant_tool_configs.custom_wordlists`)
+
+- **New migration runner.** The migrations image, the all-in-one image and the binary and
+  air-gap archives run `openctem-migrate` instead of golang-migrate, with the same commands and
+  arguments. It records every applied migration in `schema_migrations_applied` and applies every
+  shipped migration the database lacks, so a migration merged late is never skipped. Its first
+  run takes the database over: it records the migrations of the release the database was at and
+  writes a fence version into `schema_migrations`. After that, **an older migrations image
+  refuses the database**: to roll back, roll back the API image, never the migration job. A
+  database no release matches (a development build, or one golang-migrate left dirty) is refused
+  until you list its applied versions with `-assume-applied FILE` (see
+  [Migrations](troubleshooting.md#migrations)). `force V` now records migration V as applied and
+  `force -1` only clears the dirty flag.
+- **Re-run the database role script** (`least-privilege-roles.sql`): it creates
+  `schema_migrations_applied` read-only for the app role, and grants the new console tables to
+  the console role (`DB_ADMIN_USER`). The Compose stack (`db-grants`), the chart and the Ansible
+  kit do it; an installation that applies grants by hand runs it after migrating, or the console
+  answers `503`.
+- **The platform version comes from the tag.** The Compose files no longer carry a default
+  `OPENCTEM_VERSION`. `./setup.sh` writes it into `.env` (from `--version`, else the release
+  checkout). An `.env` written before v0.16.0 may have no `OPENCTEM_VERSION` line: add one
+  before `docker compose pull` (the [Docker Compose](#docker-compose) steps below set it).
+- **No `admin-cli` image.** Run `bootstrap-admin` from the API image:
+  `docker compose run --rm bootstrap-admin ...` with Compose, or a Job with the `openctem-api`
+  image and command `/app/bootstrap-admin` on Kubernetes. Air-gapped mirror lists, the Harbor
+  replication rule and the signature policy template no longer name `admin-cli`.
+- **Vulnerability feed location.** The default `VULNFEED_BASE_URL` is now
+  `https://github.com/openctemio/vulnfeed-bundles/releases` (same host, same pinned root key).
+  The old location keeps a verified copy for 30 days after the release. An explicit
+  `VULNFEED_BASE_URL` or an air-gapped mirror is used as before.
+- **Threat intelligence.** **Sync now** runs in the background: `POST /api/v1/admin/threat-intel/sync`
+  answers `202` with one result per feed, and the admin status route returns a computed `state`
+  per feed instead of `last_sync_status`, `records_synced` and `next_sync_at` (the organization
+  routes keep those). A new console setting chooses where KEV and EPSS come from; nothing changes
+  until a super admin sets the source to the signed release (see [Feeds](feeds.md)).
+- **Host name checks need DNS from the API host.** The platform now tracks which names no longer
+  resolve; the API host needs DNS egress (the scan-zone resolver). A migration clears the stored
+  wildcard-only marks; the next resolve run sets them again where they are real.
+- **E-mail.** On a hosted service (`MANAGED_SERVICE=true`) an organization's own mail server must
+  use port 465, 587 or 2525 with a login and TLS; an existing channel that does not stops sending
+  at its next delivery and its owners are told. A new platform setting (default from
+  `ORG_EMAIL_RELAY_MODE`) decides whether an organization relay may carry its business mail; existing
+  channels have that option off. See [E-mail](../configuration/email.md).
+- **Two-factor floor.** A new platform setting sets the lowest two-factor requirement of every
+  organization (`AUTH_MFA_FLOOR`, default `admins`). An installation that already had users keeps
+  `none` until its operator raises it.
+- **Social login** providers are set up in the platform console. `OAUTH_<PROVIDER>_*` variables keep
+  working as an override that pins the provider read-only in the console; remove them to manage
+  the provider there.
+- **Sensors.** Organization enrollment tokens (unattended installs) need sensor v0.27.0 or later;
+  older sensors keep pairing interactively ([Pairing and enrollment](../sensors/pairing.md)).
+  Proxy pools can be tested from sensors; set `PROXY_TEST_ECHO_URL` if the proxies reach the
+  platform at another public origin than `SENSOR_PUBLIC_API_URL` or `APP_URL`
+  ([Proxies for scans](../sensors/proxies.md#test-a-pool)).
+- **Key rotation** (`rekey`) now also re-encrypts the console's CAPTCHA secret and the alert
+  webhook. If you rotated `APP_ENCRYPTION_KEY` on an earlier release and CAPTCHA sign-in steps or alerts stopped, enter those two again.
+- **Console API clients.** Platform administrators are invited by e-mail: the response field
+  `temporary_password` is replaced by `invitation_emailed`, `invitation_failed`,
+  `invitation_url` and `expires_at`. Changing a target mapping needs a `reason`.
+
+**v0.16.1** (1 migration)
+
+- With a console database role (`DB_ADMIN_USER`), console passkeys, recovery codes and support
+  sessions move to that role. **Re-run `least-privilege-roles.sql` from v0.16.1 after migrating**
+  (Compose `db-grants` and the Ansible kit's v0.16.1 entry do it). Until then, console passkey and
+  recovery-code sign-in fail, and on the tenant plane in production the API refuses to start
+  while the app role can still write those tables.
+
+**v0.17.0** (when published; 13 migrations, none drops a table or a column, one removes a key
+from the sign-up policy setting)
+
+- **Queued sensor segments are sealed at rest** with the organization's key. Do not run API
+  workers of v0.16.x next to v0.17.0: an older worker cannot open a sealed segment. Single-replica
+  and Compose installs (stop, then start) need nothing. During an `APP_ENCRYPTION_KEY` rotation,
+  keep the previous key until the ingest queue has drained. Segments already queued in clear text
+  are sealed in place by the worker.
+- **Closing findings.** `INGEST_COVERAGE_AUTO_RESOLVE` keeps its value (default `dry_run`, which
+  closes nothing). With `enforce` (alias `tenant`), coverage auto-resolve follows each
+  organization's closing mode: existing organizations read as `review`, so nothing closes by
+  itself until an organization chooses its closing mode (see
+  [Closing findings](../user-guide/closing-findings.md)).
+- **Segmented sensor reports** committed without a verified manifest (sensors built with an older
+  SDK) no longer close findings by absence. Single-segment reports are unaffected.
+- **Social sign-in** never links itself to an existing account any more; the migration removes
+  that switch from the sign-up policy.
+- New optional `EVIDENCE_DAILY_CAP` (finding-evidence records per organization per day; `0` =
+  built-in default).
 
 ### From v0.12 to v0.15.5
 
@@ -305,7 +407,7 @@ they apply. Then check:
   feed admin routes (`/api/v1/admin/program-feed`) are removed.
 - **Helm and Ansible.** Use the chart and kit release that names v0.11.0
   ([Kubernetes](../install/kubernetes.md), [Ansible](../install/ansible.md)); at
-  the time of writing the newest kit entry is v0.15.5 and the newest chart is 0.33.0.
+  the time of writing the newest kit entry is v0.16.1 and the newest chart is 0.33.0.
 
 ### From v0.9 to v0.10
 
@@ -455,8 +557,8 @@ every version between yours and the target. How versions are numbered:
 - **Migrations run before the API.** The Compose `migrate` service, the Helm
   migration Job and the all-in-one start-up apply them first. The API never
   migrates the schema itself: on start it checks the schema and refuses to start
-  when it is behind, dirty (a migration failed midway), or older than the
-  migration baseline.
+  when a migration it ships is not applied, when the database is dirty (a
+  migration failed midway), or when it is older than the migration baseline.
 - **Migrations are backward compatible by design** (expand, then contract in a
   later release), so the previous release keeps working against the new schema.
   Exceptions are called out in the release's upgrade guide.
@@ -475,7 +577,8 @@ recovery are in
 1. **Back up** the database, the secrets and the volumes
    ([Backup and restore](backup-restore.md)), and check the dump is readable.
    With Docker Compose: `./backup.sh && ./backup.sh verify` in `api/deploy`.
-2. **Check the migration state.** `dirty` must be `f`:
+2. **Check the migration state.** `dirty` must be `f` (from v0.16.0 `version` is a fence
+   number; the applied migrations are listed in `schema_migrations_applied`):
 
    ```bash
    docker compose exec -T postgres sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT version, dirty FROM schema_migrations"'
@@ -495,10 +598,11 @@ recovery are in
 In `api/deploy` of your checkout:
 
 ```bash
-NEW_VERSION=v0.15.5   # the release you upgrade to
+NEW_VERSION=v0.16.1   # the release you upgrade to
 git fetch --tags
 git checkout "$NEW_VERSION"
 diff <(grep -o '^[A-Z_]*=' .env | sort) <(grep -o '^[A-Z_]*=' .env.example | sort)
+grep -q '^OPENCTEM_VERSION=' .env || echo "OPENCTEM_VERSION=" >> .env
 sed -i "s|^OPENCTEM_VERSION=.*|OPENCTEM_VERSION=$NEW_VERSION|" .env
 docker compose pull
 docker compose run --rm --no-deps api -check-config
@@ -543,6 +647,8 @@ for every chart version you cross.
   version and restart (`docker compose up -d`, `helm rollback`, or the previous
   all-in-one tag). The previous release passes its schema check against the
   newer schema, because the check only refuses a schema that is behind.
+- **Do not run the previous release's migration job.** From v0.16.0 an older
+  migrations image refuses a database a newer release migrated; that is expected.
 - **Do not run down migrations** to undo a release. Some data migrations cannot
   be reversed; the way back from those is the pre-upgrade backup.
 - `helm rollback` reverts Kubernetes objects only, never the database.

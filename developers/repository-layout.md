@@ -15,7 +15,7 @@ their own consumers live in their own repositories under the
 
 | Repository | Language | License | What it is | Released as |
 |---|---|---|---|---|
-| [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web app (`web/`), platform console app (`web/console/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed`, `admin-cli` |
+| [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web app (`web/`), platform console app (`web/console/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed` |
 | [sensor](https://github.com/openctemio/sensor) | Go | GPL-3.0 | The sensor (`openctemio-sensor`) that runs scanners where the targets are and reports to the platform | its own tags; image `ghcr.io/openctemio/sensor` |
 | [sdk-go](https://github.com/openctemio/sdk-go) | Go | Apache-2.0 | The Go SDK: sensor runtime (`pkg/sensorkit`), tool contract (`pkg/tool`), protocol client, the `openctem` developer CLI | Go module with its own semver |
 | [ctis](https://github.com/openctemio/ctis) | Go, JSON Schema | Apache-2.0 | CTIS, the CTEM Ingest Schema: specification, JSON Schemas, Go types, report importers, the capability taxonomy | Go module `github.com/openctemio/ctis` |
@@ -71,7 +71,7 @@ openctem/
 │   │                   notifier, jira, scm, llm, websocket, jobs, ...
 │   ├── pkg/            shared packages: domain (entities, value objects), apierror,
 │   │                   pagination, filterspec, httpsec, sensorproto, ...
-│   ├── migrations/     golang-migrate SQL (baseline + later migrations), seed/
+│   ├── migrations/     SQL migrations (baseline + later ones), seed/
 │   ├── configs/        asset-types.yaml, relationship-types.yaml, modules/, sensor-products/,
 │   │                   workflow-templates/
 │   ├── api/openapi/    generated spec (not committed), sensor protocol spec, lint baselines

@@ -197,7 +197,7 @@ stopped:
 docker stop openctem-sensor
 docker run --rm -it -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.28.0 pair -repair
+  ghcr.io/openctemio/sensor:v0.29.0 pair -repair
 docker start openctem-sensor
 ```
 
@@ -314,7 +314,11 @@ has:
 The token is shown once. Put it in a root-only file or a Kubernetes Secret
 and point the sensor at it with
 [`SENSOR_ENROLLMENT_TOKEN_FILE`](settings.md#SENSOR_ENROLLMENT_TOKEN_FILE)
-(this needs a sensor release that reads it). Each sensor that starts with it
+(or pass it in `SENSOR_ENROLLMENT_TOKEN`; sensor v0.27.0 or later, older
+sensors keep pairing interactively). The token cannot be combined with
+`SENSOR_PAIRING_CODE` or `SENSOR_INSTANCE_ENROLLMENT_TOKEN`, is never printed,
+and an organization token is never accepted as an instance token or the
+reverse. Each sensor that starts with it
 pairs with its own key and joins the organization at trust level New; you
 are notified of every enrollment, and every creation, enrollment, refusal and
 revocation is in the audit log. **Revoke** stops the token at once; sensors it

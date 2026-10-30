@@ -32,7 +32,7 @@ Nothing secret goes through Helm values.
 ```bash
 helm upgrade openctem openctem/openctem -n openctem --reuse-values \
   --set sensor.enabled=true \
-  --set sensor.image.tag=v0.28.0 \
+  --set sensor.image.tag=v0.29.0 \
   --set sensor.sandbox.seccompProfile=openctem \
   --set sensor.localPolicy.enabled=true \
   --set-file sensor.localPolicy.policy=sensor-policy.yaml
@@ -95,8 +95,8 @@ may run the pod, under the kubelet's seccomp directory (by default
 ```bash
 # on each node, as root
 mkdir -p /var/lib/kubelet/seccomp/openctem
-curl -fsSLo /var/lib/kubelet/seccomp/openctem/sensor-v0.28.0.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.28.0/docker/seccomp/sensor.json
+curl -fsSLo /var/lib/kubelet/seccomp/openctem/sensor-v0.29.0.json \
+  https://raw.githubusercontent.com/openctemio/sensor/v0.29.0/docker/seccomp/sensor.json
 ```
 
 A pod whose `Localhost` profile is missing on its node does not start
@@ -146,10 +146,10 @@ spec:
           # The sensor's profile, installed on the node (see above).
           # RuntimeDefault works too, but the sensor then runs unconfined.
           type: Localhost
-          localhostProfile: openctem/sensor-v0.28.0.json
+          localhostProfile: openctem/sensor-v0.29.0.json
       containers:
         - name: sensor
-          image: ghcr.io/openctemio/sensor:v0.28.0
+          image: ghcr.io/openctemio/sensor:v0.29.0
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

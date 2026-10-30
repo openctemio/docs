@@ -49,7 +49,7 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.15.5         # the release you deploy
+git checkout v0.16.1         # the release you deploy
 cd api/deploy
 ./setup.sh ctem.example.com  # writes .env: the host name and generated secrets
 ```
@@ -165,7 +165,7 @@ what each flag does, is the [sensor quickstart](sensors/index.md#quickstart-a-wo
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.23.2/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/v0.29.0/docker/seccomp/sensor.json
 docker run -d --name openctem-sensor --restart unless-stopped \
   --read-only --tmpfs /tmp --cap-drop ALL \
   --security-opt no-new-privileges:true \
@@ -174,7 +174,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_API_URL=https://ctem.example.com \
   -e SENSOR_ALLOWED_RANGES='*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.23.2
+  ghcr.io/openctemio/sensor:v0.29.0
 docker logs openctem-sensor
 ```
 
@@ -214,9 +214,10 @@ The sensor shows as `online` within a few seconds. Details:
 
 1. Open **Discovery > Scans > New scan**.
 2. Targets: `example.com`.
-3. What to run: the starter scan workflow **Discover** (find subdomains,
-   resolve them, probe their web services) or **Discover + Vuln** (adds port
-   scans and non-intrusive nuclei templates).
+3. What to run: the starter scan workflow **Subdomains** (find subdomains,
+   resolve them, probe which ones serve the web) or **Standard recon** (adds
+   port scans, network lookups and vulnerability templates on the web
+   services). See [Scan workflows](scanning/scan-workflows.md).
 4. The **Review** step shows which scan zone and sensor take each target, and
    whether every step has a sensor that can run it. A **Scope check** on the
    **Targets** step refuses names that no scope entry covers.

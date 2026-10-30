@@ -40,6 +40,8 @@ Notes that change what a sensor does:
 
 | To | What to know |
 |---|---|
+| v0.29.0 or later | Tool launches wait while the host's CPU, memory or I/O is stalled (one tool keeps running), and a start that was starved is tried once more instead of failing as a crash. The heartbeat reports the pressure, so the platform gives the sensor less work while its host is overloaded. Where the sensor's cgroup is delegated each task runs in its own cgroup with its tool's limits; `SENSOR_TOOL_CGROUPS=off` turns that off. Keep CI runners and other heavy workloads off a sensor host. |
+| v0.27.0 or later | Enrolls with an organization enrollment token (`SENSOR_ENROLLMENT_TOKEN` or `_FILE`). Can run a proxy pool test, sends validation probes through the job's proxy pool, and with `SENSOR_SCAN_EGRESS=direct-only` reports that its host chose direct, so the platform runs its scans direct ([Proxies for scans](proxies.md)). |
 | v0.22.0 or later | Upgrade the platform to v0.9.6 first. A confined sensor now reports a target its confinement kept the tool from reaching as `egress_refused`; an older platform reads that as unfinished and hands the target out again, until its attempts run out. |
 | v0.23.1 or later | The Tenable.sc connector is no longer in the sensor. Run it as its own image, `ghcr.io/openctemio/connector-tenable`, and point the Tenable.sc integration at that sensor ([Tenable.sc connector](connector-tenable.md)). A sensor still started with the connector settings starts without it and prints a notice naming the image. |
 | v0.23.1 or later | nuclei, httpx and katana send the identification a bug-bounty program requires (the organization's User-Agent and headers) on every request of a job that carries it; a tool that cannot send it is refused for such a job. subfinder, dnsx and naabu send no HTTP to the targets and run (from v0.23.2). The platform hands such jobs only to sensors that report `http.identity@1`. |
@@ -74,7 +76,7 @@ with it.
 **docker run**
 
 ```bash
-NEW=v0.28.0
+NEW=v0.29.0
 docker pull ghcr.io/openctemio/sensor:$NEW
 curl -fsSLo openctem-sensor-seccomp.json \
   https://raw.githubusercontent.com/openctemio/sensor/$NEW/docker/seccomp/sensor.json
@@ -106,6 +108,17 @@ The same identity (no new pairing code), `Tool network: confined`,
 `Preflight: ... 0 failed`, and the new version on the sensor's sheet in the
 console. A pairing code instead of `Identity:` means the container did not
 get the old volume: stop it and start it again with the volume.
+
+The sensor page's **Manifest** tab shows what the sensor registered (build,
+resources, concurrency, its tools with what they consume and produce) and the
+history of earlier manifests. Items the platform did not accept are listed under
+**The platform ignored N items**, each with its reason: not in the tool catalog,
+not a known capability, not a valid name, not a valid tool contract, not part of
+the manifest format, or over the limit. When every ignored item is one the
+platform does not know yet, the tab says **This sensor is newer than the
+platform; these items will be used after the platform is updated**: upgrade the
+platform. Otherwise it says some items are invalid, and a sensor update will not
+change that.
 
 ## Roll back
 
@@ -164,7 +177,7 @@ docker stop openctem-sensor
 docker run --rm -it \
   -e SENSOR_API_URL=https://openctem.example.com \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.28.0 pair -repair
+  ghcr.io/openctemio/sensor:v0.29.0 pair -repair
 docker start openctem-sensor
 ```
 
@@ -213,11 +226,11 @@ volume:
 
 ```bash
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.28.0 -outbox-status          # results waiting, dead letters
+  ghcr.io/openctemio/sensor:v0.29.0 -outbox-status          # results waiting, dead letters
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.28.0 -outbox-requeue-dead    # after fixing the cause
+  ghcr.io/openctemio/sensor:v0.29.0 -outbox-requeue-dead    # after fixing the cause
 docker run --rm -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.28.0 -content-status         # scanner content versions
+  ghcr.io/openctemio/sensor:v0.29.0 -content-status         # scanner content versions
 ```
 
 The outbox refuses a second process: with the sensor running, these commands

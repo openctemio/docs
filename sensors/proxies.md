@@ -48,7 +48,13 @@ default.
 3. Paste your proxies, one per line (syntax below), and **Save**.
 
 The page shows the stored list back. A proxy starts in *probation*: the first
-real scan traffic proves it.
+real scan traffic proves it, or run a [test](#test-a-pool) first.
+
+Before you save, the page lists the sensors that turning the default pool on
+would hold back, and why: **No scan jobs: no proxy support reported** (the
+sensor cannot use a pool, so it would get no scan jobs) or **No validation
+jobs: probes would leave direct** (scans run through the pool, re-checks of
+findings wait).
 
 ### Paste-list syntax
 
@@ -72,6 +78,12 @@ http://proxy.example.com:3128#backup
 - The host is an IP address or a DNS name. Loopback, link-local, cloud
   metadata, multicast, unspecified and reserved addresses, and `localhost`, are
   refused when you save. The page shows the line number of a bad line.
+- **Build a line** under the paste box asks for scheme, host, port, user name,
+  password and label, and adds a correctly encoded line for you.
+- A `socks5` or `http` proxy with credentials on a public address gets a
+  warning, **Proxy login sent without encryption**: the user name and password
+  reach the proxy readable on the way. Use an `https://` proxy or reach it over
+  a private link.
 - Saving again keeps a proxy's identity and health when its scheme, host and
   port are unchanged. A line you remove is deleted; a new line starts in
   probation.
@@ -108,6 +120,17 @@ On a sensor's page, **Network path** picks what that sensor uses:
 | Direct | No proxy, whatever the default says |
 | A pool | All scan and validation traffic of this sensor through that pool |
 
+Choosing a pool for a sensor that does not report proxy support asks first
+(**This sensor would stop getting scan jobs**), because none would be sent to
+it. **Use the pool anyway** keeps the choice.
+
+A sensor whose host sets `SENSOR_SCAN_EGRESS=direct-only` (see
+[Controls on the sensor host](#controls-on-the-sensor-host)) shows **Direct
+(set on the sensor host)** while it inherits the organization default: its
+scans run direct, from its own address. If you choose a pool for such a sensor,
+its scans wait (**This sensor receives no scan jobs**) and never go direct;
+choose Inherit, or change the setting on the host.
+
 A pool that sensors still use cannot be deleted: the console answers
 `PROXY_POOL_IN_USE` until you move those sensors to another path.
 
@@ -143,9 +166,21 @@ score (0 to 100 %) and a state:
   proxy credentials. A target that is down, or a target that a proxy rule
   refuses, does not lower a proxy's score.
 - A dead proxy is quarantined automatically, for 5 minutes first, doubling on
-  each repeat up to 2 hours. There is no probe from the platform: after the
-  back-off the proxy returns as *probation* and the next job's real traffic is
-  its test.
+  each repeat up to 2 hours. The platform never connects to a proxy itself:
+  after the back-off the proxy returns as *probation* and the next job's real
+  traffic (or a [test](#test-a-pool)) is its test.
+- The jobs' own results count too. The platform records which pool and proxies
+  it handed each pooled scan, retest or validation job. When a job ends with
+  hosts the pool could not carry (`proxy_unavailable`), that fault is charged
+  to exactly those proxies. 5 faulted jobs within 30 minutes, or more than half
+  of at least 5 jobs, quarantine a proxy. A sensor cannot name a proxy it was
+  not handed, and target-side failures never count.
+- A proxy that jobs of several sensors used in the last 30 minutes is
+  quarantined from job results only when at least two different sensors
+  reported faults through it, so one sensor's own network problem does not take
+  a shared proxy away from every sensor.
+- Every quarantine is written to the audit log (`proxy_pool.endpoint_quarantined`;
+  `source: task_reports` when job results decided it).
 - If one proxy fails during a job, the sensor tries the next ranked proxy, at
   most once per proxy.
 - Rotation never reacts to a target's answers (rate limits, blocks). Choosing a
@@ -156,6 +191,35 @@ score (0 to 100 %) and a state:
 
 Tor and public proxy lists are not supported.
 
+## Test a pool
+
+**Test** next to a pool asks up to 3 online sensors of your organization to
+connect through each of its proxies and report what they saw. The platform
+never connects to your proxies, so a proxy on a private network can be tested
+by a sensor inside that network. You can test a pool before you turn it on or
+assign it.
+
+1. Open **Settings > Scanning > Proxies** and choose **Test** on the pool.
+2. Pick the sensors under **Run the test from (up to 3 sensors)** and choose
+   **Run test**.
+3. Each proxy shows a **Result**, the **Exit address** seen by the platform's
+   test page, the handshake **Time**, and **Families and ports** (IPv4, IPv6,
+   **Only port 443** for a proxy that refuses other ports).
+
+- A passing test moves a quarantined proxy to probation; refused credentials
+  quarantine it.
+- A pool can be tested once a minute. Every test and its outcome are audited.
+- It needs `sensors:egress:write`, and a sensor that accepts platform proxy
+  pools (sensor v0.27.0 or later, not set to `direct-only`). If none is online
+  the dialog says so.
+- The sensors connect, through each proxy, to the platform's test page
+  (`/api/v1/proxy-test-echoes/...`, which answers only the token of a running
+  test). By default that is `SENSOR_PUBLIC_API_URL`, else `APP_URL`; set
+  `PROXY_TEST_ECHO_URL` when the proxies reach the platform at another public
+  https origin (never the sensor mTLS port). `PROXY_TEST_ALT_PORT` (default
+  `80`, `0` to skip) is the second port used to spot a proxy that only allows
+  443. See [Environment variables](../configuration/environment-variables.md).
+
 ## Fail-closed behaviour
 
 A scan never silently leaves a proxy:
@@ -165,12 +229,17 @@ A scan never silently leaves a proxy:
   jobs** while a pool applies to it. Upgrade it, or set its Network path to
   **Direct**.
 - Validation jobs (re-checks of findings) contact the target too. A sensor
-  that a pool applies to receives them only when its version sends them
-  through the pool; until then they wait for a sensor without a pool or one
-  set to Direct.
+  that a pool applies to receives them only when it sends them through the
+  pool (sensor v0.27.0 or later). Older sensors leave them waiting for a sensor
+  without a pool or one set to Direct.
+- A task that waits for this reason says so on the run page, one sentence per
+  sensor (reasons `egress_unsupported` for scan and retest jobs,
+  `egress_validate_unsupported` for validation jobs), with a link to the
+  sensor's page.
 - When the pool cannot carry a connection (every proxy down, credentials
   refused, or the proxy's own rules refuse the port), that host is listed as
-  a coverage gap (`proxy_unavailable`) and the scan ends **partial**. A scan
+  a coverage gap (`proxy_unavailable`, shown on the run page as "the scan's
+  proxy failed") and the scan ends **partial**. A scan
   that reached nothing never reads as "no findings", and never closes
   findings.
 - If every proxy of the pool is quarantined, a job fails with the reason
@@ -185,7 +254,7 @@ sensor:
 | Setting | Meaning |
 |---|---|
 | `SENSOR_SCAN_EGRESS=platform` | Default. Accept the pools the platform assigns |
-| `SENSOR_SCAN_EGRESS=direct-only` | Refuse every job that carries a proxy (`egress_refused_by_host`); the sensor stops reporting proxy support, so it also gets no proxied jobs |
+| `SENSOR_SCAN_EGRESS=direct-only` | Refuse every job that carries a proxy (`egress_refused_by_host`). The sensor stops reporting proxy support and reports that its host chose direct: while it only inherits the organization default, the platform runs its scans direct; a pool assigned to it holds its jobs |
 | `SENSOR_SCAN_EGRESS_ALLOW` | Optional comma list of `host:port` (or `host` for any port) the sensor accepts as upstreams. A job naming any other proxy is refused (`egress_refused_by_host`). Empty means any proxy that passes validation |
 
 The sensor validates every proxy again, for each address a proxy name resolves
@@ -235,7 +304,10 @@ a sandbox without network confinement, or CI mode.
 
 | You see | Cause and fix |
 |---|---|
-| A sensor takes no scan jobs after you turn proxies on | The sensor lacks proxy support, or has `SENSOR_SCAN_EGRESS=direct-only`. Upgrade it, or set its Network path to Direct |
+| A sensor takes no scan jobs after you turn proxies on | The sensor lacks proxy support (the run page says `egress_unsupported`), or a pool is assigned to a sensor set to `SENSOR_SCAN_EGRESS=direct-only`. Upgrade it, set its Network path to Direct, or to Inherit for a direct-only sensor |
+| A proxy is quarantined although the pool's own health looked fine | Jobs through it reported hosts it could not carry. Run **Test** on the pool, fix the proxy, then **Reset health** |
+| **Test** says no sensor can run it | No online sensor of the organization accepts platform proxy pools. Upgrade a sensor to v0.27.0 or later, and check it is not set to `direct-only` |
+| A test shows **No answer from the test page** | The proxy works but cannot reach the platform's test page. Check `PROXY_TEST_ECHO_URL` and that the proxy may reach that https origin |
 | Jobs fail with `egress_unavailable` | Every proxy of the pool is quarantined. Check the last error in the table, fix the proxy, use **Reset health** |
 | Jobs refused with `egress_refused_by_host` | The sensor host's `SENSOR_SCAN_EGRESS` or `SENSOR_SCAN_EGRESS_ALLOW` does not allow the proxy |
 | Save fails with `INVALID_PROXY_ENDPOINT` | The line number is shown; check scheme, host, port and the refused address classes |
@@ -243,4 +315,4 @@ a sandbox without network confinement, or CI mode.
 | Scans of non-443 ports fail through an HTTP proxy | The proxy refuses `CONNECT` to those ports; see [Requirements for your proxies](#requirements-for-your-proxies) |
 | A scan is partial with `proxy_unavailable` gaps | The pool could not carry those connections: proxies down, credentials refused, or a port the proxy does not allow. Check the pool's health table |
 | Jobs fail with `egress_unavailable` right after you turned a pool off | Sensors chosen to use that pool fail closed. Turn it back on, or set their Network path to another pool or Direct |
-| Validation jobs stay pending | The sensors a pool applies to do not yet send validation through the pool. Upgrade them, or run validation from a sensor set to Direct |
+| Validation jobs stay pending | The sensors a pool applies to do not send validation through the pool (older than v0.27.0). Upgrade them, or run validation from a sensor set to Direct |

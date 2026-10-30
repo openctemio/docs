@@ -6,8 +6,10 @@ nav_order: 5
 
 # Database migrations
 
-The schema is managed with [golang-migrate](https://github.com/golang-migrate/migrate). This page
-is for people writing migrations. How operators apply them during an upgrade is in
+The schema is applied by `openctem-migrate` (`api/cmd/openctem-migrate`), which records every
+applied migration in `schema_migrations_applied` and applies every shipped migration a database
+lacks, lowest version first. It replaced golang-migrate in v0.16.0. This page is for people
+writing migrations. How operators apply them during an upgrade is in
 [Upgrading](../operations/upgrade.md).
 
 ## Layout
@@ -16,24 +18,28 @@ is for people writing migrations. How operators apply them during an upgrade is 
 api/migrations/
 ├── 001146_baseline.up.sql      the whole schema up to 001146, plus built-in rows
 ├── 001146_baseline.down.sql    refuses: the baseline is never reverted
-├── 001147_<name>.up.sql        every later change: one numbered pair
+├── 001147_<name>.up.sql        legacy six-digit versions (no new ones)
 ├── 001147_<name>.down.sql
 ├── ...
+├── 20261030064455_<name>.up.sql   every new change: a UTC timestamp version
+├── 20261030064455_<name>.down.sql
+├── released.json               the migrations of each release (used by the first run after golang-migrate)
 └── seed/                       optional data (seed_required.sql, seed_test.sql, seed_components_demo.sql)
 ```
 
-- Versions are six-digit, sequential numbers. A new migration takes the next number above the
-  highest one on `develop` **and** in open pull requests. CI fails when two migrations share a
-  version, or when a migration you add is not above the base branch's highest version (golang-migrate
-  silently skips a lower version on a database already past it). When another pull request took
-  your number, the merge queue renumbers yours when it enqueues the pull request, so do not
-  renumber by hand and never write a version number into a test: find a migration by name with
+- **Versions only have to be unique.** A migration merged after a higher-numbered one is applied
+  on the next run, not skipped: after the others on a running install, before them on a fresh one.
+  CI proves both orders give the same schema; when they do not, the later migration depends on the
+  others and needs a version above them.
+- **Nobody picks a version by hand.** `make -C api migration-new name=add_widget_table` creates
+  `migrations/<UTC now>_add_widget_table.{up,down}.sql`. `make -C api migration-renumber` gives
+  this branch's added migrations new timestamp versions when a version clashes with `develop` or
+  an open pull request. Never write a version number into a test: find a migration by name with
   `testdb.MigrationVersion(t, dir, name)`.
-- A migration skipped on a database because its number was below the applied version is never
-  renumbered after the fact: add a repair migration above the head that re-applies it
-  idempotently (`IF NOT EXISTS`, guarded constraints, `ON CONFLICT DO NOTHING`) with a no-op down.
+- **A merged migration never changes.** Databases that applied it never run it again, so an edit,
+  a removal or a rename would only reach fresh installs. The **Migration Versions** check refuses
+  a changed, removed or renamed merged `.up.sql` file. Fix a merged migration with a new one.
 - Every migration has a working `.down.sql`.
-- `make -C api migrate-create name=add_widget_table` creates the pair (check the number it picks).
 
 ## The baseline
 
@@ -47,7 +53,7 @@ built-in rows (permission catalogue, system roles, modules, tools), without owne
   on a database that already has the schema.
 - A database **at or past the baseline version** never runs it.
 - A database **older than the baseline** cannot be upgraded by a release that ships the baseline:
-  golang-migrate refuses it without changing anything, and the migrations image explains what to
+  the runner refuses it without changing anything, and the migrations image explains what to
   do: back up, deploy the last release before the baseline (git tag `pre-baseline-001146`, which
   still has every old migration), run its migrations, then upgrade.
 - The old migration files remain readable at that tag:
@@ -132,24 +138,27 @@ From `api/` (they read `DB_*` from `.env`):
 
 | Command | Does |
 |---|---|
-| `make migrate-up` / `make docker-migrate-up` | apply all pending migrations (local CLI / container) |
-| `make migrate-down` / `make docker-migrate-down` | revert the last migration |
-| `make migrate-status` / `make docker-migrate-version` | show the current version (and `dirty`) |
-| `make docker-migrate-force version=N` | mark version N as applied, after fixing a failed migration by hand |
+| `make migration-new name=x` | create a migration pair with a UTC timestamp version |
+| `make migration-renumber` | give this branch's clashing migrations new versions (staged) |
+| `make migrate-up` | apply every migration the local database has not applied |
+| `make migrate-down` | roll back the most recently applied migration |
+| `make migrate-status` | show the applied version and the pending migrations |
+| `make migrate-force version=V` | clear the dirty flag and record V as applied (`-1`: only clear the flag) |
 | `make docker-psql` | a `psql` shell in the development database |
 | `make db-fresh` | drop the development schema, migrate, seed the required data |
 
-Test a migration both ways before you open the pull request:
+`make migrate-up` runs this tree's runner with `go run`; nothing to install. Test a migration both
+ways before you open the pull request:
 
 ```bash
-make docker-migrate-up && make docker-migrate-down && make docker-migrate-up
+make migrate-up && make migrate-down && make migrate-up
 ```
 
 ## How migrations run in each environment
 
 - **Development container** (`make docker-dev`): applied on start.
-- **Production**: the API does **not** migrate. On start it compares the database version with the
-  migrations it ships and refuses to start when the schema is behind or `dirty`
+- **Production**: the API does **not** migrate. On start it checks that every migration it ships
+  is applied and refuses to start when one is missing or the database is `dirty`
   (`SKIP_SCHEMA_CHECK=true` turns this off; do not in production). Migrations are applied first
   with the same-version image `ghcr.io/openctemio/migrations:<version>`, as the schema-owner role
   (`DB_MIGRATE_USER`); the API runs as a DML-only role. Compose and the Helm chart do this ordering
@@ -157,12 +166,15 @@ make docker-migrate-up && make docker-migrate-down && make docker-migrate-up
 
 ### A failed migration
 
-golang-migrate runs each migration in a transaction. If one fails, its changes roll back but the
-version is marked `dirty`, and both the migrator and the API refuse to continue. Inspect what
-happened, fix the cause, then mark the last good version and run again:
+Each migration runs in a transaction (unless it manages its own, as `CREATE INDEX CONCURRENTLY`
+does). If one fails, its changes roll back but the database is marked `dirty` at that version, and
+both the runner and the API refuse to continue. Inspect what happened, fix the cause, then:
 
 ```bash
-make docker-migrate-version              # prints "<N> (dirty)"
-make docker-migrate-force version=<N-1>  # the version before the failed one
-make docker-migrate-up
+make migrate-status              # shows the dirty version V
+make migrate-force version=-1    # V applied nothing (or you undid it): clear the flag, up runs V again
+# make migrate-force version=V   # V is in fact complete (you finished it by hand): record it
+make migrate-up
 ```
+
+`force` never runs SQL. Record a migration only when its changes are really in the database.

@@ -52,7 +52,7 @@ What the page can see is set on the API:
 | `SYSTEM_TLS_CERT_FILES` | `name=path,...` PEM certificates whose expiry is shown | only the sensor CA |
 | `SYSTEM_WEB_HEALTH_URL`, `SYSTEM_GATEWAY_HEALTH_URL` | internal health URLs of the web app and the gateway (one GET, no redirects) | **Not configured** |
 
-The Compose file (v0.15.5) already passes the web and gateway health URLs and the
+The Compose file (v0.16.1) already passes the web and gateway health URLs and the
 backup status file to the API; `backup.sh` writes the status file to `BACKUP_STATUS_DIR`
 (default `./backup-status`), mounted read-only. Set `SYSTEM_WEB_HEALTH_URL`,
 `SYSTEM_GATEWAY_HEALTH_URL`, `SYSTEM_STORAGE_PATHS` or `SYSTEM_TLS_CERT_FILES` in `.env`
