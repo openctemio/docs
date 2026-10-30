@@ -63,7 +63,11 @@ authenticator code for every change) in the admin console, not by the organizati
 
    Then select **Verify now**. A domain can be verified for SSO by only one organization on the
    installation; public email providers, disposable-email domains and public suffixes are refused.
-3. Under **Identity providers**, open **Microsoft Entra ID** and fill in:
+3. Under **Identity providers**, open **Microsoft Entra ID**. The form opens with **Set up in
+   Microsoft Entra ID**: the **Redirect URI (type: Web)** and the **Front-channel logout URL**, each
+   with a copy button, and the optional ID token claims to add (`xms_edov` required, `auth_time`,
+   `sid`). The addresses come from `APP_URL` on the API; without it the form says so. Okta and Google
+   Workspace show their redirect URI the same way. Fill in:
 
    | Field | Value |
    |---|---|
@@ -107,13 +111,31 @@ Users then sign in at `https://<app>/login?org=<organization-slug>` and choose t
 
 ### Enforcing SSO
 
-A platform administrator can turn on **SSO enforcement** for the organization (admin console, same
-tab), once a working provider exists **and at least one of the organization's domains is verified
-for SSO** (DNS TXT record). If a verified domain later fails its daily DNS check, it stops admitting
-new people, and the owners and admins are alerted. SSO enforcement stays on, so removing the DNS
-record cannot reopen password sign-in. Members must then sign in through the organization's identity
-provider; a password session or another organization's SSO is refused for this organization. The
-organization **owner** can always sign in with a password, so the organization cannot be locked out.
+A platform administrator can turn on **Require single sign-on** for the organization (admin console,
+same tab). The card lists its preconditions and turns on only when all hold:
+
+- a working provider exists (SAML or OIDC);
+- at least one of the organization's domains is verified for SSO (DNS TXT record);
+- an owner or admin has signed in through the organization's identity provider at least once
+  ("Waiting for an owner or admin to sign in through the identity provider once");
+- an owner has two-factor authentication on, so owner break-glass works ("Waiting for an owner to
+  turn on two-factor authentication").
+
+Otherwise the API refuses with 400. Turning it on also revokes the user API keys and AI (MCP)
+connections that exist at that moment; the card shows their counts, and the option (or
+`revoke_credentials=false` in the API) keeps them. Keys and connections made later from an SSO
+sign-in keep working.
+
+If a verified domain later fails its daily DNS check, it stops admitting new people, and the owners
+and admins are alerted. SSO stays required, so removing the DNS record cannot reopen password
+sign-in. Members must then sign in through the organization's identity provider; a password session,
+a social sign-in or another organization's SSO is refused for this organization (`SSO_REQUIRED`).
+
+An **owner** can still get in with a password **and their second factor** (break-glass), so the
+organization cannot be locked out. Each such sign-in is written to the audit log as
+`sso.break_glass_used` and announced to the other owners and admins. An owner without two-factor is
+refused with a message to turn it on or use the identity provider.
+
 The owner can grant time-limited exceptions to named members (`sso_exceptions`, at most 90 days, 2FA
 required; an invitation to someone outside the organization says so when SSO is enforced).
 

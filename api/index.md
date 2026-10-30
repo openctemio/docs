@@ -52,7 +52,12 @@ and a user's API key cannot submit sensor results.
 
 The **organization (tenant) always comes from the credential**, never from the URL or the body.
 Tenant routes have no `{tenant}` path parameter: a key or session belongs to one organization,
-and every query is scoped to it.
+and every query is scoped to it. The exception is organization administration under
+`/api/v1/tenants/{tenant}/...` (members, invitations, created users, settings, modules, SSO change
+approval, session only): the caller must be a member of the organization in the URL, its
+requirements (two-factor, personal-account policy, SSO exceptions) are applied to the caller's
+session on every request, and a token bound to no organization is refused with
+`ACCOUNT_TOKEN_NOT_ALLOWED`.
 
 The gateway routes each plane at the edge. Browser planes (tenant, self, auth, admin) reach the
 API through the web console, which authenticates the session cookie. A request that carries

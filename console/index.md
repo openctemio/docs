@@ -17,7 +17,7 @@ organization web app. An administrator signs in to the console with the same
 account they use in the organization web app, if they are also a member of an
 organization: the platform role counts only in the console.
 
-These pages describe OpenCTEM v0.15.5.
+These pages follow the v0.17.0 release line.
 
 1. TOC
 {:toc}
@@ -93,8 +93,18 @@ Installation details: [Docker Compose](../install/docker-compose.md),
    Two-step verification is required for every administrator. The first time,
    scan the QR code (or type the **Setup key**) and click **Verify and finish
    setup**.
-3. With a temporary password, the console asks you to change it first. Changing
+3. With a temporary password (only the first administrator, created with
+   `bootstrap-admin`, has one), the console asks you to change it first. Changing
    it signs you out everywhere; sign in again with the new password.
+
+Every refused password sign-in gets the same answer, "Wrong email or password",
+also when the password is right but the identity provider is required: the
+refusal is audited and counts toward the lockout. When an identity provider is
+configured, the page then shows its hint and **Sign in with {provider}**.
+
+A new administrator is invited by e-mail: they open the single-use set-password
+link (valid 24 hours), choose a password and enrol their second step. Their
+first console sign-in is announced by e-mail to every other administrator.
 
 After repeated failures the sign-in asks for the CAPTCHA, when one is set up
 ([CAPTCHA](settings.md#captcha)).
@@ -153,7 +163,12 @@ your roles allow.
 By default (`ADMIN_ELEVATION=required`) every administrator acts as read-only
 after sign-in. To change anything, click **Elevate**, choose one of your **Roles** and a duration (**For**, 15 to 60 minutes), give a reason and
 confirm. The banner shows **Acting as {role} until {time}**; **End now** returns
-to read-only. Every elevation is in the admin activity log. With
+to read-only. Elevating needs a fresh authenticator code or security-key
+confirmation given within the last minute (an earlier step-up does not count);
+that proof also opens the step-up window, so the first protected action after
+elevating asks for no second code. Every elevation is written to the admin
+activity log before it is granted: if the log cannot be written, the elevation is
+refused (`503 AUDIT_UNAVAILABLE`) and the session stays read-only. With
 `ADMIN_ELEVATION=off`, administrators act as their own role from sign-in.
 
 A super admin acting read-only still sees every page; a page that needs a higher
@@ -167,32 +182,37 @@ acting role offers the elevation in place.
 Actions that change who can sign in or what they may do ask you to **Confirm it
 is you** (step-up): a fresh code from your authenticator, or your security key.
 One confirmation covers the next five minutes of such actions. The most
-sensitive actions (deleting an organization now, creating an organization's
-owner, adding a security key, changing the security-key policy) need a fresh code
-or key confirmation every time.
+sensitive actions need a fresh code or key confirmation every time: elevating,
+deleting an organization now, creating an organization's owner, adding a security
+key, changing the security-key policy, changing or removing the administrators'
+identity provider, changing the platform e-mail relay, the sign-up policy, social
+login, the platform AI provider and the other platform settings, and changing a
+target mapping. When a form asks for its own code and the code is wrong or was
+already used, the refusal shows under that form's code field, which is cleared for
+the next code.
 
 The console's most dangerous actions also need a **second super admin**: see
 [Approvals](security.md#approvals).
 
-A super admin's change is written to the admin activity log before it runs. If
-the log cannot be written, the change is refused with `503 AUDIT_UNAVAILABLE` and
-nothing changes.
+Every state-changing console request, whatever the role, is written to the admin
+activity log before it runs (`admin.write_started`). If the log cannot be written,
+the change is refused with `503 AUDIT_UNAVAILABLE` and nothing changes.
 
 ## Find your way
 
 ![The console Overview: the Needs attention list with a service that does not answer, refused actions, an overdue break-glass test, low disk space and backups not reported, above the counts of organizations, sensors, refused actions and the schema version]({{ site.baseurl }}/assets/images/console/overview.png)
 *Figure: Platform console, Overview.*
 
-The sidebar groups the pages by what you are doing. Items marked with a role are
-hidden from lower roles.
+The sidebar groups the pages by what you are doing. A page whose permission none
+of your roles holds is hidden.
 
 | Group | Pages | Guide |
 |---|---|---|
 | (top) | **Overview** | [below](#overview) |
-| **Customers** | **Organizations**, **Users** (operations admin and above), **Access requests**, **Sign-ups**, **Support access** (operations admin and above) | [Organizations and users](organizations-and-users.md) |
+| **Customers** | **Organizations**, **Users** (roles that hold `platform.users.read`: platform owner, platform admin, support), **Access requests**, **Sign-ups**, **Support access** (roles that hold `platform.support.access`) | [Organizations and users](organizations-and-users.md) |
 | **Scanning** | **Scan approval**, **Platform scanning**, **Target mappings**, **Content packs**, **Content catalog**, **Threat intelligence** | [Scanning](scanning.md) |
-| **Security** | **Administrators**, **Sessions**, **Approvals**, **Admin sign-in** (all super admin), **Admin activity** | [Security](security.md) |
-| **Settings** | **Configuration**, **Sign-up**, **Limits**, **CAPTCHA**, **E-mail**, **Legal**, **Announcements**, **Alerts**, **AI provider**, **AI applications** | [Settings](settings.md) |
+| **Security** | **Administrators**, **Sessions**, **Approvals**, **Roles**, **Admin sign-in**, **Admin activity** | [Security](security.md) |
+| **Settings** | **Configuration**, **Sign-up**, **Social login**, **Limits**, **CAPTCHA**, **E-mail**, **Legal**, **Announcements**, **Alerts**, **AI provider**, **AI applications** | [Settings](settings.md) |
 | **Monitoring** | **Health**, **Software updates** | [Monitoring](monitoring.md) |
 
 The sidebar footer holds **Help**, the signed-in administrator, **My security

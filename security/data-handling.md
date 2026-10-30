@@ -34,8 +34,12 @@ leaks, user names in findings).
 | Integration credentials, webhook secrets, SSO client secrets, TOTP secrets, file-storage credentials, AI provider keys, the secret store, leaked-credential values kept as evidence | AES-256-GCM with `APP_ENCRYPTION_KEY` |
 | Passwords | bcrypt, cost 12 |
 | 2FA recovery codes | bcrypt, cost 10 |
+| Sensor report segments waiting in the ingest queue | Sealed with AES-256-GCM under a per-organization key derived from `APP_ENCRYPTION_KEY`, bound to the organization, job, report, segment and content hash; emptied as soon as the segment is applied |
+| Request/responses recorded on pentest findings | Stored masked in the finding's evidence; the secret values (cookies, tokens, keys, passwords) encrypted apart with `APP_ENCRYPTION_KEY` and readable only through the audited reveal |
+| Placeholder maps of AI context masking | Encrypted with `APP_ENCRYPTION_KEY`, scoped to the organization |
+| Platform console settings secrets (SMTP password, CAPTCHA secret, alert webhook address and secret, social login client secrets, AI key) | AES-256-GCM with `APP_ENCRYPTION_KEY`, write-only |
 | API keys, SCIM tokens, sensor keys | HMAC-SHA256 with a server-side pepper; plaintext shown once |
-| Session, refresh, password-reset, email-verification and invitation tokens | SHA-256 |
+| Session, refresh, password-reset, email-verification and invitation tokens, and the one-hour reset links a platform owner copies in the console | SHA-256 |
 | Everything else (names, emails, IP addresses, findings, assets, audit logs, uploaded files) | Not encrypted by the application. Use encrypted disks or database storage encryption, and server-side encryption on your bucket. |
 
 ## Retention
@@ -55,6 +59,8 @@ Retention is automatic only where the table says so. Everything else stays until
 | Organizations an owner deleted | Closed at once, data purged 14 days later unless an owner cancels | no |
 | Suspended organizations and blocked accounts | Kept as they are: suspension and blocking delete nothing | no |
 | Priority classification history | 180 days | no |
+| AI context masking maps | Purged after `AI_MASK_MAP_TTL` (default 168 hours) | yes |
+| Pentest request/responses | As long as the finding (the evidence retention does not delete them); their secret values expire with the organization's evidence secret retention | no |
 | In-app notifications | 90 days | no |
 | Notification delivery queue | Delivered 7 days, failed 30 days, event history 90 days | no |
 | Soft-deleted assets | Permanently deleted after 30 days, unless findings still reference them | no |

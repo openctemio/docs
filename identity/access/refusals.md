@@ -20,7 +20,9 @@ rule applied. The sentence comes with a code, which is also what the API returns
 | "You cannot add yourself to a team that carries roles. Ask the organization owner." (`TEAM_SELF_JOIN`) | Nobody but the owner puts themselves into a team that carries roles, because that would let a person raise their own permissions. | Ask the owner (or someone else who may manage the team) to add you. |
 | "Only an owner can grant the owner role" and similar (`FORBIDDEN`) | The role-grant ceiling: you can give only roles whose permissions you hold, only the owner makes administrators, and the owner role is never granted (use **Transfer ownership**). | Ask the owner, or have someone who holds the permissions do it. |
 | "The trust with this member's organization allows ... only" (`FORBIDDEN`) | The member's home organization is trusted with a ceiling of **viewer** or **member**. | Change the trust (owner), or give a role within the ceiling. |
-| `MFA_ENROLLMENT_REQUIRED` (when opening the organization) | The person must have two-factor on. | See [Two-factor requirements](two-factor-requirements.md). |
+| `MFA_ENROLLMENT_REQUIRED` (when opening the organization, or creating an API key, sensor key, enrollment token, secret or integration) | The person must have two-factor on: the organization's rule or the platform floor covers them. Creating credentials needs it even during the floor's grace period. | See [Two-factor requirements](two-factor-requirements.md). |
+| `MFA_BELOW_PLATFORM_FLOOR` (saving authentication settings, `422`) | The organization tried to require less two-factor than the platform floor. | Keep the switches the floor raises; see [The platform two-factor floor](../two-factor.md#the-platform-two-factor-floor). |
+| `ACCOUNT_TOKEN_NOT_ALLOWED` (on `/api/v1/tenants/{tenant}/...` routes) | The token is bound to no organization (a sign-in token from a social or SSO sign-in that was not exchanged). | Exchange it for an organization token first (`POST /api/v1/auth/token`). The console does this for you. |
 
 ## Which one applies to my case?
 

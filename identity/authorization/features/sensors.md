@@ -48,6 +48,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PATCH | `/api/v1/proxy-pools/{id}` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
 | PUT | `/api/v1/proxy-pools/{id}/endpoints` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
 | PATCH | `/api/v1/proxy-pools/{id}/endpoints/{endpoint_id}` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| POST | `/api/v1/proxy-pools/{id}/test` | `sensors:egress:write` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| GET | `/api/v1/proxy-pools/{id}/tests` | `sensors:egress:read` | config: proxy pools for sensor scan traffic: tenant configuration, no asset data; credentials never returned |  | Owner, Administrator |
+| GET | `/api/v1/proxy-test-echoes/{nonce}` | no permission: public by design: the page a sensor requests through the proxy under test; the path carries the token of one live proxy_test command, anything else is 404; rate limited per address; answers only the caller's own address | system: the proxy test's echo: answers the caller's own address for the token of one live test command; no tenant data |  | see Requires |
 | GET | `/api/v1/scan-zones` | `sensors:zones:read` | config: scan zones |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | POST | `/api/v1/scan-zones` | `sensors:zones:write` | config: scan zones |  | Owner, Administrator |
 | GET | `/api/v1/scan-zones/coverage` | `sensors:zones:read` | config: scan zones |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
@@ -57,9 +60,13 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PATCH | `/api/v1/scan-zones/{id}` | `sensors:zones:write` | config: scan zones |  | Owner, Administrator |
 | DELETE | `/api/v1/scan-zones/{id}/sensors/{sensorId}` | `sensors:zones:write` | config: scan zones |  | Owner, Administrator |
 | PUT | `/api/v1/scan-zones/{id}/sensors/{sensorId}` | `sensors:zones:write` | config: scan zones |  | Owner, Administrator |
+| GET | `/api/v1/sensor-pairings/enrollment-tokens` | `sensors:read` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
+| POST | `/api/v1/sensor-pairings/enrollment-tokens` | `sensors:approve` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it | yes | Owner, Administrator |
+| POST | `/api/v1/sensor-pairings/enrollment-tokens/{id}/revoke` | `sensors:approve` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
 | POST | `/api/v1/sensor-pairings/expectations` | `sensors:pair` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
 | GET | `/api/v1/sensor-pairings/expectations/{id}` | `sensors:pair` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
 | POST | `/api/v1/sensor-pairings/lookup` | `sensors:pair` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
+| GET | `/api/v1/sensor-pairings/pending` | `sensors:pair` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
 | POST | `/api/v1/sensor-pairings/{id}/approve` | `sensors:approve` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
 | POST | `/api/v1/sensor-pairings/{id}/reject` | `sensors:pair` | config: sensor pairing (RFC-052): a pending request has no tenant until approved; the approver's tenant binds it |  | Owner, Administrator |
 | GET | `/api/v1/sensors` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |

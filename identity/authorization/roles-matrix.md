@@ -126,6 +126,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `findings:suppressions:write` | Manage Suppression Rules: Create and update rules | ✓ | ✓ |  |  |  | ✓ | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |
 | `findings:triage` | Triage Findings: Triage and categorize findings | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  | ✓ |  |  |  |  |  | ✓ | ✓ | ✓ |  |  |  |
 | `findings:verify` | Verify Findings: Verify and resolve fix-applied findings (security action) | ✓ | ✓ |  |  |  | ✓ | ✓ |  | ✓ |  |  |  | ✓ |  |  |  |  |  |  |  |
+| `findings:views:share` | Share Saved Views With the Organization: Share a saved list view with every member of the organization (it runs as each viewer) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `findings:vulnerabilities:read` | View Vulnerabilities: View vulnerability database | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ |  | ✓ |  |  | ✓ | ✓ | ✓ | ✓ |  |
 | `findings:write` | Update Findings: Modify finding details | ✓ | ✓ | ✓ |  |  | ✓ | ✓ | ✓ | ✓ |  |  |  | ✓ |  | ✓ | ✓ | ✓ |  |  |  |
 | `integrations:api_keys:delete` | Delete API Keys: Revoke API keys | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

@@ -11,7 +11,7 @@ OpenCTEM keeps two audit trails:
 | Trail | What it records | Who reads it |
 |---|---|---|
 | Organization audit log (`audit_logs`) | Actions inside an organization, and sign-in events | Organization owners and admins (`audit:read`) whose data access is full, because entries name assets and findings; every user sees their own actions under **My account > Activity** |
-| Administrators' audit log, also called the platform audit log (`admin_audit_logs`) | Actions taken in the platform console, and sign-in events of the console | Platform administrators (any console role), in the platform console under **Security > Admin activity** |
+| Administrators' audit log, also called the platform audit log (`admin_audit_logs`) | Actions taken in the platform console, and sign-in events of the console | Platform administrators (any console role), in the platform console under **Security > Admin activity**. The network address, user agent and request body are returned only to roles that read the administrators or the Users directory (platform owner, platform admin, support, security auditor) |
 
 The two are separate on purpose. The organization log belongs to the organization and is read by its
 owners and administrators. The administrators' log records what the people who run the platform did;
@@ -34,6 +34,7 @@ The main groups of actions are:
 | Sensors | pairing approved, denied and completed, key revoked, grant narrowed or widened, refused claims and pushes, identity policy changes, refusals by a sensor's local policy |
 | Scanning and scope | scope targets and exclusions (including approvals of widening), scans, scan workflows, scan profiles, scan zones, tools, scanner templates, commands created over the API |
 | Data | assets, findings (status, triage, suppression), credentials revealed, ingest events, AI triage requests |
+| Deletes | one entry per deleted object, with the actor, the caller's organization and the stored name: `asset_group.deleted` (single and bulk; a bulk delete records one entry per group it deleted and none for a refused id), `business_unit.deleted`, `business_service.deleted`, `attacker_profile.deleted`, `pentest_template.deleted`, `asset_relationship.deleted`, and `asset.duplicate_merged` for each asset a duplicate merge removes. A refused or failed delete records nothing. |
 
 Each entry records:
 
@@ -132,10 +133,14 @@ The design reference is
 The administrators' log is append-only: database triggers refuse updates, deletes and truncation
 of `admin_audit_logs`, the application role has no grant to change it, and every row is linked
 into a SHA-256 hash chain computed by the database. **Security > Admin activity** shows whether
-every entry verifies, and `bootstrap-admin verify-audit [-json]` (the `admin-cli` image) checks it
-from the command line and exits 1 on a break. Before a super administrator's write runs, the API
-writes an `admin.write_started` row with the redacted request body; if that row cannot be written
-the write is refused with `503 AUDIT_UNAVAILABLE`.
+every entry verifies, and `bootstrap-admin verify-audit [-json]` checks it
+from the command line and exits 1 on a break (run it from the API image, which ships
+`/app/bootstrap-admin`: `docker compose run --rm bootstrap-admin verify-audit`). Before any
+state-changing console request runs, whatever the administrator's role, and before an elevation is
+granted, the API writes an `admin.write_started` row with the redacted request body; if that row
+cannot be written the request is refused with `503 AUDIT_UNAVAILABLE`. Address fields (`url`,
+`*url`, `*webhook*`) keep only their scheme and host. Deleting an organization at once writes its
+critical `organization.purge_requested` row first and deletes nothing when it cannot.
 
 Someone who controls the database could still rewrite the chain. `ADMIN_AUDIT_SINK` closes that
 gap by sending every row, as written, to a place the database administrator does not control:

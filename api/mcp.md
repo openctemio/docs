@@ -6,15 +6,16 @@ nav_order: 4
 
 # MCP server
 
-OpenCTEM runs a **read-only Model Context Protocol (MCP) server**, so an AI assistant (Claude
+OpenCTEM runs a **Model Context Protocol (MCP) server**, read-only apart from three person-gated write tools, so an AI assistant (Claude
 Desktop, Claude Code or any MCP client) can answer questions about your organization's exposure in
 natural language: "which KEV findings are open on internet-facing assets?", "why is this finding
 P0?", "draft the executive summary for this pentest campaign".
 
-It reuses the same tenant-scoped read services as the REST API. The one tool that changes data
-(adding a comment) is off unless the organization allows it, runs only for a person's OAuth
-connection, and only after the person confirms the exact comment in OpenCTEM; API keys cannot
-change anything.
+It reuses the same tenant-scoped read services as the REST API. Three tools write, and none of them
+decides anything alone: adding a comment (the person confirms the exact comment in OpenCTEM),
+proposing a false positive or accepted risk (another person decides it) and saving a pentest finding
+as a draft (another campaign member confirms it). Each is off unless the organization allows its
+scope, and runs only for a person's OAuth connection; API keys cannot change anything.
 
 ## Endpoint
 
@@ -53,19 +54,30 @@ them to the API):
 
 - **Client identity.** A client identifies by a client ID metadata document (an `https` URL it
   publishes, fetched without redirects, public addresses only) or by a client ID an administrator
-  registered for the organization. Every client is a public client: PKCE, never a secret.
+  registered for the organization. Every client is a public client: PKCE, never a secret. A
+  metadata-document client is stored only when a signed-in person approves the consent (the fetched
+  document travels with the authorization request until then), so unauthenticated requests cannot
+  add applications; a client blocked after the request started is refused at approval. Approving a
+  consent needs a recent sign-in (step-up).
 - **Tokens.** Authorization codes last 60 seconds. Access tokens (`octm_at_...`) last 10 minutes and
   are bound to one person, one organization, one application and the MCP endpoint. Refresh tokens
   (`octm_rt_...`) rotate on every use; presenting a used one again revokes the connection. An unused
   refresh token lasts 14 days, and a connection ends at the policy's **Connections last (days)**
   limit (1 to 90, default 90).
-- **Scopes.** `mcp:findings.read`, `mcp:assets.read`, `mcp:compliance.read`, `mcp:pentest.read`, and
-  `mcp:findings.comment` (off unless the organization lists it in its policy). On every request a
-  token can do at most what its scopes allow and the person still holds; suspending or removing the
-  person ends it at once. A call that needs another scope gets an `insufficient_scope` challenge so
-  the client can ask for it.
+- **Scopes.** Read: `mcp:findings.read`, `mcp:assets.read`, `mcp:compliance.read`,
+  `mcp:pentest.read` and `mcp:scope.read` (permission `attack_surface:scope:read`, for `check_scope`),
+  offered up front and shown on the consent page. Write: `mcp:findings.comment`
+  (`findings:comment`), `mcp:findings.propose` (`findings:write`) and `mcp:pentest.draft`
+  (`pentest:findings:write`), never offered up front: granted only through an `insufficient_scope`
+  challenge and only when the organization's policy lists them (off by default). On every request a
+  token can do at most what its scopes allow and the person still holds; suspending, blocking or
+  removing the person, or the membership passing its end date, ends it at once. A password reset, a
+  password change and "sign out all others" revoke the person's connections in every organization
+  (the next refresh answers `invalid_grant`).
 - **Data scope.** A connection reads only the assets the person's groups and scope rules allow, as `oct_`
-  keys do, even for an owner or administrator. One opt-in exception: a person whose role has full
+  keys do, even for an owner or administrator. When that scope covers no assets, the empty results
+  of the asset, finding, finding statistics and active CVE tools carry a `scope_notice` saying so
+  and telling the person to ask an owner for access. One opt-in exception: a person whose role has full
   organization data access can choose **Allow access to all organization data** on the consent screen
   (off by default; needs a fresh sign-in confirmation). The connection then reads all organization data
   while the person still holds that role, checked on every request, and lives shorter: 7 days in total,
@@ -140,15 +152,15 @@ cannot call.
 Every tool is confined to the connection's organization; none takes an organization argument.
 Every tool carries MCP annotations: the read tools are marked `readOnlyHint: true`, and no tool is
 destructive, so assistants that auto-approve read-only tools do not ask on every read.
-`add_finding_comment` is the only tool that is not read-only, and it is listed only for an OAuth
-connection that holds `mcp:findings.comment`.
+`add_finding_comment`, `propose_finding_status` and `draft_pentest_finding` are not read-only; each
+is listed only for an OAuth connection that holds its write scope.
 
 | Tool | Arguments | Returns | Needs |
 |---|---|---|---|
 | `list_findings` | `severity`, `status`, `source`, `search`, `limit` (default 25, max 100) | findings | `findings:read` |
 | `get_finding` | `finding_id` | one finding | `findings:read` |
 | `finding_stats` | none | totals by severity and status, KEV, EPSS and SLA roll-ups | `findings:read` |
-| `list_active_cves` | `kev_only`, `min_epss` (0 to 1), `severity`, `limit` | CVEs active in the organization, ordered by KEV and EPSS | `findings:read` |
+| `list_active_cves` | `kev_only`, `min_epss` (0 to 1), `severity`, `limit` | the CVEs of open findings you can see, one row per CVE, riskiest first (priority, KEV, emerging threat, EPSS, CVSS, assets), read through the vulnerabilities list | `findings:read` |
 | `explain_finding_priority` | `finding_id` | why a finding has its priority (KEV, EPSS, reachability, severity weighting) | `findings:read` |
 | `list_finding_transitions` | `finding_id` | the status moves of a finding the caller may make, each with how (direct, approval request, duplicate picker), the inputs it needs, or the reason codes why not | `findings:read` |
 | `get_exposure_chains` | none | shortest attack paths from public entry points to KEV or crown-jewel assets; steps outside the key owner's data scope come back as hidden steps without name or type | `assets:read` |
@@ -163,7 +175,10 @@ connection that holds `mcp:findings.comment`.
 | `list_retests` | `campaign_id`, `page`, `limit` | retests of a campaign, newest first | `pentest:retests:read` |
 | `list_finding_templates` | `category`, `search`, `limit` | reusable finding templates | `pentest:templates:read` |
 | `campaign_report_stats` | `campaign_id` | working counts by severity and status (drafts included), CVSS, progress | `pentest:campaigns:read` |
+| `check_scope` | `target` (domain, IP, CIDR or URL, at most 512 characters), `intensity` (`passive`, `active` default, `intrusive`), `program_id` | whether the target may be tested at that intensity: `allowed`, `passive_only` or `refused`, with reason codes and a hint (see below) | `attack_surface:scope:read` |
 | `add_finding_comment` | `finding_id`, `content` (plain text, at most 4000 characters), `visibility` (`team` or `client`, pentest findings only), `confirmation_id` | an internal comment, after the person confirms it (see below) | `findings:comment` |
+| `propose_finding_status` | `finding_id`, `status` (`false_positive` or `accepted`), `closure_reason`, `justification` (at most 2000 characters), `expires_at` (accepted only) | an approval request in the person's name, decided by another person (see below) | `findings:write` |
+| `draft_pentest_finding` | `campaign_id`, `title`, `severity`, `description` (required); `asset_id` or `affected_targets`, `steps_to_reproduce`, `request_responses` (at most 10), `cvss_vector`, `cwe_id`, `owasp_category`, impacts, `remediation_guidance`, `reference_urls` | a draft pentest finding (see below) | `pentest:findings:write` and the `pentest` module |
 
 Tools that took `id` now take `campaign_id` or `finding_id`; `id` is still accepted.
 
@@ -179,6 +194,31 @@ is `client`, which only the campaign lead or a reviewer may set. Text with hidde
 refused. The organization must list the write scope in its policy (off by default). Requests,
 confirmations and refusals are audit-logged (`mcp_action.requested`, `mcp_action.confirmed`,
 `mcp_action.refused`).
+
+### Checking scope
+
+`check_scope` gives the same answer a scan would get from the organization's scope entries. It never
+widens a scope and never lists scope entries or deny-list contents. A lookup error refuses. A target
+covered only by a bug-bounty program rule is allowed only for a member of that program who names it
+in `program_id`. A refusal says it is the platform's decision and that variations of it are refused
+too. Each connection may ask 30 times a minute (burst 10; a limited call answers with
+`retry_after_seconds`), and the audit trail stores the target as a digest.
+
+### Proposals and pentest drafts
+
+- `propose_finding_status` changes nothing on the finding: it files an approval request in the
+  person's name, marked as written by the AI application, and another person decides it in the
+  approval queue (`/findings/approvals`); the person cannot approve it. Use
+  `list_finding_transitions` first: only findings that offer this move as an approval request accept
+  it. One pending request per finding; pentest findings are reviewed in their campaign instead.
+- `draft_pentest_finding` saves the finding in the name of the person who connected the
+  application, always as a draft that the campaign client never sees, after the campaign membership,
+  TLP limit and AI switch checks and under the usual phase and role rule for adding findings. The
+  finding records the application (`drafted_via`), kept on every edit, and the finding sheet shows
+  **Proposed by AI application**. The person cannot confirm a draft their application wrote: another
+  campaign member (a reviewer or the lead) does. A finding with the same title in the campaign
+  answers a conflict. Recorded request/responses are masked and their secrets encrypted like any
+  pentest evidence.
 
 ### Pentest campaigns
 
@@ -234,6 +274,10 @@ numbers in the draft match the report.
   limit is shared with the REST API. A key or an MCP connection can also make at most 60 requests
   at once (burst 60); the hourly rate is unchanged, and a client that bursts above 60 gets `429`
   and should pace its requests. List tools return at most 100 rows (pentest lists 50 per page).
+- **Platform decisions.** A refusal by a permission, a campaign role, a restricted campaign or a
+  missing person-approved connection says that the platform made a policy decision, that variations
+  of the call are refused too, and where a person can change it, so automated clients do not retry
+  with other arguments.
 - **Errors.** A tool failure is returned as a tool result with `isError: true` and
   `{"error": {"code", "message", "retryable"}}`. Codes: `invalid_argument` (the message names the
   argument), `not_found` (the item does not exist or you cannot read it: one answer for both),
@@ -272,4 +316,5 @@ tokens are refused. Changes that loosen the policy also need a recent sign-in.
 
 Requests, approvals and declines are audited (`mcp_access_request.created`, `.approved`, `.denied`),
 and policy changes as `mcp_settings.updated`. Platform operators see every AI application, with
-counts only, and can block one everywhere in the admin console (**Settings > AI applications**).
+counts only, and can block one everywhere in the admin console (**Settings > AI applications**,
+which pages and searches by host or name).

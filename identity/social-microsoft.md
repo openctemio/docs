@@ -47,14 +47,14 @@ In the Microsoft Entra admin center, **Entra ID > App registrations > New regist
 
 ## Step 2: Configure OpenCTEM
 
-### Option A: platform console (from the release that adds it)
+### Option A: platform console (from v0.16.0)
 
-1. Sign in to the platform console as a super admin.
-2. Open **Settings > Sign-in > Social login > Microsoft**.
+1. Sign in to the platform console as a super admin and elevate (see [Roles and elevation](../console/index.md#roles-and-elevation)).
+2. Open **Settings > Social login** and go to the **Microsoft** section.
 3. Paste the **Application (client) ID** and the secret **Value** (write-only). Check that the shown
    **Redirect URI** equals the one in step 1.
-4. Turn the provider on and save. It applies at once.
-5. Select **Test**.
+4. Tick **Offer on the sign-in page** and save. Give a reason and confirm with your authenticator code. It applies at once on every server, without a restart.
+5. Select **Test configuration**: it asks the provider whether it accepts the client ID and secret and whether the redirect URI is registered.
 
 ### Option B: environment variables
 

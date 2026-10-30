@@ -12,7 +12,7 @@ OpenCTEM has one credential per audience. Use the one that matches what you are 
 |---|---|---|
 | A person in the web console | a session (cookies, managed by the console) | yes, within your role |
 | A script, report job or dashboard reading data | a tenant API key `oct_...` | no, keys are read-only |
-| An AI assistant | an OAuth connection a person approves, or a tenant API key `oct_...`, on the [MCP server](mcp.md) | no (one comment tool, confirmed by the person) |
+| An AI assistant | an OAuth connection a person approves, or a tenant API key `oct_...`, on the [MCP server](mcp.md) | only through a person's OAuth connection: comments the person confirms, proposals and pentest drafts another person decides |
 | An integration that needs its own identity (SIEM export, ticketing bridge) | an API key minted for a [service account](#service-accounts) | no, keys are read-only |
 | A sensor | a sensor key `octs_...` (obtained by pairing or an enrollment token `octe_...`) | sensor results only |
 | A CI job | the CI system's OIDC identity, exchanged for a short-lived run token | CI results only |
@@ -34,6 +34,13 @@ sign-on, depending on how the organization is configured). For a local sign-in:
    organization-scoped access token (a JWT, 15 minutes by default) and rotates the refresh token.
 3. `POST /api/v1/auth/refresh` renews the access token before it expires.
 
+The token from step 1 (and from a social or SSO sign-in) is bound to no organization. Routes that
+name the organization in the URL (`/api/v1/tenants/{tenant}/...`) refuse it with
+`403 ACCOUNT_TOKEN_NOT_ALLOWED`; exchange it first. On those routes the URL organization's
+requirements (two-factor, personal-account policy, the factor an SSO exception needs) are applied to
+the token's own session on every request, whatever organization the token was issued for (cached 15
+seconds per session and organization, failing closed).
+
 The console keeps the access token in a cookie (`auth_token`) and calls the API through its own
 server, which adds the session. Token lifetimes are set with `AUTH_ACCESS_TOKEN_DURATION` (default
 `15m`) and `AUTH_REFRESH_TOKEN_DURATION` (default `168h`); see
@@ -43,6 +50,37 @@ Sessions are meant for people. For automation, use an API key. Some session-only
 accept a key: your own account (`/api/v1/me`, `/api/v1/users`), notifications, the WebSocket
 (`/api/v1/ws`), API key and SCIM token management, organization and membership management, and
 the admin console.
+
+### Sign-in refusal codes
+
+Every refusal of a sign-in, SSO, SAML, social sign-in, link or invitation request carries a stable
+`code`; the web console words each one in the person's language and never shows the server's
+sentence for a known code. Answers given before the password is proven stay generic, and none names
+another organization. The ones a client most often needs:
+
+| Code | Status | Meaning |
+|---|---|---|
+| `INVALID_CREDENTIALS` | 401 | Wrong email or password (also a break-glass administrator account on the main site) |
+| `ACCOUNT_LOCKED`, `ACCOUNT_SUSPENDED`, `EMAIL_NOT_VERIFIED` | 403 | Raised only after the password was proven. `EMAIL_NOT_VERIFIED` comes with an offer to send a new link (`POST /api/v1/auth/resend-verification`) |
+| `SIGNUP_NOT_AVAILABLE` | 403 | No account may be created for this person |
+| `SSO_REQUIRED` | 403 | The organization requires single sign-on |
+| `SSO_BREAK_GLASS_NEEDS_MFA` | 403 | An owner's password sign-in to an organization that requires SSO needs their second factor |
+| `ORGANIZATION_SUSPENDED` | 403 | The organization is suspended |
+| `MFA_ENROLLMENT_REQUIRED` | 403 | Two-factor authentication must be set up first |
+| `MFA_IDP_EVIDENCE_REQUIRED` | 403 | The organization requires the identity provider to prove a second factor |
+| `SSO_AWAITING_APPROVAL`, `SSO_NOT_A_MEMBER`, `SSO_DOMAIN_NOT_ALLOWED`, `SSO_DIFFERENT_METHOD`, `EMAIL_UNVERIFIED_AT_IDP` | 403 | Organization SSO refusals after the provider authenticated the person |
+| `LIMIT_REACHED` | 403 | No free seat |
+| `OAUTH_ACCOUNT_EXISTS` | 409 | The address already has an account; sign in to it, then link the provider |
+| `OAUTH_NO_EMAIL` | 400 | The provider returned no address |
+| `OAUTH_INVALID_STATE` | 400 | The state is unknown, used, expired or from another browser |
+| `EMAIL_NOT_AUTHORITATIVE`, `ACCOUNT_LINK_REQUIRED` | 403 | The provider cannot prove the mailbox, or an account exists: sign in another way and link the provider |
+| `LINK_PROOF_REQUIRED`, `LINK_PROOF_FAILED`, `LINK_PROOF_UNAVAILABLE` | 403 | Linking or unlinking a sign-in method needs a typed authenticator code (or password) |
+| `LAST_SIGN_IN_METHOD` | 409 | The only way to sign in cannot be removed |
+| `INVITATION_ALREADY_MEMBER`, `INVITATION_MEMBERSHIP_SUSPENDED`, `MEMBERSHIP_SUSPENDED_REACTIVATE` | 400 | Invitation refusals |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many attempts; the sign-in form asks the person to wait a minute |
+
+A SAML failure redirects to `/login?error=<code>`. The full table is
+`api/internal/infra/http/handler/auth_error_codes.go` in the source.
 
 ### CSRF protection
 
@@ -67,8 +105,8 @@ that is neither the request's host nor listed in `CORS_ALLOWED_ORIGINS`, `Origin
 
 ### Step-up for sensitive actions
 
-Some actions (for example creating or deleting an API key, creating a CI gate override) require a
-recent re-authentication. Without one the API answers `403` with code `STEP_UP_REQUIRED`; the
+Some actions (for example creating or deleting an API key, creating a CI gate override, approving
+an MCP consent) require a recent re-authentication. Without one the API answers `403` with code `STEP_UP_REQUIRED`; the
 console then asks for your password or second factor again (`POST /api/v1/auth/step-up`) and
 retries. A credential that cannot step up, such as an API key, gets `STEP_UP_UNAVAILABLE`.
 
@@ -92,6 +130,10 @@ secret manager.
 You need `integrations:api_keys:write` to create keys and `integrations:api_keys:read` to list
 them. By default only Owners and Administrators hold the write permission. Owners and
 Administrators see every key of the organization; other members see only their own keys.
+
+Creating a key also needs an enrolled second factor whenever the organization's rule or the
+platform's [two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor) covers you,
+even during the floor's grace period (`403 MFA_ENROLLMENT_REQUIRED`).
 
 With the API (session only, step-up required):
 
@@ -160,7 +202,11 @@ cookie.
 - **Network policy.** The organization's IP allowlist applies to keys exactly as to sessions
   (`403 IP_NOT_ALLOWED` from outside it).
 - **Stops working** (`401`, the same answer in every case) when it is revoked or expired, when its
-  user is suspended or removed from the organization, or when the user's account is disabled.
+  user is suspended or removed from the organization, when the membership passes its end date (at
+  once, not at the next sweep), or when the user's account is disabled or blocked. A password reset,
+  a password change and `DELETE /api/v1/users/me/sessions?revoke_api_keys=true` revoke the keys the
+  person owns when `revoke_api_keys` is set (the web dialogs tick **Also revoke API keys** by
+  default); `GET /api/v1/users/me/sessions` returns `active_api_keys`.
 
 The scopes the console offers for general keys are `assets:read`, `findings:read`, `scans:read`,
 `integrations:read`, `assets:write`, `findings:write` and `scans:write`. Write scopes are stored

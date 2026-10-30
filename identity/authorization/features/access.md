@@ -49,6 +49,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | DELETE | `/api/v1/groups/{groupId}` | `team:groups:delete` + team role owner | config: access groups: membership and scope administration (D13 cap) |  | Owner |
 | GET | `/api/v1/groups/{groupId}` | `team:groups:read` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator, Member, Viewer, Auditor |
 | PUT | `/api/v1/groups/{groupId}` | `team:groups:write` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
+| GET | `/api/v1/groups/{groupId}/access` | `team:groups:read`, `team:roles:read` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator, Member, Viewer, Auditor |
+| PUT | `/api/v1/groups/{groupId}/access` | `team:groups:write`, `team:roles:assign` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
+| POST | `/api/v1/groups/{groupId}/access/upgrade` | `team:groups:write`, `team:roles:assign` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
 | GET | `/api/v1/groups/{groupId}/assets` | `team:groups:read` | scoped: only the group's assets in the caller's scope (L-10) |  | Owner, Administrator, Member, Viewer, Auditor |
 | POST | `/api/v1/groups/{groupId}/assets` | `team:groups:assets`, `team:groups:write` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
 | POST | `/api/v1/groups/{groupId}/assets/bulk` | `team:groups:assets`, `team:groups:write` | config: access groups: membership and scope administration (D13 cap) |  | Owner, Administrator |
@@ -123,6 +126,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/users/{userId}/roles` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |
 | PUT | `/api/v1/users/{userId}/roles` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |
 | DELETE | `/api/v1/users/{userId}/roles/{roleId}` | `team:roles:assign` | system: the caller's own account |  | Owner, Administrator |
+| GET | `/api/v1/users/{userId}/team-access` | `team:groups:read`, `team:roles:read` | system: the caller's own account |  | Owner, Administrator, Member, Viewer, Auditor |
 | GET | `/scim/v2/Groups` | no permission: SCIM per-tenant bearer token auth (routes live at /scim/v2, not /api/v1) | system: SCIM provisioning (per-tenant bearer) |  | see Requires |
 | POST | `/scim/v2/Groups` | no permission: SCIM per-tenant bearer token auth (routes live at /scim/v2, not /api/v1) | system: SCIM provisioning (per-tenant bearer) |  | see Requires |
 | DELETE | `/scim/v2/Groups/{id}` | no permission: SCIM per-tenant bearer token auth (routes live at /scim/v2, not /api/v1) | system: SCIM provisioning (per-tenant bearer) |  | see Requires |

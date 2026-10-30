@@ -35,20 +35,23 @@ Create an **OAuth App** (not a GitHub App) under the account or organization tha
 
 OpenCTEM requests the scopes `read:user` and `user:email` (`OAUTH_GITHUB_SCOPES`). It uses them to read
 the account's numeric id, name, avatar and the list of emails, and signs the person in with the
-**primary, verified** address.
+**primary, verified** address. GitHub never proves that the person owns a domain mailbox: a GitHub sign-in cannot claim
+an invitation, join an organization by its domain or take over an account an administrator created
+(`EMAIL_NOT_AUTHORITATIVE`). Link GitHub to an existing account from **My account > Security**
+instead. See [Who may sign in](social-login.md#who-may-sign-in).
 
 ## Step 2: Configure OpenCTEM
 
-### Option A: platform console (from the release that adds it)
+### Option A: platform console (from v0.16.0)
 
-1. Sign in to the platform console as a super admin.
-2. Open **Settings > Sign-in > Social login > GitHub**.
+1. Sign in to the platform console as a super admin and elevate (see [Roles and elevation](../console/index.md#roles-and-elevation)).
+2. Open **Settings > Social login** and go to the **GitHub** section.
 3. Paste the **Client ID** and the **Client secret** (write-only). Check that the shown **Redirect URI**
    equals the callback URL in step 1.
-4. Turn the provider on and save. It applies at once.
-5. Select **Test**.
+4. Tick **Offer on the sign-in page** and save. Give a reason and confirm with your authenticator code. It applies at once on every server, without a restart.
+5. Select **Test configuration**: it asks the provider whether it accepts the client ID and secret and whether the redirect URI is registered.
 
-A field locked by an environment variable follows option B.
+A provider shown as **Set by the server environment** is pinned by `OAUTH_GITHUB_CLIENT_SECRET` and follows option B.
 
 ### Option B: environment variables
 
