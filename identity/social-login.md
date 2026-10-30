@@ -94,7 +94,7 @@ On the first social sign-in the account is bound to the provider's identity. Mat
 | Situation | Result |
 |---|---|
 | The identity is already bound to an account | Signed in. The account follows the provider's email if it changed and no other account uses it. |
-| The email belongs to an account with a **password** | Refused with `OAUTH_ACCOUNT_EXISTS`; nothing on the account changes. The sign-in page says an account with this email already exists. Sign in with the password (and your second factor); the app then offers to link the provider (see below). Linked automatically only where the platform turned automatic linking on. |
+| The email belongs to an account with a **password** | Refused with `OAUTH_ACCOUNT_EXISTS`; nothing on the account changes. The sign-in page says an account with this email already exists. Sign in with the password (and your second factor); the app then offers to link the provider (see below). It is never linked automatically. |
 | The email belongs to an account made by another provider (for example Google, now GitHub) | Refused with `OAUTH_ACCOUNT_EXISTS`. Sign in with the first provider; the app then offers to link the second one. |
 | The email belongs to an invited account that has not set a password yet | Adopted only when every organization it belongs to has DNS-verified the email's domain; otherwise refused. |
 | No account | Created if the sign-up policy or a pending invitation admits it. |
@@ -126,27 +126,14 @@ There are two ways to link:
 removed. Each link and unlink is recorded in the audit log (with the kind of proof used) and e-mailed
 to you.
 
-#### Automatic linking
+#### No automatic linking
 
-A Google or Microsoft sign-in links itself to an existing password account with the same address
-only when all of these hold:
-
-- the provider runs the address: a `gmail.com` or `googlemail.com` address, a Google Workspace
-  account whose domain is the address's domain, or a Microsoft address whose domain is verified
-  in its Entra tenant (GitHub never links automatically);
-- the provider verified the address, and the account's own address is verified;
-- the platform allows it: **Console > Settings > Sign-up**, **Link Google and Microsoft sign-in to
-  existing accounts** (off by default, and switched off on upgrade; turning it on asks the
-  administrator for their authenticator code and is audited).
-
-Every other session of the account is then signed out, a pending password reset link stops working,
-and the account's mailbox gets a notice. Turn the setting off if accounts on your platform were ever
-created without a verified address (for example administrator-created accounts with a temporary
-password, or a period without working e-mail).
+A sign-in never links itself to an existing account, whichever provider vouches for the address, and
+no setting turns that on. Linking always needs your own proof (see above).
 
 #### Two-factor authentication still applies
 
-A password account signed into through a linked provider (linked by hand or automatically) is asked
+A password account signed into through a linked provider is asked
 for its second factor exactly as after the password: the provider replaces the password, never the
 authentication code. Organizations that enforce their own SSO or require two-factor authentication
 treat the session as before.
