@@ -42,6 +42,13 @@ validation and retests, and connector scans.
 
 - **Targets the gate refuses are left out** of the job, each with a refusal
   code (see [the code table](scope.md#check-before-you-scan)).
+- **Names behind an excluded address are left out too.** Before matching
+  exclusions, the gate reads which addresses your names resolve to (and what
+  a probe of an asset id reaches), so an exclusion of a dedicated address
+  stops every name that resolves to it, on every path. An exclusion of a CDN
+  or edge provider's shared address stays on that address; the names behind
+  it keep being scanned on the web ports only. See
+  [Exclusions and the names behind them](scope.md#exclusions-and-the-names-behind-them).
 - **Ranges are cut, not dropped.** A range target is cut around excluded
   addresses and the rest is sent as pieces. For example, `198.51.100.0/29`
   minus `198.51.100.5` becomes `198.51.100.0/30`, `198.51.100.4` and
@@ -72,7 +79,11 @@ A job can wait in the queue while scope changes. When a sensor polls, claims
 or acknowledges it, the platform runs the gate again on its targets:
 
 - Targets that left scope since the job was queued are removed. A job with
-  nothing left fails with `SCOPE_CHANGED`.
+  nothing left fails with `SCOPE_CHANGED`. This covers every place a job
+  names targets: its target list, its run context (`context.targets`) and
+  the target lists in its tool settings (`config.targets`,
+  `scanner_config.targets`), so a narrowed job never names a target it may
+  not run on.
 - A gate that cannot decide withholds the job.
 - Jobs on unclassified assets are fitted to the low-impact profile here, or
   refused (`low_impact`), and port scans of names are limited to the web

@@ -85,6 +85,10 @@ Other actions:
 - **Quick scan**: one scanner on up to 1,000 targets now, without saving a
   scan (**Save as scan** keeps it). It needs `scans:write` and
   `scans:execute`. A quick scan never run again is archived after 30 days.
+- **Managed scans**: the scans [automatic coverage](asset-coverage.md) and
+  automatic enrichment run are listed read-only under **Managed by
+  continuous coverage**. They cannot be edited, run, scheduled or deleted;
+  **Clone as my scan** makes a copy you own.
 - Pause, activate and disable; export and import
   (`GET /api/v1/scans/{id}/export`, `POST /api/v1/scans/import`); bulk
   activate, pause, disable and delete.
@@ -168,6 +172,14 @@ sequenceDiagram
 
 ## Scan runs
 
+**Discovery > Scans > Runs** opens on the runs started by people. The
+**Origin** filter (**People**, **System**, **All**) also shows the runs the
+platform starts on its own (continuous coverage, enrichment), which carry a
+**Managed by the platform** badge and stay listed and exportable. While
+system runs are hidden, one line says how many runs continuous coverage
+started, with **Show system runs** and a link to the coverage settings. API:
+`GET /api/v1/scan-runs?origin=user|system`; each row carries `managed_by`.
+
 ![The Runs tab listing nine runs: running, completed, partial and failed]({{ site.baseurl }}/assets/images/scanning/scan-runs.png)
 *Figure: Scan runs.*
 
@@ -177,7 +189,7 @@ sequenceDiagram
 | `running` | At least one task claimed or started | no |
 | `completed` | Every task completed | yes |
 | `partial` | Some work completed and some failed, or the deadline passed with work done, or zone routing left targets uncovered. Results are kept | yes |
-| `failed` | No task completed: all failed, or no sensor claimed any task within 4 hours (scheduled runs) or 1 hour (other runs). A run whose work waits for its scan window or for its hosts is not failed this way | yes |
+| `failed` | No task completed: all failed, or no sensor claimed any task within 4 hours (scheduled runs) or 1 hour (other runs). A run whose work waits for its scan window, for its hosts, or for a busy sensor of your organization (online, with no free slot) is not failed this way | yes |
 | `timeout` | The deadline passed and no task completed | yes |
 | `canceled` | Stopped by a person | yes |
 | `blocked` | Refused before anything was dispatched (scope, scan window, no sensor or tool, no target) | yes |
@@ -212,7 +224,16 @@ disabled scanner goes to **Scanners**. Open the run for the full message.
 
 A run has no fixed default deadline. Its deadline is the scan's **Max
 duration** when one is set, else the scan workflow's timeout, else the
-platform's 24-hour cap. The run page says which one applies and why. A step
+platform's 24-hour cap. The run page says which one applies and why.
+
+Waiting in the queue does not use up the deadline. When a sensor claims a
+task, the run gets at least the time the task's targets need at that
+sensor's measured speed (twice over, plus 5 minutes), or the run's
+configured timeout from the claim when the sensor reports no speed. The
+deadline only moves forward, never past the 24-hour cap, and never when the
+scan sets a **Max duration**; the run page then says "Moved when a sensor
+took the work". A run whose open tasks all wait for a busy sensor of your
+organization, or for their hosts, is not timed out at its deadline. A step
 is not started when less time is left before the deadline than its tool needs
 to do anything useful: it fails with `DEADLINE_TOO_CLOSE`, and its targets
 count as the run's unfinished targets.
@@ -232,11 +253,22 @@ its tasks by state, and the findings it produced. The run page offers:
   scanning them**, or **Handed back: its sensor is still scanning one of its
   hosts**); **Why waiting?** explains it ([Why a task waits](why-waiting.md)).
   A completed task lists the targets it skipped and the hosts it did not
-  fully cover.
+  fully cover, each with its reason, for example **the scan's proxy failed**
+  (the host was not checked because the scan's proxy pool failed).
+  Names that no longer resolve are skipped, not failed: a task whose every
+  target is such a name completes, and the run shows "N names no longer
+  resolve" with a **No longer resolve** skip group.
 - **Run map**: the run's steps as one flow, drawn on the workflow version the
   run executes (v0.9.6). See [The run flow](#the-run-flow).
 - **Stages**: per step, how many targets came from the seeds or from earlier
-  steps, and how many were skipped and why.
+  steps, and how many were skipped and why. A run that ran its scan's tool
+  directly (a quick scan, every coverage run) records no stage plan, and
+  says so once it has finished.
+- **What this run did to findings**: new, still detected and reopened
+  findings, counted live as each report lands while the run is running.
+  **Untouched** is counted when the run finishes. A run that ended partial,
+  failed or timed out says that only the tasks that finished cleanly could
+  close findings.
 - **Timeline**, **Dispatch** and **Timing**: when each task ran, and how the
   run was dispatched.
 
@@ -246,7 +278,10 @@ The **Run map** section of a run draws its steps as one flow (v0.9.6):
 
 - Each step is a card with its state (colour, icon and label), its tool, a
   progress bar of its chunks, its outputs and findings, its duration, and
-  the comparison with the scan's previous run. Text wraps; nothing is cut.
+  the comparison with the scan's previous run ("Compared with the last run").
+  Only steps that finished their work (completed or partial) are compared,
+  so a step that did not run never shows the last run's assets as gone.
+  Text wraps; nothing is cut.
 - When steps run side by side, the flow is a graph, left to right or top to
   bottom, whichever fits, with each arrow labelled with what it hands to the
   next step. **View** switches between **Graph** and **List**. A chain of
@@ -340,6 +375,27 @@ again whole.
 - Lost work and timeouts are retried twice, with a backoff.
 - Other failures follow the scan's retry setting.
 
+**A task that fails for a reason that is not the target's moves to another
+sensor.** A sensor says why a task failed: the tool crashed or is missing,
+it ran out of memory or disk, the tool's content could not be read, or its
+own network or resolver failed. Routed scan work then goes to another
+eligible sensor, and the sensors that already failed it are left out
+(**Why waiting?** shows "The sensor already failed this task"). A lost lease
+leaves out the old holder too, when another sensor could take the work.
+
+- A task has 3 attempts in all, whatever the causes. When they are spent, or
+  no other sensor can take it, it fails naming every cause, with the codes
+  `TOOL_UNAVAILABLE`, `TOOL_CRASHED_ON_INPUT`, `RESOURCE_EXHAUSTED`,
+  `CONTENT_UNAVAILABLE` or `SENSOR_LOST`.
+- When the same tool and content version fails on 2 different sensors within
+  30 minutes, the task is not moved to more sensors and fails with
+  `FLEET_TOOL_FAILURE`.
+- Targets that failed because of the sensor's own network or resolver go out
+  again on another sensor. Targets that failed because of the target
+  (unreachable, blocked or challenged by a WAF or CDN, rate limited) are
+  never resent from another sensor in the same run.
+- The run's **Timeline** explains every move.
+
 ### Cancel a run
 
 **Cancel run** on the run page or in the run's panel in the Runs list, or
@@ -360,9 +416,9 @@ declared to produce. Out-of-contract assets are, by default, held in the
 sensor results quarantine for review instead of applied. A quarantined report is marked accepted only once it has been applied; an accept or discard while it applies answers `409`. Findings and assets then appear under **Findings**, **Assets** and
 **Attack surface**, with the scan run as their source.
 
-A finding that a later scan no longer sees is not resolved automatically by
-default. Fix verification uses [retests](../user-guide/index.md) of the
-finding instead.
+A finding that a later scan no longer sees can close only when that scan
+really covered its host, and only as your organization's closing mode
+allows: see [Closing findings](../user-guide/closing-findings.md).
 
 ## Scan profiles
 

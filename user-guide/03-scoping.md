@@ -290,6 +290,17 @@ use a range or CIDR entry for a network. Stored entries that the platform
 guardrails refuse (a public suffix, the deny list, an oversized range) cover
 nothing.
 
+**Add many at once.** Paste a list into **What**: one value per line, or
+separated by commas or spaces, so a spreadsheet column works. Each value's
+kind is detected, repeats are counted once ("N repeated, counted once"), and
+values that are not recognised are listed so you can remove them. The
+**Covers** choice, the duration and the deepest probe apply to the whole
+list. A list holds up to 1,000 values; they are sent in batches of 200 with
+one identity check, and the result shows what was added, what was already in
+scope and what was refused, with the reason. (API:
+`POST /api/v1/scope/targets/bulk`, with optional `expires_in_days` and
+`max_tier` applied to every item.)
+
 The dialog tells you whether the entry needs approvals (Strict only) or takes
 effect at once; you are asked to confirm your identity first. Under Strict, a
 member's request is limited to one name or address (no wildcard or range), is
@@ -305,7 +316,9 @@ edit that widens scope sends the entry back to pending. A repository entry that
 a CI trust keeps says **Managed by the CI trust {name}** (with whether a verified
 pipeline has been seen); it changes through the trust, so its only action is
 **Open the CI trust**, and other repository entries offer **Set up CI for these
-repositories**.
+repositories**. An address, range or CIDR entry wholly inside a range a CDN
+or edge provider publishes is labeled with the provider (see
+[Edge addresses](#edge-addresses)).
 
 ### Put out of scope
 
@@ -315,7 +328,19 @@ On the **Out of scope** tab, click **Put out of scope**:
 2. Optionally block only part of a host: tick the path option, enter a **Path
    prefix** (for example `/admin`) and choose the HTTP methods (or **Block only
    what changes state**).
-3. Enter a **Reason** and, optionally, when it **Ends** (1 to 365 days).
+3. Choose **Why**: **Do not scan** (scans stop, findings stay open), **Not
+   ours** or **Retired** (scans stop and, without an end date, the open
+   findings of what it matches close as "Asset out of scope"; lifting the
+   exclusion reopens them).
+4. Enter a **Reason** and, optionally, when it **Ends** (1 to 365 days).
+
+An exclusion that could never match is refused: a reversed range, an
+impossible network such as `/33`, a network in an IP address exclusion, or a
+URL in a domain exclusion.
+
+An exclusion of an address also stops scanning the names that resolve to it,
+except for a CDN or edge provider's shared address, whose exclusion stays on
+the address (below).
 
 A new exclusion is in effect at once. Under **Strict** scan approval it is
 **Pending approval** instead, and scans still reach the target until someone
@@ -333,8 +358,29 @@ From the inventory, select up to 200 assets and use **Mark out of scope**:
 - **Not ours** records that they are not your organization's; names found
   again under them stay out too.
 
-Both offer **Undo**. **Archive**, next to it, hides assets from the default
-list and does not change scanning.
+Both offer **Undo**. The dialog previews what the exclusion stops, including
+the open findings it would close and the names that resolve to the excluded
+addresses. A member with limited data access can close findings only with
+exact rules (one name or address); **By rule** is then turned off with the
+reason. **Archive**, next to it, hides assets from the default list and does
+not change scanning.
+
+### Edge addresses
+
+An address that belongs to a CDN, edge, hosting or shared cloud provider
+serves many organizations. The inventory and the asset drawer label it
+*provider* **edge** (or **hosting**, **shared**), label a name or service
+served through it **Behind** *provider*, and show its ports as **Provider
+ports**. The platform never refuses such an address by itself: you decide.
+
+To stop scanning one, click its label on the address (you need scope write)
+and confirm **Add to out of scope**. The dialog explains that scanning a
+shared edge address tests the provider, not your systems, and says what the
+exclusion stops: names served through a shared edge address keep being
+scanned (web ports only); otherwise how many names with a dedicated address
+in the excluded range stop too, with a sample. It adds one **Do not scan**
+exclusion through the normal path (same permission, audit and approval
+rule). See [CDN and edge addresses](../scanning/easm.md#cdn-and-edge-addresses).
 
 **How an exclusion reaches the sensors.** Every way a scan starts (scheduled,
 manual or quick scans, workflow runs and each later step, automation,
@@ -366,7 +412,8 @@ only through a wildcard DNS record stays passive until a person confirms it.
 this to **Off (passive only)**, **Low-impact (default)** or **Full** (the
 scan's own intensity, still behind the guardrails); Strict scan approval
 always means Off. A port scan of a name reaches only the web ports while an
-address it resolves to is not in scope. Exclusions and **Not ours** always
+address it resolves to is not in scope, or while the name is served through
+a CDN or edge provider's shared address. Exclusions and **Not ours** always
 win. See [Unclassified assets](../scanning/scope.md#unclassified-assets).
 
 ### Approvals
@@ -414,7 +461,7 @@ identity, is audited and notifies every administrator.
 | Setting | Options | Default |
 |---|---|---|
 | **Approvals for widening** (applies under Strict) | Default (one, when there are two or more admins), None, One approver, Two approvers | Default |
-| **One-off entries** (requests: Strict only) | Approvers; members request · Approvers only · Off | Approvers; members request |
+| **One-off entries** (requests: Strict only) | Approvers; members request, or Approvers only, or Off | Approvers; members request |
 | **Longest one-off entry** | 1 to 30 days | 7 |
 | **Default deepest probe** | T0 passive, T1 safe active (T2 is never a default) | T1 |
 | **Add discovered names automatically** | on or off | on |

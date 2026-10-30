@@ -75,6 +75,9 @@ with `withheld_at`.
 | The sensor is offline. | Start the sensor or check its connection. |
 | The task is reserved for another sensor. | No action needed. |
 | The sensor already refused this task. | Check the sensor's local policy. |
+| The sensor already failed this task, or lost it while running it, and is not offered it again. | Check the sensor's logs and health. See [Failures and retries](scans-and-runs.md#failures-and-retries). |
+| A proxy pool carries this sensor's scans, and the sensor does not report that it can use one (no proxy support, or no network confinement). | Upgrade the sensor and run it with network confinement, or set its network path to **Direct** on its page ([Proxies](../sensors/proxies.md)). |
+| A proxy pool carries this sensor's scans, and its validation probes do not go through the pool. | Upgrade the sensor, or run validation on a sensor with a direct path. |
 | The sensor is not in the task's scan zone, or lacks the tool there. | Assign a sensor with the tool to the zone ([Scan zones](../sensors/zones.md)). |
 | The sensor did not report the tool as installed. | Install the tool on the sensor, or use an image that has it. |
 | The sensor does not offer a capability the task requires. | Use a sensor that offers it. |
@@ -128,8 +131,12 @@ sequenceDiagram
   nuclei reports no end per host: from sensor v0.23.0 a nuclei task over
   several hosts runs in up to 4 waves of whole hosts and frees each wave's
   hosts when the wave ends; before, it held them all until the task ended.
-- **Only your organization counts**: another organization's scans never hold
-  your tasks back, and you never see them.
+- **On your own sensors, only your organization counts**: another
+  organization's scans never hold your tasks back, and you never see them.
+  On the shared sensors, a job starts only while fewer than two shared jobs
+  of any organization hold one of its hosts (one for intrusive work), so the
+  platform's addresses never hit one host from many organizations at once.
+  You see only that the job waits for its hosts, never who else scans them.
 - **What the panel shows**: host counts only, never host names. The holding
   task's run and step are named only when you may read that run.
 - **It does not fail the run**: a run whose work waits for its hosts (or for a

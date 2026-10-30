@@ -18,23 +18,36 @@ They need the `scan_workflows` module and the `scans:workflows:read`,
 
 ## Starter workflows
 
-Every organization gets five system workflows built only from capability
+Every organization gets these system workflows, built only from capability
 steps, so they run on whichever implementation your sensors have:
 
 | Workflow | Steps |
 |---|---|
-| Discover | discover subdomains, then resolve DNS, then probe HTTP |
-| Discover + Vuln | discover subdomains, resolve DNS, scan ports, probe HTTP, then vulnerability templates (fed by the probe and the ports) |
-| Web app | probe HTTP, crawl, then vulnerability templates |
+| Passive discovery | discover subdomains and look up the domain registration, then resolve DNS, then look up the networks of the addresses. Every step is passive (T0) |
+| Subdomains | discover subdomains, resolve DNS, then probe HTTP (and a takeover check, once a tool for it is installed) |
+| Standard recon | discover subdomains, resolve DNS, then probe HTTP, scan ports and look up networks side by side, then crawl and run vulnerability templates (after the probe and the crawl) |
+| Web | probe HTTP, crawl, then vulnerability templates |
+| Deep recon | Standard recon plus the domain registration lookup, with higher target caps |
+| Probe new assets | scan ports and probe HTTP, with no discovery step (the active half of **Continuous discovery**) |
 | Network | find the live hosts of address ranges (host discovery), scan ports, probe HTTP, then vulnerability templates |
 | Code / CI | secrets, SAST, dependency and IaC scans of a repository, in parallel |
 
 ![The Workflows tab listing the organization's workflows and the built-in starter workflows]({{ site.baseurl }}/assets/images/scanning/workflows.png)
 *Figure: Scan workflows.*
 
-System workflows cannot be edited; clone one to change it.
+System workflows cannot be edited; clone one to change it. Steps whose
+capability has no tool yet (screenshots, service detection, the takeover
+check) are optional: a run skips them with "available when a tool that runs
+<capability> is installed" and never fails because of them.
 
-The **Discover + Vuln** graph, as an example. Each arrow carries the assets the
+**Retired workflows.** The earlier starters **Discover**, **Discover + Vuln**
+and **Web app**, and the older presets, are retired. They are no longer
+listed, and starting a new scan from one or copying one is refused with an
+error that names its replacement: **Subdomains**, **Standard recon** and
+**Web**. Scans and copies made from them keep working, and a copy's page says
+which retired workflow it came from.
+
+The **Standard recon** graph, as an example. Each arrow carries the assets the
 earlier step found, and every new target passes the scope gate before the next
 step probes it:
 
@@ -42,13 +55,56 @@ step probes it:
 flowchart LR
     SEED(["Seeds: your domains"]) --> SUB["discover.subdomains<br/>(T0, subfinder)"]
     SUB -->|"names"| DNS["resolve.dns<br/>(T0, dnsx)"]
-    DNS -->|"names, addresses"| PORT["scan.ports<br/>(T1, naabu)"]
     DNS -->|"names, addresses"| HTTP["probe.http<br/>(T1, httpx)"]
-    PORT -->|"open ports"| HTTP
-    PORT -->|"network services"| VULN["vuln.templates<br/>(T1, nuclei)"]
-    HTTP -->|"web services"| VULN
+    DNS -->|"names, addresses"| PORT["scan.ports<br/>(T1, naabu)"]
+    DNS -->|"addresses"| ASN["lookup.asn<br/>(T0)"]
+    HTTP -->|"web services"| CRAWL["crawl.web<br/>(T1, katana)"]
+    HTTP -->|"web services"| VULN["vuln.templates<br/>(T1, nuclei)"]
+    CRAWL -->|"URLs"| VULN
     VULN --> F(["Findings"])
 ```
+
+### Depth
+
+A workflow scan has a **depth**: `passive`, `standard` (the default) or
+`deep`. It is set through the API (`depth` on the scan) and copied into each
+run:
+
+- **Passive** runs only the steps that send nothing to the targets (T0).
+  Every other step is skipped with the reason. A scan whose depth skips every
+  first step of its workflow is refused at save (`DEPTH_RUNS_NOTHING`).
+- A step can start at a minimum depth, and can use other settings and a
+  lower target cap at each depth. In the recon workflows:
+
+| Workflow | Passive | Standard | Deep |
+|---|---|---|---|
+| Passive discovery | every step, no announced ranges | adds announced ranges | adds every DNS record type |
+| Subdomains | discovery and resolution | adds the web probe | adds every DNS record type |
+| Standard recon | discovery, resolution, network lookups | top 1,000 ports (at most 1,000 targets), templates of critical, high and medium severity (at most 500), no crawl | same ports (at most 5,000 targets), crawl (at most 200), templates down to low (at most 2,000) |
+| Web | refused (no first step would run) | templates of critical, high and medium severity, no crawl | adds the crawl, templates down to low |
+
+Depth never raises a tier: the scan's intensity, the scope and the claim-time
+checks still decide.
+
+### Run rules
+
+Two workflow settings change how a run moves on. Both are on in the recon
+workflows and off for other workflows unless you turn them on:
+
+- **Continue on a failed step** (`continue_on_failed_dependency`): a step runs
+  once every step it depends on has ended, on the seeds and on what the steps
+  that did produce results found. Without it, a step after a failed, skipped
+  or timed-out step is skipped.
+- **Delta gating** (`delta_gating`): template scans, crawls, screenshots and
+  service detection take only the assets that are new, changed or due since
+  the previous completed or partial run of the same scan. An asset is done
+  when it was first seen before that run, has not changed since, and either
+  that run's same step completed it within the last 7 days or its coverage
+  for the capability is current. Done assets are recorded `unchanged`; a step
+  left with none finishes at once with "nothing new since the last run". A
+  partial, failed or skipped step of the previous run never counts as done,
+  so cut-short work is redone. Without a previous run every asset is scanned,
+  and seeds are never gated.
 
 ## Capabilities
 
@@ -58,7 +114,8 @@ widen it.
 
 | Capability | Takes → produces | Tier | Tools (default first) |
 |---|---|---|---|
-| `discover.subdomains` | domain → subdomains | T0 | subfinder |
+| `discover.subdomains` | domain → subdomains, from passive sources | T0 | subfinder |
+| `enumerate.subdomains` | domain → subdomains that resolve, by querying DNS for candidate names from a label list | T1 | dnsx-enum |
 | `resolve.dns` | names → names, IP addresses | T0 | dnsx |
 | `lookup.rdap` | root domain → its registration (registrar, name servers, dates) | T0 | rdap (built into the sensor) |
 | `lookup.asn` | addresses, networks → their autonomous system and holder | T0 | asn (built into the sensor) |
@@ -103,7 +160,7 @@ applies today:
 
 | Tool | Settings |
 |---|---|
-| naabu | `ports`, `top_ports`, `exclude_ports`, `rate`, `retries`. Port lists only (`80,443,8000-8100`, `top-100`, `top-1000`, `full`); `rate` can only lower the sensor's rate |
+| naabu | `ports`, `top_ports`, `exclude_ports`, `rate`, `retries`. Port lists only (`80,443,8000-8100`, `top-100`, `top-1000`, `full`); `rate` can only lower the sensor's rate. A port scan that names no ports scans the top 1,000; the whole range runs only when a step sets `full` |
 | nuclei | `tags`, `exclude_tags`, `severity`, and `rate_limit`, `concurrency`, `bulk_size` up to the sensor's ceilings. `dos`, `fuzz`, `fuzzing` and `intrusive` are refused as tags; `exclude_tags` only adds to the sensor's exclusions |
 
 ![The workflow builder with five chained steps and the tool palette]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
@@ -145,6 +202,7 @@ each, that any eligible sensor of the zone may claim:
 | `lookup.rdap` | 100 |
 | `discover.hosts` | 64 |
 | `discover.subdomains`, `scan.ports` | 50 |
+| `enumerate.subdomains` | 1 (one root domain per task) |
 | `vuln.templates` | 25 |
 | `crawl.web`, `dast.web` | 10 |
 

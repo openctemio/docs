@@ -68,9 +68,20 @@ completed step to go back.
      scan workflow (one of your organization's workflows or a system
      workflow, with a preview of its steps), or **Continuous discovery**
      (every day, passive discovery of your root domains, then active probing
-     of the assets confirmed since the last run; it saves two scans).
-2. **Targets**: combine assets, asset groups and pasted targets (tabs
-   **Assets**, **Groups** and **Paste**); at least one target is required.
+     of the assets confirmed since the last run; it saves two scans). It can
+     be saved before your first sensor connects: the probing scan then waits
+     for a sensor with its tools and runs once one is online, and the result
+     says so with a link to the sensors.
+2. **Targets**: one targets field holds everything as chips: type or paste
+   names, addresses and ranges, or pick assets and asset groups. Below it, one
+   readiness line counts the targets, how many are ready and how many are
+   blocked; blocked targets are grouped by reason with the fixes ranked best
+   first (run on your own sensor, verify the domain, lower the intensity,
+   remove). The other options sit in a collapsed section with a one-line
+   summary. **Next** stays disabled while no target can be scanned, with the
+   reason under it; when only some can, the **Review** step lists the ones
+   that will be skipped. On a phone the wizard shows "Step N of M" with a
+   progress bar.
    - Pasted targets are checked as you type: domain (`example.com`),
      wildcard (`*.example.com`), IPv4 or IPv6 address, CIDR range
      (`192.0.2.0/24`), URL (`https://example.com`) or host and port
@@ -105,6 +116,12 @@ completed step to go back.
    **Save scan**. If the scan is saved but cannot start, it stays saved and
    you can trigger it later from **View Scan**.
 
+Port scans that name no ports scan the top 1,000 ports. Scans built on a
+retired workflow (**Discover**, **Discover + Vuln**, **Web app**) keep
+working, but a new scan or copy must use the replacement (**Subdomains**,
+**Standard recon**, **Web**); see
+[Scan workflows](../scanning/scan-workflows.md#starter-workflows).
+
 When you trigger a scan, the platform may refuse it and say why, with a fix:
 for example a target's [scan window](../scanning/scans-and-runs.md#starting-a-run)
 never opens, the scan or the organization already has too many runs at
@@ -128,7 +145,9 @@ scanner), schedule and next run, last run and run count.
 - Select several to **Activate**, **Disable** or **Delete** them.
 - **Origin** filters the list to scans made by **People** or by the **System**.
   Scans of the **System** origin are the platform's own continuous coverage and
-  enrichment scans (see [Managed scans](#managed-scans)).
+  enrichment scans (see [Managed scans](#managed-scans)). They are also
+  listed in their own read-only section, **Managed by continuous coverage**,
+  with **View their runs** and a link to the coverage settings.
 - Click a scan to open its page (`/scans/{id}`): run statistics (runs, success
   rate, successful, partial, failed, next run), the upcoming runs of its
   schedule, its configuration (scan type, sensor preference, targets per job,
@@ -138,8 +157,9 @@ scanner), schedule and next run, last run and run count.
 ### Managed scans
 
 Continuous coverage and automatic enrichment create scans of their own. Such a
-scan shows a **System** badge, the banner "Managed by the platform · Continuous
-coverage" and **Automatic coverage** as its trigger. It is read-only:
+scan shows a **System** badge, the banner "Managed by the platform:
+continuous coverage" (or automatic enrichment) and **Automatic coverage** as
+its trigger. It is read-only:
 
 - There is no **Edit**, **Run now**, schedule, **Take ownership** or **Delete**,
   and the API answers `409 SCAN_MANAGED_BY_POLICY` to any such change, so a member
@@ -148,13 +168,20 @@ coverage" and **Automatic coverage** as its trigger. It is read-only:
 - A scan you created with the same name as a coverage scan is never adopted or
   rewritten by coverage; coverage creates its own under another name. Scans a
   person created or took over are never managed.
-- A run's status says how many targets were unreachable or skipped, for example
-  "Completed · 3 unreachable", without changing the status.
+- A run's status carries a note with how many targets were unreachable or
+  skipped, for example "3 unreachable", without changing the status.
+- What these scans check and when is in
+  [Automatic coverage](../scanning/asset-coverage.md).
 
 ### Runs
 
-The **Runs** tab (`/scans/runs`) lists every run: from scans, quick scans and
-retests.
+The **Runs** tab (`/scans/runs`) lists the runs of scans, quick scans and
+retests. It opens on the runs started by people; the **Origin** filter
+(**People**, **System**, **All**) shows the runs the platform starts on its
+own (continuous coverage, enrichment), which carry a **Managed by the
+platform** badge. While they are hidden, one line says how many runs
+continuous coverage started, with **Show system runs** and **Coverage
+settings** (`/scans/runs?origin=system`).
 
 ![A running scan run: stages, tasks and the timeline]({{ site.baseurl }}/assets/images/scanning/scan-run.png)
 *Figure: A scan run in progress.*
@@ -167,7 +194,11 @@ retests.
   days). Jump to the findings it produced from there.
 - The task list shows each task's progress and, for a queued task, what it
   waits for; **Why waiting?** explains it
-  ([Why a task waits](../scanning/why-waiting.md)).
+  ([Why a task waits](../scanning/why-waiting.md)). A host a task could not
+  check says why, for example **the scan's proxy failed**; names that no
+  longer resolve are listed under **No longer resolve** instead of failing.
+- The findings figure and **What this run did to findings** update live
+  while the run is running.
 - A run that has not finished can be canceled (**Cancel run** in the run's
   panel or on its page); in-flight tasks stop at their next heartbeat.
 
@@ -261,8 +292,8 @@ break-glass). A repository that a CI trust names also appears as a scope entry
 
 ## Attack surface
 
-**Discovery › Attack surface** has five tabs: **Overview**, **Review**,
-**Lookalikes**, **Changes** and **Web surface**. See also
+**Discovery › Attack surface** has six tabs: **Overview**, **Review**,
+**Lookalikes**, **Changes**, **Web surface** and **Certificates**. See also
 [Attack surface monitoring](../scanning/easm.md).
 
 ### Overview
@@ -394,6 +425,35 @@ origins come from the HTTP probe: each probed origin is its own asset, named
 by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
 the subdomain or address it runs on.
 
+### Certificates
+
+**Certificates** (`/attack-surface/certificates`) lists the TLS certificates
+found on your external assets, with who they were issued to, who issued them
+and when they expire.
+
+- The cards: **Certificates**, **Expired** and **Expiring in 30 days**; the
+  last two filter the table.
+- Columns: **Issued to**, **Fingerprint (SHA-256)** (**Copy fingerprint**),
+  **Issuer**, **Issued on**, **Expires on** and **Detected**, and a status
+  per row: **Expired**, **Expiring soon**, **Valid** or **Unknown**, computed
+  when the page loads. Self-signed and wildcard certificates are marked.
+- **Search subject, issuer or fingerprint**, filter by **Status**, and
+  **Export CSV**.
+
+It needs `assets:read`, and lists only the certificates in your data scope.
+Certificates appear once a scan of your external assets reads them.
+
+### Import recon results
+
+**Import results** on the findings page also reads a ZIP of a reconFTW
+results directory as one unit: subdomains, addresses, ports, live web
+services, URLs (as endpoints) and nuclei results join into one report.
+Preview first: it lists the hosts outside your scope, the files skipped on
+purpose (people and credential data, screenshots) and the files that are not
+recognized. Hosts your scope entries do not cover wait as candidates for
+review and are never scanned; findings on them stay visible with the tag
+`candidate`. A recon import never closes findings.
+
 ## The asset inventory
 
 **Discovery › Assets** has four tabs: **Inventory**, **Needs attention**,
@@ -422,7 +482,7 @@ the subdomain or address it runs on.
   phone or a narrow window, **Filters** opens the same filters in a sheet.
 - Search by name, description or alias. The filters narrow by signals
   (crown jewel or not, has findings or not, not seen for 30+ days or seen
-  recently), tags, **Technologies** (what probes fingerprinted on the assets: web
+  recently), names that no longer resolve (`resolution=not_resolving`), tags, **Technologies** (what probes fingerprinted on the assets: web
   servers, frameworks and CMS, languages and runtimes, JavaScript libraries, CDN,
   hosting, WAF, analytics and security headers; pick a **Category** or search a
   **Technology**), **Scope status** (**In scope**, **Not in scope (passive
@@ -521,7 +581,7 @@ full page `/assets/{id}`):
 *Figure: The asset drawer.*
 
 - The header shows the asset's state with the scan-scope answer next to it
-  (**In scope**, **Not in scope · passive only**, **Excluded**, **Not ours**,
+  (**In scope**, **Not in scope** (passive only), **Excluded**, **Not ours**,
   the same answer the inventory's **Scope** column and the scan gate give),
   its classification, a **Control plane** badge when it is one, the named
   **Criticality**, **Exposure** and **Zone** badges ("Criticality: Medium",
@@ -542,6 +602,18 @@ full page `/assets/{id}`):
     system, addresses and hardware; a repository and a cloud storage
     resource show their own facts. A long list shows its first values and a
     **+N** button that opens the full list with **Copy all**.
+  - **Edge labels.** A name or service served through a CDN or edge
+    provider shows **Behind** *provider*; an address that belongs to one
+    shows *provider* **edge** (or **hosting**, **shared**), and its ports
+    are **Provider ports**. With scope write, click the label on the address
+    to **Add to out of scope** ([Edge addresses](03-scoping.md#edge-addresses)).
+  - **Ports on resolved addresses** (a domain or subdomain): the open ports
+    of the addresses the name resolves to, with the address, service,
+    product, version and last seen time. Addresses outside your data scope
+    are only counted.
+  - **Web** (a web origin: an HTTP service or website): an **Overview** of the
+    origin's security header posture, and **Endpoints**, **Parameters** and
+    **Changes** tabs filtered to that origin, each with **Export CSV**.
   - **Scope and scanning** says whether scans can reach the asset and why
     ("In scope through the scope entry *.example.com"; **Why** opens the
     ownership panel), with the actions you may take: **Scan now**, **Add to
@@ -594,9 +666,11 @@ full page `/assets/{id}`):
 - **Details**: ownership and scope (with "Is it yours?" when you can decide it),
   which source decides each attribute, **Data freshness** (when DNS records,
   the web service, ports, the TLS certificate, the registration and the network
-  owner were last observed), **Coverage** (for each check this kind of asset
-  needs: its state, why it was skipped, when it last succeeded, and whether it is
-  a gap), timeline, technical details and **Identity history** (the merges that
+  owner were last observed, and when a name last resolved), **Coverage** (for
+  each check this kind of asset needs: its state, why it was skipped, when it
+  last succeeded, and whether it is a gap; a check that could not run on the
+  scanner side shows **Not checked**, never **Failed**; see
+  [Automatic coverage](../scanning/asset-coverage.md#the-coverage-section-of-an-asset)), timeline, technical details and **Identity history** (the merges that
   formed this asset).
 
 ![The full page of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
