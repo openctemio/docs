@@ -17,7 +17,7 @@ organization web app. An administrator signs in to the console with the same
 account they use in the organization web app, if they are also a member of an
 organization: the platform role counts only in the console.
 
-These pages describe OpenCTEM v0.16.1.
+These pages describe OpenCTEM v0.16.1 and the changes coming in v0.17.0.
 
 1. TOC
 {:toc}
