@@ -11,9 +11,9 @@ decision. A suggestion shows what the AI proposes, how sure it is, what it based
 it would change. A person applies it, dismisses it, or (for some use cases) lets it apply on its
 own. Anything that would hide risk always needs a person.
 
-Available now: suggestions from AI triage, the rules below, undo, and the **Why** view. Planned:
-the AI analyst worker, which will run the same analysis with tools outside the API process and
-return its results through the same suggestions. Which suggestions apply by themselves is decided
+Available now: suggestions from AI triage, the results of [AI agents](ai-agents.md), the rules
+below, undo, and the **Why** view. Planned: the AI worker, which will run the same analysis with
+tools outside the API process and return its results through the same suggestions. Which suggestions apply by themselves is decided
 per use case in [Settings > AI: use cases](ai-use-cases.md).
 
 ## Where you see a suggestion
@@ -66,7 +66,7 @@ no setting loosens them. A suggestion with review reasons is never applied autom
 Choose **Why** on a suggestion to see how it was made:
 
 - the **provider**, **model** and **model id**, and whether the **executor** was the built-in AI
-  triage, a platform AI analyst or your organization's own analyst;
+  triage, a platform AI agent or your organization's own AI agent;
 - the **prompt template** and the **output schema** that were used;
 - the **data class** and the **fields sent** and **fields withheld**;
 - a **bundle digest**, a fingerprint of exactly what was sent, so a run can be checked later;

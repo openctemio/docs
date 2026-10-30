@@ -42,10 +42,9 @@ code, containers, attack-surface scanning, pentest, imports, manual).
 ### Header and quick views
 
 - **Triage** is the page's main button, with the number of findings still to
-  decide (status New). **T** does the same. It opens the **Needs triage** view and
-  the first finding in the side panel; use **J** and **K** to move on. With
-  nothing to triage it stays as **Triage view**. A focused one-finding-at-a-time
-  triage mode is planned.
+  decide (status New). **T** does the same. It opens [triage mode](#triage-mode)
+  on the **Needs triage** queue. With nothing to triage it stays as **Triage
+  view**.
 - **Add** opens a menu: **Add finding** records a finding by hand (title,
   description, severity, source, asset and location) and **Import results** loads
   a scanner report (see [Import results](#import-results)).
@@ -67,7 +66,7 @@ built-in views under **Findings**, each with a live count:
 | **My queue** | open findings assigned to you |
 | **SLA breached** | open findings past their remediation deadline (the count is red when above zero) |
 | **Pending approval** | findings with a false-positive or acceptance request waiting |
-| **Accepted · expiring** | accepted risks that lapse within 30 days |
+| **Accepted, expiring soon** | accepted risks that lapse within 30 days |
 | **Closed** | fixed and dispositioned findings together |
 
 A view is a link to the list with its own filter, so its count is exactly the
@@ -75,6 +74,14 @@ number of rows the list then shows, in your own data scope: a teammate with
 access to fewer assets sees smaller numbers. A view with no findings shows no
 number. The counts replace the metric cards and the state tabs the list used to
 have; the dashboard keeps the organization-wide figures.
+
+**Pinned.** Point at a sidebar row to get its pin button (**Pin ... to the top**)
+and pin a page, a quick view or a saved view to the **Pinned** section at the top
+of the sidebar. You can pin up to 12 items per organization and keep them in your
+own order. A pinned view shows its live count, computed for you, so it equals the
+list it opens. A pinned saved view disappears from your sidebar while you can no
+longer see that view. Pins are yours alone. The phone drawer shows your pins but
+has no pin button.
 
 ### Search, filter, group and save views
 
@@ -151,15 +158,27 @@ are translated into English and Vietnamese.
 ### Columns and badges
 
 Columns: **Title** and **Priority** (P0 to P3) are always shown, even before any
-finding has a priority. **Severity**, **Location**, **Status** and **Due / SLA**
-follow the view: in **Active**, **Severity** is hidden (the priority already
-includes it) and it is shown in every other view, such as **Needs triage**.
-**Source** and **Created** start hidden. Turn the others on or off in **View**,
+finding has a priority. **Severity**, **Status** and **Due / SLA** follow the
+view: in **Active**, **Severity** is hidden (the priority already includes it)
+and it is shown in every other view, such as **Needs triage**. **Location**,
+**Source** and **Created** start hidden. Turn the others on or off in **Display**,
 where columns are listed by name; the choice, and the row density, stay in the
-page link and are saved with a view. **Location** shows the asset on one line and the
-place on it below (URL path, file and line, or port). A long path is cut in
-the middle, so its end stays visible; the tooltip has the full value. On a
-phone, each card shows the location too. The title carries
+page link and are saved with a view.
+
+Under every title the list prints the finding's target (the host and port, or
+the URL) as a second line, so two findings of one issue on two assets never read
+as duplicates. The same line appears on phone cards, **My Work**, triage mode, an
+asset's findings, remediation tasks, the duplicate picker, the verify list and
+the suppression preview. That is why the **Location** column starts hidden;
+turning it on shows the asset on one line and the place on it below (URL path,
+file and line, or port). A long path is cut in the middle, so its end stays
+visible; the tooltip has the full value.
+
+Wherever a finding is named outside the console (the export, Jira summaries and
+GitHub issue titles, approval notices and e-mails, MCP results), it reads
+"<title> on <target>". The export has a `display_title` column after `title`.
+In a ticket mapping, the attribute `finding.display_title` carries it. The stored
+title does not change. The title carries
 inline badges: **KEV** for a CVE in the CISA Known Exploited Vulnerabilities
 catalog (with its remediation date), **EPSS x%** for the probability of
 exploitation in the next 30 days, and an icon when attack-path (data-flow) data
@@ -247,6 +266,48 @@ The same counts appear on a scan run's page as **What this run did to
 findings**, and a finding's overview shows **Last seen in**: the newest import
 or run that created, saw again, reopened or closed it.
 
+### Triage mode
+
+**Triage** (or <kbd>T</kbd>) opens triage mode at `/findings/triage`: the
+**Needs triage** queue in priority order, one finding at a time, with its
+position ("3 of 110"). **Exit** (<kbd>Esc</kbd>) takes you back to the list with
+its filters. The queue is read through the same list, so it holds only findings
+in your data scope.
+
+Each decision has one key and a visible button, and the queue moves on by
+itself:
+
+| Key | Decision |
+|---|---|
+| <kbd>C</kbd> | **Confirm** (a real issue to fix) |
+| <kbd>F</kbd> | **Request false positive** (a reason and a note are required) |
+| <kbd>A</kbd> | **Request risk acceptance** (needs approval and an end date) |
+| <kbd>O</kbd> | **Assign** |
+| <kbd>M</kbd> | **Add to task** (offers to move the finding when it is already in an active task) |
+| <kbd>R</kbd> | **Retest** |
+| <kbd>S</kbd> | **Skip** |
+| <kbd>E</kbd> | **Evidence** |
+| <kbd>U</kbd> | **Undo last** (up to 10 decisions) |
+| <kbd>J</kbd> and <kbd>K</kbd> | **Next finding** and **Previous finding** |
+| <kbd>Enter</kbd> | **Full page** |
+| <kbd>?</kbd> | **All keys** |
+
+Keys do nothing while you type in a field or a dialog is open. Decisions use the
+same checks as the finding page: your permissions, your data scope, approvals and
+re-authentication (asked once per window, not once per finding). False positive
+and risk acceptance stay approval requests. A finding someone else changed after
+the queue loaded is reloaded or passed over with a note, never overwritten.
+Findings people reported (pentest, bug bounty, red team, manual) are decided in
+their own workflow: open the full page.
+
+**Undo last** cancels a sent false-positive or acceptance request (it stays on
+record) and returns an assignment to the previous assignee. A decision the
+lifecycle cannot reverse, such as a confirm, says so. When you exit after
+deciding, a **Triage session** receipt shows how many you decided, sent for
+approval and skipped. With the AI triage module on, the latest AI triage of the
+finding shows as an advisory card, "AI suggestion, advisory"; **Apply
+suggestion** only fills the false-positive request form, and you send it.
+
 ## A single finding
 
 Click a row to open the **drawer**; click **Open full details** (or press
@@ -264,6 +325,22 @@ Click a row to open the **drawer**; click **Open full details** (or press
   false positive or accepted findings) and the activity.
 
 ### The full page
+
+**Opened from a list.** A finding opened from the findings list shows that list
+above it ("Findings"), its position ("3 of 31") and **Previous finding** and
+**Next finding** buttons (<kbd>K</kbd> and <kbd>J</kbd>). Back returns to the list
+with its filters. The list is the list's query plus the ids of the page you were
+on, kept in the browser tab, and neighbouring pages are read through the
+findings list, so your data scope applies to every read. The link back only ever
+goes to the findings list.
+
+The page loads in one request: `GET /api/v1/findings/{id}/view` answers the
+finding and the reads its panels show on load, each through its own endpoint's
+permission and data-scope checks. A panel you may not read shows that refusal
+(for example "module not enabled") instead of failing the page. Opening a finding
+costs about three requests of your per-user read budget instead of about twenty,
+so stepping through findings does not run into "Too many requests", and a burst
+of refused reads shows one such notice rather than one per panel.
 
 **Header.** Source, type, CVE (links to NVD) and CWE (links to MITRE) badges and
 the title, with:
@@ -288,6 +365,16 @@ by, First seen, Last seen, Occurrences, Resolved, Tickets, Tags and ID. For
 human-sourced findings (pentest, bug bounty, red team, manual) Status, Severity
 and Assignee are read-only here. A callout appears when the SLA is overdue or
 breached.
+
+The **SLA due** row has a **Why this date** popover. It shows the window in days
+and what set it (the priority class or the severity), the policy that governs it
+(the asset's policy, the organization's policy or the platform defaults when no
+SLA policy is set up), when the clock started or restarted (first detection, a
+regression found again by a scan or a retest, or a priority rise), the shortened
+window when the finding is in CISA KEV, and why the date can be earlier than the
+window: a deadline only ever moves earlier, so an earlier date set by a higher
+priority stays. An informational finding gets no deadline under the policy. An
+**Open SLA policies** link leads to the policies.
 
 **Why this is one finding** (Overview tab and drawer) explains the finding's
 identity: the rule that keyed it (for example package vulnerability, code issue,
@@ -314,12 +401,31 @@ finding that names several CVEs is one finding per CVE.
 **Same issue in other tools** (finding page) lists findings that report one issue
 and are linked, not merged: two code scanners that flag overlapping lines of a
 file with the same weakness (CWE), one secret value found in several files or
-repositories, or the same vulnerability under another identifier on the same
-asset. **Why linked** names the rule and **First reported** marks the earliest.
+repositories, the same vulnerability under another identifier on the same
+asset, the same CVE on one asset found by different techniques (a version match,
+a template check, a network scanner import or a package inventory, on agreeing
+ports), or the same check on the same page over HTTP and over HTTPS. **Why
+linked** names the rule ("Same vulnerability on the same asset, found by another
+technique"; "Same check on the same page, over HTTP and HTTPS") and **First
+reported** marks the earliest.
 Each finding keeps its own status, severity, SLA, ticket, task and approvals, and
 the dashboard counts the group once. **Unlink** (needs the triage permission)
 takes a finding out of the group, records it on both timelines and in the audit
 log, and the pair is never linked again automatically.
+
+Two details of the cross-technique links:
+
+- The earliest finding is the original and is never demoted. Each finding keeps
+  its own evidence and status. A new finding that joins the group of an open
+  original raises no second "new finding" notification, unless it is more severe
+  than the rest of the group.
+- An open template check or network scanner report confirms a version match in
+  its group: the "potential" cap of P2 is lifted, and the finding counts on the
+  attack path again.
+
+Findings that exist from before the links were introduced are linked by the
+operator with `refingerprint -links` (see
+[Upgrading](../operations/upgrade.md)).
 
 **People** (in the side panel of the finding page and of the drawer): the
 assignee, the **watchers** with the reason each one watches (commented, was
@@ -368,6 +474,13 @@ raised it allows, and the button's tooltip says how:
 - **A finding a person reported** (manual, pentest, bug bounty, red team): no
   automatic retest. The button is disabled with the reason; attach a retest
   check (below) to retest it.
+
+Through the API, `GET /api/v1/findings/{id}/retests` lists a finding's retests
+with `strategy`, `reason` and `active_check`, and `POST` takes an optional
+`{"mode": "active_check"}`. A refused retest answers `422` with
+`RETEST_NOT_AVAILABLE`, `RETEST_NO_SENSOR`, `RETEST_NO_CHECK_SENSOR` or
+`RETEST_NO_TEMPLATE_SENSOR` and `details.reason`. The last one means every
+online sensor has an older template release than the finding's.
 
 A retest reports Fixed, Still vulnerable, Regression (reopened), Not reproduced
 or Inconclusive. An Inconclusive result never changes the finding, and the card
@@ -434,7 +547,15 @@ scored** for the transparent priority score (see
   attachments and uploaded evidence, validation evidence, compliance mapping, and
   **Notes** with **Add Evidence** (description, type, URL). Masked secrets in
   tool evidence can be revealed for 60 seconds by people with the reveal
-  permission; every reveal is audited.
+  permission; every reveal is audited. People with write access to findings give
+  each evidence item a role (**Baseline**: normal behaviour, for comparison;
+  **Proof**: shows the issue itself; **Verification**: checks that the fix works;
+  **Supporting**: other material, the default) and move items up or down to set
+  their order; until someone orders them, the newest comes first. A role or order
+  change is audited and appears on the finding's timeline. Every change to a
+  finding's evidence (added, removed, re-roled or reordered) raises its evidence
+  version, which a pentest write-up uses to say when it is out of date (see
+  [Pentest findings](07-validation.md#write-a-finding)).
 - **Remediation**: progress, recommendation, auto-fix code, remediation steps
   (**Add Step**), references, and the **Definition of Done & Acceptable Fixes**
   card (see [Mobilization](08-mobilization.md#the-engineering-ticket-brief)).
@@ -592,10 +713,18 @@ an SLA or an export counts: they keep reading the status.
   you decide this finding alone (see below), the dialog says so and the change
   applies at once (**Mark as false positive** or **Accept the risk**); the
   decision is still recorded with your name and reason.
-- An accepted risk always ends. The date is 90 days ahead by default and at
-  most one year ahead. When it passes, the finding reopens as Confirmed, and
-  the CI gate stops honoring the acceptance on that date. A false positive has
-  no end date.
+- An accepted risk always ends. The date is 90 days ahead by default, and the
+  priority caps how far ahead it may be: 30 days for P0 or a known exploited
+  vulnerability, 90 days for P1, 180 days for P2 and 365 days for P3 or a
+  finding with no priority. A default never goes past the cap, and a requested
+  date past it is refused. When the date passes, the finding reopens as
+  Confirmed, and the CI gate stops honoring the acceptance on that date. A
+  false positive has no end date.
+- The end is enforced by the database, not only by the screens that set it. An
+  accepted finding written without an end (for example by a suppression rule at
+  ingest) gets the default end, capped by its priority, with a note on its
+  timeline, and the CI gate refuses an acceptance that has no end. Accepted
+  findings that had none when the platform was upgraded were given one then.
 - Resolving a finding by hand needs the verify permission.
 - Who approves, and how many people, is set under **Settings › Findings ›
   Finding approvals** (see [Settings](10-settings-and-integrations.md#findings--assets)).

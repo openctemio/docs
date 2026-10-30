@@ -136,9 +136,13 @@ noise:
 ## When a decision ends
 
 - **Accepted risk always ends.** A request gets an end 90 days ahead unless
-  it names one, and may not end more than a year ahead. At the end the
+  it names one, and the finding's priority caps it (30 days for P0 or a known
+  exploited vulnerability, 90 for P1, 180 for P2, 365 otherwise): a default
+  never goes past the cap, and a later date is refused. At the end the
   finding reopens as Confirmed and the CI gate counts it again. A finding
-  accepted by a suppression rule takes the rule's expiry.
+  accepted by a suppression rule takes the rule's expiry; if it has none, it
+  gets the default end like any other acceptance, and an acceptance without an
+  end is never honored by the CI gate.
 - **Suppression rules.** When a rule expires or is deleted, the findings it
   closed reopen as New, unless another active rule covers them.
 - **Taint source changes.** A false positive or accepted risk on a taint

@@ -17,7 +17,7 @@ cites, and the model, prompt and data that produced it. Each organization choose
 whether suggestions wait for a person or apply on their own, and risk-lowering changes always need
 approval. See [AI suggestions and approval](../user-guide/ai-suggestions-and-approval.md),
 [Settings > AI: use cases](../user-guide/ai-use-cases.md) and
-[Settings > AI: data masking](../user-guide/ai-data-masking.md). Third-party analysts follow the
+[Settings > AI: data masking](../user-guide/ai-data-masking.md). Third-party AI agents follow the
 [AI analyze contract](ai-analyze-contract.md).
 
 An organization chooses the **AI source** in **Settings > Security > AI** (see
@@ -115,6 +115,51 @@ positive, the platform opens a pending false-positive
 
 Every AI response carries `origin: "ai"`. Undo answers 409 `AI_UNDO_CONFLICT` when the field changed
 since.
+
+## AI agents and analysis
+
+An [AI agent](../user-guide/ai-agents.md) is a service account with an AI profile. It calls the same
+finding commands as a person, and its changes go through the same approvals and audit.
+
+| Method and path | Purpose | Needs |
+|---|---|---|
+| `GET /api/v1/ai/agents`, `GET /api/v1/ai/agents/{id}` | list AI agents or read one, with owners, preset, status and attestation date | `ai_triage:read` |
+| `POST /api/v1/ai/agents` | create (name, description, preset `suggest` or `triage`, at least one accountable owner) | `service_accounts:manage` and a recent sign-in |
+| `PUT /api/v1/ai/agents/{id}/owners`, `PUT .../preset` | change the accountable owners or the preset | `service_accounts:manage` and a recent sign-in |
+| `POST /api/v1/ai/agents/{id}/reactivate` | resume a paused AI agent | `service_accounts:manage` and a recent sign-in |
+| `POST /api/v1/ai/agents/{id}/disable` | the kill switch | `service_accounts:manage` |
+| `POST /api/v1/ai/agents/{id}/suspend` | pause | an accountable owner, or `service_accounts:manage` |
+| `POST /api/v1/ai/agents/{id}/attest` | confirm the AI agent is still right | an accountable owner or an administrator, and a recent sign-in |
+| `DELETE /api/v1/ai/agents/{id}` | delete | `service_accounts:manage` and a recent sign-in |
+| `GET /api/v1/findings/{id}/ai/runs`, `GET /api/v1/ai/runs/{id}` | the runs on a finding, and one run with its provenance | `findings:read` and `ai_triage:read` |
+| `POST /api/v1/findings/{id}/ai/analyze` | one model call on the built-in executor, as an AI agent | `findings:read` and `ai_triage:trigger` |
+
+`POST /api/v1/findings/{id}/ai/analyze` takes `kind` (`triage.v1`, `remediation.v1` or
+`summary.v1`) and an optional `ai_agent_id`. The AI agent must be active (an active accountable
+owner and a fresh attestation), the finding must be in its scope and in an owner's, and you must be
+able to see the finding. The context holds only the fields the AI agent's data class ceiling allows,
+masked with a per-run key; the output must satisfy the kind's schema (see the
+[analyze contract](ai-analyze-contract.md)) before placeholders are mapped back.
+
+The output becomes the AI agent's own commands: comments (the analysis, a remediation plan), a
+confirmation and a severity raise when its preset allows, and approval or severity requests for
+anything that lowers risk, which a person decides. A false-positive verdict or a severity downgrade
+from an on-demand run is a comment, never a request, because the person who asked could approve it
+as the second person. Output without evidence, with an unknown placeholder, from a context with
+injection markers or under 0.5 confidence is a comment only. Every change re-reads the finding and
+carries its row version, so a concurrent change by someone else is never overwritten. The response
+lists the run and what the AI agent did with each item. The route is rate limited like AI triage.
+
+The organization's masking policy is read and changed with
+`GET` and `PUT /api/v1/organization/settings/ai/masking` (owners and administrators; a recent
+sign-in, audited), and `POST .../masking/preview` returns the exact masked context of one finding
+(see [data masking](../user-guide/ai-data-masking.md)).
+
+AI triage is gated by the `ai_triage` module and the `ai_triage:*` permissions. The earlier
+sub-modules `ai_triage.bulk`, `ai_triage.auto`, `ai_triage.workflow`, `ai_triage.byok`,
+`ai_triage.agent` and `ai_triage.custom_prompts` no longer exist: nothing ever checked them.
+Model output stays a suggestion on the triage result until a person acts on it; AI triage never
+writes a finding's severity or priority.
 
 ## Limits and data handling
 

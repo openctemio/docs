@@ -146,7 +146,7 @@ Details: [scan-lifecycle.md](https://github.com/openctemio/openctem/blob/develop
 | Imports | Files from other scanners (Nessus, Qualys, SARIF, trivy, nuclei, ZAP and others) uploaded in the console or the API. |
 | Connectors and integrations | SCM repositories (GitHub, GitLab), Tenable.sc, DefectDojo, Entra ID identity exposures, SIEM. |
 | Discovery jobs | Certificate Transparency logs and DNS checks of each organization's own domains, and the automatic coverage loop that plans the checks each asset type needs, run by the API. |
-| Threat intelligence | EPSS scores and the CISA KEV catalog, refreshed daily, used in prioritization. |
+| Threat intelligence | Vulnerability bundles, EPSS scores and the CISA KEV catalog, refreshed on a schedule (bundles every 20 minutes, KEV hourly, EPSS daily) and used in prioritization. |
 
 ### Outputs
 
@@ -197,7 +197,7 @@ instance (see [Scaling](../operations/scaling.md)). The main jobs:
 | Ingest worker | Applies queued results (sensor reports, and API ingest with `INGEST_MODE=async`) | 2 seconds |
 | Notification outbox | Delivers notifications written in the same transaction as their cause | 5 seconds |
 | Job worker (Redis queue) | Email, AI triage, Jira and GitHub status sync | on demand |
-| Threat intelligence | EPSS and CISA KEV refresh, then escalates findings on known-exploited CVEs | 24 hours |
+| Threat intelligence | Vulnerability bundles, CISA KEV and EPSS refresh, then escalates findings on known-exploited CVEs (and clears the KEV flag of a CVE that left the catalog) | 20 minutes for vulnerability bundles, hourly for KEV, daily for EPSS |
 | Certificate Transparency and DNS checks | Attack surface monitoring of each organization's domains | per organization, 24 hours by default |
 | SLA escalation | Warns before and on SLA breaches | 15 minutes |
 | Asset coverage | Plans the checks every asset in scope needs and records when each last succeeded (see [Scoping](../user-guide/03-scoping.md#scope-policy)) | 1 minute |

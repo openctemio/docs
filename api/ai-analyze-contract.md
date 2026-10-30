@@ -6,13 +6,14 @@ nav_order: 6.5
 
 # AI analyze contract (`openctem.analyze/v1`)
 
-This page is for people who build an AI analyst that works with OpenCTEM. The contract is the job
-an analyst receives and the result it returns, as versioned JSON Schemas. OpenCTEM's built-in AI
-triage and any analyst use the same contract, so every result goes through one validation,
+This page is for people who build an AI agent that works with OpenCTEM. The contract is the job
+an AI agent receives and the result it returns, as versioned JSON Schemas. OpenCTEM's built-in executor
+and any AI agent use the same contract, so every result goes through one validation,
 provenance and approval path (see [AI suggestions and approval](../user-guide/ai-suggestions-and-approval.md)).
 
-Status: the schemas and the validator are available now. Planned: the built-in executor
-writing its runs through the contract, and the AI analyst worker that receives jobs. Treat the
+Status: the schemas and the validator are available, and the built-in executor
+(`POST /api/v1/findings/{id}/ai/analyze`, see [AI triage](ai-triage.md#ai-agents-and-analysis))
+writes its runs through the contract. Planned: the AI worker that receives jobs. Treat the
 schemas as stable for `v1`; a breaking change is a new version.
 
 ## Schemas
@@ -42,8 +43,8 @@ The files are `api/pkg/sensorproto/analyze/schemas/*.schema.json` in the
 
 The job names the kind and the subject and carries the masked context: placeholders instead of
 your real hosts, people and secrets (see
-[data masking](../user-guide/ai-data-masking.md)). An analyst works on placeholders and returns
-placeholders; the platform resolves them. An analyst never receives a secret.
+[data masking](../user-guide/ai-data-masking.md)). An AI agent works on placeholders and returns
+placeholders; the platform resolves them. An AI agent never receives a secret.
 
 ## Rules every output meets
 
@@ -87,7 +88,7 @@ A triage output with a verdict and a summary. Each suggestion has a `kind`, a `p
 }
 ```
 
-The platform, not the analyst, decides what each suggestion does: the verdict above lowers risk, so
+The platform, not the AI agent, decides what each suggestion does: the verdict above lowers risk, so
 it can only become an approval request. Hosts in a real job appear as placeholders, never as
 `example.com` or any real name; the schemas in the repository are the authority for exact fields
 and limits.

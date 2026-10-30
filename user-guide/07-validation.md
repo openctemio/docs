@@ -421,6 +421,15 @@ delivered, and on canceled or closed campaigns nobody can. When you cannot,
 it. After delivery, fixing, retesting and closing published findings
 continue. Deleting a campaign deletes its findings too and cannot be undone.
 
+**Drafts from AI applications.** An AI application connected over MCP can save a
+pentest finding as a draft when your organization's AI assistants policy allows
+the `mcp:pentest.draft` scope (off by default; see
+[Connect an AI assistant](12-connect-an-ai-assistant.md)). The draft is saved in the
+name of the person who connected the application, is never visible to the
+campaign client, and shows **Proposed by AI application**. The person who
+connected the application cannot confirm the finding it drafted: another campaign
+member (a reviewer or the lead) does.
+
 **Duplicate**: in a finding's **Status** menu, the lead or a reviewer marks a
 draft or a finding in review as a duplicate of another finding of the same
 campaign, chosen in a list. The duplicate keeps its history and is never
@@ -471,6 +480,58 @@ The save buttons follow your campaign role:
 | **Save draft** (or **Save draft and start another**) | Draft: only the team sees it. | Lead, tester |
 | **Submit for review** | In Review: waits for a reviewer or the lead. | Lead, tester |
 | **Publish** | Confirmed: published, visible to the client, the remediation deadline starts. | On a new finding: the lead (and organization owners and administrators). On a finding in review: the lead or a reviewer. |
+
+#### Confirm with a proof basis
+
+Moving a pentest finding to Confirmed (publishing a new one, or confirming one in
+review) asks for its **Proof basis**, how the finding was established, in the
+**Confirm this finding** dialog:
+
+- **Executed live**: the attack was run against the live target.
+- **Executed in a lab**: the attack was run in a lab or staging copy.
+- **Inferred from code or configuration**: concluded from code, configuration or
+  headers without running the attack.
+
+Clients and approvers read the basis next to the finding. The dialog also lists
+what is still missing: steps to reproduce, an evidence item with the **Proof**
+role, the impact and an affected target. The list advises and never blocks.
+
+Without a basis the confirmation is refused. A person who may confirm the finding
+can choose **Confirm without a proof basis** and give a **Reason** (10 to 500
+characters). The reason is kept on the finding with who and when, the finding
+shows **Confirmed without a proof basis**, and the audit log records
+`finding.proof_basis_overridden`. A finding that is already confirmed is not
+asked again; the rule applies to the next move to Confirmed. API clients that
+confirm pentest findings send `proof_basis` (`executed_live`, `executed_lab` or
+`static_unexecuted`); without it the API answers `422 PROOF_BASIS_REQUIRED`.
+
+#### Evidence, request and response, and the write-up
+
+A finding's evidence has roles and an order, set from the finding's **Evidence**
+tab (see [Exposures and findings](05-exposures-and-findings.md#the-full-page)).
+Saving a pentest finding records its **evidence version**. When evidence is added,
+removed, re-roled or reordered afterwards, the finding sheet and the editor show
+**Evidence changed since this write-up** until the finding is saved again. If you
+opened the editor before new evidence arrived, saving is refused as a conflict
+(`409`): reload, check the text against the current evidence, and save again.
+
+HTTP requests and responses recorded on a pentest finding (through the API, the
+Burp Suite import or an AI application's draft) are stored as evidence, not in
+the finding's own fields. Session cookies, bearer tokens, API keys and passwords
+in them are masked in the stored item; the secret values are encrypted apart and
+shown only through **Reveal** by people with the **Reveal Evidence Secrets**
+permission and a recent sign-in, for 60 seconds, each reveal audited. The finding
+page and the sheet show them in the shared evidence viewer under **HTTP
+request/response**. A finding keeps at most 50 recorded exchanges; an exchange
+already on the finding is skipped when sent again. They are kept as long as the
+finding (the evidence retention does not delete them), and their secret values
+expire with the organization's evidence secret retention. Evidence records count
+against the organization's daily evidence budget (`EVIDENCE_DAILY_CAP`; see
+[Environment variables](../configuration/environment-variables.md)); over the
+budget a manual add is refused.
+
+The API response of a pentest finding no longer carries `request_responses`: read
+them with `GET /api/v1/findings/{id}/evidence-items`.
 
 ### Retests
 
