@@ -79,6 +79,10 @@ That is the most important workflow in the product; it is covered first in
    file once, then import it as findings from the console, the API or a pipeline.
    [AI suggestions and approval](ai-suggestions-and-approval.md): what an AI
    suggestion is, and how a person applies, dismisses or undoes it.
+   [AI agents](ai-agents.md), [AI use cases](ai-use-cases.md) and
+   [AI data masking](ai-data-masking.md): the Settings pages that decide who may
+   act on findings as an AI agent, what applies on its own and what the model is
+   shown.
 6. [Prioritization](06-prioritization.md): priority classes, exposure chains and
    attack paths, threat intelligence, business impact, compensating controls,
    priority rules and risk scoring.
@@ -92,6 +96,8 @@ That is the most important workflow in the product; it is covered first in
 10. [Settings and integrations](10-settings-and-integrations.md): the settings
     area, organization settings, modules, policies, scanning settings and
     integrations.
+    [Groups that update themselves](groups-that-update-themselves.md): asset
+    groups filled by a rule, a pasted list or picked assets.
 11. [Platform administration](11-platform-administration.md): the platform
     console for platform administrators.
 12. [Connect an AI assistant](12-connect-an-ai-assistant.md): let an AI

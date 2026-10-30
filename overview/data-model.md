@@ -171,6 +171,10 @@ erDiagram
 - A **finding** is one weakness on one asset; its `fingerprint` makes a rescan
   update the same row instead of adding a new one. Its statuses are described in
   [Exposures and findings](../user-guide/05-exposures-and-findings.md#status-workflow).
+- A finding's **evidence** items have a role (baseline, proof, verification or
+  supporting) and a position, and every change to them raises the finding's
+  `evidence_version`. Findings on one issue are linked through issue groups rather
+  than merged; the earliest finding is the original.
 - An **exposure event** is one attack-surface change on an asset, with a state
   (active, resolved, accepted, false positive) and first and last sightings.
 - **Components** are packages in the **software catalog**. A package is a row of

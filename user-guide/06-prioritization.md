@@ -179,6 +179,17 @@ EPSS and KEV sync automatically; sync by hand only when you need fresh data at
 once. This page is an input to prioritization; it does not change any finding's
 priority by itself.
 
+A finding follows the catalog in both directions. When its CVE leaves the CISA KEV
+catalog (or the finding's CVE changes to one that is not in it), the finding loses
+its KEV flag and the KEV due date, so the KEV floor of P0 or P1, the shorter
+KEV deadline and the KEV count on the dashboard no longer apply to it. A failed
+catalog lookup keeps the stored value instead of clearing it. A deadline already
+set while the finding was in KEV stays, because deadlines only ever tighten. If
+the SLA policy cannot be read (a database error, as opposed to no policy being
+set up), the deadline is not set on that pass and is retried on the next one,
+rather than falling back to the platform defaults; with no policy set up, the
+platform defaults apply.
+
 ### Indicators and detections
 
 - **Indicators (IOCs)** (`/threat-intel/iocs`): indicators of compromise, matched
@@ -330,7 +341,9 @@ They follow the same rule: an asset without an open finding scores 0.
 1. **Presets**: start from Legacy, Default, Banking, Healthcare, E-commerce or
    Government. Any manual change makes the preset **Custom**.
 2. **Component weights**: Exposure, Criticality, Findings and CTEM. They always
-   add up to 100%; moving one rebalances the others.
+   add up to 100%; moving one rebalances the others. Putting the whole weight on
+   CTEM while the CTEM bonus points are off is refused, because every asset would
+   score 0.
 3. **Exposure scores**: the base score (0 to 100) for Public, Restricted,
    Private, Isolated and Unknown, with a **multiplier** (0.1 to 3.0) for each
    (above 1 amplifies, below 1 reduces), and the **Score composition** mode.

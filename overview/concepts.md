@@ -120,7 +120,10 @@ mark what matters most and raise the priority of findings on them.
 A **finding** is one weakness on one asset: a vulnerability, a misconfiguration,
 an exposed secret, a weak dependency. Findings from different tools and scans
 are de-duplicated by fingerprint, so a rescan updates a finding instead of
-creating a new one. Each finding has a severity, a **priority** that explains how
+creating a new one. When different techniques report the same issue (the same CVE
+on one asset from a version match, a template check, a network scanner import and a
+package inventory, or the same check on a page over http and https), the findings
+are linked as one issue instead of merged, and the dashboard counts it once. Each finding has a severity, a **priority** that explains how
 it was computed (EPSS, CISA KEV, asset criticality, reachability and exposure,
 priority rules), and a status that moves through a lifecycle: `new`,
 `confirmed`, `in_progress`, `fix_applied`, `resolved`, `false_positive`,

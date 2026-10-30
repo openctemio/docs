@@ -11,10 +11,11 @@ other identifiers with typed placeholders. The model reasons on `HOST_4K2QA` and
 `IP_PRIV_7M3XB`, and OpenCTEM turns the placeholders in its answer back into real values. The
 mapping never leaves the platform.
 
-Status: the masking itself and the policy and preview API are available. The
-**Settings > AI > Data masking** page in the console follows the masking change in the openctem
-repository; until it is in your version, the defaults below apply. The AI analyst worker, which will
-use the same masking at its tool boundary, is planned.
+Every context bundle built for an AI model is masked this way: AI triage, an AI agent's analysis and
+the preview below. The **Settings > AI > Data masking** page has been in the console since v0.16.0. The policy is
+also read and changed through the API (`GET` and `PUT /api/v1/organization/settings/ai/masking`,
+and `POST .../masking/preview`). The AI worker, which will use the same
+masking at its tool boundary, is planned.
 
 ## What is masked
 
@@ -44,26 +45,35 @@ back, even if the model repeats the placeholder. The model only learns its type 
 
 **Settings > AI > Data masking** (owners and administrators; changing it needs a recent sign-in):
 
-- **Per-class switches** for hosts, addresses, e-mail addresses, users, URL parameters,
-  organizations and tickets. All are on by default. Turning one off leaves that class readable in
-  internal data. Secrets and restricted data (code snippets) cannot be turned off.
-- **Subdomain labels.** By default the labels in front of your domain stay readable
-  (`payroll.DOMAIN_K3F9QA`); a switch masks them too.
-- **Extra terms.** Up to 200 words of 3 to 128 characters, such as a customer or project code name,
-  that are always masked as `ORG_...`.
+- **Per-class switches** for **Host names and domains**, **IP addresses and networks**,
+  **E-mail addresses**, **User names**, URL ids and parameters, **Organization names** and
+  **Ticket ids**. All are on by default. Turning one off leaves that class readable in internal
+  data. **Secrets** are shown as always masked and locked, and restricted data (code snippets) is
+  always fully masked, whatever is set here.
+- **Mask subdomain labels too.** By default the labels in front of your domain stay readable
+  (`payroll.DOMAIN_K3F9QA`); this switch masks them too.
+- **Masked terms.** Up to 200 words of 3 to 128 characters, such as a customer or project code
+  name, that are always masked as `ORG_...`.
+
+Saving asks for a recent sign-in, and a change that masks less asks for confirmation first
+(**Mask less?**).
 
 A class added in a later version is masked by default. Every change is a high-severity audit
 event, flagged when it makes masking looser; the term values themselves are never logged.
 
 ## Preview
 
-**Preview** shows the masked version of one finding you can read: the placeholders, each with its
-class only, and the fields sent and withheld. Nothing goes to a model and the mapping is discarded.
-Use it after changing a switch or adding terms. Previewing is audited.
+**Preview** takes a **Finding id** (a finding you can read) and shows **What the model gets**, as
+plain text, under the saved policy: the **Placeholders**, each with its class only and never its
+value, and the **Fields sent** and **Fields withheld**. Nothing goes to a model and the mapping is
+discarded. Use it after changing a switch or adding terms. Previewing is audited. If the
+organization's or the asset's name cannot be read, the preview (and an AI run) stops instead of
+sending text in which those names are not masked.
 
 ## What stays on the platform
 
-The mapping and its key are encrypted and kept for 7 days by default, then purged, and are deleted
+The mapping and its key are encrypted and kept for 7 days by default (`AI_MASK_MAP_TTL`, see
+[Environment variables](../configuration/environment-variables.md)), then purged, and are deleted
 with the organization. Another organization's analysis can never be read or resolved. A placeholder
 the platform did not issue is never resolved: an answer that contains one is stored for review and
 never applied.
@@ -83,6 +93,7 @@ Masking lowers the risk of sending data to a provider; it does not remove it.
 ## Related
 
 - [Settings > AI: use cases](ai-use-cases.md)
+- [Settings > AI: AI agents](ai-agents.md)
 - [AI suggestions and approval](ai-suggestions-and-approval.md)
 - Design: `api/docs/architecture/ai-context-masking.md` in the
   [openctem repository](https://github.com/openctemio/openctem)

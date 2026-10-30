@@ -75,7 +75,7 @@ later from **Account > Security > Connected sign-in methods**.
 |---|---|
 | A platform administrator | Nowhere in this app: the page says to sign in on the platform console, a separate site with its own sign-in (see [Platform administration](11-platform-administration.md)) |
 | A member of one organization | That organization's dashboard (or the page you were sent to) |
-| A member of several organizations | **Select a team**, where you pick one |
+| A member of several organizations | **Select an organization**, where you pick one |
 | A member of no organization | The onboarding page (see below) |
 
 ### Organization suspended or scheduled for deletion
@@ -152,10 +152,10 @@ continue with your organization's SSO.
 
 ## Choose or create an organization
 
-An **organization** (sometimes shown as a *team*) is your isolated workspace,
+An **organization** is your isolated workspace,
 with its own assets, findings, members and settings.
 
-- **Several organizations:** you land on **Select a Team**. Click the
+- **Several organizations:** you land on **Select an organization**. Click the
   organization to work in. A search box appears when you belong to more than six.
   **Sign out and use a different account** is at the bottom.
 - **No organization:** the onboarding page offers what applies to you, after
@@ -166,7 +166,7 @@ with its own assets, findings, members and settings.
     administrator approves; **Waiting for approval** until then, and you get an
     email when they decide).
   - **Or start fresh**, when the installation lets you create an organization:
-    **Set up your first team** with a **Team name** (the **Team URL** is filled
+    **Set up your first organization** with a **Team name** (the **Team URL** is filled
     in for you; it may contain lowercase letters, numbers and hyphens), an
     optional **Description** and optionally **Products** (leave it empty to get
     every module), then **Create team**. The data region is shown and fixed once
@@ -176,8 +176,8 @@ with its own assets, findings, members and settings.
     member of any organization yet**: ask your administrator to add you, or open
     the invitation link you received.
 
-When you may create another organization, **Create a new team** is also offered
-on **Select a team** and **Create organization** in the organization switcher.
+When you may create another organization, **Create a new organization** is also offered
+on **Select an organization** and **Create organization** in the organization switcher.
 
 To leave an organization yourself, use **Leave organization** under
 **Organization membership** in **Settings > My account > Profile**: every member
@@ -217,6 +217,9 @@ person who invited you for a new one.
   **Prioritization**, **Validation**, **Mobilization**) and **Insights**.
 - The footer holds **Settings** and **Help** (**Documentation**, **Keyboard
   shortcuts**, **Report an issue**, **About OpenCTEM**).
+- A **Pinned** section at the top holds the pages, findings quick views and saved
+  views you pinned (up to 12 per organization), each view with its live count; see
+  [Exposures and findings](05-exposures-and-findings.md#header-and-quick-views).
 - Some pages have sub-pages shown as tabs at the top of the page (for example
   **Assets**: Inventory, Needs attention, Groups, Activity).
 
@@ -259,6 +262,8 @@ this guide, you most likely do not have the permission, or the module is off.
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>Enter</kbd> | In a finding drawer: open the full finding page |
 | <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>C</kbd> | In a finding drawer: add a comment (when no text is selected) |
 | <kbd>C</kbd> | On a finding: open the activity and write a comment |
+| <kbd>T</kbd> | On the findings list: open [triage mode](05-exposures-and-findings.md#triage-mode) |
+| <kbd>J</kbd> and <kbd>K</kbd> | On a finding opened from a list: the next and the previous finding of that list |
 | <kbd>Esc</kbd> | In lists: clear the selected rows |
 | <kbd>/</kbd> | In lists: put the cursor in the list's search box |
 | <kbd>F</kbd> | In lists: open the filters (on findings and assets: **Add filter**) |
@@ -300,6 +305,47 @@ widget that fails never blanks the page.
   is placed where the template has it), **Switch to the new layout** (a fresh
   copy; your dashboard stays) or dismiss. Your dashboard never changes until
   you choose.
+- Every dashboard that existed before the exposure flow was introduced is
+  offered the flow panel once, at the top of its layout, the first time
+  someone who may edit it opens it. A toast, **Exposure flow added at the top**,
+  has **Undo**; a panel you remove is never added again. Empty dashboards and
+  dashboards that already show the flow are left alone, and new dashboards are
+  never changed. Adding and undoing are audited.
+
+### What would cut exposure most
+
+The first widget of the CTEM, Overview and Executive templates, **What would cut
+exposure most**, lists up to three actions and what each would do. Each action
+shows its exact effect on a measured figure ("From 14 to 9") and opens the list it
+counts. Actions are ranked by the risk points they clear (P0 8, P1 4, P2 2, P3 1)
+and are counted in your scope:
+
+- **Known exploited**: fix the open findings in the CISA KEV catalog; P0-P1 open
+  falls from a number to a smaller one.
+- **Past SLA**: fix the P0-P1 findings past their SLA; **Within SLA** rises.
+- **One fix**: apply the proposed remediation that closes the most risk.
+- **Blind spot**: cover the tracked assets with no successful scan in the coverage
+  window (offered only while discovery coverage is under 90 %, and in the last
+  slot).
+
+Each effect is computed for that action on its own. When none of these applies the
+widget says "Nothing stands out".
+
+### Key figures and this week in brief
+
+**Key figures** puts five figures in one strip, each counted exactly as its own
+widget: **P0–P1 open**, **Known exploited**, **Within SLA**, **Time to fix,
+median** and **Discovery coverage**. A figure that cannot be measured says **Not
+measured**, never 0.
+
+**This week in brief** is up to three sentences built from the dashboard's
+snapshot of the last 7 days, with fixed wording and no AI: new against fixed
+findings (open exposure fell, held or grew), the biggest lever, and the P0–P2
+findings due soon or past their SLA. Each figure in a sentence is a link to its
+list.
+
+All three widgets are computed into the dashboard snapshot on its refresh
+schedule (and by **Refresh now**), in the scope of the person reading.
 
 ### The exposure flow
 
@@ -329,6 +375,13 @@ light its path and open a short explanation with a link to its list; tap again
 (or click) to open the list. **Esc** closes the explanation. **Show table**
 gives every figure as a table. On a phone the three columns stack.
 
+Every figure is defined once, and equals the list it opens. **New or reopened**
+is the receipt list's **New** plus **Reopened** everywhere on the dashboard (the
+flow, the noise reduction headline, the funnel and the explanations), with the
+suppressed findings shown as part of it. The funnel keeps **Received** and **New
+or reopened** as the period's flow, and shows **Actionable now** (open P0 to P3)
+apart from it, as a stock.
+
 Source counts come from the import and run receipts, which cover the whole
 organization: they show on organization dashboards and for the organization
 owner. On a personal dashboard of anyone else, the flow shows the findings
@@ -350,8 +403,12 @@ OpenCTEM did with it:
 - the findings closed as false positive in the period;
 - the same figures per source as a table.
 
-The receipts behind the figures are listed by `GET /api/v1/findings/imports`
-(see [Ingest](../api/ingest.md)); the console has no receipts page.
+Every intake figure opens **Import and run receipts** (`/findings/imports`): what
+each upload and run did to the organization's findings, with one row per receipt
+(**Source**, **Started**, **Status**, **Received**, **New**, **Still detected**,
+**Reopened**, **Resolved**, **Suppressed**, **Not stored**), filtered by source,
+tool and period, with the totals of the filter. The same list is available through
+`GET /api/v1/findings/imports` (see [Ingest](../api/ingest.md)).
 
 ### The CTEM loop
 
@@ -421,19 +478,43 @@ only on request).
 
 | Template | What it shows |
 |---|---|
-| **CTEM** | The exposure flow; priority exposure, KEV on your assets, open within SLA and time to fix; discovery coverage; open exposure by priority; attack paths to crown jewels; Fix next; new versus fixed; open findings by severity and age; intake and noise reduction |
-| **Overview** | The exposure flow; priority exposure, KEV on your assets, open within SLA and time to fix, each with its change and target; discovery coverage; open exposure by priority; new versus fixed per week; open findings by severity and age; Fix next; attack paths to crown jewels |
-| **Executive** | The same four figures over a year with targets; exposure by priority per month; time to fix by priority; new versus fixed per month |
+| **CTEM** | What would cut exposure most; the exposure flow; key figures; this week in brief beside the attack paths to crown jewels; open exposure by priority; new versus fixed; open findings by age; the Fix next table; intake and noise reduction |
+| **Overview** | What would cut exposure most; the exposure flow; key figures; this week in brief beside the attack paths to crown jewels; open exposure by priority; new versus fixed per week; open findings by age; the Fix next table |
+| **Executive** | What would cut exposure most; key figures; this week in brief; exposure by priority; time to fix by priority; new versus fixed |
 | **Vulnerability program** | Within SLA, priority exposure, open findings and time to fix; SLA at risk; new versus fixed; time to fix by priority; age of open findings |
 | **Triage** | Open, priority and KEV counts; open findings by SLA state and by severity; new findings per day; Fix next |
 
 **Use template** copies a template into your own dashboards; **New blank**
 starts empty. Each card has **Open**, **Edit** (name, description and one to
 four columns; widgets keep their share of the row), **Set as my default** and
-**Delete**, which asks first.
+**Delete**, which asks first. An earlier personal copy of the CTEM or Overview
+template is offered the newer widgets (see above); nothing changes until you
+choose.
 
 ![The Dashboards page: five templates and the list of your own dashboards]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
 *Figure: Dashboards.*
+
+### Fix next and the findings table
+
+**Fix next** lists open P0 to P2 findings in fix order: priority, then severity,
+then newest. It can be drawn as a list or as a findings table (priority, the
+finding with its asset and a **KEV** chip, severity and SLA). The table shows the
+list's count in its header, the list's filters as read-only chips, and "Top n of
+total" with an **Open in Findings** link to the list it counts. A row with no
+severity keeps a neutral dot, and a row with no SLA date says "No due date". Each
+row carries the finding's EPSS probability as the shared EPSS bar when the feed
+has a score for it; a snapshot stored before that field existed shows no bar until
+it refreshes.
+
+### Charts over time
+
+The time-series charts (columns, area, line and new versus fixed) share one
+tooltip. It shows the span of the bucket ("Week of Oct 20 – 26"), one row per
+series in the order the marks are stacked with its colour, value and change
+against the previous bucket, a **Total** for stacks, a **Net change** for new
+versus fixed, and folds series at zero into one line when a chart has three or
+more series. It opens on hover, on keyboard focus of the chart (the arrow keys
+move between buckets) and on tap.
 
 ### Customize a dashboard
 
