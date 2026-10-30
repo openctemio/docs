@@ -46,7 +46,63 @@ in-scope name resolves to it.
 
 **Exclusions always win.** An exclusion matching the target, its URL or
 `host:port` forms, or the inventory name of the asset behind it, refuses the
-probe on every path.
+probe on every path. An exclusion of a dedicated address also stops the names
+that resolve to it ([below](#exclusions-and-the-names-behind-them)).
+
+## Exclusions
+
+An exclusion (**Scoping > Scope > Out of scope**) has a kind, shown as
+**Why**:
+
+| Kind | Scans | Open findings of what it matches |
+|---|---|---|
+| **Do not scan** (`do_not_scan`, the default) | Stop | Stay open |
+| **Not ours** (`not_ours`) | Stop | Close as resolved with the reason "Asset out of scope", when the exclusion has no end date |
+| **Retired** (`retired`) | Stop | The same as Not ours |
+
+A permanent **Not ours** or **Retired** exclusion in effect, or a "Not ours"
+decision on an asset, closes the open findings of the assets it matches with
+the closure reason `out_of_scope`. These never count as fixed. Lifting the
+exclusion reopens them to their previous status. Remediation tasks, tickets
+and SLA follow the findings, and each pass is audited
+(`scope_exclusion.effects_applied`). "Not ours" decisions made before the
+upgrade that introduced kinds only stop scanning; the upgrade closed nothing.
+
+A member with limited data access can create, edit or activate only exact
+closing rules (one host name or address, no wildcard, network or range):
+otherwise `CLOSING_RULE_NEEDS_FULL_ACCESS`. A closing rule that reaches
+assets they cannot see is refused (`EXCLUSION_REACHES_OUTSIDE_SCOPE`), and the
+inventory's mark-out-of-scope dialog turns off **By rule** with the reason.
+
+An exclusion that could never match is refused: a reversed range
+(`203.0.113.9-203.0.113.1`), an impossible network (`203.0.113.0/33`), a
+network in an IP address exclusion, or a URL in a domain exclusion.
+
+### Exclusions and the names behind them
+
+- **A dedicated address.** An exclusion of an address, range or CIDR also
+  stops every name that resolves to it, on every dispatch path: scans,
+  workflow steps (names, asset ids and named open ports), coverage and the
+  claim-time re-check. The gate reads your organization's resolution records
+  (and what a probe of an asset id reaches) before it matches exclusions. A
+  failed lookup stops the dispatch.
+- **A shared CDN or edge address.** An address inside a range a CDN, edge or
+  hosting provider publishes for a shared front end serves many
+  organizations. Its exclusion stays on the address: it blocks the address
+  itself (bare, `host:port`, URL, and inside range targets), and the names
+  served through it keep being scanned through the edge, with their port
+  scans capped to the web ports. An address labeled an edge only by its
+  network holder or its CDN record counts as dedicated here.
+
+The platform labels such addresses and never refuses them by itself; you
+decide with one click (**Add to out of scope** on the label). See
+[CDN and edge addresses](easm.md#cdn-and-edge-addresses).
+
+The bulk exclusion preview (`POST /api/v1/scope/exclusions/bulk/preview`)
+says what an exclusion would stop before you save it: `resolving_names` and
+`resolving_sample` (names in your data scope that it also stops), for a
+shared front end `edge` and `names_unaffected`, `open_findings`, and
+`closing_needs_full_access`.
 
 ## Entries
 
@@ -211,7 +267,9 @@ guardrailed asset scannable.
 **Port scans of names.** A port scan of a name reaches only the web ports
 (80, 443, 8080, 8443) while an address the name resolves to may not be
 probed on its own, or nothing is known about its addresses (refusal
-`web_ports_only`). This applies to names in scope too. Add the address, or
+`web_ports_only`). This applies to names in scope too. A name served
+through a CDN or edge provider's shared front end gets only the web ports
+even when a scope entry covers the edge address. Add the address, or
 your own prefix offered on **Attack surface > Review**, to scope for a
 full port scan.
 
@@ -374,6 +432,11 @@ path carries the same codes:
 | `invalid_target` | Malformed, loopback, link-local, metadata, or private outside a zone | |
 | `zone_none`, `zone_no_sensor`, `zone_sensor_mismatch` | Scan-zone routing | Add or fix a zone |
 | `out_of_data_scope`, `not_an_asset` | The person may not act on this target | |
+
+For each refused target the answer also lists `remedies`, best first: run
+on your own sensor (when one is online), verify the domain, lower the
+intensity (when the target is allowed at that tier), and remove it. The
+**Targets** step of the scan form shows them in that order.
 
 A scan that names refused targets is refused as a whole at creation
 (`TARGET_OUT_OF_SCOPE`, with each target and its code). At run time, refused

@@ -31,6 +31,7 @@ flowchart LR
 | [Scan workflow](scan-workflows.md) | A graph of steps, each one capability run by one tool | Discovery > Scans > Workflows |
 | [Scan](scans-and-runs.md) | Targets, a single tool or a scan workflow, and a schedule | Discovery > Scans |
 | [Scan run](scans-and-runs.md#scan-runs) | One execution of a scan; split into steps and tasks | Discovery > Scans > Runs |
+| [Automatic coverage](asset-coverage.md) | The checks the platform runs on every in-scope asset by itself, and the asset's Coverage section | Asset details, **Coverage** |
 | [Why a task waits](why-waiting.md) | Why a queued task has not started, and what to do | Run page, **Why waiting?** |
 | [Tools](tools.md) | The scanners sensors run, and their availability | Settings > Scanning > Tools |
 | [Data-flow traces](data-flow-traces.md) | The source-to-sink path of a SAST finding | Finding detail, **Data flow** tab |
@@ -53,12 +54,14 @@ flowchart LR
 3. **Create the scan**: **Discovery > Scans > New scan**. The wizard has
    five steps: **What**, **Targets**, **Options**, **Schedule** and
    **Review**. Pick a single tool or a scan workflow, then the targets
-   (names, addresses, ranges or asset groups). The starter workflows are
-   **Discover** (finds subdomains, resolves them and probes their web
-   services), **Discover + Vuln** (adds port scans and non-intrusive nuclei
-   templates), **Web app**, **Network** (finds the live hosts of address
-   ranges, scans their ports, probes web services and runs non-intrusive
-   templates) and **Code / CI**. The Review step previews which sensor and
+   (names, addresses, ranges or asset groups). The starter workflows include
+   **Passive discovery** (passive sources and DNS only), **Subdomains**
+   (finds subdomains, resolves them and probes their web services),
+   **Standard recon** (adds port scans, a crawl and non-intrusive nuclei
+   templates), **Deep recon**, **Web**, **Network** (finds the live hosts of
+   address ranges, scans their ports, probes web services and runs
+   non-intrusive templates) and **Code / CI**
+   ([Starter workflows](scan-workflows.md#starter-workflows)). The Review step previews which sensor and
    zone each target goes to.
 4. **Run it**: **Run now**, or give it a schedule.
 5. **Follow the run** under **Discovery > Scans > Runs**: each step, its
