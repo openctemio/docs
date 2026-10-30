@@ -54,12 +54,19 @@ Scans skip assets that no active mapping covers.
 
 - The cards: **Mappings**, **Active**, **Inactive**, **Target types mapped** and
   **Asset types covered**; filter by target and asset type.
-- **New mapping** (operations admin or above): the target type (for example URL,
+- The asset type catalog already decides most pairs: **Show built-in pairs** lists
+  them read-only. They change with a release and cannot be edited here; custom
+  mappings only add to them, and a mapping for a pair the catalog already has is
+  refused (409).
+- **New mapping** (super admin, with a step-up code and a reason of 10 to 500
+  characters kept in the audit row): the target type (for example URL,
   domain, IP, host, repository, container, cloud account, service, port, database,
   API, certificate), the asset type, whether it is the primary mapping, its
   priority and whether it is active. The pair cannot be changed later.
-- Edit, activate or deactivate a mapping (operations admin); delete it (super
-  admin). Each confirmation explains which assets scans would skip.
+- Edit, activate, deactivate or delete a mapping: super admin, step-up code and
+  reason, as above (API clients send `reason` in the JSON body of `POST`, `PATCH`
+  and `DELETE`, or get 400). Operations admins keep read access. Each confirmation
+  explains which assets scans would skip.
 
 ## Content packs
 
@@ -102,7 +109,25 @@ never shows an organization's private packages or installations. See
 ## Threat intelligence
 
 **Threat intelligence** shows the platform-wide feeds every organization uses to
-prioritize findings (EPSS and the known-exploited list among them): last and next
-sync and record counts. **Sync now** (operations admin) runs a feed immediately,
-for example after an outage. Turning a feed on or off needs an operations admin and
-a confirmation. See [Feeds](../operations/feeds.md).
+prioritize findings (EPSS and the known-exploited list among them), one card per
+feed with one state computed by the server: **Up to date**, **Waiting for the
+publisher**, **Stale**, **Failing**, **Refused**, **Running** or **Off**. A card shows
+the error as a code with an action (the raw text behind **Details**), the catalog
+size and the last run's changes, the last attempt and the last success, the next
+run, and for the vulnerability bundle feed its sequence, signature and per-source
+freshness.
+
+**Sync now** (operations admin) queues a run in the background and answers at once;
+the card shows **Running**, the page refreshes every two seconds meanwhile, and a
+message reports each feed's real outcome. A feed runs once at a time across servers;
+a feed that is off or not configured is not started, and a second request within 15
+seconds is refused. Turning a feed on or off needs an operations admin and a
+confirmation.
+
+**Where KEV and EPSS come from** (super admin, step-up, audited): **Use the signed
+release as the source** makes the signed vulnerability release the supplier, and the
+platform fetches from CISA and FIRST itself only when the release's copy is stale
+(KEV older than 6 hours, EPSS older than 48 hours). **Allow the platform to call CISA
+and FIRST** (on by default) can be turned off on installs with strict egress rules:
+the release is then the only source and a stale copy shows as stale. Each feed shows
+which path supplied the data it holds. See [Feeds](../operations/feeds.md).

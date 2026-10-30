@@ -50,6 +50,11 @@ uses the same field:
 | New recovery codes (replaces all) | a code from the app |
 | Change password | current password; other sessions are signed out and you are emailed |
 | See and sign out sessions | signed in; one session or all except the current one |
+| Link or unlink Google, GitHub or Microsoft | a code from the app typed for that change (never a recovery code or the code used to sign in), or your password if 2FA is off; see [Linking a provider](social-login.md#linking-a-provider-to-your-account) |
+
+A password change, a password reset and **Sign out all others** also end your MCP connected
+applications in every organization (their tokens and any unredeemed authorization code). Tick **Also
+revoke API keys (N)** (on by default) to revoke the API keys you own as well.
 
 Codes are single-use: a code from a time step that was already used is refused. Wrong codes count
 toward the account lockout (`AUTH_MAX_LOGIN_ATTEMPTS`, default 5; `AUTH_LOCKOUT_DURATION`, default
@@ -62,7 +67,8 @@ stored as bcrypt hashes.
 ## Requiring 2FA in an organization
 
 An owner turns on **Require two-factor authentication** under **Settings > Security > Authentication**. **Require two-factor authentication for owners and admins** is a narrower switch
-that is on for every organization created from now on (organizations created before keep it off until
+(it also covers members who hold a privileged role, directly or through a team) that is on for every
+organization created from now on (organizations created before keep it off until
 an owner turns it on; it is on and locked while the first switch is on). The creator of a new
 organization without 2FA gets the organization but no access token (`403 MFA_ENROLLMENT_REQUIRED`) and
 enrols at the next sign-in. Other rules can also demand 2FA: a person outside the organization who
@@ -87,6 +93,46 @@ switch on:
 
 ![The Authentication settings with the switches that require two-factor authentication]({{ site.baseurl }}/assets/images/identity/authentication.png)
 *Figure: Settings, Security, Authentication.*
+
+### The platform two-factor floor
+
+The platform sets the lowest two-factor requirement every organization is held to (platform setting
+`auth.mfa`). An organization can require more, never less:
+
+| Floor | Who must use two-factor |
+|---|---|
+| `none` | Nobody by platform rule; each organization decides. |
+| `admins` | Owners, administrators and members who hold a privileged role, directly or through a team. |
+| `everyone` | Every member of every organization. |
+
+- **Default.** `admins` on a hosted service (`MANAGED_SERVICE=true`) and on a new self-managed
+  install. An installation that already had users when the floor shipped keeps `none`, so an
+  upgrade locks nobody out; the console API then recommends raising it (`recommend_raise`). The server
+  default is `AUTH_MFA_FLOOR`; a value a platform owner stores wins.
+- **Who changes it.** A platform owner, through the console API (`GET`/`PUT
+  /api/v1/admin/settings/auth-mfa`, permission `platform.settings.mfa`, held only by the platform owner
+  role), with a fresh authenticator code and a reason. The change applies at once on every server, is
+  audited at critical severity and announced to every administrator. The console has no page for it
+  yet.
+- **Grace.** People the floor newly covers keep signing in without two-factor for a while: 14 days
+  from the floor taking effect for existing members, 7 days from account creation for new accounts,
+  whichever ends later (both settable, 0 to 90 days; raising the floor starts a new grace period).
+  **My account > Security** shows the date (`grace_due_at` in the account's two-factor status). An
+  organization's own requirement has no grace.
+- **In the organization settings.** **Settings > Security > Authentication** shows the floor in force
+  and locks the switches it raises ("The platform requires two-factor authentication for owners,
+  administrators and members with a privileged role. You can require it for everyone, not less.").
+  Saving settings below the floor is refused (`422 MFA_BELOW_PLATFORM_FLOOR`).
+- **What counts.** The same as for an organization's own requirement: a password sign-in with an
+  authenticator, or the organization's own identity provider unless the organization requires the
+  provider to prove two-factor. A social sign-in never counts.
+
+### A second factor before creating credentials
+
+Creating an API key, a service account key, a sensor or sensor key, a sensor enrollment token or a
+stored secret, and saving an integration, need an enrolled second factor whenever the platform floor
+or the organization's own rule covers you, from the first day, grace period or not. Without one the
+request is refused with `403 MFA_ENROLLMENT_REQUIRED` and the web console opens two-factor set-up.
 
 ### SSO must prove two-factor
 
@@ -114,6 +160,10 @@ switch off is recorded as a High audit event and the owners and admins are told.
   **Settings > Access > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
   recovery codes, signs the person out everywhere, is audited and emailed to them. If the organization
   requires 2FA, they enrol again at the next sign-in.
+- **Nobody in the organization can reset it** (for example the person is the only owner): a platform
+  owner uses **Reset two-factor** on the account in the platform console (**Users**). It needs a second
+  platform owner's approval, ends every session and is audited (see
+  [Users](../console/organizations-and-users.md#users)).
 
 Rules for the reset:
 
@@ -159,6 +209,8 @@ requires that the session proved the user's identity within the last **10 minute
   organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;
   allowing bearer-key sensors again;
+- approving an AI application's access on the MCP consent page, and allowing it to read all
+  organization data;
 - revealing a stored credential; creating, changing, rotating or deleting a secret in the secret
   store; reading or rotating an inbound webhook secret; rotating an outbound webhook signing
   secret; changing where evidence files are stored; overriding the CI security gate;

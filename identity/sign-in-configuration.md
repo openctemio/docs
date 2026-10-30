@@ -24,8 +24,8 @@ All are API variables.
 |---|---|---|
 | `OAUTH_ENABLED` | `true` | Master switch for social login. A provider is offered only when its own `*_ENABLED`, client ID and client secret are all set. |
 | `OAUTH_FRONTEND_CALLBACK_URL` | `APP_URL/auth/callback`, else `http://localhost:3000/auth/callback` | Where the web app is. The redirect URI of a social sign-in must have the same scheme and host (with port) as this URL. Set it only when the web app is not at `APP_URL`. |
-| `OAUTH_STATE_SECRET` | derived from the session secret | Secret that signs the `state` parameter. Optional: unset, a separate key is derived from `AUTH_JWT_SECRET` (or `APP_ENCRYPTION_KEY`). Set it only to share one value across replicas of an older setup. |
-| `OAUTH_STATE_DURATION` | `10m` | Lifetime of a `state` (and the sign-in attempt). |
+| `OAUTH_STATE_SECRET` | derived from the session secret | Secret that signs the `state` handle. Optional: unset, a separate key is derived from `AUTH_JWT_SECRET` (or `APP_ENCRYPTION_KEY`). It is never a console setting. Set it only to share one value across replicas of an older setup. |
+| `OAUTH_STATE_DURATION` | `10m` | Lifetime of a `state` (and the sign-in attempt). The state is a handle to a single-use server-side record bound to the starting browser. |
 | `OAUTH_GOOGLE_ENABLED` | `false` | Offer Google. |
 | `OAUTH_GOOGLE_CLIENT_ID` | empty | Google OAuth client ID. |
 | `OAUTH_GOOGLE_CLIENT_SECRET` | empty | Google OAuth client secret (secret). |
@@ -40,9 +40,10 @@ All are API variables.
 | `OAUTH_MICROSOFT_SCOPES` | `openid,email,profile,User.Read` | Requested scopes; keep `openid`. |
 
 The redirect URIs to register are `https://<app>/auth/callback/google`, `/github` and `/microsoft`.
-From the release that adds **Settings > Sign-in > Social login** in the platform console, the same
-values can be entered there (secrets write-only, applied live); a variable set in the environment
-overrides the console and locks the field.
+From v0.16.0 the same values can be entered in the platform console under **Settings > Social login**
+(setting key `auth.social_login`; secrets write-only and encrypted, applied live). While
+`OAUTH_<PROVIDER>_CLIENT_SECRET` is set, that provider is pinned to the environment and read-only in
+the console; `OAUTH_ENABLED=false` switches every provider off whatever the console says.
 
 ## Organization SSO (per organization)
 
@@ -56,7 +57,7 @@ environment variables. These variables support them:
 | `SSO_ALLOWED_REDIRECT_URIS` | derived | Exact-match allow-list of the redirect URIs of the SSO flow: origins, or origin plus a path prefix ending in `/`. Unset: derived from `CORS_ALLOWED_ORIGINS`, `OAUTH_FRONTEND_CALLBACK_URL` and `SMTP_BASE_URL`. |
 | `CORS_ALLOWED_ORIGINS` | `APP_URL` origin | Browser origins allowed to call the API. |
 | `SMTP_BASE_URL` | `APP_URL` | Base of the links in e-mails. |
-| `APP_ENCRYPTION_KEY` | none (required in production) | Encrypts stored identity-provider secrets and protects the PKCE verifier in the signed state. |
+| `APP_ENCRYPTION_KEY` | none (required in production) | Encrypts stored identity-provider secrets and the social login client secrets kept in the console. |
 | `SSO_ENTRA_ENABLED`, `SSO_ENTRA_CLIENT_ID`, `SSO_ENTRA_CLIENT_SECRET`, `SSO_ENTRA_TENANT_ID`, `SSO_ENTRA_ALLOWED_DOMAINS`, `SSO_ENTRA_DEFAULT_ROLE`, `SSO_ENTRA_AUTO_PROVISION`, `SSO_ENTRA_DISPLAY_NAME`, `SSO_ENTRA_ALLOWED_TENANTS` | off | Optional shared Entra app for chosen organizations. See [Entra ID](sso-entra-id.md#step-3-optional-one-shared-entra-app-for-selected-organizations). |
 
 ## Accounts and sign-up
@@ -65,7 +66,9 @@ environment variables. These variables support them:
 |---|---|---|
 | `SIGNUP_MODE` | `disabled` | Sign-up ceiling: `disabled`, `domain` or `open`. Decides whether a social sign-in can create an account. See [Sign-up and invitations](sign-up-and-invitations.md#creating-organizations). |
 | `AUTH_PROVIDER` | `local` | `local` (built-in password), `oidc` (external Keycloak realm) or `hybrid`. |
-| `AUTH_REQUIRE_EMAIL_VERIFICATION` | `true` | Require a verified e-mail address (production refuses `false` with `local` or `hybrid`). Social and SSO sign-ins are verified by the provider. |
+| `AUTH_REQUIRE_EMAIL_VERIFICATION` | `true` | Require a verified e-mail address (production refuses `false` with `local` or `hybrid`). Social and SSO sign-ins are verified by the provider where it proves the address. See [Passwords and email verification](sign-up-and-invitations.md#passwords-and-email-verification). |
+| `AUTH_MFA_FLOOR` | `admins` (see note) | Default of the platform [two-factor floor](two-factor.md#the-platform-two-factor-floor) until a platform owner stores a value in the console: `none`, `admins` or `everyone`. An installation that already had users when the floor shipped keeps `none` until its operator raises it. |
+| `AUTH_REFRESH_TOKEN_DURATION` | `168h` | Lifetime of a refresh token and of the refresh cookie, also after a SAML sign-in. |
 | `ADMIN_PUBLIC_URL` | origin of `APP_URL` | Origin of the platform console, used for its security keys. The platform administrators' identity provider is set in the console, not here. |
 
 ## Setting the variables
@@ -133,7 +136,7 @@ openctem_api_env:
 ```
 
 `OAUTH_STATE_SECRET` is not needed (it is derived). For the client secret, use the platform console's
-**Settings > Sign-in > Social login** from the release that adds it. `APP_URL` is set by the kit from the
+**Settings > Social login** (from v0.16.0). `APP_URL` is set by the kit from the
 host name and is not passed through `openctem_api_env`. Organization SSO needs no variable in the kit;
 it is configured in the console.
 

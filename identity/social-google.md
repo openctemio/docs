@@ -13,6 +13,12 @@ use it, subject to the [rules for all providers](social-login.md#rules-that-appl
 To let the members of one company sign in with their Google Workspace accounts, use
 [organization SSO with Google Workspace](sso-google.md) instead.
 
+A Google sign-in proves the mailbox only for a `gmail.com` or `googlemail.com` address, or when the
+account's Workspace domain (the `hd` claim) equals the address's domain. A personal Google account
+created on a company address can sign in to an account already linked to it, but it cannot claim an
+invitation, join an organization by its domain or take over an account an administrator created
+(`EMAIL_NOT_AUTHORITATIVE`). See [Who may sign in](social-login.md#who-may-sign-in).
+
 1. TOC
 {:toc}
 
@@ -57,16 +63,16 @@ To let the members of one company sign in with their Google Workspace accounts, 
 
 ## Step 3: Configure OpenCTEM
 
-### Option A: platform console (from the release that adds it)
+### Option A: platform console (from v0.16.0)
 
-1. Sign in to the platform console as a super admin.
-2. Open **Settings > Sign-in > Social login > Google**.
+1. Sign in to the platform console as a super admin and elevate (see [Roles and elevation](../console/index.md#roles-and-elevation)).
+2. Open **Settings > Social login** and go to the **Google** section.
 3. Paste the **Client ID** and the **Client secret** (write-only: it is stored encrypted and never
    shown again). The page shows the **Redirect URI** to register; it must equal the one from step 2.
-4. Turn the provider on and save. It applies at once, without a restart.
-5. Select **Test** to run a sign-in through Google.
+4. Tick **Offer on the sign-in page** and save. Give a reason and confirm with your authenticator code. It applies at once on every server, without a restart.
+5. Select **Test configuration**: it asks the provider whether it accepts the client ID and secret and whether the redirect URI is registered.
 
-If the field is locked, an environment variable sets it and takes precedence (option B).
+If the provider shows **Set by the server environment**, `OAUTH_GOOGLE_CLIENT_SECRET` is set and the provider is read-only here (option B). Remove the variables to manage it in the console.
 
 ### Option B: environment variables
 

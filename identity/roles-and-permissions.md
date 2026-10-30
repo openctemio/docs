@@ -191,6 +191,16 @@ role and hold the team's assets, and nobody but the owner adds themselves. Only 
 organization can be bound, and a bound role cannot be deleted. Permission changes reach team members
 at once.
 
+A team can also carry access without any role being created first: its **Access** tab names one or
+more presets (role templates) and whether members see **Specific assets** or **All assets**. Each
+preset becomes a managed role of the team, which members inherit when they are added and lose when
+they leave or their membership ends (`GET`/`PUT /api/v1/groups/{groupId}/access`). Managed roles cannot
+be edited, deleted, given to a person, used in an invitation or bound to another team. Setting **All
+assets** or a privileged preset, and renaming or deactivating such a team, is owner only with a recent
+sign-in and audited at critical severity; outside members and service accounts never join an
+all-assets team. When a newer version of a preset exists, the team says so and **Apply update** applies
+it. Steps: [Give a team access](../user-guide/02-team-and-access.md#give-a-team-access).
+
 Plan the rollout: create teams, assign assets (rules scale better than one-by-one), and make sure
 analysts who need the whole inventory are admins, hold a full-data-access custom role, or are in a
 team that holds every asset.
@@ -214,5 +224,8 @@ full data access. See [API authentication](../api/authentication.md).
 ## Platform administrators
 
 Platform administrators are not organization roles. They use the separate admin console with their
-own roles (`super_admin`, `ops_admin`, `readonly`), and an organization token never works on admin
-routes or the other way round. See [Identity and access](index.md#platform-administrators-and-organization-users).
+own platform roles (base roles `platform_owner`, `platform_admin`, `platform_viewer`, formerly
+`super_admin`, `ops_admin`, `readonly`; additional roles `operator`, `support`, `security_auditor`,
+`billing`), and an organization token never works on admin routes or the other way round. An
+administrator's account may also be an ordinary member of an organization, where it holds only its
+organization role. See [Roles and elevation](../console/index.md#roles-and-elevation). See [Identity and access](index.md#platform-administrators-and-organization-users).

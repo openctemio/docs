@@ -19,7 +19,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Asset group** | A named set of assets used to organise them and as scan targets. |
 | **Attack path** | A chain of exposures from a public entry point to an important asset. |
 | **Automation** | An event rule: when an event happens and conditions hold, take actions (assign, notify, open a ticket). |
-| **Break-glass administrator** | A local platform administrator for emergencies, never bound to an identity provider; every sign-in is audited and alerted. |
+| **Break-glass administrator** | A local platform administrator for emergencies, never bound to an identity provider; console-only (it cannot join an organization or sign in on the main site), and every sign-in is audited and alerted. |
 | **CI run** | One execution of a customer's CI pipeline that reports to OpenCTEM through `openctem-ci`. |
 | **Command** | Any instruction the platform queues for a sensor: a task, a configuration update, a health check. |
 | **Content catalog** | The signed, versioned packages of scanner content and feeds that an instance or an organization installs, pins and rolls back from offline bundles (**Settings > Scanner content > Content catalog**). |
@@ -30,6 +30,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **CTIS** | CTEM Ingest Schema: the open JSON format tools use to send assets, findings and dependencies to OpenCTEM. Specification at [openctemio/ctis](https://github.com/openctemio/ctis). |
 | **Data-flow trace** | The path a SAST finding's untrusted data takes from its source to the sink, step by step with the code of each step. See [Data-flow traces](../scanning/data-flow-traces.md). |
 | **Deadline** (of a run) | When a scan run ends at the latest: the scan's max duration, else the workflow's timeout, else the platform's 24-hour cap. |
+| **Elevation** | Acting as one of your platform roles for 15 to 60 minutes in the platform console; without it a console session is read-only. It needs a fresh second-factor proof and a reason, and is audited. |
 | **Exposure event** | An attack-surface change that is not a vulnerability, such as an open port, a public bucket, an expiring certificate or a leaked credential. |
 | **Exposures** | The console section that lists findings by kind (vulnerabilities, secrets, code weaknesses, misconfigurations) next to exposure events. |
 | **Finding** | One weakness on one asset, from a scan, an import or an integration. De-duplicated by fingerprint. Kinds: vulnerability, secret, misconfiguration, code weakness, compliance. |
@@ -39,8 +40,9 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Live hosts first** | The default way to scan an address range: a light probe finds the live addresses, then deeper steps scan only those and the addresses already in the inventory. |
 | **Organization** | The unit of isolation (a tenant): its own members, assets, findings, sensors, integrations and audit log. |
 | **Owner** (organization role) | The role with full control of an organization, including deleting it. |
-| **Platform administrator** | An operator account that runs the installation from the platform console; belongs to no organization and cannot see organization data. |
+| **Platform administrator** | An operator account that runs the installation from the platform console with platform roles. The same account may also be an ordinary member of organizations on the main site, where it has only its organization role; the platform role counts only in the console. |
 | **Platform console** | The operators' own web application, on its own site (a port, by default 8443, or a host name) with its own sign-in and second factor, for organizations, users, system settings and shared sensors. |
+| **Platform role** | A console role made of `platform.*` permissions: the base roles platform owner, platform admin and read-only, and the additional roles operator, support, security auditor and billing. Never applies inside an organization. See [Roles and elevation](../console/index.md#roles-and-elevation). |
 | **Playbook** | A procedure an AI agent follows, written and tested with `openctem playbook init` and `openctem playbook test`. Not an Ansible playbook. |
 | **Priority** | A finding's ranking for remediation, computed from severity, EPSS, CISA KEV, asset criticality, reachability, exposure and priority rules, with an explanation. |
 | **Quick scan** | One scanner run on up to 1,000 targets at once without saving a scan configuration; it can be saved afterwards. |
@@ -58,14 +60,17 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Sensor key** | A sensor's credential, `octs_...`. Bound to one organization (or to the platform for platform sensors). |
 | **Severity** | The impact of a finding as rated by its source (critical, high, medium, low, info). Not the same as priority. |
 | **Shared sensor** | A sensor the operator runs for every organization, for public targets; organizations use it through scans but never see it. An owner can opt the organization out. |
+| **Sign-in method link** | A Google, GitHub or Microsoft sign-in attached to an existing account. Never made automatically: each link and unlink needs a typed authenticator code (or the password when two-factor is off). See [Linking a provider](../identity/social-login.md#linking-a-provider-to-your-account). |
 | **Sign-up mode** | The operator's ceiling for public account creation, `SIGNUP_MODE`: `disabled` (the default), `domain` (only addresses on an organization's verified domain, who join that organization) or `open` (anyone, and they may create an organization). |
 | **SLA** | A remediation deadline per priority or severity, with warnings before a breach. |
 | **Stall window** | How long a running task may go without any progress (no target finished, no output, no CPU time) before the platform stops it and re-queues its unfinished targets. Between 5 minutes and 1 hour, set per task by the platform. |
 | **Step** | One step of a scan run. |
+| **Step-up** | A fresh proof of identity (an authenticator code, the password, or a new sign-in at the identity provider) that a sensitive action asks for inside a signed-in session. See [Step-up re-authentication](../identity/two-factor.md#step-up-re-authentication). |
 | **Suppression rule** | An approved rule that marks matching findings as false positive or accepted risk, both the open ones when it is approved and new ones at ingest. |
 | **Task** | One unit of sensor work within a step, for a chunk of targets. Also the word for a unit of remediation work (a **remediation task**); the console always shows which. Not called a job. |
 | **Team** | A group of members within an organization that is assigned assets (**Settings > Access > Teams**; `/api/v1/groups` in the API). A member sees the assets (and their findings) of their teams, plus individual grants. Never the organization itself. |
 | **Tenant** | Not used in these docs: an organization. The word remains in a few API paths, settings and CI inputs (for example `tenant-id`). |
+| **Two-factor floor** | The lowest two-factor requirement the platform sets for every organization (`none`, `admins` or `everyone`), with a grace period; an organization can require more, never less. See [The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor). |
 | **Unfinished targets** | The targets of a task that stopped part-way. Only these run again, as a new task; finished targets are kept. |
 | **Validation** | Confirming whether a finding is really exploitable, or really fixed, with a safe check run by a sensor, and recording the evidence. |
 | **Verified domain** | A domain whose control the organization proved with a DNS record. Active scanning can be limited to verified domains. |

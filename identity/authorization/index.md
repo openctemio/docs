@@ -26,9 +26,9 @@ A refused permission answers 403 with `details.missing_permissions` (or `details
 
 | Feature | Modules | Routes |
 |---|---|---|
-| [Findings](features/findings.md) | `ai_triage` | 157 |
+| [Findings](features/findings.md) | `ai_triage` | 182 |
 | [Exposures and leaked credentials](features/exposures.md) | `credentials`, `exposures` | 30 |
-| [Assets and inventory](features/assets.md) | `branches`, `components`, `relationships` | 133 |
+| [Assets and inventory](features/assets.md) | `attack_surface`, `branches`, `components`, `relationships` | 144 |
 | [Attack surface and EASM](features/attack-surface.md) | `attack_surface` | 31 |
 | [Scope](features/scope.md) | `scope_config` | 37 |
 | [Bug-bounty programs](features/programs.md) | `scope_config` | 20 |
@@ -36,19 +36,19 @@ A refused permission answers 403 with `details.missing_permissions` (or `details
 | [Prioritization and SLAs](features/prioritization.md) | `priority_rules` | 13 |
 | [Remediation and automation](features/remediation.md) | `remediation`, `suppressions`, `workflows` | 95 |
 | [Scans and workflows](features/scans.md) | `scan_workflows`, `scanner_templates`, `scans`, `template_sources` | 182 |
-| [Sensors and scan zones](features/sensors.md) |  | 102 |
+| [Sensors and scan zones](features/sensors.md) |  | 109 |
 | [CI pipelines](features/ci.md) | `scans` | 47 |
 | [Penetration testing](features/pentest.md) | `pentest` | 42 |
 | [Validation and simulation](features/validation.md) | `attack_simulation`, `control_testing` | 18 |
 | [Threat intelligence](features/threat-intel.md) | `iocs`, `threat_intel` | 22 |
 | [Compliance](features/compliance.md) | `compliance` | 12 |
-| [Dashboards and reports](features/dashboards-reports.md) | `reports` | 43 |
+| [Dashboards and reports](features/dashboards-reports.md) | `reports` | 47 |
 | [Integrations and API keys](features/integrations.md) | `integrations`, `scans` | 67 |
-| [Members, roles and teams](features/access.md) |  | 95 |
-| [Organization settings and audit](features/organization.md) |  | 90 |
-| [MCP and AI clients](features/mcp.md) |  | 28 |
-| [Sign-in and own account](features/account.md) |  | 60 |
-| [Platform admin console](features/admin-console.md) |  | 200 |
+| [Members, roles and teams](features/access.md) |  | 99 |
+| [Organization settings and audit](features/organization.md) |  | 98 |
+| [MCP and AI clients](features/mcp.md) |  | 30 |
+| [Sign-in and own account](features/account.md) |  | 68 |
+| [Platform admin console](features/admin-console.md) |  | 217 |
 | [System endpoints](features/system.md) |  | 14 |
 
 ## Data scope classes

@@ -102,15 +102,19 @@ email domain is in the organization's allowed email domains, when it has any.
 
 ## Enforcing SSO and break-glass
 
-When a working provider exists and at least one of the organization's domains is verified, a platform
-administrator can turn on **SSO enforcement** (same tab). Members must then sign in through the
-organization's identity provider; a password session, a social login or another organization's SSO is
-refused for this organization.
+A platform administrator can turn on **Require single sign-on** (same tab) once a working provider
+exists, at least one of the organization's domains is verified, an owner or admin has signed in
+through the identity provider once, and an owner has two-factor authentication on. Turning it on
+revokes the user API keys and AI connections that exist at that moment unless the administrator keeps
+them. Members must then sign in through the organization's identity provider; a password session, a
+social login or another organization's SSO is refused for this organization. Details:
+[Enforcing SSO](sso-entra-id.md#enforcing-sso).
 
 Plan the way back in before you enforce:
 
-- The organization **owner** can always sign in with a password, so the organization cannot be locked out.
-  Keep at least one owner with a password and 2FA.
+- An organization **owner** can still sign in with a password and their second factor, so the
+  organization cannot be locked out. Each such sign-in is audited (`sso.break_glass_used`) and
+  announced to the other owners and admins. Keep at least one owner with a password and 2FA.
 - The owner can grant time-limited exceptions to named members (at most 90 days, 2FA required), for
   example for a service person without a Workspace account.
 - If a verified domain later fails its daily DNS check it stops admitting new people, but enforcement

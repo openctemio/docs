@@ -58,7 +58,7 @@ flowchart LR
 | Automation | Organization API key `oct_...` | Read-only on the REST API, acts as its creator with a subset of their permissions |
 | Identity provider (provisioning) | SCIM token `oct_scim_...` | One organization per token |
 | Sensor | A client certificate from the platform's sensor CA (protocol v3, mTLS), an Ed25519 key-bound identity (paired sensors), or a sensor key | Accepted only on sensor routes |
-| Platform administrator | Separate console session with a second factor (authenticator code or a security key or passkey) | Accepted only on admin routes; the same account cannot sign in on the organization site |
+| Platform administrator | Separate console session with a second factor (authenticator code or a security key or passkey) | Accepted only on admin routes. The same account may be an ordinary member on the organization site, with its organization role only; a break-glass account cannot sign in there |
 
 Each credential works only on its own set of routes: a sensor key is refused on user routes, an
 organization token on admin routes, and so on.
@@ -73,6 +73,13 @@ organization token on admin routes, and so on.
   `AUTH_SESSION_DURATION` (default 30 days) regardless of activity.
 - A user can have at most `AUTH_MAX_ACTIVE_SESSIONS` (default 10) sessions; the oldest is revoked
   beyond that. Users see and revoke their sessions under **My account > Security**.
+- Routes that name an organization in the URL apply that organization's requirements (two-factor,
+  personal-account policy, SSO exceptions) to the caller's session on every request, and refuse a
+  token bound to no organization (`ACCOUNT_TOKEN_NOT_ALLOWED`). The check fails closed.
+- A password reset, a password change and "sign out all others" also revoke the person's MCP
+  connected applications in every organization, and optionally their API keys. A blocked or
+  suspended account cannot exchange or refresh a token. A membership past its end date stops its API
+  keys and MCP tokens at once.
 - Sign-out, password change, enabling 2FA, suspension and back-channel logout from an identity
   provider revoke sessions **immediately**: revoked session ids are checked on every request (through
   Redis; without Redis, access tokens stay valid until they expire).
@@ -95,8 +102,22 @@ organization token on admin routes, and so on.
   commonly breached passwords; stored with bcrypt (cost 12).
 - Wrong passwords or codes lock the account after 5 attempts for 15 minutes. Sign-in endpoints have
   per-IP rate limits shared across API replicas, and do not reveal whether an account exists.
-- TOTP 2FA with single-use codes and 10 recovery codes; organizations can require it. See
+- TOTP 2FA with single-use codes and 10 recovery codes; organizations can require it, and a platform
+  floor (default `admins` on new installs and hosted services) sets the least every organization
+  requires. Creating credentials (API keys, sensor keys, enrollment tokens, secrets, integrations)
+  needs an enrolled second factor whenever a rule covers the person. See
   [Two-factor authentication](../identity/two-factor.md).
+
+### Social sign-in
+
+Google, GitHub and Microsoft sign-in never link themselves to an existing account: an address that
+already has an account is refused (`409 OAUTH_ACCOUNT_EXISTS`), and every link and unlink needs the
+person's typed authenticator code (or password when 2FA is off), counts toward the lockout and is
+audited and emailed. A provider's verified email proves the mailbox only where the provider runs it
+(Gmail, the account's own Workspace domain, Microsoft with `xms_edov`); otherwise it cannot claim an
+invitation, a domain join or a provisioned account. The `state` of every social and OIDC sign-in is a
+single-use server-side record bound to the starting browser. A provider never replaces the second
+factor of a password account. See [Social login](../identity/social-login.md).
 
 ### Organization SSO
 
@@ -105,8 +126,10 @@ OIDC (Entra ID, Okta, Google Workspace) and SAML 2.0 per organization. Every ID 
 bound to the provider's immutable user id, and a federated sign-in never takes over a password
 account. Just-in-time provisioning admits new people only from email domains the organization has
 proven with DNS, and never as admin or owner. Organization SSO is configured by the platform
-administrator and each change must be approved by an organization owner. An organization can enforce
-SSO; its owner keeps password access so the organization cannot be locked out. See
+administrator and each change must be approved by an organization owner. An organization can be
+made to require SSO once an owner or admin has signed in through its provider and an owner has 2FA;
+an owner then still gets in with a password and their second factor (audited as
+`sso.break_glass_used` and announced), so the organization cannot be locked out. See
 [Identity and access](../identity/index.md).
 
 A sign-in through organization A's identity provider counts as SSO **only for A**. Exchanged for an
@@ -310,24 +333,39 @@ answers `404` for the console API. The controls:
 
 - **Sign-in.** Its own sessions (8 hours absolute, 15 minutes idle, at most three per administrator),
   a second factor at every sign-in (authenticator code, or security keys and passkeys with a
-  console policy that can require them), and three roles (`super_admin`, `ops_admin`, `readonly`).
-  Organization SSO can never authenticate a platform administrator, and an administrator's account
-  cannot sign in on the organization site at all.
+  console policy that can require them), and platform roles with permissions (base roles platform
+  owner, platform admin and read-only; additional roles operator, support, security auditor and
+  billing). Every console route is listed with its permission and an unlisted route is never served.
+  Organization SSO can never authenticate an administrator on the console. The platform role counts
+  only on the console: an administrator's account may be an ordinary organization member on the main
+  site, and a break-glass account is refused there with the wrong-password answer. Every refused
+  console password sign-in gets the same answer. New administrators are invited by e-mail and set
+  their own password.
 - **Browser isolation.** Strict headers (nonce CSP with no third-party script, `frame-ancestors
   'none'`, same-origin opener and resource policies, `no-store`), HSTS on the console site, and a
   CSRF token bound to the console session, so a script on a tenant page of the same host can
   neither read nor forge it.
 - **Protected actions.** The riskiest actions need a fresh code or security-key confirmation, and
   some also need a second super admin's approval (`428 SECOND_APPROVAL_REQUIRED`): making or
-  removing a super admin, turning off the security-key requirement, relaxing the administrators'
-  identity provider, opening sign-up, re-signing an audit chain, deleting an organization at once.
-- **Records.** A super administrator's write is logged before it runs (and refused with `503
-  AUDIT_UNAVAILABLE` if the log cannot be written). The administrators' audit log is append-only
+  removing a super admin, resetting an administrator's or a user's second factor, turning off the
+  security-key requirement, relaxing or repointing the administrators' identity provider, opening
+  sign-up, pointing platform e-mail at another mail server, sending platform AI data to another
+  destination, re-signing an audit chain, deleting an organization at once. Elevating a session
+  needs a code given within the last minute.
+- **Records.** Every console write, whatever the role, and every elevation is logged before it
+  runs (and refused with `503 AUDIT_UNAVAILABLE` if the log cannot be written); deleting an
+  organization at once also fails closed. Read-only administrators do not see the network address,
+  user agent or request body of log entries, and stored address fields keep only scheme and host. The administrators' audit log is append-only
   and hash-chained, and can be streamed to a destination outside the database. A hosted service
   (`MANAGED_SERVICE=true`) must have that destination. Roster changes are e-mailed to every other
   administrator. Actions inside an organization are also written to that organization's log.
-- **Limits on reach.** The console's identity tables can be written by a separate database role
-  (`DB_ADMIN_USER`), so a SQL injection in tenant-facing code cannot add an administrator. Public
+- **Limits on reach.** The console's identity tables, including administrators' passkeys, recovery
+  codes and console sessions, are reachable only by a separate database role (`DB_ADMIN_USER`), so a
+  SQL injection in tenant-facing code cannot add an administrator or plant a factor; in production
+  the API refuses to start while its app role can write those tables. The app role asks only
+  whether one console session is alive, through a narrow read-only function. The Users directory
+  hides administrators' accounts below the platform owner and owners' addresses below operations
+  admin. Public
   sign-up is bounded by the deployment's `SIGNUP_MODE` (`disabled` by default), which no console
   setting can exceed. Secrets (CAPTCHA, AI and alert-webhook credentials) are write-only in the
   console, and the console cannot read database credentials, encryption keys or its own allowed

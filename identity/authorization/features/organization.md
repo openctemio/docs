@@ -54,10 +54,16 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/organization/security-overview` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/ai` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/ai` | `settings:write` + team role admin | config: organization settings | yes | Owner, Administrator |
+| GET | `/api/v1/organization/settings/ai/masking` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
+| PUT | `/api/v1/organization/settings/ai/masking` | `settings:write` + team role admin | config: organization settings | yes | Owner, Administrator |
+| POST | `/api/v1/organization/settings/ai/masking/preview` | `settings:read` + team role admin | scoped: reads one finding under the caller's data scope and pentest campaign rules (GetFindingWithScope) and returns it masked; owner or administrator only |  | Owner, Administrator |
 | POST | `/api/v1/organization/settings/ai/test` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/asset-reconciliation` | team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/asset-reconciliation` | team role admin | config: organization settings |  | Owner, Administrator |
 | POST | `/api/v1/organization/settings/asset-reconciliation/preview` | team role admin | config: organization settings |  | Owner, Administrator |
+| GET | `/api/v1/organization/settings/closure` | team role admin | config: organization settings |  | Owner, Administrator |
+| PUT | `/api/v1/organization/settings/closure` | team role admin | config: organization settings |  | Owner, Administrator |
+| DELETE | `/api/v1/organization/settings/closure/pending` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/cycles` | team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/cycles` | team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/emerging-threats` | team role admin | config: organization settings |  | Owner, Administrator |
@@ -88,6 +94,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/tenants/{tenant}/invitations` | `team:members:read` | config: organization administration (team roles) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | POST | `/api/v1/tenants/{tenant}/invitations` | `team:members:invite` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | DELETE | `/api/v1/tenants/{tenant}/invitations/{invitationId}` | `team:members:invite` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
+| POST | `/api/v1/tenants/{tenant}/invitations/{invitationId}/link` | `team:members:invite` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
+| POST | `/api/v1/tenants/{tenant}/invitations/{invitationId}/renew` | `team:members:invite` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | POST | `/api/v1/tenants/{tenant}/invitations/{invitationId}/resend` | `team:members:invite` + team role admin | config: organization administration (team roles) |  | Owner, Administrator |
 | GET | `/api/v1/tenants/{tenant}/members` | `team:members:read` | config: organization administration (team roles) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | GET | `/api/v1/tenants/{tenant}/members/stats` | `team:members:read` | config: organization administration (team roles) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |

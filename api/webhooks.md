@@ -58,6 +58,17 @@ Delivery rules that apply to every channel:
   answers `404`.
 - **Credentials** (bot tokens, HEC tokens, SMTP passwords) are encrypted at rest with
   `APP_ENCRYPTION_KEY`.
+- **Email on a hosted service** (`MANAGED_SERVICE=true`): the email channel refuses port 25 and any
+  relay without a user name and password or without TLS or STARTTLS, when it is saved, tested and
+  before every send. A channel that does not meet the rule stops sending and shows
+  `INTEGRATION_EMAIL_RELAY_POLICY` with the reason, and each owner is told in the app and by email.
+  Use port 465, 587 or 2525 with a login and TLS, then test the channel. Self-managed installs are
+  not affected.
+- **Organization mail through the email channel.** An owner or administrator can tick **Also send my
+  organization's business mail through this server** on an email channel: invitation notices,
+  member notices and scheduled reports then go through it, as far as the platform setting allows
+  (`off`, `verified_sender` or `on`; see [E-mail](../console/settings.md#e-mail)). Account security
+  mail never does. Off by default, also for existing channels.
 
 ### Generic webhook payload
 

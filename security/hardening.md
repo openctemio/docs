@@ -37,7 +37,8 @@ In production mode the API refuses to start when:
 - `RATE_LIMIT_ENABLED` is `false`, `APP_DEBUG` is `true` or `LOG_LEVEL` is `debug`;
 - with local accounts: `AUTH_PASSWORD_MIN_LENGTH` is below 8 or `AUTH_REQUIRE_EMAIL_VERIFICATION`
   is not `true`;
-- with an OAuth social provider enabled: `OAUTH_STATE_SECRET` is missing;
+- with an OAuth social provider enabled: `OAUTH_STATE_SECRET` is unset and cannot be derived
+  (neither `AUTH_JWT_SECRET` nor `APP_ENCRYPTION_KEY` is set);
 - `SIGNUP_MODE=domain` or `open` without the platform e-mail configured. `SIGNUP_MODE=open` with no
   CAPTCHA does not stop the start-up any more: open sign-up stays closed at run time until a CAPTCHA
   is configured (Console > Settings > CAPTCHA, or the Turnstile keys in the environment) or
@@ -60,7 +61,7 @@ start-up in every environment, with a message naming the variable.
 | `DB_PASSWORD`, `DB_MIGRATE_PASSWORD`, `DB_SUPERUSER_PASSWORD` (and `DB_ADMIN_PASSWORD` if you set `DB_ADMIN_USER`) | `openssl rand -hex 24` | All different. The API does not check database password strength. |
 | `REDIS_PASSWORD` | `openssl rand -hex 24` | At least 32 characters in production. |
 | `METRICS_TOKEN` | `openssl rand -hex 32` | Only if you scrape `/metrics` (section 9). |
-| `OAUTH_STATE_SECRET` | `openssl rand -hex 32` | Only if you enable a social login provider. |
+| `OAUTH_STATE_SECRET` | `openssl rand -hex 32` | Optional: derived from the session secret when unset. Set it only to share one value across replicas of an older setup. |
 
 Optional: `APP_TEMPLATE_SIGNING_KEY` and `SENSOR_KEY_PEPPER` are derived from `APP_ENCRYPTION_KEY`
 when unset. Set them only if you want them independent; `APP_TEMPLATE_SIGNING_KEY` must differ from
@@ -153,15 +154,31 @@ What the console does for you, with no setting to change:
   recovery codes; other administrators then reach only the enrolment page until they comply (they
   keep the authenticator code for 7 days), the last two keys cannot be removed, and an administrator
   who holds a key can no longer use the authenticator code (break-glass accounts keep it).
-- **Write-ahead audit.** Before a super administrator's write runs, the API records it in the
+- **Write-ahead audit.** Before any state-changing console request runs, whatever the
+  administrator's role, and before an elevation is granted, the API records it in the
   administrators' audit log. If that row cannot be written, the request is refused with
   `503 AUDIT_UNAVAILABLE` and nothing changes. Request bodies are redacted by key (`secret`,
-  `password`, `_key`, `_token`, `code`, `totp`, recovery codes).
-- **Administrator accounts stay off the organization site.** The account of a platform
-  administrator cannot sign in on the main site (password, second factor, token exchange, social
-  and SSO sign-in): the answer is the wrong-password one, with no session, and the API logs
-  `alert=platform_admin_main_site_sign_in`. Organization SSO can never authenticate a platform
-  administrator.
+  `password`, `_key`, `_token`, `code`, `totp`, recovery codes), and address fields (`url`, `*url`,
+  `*webhook*`) keep only their scheme and host. Rows written before v0.16.0 may hold a full webhook
+  address: rotate the alert webhook (and any webhook address entered in the console) after
+  upgrading.
+- **One account, two sites.** An administrator's account may be an ordinary member of
+  organizations on the main site, where it acts with its organization role only; the platform role
+  counts only on the console, which keeps its own sign-in, second factor and session. A
+  **break-glass** account stays console-only: it cannot join an organization, and every main-site
+  sign-in with it (password, refresh, token exchange, social and SSO) gets the wrong-password
+  answer and logs `alert=break_glass_main_site_sign_in`. Organization SSO can never authenticate an
+  administrator on the console.
+- **Invitations, not passwords.** A new administrator is created with no password and e-mailed a
+  single-use set-password link (24 hours). Without platform e-mail a super admin cannot be added
+  while approvals are on (`409 INVITATION_NEEDS_EMAIL`): use `bootstrap-admin invite -email=...
+  -role=...` on the host.
+- **Uniform sign-in answer.** Every refused console password sign-in, including a correct password
+  while the identity provider is required, answers `401` "Wrong email or password" and counts
+  toward the lockout.
+- **Fresh proof to elevate.** Elevation needs an authenticator code or security-key confirmation
+  from the last minute; the administrators' identity provider, the platform e-mail relay and the
+  sign-up policy take a fresh code on every change.
 - **Four-eyes approvals** (below).
 - **Roster notices.** Every change to the administrators, their identity provider or the
   security-key policy is e-mailed to every other active administrator.
@@ -179,7 +196,12 @@ These actions need a second super admin to approve them when one exists:
 | Remove a super admin | An active super admin is demoted, deactivated, marked break-glass or removed. |
 | Stop requiring security keys | The policy goes from on to off. |
 | Remove or relax the administrators' identity provider | Removed, switched off, or no longer required. |
+| Change the administrators' identity provider | A new issuer or client, or new trusted acr or amr values. |
+| Reset an administrator's second factor | Always, when approvals are on. |
+| Reset a user's two-factor authentication (console **Users**) | Always, when approvals are on. |
 | Open sign-up | The stored sign-up policy opens wider than before. |
+| Change the platform e-mail relay | E-mail is saved on with a host, port, connection security or SMTP user name other than the last relay applied while on. |
+| Change the platform AI destination | Platform AI is saved on with a provider, base URL, private-network switch or API key other than the last one applied while on. |
 | Re-sign an organization's audit chain | Always. |
 | Delete an organization at once ("Delete now") | Always, when approvals are on. |
 
@@ -211,12 +233,18 @@ Run the API as a role that can only read and write rows, and migrations as a sep
 |---|---|---|
 | `DB_SUPERUSER`, `DB_SUPERUSER_PASSWORD` | superuser | only used by the one-shot `db-roles` job |
 | `DB_MIGRATE_USER`, `DB_MIGRATE_PASSWORD` | `openctem_migrator` | owns the schema, runs migrations |
-| `DB_USER`, `DB_PASSWORD` | `openctem_app` | `SELECT`, `INSERT`, `UPDATE`, `DELETE`; no DDL, no superuser, no `BYPASSRLS`, no server-file access |
+| `DB_USER`, `DB_PASSWORD` | `openctem_app` | `SELECT`, `INSERT`, `UPDATE`, `DELETE`; no DDL, no superuser, no `BYPASSRLS`, no server-file access; read-only on the migration tracking tables |
+| `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` (optional) | `admin_user` | the console's identity tables (administrators, console sessions, passkeys, recovery codes and ceremonies, platform roles, approvals); the app role has no privilege on them |
 
 The compose file creates and repairs both roles with `deploy/postgres/least-privilege-roles.sql`
 whenever `DB_MIGRATE_USER` is set (the production `.env.example` sets it). If `DB_MIGRATE_USER` is
 unset, everything connects as `DB_USER`. For an external database, run the script once as a
-superuser. The guide with the migration path for existing installations is
+superuser. Re-run the script after every upgrade (the Compose `db-grants` step and the chart do
+it): releases add console tables and grants to it, and with `DB_ADMIN_USER` the console fails until
+it is re-run (for example, console passkey and recovery-code sign-in fails, and the console answers
+503 for the platform role tables). In production the API refuses to start while its app role can
+write the console's identity or factor tables. The guide with the migration path for existing
+installations is
 [database-roles.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/database-roles.md).
 
 Also:
@@ -249,7 +277,10 @@ stored secrets (AES-256-GCM), and keys the hashes of API keys, SCIM tokens and s
 - Rotate it with the `rekey` tool and `APP_ENCRYPTION_KEY_PREVIOUS` (a grace list of old keys while
   tokens move to the new key). Follow
   [encryption-key-rotation.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/encryption-key-rotation.md).
-  Remove `APP_ENCRYPTION_KEY_PREVIOUS` when `rekey -status` reports zero.
+  Remove `APP_ENCRYPTION_KEY_PREVIOUS` when `rekey -status` reports zero. `rekey` also re-encrypts
+  the console settings (CAPTCHA secret, alert webhook address and signing secret, social login
+  secrets). Keep the previous key until the ingest queue has drained: queued sensor report segments
+  are sealed with a key derived from `APP_ENCRYPTION_KEY`.
 
 ## Cookies, CORS, CSRF and proxies
 

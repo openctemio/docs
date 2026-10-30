@@ -42,13 +42,41 @@ password.
   commonly breached passwords.
 - Passwords are stored with bcrypt (cost 12).
 - Every self-registered account (sign-up mode `domain` or `open`) must verify its email address before it can
-  sign in. For accounts invited into an organization, the organization's **email verification**
-  setting (`always`, `never` or `auto`; under **Settings > Security > Authentication**) decides; with `auto`,
-  verification is required when the installation can send email. People who register through an
-  invitation are verified by it. Verification links are valid for 24 hours (`AUTH_EMAIL_VERIFICATION_DURATION`);
-  password reset links for 1 hour (`AUTH_PASSWORD_RESET_DURATION`).
+  sign in. A verified address belongs to the **account**, not to one organization, so no organization
+  can skip verification for the others.
+- An organization's **email verification** setting (`auto` or `always`; under **Settings > Security >
+  Authentication**) decides who may **enter that organization**: with `always`, a member must have a
+  verified address, and entering is refused until it is verified (the account's other organizations
+  are not affected); with `auto` (the default), verification is required when the installation can
+  send email. The former `never` value is retired: saving it is refused and a stored `never` reads as
+  `auto`. When the setting cannot be read, an unverified account is refused, and accepting an
+  invitation applies the same rule.
+- An invitation token does **not** prove the invitee's mailbox (the inviting organization holds the
+  token). An account registered with an invitation token is created unverified and verifies through a
+  link the platform mails to the address; until then it sees no other organization's invitations and
+  cannot join by domain. An invitation from an organization that has verified the address's domain
+  still verifies the account at once.
+- Verification links are valid for 24 hours (`AUTH_EMAIL_VERIFICATION_DURATION`); password reset links
+  for 1 hour (`AUTH_PASSWORD_RESET_DURATION`). A reset link works once, also when two requests present
+  it at the same moment. **Send a new verification link** (`POST /api/v1/auth/resend-verification`)
+  sends the link again: the answer is always 202, and an address gets at most one email every two
+  minutes. The verification failure page and a sign-in refused with `EMAIL_NOT_VERIFIED` offer it.
 - After `AUTH_MAX_LOGIN_ATTEMPTS` (5) wrong passwords or codes, the account is locked for
   `AUTH_LOCKOUT_DURATION` (15 minutes).
+
+### A server that cannot send email
+
+`GET /api/v1/auth/providers` and `GET /api/v1/me/bootstrap` report `email_delivery`. While the platform
+e-mail does not work:
+
+- the forgot-password page says "This server cannot send email. Ask your administrator for a reset
+  link." instead of promising an email;
+- **Settings > Access > Members** shows **This server cannot send email**, and each invitation offers
+  **Copy new link** (a new token, the old link stops working, nothing is mailed;
+  `POST /api/v1/tenants/{tenant}/invitations/{id}/link`) and, for an expired invitation, **Renew**
+  (`.../renew`);
+- in the platform console a platform owner can copy a one-hour password reset link for an account or
+  mark its email verified (see [Users](../console/organizations-and-users.md#users)).
 
 ## Creating organizations
 
@@ -100,8 +128,12 @@ set up" page offers a request form (`/request-access`). Every accepted submissio
 answer; limits per address (3 an hour) and per domain (5 a day) and disposable addresses drop
 requests silently, and the requester confirms by an emailed link first. Platform administrators see
 the queue under **Customers › Access requests** in the platform console; an ops admin approves (the
-organization is created with the requester as its owner) or rejects (a neutral email). Unconfirmed
-requests are deleted after 24 hours and decided ones after 90 days.
+organization is created with the requester as its owner) or rejects (a neutral email). An existing
+account becomes the owner only when the requester confirmed the address by email; without that (for
+example on a server without email) the approval is refused with 409, and a confirmed existing account
+is emailed that the request was approved. An administrator cannot decide a request made by their own
+account or with their own email. Unconfirmed requests are deleted after 24 hours and decided ones
+after 90 days.
 
 ### Joining by domain
 
@@ -129,11 +161,16 @@ ask 5 times a day, and requests expire after 30 days. Nobody becomes an administ
 A platform administrator creates an organization's first owner in the admin console
 (**Organizations**, open the organization, **Members** tab, or when creating the organization with an owner email). The
 owner receives a one-time link to set a password (emailed when the installation can send email; shown
-once otherwise). From then on the owner and their admins invite or create users; the platform
-administrator cannot add further users to an organization that has an owner.
+once otherwise). An owner email that already has an account is refused with 409: nobody becomes the
+owner of an organization they did not ask for, and that person creates the organization after signing
+in. From then on the owner and their admins invite or create users; the platform administrator cannot
+add further users to an organization that has an owner. The installation command
+`bootstrap-admin -org-name ... -org-owner-email ...` may name an existing account, including the
+installing administrator (never the break-glass one).
 
-If every owner of an organization is suspended, a super admin can create a recovery owner. The link is
-only emailed, never shown, and the action is audited at critical severity in the organization.
+If no owner of an organization can act (every owner's membership is suspended, or their account is
+blocked or erased), a super admin can create a recovery owner. The link is only emailed, never shown,
+and the action is audited at critical severity in the organization.
 
 ## Inviting people
 
@@ -154,7 +191,7 @@ Owners and admins invite from **Settings > Access > Members** (`POST /api/v1/ten
 - The invitation email links to `https://<your OpenCTEM address>/invitations#token=...`. The token is in the URL
   fragment, so it is never sent to a server or recorded in access logs or `Referer` headers.
 - The invitee registers or signs in with the **same email address** and accepts. Declining is
-  possible without an account.
+  possible without an account, and only while the invitation is pending (otherwise 409).
 - If the address reaches the same mailbox as an existing member's (dots or `+tags` in Gmail-style
   addresses), the admin gets a look-alike warning.
 
@@ -178,7 +215,9 @@ last). A person whose email domain the organization does not hold is **outside**
   mandatory for outside people no organization manages (for example personal addresses): 90 days by
   default, 365 at most. Expired memberships are suspended automatically.
 - Invitation refusals carry a code that the invite dialog explains: `INVITEE_NOT_ON_VERIFIED_DOMAIN`,
-  `INVITEE_DOMAIN_NOT_ALLOWED`, `PERSONAL_ACCOUNTS_BLOCKED`, `INVITATION_NO_LONGER_VALID`.
+  `INVITEE_DOMAIN_NOT_ALLOWED`, `PERSONAL_ACCOUNTS_BLOCKED`, `INVITATION_NO_LONGER_VALID`,
+  `INVITATION_ALREADY_MEMBER`, `INVITATION_MEMBERSHIP_SUSPENDED` (the invitee's own membership is
+  suspended) and `MEMBERSHIP_SUSPENDED_REACTIVATE` (reactivate the member instead of inviting).
 
 For the rules in one place, including how to give an outside member full access, see
 [Outside members](access/outside-members.md).

@@ -18,14 +18,20 @@ They add up: one satisfied rule does not switch off another.
 | **Require two-factor authentication for owners and administrators** (`mfa_required_for_admins`) | Owners and administrators. On for every organization created recently; older organizations keep it off until an owner turns it on. It is on and locked while the first switch is on. | Owner, **Settings > Security > Authentication** |
 | **Personal accounts: Allowed with two-factor** (`allowed_with_mfa`) | Members with a personal address. The default for new organizations. The other values are **Allowed** and **Blocked**. | Owner, **Settings > Security > Authentication** |
 | **SSO must prove two-factor** | Members who must use two-factor and sign in through the organization's own identity provider | Owner, **Settings > Security > Authentication** |
+| **Platform two-factor floor** (`auth.mfa`: `none`, `admins` or `everyone`) | With `admins`: owners, administrators and members holding a privileged role. With `everyone`: every member. After a grace period (14 days for existing members, 7 for new accounts). | The platform owner ([details](../two-factor.md#the-platform-two-factor-floor)). An organization can require more, never less. |
 | **Always on: a privileged outside member** | An [outside member](outside-members.md) who holds a privileged role (owner or admin, full data access, or a privileged permission), directly or through a team. There is no setting to turn this off. | The platform |
 
 A second factor counts when the person signed in with a password and has an authenticator app turned
-on, or when their identity provider proved one in the sign-in. Two-factor belongs to the account,
+on, or when their identity provider proved one in the sign-in. Creating credentials (API keys, sensor keys and enrollment tokens,
+stored secrets, integrations) needs an enrolled second factor whenever one of these rules covers the
+person, even during the platform floor's grace period. Two-factor belongs to the account,
 not to one organization: a person who already turned it on in another organization has it here too.
 
 The always-on rule is checked every time an access token is issued for the organization, so it also
-applies to sessions that were already open and to the refresh of an access token. It fails closed: if
+applies to sessions that were already open and to the refresh of an access token. On routes that name the organization in
+the URL (`/api/v1/tenants/{tenant}/...`), the organization's two-factor rule, personal-account policy
+and SSO-exception factor are applied to the caller's session on every request too, whatever
+organization the token was issued for. It fails closed: if
 the platform cannot read the person's roles or factor, it refuses.
 
 ## What the person sees

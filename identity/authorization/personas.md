@@ -36,12 +36,12 @@ Give each person the **roles** for what they do, a **team** for what they see, a
 | **Executive or board member** | Executive viewer | Leadership | The crown-jewel and in-scope assets, or one business unit. | Permanent. |
 | **Procurement or third-party risk** | Executive viewer | Business unit: <name> | Assets tagged as vendor-managed (a scope rule on a vendor tag). | Permanent. |
 | **External penetration testing vendor** | External tester | Engagement: <vendor> <dates> | Only the engagement's assets and the campaign they are a member of. | External membership (viewer on entry), mandatory end date when unmanaged; campaign role tester. |
-| **Bug-bounty researcher** | Researcher | Program: <bug-bounty program> | The targets of the programs they belong to. | A role created from the Researcher template (RFC-064) and a program group. |
+| **Bug-bounty researcher** | Researcher | Program: <bug-bounty program> | The targets of the programs they belong to. | A role created from the Researcher template and a program group. |
 | **Managed security service analyst** | Security analyst | Security operations | The customer's program scope. | An external membership in each customer organization (managed by the provider's own organization, which the customer trusts), never a cross-tenant account. |
-| **CI pipeline** | none (machine identity) |  | The repository the run is bound to. | OIDC workload identity exchanged for a 15-minute run token (RFC-051); no user, no role, no API key. |
+| **CI pipeline** | none (machine identity) |  | The repository the run is bound to. | OIDC workload identity exchanged for a 15-minute run token; no user, no role, no API key. |
 | **API integration** | none (machine identity) |  | The teams the service account belongs to, never full data. | A service account (no sign-in, never owner or administrator, no full data access) with a narrow custom role and its teams, acting through an oct_ API key minted for it; keys are read-only on the REST API and go with the account. |
-| **AI assistant (MCP client)** | none (machine identity) |  | The person's own data scope. | An OAuth grant on the MCP endpoint (RFC-062): granted scopes intersected with the person's live permissions; the administrator bypass never applies. |
-| **Platform operator** | none (machine identity) |  | No organization data. | The platform admin console realm (RFC-022), never a member of an organization. |
+| **AI assistant (MCP client)** | none (machine identity) |  | The person's own data scope. | An OAuth grant on the MCP endpoint: granted scopes intersected with the person's live permissions; the administrator bypass never applies. |
+| **Platform operator** | none (machine identity) |  | No organization data. | The platform admin console realm, never a member of an organization. |
 
 ## Administration
 
@@ -305,7 +305,7 @@ Hunts on bug-bounty programs and records findings against program targets.
 - **Roles:** Researcher
 - **Team:** Program: <bug-bounty program>
 - **Sees:** The targets of the programs they belong to.
-- **Access:** A role created from the Researcher template (RFC-064) and a program group.
+- **Access:** A role created from the Researcher template and a program group.
 - **Must not:** widen the organization's own scope; approve scope entries
 
 ### Managed security service analyst
@@ -327,7 +327,7 @@ Uploads scan results from a build and asks the gate for a verdict.
 
 - **CTEM stages:** discovery, mobilization
 - **Sees:** The repository the run is bound to.
-- **Access:** OIDC workload identity exchanged for a 15-minute run token (RFC-051); no user, no role, no API key.
+- **Access:** OIDC workload identity exchanged for a 15-minute run token; no user, no role, no API key.
 - **Must not:** read the organization's data; override the gate
 
 ### API integration
@@ -343,7 +343,7 @@ Reads data into another system (SIEM, data lake, ticketing).
 Answers questions about exposures for a signed-in person.
 
 - **Sees:** The person's own data scope.
-- **Access:** An OAuth grant on the MCP endpoint (RFC-062): granted scopes intersected with the person's live permissions; the administrator bypass never applies.
+- **Access:** An OAuth grant on the MCP endpoint: granted scopes intersected with the person's live permissions; the administrator bypass never applies.
 - **Must not:** exceed the person's permissions; write without the person's confirmation
 
 ### Platform operator
@@ -351,8 +351,8 @@ Answers questions about exposures for a signed-in person.
 Runs the OpenCTEM service: health, organizations, first owners.
 
 - **Sees:** No organization data.
-- **Access:** The platform admin console realm (RFC-022), never a member of an organization.
-- **Must not:** read an organization's data without a support grant (RFC-063)
+- **Access:** The platform admin console realm, never a member of an organization.
+- **Must not:** read an organization's data without a support grant
 
 ## Recommended teams
 
@@ -366,6 +366,6 @@ A team (access group) decides what its members see: the assets assigned to it, d
 | Infrastructure: <domain> | `team` | IT and infrastructure engineers for one domain (network, cloud account, endpoints). | A scope rule on the domain's tag or asset group (for example env:cloud-prod). | Remediation owner, Scan operator |  |
 | Validation and red team | `security_team` | Internal testers who prove exploitability on the prioritized exposures. | The assets in the current validation scope (an asset group refreshed each cycle). | Validation engineer |  |
 | Engagement: <vendor> <dates> | `external` | One external testing engagement. Pair with a pentest campaign whose team is this group. | Only the assets named in the rules of engagement, added explicitly. | External tester | yes |
-| Program: <bug-bounty program> | `project` | Researchers working one bug-bounty program (RFC-064). | The program's targets; nothing from the organization's own inventory. | Researcher |  |
+| Program: <bug-bounty program> | `project` | Researchers working one bug-bounty program. | The program's targets; nothing from the organization's own inventory. | Researcher |  |
 | Leadership | `department` | Executives who follow outcomes on dashboards and reports. | A scope rule on the crown-jewel and in-scope asset groups, or per business unit. | Executive viewer |  |
 | Audit <period> | `external` | Auditors for one audit period. The auditor role sees all data, so the team only tracks membership and its end date. | None needed (the auditor role carries full data access). | Auditor | yes |

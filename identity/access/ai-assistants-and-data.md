@@ -22,20 +22,21 @@ administrator.
 - **If you are in no team, it sees nothing.** The tools return empty lists even though the console
   shows hundreds of assets to you as owner. Nothing is broken: the connection's data scope is empty.
 
-An upcoming release adds a notice to such empty results: the tools that list assets, findings,
-finding statistics and active vulnerabilities return a `scope_notice` explaining that the connection
-covers no assets and what to do, so the assistant can tell you instead of reporting "no findings".
+Such empty results carry a notice (since v0.16.0): the tools that list assets, findings, finding
+statistics and active vulnerabilities return a `scope_notice` saying that your data scope covers 0
+assets and to ask an owner for access, so the assistant can tell you instead of reporting "no
+findings".
 
-## Fix an empty result today
+## Fix an empty result
 
 Add the person to a team that owns the assets they want the assistant to read (see
 [Roles, teams and what members can see](roles-teams-and-data.md#a-member-in-no-team-sees-no-assets)).
 The connection picks the change up on its next request.
 
-## Full-organization access (opt-in, upcoming)
+## Full-organization access (opt-in)
 
 A person whose role has access to all organization data (owner, administrator, or a role with full
-data access) will be able to let one connection read all organization data. The option, **Allow
+data access) can let one connection read all organization data (since v0.16.0). The option, **Allow
 access to all organization data**, appears on the consent screen only for such people. Safeguards:
 
 | Safeguard | Detail |
@@ -50,6 +51,6 @@ access to all organization data**, appears on the consent screen only for such p
 | Still bounded | Private bug-bounty program assets and pentest campaigns you are not a member of stay hidden, as for you in the console. |
 | Never for API keys | API keys never get this access. |
 
-Until the release is installed, the option is not offered and every connection is scoped. See
+On releases before v0.16.0 the option is not offered and every connection is scoped. See
 [Connect an AI assistant](../../user-guide/12-connect-an-ai-assistant.md) for the consent screen
 and [MCP server](../../api/mcp.md) for the reference.

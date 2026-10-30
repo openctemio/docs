@@ -22,7 +22,14 @@ can do there.
 Signing in proves who you are and gives you a session for your account. The session is then
 exchanged for an access token **for one organization** at a time; the organization's policies (2FA
 requirement, SSO enforcement, IP allowlist, allowed email domains) are checked at that point and
-again on later requests.
+again on later requests. Routes that name an organization in the URL (`/api/v1/tenants/{tenant}/...`:
+members, invitations, settings, modules, SSO approvals) apply that organization's requirements to the
+caller's session on every request, and refuse a token that is bound to no organization
+(`ACCOUNT_TOKEN_NOT_ALLOWED`): exchange the sign-in token for an organization token first.
+
+The platform sets a lowest two-factor requirement for every organization (the
+[two-factor floor](two-factor.md#the-platform-two-factor-floor)); an organization can require more,
+never less.
 
 ## Ways to sign in
 
@@ -49,11 +56,12 @@ sequenceDiagram
     participant IdP as Organization's identity provider
     U->>W: /login?org=example-corp, choose the provider
     W->>API: GET /api/v1/auth/sso/{provider}/authorize?org=...
-    API-->>W: IdP authorization URL (signed state, nonce, PKCE)
-    W-->>U: redirect to the IdP
+    API-->>W: IdP authorization URL (state handle, nonce, PKCE) and a one-time browser binding
+    W-->>U: redirect to the IdP (the binding stays in an HttpOnly cookie)
     U->>IdP: sign in
     IdP-->>W: redirect with an authorization code
-    W->>API: POST /api/v1/auth/sso/{provider}/callback (code, state)
+    W->>API: POST /api/v1/auth/sso/{provider}/callback (code, state, browser binding)
+    API->>API: consume the single-use state record (replay or another browser: refused)
     API->>IdP: exchange the code (PKCE)
     IdP-->>API: ID token
     API->>API: verify signature, issuer (Entra: pinned tid), audience, nonce,<br/>verified email, allowed domains
@@ -72,7 +80,10 @@ sequenceDiagram
 ```
 
 An existing password account is never taken over by an SSO sign-in with the
-same email: the sign-in is refused. SSO never grants the owner or admin role. Details:
+same email: the sign-in is refused. SSO never grants the owner or admin role. The `state` of an SSO or
+social sign-in is an opaque handle to a server-side record (nonce, PKCE verifier and a hash of the
+browser binding) that the first callback consumes, so a replayed callback, a callback finished in
+another browser or a forged state is refused. Details:
 [Verified domains and just-in-time provisioning](sign-up-and-invitations.md#verified-domains-and-just-in-time-provisioning).
 
 ## Ways into an organization
@@ -99,8 +110,14 @@ OpenCTEM separates two kinds of administrator:
 | API | `/api/v1/admin/*` on the console site with the console session only; no API keys | `/api/v1/*` with an access token or an organization API key |
 
 The first platform administrator is created with the `bootstrap-admin` command during installation
-(see [First administrator](../install/first-admin.md)). Further administrators are added by a super
-admin in the console.
+(see [First administrator](../install/first-admin.md)). Further administrators are invited by a
+platform owner in the console: the new administrator gets a single-use set-password link by e-mail
+and nobody else ever sees a password (see [Administrators](../console/security.md#administrators)).
+
+A platform administrator's account may also be an ordinary member of organizations and sign in on
+the main site, where it acts with its organization role only. A **break-glass** administrator account
+stays console-only: it cannot join an organization, and every main-site sign-in with it (password,
+refresh, token exchange, social and SSO) gets the same answer as a wrong password.
 
 Organization tokens never work on admin routes, and console sessions never work on organization
 routes. Platform roles are separate from organization roles: they are never listed among an

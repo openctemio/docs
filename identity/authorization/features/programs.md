@@ -9,7 +9,7 @@ nav_order: 15
 
 # Bug-bounty programs: permissions
 
-Programs the organization tests under their published rules: import with an attestation, re-import, pause, resume and end (RFC-065).
+Programs the organization tests under their published rules: import with an attestation, re-import, pause, resume and end.
 
 - **CTEM stages:** scoping
 - **Modules:** `scope_config` (the routes answer `403 MODULE_NOT_ENABLED` when the module is off)
