@@ -117,7 +117,7 @@ Then the next cycle starts, with what the last one taught you.
 
 ## Shipped and planned
 
-These pages describe what ships in the current release (v0.15.5). Work that is designed but not shipped is marked
+These pages describe what ships in the current release (v0.16.1). Work that is designed but not shipped is marked
 **Planned** where it is mentioned.
 
 | Shipped | Planned |

@@ -226,6 +226,20 @@ with `upload_not_applied`. See [CI reference](../scanning/ci-reference.md#platfo
 ### Sensor reports
 
 A sensor report is applied by the same worker, from the same queue, as the lowest-priority lane.
+
+- **Admitted per report.** The first segment of a new report is checked against the
+  organization's queue limits (`INGEST_MAX_PENDING_PER_TENANT` jobs and
+  `INGEST_MAX_QUEUED_BYTES_PER_TENANT` decoded bytes, default 1 GiB). Further segments of a
+  report that was already admitted may go up to twice those limits, so a busy queue does not
+  leave half-received reports behind. A refusal is `429` (`queue-full`) with a `Retry-After`
+  computed from how fast the organization's jobs drain (5 seconds to 5 minutes, jittered so
+  sensors refused at the same moment do not retry together).
+- **Sealed at rest.** Segments waiting in the queue are encrypted with the organization's key
+  (AES-256-GCM, derived from `APP_ENCRYPTION_KEY`), bound to the organization, job, report,
+  segment number and content hash, opened only by the ingest worker, and emptied as soon as the
+  segment is applied. Secret-scanner findings and other evidence never sit in clear text in the
+  database or its backups while they wait.
+
 Reports held in the sensor results **quarantine** are marked accepted only after they have been
 applied: while an accept is applying, a second accept or a discard of the same item answers `409`;
 if applying fails the item stays pending and can be accepted again.
@@ -241,7 +255,8 @@ worker.
 Only one job per repository (CI), per organization (imports) or per sensor report runs at a time.
 Finished jobs and stored files are deleted by an hourly retention job (finished jobs after 30
 days). Operators tune it with `INGEST_WORKERS`, `INGEST_MAX_RUNNING_PER_TENANT`,
-`INGEST_MAX_PENDING_PER_TENANT` and `DB_INGEST_MAX_CONNS`
+`INGEST_MAX_PENDING_PER_TENANT`, `INGEST_MAX_QUEUED_BYTES_PER_TENANT` and `DB_INGEST_MAX_CONNS`
+and watch the import lag per lane with `openctem_ingest_queue_oldest_seconds{lane}`
 ([Environment variables](../configuration/environment-variables.md)).
 
 ## Send CTIS over the sensor protocol
@@ -273,6 +288,20 @@ Content-Length: <bytes>
 - A report too large for one request is sent in segments
   (`PUT .../results/{report_id}/segments/{seq}`, each a complete CTIS document) and closed with
   `POST .../results/{report_id}/commit` (`segment_count`, `segment_digests`).
+- The commit may carry a **manifest**: `segments` (per segment `seq`, `sha256` of the decoded
+  content in lower-case hex, `bytes`, `assets`, `findings`), `totals` (`assets`, `findings` of
+  the whole report) and `report_sha256` (SHA-256 over the 32-byte decoded SHA-256 of every
+  segment, concatenated in segment order). The server compares every value with what it stored
+  and refuses a mismatch with `409 segment-set-mismatch`, naming `hash_mismatch`,
+  `size_mismatch`, `count_mismatch` or `report_hash_mismatch`; the report then stays
+  uncommitted. `hello` lists the feature `results_manifest` when the server verifies manifests.
+- The status of a committed report has `integrity`: `single` (one segment), `manifest` (verified
+  manifest) or `digest_only` (segmented, committed without a manifest). A segmented report
+  committed without a manifest does not prove absence, so it never closes findings through
+  coverage auto-resolve. The status of an uncommitted report lists the segments the server holds
+  (`segments.held`), so a client resuming an upload sends only the missing ones.
+- `429 queue-full` carries `Retry-After`: wait that long and send the same segment again (see
+  [Sensor reports](#sensor-reports)).
 - `GET /api/v2/sensor/hello` returns the protocol level, features and size limits of the server.
 - Errors are RFC 9457 problem documents. Session tokens and `oct_` keys are refused (`401`).
 - If the organization requires key-bound sensor identity, bearer sensor keys are disabled and

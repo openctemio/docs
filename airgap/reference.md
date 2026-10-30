@@ -24,9 +24,8 @@ an SPDX SBOM attestation.
 | `openctem-web` | The web console (Next.js) | 3000 | 1001 (`nextjs`) | HTTP `GET /api/health` on port 3000 | `BACKEND_API_URL`, `NEXT_PUBLIC_APP_URL`, `SECURE_COOKIES`, `TRUST_PROXY_HEADERS` |
 | `openctem-console` | The platform console (Next.js) | 3000 | 1001 | HTTP `GET /api/health` on port 3000 | `BACKEND_API_URL`, `ADMIN_API_URL`, `SECURE_COOKIES`, `TRUST_PROXY_HEADERS` |
 | `openctem-gateway` | Caddy with the layer4 module | 80, 443 (tcp and udp), 2019 (admin) | 1000 (`caddy`) | HTTP `GET /config/` on port 2019 | `OPENCTEM_TLS_MODE`, `OPENCTEM_HOSTNAME`, the `*_UPSTREAM` variables |
-| `migrations` | Applies the schema (golang-migrate wrapper) | none | 65532 | none | `DATABASE_MIGRATE_URL`, `PGPASSWORD` |
+| `migrations` | Applies the schema (`openctem-migrate`) | none | 65532 | none | `DATABASE_MIGRATE_URL`, `PGPASSWORD` |
 | `seed` | The seed SQL files at `/seed`, with `psql` | none | 65532 | none | the database connection |
-| `admin-cli` | `bootstrap-admin`, the first-administrator command | none | 65532 | none | the API's database settings |
 | `openctem` (all-in-one) | API, web, console and gateway in one container | see [All-in-one](../install/all-in-one.md) | see [All-in-one](../install/all-in-one.md) | see [All-in-one](../install/all-in-one.md) | see [All-in-one](../install/all-in-one.md) |
 
 The ports, users and healthchecks come from the image kit's Dockerfiles, which
@@ -200,7 +199,6 @@ spec:
           imageReferences:
             - "registry.example.internal/openctem-trusted/openctem-*"
             - "registry.example.internal/openctem-trusted/migrations*"
-            - "registry.example.internal/openctem-trusted/admin-cli*"
             - "registry.example.internal/openctem-trusted/seed*"
           mutateDigest: true
           verifyDigest: true

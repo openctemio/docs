@@ -122,7 +122,7 @@ but do not turn our tag-schema signatures into Harbor signatures.
   [`replication-rule-openctem.json`](https://github.com/openctemio/openctem/blob/main/deploy/airgap/harbor/replication-rule-openctem.json)
   with a registry endpoint: `registry-endpoint-ghcr.json` (type `github-ghcr`,
   `https://ghcr.io`) or `registry-endpoint-nexus.json` (the Nexus Docker
-  proxy). The rule names the exact repositories (`openctemio/{openctem-api,openctem-web,openctem-console,openctem-gateway,migrations,seed,admin-cli}`),
+  proxy). The rule names the exact repositories (`openctemio/{openctem-api,openctem-web,openctem-console,openctem-gateway,migrations,seed}`),
   tag filter `v[0-9]*`, a schedule (`0 0 */6 * * *`) and `override: false`.
 - **Proxy cache.** Use
   [`proxy-cache-project.json`](https://github.com/openctemio/openctem/blob/main/deploy/airgap/harbor/proxy-cache-project.json).

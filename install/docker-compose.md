@@ -35,7 +35,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.15.5         # the release you deploy
+git checkout v0.16.1         # the release you deploy
 cd api/deploy
 ```
 
@@ -87,11 +87,15 @@ OPENCTEM_HOSTNAME=ctem.example.com          # DNS name or IP clients use
 OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 ```
 
-`OPENCTEM_VERSION` is optional: the compose file and `.env.example` of a
-release default to that release (`v0.15.5` in the v0.15.5 files) and to the
-current image names (`ghcr.io/openctemio/openctem-api`, `openctem-web`,
-`openctem-console`, `openctem-gateway`, `migrations`). Set it only to run another release than the
-files you checked out, which is not recommended.
+`OPENCTEM_VERSION` is the release every platform image runs. `./setup.sh`
+writes it into `.env`: from `--version vX.Y.Z`, else from the release you
+checked out (`api/deploy/VERSION` in a release tag's checkout, else the tag). From
+a branch checkout it stops and asks for `--version`. When you write `.env` by
+hand, set `OPENCTEM_VERSION=v0.16.1` yourself: since v0.16.0 the compose file
+carries no default. The image names default to the current ones
+(`ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem-console`,
+`openctem-gateway`, `migrations`). Run the release of the files you checked
+out.
 
 {: .note }
 Only the **v0.9.0** files defaulted to `v0.8.0` and to the old image names

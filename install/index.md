@@ -9,7 +9,7 @@ permalink: /install/
 {: .no_toc }
 
 OpenCTEM is self-hosted. Pick a deployment, check the requirements below, then
-follow the guide. These pages describe OpenCTEM v0.15.5; notes say where an
+follow the guide. These pages describe OpenCTEM v0.16.1; notes say where an
 older release differs. [Versioning](../operations/versioning.md) lists how the
 platform, sensor and chart versions fit together.
 
@@ -190,11 +190,11 @@ with a signed SBOM and a signed build provenance attached to each image digest
 | `ghcr.io/openctemio/openctem-gateway` | Gateway: Caddy with the layer-4 module, for the Compose stack and the chart. |
 | `ghcr.io/openctemio/openctem` | All-in-one: API, web console, platform console and gateway. |
 | `ghcr.io/openctemio/migrations` | Database migration runner. |
-| `ghcr.io/openctemio/admin-cli` | `bootstrap-admin` on its own. |
 | `ghcr.io/openctemio/seed` | Demo and test data. Not for production. |
 
-The `openctem-api`, `openctem-web`, `openctem` and `admin-cli` names start with
-v0.9.0. Releases up to v0.8.0 exist as `ghcr.io/openctemio/api` and
+The `openctem-api`, `openctem-web` and `openctem` names start with
+v0.9.0. From v0.16.0 there is no separate `admin-cli` image: `bootstrap-admin`
+runs from the `openctem-api` image (`/app/bootstrap-admin`). Releases up to v0.8.0 exist as `ghcr.io/openctemio/api` and
 `ghcr.io/openctemio/ui`, which keep receiving identical copies for a transition
 period. Pin an exact tag in production, never `latest`.
 

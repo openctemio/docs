@@ -23,7 +23,7 @@ You need Python 3 and either the `openctem` CLI binary or Go 1.26.
 
 ```bash
 # A release binary (Linux and macOS, amd64 and arm64), checked against the signed checksums:
-V=0.38.0   # the SDK release you pin
+V=0.40.0   # the SDK release you pin
 curl -sSLO https://github.com/openctemio/sdk-go/releases/download/v$V/openctem_${V}_linux_amd64.tar.gz
 curl -sSLO https://github.com/openctemio/sdk-go/releases/download/v$V/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing && tar xzf openctem_${V}_linux_amd64.tar.gz
@@ -34,7 +34,7 @@ go install github.com/openctemio/sdk-go/cmd/openctem@v$V
 openctem version
 ```
 
-Release binaries come with SDK releases after v0.37.0; for v0.37.0 and older, use `go install`.
+Release binaries come with SDK v0.38.0 and later; for older releases, use `go install`.
 How to verify the checksum signature is in
 [docs/tools/cli.md](https://github.com/openctemio/sdk-go/blob/main/docs/tools/cli.md).
 
@@ -75,7 +75,7 @@ Open `tool.yaml` and narrow what the scaffold filled in from the capability:
   sensor's rate cap reach it.
 
 `openctem tool validate .` checks the result. Every error names the field as a JSON pointer and,
-from SDK releases after v0.37.0, the fix (`did you mean "misconfiguration"?`).
+from SDK v0.38.0, the fix (`did you mean "misconfiguration"?`).
 
 ## 5. Write the check
 
@@ -136,7 +136,7 @@ openctem tool test .                   # self-tests and protocol checks
 openctem tool test --capability --scope --fuzz 30s .
 ```
 
-- **Fixtures.** From SDK releases after v0.37.0 the scaffold's fixture asks the kit to serve a
+- **Fixtures.** From SDK v0.38.0 the scaffold's fixture asks the kit to serve a
   canned HTTP response on loopback (`"serve"` in `fixtures/task.json`, targets written as
   `{{fixture.url}}`), so self-tests never reach a host on the internet. With an older scaffold,
   point the fixture's target at a local server yourself.
@@ -176,7 +176,7 @@ in it as tools. For a tool that needs an interpreter, build your own image with 
 from the published image (it is a static binary):
 
 ```dockerfile
-ARG SENSOR_VERSION=v0.23.2
+ARG SENSOR_VERSION=v0.29.0
 FROM ghcr.io/openctemio/sensor:${SENSOR_VERSION} AS sensor
 
 FROM python:3.12-slim
@@ -243,7 +243,7 @@ SENSOR_ADAPTER_DIRS=/etc/openctem/tools openctemio-sensor tools manifests
 | Feature | Needs |
 |---|---|
 | `openctem tool init/validate/run/test/diff/describe` | sdk-go v0.34.0 or later |
-| Release binaries, `openctem version`, errors that name the fix, kit-served fixtures | sdk-go releases after v0.37.0 |
+| Release binaries, `openctem version`, errors that name the fix, kit-served fixtures | sdk-go v0.38.0 or later |
 | Tools join the organization's catalog | platform v0.9.6 or later |
 | `tools manifests` lists operator-installed tools | sensor releases after v0.23.2 |
 | Capability steps offer declared tools | platform releases after v0.14.0 |

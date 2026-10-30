@@ -75,7 +75,6 @@ the same commit, for `linux/amd64` and `linux/arm64`, to `ghcr.io/openctemio`
 | `openctem-gateway` | Compose, Helm (Caddy gateway mode), Ansible |
 | `migrations` | Compose, Helm, Ansible |
 | `openctem` | The all-in-one image only |
-| `admin-cli` | Optional: `bootstrap-admin` as an image |
 | `seed` | Never in production (demo data) |
 
 Before an image is published, the release workflow builds it on each
@@ -127,7 +126,7 @@ Other artifacts:
 |---|---|---|
 | Sensor images `ghcr.io/openctemio/sensor:vX.Y.Z` and per-tool variants `vX.Y.Z-<tool>` (`opengrep`, `semgrep`, `trivy`, `nuclei`, `betterleaks`) | Released separately from `openctemio/sensor` | Keyless, identity `https://github.com/openctemio/sensor/.github/workflows/docker-publish.yml@refs/tags/vX.Y.Z`; SBOM and provenance are BuildKit attestations inside the image index (unsigned) |
 | Sensor binaries | `openctemio/sensor` releases: archives and `checksums.txt` | `checksums.txt.sigstore.json`, identity `https://github.com/openctemio/sensor/.github/workflows/release.yml@refs/tags/vX.Y.Z` |
-| `bootstrap-admin` binaries | `openctemio/openctem` releases, with `checksums-sha256.txt` | Checksums only, not signed: prefer the signed `openctem-api` or `admin-cli` image, which contain it |
+| `bootstrap-admin` binaries | `openctemio/openctem` releases, with `checksums-sha256.txt` | Checksums only, not signed: prefer the signed `openctem-api` image, which contains it (`/app/bootstrap-admin`) |
 | Helm chart | `openctemio/helm-charts` releases (`openctem-<chart version>.tgz`) | Not signed: record its SHA-256 and review the rendered manifests ([Helm](#helm)) |
 | Compose files | `api/deploy/` of the repository at the release commit | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
 | Ansible kit | `openctemio/openctem-ansible`; `versions.yml` pins every image by digest | Images verified by the kit; the kit itself is a repository you review |
@@ -203,7 +202,7 @@ RELEASE=v0.11.0
 SRC=ghcr.io/openctemio
 DST=registry.example.com/openctem
 IMAGES="openctem-api openctem-web openctem-console openctem-gateway migrations"
-# add openctem (all-in-one) or admin-cli when you deploy them
+# add openctem (all-in-one) when you deploy it
 
 mkdir -p "intake/$RELEASE"
 for img in $IMAGES; do

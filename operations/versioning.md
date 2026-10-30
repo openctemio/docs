@@ -25,8 +25,9 @@ the maintainers' working reference is
   web console share it.
 - One tag publishes every image from the same commit: `openctem-api`,
   `openctem-web`, `openctem-console` (the platform admin console app),
-  `openctem-gateway`, the all-in-one `openctem`, `migrations`, `seed` and
-  `admin-cli`, all under `ghcr.io/openctemio/`, for amd64 and arm64, signed with
+  `openctem-gateway`, the all-in-one `openctem`, `migrations` and `seed`, all
+  under `ghcr.io/openctemio/` (the `admin-cli` image ended with v0.15.6;
+  `bootstrap-admin` is in the `openctem-api` image), for amd64 and arm64, signed with
   cosign and with SBOMs on the GitHub Release.
 - Run all platform images at the same version.
 
@@ -39,7 +40,7 @@ attestation, so you can check where the SBOM came from as well as download it.
 The release notes of each version carry these commands with the tag filled in:
 
 ```bash
-TAG=v0.15.5
+TAG=v0.16.1
 IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v'
 ISSUER=https://token.actions.githubusercontent.com
 
@@ -137,7 +138,6 @@ against ranges the platform owns, whatever the product. Two things are kept apar
 | `sdk.latest` | A sensor built with an older sdk-go shows "outdated" (no health effect). The feed raises it. |
 | `sdk.min` | A sensor of any product built with an older sdk-go is degraded with the reason `sdk_unsupported`. Empty today: it is raised only when a protocol change requires it. |
 | `sdk.advisories` | SDK releases with a published security advisory: a sensor built with one is degraded with a warning. |
-| `chart.version` | The newest chart whose `appVersion` is the platform release. |
 
 The SDK checks apply to sensors built with sdk-go. Everything a sensor declares is
 untrusted input: it changes only what the organization sees. Authorization, grants, scope
@@ -205,8 +205,8 @@ without a recorded line keeps only the SDK and protocol verdicts. Nothing is fet
 
 The current versions of each product are in
 [`versions.yaml`](https://github.com/openctemio/openctem/blob/develop/versions.yaml)
-(`platform.release`, `sensor.latest`, `sdk.latest`, `ci.latest`, `chart.version`) and on
-each repository's releases page; this page does not repeat them, so it cannot go stale. The
+(`sensor.latest`, `sdk.latest`, `ci.latest`; since v0.16.0 it holds no platform or chart
+version, the platform version is the release tag) and on each repository's releases page; this page does not repeat them, so it cannot go stale. The
 Helm chart is published after the platform tag, so its `appVersion` can trail the platform:
 check `helm search repo openctem/openctem --versions` for the newest chart, and the
 [Kubernetes guide](../install/kubernetes.md) for the release it installs.

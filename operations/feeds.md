@@ -108,6 +108,23 @@ the release host (or set `VULNFEED_MIRRORS` to an internal mirror, or use
 `VULNFEED_BUNDLE_DIR` when air-gapped), then turn off "Allow the platform to
 call CISA and FIRST".
 
+## Feed status and Sync now
+
+**System > Threat intelligence** shows one card per feed (vulnerability bundles, KEV,
+EPSS) with a state computed by the server: **Up to date**, **Waiting for the publisher**
+(the feed has published nothing yet: not a failure), **Stale**, **Failing**, **Refused**
+(a download failed a check, for example a KEV or EPSS snapshot under 90 % of the stored
+catalog), **Running** or **Off**. Each card shows the last attempt and the last success
+separately, the catalog size and what the last run changed, the next scheduled run
+(vulnerability bundles every 20 minutes, KEV hourly, EPSS daily), and an error as a code
+with an action (the raw text behind **Details**). The vulnerability card also shows the
+applied sequence, the key set and the freshness of each source.
+
+**Sync now** queues the sync and returns at once; the card shows **Running** and a
+message reports the outcome. A feed runs once at a time across API replicas: a feed
+already running is not started twice, a feed started less than 15 seconds ago is
+refused for a moment, and a feed that is off or not configured is not started.
+
 ## Program feed
 
 | Variable | Default | Meaning |

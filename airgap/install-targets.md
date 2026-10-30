@@ -196,7 +196,7 @@ registry.example.internal/openctem-trusted/openctem:vX.Y.Z@sha256:<digest from t
 
 Replace the image reference in your run command or manifest with it. The rest
 of the setup is in [All-in-one image](../install/all-in-one.md). The Kyverno
-template's `imageReferences` list `openctem-*`, `migrations*`, `admin-cli*`
+template's `imageReferences` list `openctem-*`, `migrations*`
 and `seed*` under the trusted path. The plain path `openctem` (the all-in-one
 image) does not match `openctem-*`: add it to `imageReferences` if you run
 that image.

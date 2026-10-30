@@ -59,7 +59,7 @@ Run them against a throwaway database:
 docker run -d --name pg-test -p 127.0.0.1:55432:5432 \
   -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=app_test postgres:17-alpine
 cd api
-migrate -path migrations -database "postgres://postgres@localhost:55432/app_test?sslmode=disable" up
+go run ./cmd/openctem-migrate -path migrations -database "postgres://postgres@localhost:55432/app_test?sslmode=disable" up
 make test-db TEST_DATABASE_URL="postgres://postgres@localhost:55432/app_test?sslmode=disable"
 ```
 

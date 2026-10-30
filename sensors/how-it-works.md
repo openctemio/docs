@@ -78,6 +78,37 @@ A **command** is the sensor-side name of a [scan run's task](../scanning/scans-a
    is offered only to a sensor that reports the command's tool installed,
    belongs to the command's scan zone, has a free slot, and whose
    [grant](pairing.md#grants-and-trust) admits the job.
+   - **Work is spread.** Every eligible sensor is woken, but a task queued less
+     than 10 seconds ago is left to the least-loaded eligible sensor (the
+     largest share of free slots, then the fewest recent claims). After that
+     window any eligible sensor takes it. A claim never takes more scans than
+     the sensor's free slots, even when two claims of one sensor race. The
+     task's placement panel says when a sensor left a fresh task to a
+     less-loaded one.
+   - **Host pressure.** A sensor that reports its host's pressure (sensor
+     v0.29.0 or later) is given less while the report is fresh: an
+     **overloaded** host gets no new scan while it already runs one (one when
+     idle), an **elevated** host at most one, and selection prefers less
+     pressured sensors. A task waiting for this reason says `sensor_overloaded`.
+     The sensor page has a **Host pressure** section and warns when other
+     programs on the host use most of its CPU. The report can only lower what
+     a sensor is offered.
+   - **A failure that is not the target's moves on.** When a task fails because
+     the tool crashed or is missing, the sensor ran out of memory or disk, the
+     tool's content could not be read, or the sensor's own network or resolver
+     failed, the task goes to another eligible sensor, and the sensors that
+     already failed it are left out. The 3 attempts per task are shared by every
+     cause; when they are spent the task fails naming each cause
+     (`TOOL_UNAVAILABLE`, `TOOL_CRASHED_ON_INPUT`, `RESOURCE_EXHAUSTED`,
+     `CONTENT_UNAVAILABLE`, `SENSOR_LOST`). When the same tool and content
+     version fails on 2 sensors within 30 minutes, the task fails with
+     `FLEET_TOOL_FAILURE` instead of moving on. Targets that failed because of
+     the target (unreachable, blocked by a WAF or CDN, rate limited) are never
+     resent from another sensor in the same run.
+   - **A withheld task says why.** When a sensor's grant, local policy or the
+     scan's intensity keeps a task from every sensor, **Why waiting?** names
+     the reason, and a run no sensor picked up ends with it (for example
+     "withheld by sensor permissions: credentials").
 3. **Lease.** A claimed command is held under a lease (3 minutes by default)
    that every heartbeat renews. If the sensor stops heartbeating, the lease
    runs out and the command goes back to the queue for another sensor of the

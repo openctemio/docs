@@ -20,8 +20,10 @@ means, how long a release is supported, how to upgrade) is in
    maintainer pressing Run. Before 1.0.0, a breaking change or a `feat` bumps the minor version and
    anything else the patch.
 4. **Nothing is tagged by hand.** The workflows build the release branch, tag it and publish.
-5. **No version is hardcoded.** Defaults (latest sensor and SDK versions, the platform release,
-   the chart version) live in `versions.yaml` and are copied to their consumers by
+5. **No version is hardcoded.** The platform version comes from the tag: a release branch gets
+   `api/deploy/VERSION` (it never reaches `develop`), `./setup.sh` writes `OPENCTEM_VERSION` from
+   it, and the API reports the version it was built with. Other defaults (latest sensor and SDK
+   versions, the CI runner) live in `versions.yaml` and are copied to their consumers by
    `.github/scripts/release/sync-versions.sh`; CI fails when they disagree.
 
 ## Running a release
@@ -32,7 +34,7 @@ means, how long a release is supported, how to upgrade) is in
 | 2 | **Release Train** (manual, `dry_run` first) | picks the newest `develop` commit whose required checks are green (or a given `sha`), builds `release/vX.Y.Z`, and opens the pull request into `main`, queued for the merge queue |
 | 3 | merge queue | merges the release pull request |
 | 4 | **Release Publish** | checks that `main`'s tree equals the release branch, tags `vX.Y.Z`, starts Docker Publish and Release, and opens follow-up pull requests |
-| 5 | follow-ups | `develop` gets `main` merged back, `versions.yaml` bumped and the changelog fragments folded into `CHANGELOG.md`; `helm-charts` gets the new `appVersion` and chart version |
+| 5 | follow-ups | `main` is merged back into `develop` (`-s ours`, no file change; there is no version-bump pull request); `helm-charts` gets the new `appVersion` and chart version |
 
 ```bash
 # plan only: the run summary shows the version, the commit and the changelog
@@ -42,8 +44,14 @@ gh workflow run release-train.yml --ref develop -f dry_run=false
 ```
 
 **Hotfix:** merge the fix into `develop`, then run Release Train with `mode: hotfix` and
-`cherry_picks: <develop SHAs>`. The release is the last tag's patch + 1, built from that tag plus
-the cherry-picks.
+`cherry_picks: <develop SHAs>` (a pull request's merge commit works too: it is picked by its
+first-parent diff). The release is the last tag's patch + 1, built from that tag plus the
+cherry-picks, and its version checks run with that tag's own scripts. When every pick is already
+on `develop`, the back-merge is a `-s ours` merge.
+
+Release images are built without a shared registry cache: every layer comes from the tag's
+sources and the digest-pinned base images, so a release build takes longer than a pull request
+build.
 
 Release notes are generated from the commits, with `@mentions` escaped and e-mail addresses
 removed. When a release needs an upgrade note, it is written in these docs
@@ -62,9 +70,8 @@ only then pushes it and merges the architectures into one manifest list per tag.
 | `ghcr.io/openctemio/openctem-console` | `web/Dockerfile` (target `console`) | the platform console app (its own site), port 3000 |
 | `ghcr.io/openctemio/openctem-gateway` | `api/deploy/gateway/Dockerfile` | the Caddy gateway with the layer-4 module that routes sensor mTLS on port 443 |
 | `ghcr.io/openctemio/openctem` | `deploy/allinone/` | all-in-one: API, web and the Caddy gateway (PostgreSQL and Redis external) |
-| `ghcr.io/openctemio/migrations` | `api/Dockerfile.migrations` | one-shot migration runner (golang-migrate) |
+| `ghcr.io/openctemio/migrations` | `api/Dockerfile.migrations` | one-shot migration runner (`openctem-migrate`) |
 | `ghcr.io/openctemio/seed` | `api/Dockerfile.seed` | seeding utility |
-| `ghcr.io/openctemio/admin-cli` | `api/Dockerfile.admin-cli` | admin command-line tools |
 
 Tags: `vX.Y.Z` and `latest`. A `vX.Y.Z-staging` tag (or a manual run with
 `environment: staging`) publishes `vX.Y.Z-staging` and `staging-latest` instead. During a

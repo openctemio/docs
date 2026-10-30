@@ -19,7 +19,7 @@ packages from the content catalog are installed.
 
 ## What a sensor scans with today
 
-Sensor releases up to v0.28.0 (the current ones) manage their own content. Each sensor
+Sensor releases up to v0.29.0 (the current ones) manage their own content. Each sensor
 downloads it from its upstream, verifies it, and switches to it atomically:
 
 | Content | Where from | Verified by |
@@ -126,7 +126,7 @@ sequenceDiagram
 
 The client side of these routes is in sdk-go v0.32.0 (`contentcache`, with
 delta installs, conditional requests, a jittered prefetch and hit, miss and
-bytes-saved counters). **Current sensor releases (up to v0.28.0) do not use these routes yet**: it
+bytes-saved counters). **Current sensor releases (up to v0.29.0) do not use these routes yet**: it
 keeps managing its content as described in
 [What a sensor scans with today](#what-a-sensor-scans-with-today), and
 scans do not run content packs. There is nothing to configure on the sensor

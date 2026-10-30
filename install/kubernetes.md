@@ -39,11 +39,11 @@ followed by a chart whose `appVersion` is that release, and
 chart that targets the platform release ([Versioning](../operations/versioning.md#sensors-sdk-and-helm-chart)).
 The newest chart is **0.33.0**, whose `appVersion` is **v0.12.0**: the chart
 release workflow did not publish a chart for the later platform releases, so the
-newest platform release (v0.15.5) has no chart of its own yet. Check
+newest platform release (v0.16.1) has no chart of its own yet. Check
 `helm search repo openctem/openctem --versions` (and the
 [chart releases](https://github.com/openctemio/helm-charts/releases)) before you
-install. To run v0.15.5 with chart 0.33.0, set the image tags of every platform
-component to v0.15.5 in your values file, as the example below does. That
+install. To run v0.16.1 with chart 0.33.0, set the image tags of every platform
+component to v0.16.1 in your values file, as the example below does. That
 combination is what you choose to run: the chart's own tests cover its
 `appVersion`. Once a chart whose `appVersion` is the release you want is
 published, drop the tag overrides. Chart 0.33.0 has the platform console as its
@@ -121,7 +121,7 @@ Back up `openctem-api-secrets` and `openctem-fingerprint` outside the cluster.
 api:
   appEnv: production
   image:
-    tag: v0.15.5          # until a chart for v0.15.5 is published
+    tag: v0.16.1          # until a chart for v0.16.1 is published
   fingerprint:
     existingSecret: openctem-fingerprint
     keyRef: FINGERPRINT_KEY
@@ -137,7 +137,7 @@ api:
   migrations:
     sslMode: require
     image:
-      tag: v0.15.5
+      tag: v0.16.1
   signupMode: disabled
   bootstrapAdmin:
     enabled: true
@@ -170,10 +170,10 @@ redisConfig:
 
 ui:
   image:
-    tag: v0.15.5
+    tag: v0.16.1
 console:                   # the platform console
   image:
-    tag: v0.15.5
+    tag: v0.16.1
 admin:
   site:
     mode: host             # the console on its own DNS name (recommended)
@@ -186,7 +186,7 @@ gateway:
     - 10.244.0.0/16        # your cluster's pod CIDR
   caddy:
     image:
-      tag: v0.15.5
+      tag: v0.16.1
     tls:
       mode: acme
       acme:
