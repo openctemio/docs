@@ -58,18 +58,16 @@ code with an authenticator app (or type the secret key), enter the code, click
 
 ### Google sign-in for an existing account
 
-If you registered with a password using your Gmail (or company Google Workspace)
-address, **Google** signs you in to that same account. The first time, Google is
-linked to your account and your other sessions are signed out; you get an email
-about it. If you use two-factor authentication, the second step still asks for
-your code.
-
-If the sign-in page says **You already have an account**, Google could not be
-linked automatically (for example your address is not verified yet, or the
-platform operator turned automatic linking off). Sign in with your password
-(**Forgot your password? Reset it** if needed), then open **Account > Security >
-Connected sign-in methods** and click **Link** next to Google. GitHub is always
-linked this way.
+If you registered with a password and then click **Google** (or GitHub or
+Microsoft) with the same address, the sign-in page says **You already have an
+account**: Google is never linked to your account without your say-so. Sign in
+with your password (**Forgot your password? Reset it** if needed) and your
+second factor. The app then asks **Link Google to your account?**: enter the code
+from your authenticator app (or your password, if you do not use two-factor
+authentication) and click **Link**. Your other sessions are signed out and you
+get an email about it. From then on Google signs you in; if you use two-factor
+authentication, the second step still asks for your code. You can also link it
+later from **Account > Security > Connected sign-in methods**.
 
 ### Where you land after signing in
 
@@ -577,9 +575,11 @@ provider and the creation and update dates.
   - SSO accounts use their identity provider's two-factor settings.
 - **Connected sign-in methods** (when the platform offers Google, GitHub or
   Microsoft sign-in): your password and each provider, **Linked** or **Not
-  linked**. **Link** asks you to confirm it is you, then sends you to the
-  provider and back. **Unlink** asks for the same confirmation; your only way to
-  sign in cannot be removed. Organization single sign-on is shown as managed by
+  linked**. **Link** asks for the code from your authenticator app (or your
+  password, if two-factor authentication is off; a recovery code does not work),
+  then sends you to the provider and back. **Unlink** asks for the same; your
+  only way to sign in cannot be removed. An account without a password or
+  authenticator app turns on two-factor authentication first. Organization single sign-on is shown as managed by
   your organization. You receive an email for every change.
 - **Sessions** lists the devices signed in to your account (browser and system,
   IP address, sign-in time, last activity); your current one is marked **This
