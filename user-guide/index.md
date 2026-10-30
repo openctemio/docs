@@ -44,7 +44,7 @@ every stage uses them.
 | Stage | Goal | Chapter |
 |---|---|---|
 | **Scoping** | Decide what is in scope and attach business context | [Scoping](03-scoping.md) |
-| **Discovery** | Find assets and the exposures on them | [Discovery and the asset inventory](04-discovery.md), [Exposures and findings](05-exposures-and-findings.md), [The vulnerabilities list](vulnerabilities.md), [Known false positives](known-false-positives.md), [AI suggestions and approval](ai-suggestions-and-approval.md) |
+| **Discovery** | Find assets and the exposures on them | [Discovery and the asset inventory](04-discovery.md), [Exposures and findings](05-exposures-and-findings.md), [The vulnerabilities list](vulnerabilities.md), [Known false positives](known-false-positives.md), [Closing findings](closing-findings.md), [AI suggestions and approval](ai-suggestions-and-approval.md) |
 | **Prioritization** | Rank what to fix first | [Prioritization](06-prioritization.md) |
 | **Validation** | Prove that exposures are real and that fixes and controls work | [Validation](07-validation.md) |
 | **Mobilization** | Drive remediation to closure and automate the routine | [Mobilization](08-mobilization.md) |
@@ -73,6 +73,8 @@ That is the most important workflow in the product; it is covered first in
    assets, saved views, and actions on many vulnerabilities at once.
    [Known false positives](known-false-positives.md): how a decision is
    requested, approved, kept across scanners and re-opened.
+   [Closing findings](closing-findings.md): when a scan may close a finding, the
+   closing modes, and the Ready to close and Recently auto-closed lists.
    [Import any CSV, JSON or XML with a mapping](import-mappings.md): describe a
    file once, then import it as findings from the console, the API or a pipeline.
    [AI suggestions and approval](ai-suggestions-and-approval.md): what an AI
