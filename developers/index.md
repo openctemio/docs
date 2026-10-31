@@ -21,6 +21,7 @@ platform, and authors of tools and integrations.
 | [Release process](release-process.md) | Release train, tags, images, signatures and SBOMs |
 | [Writing a tool](tool-authoring.md) | Add a tool sensors can run: descriptor, settings, testing, and how it joins your tool catalog |
 | [Build your first tool](build-your-first-tool.md) | One tool end to end: scaffold, local run and tests, install on a sensor, run it from a scan |
+| [Tool quickstart](tool-quickstart.md) | The 15-minute version: scaffold, run, test, package, and the SDK walk-through with a tested example |
 
 To call the API from your own code, start with the [API](../api/index.md) section instead.
 
