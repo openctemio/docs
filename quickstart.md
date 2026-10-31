@@ -118,7 +118,7 @@ console site instead). With TLS mode `internal`, the browser warns
 until you import `ca/openctem-root-ca.crt`. You land on the dashboard of
 **Example Corp**; lists are empty until the first scan.
 
-![The OpenCTEM dashboard of an organization after its first scans: priority exposure, KEV on your assets, SLA and the CTEM loop]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The OpenCTEM dashboard of an organization after its first scans: what would cut exposure most (past SLA, known exploited, blind spots) and the exposure flow from sources to outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 
 *Figure: the dashboard, here for an organization that already has scan results. A new organization shows empty lists until its first scan.*
 

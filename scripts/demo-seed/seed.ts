@@ -619,7 +619,9 @@ await step('pentest campaign', async () => {
   const pf = async (body: { status: string } & Record<string, unknown>) => {
     const f: any = await api('POST', `/api/v1/pentest/campaigns/${id}/findings`, { ...body, status: 'draft' })
     for (const status of walk[body.status] ?? [])
-      await api('PATCH', `/api/v1/pentest/findings/${f.id ?? f.data?.id}/status`, { status }).catch((e) => log('     pentest status', e.message))
+      // Confirming a pentest finding records how it was proven.
+      await api('PATCH', `/api/v1/pentest/findings/${f.id ?? f.data?.id}/status`, status === 'confirmed' ? { status, proof_basis: 'executed_live' } : { status })
+        .catch((e) => log('     pentest status', e.message))
   }
   await pf({
     title: 'Order API returns other customers’ orders (BOLA)', severity: 'high', status: 'fix_applied', asset_id: A('https://api.example.com'),
@@ -715,6 +717,8 @@ await step('notification slack', () =>
 // History for the trend charts, CI runs, and a fresh heartbeat for the sensors.
 await step('domain proof', async () => sql('15-domain-proof.sql'))
 await step('history', async () => sql('30-history.sql'))
+await step('attack surface', async () => sql('35-easm.sql'))
+await step('ready to close', async () => sql('36-ready-to-close.sql'))
 await step('ci runs', async () => sql('40-ci.sql'))
 await step('refresh', async () => sql('90-refresh.sql'))
 

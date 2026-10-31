@@ -313,6 +313,7 @@ const shots: Shot[] = [
   { section: 'scanning', name: 'scope-domain-proof', route: '/scope', open: clickTab(/domain proof/i) },
   { section: 'user-guide', name: 'scoping-overview', route: '/scoping' },
   { section: 'scanning', name: 'easm-overview', route: '/attack-surface' },
+  { section: 'scanning', name: 'easm-certificates', route: '/attack-surface/certificates' },
 
   // Discovery
   // 1680 wide, scaled to 1440 on save: at 1440 the inventory's Name column shrinks to one letter.
@@ -342,6 +343,7 @@ const shots: Shot[] = [
     },
   },
   { section: 'user-guide', name: 'exposures', route: '/exposures' },
+  { section: 'user-guide', name: 'ready-to-close', route: '/findings/ready-to-close' },
   { section: 'user-guide', name: 'finding-approvals', route: '/findings/approvals' },
 
   // Prioritization
@@ -586,6 +588,12 @@ const shots: Shot[] = [
   { section: 'website', name: 'exposure-chains', route: '/exposure-chains' },
   { section: 'website', name: 'retest-queue', route: '/validation/retests' },
   { section: 'website', name: 'remediation', route: '/remediation' },
+  { section: 'website', name: 'dashboard-templates', route: '/dashboards' },
+  { section: 'website', name: 'attack-surface', route: '/attack-surface' },
+  { section: 'website', name: 'certificates', route: '/attack-surface/certificates' },
+  { section: 'website', name: 'findings', route: '/findings' },
+  { section: 'website', name: 'ready-to-close', route: '/findings/ready-to-close' },
+  { section: 'website', name: 'ci-cd', route: '/ci-cd' },
 
   // Platform administration
   { section: 'user-guide', name: 'admin-organizations', as: 'admin', route: '/organizations' },
