@@ -153,6 +153,11 @@ an argument.
 `SENSOR_CA_FINGERPRINT` and `SENSOR_PLATFORM_KEY` are public values. They stop
 a fake platform from answering the sensor's first contact.
 
+A platform behind a private certificate authority needs no extra step: the
+console's command pins the platform's root CA by SHA-256
+(`SENSOR_CA_SHA256`), and the sensor fetches that CA from the platform
+before it pairs. See [Sensors behind a private CA](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/sensors-behind-a-private-ca.md).
+
 ## Where the identity lives
 
 The identity is in `<state dir>/identity/` (`signing.key`, `identity.json`,
