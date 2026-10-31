@@ -406,8 +406,8 @@ they apply. Then check:
   measured. `GET /api/v1/admin/platform-users` no longer requires `q`. The program
   feed admin routes (`/api/v1/admin/program-feed`) are removed.
 - **Helm and Ansible.** Use the chart and kit release that names v0.11.0
-  ([Kubernetes](../install/kubernetes.md), [Ansible](../install/ansible.md)); at
-  the time of writing the newest kit entry is v0.16.1 and the newest chart is 0.33.0.
+  ([Kubernetes](../install/kubernetes.md), [Ansible](../install/ansible.md)); the
+  newest kit entry is {{ site.data.versions.platform }} and the newest chart is {{ site.data.versions.chart }}.
 
 ### From v0.9 to v0.10
 
@@ -598,7 +598,7 @@ recovery are in
 In `api/deploy` of your checkout:
 
 ```bash
-NEW_VERSION=v0.16.1   # the release you upgrade to
+NEW_VERSION={{ site.data.versions.platform }}   # the release you upgrade to
 git fetch --tags
 git checkout "$NEW_VERSION"
 diff <(grep -o '^[A-Z_]*=' .env | sort) <(grep -o '^[A-Z_]*=' .env.example | sort)

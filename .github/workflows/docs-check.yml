@@ -17,6 +17,11 @@ jobs:
       - name: Check Markdown
         run: python3 scripts/docs_check.py .
 
+      # Install guides print releases from _data/versions.yml (kept current
+      # by the versions-sync workflow), never a hard-coded one.
+      - name: Releases from the data file
+        run: python3 scripts/check_versions.py .
+
       # Fails when the repository tracks commercial, internal-planning,
       # research or review material (listed in .gitignore; this also catches
       # git add -f and merges that bring such folders back).

@@ -35,7 +35,7 @@ Check out the release you deploy, so the files match the images:
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.16.1         # the release you deploy
+git checkout {{ site.data.versions.platform }}         # the release you deploy
 cd api/deploy
 ```
 
@@ -91,7 +91,7 @@ OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 writes it into `.env`: from `--version vX.Y.Z`, else from the release you
 checked out (`api/deploy/VERSION` in a release tag's checkout, else the tag). From
 a branch checkout it stops and asks for `--version`. When you write `.env` by
-hand, set `OPENCTEM_VERSION=v0.16.1` yourself: since v0.16.0 the compose file
+hand, set `OPENCTEM_VERSION={{ site.data.versions.platform }}` yourself: since v0.16.0 the compose file
 carries no default. The image names default to the current ones
 (`ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem-console`,
 `openctem-gateway`, `migrations`). Run the release of the files you checked
@@ -100,7 +100,7 @@ out.
 {: .note }
 Only the **v0.9.0** files defaulted to `v0.8.0` and to the old image names
 (`ghcr.io/openctemio/api`, `ghcr.io/openctemio/ui`). If you deploy v0.9.0
-itself, set `OPENCTEM_VERSION=v0.9.0`,
+itself, set `OPENCTEM_VERSION={{ site.data.versions.platform }}`,
 `API_IMAGE=ghcr.io/openctemio/openctem-api` and
 `UI_IMAGE=ghcr.io/openctemio/openctem-web` in `.env`.
 

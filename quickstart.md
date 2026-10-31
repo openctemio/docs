@@ -49,7 +49,7 @@ test is your responsibility.
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-git checkout v0.16.1         # the release you deploy
+git checkout {{ site.data.versions.platform }}         # the release you deploy
 cd api/deploy
 ./setup.sh ctem.example.com  # writes .env: the host name and generated secrets
 ```
@@ -165,7 +165,7 @@ what each flag does, is the [sensor quickstart](sensors/index.md#quickstart-a-wo
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.29.0/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/{{ site.data.versions.sensor }}/docker/seccomp/sensor.json
 docker run -d --name openctem-sensor --restart unless-stopped \
   --read-only --tmpfs /tmp --cap-drop ALL \
   --security-opt no-new-privileges:true \
@@ -174,7 +174,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_API_URL=https://ctem.example.com \
   -e SENSOR_ALLOWED_RANGES='*.example.com' \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.29.0
+  ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }}
 docker logs openctem-sensor
 ```
 

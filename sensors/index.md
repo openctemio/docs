@@ -38,7 +38,7 @@ all.
 
 ## Quickstart: a working sensor in five minutes
 
-This quick start is written for platform v0.9.6 or later with sensor v0.29.0. It
+This quick start is written for platform v0.9.6 or later with sensor {{ site.data.versions.sensor }}. It
 installs a hardened, confined sensor, pairs it, checks it and runs a first
 scan. The sensor needs no mode or tool flags: it runs as the daemon that takes
 the platform's commands and enables every tool in the image that works.
@@ -71,7 +71,7 @@ container:
 
 ```bash
 curl -fsSLo openctem-sensor-seccomp.json \
-  https://raw.githubusercontent.com/openctemio/sensor/v0.29.0/docker/seccomp/sensor.json
+  https://raw.githubusercontent.com/openctemio/sensor/{{ site.data.versions.sensor }}/docker/seccomp/sensor.json
 
 docker run -d --name openctem-sensor --restart unless-stopped \
   --stop-timeout 45 \
@@ -84,7 +84,7 @@ docker run -d --name openctem-sensor --restart unless-stopped \
   -e SENSOR_SANDBOX_NETWORK=required \
   --dns-search . \
   -v openctem-sensor-data:/var/lib/openctem \
-  ghcr.io/openctemio/sensor:v0.29.0
+  ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }}
 ```
 
 Change three things:
