@@ -43,6 +43,63 @@ identity; see [CI integration](../scanning/ci-integration.md).
   [Scope](../scanning/scope.md#proof-of-control)). See
   [Shared sensors](shared-sensors.md).
 
+## The life of a sensor
+
+```mermaid
+stateDiagram-v2
+    [*] --> Waiting: install and start
+    Waiting --> Paired: an administrator approves it
+    Waiting --> [*]: denied or the code expired
+    Paired --> Online
+    Online --> Late: a heartbeat is late
+    Late --> Online
+    Late --> Offline: no heartbeat for a while
+    Offline --> Online: it reconnects
+    Online --> OnHold: its identity is used on two hosts
+    OnHold --> Online: re-paired on the host you keep
+    Online --> Disabled: you disable it
+    Disabled --> Online: you enable it
+    Online --> Revoked: you revoke it
+    Disabled --> Revoked
+    Revoked --> [*]
+```
+
+- **Waiting.** A new sensor makes its own key and asks to join. It joins
+  only when an administrator of your organization approves it, after
+  comparing the fingerprint the host shows and confirming with a second
+  factor, or through an enrollment token you created. See
+  [Pairing](pairing.md).
+- **Online and late.** Both take work. An offline sensor gets no new work,
+  and the tasks it held go back to the queue for another sensor.
+- **On hold.** When the same sensor identity is seen running on two hosts
+  (for example, a copied volume), the platform cannot tell which one is
+  real, so it gives the sensor no new work until you
+  [re-pair](pairing.md#re-pair-a-sensor) it on the host you keep and stop the
+  other copy. The sensor page and every waiting task say so.
+- **Disabled** pauses a sensor and hands its tasks back. **Revoked** is
+  final: a revoked sensor can never be enabled again. Install a new sensor
+  instead.
+
+## Pairing in one picture
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor A as You (console)
+    participant P as Platform
+    participant S as Sensor
+    S->>P: ask to join (signed with the sensor's own new key)
+    P-->>S: a code, valid for 10 minutes
+    S-->>A: the host shows the code and a fingerprint
+    A->>P: find the request by its code, check the fingerprint, approve with your second factor
+    S->>P: confirm
+    P-->>S: paired: from now on every request is signed with the sensor's key
+```
+
+A code alone never pairs a sensor: the request is signed with the sensor's
+key, and an administrator must approve it. Codes are single use and expire
+after 10 minutes.
+
 ## How work reaches a sensor
 
 ```mermaid
@@ -207,6 +264,21 @@ per-task deadline beyond the run's own limit.
   See [Why is a task waiting?](../scanning/why-waiting.md).
 - trivy gets a `--timeout` equal to the run's limit, so large image and
   repository scans are not cut at trivy's own five-minute default.
+
+## When something goes wrong
+
+| What happens | What the platform does | What you see |
+|---|---|---|
+| The sensor loses its network | Results wait in the sensor's encrypted outbox and are sent when the link returns; nothing is lost. If the outage outlasts the task's lease, the task goes to another sensor of the zone | The sensor turns late, then offline |
+| The platform restarts or is slow | Sensors are not marked offline while the platform starts up or answers slowly | Nothing to do |
+| A sensor's clock is off by more than 2 minutes | Its signed requests are refused with the measured offset | The sensor's log says how far off it is; sync the host clock |
+| The sensor's disk fills up | It keeps room for the results it owes and stops taking new work | The task's **Why waiting?** says the sensor stopped claiming |
+| The sensor's local policy refuses a task | The task goes to another sensor that accepts it, up to three times | The task names each refusal |
+| No sensor can take a task | The task waits and records why; a run nobody picks up ends after 1 hour (interactive) or 4 hours (scheduled) with the reason | **Why waiting?** and the run's reason |
+| A target blocks or challenges the scan (WAF, edge protection) | The target is recorded as not covered, with the reason; no finding is closed because of it | The run and the asset's coverage name the block |
+| A tool crashes or the sensor runs out of memory | The task moves to another sensor; when the same tool fails on two sensors the task stops | The task names the cause |
+| Two hosts use one sensor identity | No new work for that sensor until it is re-paired | The sensor is on hold; waiting tasks say why |
+| A task is canceled | The sensor stops it on its next heartbeat and delivers nothing from it | — |
 
 ## Health on the Sensors page
 
