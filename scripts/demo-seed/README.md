@@ -34,6 +34,8 @@ need a real sensor or CI provider, is in `sql/`:
 | `sql/10-sensors.sql` | The sensors are paired with the real sensor image's `pair` command, which exits once approved. This sets what a running sensor would report (tools, heartbeat). |
 | `sql/20-scan-runs.sql` | The seed triggers each scan through the API, which plans the run. No sensor runs, so nothing is scanned; `demo.finish_run()` writes the results a sensor would have sent. |
 | `sql/30-history.sql` | Spreads detection dates over the last weeks and writes 90 days of risk snapshots for the trend charts. |
+| `sql/35-easm.sql` | Certificate Transparency and the DNS checks read real public sources and stay off on a scratch stack. This writes what they would have found: watched domains, certificate assets and their exposures. |
+| `sql/36-ready-to-close.sql` | Closes a covered scan would propose (needs a sensor run). |
 | `sql/40-ci.sql` | CI runs need an OIDC token from the CI provider. |
 | `sql/90-refresh.sql` | Run before capturing: sensors back online, the notification channel back to connected. |
 

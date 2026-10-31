@@ -295,6 +295,9 @@ soon** (within 30 days), **Valid** or **Unknown**. The **Expired** and
 or fingerprint, and **Export CSV**. Certificates appear once a scan of your
 external assets reads them.
 
+![The Certificates tab: eight certificates of the example domains with issuer, issue date and expiry; one expired self-signed certificate and two expiring within 30 days]({{ site.baseurl }}/assets/images/scanning/easm-certificates.png)
+*Figure: Discovery, Attack surface, Certificates.*
+
 It needs `assets:read`, and each certificate follows your data scope. API:
 `GET /api/v1/attack-surface/certificates` and
 `GET /api/v1/attack-surface/certificates/stats` (counts by status), with the

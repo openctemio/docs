@@ -243,7 +243,7 @@ From left to right:
   Preferences, Notifications, Activity, Connected applications), **All
   settings**, **Language** (English or Vietnamese) and **Sign out**.
 
-![The dashboard in the dark theme]({{ site.baseurl }}/assets/images/overview/dashboard-dark.png)
+![The CTEM dashboard in the dark theme]({{ site.baseurl }}/assets/images/overview/dashboard-dark.png)
 *Figure: The dark theme, chosen with the theme switch in the header.*
 
 ### Permissions in the console
@@ -286,7 +286,7 @@ whether it is getting better, and what to fix next. Every widget is drawn from
 the dashboard's stored figures, and each one has its own error state, so one
 widget that fails never blanks the page.
 
-![The CTEM dashboard: priority exposure, KEV on your assets, open within SLA, time to fix and the CTEM loop with its five stages]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: what would cut exposure most (past SLA, known exploited, blind spots) and the exposure flow from sources to outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 *Figure: The CTEM dashboard of the demo organization.*
 
 ### Which dashboard opens
