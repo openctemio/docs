@@ -44,7 +44,7 @@ Use a **named volume** for `/var/lib/openctem`. Docker creates it with the
 sensor's owner, so there is nothing to `chown`.
 
 ```bash
-SENSOR_VERSION=v0.26.0   # the release to run
+SENSOR_VERSION={{ site.data.versions.sensor }}   # the release to run
 docker run --rm "ghcr.io/openctemio/sensor:${SENSOR_VERSION}" seccomp-profile > openctem-sensor-seccomp.json
 
 docker run -d --name openctem-sensor --restart unless-stopped \
@@ -171,8 +171,8 @@ job slots from what it sees.
 ## Upgrade
 
 ```bash
-docker pull ghcr.io/openctemio/sensor:v0.27.0
-docker run --rm ghcr.io/openctemio/sensor:v0.27.0 seccomp-profile > openctem-sensor-seccomp.json
+docker pull ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }}
+docker run --rm ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }} seccomp-profile > openctem-sensor-seccomp.json
 docker rm -f openctem-sensor
 # run the same docker run command with the new tag and the same volume
 ```
@@ -183,17 +183,41 @@ does not pair again. Read the release notes first.
 
 ## Several sensors on one host
 
-Run each in its own container with its own name, its **own data volume** and
-its own pairing code:
+When one host scans for several organizations or platforms, run one sensor
+for each from one directory with
+[`deploy/multi`](https://github.com/openctemio/sensor/blob/main/deploy/multi/README.md)
+of the sensor repository (sensor v0.30.0 and later): one Compose file, one
+service per sensor. Each sensor has its own env file (platform URL and
+pairing code, mode 0600), its **own data volume**, its own network and its
+own policy directory with its own kill switch. The release (`SENSOR_VERSION`
+in `.env`) and the hardening of this page are set once for all of them.
 
 ```bash
-docker run -d --name openctem-sensor-a ... -v openctem-sensor-a-data:/var/lib/openctem ...
-docker run -d --name openctem-sensor-b ... -v openctem-sensor-b-data:/var/lib/openctem ...
+SENSOR_VERSION={{ site.data.versions.sensor }}
+mkdir -p ~/openctem-sensors && cd ~/openctem-sensors
+for f in compose.yaml sensors.sh .env.example .gitignore; do
+  curl -fsSLO "https://raw.githubusercontent.com/openctemio/sensor/${SENSOR_VERSION}/deploy/multi/$f"
+done
+chmod +x sensors.sh && cp .env.example .env
+
+./sensors.sh add acme --api-url https://openctem.example.com --pairing-code XXXX-XXXX
+$EDITOR sensors/acme/policy/sensor-policy.yaml   # what acme may scan
+./sensors.sh up                                  # fetch the seccomp profile, start
+./sensors.sh status                              # every sensor's state
+./sensors.sh upgrade vX.Y.Z                      # check the signature, move every sensor
 ```
 
+| Setup | Use when |
+|---|---|
+| One sensor (this page) | One organization, one sensor on the host. |
+| `deploy/multi` | One host runs sensors for several organizations or platforms, each paired and administered separately. |
+| A [shared sensor](shared-sensors.md) | The instance administrator runs one sensor that takes jobs of every organization. |
+| Separate hosts | The organizations must not share a kernel, a host administrator or a network vantage point, or one host cannot carry the load. |
+
 Never share a volume or copy one: a second process on the same outbox refuses
-to start, and a cloned identity is flagged `identity_cloned`. Set `SENSOR_NAME`
-differently for each. In Compose, repeat the service with its own volume.
+to start, and a cloned identity is flagged `identity_cloned`. Sensors on one
+host share its kernel, CPU, disk and outbound address, and anyone with Docker
+access on the host can read every sensor's volume.
 
 ## Kubernetes
 

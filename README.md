@@ -86,5 +86,12 @@ setting against the code, use `example.com` hosts and documentation IP ranges
 relative. The `docs-check` workflow runs a link check and rejects non-English text and
 private addresses.
 
+Never type a current release into a page: write `{{ site.data.versions.sensor }}`
+(or `platform`, `sdk_go`, `ci`, `chart`, `chart_app`). The values live in
+`_data/versions.yml`, which the `versions-sync` workflow updates from the latest
+GitHub releases; `scripts/check_versions.py` (in `docs-check`) fails on a
+hard-coded image tag, `SENSOR_VERSION=`, `git checkout vX.Y.Z` and the like, and on
+a key the data file does not have. History ("from v0.16.0") stays as written.
+
 Report security vulnerabilities to security@openctem.io, not in issues. Other
 questions: info@openctem.io.

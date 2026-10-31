@@ -93,7 +93,7 @@ edit `group_vars/all.yml`:
 
 ```yaml
 openctem_app_host: ctem.example.com
-openctem_version: v0.16.1
+openctem_version: {{ site.data.versions.platform }}
 
 openctem_ingress: loopback             # gateway on 127.0.0.1:8080 for your TLS proxy
 openctem_loopback_port: 8080

@@ -176,7 +176,7 @@ in it as tools. For a tool that needs an interpreter, build your own image with 
 from the published image (it is a static binary):
 
 ```dockerfile
-ARG SENSOR_VERSION=v0.29.0
+ARG SENSOR_VERSION={% endraw %}{{ site.data.versions.sensor }}{% raw %}
 FROM ghcr.io/openctemio/sensor:${SENSOR_VERSION} AS sensor
 
 FROM python:3.12-slim

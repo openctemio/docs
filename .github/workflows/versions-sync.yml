@@ -1,0 +1,76 @@
+name: Versions sync
+
+# Keeps _data/versions.yml (the releases every install guide prints) on the
+# latest GitHub releases of the platform, the sensor, sdk-go, the CI runner and
+# the chart. Runs once a day, on demand, and when a release workflow sends a
+# "release-published" repository_dispatch; opens (or updates) one pull request
+# when a release changed. The pages read the file, so no page is edited.
+#
+# DOCS_SYNC_TOKEN (fine-grained, contents + pull requests on this repository)
+# makes the pull request start CI; with the default token the pull request
+# is opened but its checks wait for a push.
+
+on:
+  schedule:
+    - cron: "41 5 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [release-published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: versions-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          token: ${{ secrets.DOCS_SYNC_TOKEN || github.token }}
+
+      - name: Read the latest releases
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/sync_versions.py . | tee "$RUNNER_TEMP/changes.txt"
+          if git diff --quiet -- _data/versions.yml; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pages still take every release from the data file
+        if: steps.sync.outputs.changed == 'true'
+        run: python3 scripts/check_versions.py .
+
+      - name: Open or update the pull request
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_SYNC_TOKEN || github.token }}
+        run: |
+          branch=chore/versions-sync
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -qam "docs: current releases in _data/versions.yml"
+          git push -f origin "$branch"
+          {
+            echo "The install guides print these releases from \`_data/versions.yml\`:"
+            echo
+            sed 's/^/- /' "$RUNNER_TEMP/changes.txt"
+          } > "$RUNNER_TEMP/body.md"
+          if [ -n "$(gh pr list --head "$branch" --state open --json number -q '.[].number')" ]; then
+            gh pr edit "$branch" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --base main --head "$branch" \
+              --title "docs: current releases in _data/versions.yml" --body-file "$RUNNER_TEMP/body.md"
+          fi
