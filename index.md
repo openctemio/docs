@@ -16,7 +16,19 @@ OpenCTEM is self-hosted and multi-tenant: one installation serves many organizat
 isolated from the others. Scanning runs in **sensors** that you place where the targets are
 reachable; sensors connect out to the platform, so nothing has to reach into your networks.
 
-## Start here
+## Start by role
+
+| Role | Start with |
+|---|---|
+| **Operator**: install, run and upgrade the platform, place sensors | [Operator guide](start/operator.md) |
+| **Security analyst**: find, rank, prove and close exposures | [Security analyst guide](start/analyst.md) |
+| **Organization administrator**: sign-in, roles, scope and integrations | [Organization administrator guide](start/admin.md) |
+| **Developer**: API, CI gates, custom tools, contributing | [Developer guide](start/developer.md) |
+
+Each role page sorts its links into tutorials, how-to guides, reference and concepts
+([kinds of page](start/index.md#kinds-of-page)).
+
+## Start by task
 
 | If you want to | Read |
 |---|---|
