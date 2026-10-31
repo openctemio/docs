@@ -15,7 +15,8 @@ reported as present or absent. A `SENSOR_*` variable that is not listed here is
 reported as unknown (often a typo).
 
 Most sensors need only `SENSOR_API_URL` and `SENSOR_ALLOWED_RANGES`, plus
-`SENSOR_CA_CERT_FILE` when the platform uses its own CA (see the
+`SENSOR_CA_SHA256` (set by the console's command) or `SENSOR_CA_CERT_FILE`
+when the platform uses its own CA (see the
 [quickstart](index.md#quickstart-a-working-sensor-in-five-minutes)). Common
 settings with examples are in [Deploy with Docker](deploy-docker.md#common-settings);
 proxies in [Network](network.md#proxies); the transport in
@@ -52,6 +53,7 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_TRANSPORT"></span>`SENSOR_TRANSPORT` | enum |  | `auto` |  | Transport of sensor protocol v3 for a paired (key-bound) sensor: auto tries gRPC over mutual TLS, then HTTPS on a network that blocks it, then protocol v2; grpc, https and v2 force one. |
 | <span id="SENSOR_KEY_BIND"></span>`SENSOR_KEY_BIND` | enum |  | `auto` |  | A sensor started with an API key replaces it with a signing key it makes itself when the platform offers it (one way: the API key is retired); off keeps the API key. |
 | <span id="SENSOR_CA_CERT_FILE"></span>`SENSOR_CA_CERT_FILE` | path |  |  |  | PEM file with the platform's private CA (or a TLS-inspecting proxy's CA). |
+| <span id="SENSOR_CA_SHA256"></span>`SENSOR_CA_SHA256` | string |  |  |  | SHA-256 fingerprint(s) of the platform's private root CA, comma separated (the console's install command sets it). The sensor then fetches the platform's CA itself and trusts only a certificate that matches and signs the platform's chain. |
 | <span id="SENSOR_CA_FINGERPRINT"></span>`SENSOR_CA_FINGERPRINT` | string |  |  |  | SHA-256 fingerprint of the platform's CA certificate (from the install snippet); pins platform TLS to it. SENSOR_API_URL must then use a host name, not an IP address. |
 | <span id="SENSOR_PAIRING_CODE"></span>`SENSOR_PAIRING_CODE` | string |  |  | yes | Pairing code an administrator created under Sensors > Add sensor > Create a pairing code first (XXXX-XXXX); the sensor attaches to it on its first start. Ignored once the sensor has an identity. |
 | <span id="SENSOR_INSTANCE_ENROLLMENT_TOKEN"></span>`SENSOR_INSTANCE_ENROLLMENT_TOKEN` | string |  |  | yes | Single-use token (`octe_...`) a super administrator issued for a shared sensor; the sensor pairs with its own key and is enrolled as a shared sensor of the instance without a further approval. Ignored once the sensor has an identity; never printed. See [Shared sensors](shared-sensors.md). |

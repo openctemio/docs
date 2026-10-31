@@ -313,11 +313,20 @@ names of volumes it created with the project name, see
 ## Trust a private certificate authority
 
 A platform in TLS mode `internal` (or with a certificate from your own CA)
-needs its root on the sensor. The images run as a non-root user and cannot
-run `update-ca-certificates`. Use one of:
+needs its root on the sensor. The simplest way is the pin the console's
+install command already carries: when the platform's administrator has set
+`PLATFORM_CA_CERT_FILE`, every command in **Sensors > Add sensor** passes the
+root's SHA-256 as `SENSOR_CA_SHA256`, and the sensor fetches the CA from the
+platform and trusts only that root. The console shows the root's name and
+SHA-256 and offers the file for download. Setup, security and rotation:
+[Sensors behind a private CA](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/sensors-behind-a-private-ca.md).
+
+The images run as a non-root user and cannot run `update-ca-certificates`.
+Use one of:
 
 | Method | Example |
 |---|---|
+| Pin the root by SHA-256 (the console's command does it; the sensor fetches the CA from the platform) | `-e SENSOR_CA_SHA256=<root sha256>`; several roots while one is rotated: `<old>,<new>` |
 | `SENSOR_CA_CERT_FILE` (platform and content downloads) | `-v /path/ca.pem:/certs/openctem-ca.pem:ro -e SENSOR_CA_CERT_FILE=/certs/openctem-ca.pem` |
 | Mount it into the system directory (also trusted by the scanners) | `-v /path/ca.pem:/etc/ssl/certs/openctem-ca.pem:ro` |
 | `SSL_CERT_DIR` | `-v /path/ca.pem:/certs/openctem-ca.pem:ro -e SSL_CERT_DIR=/certs` |

@@ -136,6 +136,7 @@ The common ones. Every setting is in the
 | Pairing | `SENSOR_INSTANCE_ENROLLMENT_TOKEN` | none | A single-use token for a sensor shared by every organization. |
 | Identity | `SENSOR_NAME` | `sensor-<hostname>` | The name the sensor proposes; the approver may change it. |
 | TLS | `SENSOR_CA_CERT_FILE` | none | A PEM file with the platform's private CA. |
+| TLS | `SENSOR_CA_SHA256` | none | SHA-256 of the platform's private root CA (the console's command sets it): the sensor fetches the CA from the platform and trusts only that root. |
 | TLS | `SENSOR_CA_FINGERPRINT` | none | SHA-256 fingerprint of the platform CA (from the install snippet) to pin. |
 | Network | `HTTPS_PROXY`, `NO_PROXY` | none | A proxy to the platform. |
 | Network | `SENSOR_CONTROL_PROXY` | none | A proxy for the control channel only. |
@@ -266,7 +267,7 @@ holds an older sensor's data, chown keeps it.
 | A code is printed and nothing happens | An administrator must enter the code under **Pair a sensor** and approve it. Or start with `SENSOR_PAIRING_CODE`. |
 | `The pairing request expired` | Nobody approved within 10 minutes; the sensor starts a new request. |
 | `Rate limited ... HTTP 429` | Pairing starts are limited per address. Wait; avoid restart loops. |
-| `x509: certificate signed by unknown authority` | The platform uses a private CA: mount it and set `SENSOR_CA_CERT_FILE`. |
+| `x509: certificate signed by unknown authority` | The platform uses a private CA: use the console's install command (it pins the root, `SENSOR_CA_SHA256`), set `SENSOR_CA_SHA256` to the root's SHA-256, or mount the CA and set `SENSOR_CA_CERT_FILE`. |
 
 ### Clock skew (HTTP 401 on start)
 
