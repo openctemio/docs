@@ -30,6 +30,30 @@ low-impact checks by default
 
 ## How it works
 
+```mermaid
+flowchart TD
+    R["Discovery roots<br/>domain scope entries<br/>with discovery on"] --> CT
+    R --> DNS
+    R --> PS
+    subgraph platform["Platform: no traffic to your hosts"]
+        CT["Certificate Transparency<br/>crt.sh, Cert Spotter"]
+        DNS["DNS checks<br/>dangling records, email posture"]
+    end
+    subgraph sensors["Your sensors: under scope"]
+        PS["Passive subdomain discovery"]
+        AE["Active enumeration<br/>needs a scope entry"]
+        AS["DNS, ports, HTTP,<br/>templates"]
+    end
+    R --> AE
+    PS --> G{"Scope and<br/>ownership gate"}
+    AE --> G
+    G --> AS
+    CT --> INV["One inventory:<br/>assets, exposures, findings"]
+    DNS --> INV
+    AS --> INV
+```
+
+
 | Part | Runs on | Sends traffic to your hosts? |
 |---|---|---|
 | Certificate Transparency discovery | the platform | No: it queries public CT log aggregators |

@@ -41,6 +41,28 @@ Owners and administrators choose how the platform handles a close in
 | **Review first** | Every close the platform would make waits in **Ready to close** until a person confirms it. |
 | **Off** | Only a person closes findings. |
 
+How the platform decides, from a scan that no longer finds an issue to a closed
+finding. Valid proof means the same tool, a complete scan that was not blocked, and
+the same template release ([the principle](#the-principle)).
+
+```mermaid
+flowchart TD
+    A["A covered scan no longer<br/>finds the issue"] --> B{"Valid proof?"}
+    B -->|no| K["Stays open"]
+    B -->|yes| S{"Leaked secret or<br/>finding from a person?"}
+    S -->|yes| K
+    S -->|no| M{"Closing mode"}
+    M -->|Off| K
+    M -->|Review first| R["Ready to close"]
+    M -->|Automatic| C{"Critical, P0 or<br/>known exploited?"}
+    C -->|"yes, unless the owner<br/>allows it"| R
+    C -->|no| H{"Many findings gone<br/>in one scan?"}
+    H -->|yes, held for review| R
+    H -->|no| X["Closed as fixed"]
+    R -->|Confirm close| X
+    R -->|"Keep open, with a reason"| K
+```
+
 New organizations start in **Automatic**. Organizations created before this
 setting existed start in **Review first**. The API is
 `GET` and `PUT /api/v1/organization/settings/closure` (owners and

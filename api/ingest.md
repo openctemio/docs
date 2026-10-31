@@ -19,6 +19,20 @@ Schema). There are four ways to get results in:
 All of them end in the same ingest pipeline: CTIS validation, asset identity resolution,
 fingerprinting and deduplication, then priority classification.
 
+```mermaid
+flowchart LR
+    S1["Sensor<br/>(sensor key)"] --> V
+    S2["CI job<br/>(OIDC identity)"] --> V
+    S3["Report upload<br/>(session)"] --> V
+    S4["Your program<br/>(sensor key)"] --> V
+    V["CTIS validation"] --> I["Asset identity<br/>resolution"]
+    I --> D["Fingerprinting and<br/>deduplication"]
+    D --> P["Priority<br/>classification"]
+    P --> O["Assets, findings,<br/>dependencies"]
+```
+
+The organization always comes from the credential, never from the report.
+
 ## The CTIS format
 
 CTIS is specified in the [openctemio/ctis](https://github.com/openctemio/ctis) repository:
