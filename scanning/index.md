@@ -33,6 +33,7 @@ flowchart LR
 | [Scan run](scans-and-runs.md#scan-runs) | One execution of a scan; split into steps and tasks | Discovery > Scans > Runs |
 | [Automatic coverage](asset-coverage.md) | The checks the platform runs on every in-scope asset by itself, and the asset's Coverage section | Asset details, **Coverage** |
 | [Why a task waits](why-waiting.md) | Why a queued task has not started, and what to do | Run page, **Why waiting?** |
+| [Stage streaming](stage-streaming.md) | How a step starts on the first results of the step before it, and when it does not | Run page, step lanes |
 | [Tools](tools.md) | The scanners sensors run, and their availability | Settings > Scanning > Tools |
 | [Data-flow traces](data-flow-traces.md) | The source-to-sink path of a SAST finding | Finding detail, **Data flow** tab |
 | [Known false positives](../user-guide/known-false-positives.md) | How a decision on a finding is requested, approved and kept | Exposures > Findings, Exceptions |
