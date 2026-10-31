@@ -198,7 +198,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `sensors:egress:write` | Manage Sensor Proxies: Create and change proxy pools and their credentials, and choose the network path of sensors (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:grant:narrow` | Narrow Sensor Grants: Narrow what a sensor may do (zones, tools, tier, targets, credentials, push ingest) and demote its trust level (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:grant:widen` | Widen Sensor Grants: Widen what a sensor may do and promote its trust level (audited, all administrators notified) (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| `sensors:pair` | Pair Sensors: Look up a pairing code, expect a sensor and deny pairing requests (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `sensors:pair` | Pair Sensors: Look up a pairing code, create a pairing code for a new sensor and deny pairing requests (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:read` | View Sensors: View sensors | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `sensors:revoke` | Revoke Sensors: Revoke a sensor or one of its keys (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `sensors:write` | Manage Sensors: Configure sensors (owner and administrators only) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
