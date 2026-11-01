@@ -107,7 +107,7 @@ is the API-key method for scripts and clients without OAuth support.
 
 ![The AI assistants (MCP) settings page on the Connect tab: client configuration with the endpoint URL and the organization's status badges]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
 
-1. In the console open **Settings > Access > AI assistants (MCP)**, open the **Connect** tab and choose **Generate key**.
+1. In the console open **Settings > Access & security > AI assistants (MCP)**, open the **Connect** tab and choose **Generate key**.
 2. Pick the key's purpose:
    - **General read access**: scopes `findings:read`, `assets:read`,
      `compliance:frameworks:read`.
@@ -243,7 +243,7 @@ too. Each connection may ask 30 times a minute (burst 10; a limited call answers
   findings with `get_pentest_finding`; the campaign-wide tools and prompts answer `not_found` to
   them.
 - **TLP limit.** An organization administrator sets the highest TLP sent to AI applications in
-  **Settings > Access > AI assistants (MCP) > Policy** (default TLP:AMBER). A campaign above it
+  **Settings > Access & security > AI assistants (MCP) > Policy** (default TLP:AMBER). A campaign above it
   is refused by every pentest tool and prompt with the error `campaign_restricted`, and left out of
   `list_campaigns`, `my_work` and `list_findings` (the lists say how many they left out, with no
   names). A campaign lead can also tick **Keep this campaign away from AI assistants** on the
@@ -308,7 +308,7 @@ provider. Decide which scopes to grant with that in mind.
 
 ## Managing AI access (API)
 
-The console's **Settings > Access > AI assistants (MCP)** page (tabs **Connect**, **Applications**,
+The console's **Settings > Access & security > AI assistants (MCP)** page (tabs **Connect**, **Applications**,
 **Connections**, **Policy**) uses these endpoints. They need a signed-in session; API keys and MCP
 tokens are refused. Changes that loosen the policy also need a recent sign-in.
 
