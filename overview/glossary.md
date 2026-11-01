@@ -13,7 +13,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | Term | Meaning |
 |---|---|
 | **AI agent** | An AI principal that works on an organization's data under its own identity, with people who answer for it and a role: analyst, remediator, reporter, hunter or router. Everything it does carries an AI label and is audited. Always "AI agent": a bare "agent" is never a sensor. |
-| **AI assistant (MCP)** | An AI application that connects to the MCP server with a sign-in flow and works with an organization's data as the person who approved it, within the organization's policy (**Settings > Access > AI assistants (MCP)**). See [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md). |
+| **AI assistant (MCP)** | An AI application that connects to the MCP server with a sign-in flow and works with an organization's data as the person who approved it, within the organization's policy (**Settings > Access & security > AI assistants (MCP)**). See [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md). |
 | **API key** | A credential for scripts and AI clients, shown once as `oct_...`. Bound to one organization and the user who created it; read-only on the REST API, also used by the MCP server. |
 | **Asset** | Anything an organization owns that can be attacked: domain, IP address, host, service, web endpoint, certificate, repository, cloud account, container image, identity and more. |
 | **Asset group** | A named set of assets used to organise them and as scan targets. |
@@ -22,7 +22,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Break-glass administrator** | A local platform administrator for emergencies, never bound to an identity provider; console-only (it cannot join an organization or sign in on the main site), and every sign-in is audited and alerted. |
 | **CI run** | One execution of a customer's CI pipeline that reports to OpenCTEM through `openctem-ci`. |
 | **Command** | Any instruction the platform queues for a sensor: a task, a configuration update, a health check. |
-| **Content catalog** | The signed, versioned packages of scanner content and feeds that an instance or an organization installs, pins and rolls back from offline bundles (**Settings > Scanner content > Content catalog**). |
+| **Content catalog** | The signed, versioned packages of scanner content and feeds that an instance or an organization installs, pins and rolls back from offline bundles (**Settings > Scanning > Content catalog**). |
 | **Content pack** | A signed, immutable archive of scanner content (nuclei templates, SAST rules, a wordlist), stored once and named by its SHA-256 digest. See [Scanner content and content packs](../sensors/content-delivery.md). |
 | **Crown jewel** | An asset marked as business-critical; findings on it are prioritised higher. |
 | **CTEM** | Continuous Threat Exposure Management: a repeating cycle of scoping, discovery, prioritization, validation and mobilization. |
@@ -68,7 +68,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Step-up** | A fresh proof of identity (an authenticator code, the password, or a new sign-in at the identity provider) that a sensitive action asks for inside a signed-in session. See [Step-up re-authentication](../identity/two-factor.md#step-up-re-authentication). |
 | **Suppression rule** | An approved rule that marks matching findings as false positive or accepted risk, both the open ones when it is approved and new ones at ingest. |
 | **Task** | One unit of sensor work within a step, for a chunk of targets. Also the word for a unit of remediation work (a **remediation task**); the console always shows which. Not called a job. |
-| **Team** | A group of members within an organization that is assigned assets (**Settings > Access > Teams**; `/api/v1/groups` in the API). A member sees the assets (and their findings) of their teams, plus individual grants. Never the organization itself. |
+| **Team** | A group of members within an organization that is assigned assets (**Settings > Access & security > Teams**; `/api/v1/groups` in the API). A member sees the assets (and their findings) of their teams, plus individual grants. Never the organization itself. |
 | **Tenant** | Not used in these docs: an organization. The word remains in a few API paths, settings and CI inputs (for example `tenant-id`). |
 | **Two-factor floor** | The lowest two-factor requirement the platform sets for every organization (`none`, `admins` or `everyone`), with a grace period; an organization can require more, never less. See [The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor). |
 | **Unfinished targets** | The targets of a task that stopped part-way. Only these run again, as a new task; finished targets are kept. |

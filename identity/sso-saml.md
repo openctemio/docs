@@ -77,7 +77,7 @@ A platform administrator (super admin) configures SAML:
    `APP_URL`), not the origin shown there.
 
 3. If the organization has an owner, saving creates a **pending change**. An owner approves it in the
-   organization under **Settings > Security > SSO approvals** (with step-up) after comparing the new certificate's SHA-256
+   organization under **Settings > Access & security > SSO approvals** (with step-up) after comparing the new certificate's SHA-256
    fingerprint with the one in the IdP. Pending changes expire after 7 days.
 
 Signature validation, conditions and replay checks are done by an established SAML library

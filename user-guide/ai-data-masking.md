@@ -12,7 +12,7 @@ other identifiers with typed placeholders. The model reasons on `HOST_4K2QA` and
 mapping never leaves the platform.
 
 Every context bundle built for an AI model is masked this way: AI triage, an AI agent's analysis and
-the preview below. The **Settings > AI > Data masking** page has been in the console since v0.16.0. The policy is
+the preview below. The **Settings > Organization > AI** page (**Limits and data** tab, **Data masking**) has been in the console since v0.16.0. The policy is
 also read and changed through the API (`GET` and `PUT /api/v1/organization/settings/ai/masking`,
 and `POST .../masking/preview`). The AI worker, which will use the same
 masking at its tool boundary, is planned.
@@ -43,7 +43,7 @@ back, even if the model repeats the placeholder. The model only learns its type 
 
 ## Your settings
 
-**Settings > AI > Data masking** (owners and administrators; changing it needs a recent sign-in):
+**Settings > Organization > AI > Limits and data > Data masking** (owners and administrators; changing it needs a recent sign-in):
 
 - **Per-class switches** for **Host names and domains**, **IP addresses and networks**,
   **E-mail addresses**, **User names**, URL ids and parameters, **Organization names** and
@@ -94,6 +94,7 @@ Masking lowers the risk of sending data to a provider; it does not remove it.
 
 - [Settings > AI: use cases](ai-use-cases.md)
 - [Settings > AI: AI agents](ai-agents.md)
+- [Settings > AI: knowledge sources](ai-knowledge-sources.md)
 - [AI suggestions and approval](ai-suggestions-and-approval.md)
 - Design: `api/docs/architecture/ai-context-masking.md` in the
   [openctem repository](https://github.com/openctemio/openctem)

@@ -212,7 +212,7 @@ of your roles holds is hidden.
 | **Customers** | **Organizations**, **Users** (roles that hold `platform.users.read`: platform owner, platform admin, support), **Access requests**, **Sign-ups**, **Support access** (roles that hold `platform.support.access`) | [Organizations and users](organizations-and-users.md) |
 | **Scanning** | **Scan approval**, **Platform scanning**, **Target mappings**, **Content packs**, **Content catalog**, **Threat intelligence** | [Scanning](scanning.md) |
 | **Security** | **Administrators**, **Sessions**, **Approvals**, **Roles**, **Admin sign-in**, **Admin activity** | [Security](security.md) |
-| **Settings** | **Configuration**, **Sign-up**, **Social login**, **Limits**, **CAPTCHA**, **E-mail**, **Legal**, **Announcements**, **Alerts**, **AI provider**, **AI applications** | [Settings](settings.md) |
+| **Settings** | **Configuration**, **Sign-up**, **Social login**, **Limits**, **CAPTCHA**, **E-mail**, **Two-factor**, **Legal**, **Announcements**, **Alerts**, **AI provider**, **AI applications** | [Settings](settings.md) |
 | **Monitoring** | **Health**, **Software updates** | [Monitoring](monitoring.md) |
 
 The sidebar footer holds **Help**, the signed-in administrator, **My security

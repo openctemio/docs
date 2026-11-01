@@ -14,13 +14,18 @@ the settings area the sidebar is replaced by the settings rail.
 | Group | Pages |
 |---|---|
 | My account | Profile, Security, Preferences, Notifications, Activity, Connected applications: see [Your account](01-getting-started.md#your-account) |
-| Organization | General, Modules, Usage & limits |
-| Security | Security overview, Authentication, Domains, Trusted organizations, SSO approvals, Support access, AI, Audit log |
-| Access | Members, Teams, Roles, Directory sync (SCIM), API keys, Service accounts, AI assistants (MCP): see [Team and access](02-team-and-access.md) |
-| Findings & assets | Finding lifecycle, Finding approvals, Risk scoring, SLA policies, Vulnerability matching, License policy, Asset sources, Asset lifecycle, Pentest methodology |
-| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan profiles, Tools, Tool defaults, Sensor products, Capabilities |
-| Scanner content | Content catalog, Scanner templates, Source credentials, Content freshness |
-| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Notification channels, SIEM |
+| Organization | General, Modules, Usage & limits, AI |
+| Access & security | People and roles: Members, Teams, Roles. **API access**: Service accounts, API keys, AI assistants (MCP). **Sign-in**: Authentication, Domains, Directory sync (SCIM), Trusted organizations, SSO approvals. **Oversight**: Security overview, Audit log, Support access. See [Team and access](02-team-and-access.md) |
+| Findings & assets | Finding lifecycle, Finding approvals, SLA policies, Pentest methodology. **Risk and threats**: Risk scoring, Vulnerability matching, Emerging threats, License policy. **Assets**: Asset sources, Asset lifecycle |
+| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety. **Tools**: Scan profiles, Tools, Tool defaults, Capabilities. **Sensors**: Sensor products, Proxies. **Scanner content**: Content catalog, Scanner templates, Detection rules, Wordlists, Content freshness, Source credentials |
+| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Import mappings, Notification channels, SIEM |
+
+The rail is grouped by the task a page serves, so a page sits next to the others
+you use for that task. Only the rail, the **Settings** overview and the command
+palette follow this grouping: every page keeps its address, permission and module
+gate, so older links keep working. **Wordlists** (`/settings/scanning/wordlists`)
+is described in [EASM](../scanning/easm.md), and **Emerging threats**
+(`/settings/emerging-threats`) is on the same rail.
 
 Pages that depend on a module or a limit appear only when it applies: for
 example **Usage & limits** is listed only while a limit applies to your
@@ -28,8 +33,9 @@ organization, and a page whose module is off is hidden.
 
 ### Find a setting
 
-**Settings** (`/settings`) has a search box, and so has the settings rail. Both
-find pages and the settings inside them: typing `ip allowlist`, `2fa` or
+**Settings** (`/settings`) lists the page names of each group (a page's
+one-line description shows on hover and is searched) and has a search box, and so
+has the settings rail. Both find pages and the settings inside them: typing `ip allowlist`, `2fa` or
 `interactsh` lists the page and the setting (for example **Authentication ›
 IP allowlist**). Opening a setting goes to its page, scrolls to it and outlines
 it for a moment. The command palette (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd>)
@@ -46,6 +52,15 @@ to it. A change that weakens protection (for example two-factor no longer
 required, an emptied IP allowlist, or scan jobs allowed to use callbacks) is
 listed and confirmed before it is saved. Security pages show who changed them
 last, with a link to the audit log.
+
+Loosening a protection needs a recent sign-in, is audited at high or critical
+severity and tells every owner and administrator, while tightening needs none.
+This covers the asset lifecycle (turning it on, a shorter stale threshold or
+grace period, running while an integration is unhealthy, fewer excluded source
+types), the CTEM cycle coverage requirement (turned off), the attack-surface
+monitoring settings (a monitor, enrichment or the digest turned off, a longer
+interval or reappear window, web screenshots on), scan approval (lowering strict,
+on, off, or loosening an enforcing rule) and finding approvals.
 
 Almost every create, edit and delete action here is hidden or disabled according
 to your permissions. Administrative changes usually need the **Owner** or
@@ -128,56 +143,9 @@ only while a limit applies. Limits are set by a platform administrator; see
 [Platform administration](11-platform-administration.md#organizations). A limit
 never removes anything: new additions over it are refused.
 
-## Security
-
-### Security overview
-
-**Settings › Security › Security overview** (`/settings/security`, owners and
-administrators) checks how well the organization is protected and lists what to
-fix first: two-factor for owners and administrators, members without a second
-factor, email verification, the IP allowlist, members who have not signed in for
-90 days, pending requests to join, API keys that expire soon or are unused, idle
-directory sync tokens, sensor job opt-ins, a verified domain and active support
-access. Each check says **Passed**, **Warning**, **Risk** or **Information**,
-with a link to the page that fixes it, and the page shows a score out of 100
-(the two two-factor checks weigh three times as much as the others; information checks do not count). The same
-score and the first three things to fix are shown at the top of **Settings**.
-
-![The security overview: a score out of 100 and the checks grouped by area]({{ site.baseurl }}/assets/images/user-guide/settings-security-overview.png)
-*Figure: Settings, Security overview.*
-
-### Authentication
-
-**Settings › Security › Authentication** (`/settings/authentication`) sets how
-people sign in and who may join: see
-[Team and access › Sign-in policy](02-team-and-access.md#sign-in-policy). What
-scan jobs may do on your sensors is on
-[Sensor job safety](#sensor-job-safety).
-
-### Domains
-
-**Settings › Security › Domains** (`/settings/domains`; owners change it,
-administrators read it) decides what the organization's verified single sign-on
-domains do to accounts on them. A platform administrator verifies the domains;
-everything here is off until an owner turns it on. For each verified domain
-choose who can join with an address on it (**Only people we invite**, **Anyone,
-after an administrator approves** or **Anyone, automatically**) and the role they
-join as (**Viewer** or **Member**), whether to show the organization to
-colleagues who sign up, whether to require single sign-on for every account on
-the domain, and whether to block new organizations for accounts on it. A domain
-that is not verified, or that another organization also claims, has no effect.
-
-### Trusted organizations
-
-**Settings › Security › Trusted organizations**
-(`/settings/trusted-organizations`; owners change trusts, administrators read
-them) lists partner organizations whose people sign in here with their own
-company's single sign-on, and organizations that trust this one. A trust
-applies only once both owners agree.
-
 ### AI
 
-**Settings › Security › AI** (`/settings/ai`, shown while the AI triage module is
+**Settings › Organization › AI** (`/settings/ai`, shown while the AI triage module is
 on) decides whether this organization's findings may be sent to an AI provider
 for triage, and which provider reads them. Everyone with settings access can read
 the page; only owners and administrators can change it, and a change needs a
@@ -186,11 +154,27 @@ recent sign-in and is recorded in the [audit log](02-team-and-access.md#audit-lo
 organization** is on; turning it on asks you to confirm what is sent. The result
 of a triage is a suggestion: nothing on a finding changes without a person.
 
-- **What is sent** lists the data of one analysis: the finding's title,
+The page opens on a status strip: whether **AI triage** is on, the **Source** of
+the AI (**Platform AI**, **Own provider**, **Off** or **Not set up**),
+**This month** (tokens used against the limit), **Automatic triage** and how many
+**Masked data kinds** there are. Each tile opens the tab that changes it. The
+tab is in the URL (`?tab=`), and a settings search result such as AI data masking
+opens the right tab.
+
+| Tab | What it holds |
+|---|---|
+| **Provider** | The consent to AI triage and the **AI source**, with its connection test. |
+| **Features** | **Automatic triage** and **AI agents**. |
+| **Knowledge** | The sources AI agents cite, for people who may read them (`ai_knowledge:read`). |
+| **Limits and data** | **Use and limits** (this month's use against the monthly limit, and the highest TLP sent to AI, with a link to the policy) and **Data masking**. |
+| **Activity** | The latest AI events from the audit log, for people who may read it. |
+
+
+- **What is sent** (folded away until you open it) lists the data of one analysis: the finding's title,
   description, severity and score, source and tool, file path and code snippet,
   CVE, CWE and OWASP ids, and whether the asset is internet-facing. Detected
   secrets are masked first. A pentest finding follows your AI data policy
-  (**Settings › AI assistants (MCP)**, Policy): a campaign above your TLP limit
+  (**Settings › Access & security › AI assistants (MCP)**, Policy): a campaign above your TLP limit
   for AI, or with AI turned off by its lead, is never sent.
 - **AI source** chooses who runs the analysis:
 
@@ -210,10 +194,21 @@ of a triage is a suggestion: nothing on a finding changes without a person.
   removes it on demand. **Test connection** makes one small request with no
   finding data and answers with a fixed reason when it fails (key refused, rate
   limited, timeout, unreachable, address not allowed).
-- **Monthly token cap.** The page shows the tokens used this month. The cap is
+- **Monthly token cap** (**Limits and data** tab). The page shows the tokens used this month. The cap is
   set by the platform administrator and counts your organization's tokens
   whichever key pays for them, so it also limits an organization on its own
   provider; at the cap triage stops until the next month.
+- **Automatic triage** (**Features** tab, owners and administrators) sends new
+  findings of the chosen **Severities** to the AI provider without anyone asking,
+  after **Wait before triage (seconds)** (0 to 3600; it gives duplicate findings
+  time to merge first). It works only while AI triage is on. Turning it on, or
+  adding a severity while it is on, needs a recent sign-in, is audited at high
+  severity (`ai_settings.auto_triage_updated`) and every owner and administrator
+  is told. Turning it off, fewer severities and a different delay apply at once.
+  The policy is also read and written with `GET` and `PUT
+  /api/v1/organization/settings/ai/auto-triage`.
+- **Knowledge sources** (**Knowledge** tab): see
+  [Settings > AI: knowledge sources](ai-knowledge-sources.md).
 - If the platform administrator turns off own providers for the installation
   (Console › **AI provider**), a saved own provider stops at its next call and
   the page says so; switch to **Platform AI** or **Off**. It never falls back to
@@ -221,20 +216,66 @@ of a triage is a suggestion: nothing on a finding changes without a person.
 - Saving fails with a message when someone else saved a change in the meantime;
   reload and apply yours again.
 
-Under the page, **Use cases** and **Data masking** control what applies on its own and what
-the AI sees: see [Settings > AI: use cases](ai-use-cases.md) and
+**AI agents** and **Data masking** are described in
+[Settings > AI: AI agents](ai-agents.md) and
 [Settings > AI: data masking](ai-data-masking.md), and
-[AI suggestions and approval](ai-suggestions-and-approval.md) for how a person decides a
+[AI suggestions and approval](ai-suggestions-and-approval.md) says how a person decides a
 suggestion. See [AI triage](../api/ai-triage.md) for what the analysis returns.
+
+## Access & security
+
+Members, teams, roles, directory sync, API keys and AI assistants are described
+in [Team and access](02-team-and-access.md). The pages below are the rest of
+this group.
+
+### Security overview
+
+**Settings › Access & security › Security overview** (`/settings/security`, owners and
+administrators) checks how well the organization is protected and lists what to
+fix first: two-factor for owners and administrators, members without a second
+factor, email verification, the IP allowlist, members who have not signed in for
+90 days, pending requests to join, API keys that expire soon or are unused, idle
+directory sync tokens, sensor job opt-ins, a verified domain and active support
+access. Each check says **Passed**, **Warning**, **Risk** or **Information**,
+with a link to the page that fixes it, and the page shows a score out of 100
+(the two two-factor checks weigh three times as much as the others; information checks do not count). The same
+score and the first three things to fix are shown at the top of **Settings**.
+
+![The security overview: a score out of 100 and the checks grouped by area]({{ site.baseurl }}/assets/images/user-guide/settings-security-overview.png)
+*Figure: Settings, Security overview.*
+
+### Authentication
+
+**Settings › Access & security › Authentication** (`/settings/authentication`) sets how
+people sign in and who may join: see
+[Team and access › Sign-in policy](02-team-and-access.md#sign-in-policy). What
+scan jobs may do on your sensors is on
+[Sensor job safety](#sensor-job-safety).
+
+### Domains
+
+**Settings › Access & security › Domains** (`/settings/domains`; owners change it,
+administrators read it) decides what the organization's verified single sign-on
+domains do to accounts on them. A platform administrator verifies the domains;
+everything here is off until an owner turns it on. For each verified domain
+choose who can join with an address on it (**Only people we invite**, **Anyone,
+after an administrator approves** or **Anyone, automatically**) and the role they
+join as (**Viewer** or **Member**), whether to show the organization to
+colleagues who sign up, whether to require single sign-on for every account on
+the domain, and whether to block new organizations for accounts on it. A domain
+that is not verified, or that another organization also claims, has no effect.
+
+### Trusted organizations
+
+**Settings › Access & security › Trusted organizations**
+(`/settings/trusted-organizations`; owners change trusts, administrators read
+them) lists partner organizations whose people sign in here with their own
+company's single sign-on, and organizations that trust this one. A trust
+applies only once both owners agree.
 
 ### Audit log
 
-See [Audit log](02-team-and-access.md#audit-log).
-
-## Access
-
-Members, teams, roles, directory sync, API keys and AI assistants are described
-in [Team and access](02-team-and-access.md).
+**Settings › Access & security › Audit log**: see [Audit log](02-team-and-access.md#audit-log).
 
 ### Service accounts
 
@@ -281,9 +322,11 @@ access and never signs in.
   their own request. An organization with one member can accept a risk alone
   only when **Risk acceptance** is **Only for serious findings** or **Never**;
   such an acceptance ends sooner (7 days for P0 or known exploited, 45 for P1,
-  90 otherwise). A lower level or other relaxing change takes effect 24 hours
-  after you save it, while it shows as waiting with a **Cancel the change**
-  button, and every owner, administrator and approver is told; a stricter one
+  90 otherwise). A lower level (two people to one), a lower second-look share or other relaxing
+  change takes effect 24 hours after you save it, while it shows as waiting with
+  a **Cancel the change** button; it is audited as critical, and every owner,
+  administrator and approver is told (the notice says **Finding approvals
+  lowered** and names a lowered second-look share); a stricter one
   applies at once. Changing it needs an owner or administrator with
   `settings:write` and a recent sign-in.
 - **Vulnerability matching** (`/settings/vulnerability-matching`): opens
@@ -321,7 +364,8 @@ fresh exposure. It needs the `team:update` permission; without it the page says
 - **Excluded source types**: integration, collector, scanner, manual, import
   (manual and import are excluded by default).
 - **Pause lifecycle when ingest is silent** (on by default), so a broken feed
-  does not retire your whole inventory.
+  does not retire your whole inventory. Loosening the lifecycle needs a recent
+  sign-in (see [Save changes](#save-changes)).
 - **Enabled** turns the worker on. It stays locked until you have run a dry run:
   click **Run dry-run**, then **Run now**, and check how many assets **Would be
   flagged stale**.
@@ -494,7 +538,7 @@ sensors that use it and asks you to confirm.
 ### CI/CD integration
 
 CI trust, the gate policy and break-glass are not settings pages: they are on
-the **Trust and gate** tab of **Discovery › CI/CD** (`/ci-cd`). The page lets CI
+the **Settings** tab of **Discovery › CI/CD** (`/ci-cd`), which shows every section on one page, in the order a pipeline is set up: Trusted pipelines, Gate policy, Pull request feedback and Break-glass. The page lets CI
 jobs (GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket Pipelines, CircleCI,
 Jenkins) send results with their own identity instead of a stored API key, and
 decides what fails a pipeline. Trust, the CI settings and pull request
@@ -508,9 +552,9 @@ ask for a recent sign-in. See
 [CI integration](../scanning/ci-integration.md).
 
 ![The CI/CD integration page with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
-*Figure: Discovery, CI/CD, Trust and gate.*
+*Figure: Discovery, CI/CD, Settings.*
 
-- **Connect a pipeline**: a four-step wizard (CI system, organization and
+- **Connect a pipeline** (button in the page header on every tab, for owners and administrators): a four-step wizard (CI system, organization and
   default branch, pipeline snippet, first run) that creates the trust, or
   reuses one that already admits the organization, and waits for the
   pipeline's first run.
@@ -525,7 +569,9 @@ ask for a recent sign-in. See
   **GitHub Enterprise issuer** (GitHub Enterprise Server or an enterprise's
   own issuer). Each trust gives a **Pipeline snippet** to copy.
 - **Recent refused pipelines**: pipelines whose identity no trust admitted, with
-  the rule that refused each one and how to fix it.
+  the rule that refused each one and how to fix it. The latest three show; the
+  rest open on request. The **Pipelines** tab also says when pipelines were
+  refused in the last 7 days and links here.
 - **Gate policy**: what fails a pipeline, for the organization, per business unit
   or per repository: **Enforce** or **Warn**, the severity that fails, an
   optional EPSS threshold, **New findings only**, **Known exploited (KEV)
@@ -541,14 +587,14 @@ ask for a recent sign-in. See
   GitLab group with a group access token, so the gate shows as a check or
   commit status with comments on the pull request.
 
-## Scanner content
+### Scanner content
 
 The rules, templates and other content your sensors scan with, and where they
 come from.
 
 ### Content catalog
 
-**Settings › Scanner content › Content catalog** (`/settings/content`) is the
+**Settings › Scanning › Content catalog** (`/settings/content`) is the
 catalog of signed packages of rules, templates and other content. Installing one
 makes it available to the whole organization. The tabs are **Catalog** (browse
 and install), **Installed** (update, roll back, uninstall), **Requests** (members

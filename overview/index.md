@@ -134,7 +134,7 @@ These pages describe what ships in the current release (v0.16.1). Work that is d
 | Known false positives that hold across scanner engines, decisions approved by a second person, and data-flow traces on SAST findings | |
 | Static analysis with opengrep and the signed OpenCTEM rules pack, on sensors and in CI | |
 | Content packs delivered to sensors by digest, with file-level deltas | Scans that run the packs the platform delivers (sensors up to v0.23.0 fetch their own content) |
-| Content catalog: signed content packages installed, pinned and rolled back from offline bundles (**Settings > Scanner content > Content catalog**) | Delivering installed catalog packages to sensors |
+| Content catalog: signed content packages installed, pinned and rolled back from offline bundles (**Settings > Scanning > Content catalog**) | Delivering installed catalog packages to sensors |
 | Automatic coverage: a coverage policy per asset type and a ledger of when each asset was last checked for each kind of test, with gap alerts | |
 
 The design documents (RFCs) and the roadmap live in the

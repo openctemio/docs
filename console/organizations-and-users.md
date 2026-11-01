@@ -88,7 +88,7 @@ Open an organization for its tabs:
   audited). The identity provider form shows what to register at the provider
   (redirect URI, and for Entra ID the front-channel logout URL and the ID token
   claims), built from `APP_URL`. SSO changes made here apply only after the organization's owner
-  approves them under **Settings › Security › SSO approvals**. See
+  approves them under **Settings › Access & security › SSO approvals**. See
   [Identity and access](../identity/index.md).
 - **Scope**: the organization's scan approval policy and its modules. Modules are
   available unless denied here; the organization then switches on or off what is
@@ -218,7 +218,7 @@ need Redis; without it events are still recorded.
 
 **Support access** (roles that hold `platform.support.access`: platform owner,
 platform admin, support) lists the organizations whose owner granted you read-only
-access to help them (an owner grants it under **Settings › Security › Support
+access to help them (an owner grants it under **Settings › Access & security › Support
 access**, naming any active platform administrator, for a case and a limited time;
 only an administrator whose roles hold support access can use it). **Open support session** reads that organization's assets and
 findings read-only: the owners are emailed, every member sees a banner and every

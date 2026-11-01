@@ -53,7 +53,7 @@ Secrets are never written to audit entries: tokens, keys and codes appear only a
 
 ## Reading and exporting
 
-In the web console: **Settings > Security > Audit log** (owners and admins), and **My account > Activity** for
+In the web console: **Settings > Access & security > Audit log** (owners and admins), and **My account > Activity** for
 your own actions.
 
 ![The Audit log page listing recent actions with actor, resource, result and severity]({{ site.baseurl }}/assets/images/security/audit-log.png)

@@ -84,7 +84,7 @@ authenticator code for every change) in the admin console, not by the organizati
    is sent with the admin API (`scopes` on `POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`).
 
 4. If the organization already has an owner, the change is **pending** until an owner approves it in
-   the organization under **Settings > Security > SSO approvals** (with step-up re-authentication). The owner
+   the organization under **Settings > Access & security > SSO approvals** (with step-up re-authentication). The owner
    sees the change and is notified in the app and by email. Pending changes expire after 7 days. An
    organization with no owner yet gets the change applied directly.
 
@@ -141,7 +141,7 @@ required; an invitation to someone outside the organization says so when SSO is 
 
 An owner can also turn on **Approve new SSO members** (`jit_requires_approval`, owner with step-up): people the
 organization's SSO admits for the first time wait with no access until an administrator approves them
-under **Settings > Access > Members**; rejecting offboards them.
+under **Settings > Access & security > Members**; rejecting offboards them.
 
 The platform administrator can also choose, per verified domain, whether new people from that domain
 are admitted at all and in which role (**New people** action on the domain: **Admit new people**,

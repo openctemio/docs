@@ -14,10 +14,10 @@ They add up: one satisfied rule does not switch off another.
 
 | Rule | Who it applies to | Set by |
 |---|---|---|
-| **Require two-factor authentication** (`mfa_required`) | Every member who signs in with a password | Owner, **Settings > Security > Authentication** |
-| **Require two-factor authentication for owners and administrators** (`mfa_required_for_admins`) | Owners and administrators. On for every organization created recently; older organizations keep it off until an owner turns it on. It is on and locked while the first switch is on. | Owner, **Settings > Security > Authentication** |
-| **Personal accounts: Allowed with two-factor** (`allowed_with_mfa`) | Members with a personal address. The default for new organizations. The other values are **Allowed** and **Blocked**. | Owner, **Settings > Security > Authentication** |
-| **SSO must prove two-factor** | Members who must use two-factor and sign in through the organization's own identity provider | Owner, **Settings > Security > Authentication** |
+| **Require two-factor authentication** (`mfa_required`) | Every member who signs in with a password | Owner, **Settings > Access & security > Authentication** |
+| **Require two-factor authentication for owners and administrators** (`mfa_required_for_admins`) | Owners and administrators. On for every organization created recently; older organizations keep it off until an owner turns it on. It is on and locked while the first switch is on. | Owner, **Settings > Access & security > Authentication** |
+| **Personal accounts: Allowed with two-factor** (`allowed_with_mfa`) | Members with a personal address. The default for new organizations. The other values are **Allowed** and **Blocked**. | Owner, **Settings > Access & security > Authentication** |
+| **SSO must prove two-factor** | Members who must use two-factor and sign in through the organization's own identity provider | Owner, **Settings > Access & security > Authentication** |
 | **Platform two-factor floor** (`auth.mfa`: `none`, `admins` or `everyone`) | With `admins`: owners, administrators and members holding a privileged role. With `everyone`: every member. After a grace period (14 days for existing members, 7 for new accounts). | The platform owner ([details](../two-factor.md#the-platform-two-factor-floor)). An organization can require more, never less. |
 | **Always on: a privileged outside member** | An [outside member](outside-members.md) who holds a privileged role (owner or admin, full data access, or a privileged permission), directly or through a team. There is no setting to turn this off. | The platform |
 
@@ -54,7 +54,7 @@ outside members and the personal-accounts rule did not lead the person to set-up
 administrator who accepts an invitation could end up with a membership but no way into the
 organization. To recover on those releases:
 
-1. As owner, open **Settings > Access > Members**, find the person, **Change roles**, and give them
+1. As owner, open **Settings > Access & security > Members**, find the person, **Change roles**, and give them
    **Viewer** only (replace the privileged role). This is allowed without their second factor,
    unless another rule in the table above also applies to them.
 2. The person signs in and opens **Settings > My account > Security > Two-factor authentication >

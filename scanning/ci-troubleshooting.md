@@ -16,7 +16,7 @@ nav_order: 7
 ```mermaid
 flowchart TD
   s([The CI job failed or nothing arrived]) --> log{What does the job log say?}
-  log -->|"The CI token was not accepted (401)"| ref[Trust and gate › Recent refused pipelines:<br/>the code and its fix, below]
+  log -->|"The CI token was not accepted (401)"| ref[CI/CD › Settings › Recent refused pipelines:<br/>the code and its fix, below]
   ref -->|nothing listed| unv[The token did not verify:<br/>audience, issuer or expiry, see below]
   log -->|403 RUNNER_OUTDATED| old[Runner version, see below]
   log -->|scans but 'uploads nothing'| nores[Tenant id unset, fork, or no id-token permission]
@@ -36,7 +36,7 @@ What the job is told depends on how far the token got:
   any rule such as owner, repository, ref, environment, event, fork, workflow
   or protected ref), the answer is the same generic `CI_TOKEN_NOT_TRUSTED`,
   so a stranger's token learns nothing about your configuration. Owners and
-  administrators see the reason in **Trust and gate › Recent refused
+  administrators see the reason in **CI/CD › Settings › Recent refused
   pipelines** (the latest 50) and in the audit log (`ci_run.token_refused`).
   Only tokens that verified are listed.
 - **After it admitted the token**, the caller is your own pipeline, and the

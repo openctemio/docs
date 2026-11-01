@@ -43,7 +43,7 @@ flowchart LR
   ciso["CISO / owner"]
   pr["Pull request:<br/>OpenCTEM gate check + comment"]
   runs["CI/CD › Runs<br/>run detail: why blocked"]
-  setup["CI/CD › Trust and gate<br/>trust, policy, break-glass, PR feedback"]
+  setup["CI/CD › Settings<br/>trust, policy, break-glass, PR feedback"]
   cov["CI/CD › Pipelines and Coverage<br/>freshness, gaps, failing gates"]
   dev --> pr
   dev -->|repositories their team owns| runs
@@ -57,7 +57,7 @@ flowchart LR
   what blocked it. **Details** opens the run in the console. A developer sees
   the runs, pipelines and coverage of the repositories in their data scope.
   The usual way to give a team its runs: assign the repository asset to the
-  team, which makes the team an owner of it (**Settings › Teams › team ›
+  team, which makes the team an owner of it (**Settings › Access & security › Teams › team ›
   Assets**, see [data scope](../identity/roles-and-permissions.md#groups-and-data-scope)).
   Leaving the team takes the runs away. Anyone else sees "This run is not available to you", and an
   administrator can grant access to the repository.
@@ -160,7 +160,7 @@ branch when it was recorded:
 
 ## Gate settings per repository
 
-Settings → CI/CD holds the organization's gate policy. Each pipeline's
+**Discovery › CI/CD › Settings** holds the organization's gate policy. Each pipeline's
 **Settings** tab shows the policy that applies to its repository, setting by
 setting: the effective value, where it comes from (default, organization,
 business unit or this repository), and any lock.
@@ -188,7 +188,7 @@ business unit or this repository), and any lock.
 
 ## Require OIDC for CI
 
-**Discovery › CI/CD › Trust and gate** has a **Require OIDC for CI** switch
+**Discovery › CI/CD › Settings** (Trusted pipelines) has a **Require OIDC for CI** switch
 (`GET` and `PUT /api/v1/ci/settings`; changing it needs `scans:ci:write` and a
 recent sign-in). When on, a one-shot CI sensor key is refused on every sensor
 route (`403`, problem `ci-oidc-required`), so a stored key that leaks cannot
@@ -228,7 +228,7 @@ created since starts with it on. Move your pipelines to OIDC (add trust, set
 
 Trust and the gate work without a code host connection. The connection lets
 the platform post the **OpenCTEM gate** check and the comment on the pull or
-merge request. Open **Discovery › CI/CD › Trust and gate › Pull request
+merge request. Open **Discovery › CI/CD › Settings › Pull request
 feedback**.
 
 ![The Pull request feedback tab: the GitHub App with the example-org installation and a GitLab group connection]({{ site.baseurl }}/assets/images/scanning/ci/ci-pr-feedback.png)

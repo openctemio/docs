@@ -23,7 +23,7 @@ organization connects to. Platform-wide settings belong to the operator
 - Scanning policy: [scope and authorization to scan](../scanning/scope.md), [automatic coverage](../scanning/asset-coverage.md), [scan zones](../sensors/zones.md).
 - CI: [organization rollout](../scanning/ci-rollout.md) and [gate policies](../scanning/ci-policies.md).
 - Integrations: [settings and integrations](../user-guide/10-settings-and-integrations.md), [notification channels](../configuration/notifications.md), [webhooks](../api/webhooks.md).
-- AI: [AI agents](../user-guide/ai-agents.md), [data masking](../user-guide/ai-data-masking.md) and [use cases](../user-guide/ai-use-cases.md).
+- AI: [AI agents](../user-guide/ai-agents.md), [knowledge sources](../user-guide/ai-knowledge-sources.md), [data masking](../user-guide/ai-data-masking.md) and [use cases](../user-guide/ai-use-cases.md).
 
 ## Reference
 

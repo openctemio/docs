@@ -73,7 +73,7 @@ each pipeline's latest verdict, the check turns green.
 
 ## Review and revoke
 
-**Trust and gate › Break-glass** lists the overrides with who created them,
+**CI/CD › Settings › Break-glass** lists the overrides with who created them,
 the reason and the expiry. **Revoke** ends one early; the next
 run of that commit is judged normally.
 

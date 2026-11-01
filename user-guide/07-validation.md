@@ -56,7 +56,7 @@ it:
 
 When nothing is waiting, the block says so and links to the validation areas that are on. A module the
 organization switched off leaves the page; owners and admins see one line naming it, with a link to
-**Settings › Modules**.
+**Settings › Organization › Modules**.
 
 ![The Validation overview with coverage by priority and recent validation activity]({{ site.baseurl }}/assets/images/user-guide/validation.png)
 *Figure: The Validation overview.*

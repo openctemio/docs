@@ -79,7 +79,7 @@ That is the most important workflow in the product; it is covered first in
    file once, then import it as findings from the console, the API or a pipeline.
    [AI suggestions and approval](ai-suggestions-and-approval.md): what an AI
    suggestion is, and how a person applies, dismisses or undoes it.
-   [AI agents](ai-agents.md), [AI use cases](ai-use-cases.md) and
+   [AI agents](ai-agents.md), [knowledge sources](ai-knowledge-sources.md), [AI use cases](ai-use-cases.md) and
    [AI data masking](ai-data-masking.md): the Settings pages that decide who may
    act on findings as an AI agent, what applies on its own and what the model is
    shown.

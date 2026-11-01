@@ -38,8 +38,7 @@ flowchart LR
 ## 1. Open the wizard
 
 Open **Discovery › CI/CD**. On a new organization, the **Pipelines** tab is
-empty and shows **Connect a pipeline**. Otherwise the button is on the
-**Trust and gate** tab.
+empty and shows **Connect a pipeline**. Otherwise the button is in the page header, on every tab.
 
 ![Step 1 of Connect a pipeline: choose GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket Pipelines, CircleCI or Jenkins]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-1-provider.png)
 
@@ -124,13 +123,13 @@ Run the pipeline once on the default branch first. Until that branch has been
 scanned, every finding on a pull request counts as new.
 
 If the wizard says **A pipeline was refused**, it shows the rule that refused
-the pipeline and how to fix it. **Trust and gate › Recent refused pipelines**
+the pipeline and how to fix it. **CI/CD › Settings › Recent refused pipelines**
 keeps the latest ones. Every code is listed in
 [Troubleshooting](ci-troubleshooting.md).
 
 ## 5. Make the check required
 
-1. Under **Trust and gate › Pull request feedback**, install the GitHub App, or
+1. Under **CI/CD › Settings › Pull request feedback**, install the GitHub App, or
    connect the GitLab group with a group access token
    ([details](ci-integration.md#connect-github-and-gitlab)).
 2. In the repository's branch protection (or ruleset), require the

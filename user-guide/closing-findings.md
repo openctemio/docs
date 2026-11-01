@@ -33,7 +33,7 @@ Two kinds of finding are never closed by absence at all:
 ## Closing mode
 
 Owners and administrators choose how the platform handles a close in
-**Settings > Finding lifecycle > Closing findings**.
+**Settings > Findings & assets > Finding lifecycle > Closing findings**.
 
 | Mode | What happens |
 |---|---|

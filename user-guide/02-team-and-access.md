@@ -25,7 +25,7 @@ explained in [Who can see and do what](../identity/access/index.md).
 
 ## Members
 
-**Settings › Access › Members** (`/settings/members`) lists the people in the
+**Settings › Access & security › Members** (`/settings/members`) lists the people in the
 organization, their roles and pending invitations.
 
 ![The Members settings page with five members, their roles, two-factor status and a pending invitation]({{ site.baseurl }}/assets/images/identity/members.png)
@@ -62,7 +62,7 @@ Pending invitations are listed under **Pending invitations**, with **Resend
 email**, **Cancel invitation** and a copy-link action.
 
 When the organization lets people with a verified address on its domain ask to
-join (**Settings › Security › Domains**), **Requests to join** appears above
+join (**Settings › Access & security › Domains**), **Requests to join** appears above
 the list: choose a role (viewer or member, never administrator) and **Approve**
 or **Reject**. Requests expire after 30 days. See
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain).
@@ -73,7 +73,8 @@ The metric strip at the top (**Members**, **Active**, **Disabled**,
 **Offboarded**, **Pending invitations**) doubles as a quick filter; the filters
 next to the search box narrow by status (**Current members**, **Active**,
 **Disabled**, **Offboarded**, **Everyone**), by **Internal** or **External**
-people and by role. Each member's menu offers:
+people and by role. An applied filter reads whole, for example **Status:
+Current members**. Each member's menu offers:
 
 - **View details**: their roles, what they own and what they can access (access
   groups, direct grants, API keys, owned assets and schedules, assigned
@@ -138,7 +139,7 @@ the union of the permissions their roles grant. There are no deny rules.
 ![The Roles settings page with the four system roles]({{ site.baseurl }}/assets/images/identity/roles.png)
 *Figure: Settings, Roles: the built-in roles and their permission counts.*
 
-**Settings › Access › Roles** (`/settings/roles`) lists the roles. The cards
+**Settings › Access & security › Roles** (`/settings/roles`) lists the roles. The cards
 **Roles**, **System roles** and **Custom roles** also act as filters. Columns:
 **Role**, **Risk** (a label from **Low risk** to **Full control** with a line
 such as "Changes assets, findings and 2 more"), **Data access**, **Level** and
@@ -182,7 +183,7 @@ never what they can do.
 
 ## Teams and assignment rules
 
-**Settings › Access › Teams** (`/settings/teams`) organizes members into teams
+**Settings › Access & security › Teams** (`/settings/teams`) organizes members into teams
 that control which assets they can see.
 
 > Members who are in no team see no assets or findings until you add them to a
@@ -193,8 +194,10 @@ that control which assets they can see.
 
 - Click **Create team**, enter a **Team name** (for example "Security Team" or
   "DevOps") and an optional description.
-- Click a team to open its details, with the tabs **Overview**, **Members**,
-  **Access**, **Roles**, **Assets** and **Scope rules**:
+- Click a team to open its details. The header shows the name, the description
+  and the creation date (edit the name and description with **Edit**; **Copy
+  ID** is in the menu). The sheet opens on **Members**; the other tabs are
+  **Assets**, **Access** and **Scope rules**, and the tabs show their counts:
   - **Members**: **Add Member** (pick the member and their role in the group) or
     remove one.
   - **Assets**: **Assign Asset** or **Bulk Add**, choosing an **Ownership Type**:
@@ -202,6 +205,8 @@ that control which assets they can see.
     **Secondary** (co-owner), **Stakeholder** (view access, receives critical
     notifications) or **Informed** (no direct access, receives summary
     notifications). Removing an asset removes the team's access to it.
+  - **Access**: the presets that give members what they can do and see, then the
+    team's **Custom roles**: see [Give a team access](#give-a-team-access).
   - **Scope rules**: **Add Rule** to assign assets to the team automatically,
     either by **Tag Match** (up to ten tags, **Any (OR)** or **All (AND)**) or by
     **Asset Group Match** (up to five asset groups), with an ownership type and a
@@ -217,7 +222,7 @@ which assets they see. Everyone you add to the team inherits both at once, and
 loses both when they leave the team or their membership ends.
 
 1. Open the team and go to the **Access** tab (the **Create team** form has the
-   same **Access** section).
+   same **Access** section). Presets come first, then **Custom roles**.
 2. Under **What members can do**, tick one or more **presets**. Each preset is a
    ready-made set of permissions for one kind of person, such as Security
    analyst, Vulnerability manager, Remediation owner, Auditor or CTEM program
@@ -237,9 +242,23 @@ owner and administrator are never granted through a team.
 
 When a preset's template changes, the team shows **Update available**; review it
 and choose **Apply update**. Nothing changes until you do. The role behind a
-preset is managed by the team: it does not appear in **Settings › Access ›
-Roles** and cannot be edited or assigned by hand. The **Roles** tab of the team
-still lists roles you bound by hand, with presets marked **Preset**.
+preset is managed by the team: it does not appear in **Settings › Access & security ›
+Roles** and cannot be edited or assigned by hand. Under the presets, the **Access** tab
+lists the **Custom roles** you bound to the team by hand, each with its **Give
+the role to a person** action.
+
+**Outside members and full data access.** A team that has members from outside the
+organization (external members or service accounts) cannot carry a full-data
+role or preset; the platform refuses it (`TEAM_EXTERNAL_FULL_DATA`). On the
+**Access** tab, full-data roles and presets are switched off while the team has
+outside members, and a notice names them with three ways forward: **Show them**
+(the **Members** tab filters to **Outside organization only**), **New team
+without them**, or **Give the role to a person** directly. The **Members** tab
+marks outside members, and **Add member** does not offer an outside person for a
+team that gives full data access. `GET /api/v1/groups/{id}` returns
+`carries_full_data` and `outside_members` (up to 20) to a caller who may read the
+team's members, and each item of `GET /api/v1/groups/{id}/members` carries
+`outside` and `service`.
 
 ### Assignment rules
 
@@ -259,7 +278,7 @@ Rules can be **Active** or **Inactive**, edited and deleted.
 
 ## Sign-in policy
 
-**Settings › Security › Authentication** (`/settings/authentication`) holds the
+**Settings › Access & security › Authentication** (`/settings/authentication`) holds the
 organization's sign-in rules. Administrators can read them; only the owner can
 change them, after signing in again (step-up). The page saves with the bar at
 the bottom, shows who changed it last, and lists any change that weakens
@@ -316,16 +335,16 @@ shared sensors) is on **Settings › Scanning ›
 **Single sign-on** (SAML or OIDC) and verified domains are configured per
 organization by the **platform administrator**, not on this page; the page says
 so and tells you whom to contact. When the platform administrator proposes an SSO
-change, an owner approves or rejects it under **Settings › Security › SSO
+change, an owner approves or rejects it under **Settings › Access & security › SSO
 approvals** (`/settings/sso-approvals`); nothing takes effect until an owner
 approves it. Once a domain is verified for SSO, an owner decides under
-**Settings › Security › Domains** who may join with it (see
+**Settings › Access & security › Domains** who may join with it (see
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain)).
 See [Identity and access](../identity/index.md).
 
 ## Directory sync (SCIM)
 
-**Settings › Access › Directory sync (SCIM)** (`/settings/scim`) lets your
+**Settings › Access & security › Directory sync (SCIM)** (`/settings/scim`) lets your
 identity provider create and remove accounts automatically.
 
 1. Click **Generate SCIM token**, give it a **Name** (for example the identity
@@ -339,7 +358,7 @@ The cards show **Total tokens**, **Active tokens** and **Revoked tokens**. See
 
 ## API keys
 
-**Settings › Access › API keys** (`/settings/api-keys`) creates keys for scripts
+**Settings › Access & security › API keys** (`/settings/api-keys`) creates keys for scripts
 and tools that call the API.
 
 ![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
@@ -350,20 +369,35 @@ and tools that call the API.
 3. Tick the **Scopes** the key needs (for example `assets:read`,
    `findings:read`, `scans:write`). Scope each key to the minimum it needs.
 4. Choose when it **Expires**: 30 days, 90 days (the default) or 1 year. Every
-   key expires.
+   key expires, and the dialog offers only lifetimes within the organization's
+   maximum (see below).
 5. Copy the key. It is shown once.
 
 Each key shows its scopes, expiry and last use; you can **Revoke** or **Delete**
 it. See [Authentication and API keys](../api/authentication.md).
 
+### Maximum key lifetime
+
+The **Maximum key lifetime** card sets how long new keys may live: **Days** from 1
+to 365, 90 by default (`GET` and `PUT /api/v1/organization/settings/api-keys`).
+It applies to every way of making a key: API keys, service account keys and the
+MCP connection key; a longer `expires_in_days` is refused, and so is any request
+while the policy cannot be read. Raising the maximum needs a recent sign-in, is
+audited at high severity (`tenant.api_key_policy_updated`) and every owner and
+administrator is told; lowering it applies at once.
+
+Existing keys keep their expiry. A key made for longer than the current maximum
+is marked **Over the maximum** in the list (`exceeds_org_max` in the API). A week
+before a key expires, the person who made it gets one in-app notice.
+
 ## AI assistants (MCP)
 
-**Settings › Access › AI assistants (MCP)** (`/settings/mcp`) connects an AI
+**Settings › Access & security › AI assistants (MCP)** (`/settings/mcp`) connects an AI
 assistant (any Model Context Protocol client) to your organization's data, as
 the person who connects it and never beyond what that person can see. A strip
 under the title shows the state: **On** or **Off**, **Read-only** or **Read and
 comment**, **Approved applications only**, how long connections last and the
-highest TLP. The tabs:
+highest TLP. Reading the policy, the connected applications and the members' access requests is for owners and administrators. The tabs:
 
 - **Connect**: the server URL and the **Client configuration** for your
   assistant. Most people connect with the sign-in flow here: no key to copy. If
@@ -394,7 +428,7 @@ applications**. See [Connect an AI assistant](12-connect-an-ai-assistant.md) and
 
 ## Audit log
 
-**Settings › Security › Audit log** (`/settings/audit-log`) records who did
+**Settings › Access & security › Audit log** (`/settings/audit-log`) records who did
 what, when and with what result. Reading it needs the audit permission (owners
 and administrators) and **full data access**, because the log names assets and
 findings: without the permission the page shows **Access denied**, and with a

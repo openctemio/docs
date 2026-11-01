@@ -247,5 +247,5 @@ the platform, which can fail the pipeline on a policy gate.
 - **API keys** (`oct_...`) let scripts read an organization's data through the
   REST API and the MCP server. **AI assistants** (MCP clients) normally connect
   with a sign-in flow instead, as the person who approves them, within an
-  organization policy (**Settings > Access > AI assistants (MCP)**). See
+  organization policy (**Settings > Access & security > AI assistants (MCP)**). See
   [API](../api/index.md) and [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md).

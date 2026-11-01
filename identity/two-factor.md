@@ -27,6 +27,16 @@ In **Settings > My account > Security**:
 
 Turning 2FA on signs out every other session of your account.
 
+**Turning 2FA off** (My account > Security) is refused with `409 MFA_REQUIRED_BY_POLICY` while an
+organization you belong to, or the platform's two-factor floor (also during its grace period),
+requires it; the page names who requires it. The refusal is audited and never spends a recovery
+code. When it is allowed, turning off signs out every other session of your account.
+
+**Replace authenticator** moves 2FA to a new phone (`POST /api/v1/me/2fa/replacement/start`, then
+`/complete`): confirm with your password and a current or recovery code, scan the new QR code and
+enter its code. The old app works until the new one is confirmed. Every recovery code is replaced
+and every other session is signed out.
+
 From then on, sign-in asks for a code after the password. **Use a recovery code instead** switches to
 a recovery code; using one is audited and emailed to you.
 
@@ -66,7 +76,7 @@ stored as bcrypt hashes.
 
 ## Requiring 2FA in an organization
 
-An owner turns on **Require two-factor authentication** under **Settings > Security > Authentication**. **Require two-factor authentication for owners and admins** is a narrower switch
+An owner turns on **Require two-factor authentication** under **Settings > Access & security > Authentication**. **Require two-factor authentication for owners and admins** is a narrower switch
 (it also covers members who hold a privileged role, directly or through a team) that is on for every
 organization created from now on (organizations created before keep it off until
 an owner turns it on; it is on and locked while the first switch is on). The creator of a new
@@ -112,14 +122,14 @@ The platform sets the lowest two-factor requirement every organization is held t
 - **Who changes it.** A platform owner, through the console API (`GET`/`PUT
   /api/v1/admin/settings/auth-mfa`, permission `platform.settings.mfa`, held only by the platform owner
   role), with a fresh authenticator code and a reason. The change applies at once on every server, is
-  audited at critical severity and announced to every administrator. The console has no page for it
-  yet.
+  audited at critical severity and announced to every administrator. In the console it is
+  **Settings > Two-factor** (see [Console settings](../console/settings.md#two-factor-floor)).
 - **Grace.** People the floor newly covers keep signing in without two-factor for a while: 14 days
   from the floor taking effect for existing members, 7 days from account creation for new accounts,
   whichever ends later (both settable, 0 to 90 days; raising the floor starts a new grace period).
   **My account > Security** shows the date (`grace_due_at` in the account's two-factor status). An
   organization's own requirement has no grace.
-- **In the organization settings.** **Settings > Security > Authentication** shows the floor in force
+- **In the organization settings.** **Settings > Access & security > Authentication** shows the floor in force
   and locks the switches it raises ("The platform requires two-factor authentication for owners,
   administrators and members with a privileged role. You can require it for everyone, not less.").
   Saving settings below the floor is refused (`422 MFA_BELOW_PLATFORM_FLOOR`).
@@ -138,7 +148,7 @@ request is refused with `403 MFA_ENROLLMENT_REQUIRED` and the web console opens 
 
 By default, a sign-in through the organization's own identity provider counts as two-factor: the
 provider is trusted to have asked for a second factor. An owner can turn on **SSO must prove
-two-factor** under **Settings > Security > Authentication > Two-factor authentication** (with step-up). With it
+two-factor** under **Settings > Access & security > Authentication > Two-factor authentication** (with step-up). With it
 on, a member who must use 2FA and signs in through the organization's SSO gets access only if the
 provider says, in its signed response, that a second factor was used:
 
@@ -157,7 +167,7 @@ switch off is recorded as a High audit event and the owners and admins are told.
 - **Lost device, recovery codes available:** sign in with a recovery code, then turn 2FA off and on
   again with the new device (or generate new codes).
 - **Lost device and codes:** an owner or admin of the organization resets it under
-  **Settings > Access > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
+  **Settings > Access & security > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
   recovery codes, signs the person out everywhere, is audited and emailed to them. If the organization
   requires 2FA, they enrol again at the next sign-in.
 - **Nobody in the organization can reset it** (for example the person is the only owner): a platform
@@ -205,7 +215,7 @@ requires that the session proved the user's identity within the last **10 minute
   applying a preset);
 - deleting the organization; offboarding or erasing a member; removing a member's 2FA;
 - making someone an admin; transferring ownership; renaming the organization's slug;
-- changing who may join with a verified domain (**Settings > Security > Domains**); inviting someone outside the
+- changing who may join with a verified domain (**Settings > Access & security > Domains**); inviting someone outside the
   organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;
   allowing bearer-key sensors again;
