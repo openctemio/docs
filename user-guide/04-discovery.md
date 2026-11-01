@@ -281,9 +281,10 @@ Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
 repositories from GitHub Actions, GitLab CI and other CI systems, their runs and
 repository coverage, with guides for GitHub Actions and GitLab CI. The
 **Pipelines** tab lists the pipelines and their CI runs, each judged by the CI
-gate; the **Trust and gate** tab (**Connect a pipeline**) decides which
-pipelines may send results (trust) and what fails them (gate policy and
-break-glass). A repository that a CI trust names also appears as a scope entry
+gate; the **Settings** tab decides, on one page, which pipelines may send
+results (trusted pipelines), what fails them (gate policy), pull request
+feedback and break-glass. **Connect a pipeline** sits in the page header on
+every tab (owners and administrators). A repository that a CI trust names also appears as a scope entry
 ([Scoping](03-scoping.md#scope)). See
 [CI integration](../scanning/ci-integration.md).
 
