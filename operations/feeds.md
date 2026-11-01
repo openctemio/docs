@@ -108,6 +108,39 @@ the release host (or set `VULNFEED_MIRRORS` to an internal mirror, or use
 `VULNFEED_BUNDLE_DIR` when air-gapped), then turn off "Allow the platform to
 call CISA and FIRST".
 
+## Feed relay: no outbound access from the platform
+
+A platform in an internal network can receive every feed through a **platform
+sensor** that has internet access (for example in a DMZ), so the platform itself
+needs no outbound access at all. The sensor is only a pipe for signed files: the
+platform decides which files it needs, the sensor downloads exactly those from the
+official feed origins and sends them back, and the platform verifies every file
+with each feed's own pinned key before anything is applied. A relay can delay a
+feed, never change it.
+
+What is relayed: the vulnerability feed with its KEV and EPSS data, and the release
+feed of the version check. In relay mode the platform also stops its own KEV/EPSS
+fetch, the online version check, the program feed's URLs and the CTEM-ID refresh
+(not relayed yet), so it makes no outbound feed request.
+
+Set it up:
+
+1. Run a **platform (shared) sensor** on a host with internet access and set
+   `SENSOR_FEED_RELAY=1` on it (see the [settings reference](../sensors/settings.md#SENSOR_FEED_RELAY)).
+   Only a platform sensor can relay; an organization's sensor refuses the setting.
+2. The platform needs its **job signer** (it signs every relay round). A relay may
+   only download from the official origins; to relay from your own mirror, add it to
+   `SIGNER_FEED_ORIGINS` on the signer **and** `SENSOR_FEED_RELAY_ORIGINS` on the sensor.
+3. In the console, a super administrator opens the feed delivery setting on
+   **System > Threat intelligence**, chooses **Through a relay sensor** and picks
+   the sensor (step-up required, audited).
+4. With several API replicas, `FEED_RELAY_DIR` must be a directory every replica
+   sees (one shared volume).
+
+Relay mode is not available while `VULNFEED_BUNDLE_DIR` is set (that directory
+stays the only source). Direct fetch, a mirror and the bundle directory remain the
+other ways to receive the feeds.
+
 ## Feed status and Sync now
 
 **System > Threat intelligence** shows one card per feed (vulnerability bundles, KEV,
