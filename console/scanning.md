@@ -26,6 +26,14 @@ passes the platform deny list. Changes need a super admin, a fresh code and a
 reason; the organization's administrators are told. See
 [Scope](../scanning/scope.md).
 
+## Scan identification
+
+**System > Scan identification** sets the User-Agent and up to 4 request
+headers that every organization's scans send, each optionally enforced so an
+organization cannot replace it. Saving needs a fresh code and a reason and
+notifies every administrator. See
+[Scan identification](../scanning/scan-identification.md).
+
 ## Platform scanning
 
 **Platform scanning** holds the rules for scans that run on the platform's own

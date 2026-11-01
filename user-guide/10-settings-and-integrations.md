@@ -404,8 +404,9 @@ narrow what is sent.
   addresses go only to sensors whose network owner installed a local policy.
 - **Allow out-of-band callbacks (interactsh)** and **Allow custom templates**:
   off by default; turning one on is audited at critical severity.
-- **User-Agent of scan tools** and **Refuse tools that skip TLS certificate
-  verification**.
+- **Refuse tools that skip TLS certificate verification**. The User-Agent and
+  headers your scans send moved to **Settings > Scanning > Scan
+  identification** ([Scan identification](../scanning/scan-identification.md)).
 - **Sensor keys and shared sensors**: the key-bound sensor identity and key
   binding requirements and the shared sensors opt-out. Each of these switches
   applies as soon as you change it.
