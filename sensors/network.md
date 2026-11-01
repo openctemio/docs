@@ -146,15 +146,32 @@ The sensor reads `-local-policy`, `SENSOR_LOCAL_POLICY`, or
 `/etc/openctem/sensor-policy.yaml` when it exists. A policy that does not
 load stops the sensor (exit code 2).
 
-**Without a policy**, a sensor paired by sensor v0.12.0 or later fails
-closed: it refuses every job with network targets, custom templates or
-callbacks (`refused by local policy: no_local_policy: ...`) and logs
-`Local policy mode: fail closed (paired by this SDK)`. Older identities and
-API-key sensors accept any target outside the built-in deny list and log a
-warning. `SENSOR_REQUIRE_LOCAL_POLICY=true` or `false` overrides either.
+**A policy is optional and can only narrow.** Without one, the sensor
+follows the platform's signed scope: it runs any job whose scope statement
+the platform signed (the sensor still verifies the signature), and the
+built-in deny list, `SENSOR_ALLOW_PRIVATE_TARGETS` and the kill switch still
+apply. The install commands write no policy file. A policy you install
+narrows that scope (the intersection of the two) and the platform never
+writes it. A policy with an explicit `targets.allow: []` allows nothing; one
+without `targets.allow` does not narrow targets. The console shows the mode
+under **Local policy**: "Follows platform scope", "Narrowed by host policy
+(N rules)" or "Allows nothing yet", and "Targets: allows everything the
+platform signs" for a policy with `targets.allow: ["*"]`.
 
-**The quickest way to a policy is the console's suggestion.** Open the
-sensor (Sensors, then the sensor's drawer): a sensor without a policy shows
+To fail closed without a file, set `SENSOR_REQUIRE_LOCAL_POLICY=true` (the
+default is `false`): the sensor then refuses every job with network targets,
+custom templates or callbacks (`refused by local policy: no_local_policy:
+...`) and the platform sends it no scan. Jobs without network targets
+(repository and file scans, health checks) still run. Without a local policy
+a compromised platform could sign a wide scope: if you do not trust the
+platform that far, install a narrowing policy or require one.
+
+A sensor paired by an earlier release that failed closed follows the
+platform's scope once it runs the current SDK; set
+`SENSOR_REQUIRE_LOCAL_POLICY=true` to keep it closed.
+
+**The quickest way to a narrowing policy is the console's suggestion.** Open
+the sensor (Sensors, then the sensor's drawer): a sensor without a policy shows
 "Suggested local policy", built from the sensor's scan zones, or from your
 organization's scope when it has no zone (active scope entries become
 `targets.allow`, active network and name exclusions become `targets.deny`,
@@ -180,6 +197,13 @@ Private ranges in the list also need `SENSOR_ALLOW_PRIVATE_TARGETS=1`; the
 sensor refuses to start otherwise and says so. The shorthand refuses custom
 templates and out-of-band callbacks; write a file for those, or for tool and
 rate limits and a kill switch. The two cannot be combined.
+
+`apiVersion` is required and is always `openctem.io/sensor-policy/v1`: there is
+one schema, with every key. Any other value (an older release wrote v2 and v3)
+is refused and the sensor does not start: change that line, or write a new
+file. Until 1.0 the schema may gain optional keys; a file is checked strictly,
+so a sensor that predates a key refuses a file that uses it. Upgrade the sensor
+first, and check with `openctemio-sensor policy validate`.
 
 ```yaml
 apiVersion: openctem.io/sensor-policy/v1
@@ -209,11 +233,65 @@ kill_switch_file: /etc/openctem/STOP
 | `allow_custom_templates`, `allow_interactsh` | Platform-supplied custom templates; out-of-band callbacks. Off unless set |
 | `rate.max_rps`, `rate.max_job_seconds` | Request rate ceiling; longest job run |
 | `kill_switch`, `kill_switch_file` | Stop every job (while the file exists) |
+| `http.user_agent`, `http.allow_insecure_tls`, `http.headers` | A User-Agent for every tool; `false` refuses tools that skip TLS verification; up to 4 headers that mark this sensor's scan traffic (below) |
+| `managed.accept` | `false`: ignore any narrowing policy the platform manages for this sensor. Default `true` |
+
+`targets.allow: ["*"]` (sensor v0.35.0 or newer) allows every target the
+platform signs; the built-in deny list and the private-range rules still
+apply, and `*` cannot be mixed with other entries.
 
 {: .note }
 From sensor v0.11.0, `*.example.com` covers `example.com` and every name
 below it, as in platform [scope](../scanning/scope.md). Older sensors read it
 as the names below `example.com` only; list the apex separately for them.
+
+### Mark this sensor's scan traffic
+
+The owner of the host can add identification headers, so the network's WAF,
+SIEM and logs can tell this sensor's scans apart. Sensor v0.35.0 or newer;
+an older sensor refuses a file with `http.headers` (unknown key).
+
+```yaml
+apiVersion: openctem.io/sensor-policy/v1
+http:
+  headers:
+    - {name: X-Netops, value: dc1}
+```
+
+- The sensor sends them on every request of every task that sends HTTP to its
+  targets, for every organization it serves. On a shared sensor they are the
+  host's network identity: never put an organization's data or a secret in a
+  value.
+- Rules: at most 4 headers; a name of 1 to 64 letters, digits or
+  `!#$%&'*+-.^_|~`; a printable ASCII value of at most 200 characters; names
+  unique ignoring case; never `Authorization`, `Cookie`, `Host`,
+  `Content-Length`, `Transfer-Encoding`, `Connection`, `Keep-Alive`, `TE`,
+  `Trailer`, `Upgrade` or `Proxy-*`. A file that breaks a rule stops the
+  sensor from starting, and the message names the header.
+- Merged with the headers a job already carries, by name, ignoring case: a
+  header the platform enforces or a bug-bounty program sets is locked and
+  keeps the platform's value; any other header of the same name is replaced by
+  yours; every other name is kept. Your `http.user_agent` wins over the
+  organization's unless the platform enforces one. Together at most 16
+  headers; a job over that is refused with a message naming the cap.
+- **A tool that cannot carry headers is refused for every job while headers
+  are set**, so nothing probes unmarked. nuclei, httpx and katana carry them.
+  This is a behaviour change from v0.35.0: setting headers on a sensor whose
+  image has another networked tool stops that tool on this sensor.
+- A job's query parameter is reported "not applied" by nuclei, httpx and
+  katana, which have no flag for it.
+- Each result reports what the sensor sent (names, source and values), so the
+  platform can show it. Values of names that look secret are masked. The
+  sensor advertises the capability `http.identity@1` for all of this.
+- A header on an allow-list is not a secret: anyone who sees the traffic can
+  copy it. Use it with the sensor's published address, and tag rather than
+  bypass.
+
+With the multi-sensor kit, `./sensors.sh set-header NAME HEADER VALUE` and
+`unset-header NAME HEADER` manage the headers (see
+[Several sensors on one host](run-the-sensor.md#local-policy-and-scan-headers-of-a-kit-sensor)).
+A ready example is
+[`sensor-policy-headers.example.yaml`](https://github.com/openctemio/sensor/blob/main/docs/sensor-policy-headers.example.yaml).
 
 Useful commands (they read local files only):
 

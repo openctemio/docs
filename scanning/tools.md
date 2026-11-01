@@ -23,7 +23,7 @@ to a sensor that reports it.
 | dnsx | `resolve.dns` | T0 | default |
 | dnsx-enum (sensor v0.27.0 or later) | `enumerate.subdomains` (brute force with the label list the platform names in the signed job; the sensor has no list of its own) | T1 | default |
 | naabu | `scan.ports`, `discover.hosts` (live hosts first) | T1 | default |
-| httpx | `probe.http` | T1 | default |
+| httpx | `probe.http`; `monitor.web_content` for a step or job that names it | T1 | default |
 | katana | `crawl.web` | T1 | default |
 | nuclei | `vuln.templates`, finding re-verification and retests | T1 | default, `-nuclei` |
 | opengrep | `sast.code` (local rules only, no network) | T0 | `-opengrep` |
@@ -32,6 +32,18 @@ to a sensor that reports it.
 | betterleaks | `secrets.code` | T0 | `-betterleaks` |
 | rdap, asn (built in) | `lookup.rdap`, `lookup.asn` | T0 | every daemon |
 | reach-probe (built in) | `reach.probe` (one TCP connect per address and port, on the platform's request, to test reachability) | — | every daemon that takes platform commands |
+
+`monitor.web_content` (page monitoring) is run by httpx only when a step or a
+job names it; a step that pins `httpx` alone is still the HTTP probe. It
+reports no asset of its own: the capture is the `web_content` property of the
+web asset the URL belongs to. It is an active capability, so coverage sends it
+through the same dispatch gate as every active fetch (scope entry, exclusions,
+tier ceiling, the claim-time re-check).
+
+A sensor whose owner sets `http.headers` in its
+[local policy](../sensors/network.md#mark-this-sensors-scan-traffic) reports the
+capability `http.identity@1`. nuclei, httpx and katana carry the headers; a
+networked tool that cannot is refused on that sensor while headers are set.
 
 The sensor detects its tools itself and reports only those whose binary
 passes its check; nothing is configured to enable a tool.

@@ -91,7 +91,7 @@ Environment=SENSOR_ALLOWED_RANGES=203.0.113.0/24,*.example.com
 Environment=SENSOR_STATE_DIR=/var/lib/openctem/state
 Environment=SENSOR_OUTBOX_DIR=/var/lib/openctem/outbox
 Environment=SENSOR_CONTENT_DIR=/var/lib/openctem/content
-# Optional: SENSOR_PAIRING_CODE=XXXX-XXXX from "Create a pairing code first" (first start only)
+# Optional: SENSOR_PAIRING_CODE=XXXX-XXXX, the code of the Add sensor command (first start only)
 ExecStart=/usr/local/bin/openctemio-sensor -verbose
 Restart=on-failure
 TimeoutStopSec=45

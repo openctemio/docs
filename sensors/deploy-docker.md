@@ -113,7 +113,7 @@ services:
       SENSOR_API_URL: https://openctem.example.com
       # Refuse to start unless each scan's network can be confined.
       SENSOR_SANDBOX_NETWORK: required
-      # SENSOR_PAIRING_CODE: "K7QM-4ZTD"           # attach to an "Create a pairing code first" code
+      # SENSOR_PAIRING_CODE: "K7QM-4ZTD"           # attach to the code of the Add sensor command
       # What this sensor may scan. Without it (or a policy file) a newly
       # paired sensor refuses every job with network targets.
       SENSOR_ALLOWED_RANGES: "203.0.113.0/24,*.example.com"
@@ -154,10 +154,11 @@ volumes:
   option also covers lookups where the task's resolver file cannot be
   replaced.
 - Without `SENSOR_API_KEY` the sensor **pairs** on its first start: read the code
-  with `docker logs openctem-sensor` and approve it as described in
+  and the link with `docker logs openctem-sensor` and approve it as described in
   [Pairing](pairing.md).
-- To prepare the console first instead, create a code with **Expect a
-  sensor** and start the sensor with `-e SENSOR_PAIRING_CODE=K7QM-4ZTD`: on
+- The command of **Add sensor** carries a code for you. To make a code
+  first instead (the API's pairing code), start the sensor with `-e
+  SENSOR_PAIRING_CODE=K7QM-4ZTD`: on
   its first start it attaches to that code. The variable is used only while
   the sensor has no identity and no `SENSOR_API_KEY`, is ignored once the
   sensor is paired, and is never logged. Or run the `pair` command once, with
@@ -367,7 +368,7 @@ for it, which it receives over the pinned HTTPS connection.
 | `SENSOR_ALLOWED_RANGES` | none | What the sensor may scan (a shorthand local policy). |
 | `SENSOR_ALLOW_PRIVATE_TARGETS` | off | `1` allows RFC 1918 and IPv6 ULA targets. Only `1` or `0` is accepted. Loopback, link-local, cloud metadata and CGNAT addresses stay blocked. |
 | `SENSOR_NAME` | `sensor-<hostname>` | Name the sensor proposes; the approver may change it. |
-| `SENSOR_PAIRING_CODE` | none | An **Create a pairing code first** code (`XXXX-XXXX`) to attach to on first start. Ignored once paired. |
+| `SENSOR_PAIRING_CODE` | none | The code (`XXXX-XXXX`) of the Add sensor command to attach to on first start. Ignored once paired. |
 | `SENSOR_SANDBOX_NETWORK` | `auto` | `required` refuses to start without network confinement; `off` turns it off. |
 | `SENSOR_TOOLS` | every detected tool | Deprecated. In the daemon it only narrows the detected tools; use the local policy's `tools.allow`. |
 | `SENSOR_NUCLEI_MAX_RATE_LIMIT`, `SENSOR_NUCLEI_MAX_CONCURRENCY`, `SENSOR_NUCLEI_MAX_BULK_SIZE` | nuclei's defaults (150, 25, 25) | The host operator's ceilings for nuclei. [Tool settings](tool-settings.md) cannot go above them. |

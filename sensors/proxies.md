@@ -43,15 +43,31 @@ default.
 
 ## Set up the organization default
 
+The page opens with the organization's proxy health: **Proxies in use**,
+healthy, on probation and quarantined, re-read every 30 seconds while the page
+is visible. The default pool and every other pool use the same card (health
+summary, routing strategy, assigned sensors, **Test**, **Edit**) and the same
+edit dialog, so the default pool can set its strategy and description too.
+
 1. Open **Settings > Scanning > Proxies**.
-2. Turn on **Use proxies for scans**.
-3. Paste your proxies, one per line (syntax below), and **Save**.
+2. On the **Default pool** card choose **Add proxies**, paste your proxies,
+   one per line (syntax below), and **Save**.
+3. Turn on **Use proxies for scans**.
+
+**Use proxies for scans** saves as soon as you confirm it. Turning it on asks
+**Turn proxies on?**: your own sensors send scans to public targets through
+the pool from their next job, and never fall back to a direct connection while
+it is on. Turning it off asks **Turn proxies off?**: sensors scan from their
+own address, so a target that only allows your proxy addresses will block
+them. A new default pool starts off, and it needs a proxy first.
 
 The page shows the stored list back. A proxy starts in *probation*: the first
-real scan traffic proves it, or run a [test](#test-a-pool) first.
+real scan traffic proves it, or run a [test](#test-a-pool) first. Each proxy
+shows its connect time (p95), its connection counts, its last error and when
+its stored credentials last changed; on a phone the proxies show as cards.
 
-Before you save, the page lists the sensors that turning the default pool on
-would hold back, and why: **No scan jobs: no proxy support reported** (the
+Before you turn it on, the page lists the sensors that turning the default
+pool on would hold back, and why: **No scan jobs: no proxy support reported** (the
 sensor cannot use a pool, so it would get no scan jobs) or **No validation
 jobs: probes would leave direct** (scans run through the pool, re-checks of
 findings wait).
@@ -105,7 +121,8 @@ forwarder. The scan tools never see them.
 ## More pools and the per-sensor Network path
 
 Under **More pools**, **New pool** creates a pool with its own name,
-description and list. Under **Advanced** you can choose the strategy:
+description and list. **Edit** on any pool, the default pool included, opens
+the same dialog; under **Advanced** you can choose the strategy:
 
 | Strategy | Behaviour |
 |---|---|
@@ -190,6 +207,27 @@ score (0 to 100 %) and a state:
   switch next to it disables the proxy without deleting it.
 
 Tor and public proxy lists are not supported.
+
+## Scanner addresses
+
+The **Scanner addresses** card on the same page lists the addresses your scans
+leave from, with copy buttons and ready allowlist snippets (**Allowlist**:
+"allow" rules, a "Require ip" rule, a JSON list, comma-separated or one per
+line), so the owner of a target can allowlist the scanner instead of the scan
+being blocked or challenged by a WAF or edge protection. The retest and run
+help for edge-blocked results point to this card.
+
+Only addresses the platform observed itself are listed:
+
+| Kind | Where the address comes from |
+|---|---|
+| Proxy exit | The exit address a proxy **test** saw, kept only when the platform's test page saw that address for the same test. A sensor's own report never adds one. |
+| Sensor | The address the platform saw your sensor connect from (last 30 days), for a sensor scanning without a proxy. |
+| Shared sensors | The published egress of the platform's shared sensors, when your organization may use them. |
+
+Private addresses only matter to a WAF on the same internal network. With no
+entries yet, run a proxy test, or wait until your sensors have connected. API:
+`GET /api/v1/proxy-pools/scanner-addresses` (`sensors:egress:read`).
 
 ## Test a pool
 

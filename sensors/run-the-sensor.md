@@ -27,16 +27,18 @@ prerequisite to troubleshooting. For the settings behind it see
 | Clock | Synchronised (chrony or systemd-timesyncd). Signatures allow 2 minutes of difference. |
 | Platform | The platform URL and someone with the **Pair sensors** and **Approve sensors** permissions. |
 
-## Get a pairing code
+## Get the command and a pairing code
 
-In the console open **Discovery > Sensors > Add sensor**, keep **Create a
-pairing code first**, and choose **Create pairing code**. You get a code like `K7QM-4ZTD`
-and an install snippet that already holds your platform URL. Keep the code
-private until the sensor has used it; it is spent on first use.
+In the console open **Discovery > Sensors > Add sensor**, pick where the
+sensor will run and choose **Show the command**. The command already holds
+your platform URL and a single-use code like `K7QM-4ZTD`; keep it private
+until the sensor has used it. The sensor prints the same code, a link to
+approve it on and its fingerprint, and the console finds it by itself.
 
-Without a code the sensor prints one at start, and an administrator enters it
-under **Pair a sensor that shows a code**. Either way, compare the fingerprint the sensor prints
-with the one the console shows before approving.
+Started a sensor another way, without a code? It prints a code and a link
+too: open the link, or enter the code on the **Approve a sensor** page. Either
+way, pick the fingerprint the sensor prints among the three the console
+offers before approving ([Pairing](pairing.md#add-a-sensor-one-command-one-approval)).
 
 ## Start the sensor
 
@@ -131,7 +133,7 @@ The common ones. Every setting is in the
 | Group | Variable | Default | Meaning |
 |---|---|---|---|
 | Platform | `SENSOR_API_URL` | none (required) | The platform URL. Must reach the API directly; redirects are refused. |
-| Pairing | `SENSOR_PAIRING_CODE` | none | A code from **Add sensor > Create a pairing code first** (`XXXX-XXXX`). Used while the sensor has no identity; ignored once paired. |
+| Pairing | `SENSOR_PAIRING_CODE` | none | The code of the command from **Add sensor** (`XXXX-XXXX`). Used while the sensor has no identity; ignored once paired. |
 | Pairing | `SENSOR_API_KEY` | none | A legacy bearer key instead of pairing. |
 | Pairing | `SENSOR_INSTANCE_ENROLLMENT_TOKEN` | none | A single-use token for a sensor shared by every organization. |
 | Identity | `SENSOR_NAME` | `sensor-<hostname>` | The name the sensor proposes; the approver may change it. |
@@ -141,7 +143,7 @@ The common ones. Every setting is in the
 | Network | `HTTPS_PROXY`, `NO_PROXY` | none | A proxy to the platform. |
 | Network | `SENSOR_CONTROL_PROXY` | none | A proxy for the control channel only. |
 | Network | `SENSOR_TRANSPORT` | `auto` | Leave it. `https` behind a TLS-inspecting proxy. |
-| Scope | `SENSOR_ALLOWED_RANGES` | none | What the sensor may scan (CIDRs, IPs, names, `*.domain`). Without it or a policy file a new sensor refuses network jobs. |
+| Scope | `SENSOR_ALLOWED_RANGES` | none | What the sensor may scan (CIDRs, IPs, names, `*.domain`). Optional: without it or a policy file the sensor follows the platform's signed scope. |
 | Scope | `SENSOR_ALLOW_PRIVATE_TARGETS` | off | `1` allows RFC 1918 and IPv6 ULA targets. |
 | Content | `SENSOR_CONTENT` | on | `off` turns managed scanner content off. |
 | Content | `SENSOR_CONTENT_DIR` | `/var/lib/openctem/content` | Where content is kept. |
@@ -201,12 +203,146 @@ for f in compose.yaml sensors.sh .env.example .gitignore; do
 done
 chmod +x sensors.sh && cp .env.example .env
 
-./sensors.sh add acme --api-url https://openctem.example.com --pairing-code XXXX-XXXX
-$EDITOR sensors/acme/policy/sensor-policy.yaml   # what acme may scan
-./sensors.sh up                                  # fetch the seccomp profile, start
-./sensors.sh status                              # every sensor's state
-./sensors.sh upgrade vX.Y.Z                      # check the signature, move every sensor
+./sensors.sh add acme --api-url https://openctem.example.com
 ```
+
+`add` writes the sensor's settings, starts only that sensor and prints a link
+to open in the console, its code and its fingerprint:
+
+```
+  Pair this sensor: open https://openctem.example.com/activate?code=K7QM-4ZTD
+  Code:        K7QM-4ZTD
+  Fingerprint: 821 · melon · basil · bagel
+```
+
+Open the link while signed in as an administrator of the organization the
+sensor is for, pick the fingerprint this terminal shows and approve. `add`
+ends by itself once the sensor is paired and clears a spent code from the
+sensor's `sensor.env`. It gives up waiting after 15 minutes
+(`PAIR_WAIT_SECONDS`); Ctrl-C stops the waiting, not the sensor
+(`./sensors.sh pair acme` watches again). The image is pulled with progress
+and the pull stops with a hint after 10 minutes (`PULL_TIMEOUT_SECONDS`).
+Nothing needs editing: the sensor follows the organization's scope.
+
+| Command | What it does |
+|---|---|
+| `./sensors.sh add NAME --api-url URL` | Add, start and pair one sensor. `--ca-sha256 HEX[,HEX]` pins a private platform CA; `--ca-file FILE` installs one and prints the subject and SHA-256 of every certificate in it; `--pairing-code XXXX-XXXX` pairs with a code made in the console or the API (automation); `--no-start` only writes the sensor. |
+| `./sensors.sh pair NAME [--pairing-code CODE]` | Start one sensor and watch its pairing again (with a new code: write it and recreate the container). |
+| `./sensors.sh status` | One plain line per sensor: "running and paired", "waiting for approval: open *link*", or why not (an untrusted certificate authority, a refusal). |
+| `./sensors.sh stop NAME`, `start NAME` | Stop or start one sensor; its key and queued results stay. |
+| `./sensors.sh down` | Remove every container; the volumes are never removed. `up` starts every sensor again. |
+| `./sensors.sh logs NAME` | Follow one sensor's log. |
+| `./sensors.sh upgrade [--self-update] vX.Y.Z` | Verify the image signature (cosign), pull with progress, set `SENSOR_VERSION`, recreate the containers. Identity, outbox and caches stay; no sensor pairs again. |
+| `./sensors.sh self-update vX.Y.Z` | Replace the kit's own files with the release's after a signed-checksum check ([below](#update-the-kit-itself)). |
+| `./sensors.sh set-ca NAME --sha256 HEX[,HEX]` or `--file FILE` | Trust a platform behind a private CA on an existing sensor ([below](#a-platform-behind-a-private-ca)). |
+| `./sensors.sh set-policy NAME --allow-all` or `--platform-scope` | Write or stop reading a local policy that allows every target the platform signs ([below](#local-policy-and-scan-headers-of-a-kit-sensor)). |
+| `./sensors.sh set-header NAME HEADER VALUE`, `unset-header NAME HEADER` | Mark this sensor's scan traffic ([below](#local-policy-and-scan-headers-of-a-kit-sensor)). |
+| `./sensors.sh repair NAME --pairing-code CODE [--yes]` | Answer the console's Re-pair for one sensor ([below](#re-pair-one-sensor-of-the-kit)). |
+| `./sensors.sh remove NAME [--purge] [--yes]` | Stop and remove one sensor, its `sensors/NAME/` directory and its `compose.yaml` blocks; `--purge` also deletes its data volume. |
+
+A sensor that was stopped before anyone approved it keeps its key: start it
+again (`./sensors.sh pair acme`) and open its new link. A key that was
+approved once never pairs again: the sensor then says its key is already
+registered, and needs its identity back or a re-pair.
+
+### The local policy is optional
+
+A sensor scans only what its organization's scope allows. The owner of the
+host may narrow one sensor further: write
+`sensors/acme/policy/sensor-policy.yaml` (it can only narrow; the platform
+never writes it), uncomment `SENSOR_LOCAL_POLICY` in
+`sensors/acme/sensor.env`, then `./sensors.sh stop acme && ./sensors.sh start
+acme`. `touch sensors/acme/policy/STOP` stops every job of that sensor while
+the file exists. A directory set up with a kit older than sensor v0.33.0 has
+`SENSOR_LOCAL_POLICY` in the `x-sensor` block of `compose.yaml`, so every
+sensor there needs a policy file (`add` then writes one that narrows
+nothing): run `self-update` to convert it.
+
+### A platform behind a private CA
+
+When the platform's certificate comes from a private certificate authority,
+`./sensors.sh status` says the authority is not trusted. Pin the platform's
+**root** CA by its SHA-256 (from the console's install command; the sensor's
+own message lists every certificate the platform presented, intermediates
+included, so compare the root's hash with the console's before using it):
+
+```bash
+./sensors.sh set-ca acme --sha256 <root-ca-sha256>   # hex, colons optional, a,b for a rotation
+./sensors.sh set-ca acme --file platform-ca.pem      # air-gapped: the CA itself
+```
+
+`--sha256` sets `SENSOR_CA_SHA256` in `sensors/acme/sensor.env`; the sensor
+fetches the CA from the platform and accepts it only if a certificate in it
+has that hash and signs the platform's chain. `--file` installs the file as
+`sensors/acme/policy/platform-ca.pem` and sets `SENSOR_CA_CERT_FILE` (on a
+sensor host this variable is the CA the sensor trusts). Both keep `sensor.env`
+at mode 0600 and recreate the container.
+
+### Local policy and scan headers of a kit sensor
+
+```bash
+./sensors.sh set-policy acme --allow-all        # writes sensors/acme/policy/sensor-policy.yaml, recreates acme
+./sensors.sh set-policy acme --platform-scope   # stop reading the file (the file stays)
+./sensors.sh set-header acme X-Netops dc1       # send X-Netops: dc1 on every request of every job
+./sensors.sh unset-header acme X-Netops
+```
+
+`--allow-all` writes a policy with `targets.allow: ["*"]`, sets
+`SENSOR_LOCAL_POLICY` and recreates the container. The built-in deny list and
+the private-range rules still apply, and an existing file is kept as
+`sensor-policy.yaml.bak-<UTC time>`. The `"*"` form needs sensor v0.35.0 or
+newer; on an older one the command refuses and names the upgrade.
+
+`set-header` and `unset-header` manage `http.headers` of the policy
+([Mark this sensor's scan traffic](network.md#mark-this-sensors-scan-traffic)):
+at most 4 headers, rules checked before anything is written, sensor v0.35.0 or
+newer, the container recreated. The policy keeps its scope: without a policy
+file `set-header` writes one with no `targets` section, so the sensor still
+follows the platform's scope. An existing policy keeps its content (it must
+already be `openctem.io/sensor-policy/v1`, the only schema) and is backed up.
+The headers live in a block the script owns; a policy with its own `http:`
+section is never rewritten, so add `http.headers` there by hand.
+
+### Update the kit itself
+
+`upgrade` moves the image only. The kit's own files (`sensors.sh`,
+`compose.yaml`, `README.md`, `.env.example`) change between releases, so
+update them with:
+
+```bash
+./sensors.sh self-update vX.Y.Z      # or: ./sensors.sh upgrade --self-update vX.Y.Z
+./sensors.sh up                      # recreate the sensors with the new compose.yaml
+```
+
+It downloads the release's kit files and a keyless cosign-signed checksum
+list, verifies the signature and every checksum before changing anything,
+backs the current files up as `<file>.bak-<UTC time>`, re-inserts your
+existing services, volumes and networks unchanged, checks `docker compose
+config` and restores the backups if that fails. It never touches `sensors/`,
+volumes or containers, and it converts an older kit's `compose.yaml` that
+hard-wires a local policy file. Releases before v0.34.0 have no signed kit
+files; update those by hand.
+
+### Re-pair one sensor of the kit
+
+In the console open **Sensors > the sensor > Re-pair...**, create the code,
+then:
+
+```bash
+./sensors.sh repair acme --pairing-code XXXX-XXXX
+```
+
+It states that the current key keeps working until you approve the re-pair
+(unless you revoked it in the console) and asks for confirmation (`--yes`
+skips it). It stops the sensor, deletes only its identity directory on the
+data volume (the outbox and caches stay, so queued results are delivered
+under the new key), writes the code and pairs it again: approve it in the
+console as in [Re-pair a sensor](pairing.md#re-pair-a-sensor).
+
+Removing a sensor does not stop its key from working: also revoke or delete
+it in the console (**Revoke access** or **Delete**). Without `--purge` the
+volume stays, so adding the same name again finds its key; with `--purge` the
+key and any results the platform has not accepted yet are lost.
 
 | Setup | Use when |
 |---|---|
@@ -236,10 +372,11 @@ Uninstall:
    (a bind mount: delete the host directory).
 3. Delete backups of the volume; they hold a revoked key.
 
-Re-pair (lost or corrupted identity, or a moved host): create a new code under
-**Add sensor > Create a pairing code first**, remove the old volume (or run `pair -repair`, see
-`openctemio-sensor -help`), and start the sensor with the new
-`SENSOR_PAIRING_CODE`.
+Re-pair (lost or corrupted identity, or a moved host): open the sensor in the
+console, choose **Re-pair...**, create the re-pair code, remove the old
+volume (or run `pair -repair`, see `openctemio-sensor -help`), and start the
+sensor with the new `SENSOR_PAIRING_CODE`. See
+[Re-pair a sensor](pairing.md#re-pair-a-sensor).
 
 ## Troubleshooting
 
@@ -264,7 +401,8 @@ holds an older sensor's data, chown keeps it.
 
 | The log says | Fix |
 |---|---|
-| A code is printed and nothing happens | An administrator must enter the code under **Pair a sensor** and approve it. Or start with `SENSOR_PAIRING_CODE`. |
+| A code and a link are printed and nothing happens | An administrator must open the link (or enter the code on the **Approve a sensor** page), pick the fingerprint and approve it. Or start with the code of the Add sensor command (`SENSOR_PAIRING_CODE`). |
+| The sensor says its key is already registered (HTTP 409, `pairing-key-registered`) | The sensor's key is already registered. Re-pair it from the console, or remove its data volume to pair it as a new sensor. |
 | `The pairing request expired` | Nobody approved within 10 minutes; the sensor starts a new request. |
 | `Rate limited ... HTTP 429` | Pairing starts are limited per address. Wait; avoid restart loops. |
 | `x509: certificate signed by unknown authority` | The platform uses a private CA: use the console's install command (it pins the root, `SENSOR_CA_SHA256`), set `SENSOR_CA_SHA256` to the root's SHA-256, or mount the CA and set `SENSOR_CA_CERT_FILE`. |

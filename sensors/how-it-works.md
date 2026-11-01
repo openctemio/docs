@@ -66,7 +66,7 @@ stateDiagram-v2
 
 - **Waiting.** A new sensor makes its own key and asks to join. It joins
   only when an administrator of your organization approves it, after
-  comparing the fingerprint the host shows and confirming with a second
+  picking the fingerprint the host shows and confirming with a second
   factor, or through an enrollment token you created. See
   [Pairing](pairing.md).
 - **Online and late.** Both take work. An offline sensor gets no new work,
@@ -290,6 +290,49 @@ takes work; `stale` and `offline` sensors do not, and their pending work is
 released to the rest of the zone. Each sensor's drawer shows its setup
 checklist, tools and content, grant, local policy state, transport and
 activity.
+
+- **Columns.** The list shows five columns by default (Sensor, Status,
+  Version, Jobs, Tools). Outbox, Key, Local policy and Content are under
+  **Display**; a problem in any of them appears under the sensor's status in
+  plain words, for example "420 results waiting, 2h", "no local policy:
+  network jobs refused" (only for a sensor set to require one), "key expires
+  in 3d" or "added 5d ago, never connected". The phone card uses the same
+  words.
+- **Passive only.** A sensor at trust level New is tagged **Passive only**,
+  and an installed tool it may not run yet reads "passive only while New"
+  with how to promote the sensor.
+- **Clean up.** A hint above the list counts the sensors that never connected
+  for over a day or have been offline for over 7 days; **Review them** lists
+  only those, ready to select and delete or disable. Selected sensors can be
+  disabled together (`sensors:write`), next to bulk delete.
+- **One reason per problem.** A sensor that never connected shows "Not
+  connected yet", with "run its install command on the host". A sensor whose
+  local storage is full stops claiming jobs: it counts under **Needs
+  attention** as "storage full", is not counted as able to take jobs or as
+  covering its zones, and its drawer says what to do (free disk space on the
+  host or raise the store quota; it resumes on its own). A health reason the
+  page has no word for counts under **Needs attention** as "other problem",
+  so a degraded sensor is never shown with "nothing to fix".
+- **Local policy mode.** The sensor drawer and the list show "Follows platform
+  scope", "Narrowed by host policy (N rules)" or "Allows nothing yet", from
+  the summary the sensor reports (`mode`: `allow_all`, `allow_list` or
+  `platform_scope`), with "Targets: allows everything the platform signs" for
+  `allow_all`. See [Sensor-local policy](network.md#sensor-local-policy).
+- **Actions that work.** **Rotate key** is offered only for a sensor that has
+  an API key, in an organization that still allows them (a paired sensor has
+  none: use [Re-pair](pairing.md#re-pair-a-sensor)). **Revoke** is in the
+  row menu as in the drawer. **Identity used from two hosts** shows on the
+  row when the platform saw one sensor identity on two hosts; the platform
+  then gives that sensor no new work.
+- **Heartbeat history.** Its late count (`gap_beats`) counts the heartbeats
+  that came after a gap of more than 1.5 intervals, the rule that makes a
+  sensor `late`; the sparkline of the drawer shows the largest gap.
+- **A tool the platform learned later.** A sensor sends its manifest at start
+  and when it changes. When the platform starts, every sensor whose stored
+  manifest names a tool or capability the platform's catalog did not know is
+  asked once to send it again, so a tool added to the catalog by a platform
+  update (for example `dnsx-enum`) is used on sensors that reported it before,
+  without a sensor restart.
 
 ![The Sensors page with two online sensors, fleet health and zone coverage]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
 *Figure: The Sensors page.*
