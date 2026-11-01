@@ -265,6 +265,13 @@ Before you choose a file, the dialog lists your **Recent imports**.
 The same counts appear on a scan run's page as **What this run did to
 findings**, and a finding's overview shows **Last seen in**: the newest import
 or run that created, saw again, reopened or closed it.
+The finding page's side rail adds **Import history**: every upload or run
+that acted on the finding, newest first, with what it did (**New**, **Still
+detected**, **Reopened**, **Resolved**, **Suppressed by a rule**, **Held for
+review**), the tool and when; a run opens its run page. The panel is hidden
+for a finding outside your data scope. When CISA lists the finding's CVE as
+known exploited, the page header shows the KEV chip first (and Ransomware
+when CISA marks it so).
 
 ### Triage mode
 

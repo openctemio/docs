@@ -62,6 +62,14 @@ many findings and assets it covers, the risk it removes (by priority class) and
 who it would go to: the asset's primary owner, or the default queue when the
 asset has none.
 
+A package with many advisories gets one suggestion per installed version: all
+open findings of that package version share one upgrade target, the highest
+version any of them needs, so one `Upgrade <package> to <version>` group
+closes them all. When a
+scanner gives the fixed versions only as advice text ("Upgrade Django to
+1.11.28, 2.2.10, 3.0.3"), the versions are read from that text. Findings
+already in a remediation task stay in it.
+
 - **Why?** explains the grouping and shows the fix steps, for example the
   upgrade command to copy.
 - **Accept** creates the fix and one task per owner. When the fix is already a

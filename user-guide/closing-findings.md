@@ -159,6 +159,45 @@ Retests also need evidence that survives a second look:
 - A report observed before a finding was resolved no longer reopens it; a
   report observed after the fix still does.
 
+## When a detected version changes
+
+Findings matched from your software inventory (a product and version that a
+scan, an import or an SBOM reported on an asset, checked against the
+vulnerability feed) close when the asset runs another version. The platform
+keeps every version each source reported at each place on an asset (a port
+such as `tcp/443`, or the host itself), so that one odd reading cannot close
+a finding.
+
+- **A new version starts as a candidate.** It replaces the version in use
+  only on strong evidence (an authenticated inventory, an SBOM, or an active
+  probe at confidence 80 or more, and never weaker than the evidence for the
+  current version), or after it was the reading of three scans in a row over
+  at least 12 hours.
+- **Alternating readings never switch.** Behind a load balancer, a stale
+  cache or a blue/green deployment the two versions take turns, the streak
+  restarts each time, and the version in use stays.
+- **Two versions in one scan are both kept** (for example two copies of a
+  library on one page).
+- **Some readings never move the version:** a report older than one already
+  read, the same report imported again, a partial version ("7.1" against
+  7.1.3), a missing version, and a distribution build of the same upstream
+  version (a back-port is not an upgrade).
+- **Not seen is not gone.** A version that scans stop reporting is not
+  replaced; after 30 days without a recent reading its findings become stale,
+  never fixed.
+
+Findings are built only on the version in use; a candidate never creates a
+finding. A finding closes as "version changed" only when another version
+became the one in use at its place, and that close follows the
+[closing mode](#closing-mode). In Ready to close it shows as **Reported fixed
+by its source**; the proposal's evidence (in the API) names the product, the
+old and the new version, the source, the evidence class, the confidence and
+the number of sightings. If the old version is seen again before anyone
+decides, the proposal is canceled and the finding stays open.
+
+How it works in detail:
+[software version history](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/software-version-history.md).
+
 ## Out of scope is not fixed
 
 A permanent **Not ours** or **Retired** exclusion, or a "Not ours" decision,
