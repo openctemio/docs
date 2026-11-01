@@ -299,12 +299,11 @@ widget that fails never blanks the page.
 - On your very first visit, when there is no dashboard for you at all, you get
   a personal copy of the **CTEM** template, computed for your own access.
   A line under the header offers **Customize** and **Choose another**.
-- If your dashboard is an earlier copy of the **CTEM** or **Overview**
-  template, a one-time line names the widgets the template has gained (for
+- If your dashboard is an earlier copy of a template, a one-time line names the widgets the template has gained (for
   example the exposure flow) and offers **Add them to this dashboard** (each
   is placed where the template has it), **Switch to the new layout** (a fresh
-  copy; your dashboard stays) or dismiss. Your dashboard never changes until
-  you choose.
+  copy in the template's current order and sizes; your dashboard stays) or
+  dismiss. Your dashboard never changes until you choose.
 - Every dashboard that existed before the exposure flow was introduced is
   offered the flow panel once, at the top of its layout, the first time
   someone who may edit it opens it. A toast, **Exposure flow added at the top**,
@@ -353,11 +352,18 @@ The first widget of the CTEM and Overview templates follows findings from
 where they come from to where they go, for the period of the widget (30 days
 by default).
 
-- **Sources** (left): each tool that sent findings, by kind (sensor, CI,
-  connector, import), with how many it sent. A source whose last import or run
-  failed says **Failed** and its line is dotted red; a source that has gone
-  quiet for more than twice its usual interval says **Stale** and its line is
-  dotted amber. Each count opens that source's receipts.
+- **Sources** (left): a ranked bar list, the busiest first. Rank by
+  **Findings** or by **Assets** (discovery tools that send assets no longer
+  show 0), and group by **Tool** or by **Source instance** (a sensor, a CI
+  project, a connector or the platform; your choice is remembered in this
+  browser). Sources with nothing in the period fold into one line. A source
+  whose last import or run failed says **Failed** and one that has gone quiet
+  for more than twice its usual interval says **Stale**; both stay in view.
+  When a refresh changes the order, rows slide to their new place (not with
+  reduced motion) and say how many places they moved. A source's tooltip
+  shows received, new or reopened, seen again and not stored, the instances
+  that fed it, and a link to the sensor; each count opens that source's
+  receipts.
 - **Received, new or reopened, actionable** (top of the centre): what came in,
   what became new work, and the open findings with a priority class now.
 - **The ring**: actionable findings by priority class (P0 to P3). Each arc is
@@ -373,9 +379,14 @@ by default).
 Point at a figure, move to it with the keyboard, or tap it once on a phone to
 light its path and open a short explanation with a link to its list; tap again
 (or click) to open the list. **Esc** closes the explanation. **Show table**
-gives every figure as a table. On a phone the three columns stack.
+gives every figure as a table.
 
-Every figure is defined once, and equals the list it opens. **New or reopened**
+On a phone the flow puts the answer first: **Actionable now** with its
+priority split as one bar, the outcomes as a grid (**Past SLA**, **In
+progress**, **Open**, then the closures of the period), the five stages as a
+list, and the sources last. Every figure is a tap target of at least 44 px.
+
+The funnel starts at **Findings received**. Every figure is defined once, and equals the list it opens. **New or reopened**
 is the receipt list's **New** plus **Reopened** everywhere on the dashboard (the
 flow, the noise reduction headline, the funnel and the explanations), with the
 suppressed findings shown as part of it. The funnel keeps **Received** and **New
@@ -444,7 +455,8 @@ links to **Crown jewels** to designate them.
   organization dashboards when you hold `dashboards:org:manage`.
 - The **⋯** menu has **Duplicate to mine** (an organization dashboard copied
   to your own dashboards), **Set as my default** or **Set as organization
-  default** (managers), **Edit details** and **Delete** (your own dashboards).
+  default** (managers), **Edit details** (your own dashboards, and organization
+  dashboards for managers) and **Delete** (your own dashboards).
 
 ### Scope and freshness
 
@@ -476,20 +488,52 @@ only on request).
 
 **Dashboards** (`/dashboards`) lists your dashboards and five templates:
 
-| Template | What it shows |
+| Template | What it shows, in order |
 |---|---|
-| **CTEM** | What would cut exposure most; the exposure flow; key figures; this week in brief beside the attack paths to crown jewels; open exposure by priority; new versus fixed; open findings by age; the Fix next table; intake and noise reduction |
-| **Overview** | What would cut exposure most; the exposure flow; key figures; this week in brief beside the attack paths to crown jewels; open exposure by priority; new versus fixed per week; open findings by age; the Fix next table |
-| **Executive** | What would cut exposure most; key figures; this week in brief; exposure by priority; time to fix by priority; new versus fixed |
-| **Vulnerability program** | Within SLA, priority exposure, open findings and time to fix; SLA at risk; new versus fixed; time to fix by priority; age of open findings |
-| **Triage** | Open, priority and KEV counts; open findings by SLA state and by severity; new findings per day; Fix next |
+| **CTEM** | Key figures; what would cut exposure most; the exposure flow; new on the attack surface beside certificate expiry; attack paths to crown jewels beside this week in brief; the Fix next table; open exposure by priority; new versus fixed beside open findings by age; intake and noise reduction |
+| **Overview** | Key figures; what would cut exposure most; the exposure flow; open exposure by priority beside new versus fixed per week; new on the attack surface beside certificate expiry; this week in brief beside the attack paths to crown jewels; the Fix next table |
+| **Executive** | Key figures; this week in brief; exposure by priority and new versus fixed over 12 months; time to fix by priority; new on the attack surface in 30 days beside accepted risks ending; what would cut exposure most |
+| **Vulnerability program** | Open within SLA, priority exposure, KEV on your assets and time to fix; SLA at risk; new versus fixed; time to fix by priority; open findings by age; accepted risks ending beside open findings by SLA state |
+| **Triage** | Priority exposure, KEV on your assets, open findings and open within SLA; Fix next; open findings by severity and by SLA state; new findings per day |
+
+Every template opens on its key figures, then the widget that says what to do
+(**What would cut exposure most** or **Fix next**; the Executive template
+ends with it), then the story in the order of the CTEM loop. A widget grouped
+by something other than its metric's default is titled after both, for
+example **Open findings by SLA state**.
 
 **Use template** copies a template into your own dashboards; **New blank**
-starts empty. Each card has **Open**, **Edit** (name, description and one to
-four columns; widgets keep their share of the row), **Set as my default** and
-**Delete**, which asks first. An earlier personal copy of the CTEM or Overview
-template is offered the newer widgets (see above); nothing changes until you
-choose.
+starts empty. A dashboard made from a template opens on the dashboard itself
+and carries the template's description. Each saved dashboard card has
+**Open**, **Customize** and a menu with **Edit details** (name, description and
+one to four columns; widgets keep their share of the row), **Set as my
+default** and **Delete**, which asks first. An earlier personal copy of a
+template is offered the newer widgets or layout (see above); nothing changes
+until you choose.
+
+### More widgets
+
+Besides the widgets of the templates, the gallery offers:
+
+| Widget | What it counts |
+|---|---|
+| **Emerging threats affecting you** | Open emerging-threat alerts with at least one affected asset in scope, by level (immediate, digest, listed). Each level opens the emerging-threats list with that filter. Until an alert has ever affected your scope it says there is nothing to measure yet. |
+| **Closure quality** | Findings fixed in the period by a person, and closed by the platform on its own; fixed findings that came back; the Ready to close proposals waiting now. Each row opens its list. |
+| **Remediation campaign progress** | Active remediation campaigns, the latest first, with the share of their tasks done, counted over what you may see. Each row opens the campaign. |
+| **False positives by tool** | Per tool, the share of the findings closed in the period that were false positives, for tools with at least 20 closes. Organization dashboards only. |
+| **New on the attack surface** | Assets added in the period, by type, with the period before. |
+| **Certificate expiry** | Certificates in scope that have expired or expire within 7, 30 or 90 days. |
+| **Accepted risks ending** | Risk acceptances that end within 7 days, in 8 to 30 days, or later; the finding reopens when one ends. |
+| **Discovery coverage** | The share of tracked assets with a recent successful scan; the uncovered assets are split by cause (no eligible sensor, sensor or proxy failure, paused, target did not answer, never run, overdue, out of scope), each opening the matching asset list. |
+
+Each band or row opens the list it counts and follows your data scope on a
+personal dashboard. Widgets of a module that is turned off for your
+organization are not offered and are hidden on dashboards, including figures
+stored before the module was turned off.
+
+A scope with no finding yet shows every findings widget in one compact **No
+data yet** state with the next step (import results or set up a scan), never
+zeros or an empty chart, and the widget takes one row.
 
 ![The Dashboards page: five templates and the list of your own dashboards]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
 *Figure: Dashboards.*
@@ -512,14 +556,17 @@ The time-series charts (columns, area, line and new versus fixed) share one
 tooltip. It shows the span of the bucket ("Week of Oct 20 – 26"), one row per
 series in the order the marks are stacked with its colour, value and change
 against the previous bucket, a **Total** for stacks, a **Net change** for new
-versus fixed, and folds series at zero into one line when a chart has three or
+versus fixed (the change, the Total and the Net change are green when better
+and red when worse, using the widget's own direction; screen readers hear
+"better", "worse" or "unchanged"), and folds series at zero into one line when a chart has three or
 more series. It opens on hover, on keyboard focus of the chart (the arrow keys
 move between buckets) and on tap.
 
 ### Customize a dashboard
 
 1. Choose **Customize**. The dashboard switches to editing; **Undo**, **Redo**,
-   **Add widget**, **Cancel** and **Save** sit in the toolbar.
+   **Add widget**, **Cancel** and **Save** sit in the toolbar, which stays in
+   sight under the header while the widgets scroll.
 2. **Add widget** opens the gallery: widgets grouped by goal (**CTEM**,
    **Exposure**, **Remediation and SLA**, **Threat intel**, and **Advanced** for a
    **Note**), with search. Each card shows a live preview from your own data.
@@ -528,7 +575,9 @@ move between buckets) and on tap.
    **Compare** with the previous period, the **Visualization** (only those
    that fit the data; the default is marked), a **Target** for single figures,
    and the **Title** (leave it empty to use the translated name). The preview
-   at the top follows your changes. **Apply** keeps them.
+   at the top follows your changes. **Apply** keeps them, and the new widget is
+   scrolled into view and focused. Story widgets (key figures, what would cut
+   exposure most, the exposure flow, intake) are added full width.
 4. Move and resize widgets with the buttons on each widget or by dragging its
    handle. With the keyboard, focus a widget and use the arrow keys to move it,
    Shift and the arrow keys to resize it, Enter to configure, D to duplicate
