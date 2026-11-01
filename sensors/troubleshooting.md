@@ -29,7 +29,7 @@ work). A failed or warning check also makes an online sensor `degraded`.
 | `network.scan_proxy_inherit` | Scanners inherit `HTTPS_PROXY` and send scan traffic through it | Set `SENSOR_SCAN_PROXY=direct`, or `inherit` to keep it on purpose |
 | `platform.tls` | `SSL_CERT_FILE`, `SSL_CERT_DIR` or `SENSOR_CA_CERT_FILE` points at a path the sensor cannot read | Mount the CA read-only at that path |
 | `runtime.oom_protect` | The sensor cannot protect itself from the out-of-memory killer | Add the `SYS_RESOURCE` capability |
-| `policy.local` `absent` | No sensor-local policy | The network owner installs one ([Network](network.md#sensor-local-policy)) |
+| `policy.local` `absent` | No sensor-local policy: the sensor follows the platform's scope. Nothing to fix unless `SENSOR_REQUIRE_LOCAL_POLICY=true` is set (then it fails with `required_absent`) | The network owner may install a narrowing one ([Network](network.md#sensor-local-policy)) |
 | `policy.template_keys` `missing` | The policy allows custom templates but no signing key is set | Set `SENSOR_TEMPLATE_SIGNING_KEYS` |
 | `config.env_unknown`, `config.file_unknown_key` | A setting the sensor does not read, often a typo | Rename it (the check suggests the closest name) |
 | `platform.ca_pin_host` `ip_url_with_pin` | `SENSOR_CA_FINGERPRINT` is set but `SENSOR_API_URL` is an IP address | Use the host name in the platform's certificate |
@@ -54,7 +54,7 @@ loop until it is fixed.
 | `Warning: tool network not confined (SENSOR_SANDBOX_NETWORK=auto): ... operation not permitted` | sensor | The container's seccomp profile refuses namespaces | Add the sensor's seccomp profile |
 | `... permission denied` in the same warning | sensor | The host restricts unprivileged user namespaces (Ubuntu 23.10+) | Keep the default AppArmor profile; binary: [an AppArmor profile](deploy-binary.md#tool-confinement-on-a-host) |
 | `nuclei keeps to a web scope only in a tool sandbox that confines its network` | task log | A nuclei job on a host with an excluded path, on an unconfined sensor | Run the sensor confined |
-| `refused by local policy: no_local_policy: ...` | task log | A sensor paired by v0.12.0+ without `SENSOR_ALLOWED_RANGES` or a policy file | Set one ([Sensor-local policy](network.md#sensor-local-policy)) |
+| `refused by local policy: no_local_policy: ...` | task log | `SENSOR_REQUIRE_LOCAL_POLICY=true` is set and the sensor has no policy file or `SENSOR_ALLOWED_RANGES` | Set one, or unset `SENSOR_REQUIRE_LOCAL_POLICY` so the sensor follows the platform's scope ([Sensor-local policy](network.md#sensor-local-policy)) |
 | `refused by local policy: <rule>: ...` | task log | The target, port or tool is outside the local policy | `openctemio-sensor policy explain <file> -target <t> -tool <x>` |
 | `the platform's certificate chain does not contain the pinned CA` | sensor | `SENSOR_CA_FINGERPRINT` names a CA the platform does not send in its chain (the built-in gateway's root in TLS mode `internal`), or a proxy is in between | Use `SENSOR_CA_CERT_FILE` instead ([Trust a private CA](deploy-docker.md#trust-a-private-certificate-authority)) |
 | `x509: certificate signed by unknown authority` | sensor | The platform uses a private CA | [Trust it](deploy-docker.md#trust-a-private-certificate-authority) |
@@ -168,11 +168,15 @@ gRPC is unavailable; use it only to test.
 
 Check, in this order:
 
-1. **Local policy.** A sensor paired by sensor v0.12.0 or later refuses every
-   job with network targets until it has a local policy; tasks fail with
-   `refused by local policy: no_local_policy: ...`. Set
-   `SENSOR_ALLOWED_RANGES` or install a policy file
-   ([Sensor-local policy](network.md#sensor-local-policy)).
+1. **Local policy.** A sensor without a policy follows the platform's scope.
+   A sensor set to require one (`SENSOR_REQUIRE_LOCAL_POLICY=true`) refuses
+   every job with network targets until it has one (`refused by local policy:
+   no_local_policy: ...`), and a policy with an empty `targets.allow` allows
+   nothing: the platform then offers it no scan ("Allows nothing yet" on the
+   sensors page). A scan a sensor refuses under its policy goes back to the
+   queue for another eligible sensor, or waits up to 6 hours; after three
+   refusals the task fails naming the target, the sensors and the policy
+   file ([Sensor-local policy](network.md#sensor-local-policy)).
 2. **Trust level.** A newly paired sensor is **New** and receives passive
    (T0) work only: no port scans, HTTP probes or templates. Promote it to
    Trusted ([Pairing](pairing.md#grants-and-trust)).
@@ -223,7 +227,7 @@ the sensor and revoke the old key.
 rules). Content older than its limit makes the sensor `degraded` with
 `content_stale`; a failed refresh keeps the previous version and raises
 `content_refresh_failed`. **Refresh content** on the sensor, or
-**Settings > Scanner content > Content freshness**, asks for a refresh now.
+**Settings > Scanning > Content freshness**, asks for a refresh now.
 
 ## Setup check reference
 
@@ -388,8 +392,9 @@ read-only at that path. See
 {: #policy-local }
 
 `policy.local` `absent`: no local policy is installed on the sensor host, so
-the sensor accepts any target outside its built-in deny list. The network
-owner installs one (`SENSOR_LOCAL_POLICY`, mounted read-only; Helm:
+the sensor follows the platform's signed scope, outside its built-in deny
+list. That is a normal state. A network owner who wants to narrow the sensor
+installs a policy (`SENSOR_LOCAL_POLICY`, mounted read-only; Helm:
 `sensor.localPolicy.enabled: true`). See
 [Sensor-local policy](network.md#sensor-local-policy).
 

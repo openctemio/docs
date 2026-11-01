@@ -30,7 +30,7 @@ downloads it from its upstream, verifies it, and switches to it atomically:
 
 Mirrors, local paths and the refresh interval are sensor settings:
 [Scanner content without internet access](network.md#scanner-content-without-internet-access).
-The organization's content policy (**Settings > Scanner content > Content freshness**)
+The organization's content policy (**Settings > Scanning > Content freshness**)
 sets refresh intervals, maximum ages and pinned versions. Check what a
 sensor holds with `openctemio-sensor -content-status`, or in the sensor's
 sheet under **Discovery > Sensors**.
@@ -156,7 +156,7 @@ writes a high-severity admin audit entry at start-up. A separate secret,
 `APP_CONTENT_SIGNING_KEY`, is the master of each organization's content pack
 signing key; see [Environment variables](../configuration/environment-variables.md).
 
-**Use it.** **Settings > Scanner content > Content catalog** (needs `content:read`, held by every
+**Use it.** **Settings > Scanning > Content catalog** (needs `content:read`, held by every
 default role):
 
 | Tab | What it does |

@@ -91,17 +91,18 @@ Change three things:
 
 - `SENSOR_API_URL`: your platform URL, without a path.
 - `SENSOR_ALLOWED_RANGES`: what this sensor may scan (CIDRs, addresses,
-  `example.com`, `*.example.com`). The sensor refuses every job outside it,
-  whatever the platform sends. **A newly paired sensor without such a list
-  (or a [policy file](network.md#sensor-local-policy)) refuses every job
-  that has network targets.**
+  `example.com`, `*.example.com`). Optional: the sensor refuses every job
+  outside it, whatever the platform sends. **Without a list or a
+  [policy file](network.md#sensor-local-policy) the sensor follows the
+  platform's signed scope**; list ranges only to narrow it.
 - To scan private addresses (RFC 1918, IPv6 ULA), list them and add
   `-e SENSOR_ALLOW_PRIVATE_TARGETS=1`.
 
-If an administrator already created a code with **Create a pairing code first**, add
-`-e SENSOR_PAIRING_CODE=XXXX-XXXX` (that code): the sensor attaches to it on
-first start and you skip step 2. The variable is ignored once the sensor is
-paired and is never logged.
+The console's **Add sensor** gives one command that already carries a
+single-use code, so you can skip step 2: paste it, and the dialog finds the
+sensor by itself ([Pairing](pairing.md#add-a-sensor-one-command-one-approval)).
+`SENSOR_PAIRING_CODE=XXXX-XXXX` is that code; the variable is ignored once the
+sensor is paired and is never logged.
 
 If the platform uses its own CA, add these two lines before the image name:
 
@@ -140,29 +141,33 @@ docker logs openctem-sensor
 ```
 
 ```
-Pair this sensor in OpenCTEM: Sensors > Add sensor > Pair a sensor that shows a code
+Pair this sensor: open https://openctem.example.com/activate?code=K7QM-4ZTD
   Code:        K7QM-4ZTD
   Fingerprint: 821 · melon · basil · bagel    (expires 10:42)
   Key:         SHA256:...
-Approve it only if the console shows the same fingerprint. Waiting for approval...
+In the console, pick this fingerprint and approve. Waiting for approval...
 ```
 
 A code is valid for 10 minutes; the sensor starts a new one when it expires.
 
 ### 3. Approve it in the console
 
-1. Open **Discovery > Sensors > Add sensor**, choose **Pair a sensor that shows a code**, and type
-   the code.
-2. Compare the fingerprint word for word with the sensor's log. If it
-   differs, deny the request.
-3. Pick the scan zones and **What it may do** (the default, *Internal network
-   scanner*, fits most sensors), tick the fingerprint confirmation,
+1. Open the link the sensor printed (it opens **Approve a sensor**), or open
+   **Discovery > Sensors > Add sensor** and use the command there; the
+   dialog finds the sensor by itself. If you have only the code, enter it on
+   the approve page.
+2. Check the organization the sensor joins and the address the request came
+   from. If anything is not what you expect, reject the request.
+3. Pick the fingerprint the sensor's log shows among the three offered. A
+   wrong pick closes the request and notifies the administrators.
+4. Under **More options** pick the scan zones and **What it may do** (the
+   default, *Internal network scanner*, fits most sensors),
    re-authenticate and **Approve**.
 
 ![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 *Figure: Approving a pairing request.*
 
-Details and the other way round (the console makes the code first) are in
+Details, and starting from a code made first, are in
 [Pairing](pairing.md).
 
 ### 4. Check that it works

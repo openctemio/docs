@@ -147,6 +147,13 @@ all capabilities dropped under the sensor release's own seccomp profile
 (`sensor/seccomp.json`); the host must allow unprivileged user namespaces. On a
 host that cannot confine its tools the sensor refuses to start and says why.
 
+**Upgrade note.** The overlay runs the sensor release the platform pins as the
+current one (the platform's release data, shown in the install snippets),
+not an old default. On the next `docker compose up -d` the bundled sensor
+moves to it unless `SENSOR_VERSION` is set in `.env`. Its identity and outbox
+stay on the `sensor-data` volume and it does not pair again. An instance that
+cannot reach the release feed installs the same pinned releases.
+
 An existing sensor paired as an organization sensor stays an organization
 sensor: a sensor's scope is fixed when it is created. To replace it, retire it
 under **Sensors**, stop it and start the overlay with a fresh data volume.

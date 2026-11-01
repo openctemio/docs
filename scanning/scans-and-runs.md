@@ -232,7 +232,10 @@ sensor's measured speed (twice over, plus 5 minutes), or the run's
 configured timeout from the claim when the sensor reports no speed. The
 deadline only moves forward, never past the 24-hour cap, and never when the
 scan sets a **Max duration**; the run page then says "Moved when a sensor
-took the work". A run whose open tasks all wait for a busy sensor of your
+took the work". The task's own deadline is always set to the run's current
+deadline at the claim, so a task that waited in the queue for hours, across
+an earlier claim that moved the run, gets the run's time and not the least
+budget (30 seconds) of a deadline that had already passed. A run whose open tasks all wait for a busy sensor of your
 organization, or for their hosts, is not timed out at its deadline. A step
 is not started when less time is left before the deadline than its tool needs
 to do anything useful: it fails with `DEADLINE_TOO_CLOSE`, and its targets
@@ -245,7 +248,11 @@ succeeded, partial, failed, skipped, canceled), the tool the planner chose,
 its tasks by state, and the findings it produced. The run page offers:
 
 - **Tasks**: each task, its state and the sensor that took it, with its
-  **Logs** (what the tool and the sensor logged, kept 14 days). A task
+  **Logs** (what the tool and the sensor logged, kept 14 days). The Logs
+  dialog of a queued or running task re-reads the log every 3 seconds,
+  follows the newest line while you are at the bottom of the list, and reads
+  once more when the task finishes so its last lines show; a running task
+  with no lines yet says it is waiting for them. A task
   refused before any tool started shows the refusal reason. A running task
   shows its progress (`{done}/{total} targets done`, when it last moved and
   its time budget). A queued task says what it waits for in the **Sensor**
@@ -395,6 +402,27 @@ leaves out the old holder too, when another sensor could take the work.
   (unreachable, blocked or challenged by a WAF or CDN, rate limited) are
   never resent from another sensor in the same run.
 - The run's **Timeline** explains every move.
+
+A scan task a sensor refuses under its
+[local policy](../sensors/network.md#sensor-local-policy) goes back to the queue
+instead of failing: to another eligible sensor at once, or it waits up to 6
+hours ("waiting for an eligible sensor"); a sensor whose policy changes is
+offered the tasks it refused again. After three refusals, or when the wait
+ends, the task fails with a reason that names the target, the sensors that
+refused and the policy file. A refusal of the platform's signed scope fails
+closed and is never handed to another sensor, and a target on the sensor's
+built-in deny list fails at once. The platform offers no scan to a sensor
+whose policy allows no target; a trigger only such sensors could run is
+refused with the sensor's name and the file to edit.
+
+**Late results are fenced.** Results are bound to the lease the task was
+claimed under. A result stated for an older lease epoch is refused
+(`command-not-found`), and a queued report is dropped when its task was taken
+back and handed out again after the report was accepted, so an older run
+never overwrites a newer one. When a claim fails after the tasks were claimed
+(the organization's HTTP policy, program rules or tool settings cannot be
+read), every claimed task is handed back at once, without counting an attempt
+or marking the sensor offline.
 
 ### Cancel a run
 

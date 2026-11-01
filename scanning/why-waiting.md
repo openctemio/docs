@@ -85,7 +85,7 @@ with `withheld_at`.
 | The sensor's grant does not allow it (*dimension*). | Widen the sensor's grant ([Grants and trust](../sensors/pairing.md#grants-and-trust)), or use another sensor. A sensor at trust level New gets passive work only. |
 | On this sensor the task probes harder than the scan's intensity. | Raise the scan's intensity, or use another sensor. |
 | The sensor's grant or policy could not be read, so nothing goes to it for now. | Retry shortly; if it lasts, an administrator checks the platform's logs. |
-| The task has private targets, and the organization requires a sensor-local policy for them. | Install a local policy on the sensor ([Sensor-local policy](../sensors/network.md#sensor-local-policy)). |
+| The task has private targets, and the sensor is set to require a local policy and has none (or its policy allows no target). | Install a local policy on the sensor ([Sensor-local policy](../sensors/network.md#sensor-local-policy)). |
 | The task uses an option the organization has not enabled (callbacks or custom templates). | Enable the option for sensors, or change the scan. |
 | The sensor's local policy refuses the task. | The owner of the scanned network reviews the policy. |
 | The sensor runs as many scans as it can. | Nothing: it takes the task when a slot frees up. |

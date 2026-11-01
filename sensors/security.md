@@ -22,9 +22,9 @@ The design is in [Security](../security/index.md).
 | Threat | What stops it | What you do |
 |---|---|---|
 | A scanner (or a hostile target answering it) reaches hosts outside the job | Tool confinement: each scan in its own network namespace, only the job's targets reachable | Run with the seccomp profile ([below](#tool-confinement)) |
-| The platform (or someone who took it over) sends jobs against hosts you did not allow | Sensor-local policy, read-only on the sensor host | Set `SENSOR_ALLOWED_RANGES` or a policy file ([Network](network.md#sensor-local-policy)) |
+| The platform (or someone who took it over) sends jobs against hosts you did not allow | Sensor-local policy, read-only on the sensor host | Optional: install a narrowing policy file or set `SENSOR_ALLOWED_RANGES`; `SENSOR_REQUIRE_LOCAL_POLICY=true` refuses network jobs without one ([Network](network.md#sensor-local-policy)) |
 | A fake platform answers the sensor's first contact | TLS to the platform, the CA pinned at pairing, optional `SENSOR_PLATFORM_KEY` | Trust the platform CA explicitly ([below](#tls-and-pinning)) |
-| Someone pairs their own sensor into your organization | The approver compares the fingerprint, re-authenticates; new sensors are **New** (passive work only) | Compare the fingerprint word for word; promote only after review |
+| Someone pairs their own sensor into your organization | The approver picks the fingerprint the host shows (a wrong pick closes the request), the review names the organization, the approver re-authenticates; new sensors are **New** (passive work only) | Pick the fingerprint from the host you started; promote only after review |
 | The sensor's key is copied | The key never leaves the volume; two processes with one identity are flagged `identity_cloned` | Back the volume up encrypted; [re-pair](operate.md#rotate-the-sensors-key) after a leak |
 | The sensor process is compromised | Non-root user, read-only root filesystem, no capabilities, `no-new-privileges` | Keep the hardened flags of the [quickstart](index.md#1-start-the-sensor) |
 
