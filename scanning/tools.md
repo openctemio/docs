@@ -165,7 +165,7 @@ local policy can always narrow further. See
 
 ## Custom templates
 
-**Settings > Scanner content > Scanner templates** (`/api/v1/scanner-templates`)
+**Settings > Scanning > Scanner templates** (`/api/v1/scanner-templates`)
 holds your own detection rules:
 
 | Type | Format | Max size | Max rules |
@@ -217,7 +217,7 @@ and javascript types excluded.
 
 The sensor keeps each tool's content (nuclei templates, and on per-tool
 images the trivy database and the SAST rules) current itself and reports the
-versions. **Settings > Scanner content > Content freshness** sets the organization's
+versions. **Settings > Scanning > Content freshness** sets the organization's
 policy: refresh interval, maximum age per content, a pinned version, and the
 semgrep rule sets. The policy never chooses where content comes from; that is
 the sensor host's setting ([Network](../sensors/network.md#scanner-content-without-internet-access)).

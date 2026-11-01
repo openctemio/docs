@@ -227,7 +227,7 @@ the sensor and revoke the old key.
 rules). Content older than its limit makes the sensor `degraded` with
 `content_stale`; a failed refresh keeps the previous version and raises
 `content_refresh_failed`. **Refresh content** on the sensor, or
-**Settings > Scanner content > Content freshness**, asks for a refresh now.
+**Settings > Scanning > Content freshness**, asks for a refresh now.
 
 ## Setup check reference
 
