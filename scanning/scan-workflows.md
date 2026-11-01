@@ -24,10 +24,10 @@ steps, so they run on whichever implementation your sensors have:
 | Workflow | Steps |
 |---|---|
 | Passive discovery | discover subdomains and look up the domain registration, then resolve DNS, then look up the networks of the addresses. Every step is passive (T0) |
-| Subdomains | discover subdomains, resolve DNS, then probe HTTP (and a takeover check, once a tool for it is installed) |
+| Subdomains | discover subdomains, resolve DNS, then probe HTTP and run the takeover check (nuclei with its takeover templates only) |
 | Standard recon | discover subdomains, resolve DNS, then probe HTTP, scan ports and look up networks side by side, then crawl and run vulnerability templates (after the probe and the crawl) |
 | Web | probe HTTP, crawl, then vulnerability templates |
-| Deep recon | Standard recon plus the domain registration lookup, with higher target caps |
+| Deep recon | Standard recon plus the domain registration lookup and the takeover check, with higher target caps |
 | Probe new assets | scan ports and probe HTTP, with no discovery step (the active half of **Continuous discovery**) |
 | Network | find the live hosts of address ranges (host discovery), scan ports, probe HTTP, then vulnerability templates |
 | Code / CI | secrets, SAST, dependency and IaC scans of a repository, in parallel |
@@ -36,8 +36,7 @@ steps, so they run on whichever implementation your sensors have:
 *Figure: Scan workflows.*
 
 System workflows cannot be edited; clone one to change it. Steps whose
-capability has no tool yet (screenshots, service detection, the takeover
-check) are optional: a run skips them with "available when a tool that runs
+capability has no tool yet (screenshots, service detection) are optional: a run skips them with "available when a tool that runs
 <capability> is installed" and never fails because of them.
 
 **Retired workflows.** The earlier starters **Discover**, **Discover + Vuln**
@@ -135,8 +134,8 @@ widen it.
 The official sensor ships subfinder, dnsx, naabu, httpx, katana, nuclei,
 opengrep, semgrep, trivy and betterleaks (see [Tools](tools.md)). A step whose
 capability has no tool on any of your sensors cannot run. Further
-capabilities (for example `check.takeover`, `check.tls`, `cloud.posture`)
-are defined but **planned**: they are listed as unavailable and cannot be
+capabilities (for example `check.tls`, `cloud.posture`) are defined but
+**planned**: they are listed as unavailable and cannot be
 used in a step.
 
 ## Choosing the tool of a step
