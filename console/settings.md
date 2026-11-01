@@ -167,9 +167,16 @@ organization's business mail through this server** and the platform setting
 `email.tenant_relay` allows it: `off`, `verified_sender` (the sender address must be
 on a DNS-verified domain of the organization) or `on`. The default is `on` on a
 self-managed install and `verified_sender` with `MANAGED_SERVICE=true`
-(`ORG_EMAIL_RELAY_MODE` on the server). A super admin changes it through the console
-API (`GET`/`PUT /api/v1/admin/settings/email-relay`, fresh code and reason, audited
-critical); the console has no page for it yet. See [Email](../configuration/email.md).
+(`ORG_EMAIL_RELAY_MODE` on the server). A super admin changes it under **Organization mail servers** on this page: **Never**
+(all mail goes through this deployment's server), **Only from a verified domain**
+(the sender must be on a domain the organization has verified, over a secure
+connection) or **Always, as configured** (the organization's server is used whenever
+it is set). The page says whether the value is **Set in this console** or the server
+default. Saving asks for a fresh authenticator code and a reason, applies at once to
+every organization, is audited as critical and is sent to every administrator. The
+same setting is `GET`/`PUT /api/v1/admin/settings/email-relay`. Sign-in and account
+security mail always uses this deployment's server. See
+[Email](../configuration/email.md).
 
 The `SMTP_*` environment variables were removed in v0.9.0 (except `SMTP_BASE_URL`);
 a headless install stores the first setting with `bootstrap-admin` and
@@ -185,11 +192,24 @@ defaults and the `BRAND_*` settings. Changes show within a minute.
 
 ## Two-factor floor
 
-The lowest two-factor requirement of every organization (`none`, `admins` or
-`everyone`, with grace periods) is set through the console API
-(`/api/v1/admin/settings/auth-mfa`) by a platform owner only (permission
-`platform.settings.mfa`), with a fresh code and a reason; the console has no page
-for it yet. See [The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor).
+**Settings > Two-factor** sets the lowest two-factor requirement of every
+organization: **No floor** (each organization decides), **Owners and
+administrators** (also members with a privileged role) or **Everyone** (every
+member of every organization). Organizations can require more, never less.
+**Days to set it up** gives **Current members** and **New members** time to enrol
+(0 to 90 days). The page shows where the value comes from (**Set in this console**,
+or the server default `AUTH_MFA_FLOOR`) and since when it is in force, and
+recommends **Owners and administrators** on an upgraded install still on no floor.
+**Everyone** stays available: it is the operator's call on a self-managed install,
+and members need an authenticator app until organization passkeys exist.
+
+Only a platform owner changes it (permission `platform.settings.mfa`), with a fresh
+code and a reason (`GET`/`PUT /api/v1/admin/settings/auth-mfa`). Lowering the floor
+asks for confirmation, because organizations that do not require two-factor
+themselves stop asking for it at once. Every change applies at once, is audited as
+critical and is sent to every administrator. The **Configuration** overview links
+both this and the organization mail setting to their pages. See
+[The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor).
 
 ## Announcements
 
@@ -239,7 +259,7 @@ data, so it is off by default.
 
 **Allow organizations to use their own provider** (on by default) is a policy of
 its own: organizations may send their findings to their own AI provider with their
-own key (**Settings › Security › AI**, see
+own key (**Settings › Organization › AI**, see
 [AI](../user-guide/10-settings-and-integrations.md#ai)). Turning it off stops every
 own provider at its next call; none falls back to the platform key.
 

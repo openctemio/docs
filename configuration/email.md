@@ -30,9 +30,11 @@ logged.
 ### Organization relays: platform setting
 
 Whether an organization's relay may carry its business mail is the platform
-setting `email.tenant_relay` (console API `/api/v1/admin/settings/email-relay`;
-changing it needs a super administrator, a fresh step-up and a reason, and is
-audited as critical):
+setting `email.tenant_relay` (console **Settings > E-mail > Organization mail
+servers**, API `/api/v1/admin/settings/email-relay`; changing it needs a super
+administrator, a fresh step-up and a reason, is audited as critical and every
+administrator is told). The console offers **Never**, **Only from a verified
+domain** and **Always, as configured**:
 
 | Value | Meaning |
 |---|---|
@@ -50,6 +52,21 @@ port 465, 587 or 2525 with a username, a password and TLS or STARTTLS; port 25 i
 refused when the channel is saved, tested and before every send. A channel that
 breaks the rule shows `INTEGRATION_EMAIL_RELAY_POLICY` with the reason and stops
 sending; its owners get a notice. Self-managed installs are not affected.
+
+{: .warning }
+> On a hosted service, an e-mail channel saved before this rule that does not meet
+> it stops sending at its next delivery. Every owner of the organization gets an
+> in-app notice and an e-mail from the platform. Edit the channel to port 465, 587
+> or 2525 with a login and TLS, then test it, and delivery resumes.
+
+### How mail is formatted
+
+Platform and organization mail go through the same sender. Every message carries a
+`Date`, a `Message-ID` on the sender's domain and `Auto-Submitted: auto-generated`.
+Subjects and sender names with non-ASCII text (for example Vietnamese organization
+names) are encoded as RFC 2047. HTML mail is sent as `multipart/alternative` with a
+generated plain-text part, quoted-printable encoded and wrapped at 76 characters.
+Line breaks in any header value are removed, so a value cannot inject a header.
 
 ## Configure platform SMTP
 

@@ -648,11 +648,19 @@ provider and the creation and update dates.
     recovery codes** and click **Done**.
   - When it is **On**, the card shows when you turned it on and how many recovery
     codes are left. **New recovery codes** issues a fresh set (your old codes stop
-    working); **Turn off** asks for your password and a code, and you receive an
-    email about the change.
-  - **Required by your organization** means an owner requires two-factor
-    authentication; if you turn it off you must set it up again at your next
-    sign-in.
+    working); **Turn off** asks for your password and a code, signs out every
+    other session of your account (the page says so), and you receive an email
+    about the change.
+  - **Replace authenticator** moves two-factor to a new phone: confirm with your
+    password and a current or recovery code, scan the new QR code and enter the
+    code it shows within 15 minutes. The current app keeps working until the new
+    one is confirmed; then every recovery code is replaced and your other
+    sessions are signed out.
+  - **Required by** an organization or **Required by the platform** means you
+    cannot turn two-factor off: it is refused (`MFA_REQUIRED_BY_POLICY`) while an
+    organization you belong to, or the platform's two-factor floor (also during
+    its grace period), requires it, and the page names who requires it. The
+    refusal is audited and never spends a recovery code.
   - SSO accounts use their identity provider's two-factor settings.
 - **Connected sign-in methods** (when the platform offers Google, GitHub or
   Microsoft sign-in): your password and each provider, **Linked** or **Not

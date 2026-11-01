@@ -45,7 +45,7 @@ You need an OpenCTEM account in the organization. You do not need to be an admin
 
 ### Find the server URL
 
-Open **Settings > Access > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
+Open **Settings > Access & security > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
 configuration with the server URL of your installation. The URL always has this form:
 
 ```
@@ -207,7 +207,7 @@ disconnect it and tell your administrator.
 
 ## Approve applications and set the policy
 
-Administrators manage MCP under **Settings > Access > AI assistants (MCP)**. The page has four tabs:
+Administrators manage MCP under **Settings > Access & security > AI assistants (MCP)**. The page has four tabs:
 
 | Tab | Who sees it | What is on it |
 |---|---|---|
@@ -239,7 +239,7 @@ this application**. This is the secure default. Claude on the web is an applicat
 This is the recommended way. A member who is blocked sends a request from the consent screen, and
 you decide it:
 
-1. Open **Settings > Access > AI assistants (MCP) > Applications**. **Access requests** lists each
+1. Open **Settings > Access & security > AI assistants (MCP) > Applications**. **Access requests** lists each
    waiting request: the application, the publisher, who asked first, how many requests there are,
    when, and **Asks for:** the access it wants.
 2. Check that you recognize the publisher and want that service in the organization.
@@ -328,7 +328,7 @@ who, which application, access, last use and expiry. Choose **Disconnect** to en
 
 ## Audit log
 
-OpenCTEM writes these events to **Settings > Security > Audit log** (resource type `mcp_grant`
+OpenCTEM writes these events to **Settings > Access & security > Audit log** (resource type `mcp_grant`
 unless noted):
 
 | Event | When |

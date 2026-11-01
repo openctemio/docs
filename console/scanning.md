@@ -83,8 +83,7 @@ admin, a fresh code and a reason.
 ## Content catalog
 
 **Content catalog** is the instance's signed catalog of rules, templates, sensors
-and other packages that organizations install from (under **Settings › Scanner
-content** in the organization app).
+and other packages that organizations install from (under **Settings › Scanning** in the organization app).
 
 ![The Content catalog page: the notice that the catalog is not set up, the Trust card with Publish a package and Import a bundle, and the empty package list]({{ site.baseurl }}/assets/images/console/content-catalog.png)
 *Figure: Scanning, Content catalog without trust roots.*

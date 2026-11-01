@@ -44,7 +44,7 @@ password.
 - Every self-registered account (sign-up mode `domain` or `open`) must verify its email address before it can
   sign in. A verified address belongs to the **account**, not to one organization, so no organization
   can skip verification for the others.
-- An organization's **email verification** setting (`auto` or `always`; under **Settings > Security >
+- An organization's **email verification** setting (`auto` or `always`; under **Settings > Access & security >
   Authentication**) decides who may **enter that organization**: with `always`, a member must have a
   verified address, and entering is refused until it is verified (the account's other organizations
   are not affected); with `auto` (the default), verification is required when the installation can
@@ -71,7 +71,7 @@ e-mail does not work:
 
 - the forgot-password page says "This server cannot send email. Ask your administrator for a reset
   link." instead of promising an email;
-- **Settings > Access > Members** shows **This server cannot send email**, and each invitation offers
+- **Settings > Access & security > Members** shows **This server cannot send email**, and each invitation offers
   **Copy new link** (a new token, the old link stops working, nothing is mailed;
   `POST /api/v1/tenants/{tenant}/invitations/{id}/link`) and, for an expired invitation, **Renew**
   (`.../renew`);
@@ -138,7 +138,7 @@ after 90 days.
 ### Joining by domain
 
 An organization owner decides, per domain the organization has verified for SSO, who may join with
-it (**Settings > Security > Domains**; owners change, admins read; saving asks for step-up):
+it (**Settings > Access & security > Domains**; owners change, admins read; saving asks for step-up):
 
 | Setting | Meaning |
 |---|---|
@@ -152,7 +152,7 @@ it (**Settings > Security > Domains**; owners change, admins read; saving asks f
 *Figure: Settings, Security, Domains.*
 
 Everything is off until an owner turns it on, and stops at once when the domain claim lapses. Join
-requests wait under **Requests to join** on **Settings > Access > Members**: an administrator approves them as
+requests wait under **Requests to join** on **Settings > Access & security > Members**: an administrator approves them as
 viewer or member, or rejects them. One request per person and organization is pending, a person may
 ask 5 times a day, and requests expire after 30 days. Nobody becomes an administrator by request.
 
@@ -174,7 +174,7 @@ and the action is audited at critical severity in the organization.
 
 ## Inviting people
 
-Owners and admins invite from **Settings > Access > Members** (`POST /api/v1/tenants/{tenant}/invitations`):
+Owners and admins invite from **Settings > Access & security > Members** (`POST /api/v1/tenants/{tenant}/invitations`):
 
 - An invitation names one or more roles. **Owner** is never offered; only an owner can invite an
   **admin**.
@@ -198,7 +198,7 @@ Owners and admins invite from **Settings > Access > Members** (`POST /api/v1/ten
 ### People outside the organization
 
 Anyone may be invited, to any role except owner, unless the organization restricts invitations
-(**Settings > Security > Authentication**, **Who can be invited**: **Anyone** (default), **Verified domains
+(**Settings > Access & security > Authentication**, **Who can be invited**: **Anyone** (default), **Verified domains
 only**, or **Verified and allowed domains**; an organization with allowed email domains reads as the
 last). A person whose email domain the organization does not hold is **outside** the organization:
 
@@ -235,7 +235,7 @@ The organization's **personal accounts** policy (owner; security settings API
 
 ## Organization access policies
 
-Owners set these under **Settings > Security > Authentication**
+Owners set these under **Settings > Access & security > Authentication**
 (`PATCH /api/v1/tenants/{tenant}/settings/security`, step-up required):
 
 - **Allowed email domains.** When set, only these exact domains (`example.com` does not admit

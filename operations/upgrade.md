@@ -267,7 +267,7 @@ runs on those steps (see [How upgrades work](#how-upgrades-work)).
   clock-skew problem and the sensor prints the offset.
 - **OIDC.** An identity provider that signs id_tokens with RS384 or RS512 must switch to
   RS256, PS256 or ES256. If `OAUTH_GOOGLE_SCOPES` was overridden, it must include `openid`.
-- **SCIM tokens** expire 90 days after the migration; rotate them in **Settings > Directory
+- **SCIM tokens** expire 90 days after the migration; rotate them in **Settings > Access & security > Directory
   sync (SCIM)** and paste the new token into the identity provider. A client that creates
   tokens through the API sends `expires_in_days` (1 to 365).
 - **Organization email channels** must use port 25, 465, 587 or 2525; the platform relay is

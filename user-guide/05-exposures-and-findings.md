@@ -688,7 +688,7 @@ From any step before Resolved a pentest finding can also be marked
 ### Sub-statuses and your own lifecycle
 
 An organization can add its own labels inside each status and its own rules for
-moving between them, under **Settings › Findings › Finding lifecycle** (needs the
+moving between them, under **Settings › Findings & assets › Finding lifecycle** (needs the
 **Manage Finding Lifecycles** permission). A label never changes what a metric,
 an SLA or an export counts: they keep reading the status.
 
@@ -726,7 +726,7 @@ an SLA or an export counts: they keep reading the status.
   timeline, and the CI gate refuses an acceptance that has no end. Accepted
   findings that had none when the platform was upgraded were given one then.
 - Resolving a finding by hand needs the verify permission.
-- Who approves, and how many people, is set under **Settings › Findings ›
+- Who approves, and how many people, is set under **Settings › Findings & assets ›
   Finding approvals** (see [Settings](10-settings-and-integrations.md#findings--assets)).
   The **Approval policy** card has two separate settings, **False positive** and
   **Risk acceptance**, each **Always** (a second person, the default), **Only

@@ -15,7 +15,7 @@ or let provisioned people set a password.
 
 ## 1. Create a SCIM token
 
-In the organization, **Settings > Access > Directory sync (SCIM)** (the owner generates and revokes tokens; admins can view them):
+In the organization, **Settings > Access & security > Directory sync (SCIM)** (the owner generates and revokes tokens; admins can view them):
 
 1. Select **Generate token**, give it a name (for example `Okta production`), choose when it
    expires (30, 90, 180 or 365 days; the API accepts 1 to 365 as `expires_in_days`) and confirm

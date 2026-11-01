@@ -43,7 +43,7 @@ scan result, a repository or a model output decides on its own.
 | [AI triage](../api/ai-triage.md#false-positive-proposals) is confident a medium or low finding is a false positive | A pending false-positive request made by `ai_triage` | Any approver; never automatic |
 
 How many people decide a false positive is an organization setting under
-**Settings › Findings › Finding approvals** (**Approval policy**, **False positive**): **Always** (the default; a second
+**Settings › Findings & assets › Finding approvals** (**Approval policy**, **False positive**): **Always** (the default; a second
 person approves every false positive), **Only for serious findings** (a second person only
 for a critical or high finding, a known exploited one, P0 or P1, a validated
 exploit, or a crown-jewel or internet-exposed asset) or **Never** (one person with

@@ -11,8 +11,8 @@ Two separate things decide what a person gets in an organization:
 
 | Question | Decided by | Where you set it |
 |---|---|---|
-| What can this person **do**? (invite people, run scans, change settings) | Their **roles** | **Settings > Access > Members**, **Change roles** |
-| Which **assets** (and the findings, exposures and components linked to them) does this person see? | Their **teams** and any direct grants | **Settings > Access > Teams**, the team's **Assets** and **Scope rules** tabs |
+| What can this person **do**? (invite people, run scans, change settings) | Their **roles** | **Settings > Access & security > Members**, **Change roles** |
+| Which **assets** (and the findings, exposures and components linked to them) does this person see? | Their **teams** and any direct grants | **Settings > Access & security > Teams**, the team's **Assets** and **Scope rules** tabs |
 
 A role never lists assets, and a team never makes someone an administrator. Keep the two in mind
 when someone says "I can sign in but I see nothing" or "I can see everything but cannot change
@@ -48,7 +48,7 @@ ways, from broadest to narrowest:
 | Way | When to use it |
 |---|---|
 | The **Admin** role (only the owner can give it) | The person also manages members, settings and integrations. |
-| A **custom role** with **Full data access** ("Access all data regardless of team membership") | The person needs the whole inventory but not administrator rights, for example an analyst or an auditor. Create it in **Settings > Access > Roles**, then give it in **Members > Change roles**. |
+| A **custom role** with **Full data access** ("Access all data regardless of team membership") | The person needs the whole inventory but not administrator rights, for example an analyst or an auditor. Create it in **Settings > Access & security > Roles**, then give it in **Members > Change roles**. |
 | A **team set to All assets** (only the owner can set it) | Everyone in a group should see everything. The team is marked **Elevated access**. |
 
 Giving full data access, like any privileged role, asks you to confirm your identity again (see

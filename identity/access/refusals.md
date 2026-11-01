@@ -27,7 +27,7 @@ rule applied. The sentence comes with a code, which is also what the API returns
 ## Which one applies to my case?
 
 - **Adding someone to a team fails, and I am an administrator**: probably
-  `TEAM_PRIVILEGED_OWNER_ONLY`. Check the team's **Roles** tab for a **Privileged** role.
+  `TEAM_PRIVILEGED_OWNER_ONLY`. Check the team's **Access** tab for a **Privileged** role.
 - **An outside colleague cannot see everything though I added them to the "everything" team**:
   full data access is never given through a team to outside members (`TEAM_EXTERNAL_FULL_DATA`).
 - **The dialog asked me to confirm and then the change worked**: that is the normal step-up. It

@@ -12,7 +12,7 @@ changes go through the same approvals, audit log and notifications. People or te
 for it, and it pauses on its own when nobody does. The concept is explained in
 [AI agents](../overview/ai-agents.md); this page is the console page where you manage them.
 
-**Settings > Security > AI** (`/settings/ai`) has an **AI agents** section. Everyone who
+**Settings > Organization > AI** (`/settings/ai`), tab **Features**, has an **AI agents** section. Everyone who
 can use AI may read the list; creating and changing AI agents needs
 `service_accounts:manage` (owners and administrators by default).
 

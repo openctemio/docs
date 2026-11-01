@@ -107,6 +107,6 @@ sequenceDiagram
 ## What you see
 
 - An **AI agent** badge, "AI agent {name}", with "Accountable: {owners}" on the finding timeline.
-- Settings > Security > AI > AI agents: each AI agent's preset, status, owners and attestation date.
+- Settings > Organization > AI > AI agents: each AI agent's preset, status, owners and attestation date.
 - Each AI run with its model, prompt version and the fields sent and withheld (API).
 - AI comments are internal: they are never sent to tickets or integrations.
