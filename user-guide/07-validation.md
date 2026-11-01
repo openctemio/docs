@@ -32,15 +32,31 @@ campaigns**, **Attack simulation**, **Control testing**, **Retest queue** and
 
 ## Validation overview
 
-**Validation › Overview** (`/validation`) shows whether fixes and controls are
-proven and what is waiting to be re-tested:
+**Validation › Overview** (`/validation`) shows whether fixes hold and controls work, and what is waiting
+for you. Every number opens the findings list it counts.
 
-- **P0/P1 validation coverage**, **Retests due**, **Open campaigns**,
-  **Simulations** and **Control tests**.
-- **Coverage by priority**: the share of closed findings with validation
-  evidence (pentest, scripted or sensor).
-- **Recent activity** across pentest findings, simulation runs and control tests.
-- Cards linking to each validation area (shown when its module is on).
+The strip at the top:
+
+- **P0/P1 validation coverage**: the share of closed P0 and P1 findings with validation evidence (pentest,
+  scripted or sensor), the same figure the CTEM cycle uses before a cycle can close. P0 and P1 are shown
+  under it. With no closed P0 or P1 finding yet it shows a dash.
+- **Validated, last 30 days**: findings closed in the last 30 days after a re-check stopped reproducing
+  them.
+- **Still reproduces**: open findings whose latest re-check reproduced them.
+- **Reopened, last 30 days**: findings that came back after they were closed.
+
+**Waiting for you** lists only the queues that have something in them, each with the action that empties
+it:
+
+- **Fixes waiting for validation**: findings marked fixed that no re-check has confirmed yet (pentest
+  findings are counted in the retest queue instead when the pentest module is on).
+- **Pentest retests due** (pentest module): findings being fixed or fixed, waiting for a retest.
+- **Ready to close** (verifiers): closes waiting for a verifier.
+- **Open campaigns** (pentest module): campaigns in planning or in progress.
+
+When nothing is waiting, the block says so and links to the validation areas that are on. A module the
+organization switched off leaves the page; owners and admins see one line naming it, with a link to
+**Settings › Modules**.
 
 ![The Validation overview with coverage by priority and recent validation activity]({{ site.baseurl }}/assets/images/user-guide/validation.png)
 *Figure: The Validation overview.*
