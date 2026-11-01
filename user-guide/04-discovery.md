@@ -292,34 +292,61 @@ break-glass). A repository that a CI trust names also appears as a scope entry
 
 ## Attack surface
 
-**Discovery › Attack surface** has six tabs: **Overview**, **Review**,
-**Lookalikes**, **Changes**, **Web surface** and **Certificates**. See also
-[Attack surface monitoring](../scanning/easm.md).
+**Discovery › Attack surface** (`/attack-surface`) is one strip of five views:
+**Overview**, **Inventory**, **Exposures**, **Changes** and **Discovery**. A view
+that has more than one page shows a segmented control under the strip to switch
+between its pages; a page you have no permission for is left out, and a view
+with no page left is hidden.
+
+| View | Pages | Permission to open |
+|---|---|---|
+| **Overview** | **Summary** (`/attack-surface`) | `assets:read` |
+| **Inventory** | **Technologies**, **Certificates**, **Web surface** | `assets:read` |
+| **Exposures** | **Exposure items**, **Lookalikes** | `findings:exposures:read` (and `findings:read`); `scope:read` |
+| **Changes** | **Surface** (`/attack-surface/changes`) | `assets:read` |
+| **Discovery** | **Stages**, **Decisions** | `scans:read`; `assets:read` |
+
+The number of decisions waiting shows on **Discovery**. Clicking an asset on
+any of these pages opens its drawer over the list; a modified click (Ctrl or
+Cmd) opens the asset page. See also [Attack surface monitoring](../scanning/easm.md).
 
 ### Overview
 
-**Overview** (`/attack-surface`) shows what your organization exposes and how it
-changed this week.
+**Overview** (`/attack-surface`) shows what your organization exposes, what to
+fix first and whether discovery keeps up.
 
-- The cards: **Total assets**, **Exposed assets** (public exposure), **Critical
-  exposures** and **Average risk score**, each with the number new in the window.
-- **External surface**: domains, subdomains, IPs and certificates; how many are
-  confirmed yours, need review, or are dependencies or monitor-only; how many
-  are new in the last 7 and 30 days and since the CTEM cycle started; and the
-  state of Certificate Transparency monitoring.
-- **Top external risks**: open exposures of medium severity or higher, with a
-  link to all exposures.
-- **Monitoring** (for administrators): turn **Certificate Transparency
-  discovery** and **DNS checks** on or off, choose **How often** they run (every
-  6, 12, 24 or 48 hours, or weekly; never more often than every 6 hours) and
-  **Run now** (at most once per 15 minutes). The same card switches **Automatic
-  enrichment** (every new asset in your scope gets DNS records, domain
-  registration and the network owner of its addresses, from public lookups only),
-  **Certificate checks of lookalike domains**, **Network seed lookups**,
-  **Screenshots of web assets** (off by default; kept for 30 days) and the
-  **Weekly digest** (see [Changes](#changes)).
-- **Asset breakdown**, **Exposed assets** (**View all** opens the external
-  attack surface list) and **Recent changes** (**View all** opens Assets › Activity).
+- One strip of five tiles, each opening the list it counts: **Surface
+  assets** (attributed to your organization: confirmed, or found by a rule you
+  trust), **Internet-facing assets** (with how many are newly exposed in the
+  last 7 days), **New in the last 7 days** (domains, subdomains, addresses and
+  certificates first seen; opens **Changes**), **Open exposures** and **Waiting
+  for a decision** (opens **Decisions**).
+- **Fix first**: the most severe open external exposures, each with its
+  severity, type and asset (the asset opens in its drawer). **All N open**
+  opens the exposures list.
+- **Discovery**: **Found, not yet decided** (with how long the oldest has
+  waited), **Discovered, passive only until in scope**, **Dependency or monitor
+  only**, **Domains watched in CT logs** (with how many fail) and **Oldest CT
+  check**. **Decide N** opens **Decisions**.
+- **Monitoring settings** (button on the Discovery card) opens the settings in a
+  drawer; administrators can change them there:
+  - Turn **Certificate Transparency discovery** and **DNS checks** on or off,
+    choose **How often** they run (every 6, 12, 24 or 48 hours, or weekly;
+    never more often than every 6 hours) and **Run now** (at most once per 15
+    minutes).
+  - The same card switches **Automatic enrichment** (every new asset in your
+    scope gets DNS records, domain registration and the network owner of its
+    addresses, from public lookups only), **Certificate checks of lookalike
+    domains**, **Network seed lookups**, **Screenshots of web assets** (off by
+    default; kept for 30 days) and the **Weekly digest** (see
+    [Changes](#changes)).
+- **Asset breakdown** (by type, with how many are exposed; each row opens the
+  inventory for that type) and **Recent changes** (**View all** opens
+  **Changes**).
+
+The list of every internet-facing asset, `/attack-surface/external`, still
+opens by its address, with filters, **Export**, **Scan this page** and **Add
+asset**; the overview opens the inventory instead.
 
 **Continuous Certificate Transparency monitoring.** Besides scans, the platform
 watches public Certificate Transparency logs (crt.sh, with Cert Spotter as a
@@ -331,86 +358,61 @@ within 30 days or recently expired (`certificate_expiring`,
 `certificate_expired`); see [Exposures](05-exposures-and-findings.md#exposures).
 New names also join the inventory at once: confirmed when they sit under a
 permanent scope entry, otherwise as *discovered* (unless **Review
-discovered assets first** is on). DNS
-checks run right after and flag dangling CNAME or NS records and weak email
-security. The platform operator can turn monitoring off or change its default
-interval (24 hours) for the whole installation.
+discovered assets first** is on). A name that resolves to an address you put out
+of scope as a dedicated address is skipped, and gets no Certificate Transparency
+evidence. DNS checks run right after and flag dangling CNAME or NS records and
+weak email security. The platform operator can turn monitoring off or change its
+default interval (24 hours) for the whole installation.
 
-### External attack surface
+### Technologies
 
-**View all** on the Overview opens **External attack surface**
-(`/attack-surface/external`): every internet-facing asset, riskiest first, with
-its service facts, risk, findings and labels. Filter by type and risk, **Export**
-to CSV, **Scan this page**, or **Add asset** (an external domain, subdomain, IP
-address, service or certificate).
+**Inventory › Technologies** (`/attack-surface/technologies`) lists what your
+external assets run, one row per technology and version. It needs `assets:read`
+and follows your data scope.
 
-### Review
+- The strip counts **Technology versions**, **With known CVEs**, **Known
+  exploited** and **Version unknown**; click one to filter the table.
+- Columns: **Technology** (with its vendor), **Version**, **Category**,
+  **Assets**, **CVEs** (how many the platform knows for that version, with the
+  top CVE and its CVSS score, or **None known**), **Exploit** (**Public
+  exploit**, or known exploited), **Active alerts** (open emerging-threat
+  alerts about those CVEs) and **Last seen**.
+- Search by technology, version or vendor, filter by **Category** and
+  **Version** (**Version known** or **Version unknown**), sort on any column, and
+  **Export CSV**.
+- The **Assets** count opens the inventory filtered to that exact version; for
+  a row whose version the tools could not tell, to the assets with no version.
 
-**Review** (`/attack-surface/review`) collects the decisions that still
-need a person. Confirming a name or address as yours adds its exact scope
-entry; addresses are never added because a name points at them.
+Technologies come from the HTTP probe and other fingerprinting tools, and from
+[detection rules](../scanning/easm.md#detection-rules) that read the web content
+a scan already fetched. A probe's CPE name fills the vendor.
 
-- **Waiting for your decision** opens with the card **N addresses your
-  in-scope names resolve to**. Adding them scans every port of those
-  addresses; a name never makes an address yours, so add only addresses you
-  know are yours. The card shows **Network unknown for N: check they are
-  yours**, **Shared, not offered** (CDN, CDN edge range, shared hosting where
-  names of 3 or more domains point, another organization's or a provider's
-  network), **Your own network** with **Add {prefix}**, and **Already get
-  low-impact checks (add to scope for a full scan)**, each address with its
-  open ports and other names. Actions: **Add N to scope**, **Not ours**
-  (never scanned or suggested again, until undone on the asset), **Not now**
-  and **Undo**. A second card lists assets you confirmed that are not in
-  scope.
-- The list below (views **Awaiting a decision** and **Not ours**) shows each
-  name with its state, confidence, why it may be yours (under a verified
-  domain, under a domain you listed, a target you scanned, found by one of
-  your scans, under a scope entry) and the scope entry that covers it (or
-  **Add to scope**).
-- Select names and decide: **Ours: add to scope**, **Not ours**,
-  **Dependency** or **Monitor only** (needs the assets write permission).
+### Certificates
 
-Discovered names join the inventory without waiting here, unless **Review
-discovered assets first** is on in the scope policy
-([Scoping](03-scoping.md#scope-policy)).
+**Inventory › Certificates** (`/attack-surface/certificates`) lists the TLS
+certificates found on your external assets, with who they were issued to, who
+issued them and when they expire.
 
-### Lookalikes
+- The cards: **Certificates**, **Expired** and **Expiring in 30 days**; the
+  last two filter the table.
+- Columns: **Issued to**, **Fingerprint (SHA-256)** (**Copy fingerprint**),
+  **Issuer**, **Issued on**, **Expires on** and **Detected**, and a status
+  per row: **Expired**, **Expiring soon**, **Valid** or **Unknown**, computed
+  when the page loads. Self-signed and wildcard certificates are marked.
+- **Search subject, issuer or fingerprint**, filter by **Status**, and
+  **Export CSV**.
 
-**Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
-registered to imitate yours, without contacting them: DNS lookups and Certificate
-Transparency only, daily for registered lookalikes and weekly for the rest.
-
-- Under **Watched domains**, **Watch a domain** takes one of your root domains
-  (a permanent domain scope entry or a verified domain). Each watch has **Monitor**
-  on or off, **Candidates to check** (10 to 1000) and the **Kinds of lookalikes**
-  to generate (omitted or doubled letters, swapped letters, neighboring keys, a
-  hyphen, look-alike characters, bit flips, another ending; none selected means
-  all). **Stop watching** resolves its open lookalike exposures.
-- **Registered lookalikes** lists the names that exist, with whether they have
-  addresses, receive mail or hold certificates (mail servers or a certificate make
-  phishing more likely). Decide each: **Ours or benign**, **Not a threat** or
-  **Taken down**; the states are **To review**, **Ours or benign**, **Not a
-  threat** and **Taken down**. An open lookalike is an exposure
-  ([Exposures](05-exposures-and-findings.md#exposures)).
-- Certificate lookups of lookalikes go to crt.sh; **Certificate checks of
-  lookalike domains** in the Monitoring card turns them off, and lookalikes are
-  then checked through DNS only.
-
-### Changes
-
-**Changes** (`/attack-surface/changes`) lists what changed on your external
-attack surface: new and removed hosts, opened and closed ports, new or expiring
-certificates, DNS changes (including dangling DNS), technology changes and new
-exposures, newest first, for the assets you can see. Filter by **Change kinds**
-and by time window; **Show older changes** pages back. Once a week the
-administrators and the notification channels that receive attack surface events
-get a **Weekly digest** of these changes (the day and hour are set in the
-Monitoring card; a week without changes sends nothing).
+It needs `assets:read`, and lists only the certificates in your data scope.
+Certificates appear once a scan of your external assets reads them. The names
+in a certificate (its alternative names and subject name) also become candidate
+subdomains when they sit below one of your domains; see
+[Names from certificates](../scanning/easm.md#names-from-certificates).
 
 ### Web surface
 
-**Web surface** (`/attack-surface/web`) shows what your web origins serve: endpoints,
-their parameters (names only), the same path across origins, and what changed.
+**Inventory › Web surface** (`/attack-surface/web`) shows what your web origins
+serve: endpoints, their parameters (names only), the same path across origins,
+and what changed.
 
 - The cards: **Endpoints**, **Sensitive, no auth**, **Excluded, untested** and
   **Sensitive and untested**.
@@ -435,23 +437,143 @@ origins come from the HTTP probe: each probed origin is its own asset, named
 by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
 the subdomain or address it runs on.
 
-### Certificates
+### Exposure items
 
-**Certificates** (`/attack-surface/certificates`) lists the TLS certificates
-found on your external assets, with who they were issued to, who issued them
-and when they expire.
+**Exposures › Exposure items** (`/attack-surface/exposures`) lists every exposure
+of the external surface with the asset it is on. It needs `findings:read` and
+`findings:exposures:read` and the **Attack surface** module, and follows your
+data scope; an exposure that belongs to no asset is visible to callers with
+access to all assets only.
 
-- The cards: **Certificates**, **Expired** and **Expiring in 30 days**; the
-  last two filter the table.
-- Columns: **Issued to**, **Fingerprint (SHA-256)** (**Copy fingerprint**),
-  **Issuer**, **Issued on**, **Expires on** and **Detected**, and a status
-  per row: **Expired**, **Expiring soon**, **Valid** or **Unknown**, computed
-  when the page loads. Self-signed and wildcard certificates are marked.
-- **Search subject, issuer or fingerprint**, filter by **Status**, and
-  **Export CSV**.
+- It opens on open exposures (**Active** and **In progress**) of monitored
+  assets. Clear the **Status** and **Asset monitoring** filters to see resolved
+  exposures or assets that are not monitored.
+- The strip counts **Exposures** and each severity; the **By type** row counts
+  by display category, and both filter the table. Each exposure has one display
+  category: **Exposed ports**, **Hijackable subdomains**, **Email security**,
+  **SSL/TLS issues**, **Certificates**, **DNS changes**, **Lookalike domains**,
+  **Leaked credentials and data**, **Exposed web interfaces**, **Exposed APIs**,
+  **Exposed AI services**, **Exposed cloud storage**, **Public code
+  repositories**, **Web application security**, **Identity** and **Other**.
+- Columns: **Exposure** (a one-line summary such as "Port 6379 (Redis) is open
+  to the internet"), **Asset** (with its monitoring state and **Primary asset**
+  when it is one of your root domains), **Severity**, **Status**, **First seen**
+  and **Last seen**.
+- **Group by asset** shows one row per asset with its **Highest severity** and
+  **Exposures**; **Exposures** switches back. Filter by **Status**, **Asset
+  monitoring** and **Primary assets**, search an exposure or asset, and **Export
+  CSV**.
+- The row menu moves an exposure through its states: **Start progress** (state
+  **In progress**, still open) and **Stop progress**, **Resolve**, **Accept**,
+  **False positive** (these two need approval rights) and **Reactivate**.
+  Automatic resolutions (a closed port, a rejected name, a DNS check that
+  passes) also resolve in-progress exposures.
+- **Change severity** (row menu, or the severity cell; needs `findings:severity`
+  and `findings:exposures:triage`) sets the severity your team works with, with
+  a required reason. The severity the scan reported stays recorded, later scans
+  do not change your decision, **Use the reported severity** removes it, and
+  the change is audited as `exposure.severity_changed`.
 
-It needs `assets:read`, and lists only the certificates in your data scope.
-Certificates appear once a scan of your external assets reads them.
+API: `GET /api/v1/attack-surface/exposures`, `/stats` and `/assets`. See also
+[Exposures](05-exposures-and-findings.md#exposures).
+
+### Lookalikes
+
+**Exposures › Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
+registered to imitate yours, without contacting them: DNS lookups and Certificate
+Transparency only, daily for registered lookalikes and weekly for the rest.
+
+- Under **Watched domains**, **Watch a domain** takes one of your root domains
+  (a permanent domain scope entry or a verified domain). Each watch has **Monitor**
+  on or off, **Candidates to check** (10 to 1000) and the **Kinds of lookalikes**
+  to generate (omitted or doubled letters, swapped letters, neighboring keys, a
+  hyphen, look-alike characters, bit flips, another ending; none selected means
+  all). **Stop watching** resolves its open lookalike exposures.
+- **Registered lookalikes** lists the names that exist, with whether they have
+  addresses, receive mail or hold certificates (mail servers or a certificate make
+  phishing more likely). Decide each: **Ours or benign**, **Not a threat** or
+  **Taken down**; the states are **To review**, **Ours or benign**, **Not a
+  threat** and **Taken down**. An open lookalike is an exposure
+  ([Exposures](05-exposures-and-findings.md#exposures)).
+- Certificate lookups of lookalikes go to crt.sh; **Certificate checks of
+  lookalike domains** in the Monitoring settings turns them off, and lookalikes
+  are then checked through DNS only.
+
+### Changes
+
+**Changes** (`/attack-surface/changes`, page **Surface**) lists what changed on
+your external attack surface: new and removed hosts, opened and closed ports,
+new or expiring certificates, DNS changes (including dangling DNS), technology
+changes and new exposures, newest first, for the assets you can see. Filter by
+**Change kinds** and by time window; **Show older changes** pages back. Once a
+week the administrators and the notification channels that receive attack
+surface events get a **Weekly digest** of these changes (the day and hour are
+set in the Monitoring settings; a week without changes sends nothing).
+
+### Discovery stages
+
+**Discovery › Stages** (`/attack-surface/discovery`) shows the coverage work of
+your organization in four stages: **Asset discovery**, **Exposure scan**,
+**Validation & scoping** and **Technology discovery**. It needs `scans:read` and
+access to all of the organization's assets (without it the page answers 403
+`DISCOVERY_FULL_DATA_REQUIRED`).
+
+- Each stage shows its status (**Idle**, **Running**, **Paused** with the
+  reason, such as **A wordlist is missing**, **No sensor can take the run** or
+  **Automatic coverage is off**, or **Failed**), **Last run**, progress ("N of M
+  checks covered"), the covered count of each capability it runs, and a line on
+  what the stage does.
+- The strip shows **Stages running**, **Daily budget used** (checks started in
+  the last 24 hours against the daily coverage budget) and **Assets in last
+  auto-validation** (assets whose attribution the latest Validation & scoping
+  run decided on its own). **Refresh** reloads and **Export CSV** saves the
+  stages.
+- **Run** on a stage, or **Run all**, makes the stage's covered, due and failed
+  checks due now; the coverage loop plans them on its next pass, through your
+  scope rules and the daily budget. Paused, blocked and queued checks are left
+  alone. A stage can run once a minute; running is refused while automatic
+  coverage is off or the day's budget is spent. It needs `scans:write` and
+  `scans:execute`, and is audited as `easm_discovery.run`.
+- **Abort all** cancels the organization's active coverage runs and tells their
+  sensors to stop; your own scans are not touched and automatic coverage keeps
+  its schedule. It needs `scans:write` and is audited as
+  `easm_discovery.aborted`.
+
+See [Automatic coverage](../scanning/asset-coverage.md).
+
+### Decisions
+
+**Discovery › Decisions** (`/attack-surface/review`) collects the decisions that
+still need a person. Confirming a name or address as yours adds its exact scope
+entry; addresses are never added because a name points at them.
+
+- **Waiting for your decision** opens with the card **N addresses your
+  in-scope names resolve to**. Adding them scans every port of those
+  addresses; a name never makes an address yours, so add only addresses you
+  know are yours. The card shows **Network unknown for N: check they are
+  yours**, **Shared, not offered** (CDN, CDN edge range, shared hosting where
+  names of 3 or more domains point, another organization's or a provider's
+  network), **Your own network** with **Add {prefix}**, and **Already get
+  low-impact checks (add to scope for a full scan)**, each address with its
+  open ports and other names. Each address also carries an ownership
+  assessment (high, medium, low or unknown) from your network seeds, the
+  network holder, the reverse name, how many of your names point at it and for
+  how long; the strongest are listed first. Nothing is added automatically.
+  Actions: **Add N to scope**, **Not ours** (never scanned or suggested
+  again, until undone on the asset), **Not now** and **Undo**. A second card
+  lists assets you confirmed that are not in scope.
+- The list below (views **Awaiting a decision** and **Not ours**) shows each
+  name with its state, confidence, why it may be yours (under a verified
+  domain, under a domain you listed, a target you scanned, found by one of
+  your scans, named in a TLS certificate, under a scope entry) and the scope
+  entry that covers it (or **Add to scope**).
+- Select names and decide: **Ours: add to scope**, **Not ours**,
+  **Dependency** or **Monitor only** (needs the assets write permission).
+
+Discovered names join the inventory without waiting here, unless **Review
+discovered assets first** is on in the scope policy
+([Scoping](03-scoping.md#scope-policy)). The same decisions are available on an
+asset: see [Decide monitoring](#decide-monitoring-on-the-assets-list).
 
 ### Import recon results
 
@@ -508,7 +630,7 @@ review and are never scanned; findings on them stay visible with the tag
   its other names, issuer and expiry in the tooltip.
 - Columns: name, type, service facts, criticality, exposure, internet-facing,
   owner, risk, findings, last seen, labels (off by default; turn it on under
-  **View**) and **Scope** (**In scope** when a
+  **View**), **Monitoring** (see below) and **Scope** (**In scope** when a
   scope entry covers the asset). The scope labels say "passive only" for
   assets no entry covers; such an asset gets what **Scan unclassified
   assets** allows, low-impact checks by default
@@ -537,6 +659,26 @@ IT: the network zone, not the scan scope), **Exposure** (Public, Restricted, Pri
 how reachable it is from the internet) and a **Risk score** (0 to 100, from
 criticality, exposure and findings; see
 [Risk scoring](06-prioritization.md#risk-scoring)).
+
+#### Decide monitoring on the assets list
+
+Every asset has one **Monitoring** state, derived from its ownership decision,
+scope and activity: **Monitored** (the platform watches it), **Not monitored**
+(kept for reference, or no scope entry covers it and unclassified assets are not
+scanned), **Pending decision** (someone needs to decide whether it is yours),
+**Unvalidated** (found by discovery with too little evidence that it is yours),
+**Irrelevant** (marked not yours), **Inactive** (inactive or archived) and **Out
+of scope** (yours, but excluded from scanning). Filter by **Monitoring**, and by
+**Primary assets** (the domain assets named like the root of a permanent domain
+scope entry or a verified domain).
+
+With `assets:write` the state in a row is a menu: **Ours**, **Watch only**,
+**Ours, on third-party infrastructure**, **Not ours**, or **Undo the decision**,
+each with a line on what it does (the one in force is not offered). A pick
+records the same ownership decision as the asset page and is audited; confirming
+a domain or address adds its exact scope entry, unless your organization turned
+this off or uses Strict scan approval. Without the permission the state is
+plain text.
 
 ### One asset type
 
@@ -674,7 +816,7 @@ full page `/assets/{id}`):
   vulnerability feed knows is marked **No CPE match: CVEs not checked**.
 - **Findings**: the asset's findings.
 - **Details**: ownership and scope (with "Is it yours?" when you can decide it),
-  which source decides each attribute, **Data freshness** (when DNS records,
+  **How this asset was found** (see below), which source decides each attribute, **Data freshness** (when DNS records,
   the web service, ports, the TLS certificate, the registration and the network
   owner were last observed, and when a name last resolved), **Coverage** (for
   each check this kind of asset needs: its state, why it was skipped, when it
@@ -685,6 +827,18 @@ full page `/assets/{id}`):
 
 ![The full page of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
 *Figure: Asset details.*
+
+**How this asset was found** (on **Details**, in the drawer and on the asset
+page) shows the **Discovery chain**: the parent assets from the root down to
+**This asset**, each a link (a name, the address it resolves to, the service on
+it, the certificate it serves), with the discovery source (**Certificate logs**,
+**Passive sources**, **DNS brute force**, **DNS**, **Web crawl**, **Sensor**,
+**API discovery** or **Added by a person**) and tool, **First found** and
+**Confidence**. The reasons behind the confidence stay in the ownership and
+scope section. An asset with no parent says it is where discovery started (a
+seed, a scope entry, an import or a scan target); the chain stops after 5
+ancestors; an ancestor outside your data scope shows as **Hidden asset**, with no
+name. It needs `assets:read`.
 
 The asset page (`/assets/{id}`) summarizes criticality, risk score, exposure and
 findings, with its properties and identity.
@@ -738,10 +892,15 @@ filter can become a group (**Save filter as group**) or be added to one
 ### Needs attention
 
 **Needs attention** (`/assets/attention`) is a list of the reasons an asset
-needs attention, in two groups, each row with a count and a line on why. The
+needs attention, in three groups, each row with a count and a line on why. The
 counts come from the same lists the queues show, so they cover only assets you
 may open.
 
+- **Scoping decisions**: **Validate primary assets** (root domains your
+  discovery starts from, not yet confirmed as yours) and **Decide monitoring**
+  (names awaiting review, or found with too little evidence). Each queue lists
+  its assets with the monitoring menu to decide a row in one click. The same
+  two cards show above the inventory while assets wait in them.
 - **Fix on the asset**: **No owner** (`/assets/attention/no-owner`),
   **Criticality not set** and **Not scanned** (no successful scan in 30 days).
   The queue lists the assets with that gap, with the inventory's bulk actions

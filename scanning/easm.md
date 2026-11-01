@@ -15,13 +15,19 @@ and what is wrong with them:
 4. **What changed?** Continuous monitoring and alerts.
 
 It needs the **Attack surface** module. The pages are under
-**Discovery › Attack surface** (`/attack-surface`, tabs **Overview**,
-**Review**, **Lookalikes**, **Changes**, **Web surface** and
-**Certificates**). Only your own attack surface
-is covered, under your own scope.
+**Discovery › Attack surface** (`/attack-surface`), five views: **Overview**,
+**Inventory** (**Technologies**, **Certificates**, **Web surface**),
+**Exposures** (**Exposure items**, **Lookalikes**), **Changes** and
+**Discovery** (**Stages**, **Decisions**). The
+[user guide](../user-guide/04-discovery.md#attack-surface) describes each page.
+Only your own attack surface is covered, under your own scope.
 
 ![The Attack surface overview: total and exposed assets, critical exposures, the external surface by attribution and freshness, and the top external risks]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
 *Figure: Discovery, Attack surface, Overview.*
+
+The overview opens with five tiles (**Surface assets**, **Internet-facing
+assets**, **New in the last 7 days**, **Open exposures**, **Waiting for a
+decision**), then **Fix first** and **Discovery**.
 
 Discovered assets join the inventory at once. Scope decides what is actively
 scanned: entries authorize the full scan, and assets no entry covers get
@@ -85,7 +91,12 @@ it watches and raises:
 | `certificate_expired` | A host's newest certificate lapsed within the last 30 days and nothing replaced it |
 
 Names named exactly on a recent certificate become `subdomain` assets.
-Excluded names are not queried and raise nothing. Each run queries at most
+Excluded names are not queried and raise nothing. A name that resolves to an
+address you put out of scope as a dedicated address is skipped too: it is not
+promoted again and gets no Certificate Transparency evidence. An address on a
+shared provider front end never carries this over, so names behind a CDN edge
+are still promoted. If the address lookup fails, nothing is promoted in that
+run; the exposures are still written. Each run queries at most
 `CERT_MONITOR_MAX_DOMAINS_PER_RUN` domains per organization (default 50); the
 rest follow in later runs.
 
@@ -106,6 +117,13 @@ A provider-claimable dangling CNAME stays medium until a sensor confirms it:
 a nuclei `takeover` template that matches the same name in a scan your sensor
 ran raises `subdomain_takeover` (high). Such a name may be probed by a
 takeover-only nuclei scan even though it is classified as a dependency.
+
+The takeover check step of the **Subdomains** and **Deep recon** workflows runs
+the capability `check.takeover` (active, T1) on domains and subdomains. Nuclei
+runs it with the `takeover` templates only: the platform fixes the template set
+when it dispatches the job and the sensor checks it again, so the step cannot
+run other templates. Any sensor version takes the job. A match on a name that
+has an open dangling CNAME raises a confirmed subdomain takeover.
 
 ## Monitoring settings
 
@@ -170,11 +188,26 @@ unclassified asset. The label list is the platform's small wordlist pack plus
 labels learned from your own names under that domain (for example `uat` and
 `charts` from `charts-uat.example.com`); the learned labels are read for your
 organization only and sealed into the signed job, never stored. Enumeration
-needs sensor v0.27.0 or later ([Tools](tools.md)).
+needs sensor v0.27.0 or later ([Tools](tools.md)). The label list is described
+under [Wordlists](#wordlists).
 
-While the platform has no small wordlist pack (`wordlists-s`), enumeration is
-paused with the reason **content missing**, and the coverage alert asks an
-instance administrator to import the pack
+**Deep onboarding.** The first enumeration of a new root (a `domain` asset under
+an active scope entry whose enumeration has never succeeded) runs once at deep
+depth: the medium wordlist pack (`wordlists-m`) with the learned labels and
+their variants. The root then returns to the weekly standard pass. At most 10
+roots go in one deep run, and a restart or a second API replica never repeats
+it. A deep pass that fails 3 times in a row falls back to standard, and without
+a stable `wordlists-m` the pass runs at standard depth. After an upgrade, roots
+never enumerated before get the deep pass once; roots already enumerated keep
+the weekly pass. Which roots may be enumerated does not change: the scope
+entry, the full dispatch gate and the claim-time check all still apply.
+
+The platform ships the small and medium packs (`wordlists-s`, `wordlists-m`) and
+installs them at start when it has no stable wordlist pack, so enumeration works
+on a fresh install without an import. Only if a pack is revoked and none is
+imported is enumeration paused with the reason **content missing** (**A wordlist
+is missing** on the Discovery stages); the coverage alert then asks an instance
+administrator to import the pack
 ([Content delivery](../sensors/content-delivery.md)). It resumes on its own
 once the pack is imported.
 
@@ -224,6 +257,30 @@ passes the full scope gate again. The run page lists such names under **No
 longer resolve**, and the inventory filter `resolution=not_resolving` lists
 them.
 
+### Hosts that do not answer the scanner
+
+A host a scan could not cover is a coverage gap: it counts as not covered, is
+never read as clean, and its findings are never closed by that run. The run page,
+its task list and the asset's coverage section say why:
+
+- **TLS answers, resets every HTTP request**: the host is up, completes the TLS
+  handshake and then resets or closes every request. It may block the scanner's
+  address, or the site behind it is down. Other causes shown are the TLS
+  handshake failing, a reset, a refused connection and no answer, with the
+  problem of the certificate it served (expired, not yet valid, name mismatch,
+  self-signed). Rechecking needs a recent sensor; for an older one the gap reads
+  "failed every request".
+- **Blocked by edge protection** or **challenged by edge protection**, with the
+  vendor's name when the sensor sends one (for example a WAF or CDN). A blocked
+  host settles as edge blocked, a rate-limited one as rate limited, a stopped one
+  as unreachable. A host an edge protection blocked is an observation of the
+  target, not a failure of the platform, so it does not raise the platform-side
+  coverage alert. This applies to scans planned after the upgrade.
+
+The fixes the page links to: allow the scanner addresses (**Settings > Scanning >
+Proxies** lists them) and scan again, use another proxy pool, or lower the scan
+rate. Scans never try to get past an edge.
+
 ## CDN and edge addresses
 
 An address in a range a CDN, WAF, hosting or cloud provider publishes for a
@@ -266,8 +323,8 @@ infrastructure), `monitor_only` or `rejected`.
   default) do names outside every permanent entry wait for a person before
   they join the inventory.
 
-**Attack surface > Review** collects the decisions that still need a
-person. Its **Waiting for your decision** section has:
+**Discovery > Decisions** (`/attack-surface/review`) collects the decisions that
+still need a person. Its **Waiting for your decision** section has:
 
 - **Addresses your in-scope names resolve to.** Adding them scans every port
   of those addresses; today only the names are scanned. A name never makes
@@ -282,7 +339,12 @@ person. Its **Waiting for your decision** section has:
   - **Your own network**: **Add {prefix}** for your network seeds;
   - **Already get low-impact checks (add to scope for a full scan)**.
 
-  Each address shows the open ports seen and its other names. Actions: **Add
+  Each address shows the open ports seen and its other names, and an
+  ownership assessment (high, medium, low or unknown) with its evidence: your
+  network seeds, the network holder, the reverse name, how many of your names
+  point at it and for how long, and blockers such as a brand-new address. The
+  strongest come first. Nothing is added to scope on its own
+  (`GET /api/v1/easm/suggestions`). Actions: **Add
   N to scope**, **Not ours** (never scanned or suggested again, until undone
   on the asset), **Not now**, and **Undo**.
 - **Assets you confirmed that are not in scope**: confirmed before
@@ -310,7 +372,7 @@ platform guardrails).
 
 ## Certificates
 
-**Attack surface > Certificates** lists the TLS certificates found on your
+**Inventory > Certificates** lists the TLS certificates found on your
 external assets: **Issued to**, **Fingerprint (SHA-256)** (with a copy
 button), **Issuer**, **Issued on**, **Expires on** and **Detected**, and a
 status per row computed when you open the page: **Expired**, **Expiring
@@ -319,13 +381,109 @@ soon** (within 30 days), **Valid** or **Unknown**. The **Expired** and
 or fingerprint, and **Export CSV**. Certificates appear once a scan of your
 external assets reads them.
 
-![The Certificates tab: eight certificates of the example domains with issuer, issue date and expiry; one expired self-signed certificate and two expiring within 30 days]({{ site.baseurl }}/assets/images/scanning/easm-certificates.png)
+![The Certificates page: eight certificates of the example domains with issuer, issue date and expiry; one expired self-signed certificate and two expiring within 30 days]({{ site.baseurl }}/assets/images/scanning/easm-certificates.png)
 *Figure: Discovery, Attack surface, Certificates.*
 
 It needs `assets:read`, and each certificate follows your data scope. API:
 `GET /api/v1/attack-surface/certificates` and
 `GET /api/v1/attack-surface/certificates/stats` (counts by status), with the
 usual list filters, sort, search and pagination.
+
+### Names from certificates
+
+The alternative names (and the subject name) of every TLS certificate a report
+puts in the inventory (from httpx, tlsx, nuclei or an upload) are proposed as
+subdomain assets when they sit strictly below one of your domains: attributed
+domain assets, verified domains and permanent scope entries with discovery on.
+Names on a shared CDN or hosting certificate outside those domains create
+nothing, and wildcard names, addresses and names of certificates that lapsed
+more than 90 days ago are skipped.
+
+A new name is a `candidate` with the reason **Named in a TLS certificate** (a
+weak one: it names the certificate, its issuer and expiry, and the tool). A certificate never confirms or scopes a
+name by itself; a permanent scope entry that covers the name still confirms it,
+as for Certificate Transparency names. Exclusions, excluded domains, excluded
+dedicated addresses and names marked **Not ours** are respected, an existing
+asset keeps its standing, and at most 500 new assets come from one report.
+
+## Wordlists
+
+Active subdomain enumeration asks DNS for names built from a label list. Each
+enumeration job reads, in this order:
+
+1. **Learned labels**: the labels of your own active names under the root, and
+   their parts, most frequent first.
+2. **Variants** of those labels: numbered neighbors (`web09` gives `web10`),
+   numbered environment names (`charts-uat` gives `charts-uat2`) and base words
+   crossed with the environment words your names use.
+3. **Your own lists** (below), every enabled one.
+4. The **platform list**: `wordlists-s` for the weekly pass, `wordlists-m` for
+   the one deep pass of a new root. Both are built from public sources and ship
+   with the platform.
+
+Learned labels and your lists are carried inside the signed job and never stored
+on a sensor beyond the task.
+
+**Settings > Scanning > Wordlists** (`/settings/scanning/wordlists`) manages
+your lists. Seeing the page needs `scans:content:read`; changing needs
+`scans:content:write`.
+
+- **New list** takes a **Name**, a **Description**, the **Labels** (paste them,
+  or **Upload .txt**; one per line, lines starting with `#` ignored) and **Use in
+  subdomain discovery**. Entries are lower-cased and kept when they are one to
+  three dot-separated parts of letters, digits and dashes. Lines that are not DNS
+  labels, and lines that look like secrets (a long mix of letters and digits),
+  are dropped, since every label is sent to resolvers; repeats are removed.
+  Saving says how many labels were kept and what was dropped.
+- The table shows each list's **Labels**, **Version** and **Updated**, and the
+  **In use** switch; **Edit** and **Delete list** change it. The version rises
+  when the labels change. A deleted or switched-off list is no longer read; runs
+  that used it keep their record.
+- Limits: 20 lists per organization, 50,000 labels and 1 MiB per list, 2 MB of
+  text per save. Every change is audited (`wordlist.created`, `wordlist.updated`,
+  `wordlist.deleted`) with the name, version and count, never the labels.
+- **Preview for a domain** counts, per source, the labels a standard discovery
+  run of that domain would try: the platform list and its version, the labels
+  learned from your names with variants, and your lists. Nothing is sent to a
+  sensor or resolver.
+- On a run, a discovery task shows **Wordlists used**: the platform list and
+  version, the learned labels and your lists with their versions.
+
+API: `/api/v1/wordlists` (`GET`, `POST`, `PATCH /{id}`, `DELETE /{id}`) and
+`GET /api/v1/wordlists/preview?root=example.com`.
+
+## Detection rules
+
+Detection rules read the web content a scan already fetched (the URL, final
+URL, title, `Server` header, cookie names, favicon hash and script paths) and
+need no sensor change. They run on the platform when the report arrives, before
+anything is stored. There are two kinds:
+
+- **Technology** rules (`web-fingerprints`): a match becomes an asset technology
+  with its version, category and CPE. A versioned product also becomes a
+  software component, so it is matched against known CVEs. A tool's own report
+  of the same technology wins.
+- **Sensitive data** rules (`secret-rules`): a match for a key, token, private
+  key, credential in a URL, internal host name, personal data or debug output
+  becomes a `credential_leaked` or `sensitive_data_exposed` exposure. It holds
+  only a keyed fingerprint, a short masked preview, the length and where it was
+  found; the value is never stored or logged.
+
+The platform ships the packs `web-fingerprints-core` and `secret-rules-core`,
+installed on first start when no stable pack of that name exists. **Settings >
+Scanning > Detection rules** (`/settings/scanning/detection-rules`) shows
+**Platform rules** and manages **Your rules**: a **Name**, a **Kind**
+(**Technology** or **Sensitive data**), a **Category**, a **Severity** (sensitive
+data) or **CPE** (technology), a **Confidence**, and one or more **Matchers**
+(**Reads** the URL, title, header, cookie name, favicon hash, body or script
+paths, with an RE2 **Pattern** that runs only near one of its **Keywords**).
+**Matches when** chooses all or any matcher. **Test on a sample** runs a draft
+rule on pasted content (up to 256 KB) and shows masked results; nothing is
+stored. Limits: 200 rules per organization. Changes are versioned and audited.
+Seeing the page needs `scans:content:read`; changing and testing need
+`scans:content:write`. Every scan records the rule packs it was matched with.
+
+API: `/api/v1/content-rules`.
 
 ## Alerts
 
