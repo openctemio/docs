@@ -157,15 +157,17 @@ is listed only for an OAuth connection that holds its write scope.
 
 | Tool | Arguments | Returns | Needs |
 |---|---|---|---|
-| `list_findings` | `severity`, `status`, `source`, `search`, `limit` (default 25, max 100) | findings | `findings:read` |
+| `list_findings` | the Findings page's filters: `severity`, `status`, `state` (`open`, `fixed`, `dispositioned`, `closed`), `source`, `search`, `asset_id`, `cve`, `kev`, `min_epss`, `priority_class` (`P0` to `P3`), `sla_status`, `assignee` (`me` or a user id), `created_after`, `created_before`, `updated_after`, `updated_before`, `sort` (a field, `-` for descending); `page`, `limit` (default 25, max 100) | findings in the Findings page's order, each with its priority class, KEV, EPSS, SLA status and first detection; comma lists match any value, filters combine | `findings:read` |
 | `get_finding` | `finding_id` | one finding | `findings:read` |
-| `finding_stats` | none | totals by severity and status, KEV, EPSS and SLA roll-ups | `findings:read` |
-| `list_active_cves` | `kev_only`, `min_epss` (0 to 1), `severity`, `limit` | the CVEs of open findings you can see, one row per CVE, riskiest first (priority, KEV, emerging threat, EPSS, CVSS, assets), read through the vulnerabilities list | `findings:read` |
+| `finding_stats` | none | totals by severity and status, KEV, EPSS and SLA roll-ups; `kev_open` counts the same findings as the `open_kev_findings` of `list_active_cves` | `findings:read` |
+| `list_active_cves` | `kev_only`, `min_epss` (0 to 1), `severity`, `page`, `limit` | the CVEs of open findings you can see, one row per CVE, riskiest first (priority, KEV, emerging threat, EPSS, CVSS, assets), read through the vulnerabilities list; each row has `open_kev_findings` and `catalog_status` (`in catalog`, or `not in catalog` when title, CVSS and EPSS come from the findings) | `findings:read` |
 | `explain_finding_priority` | `finding_id` | why a finding has its priority (KEV, EPSS, reachability, severity weighting) | `findings:read` |
 | `list_finding_transitions` | `finding_id` | the status moves of a finding the caller may make, each with how (direct, approval request, duplicate picker), the inputs it needs, or the reason codes why not | `findings:read` |
-| `get_exposure_chains` | none | shortest attack paths from public entry points to KEV or crown-jewel assets; steps outside the key owner's data scope come back as hidden steps without name or type | `assets:read` |
-| `list_remediation_groups` | none | remediation groups (findings fixed by the same solution) | `findings:read` |
-| `list_assets` | `exposure` (`public`, `private`, `unknown`), `criticality`, `search`, `limit` | assets | `assets:read` |
+| `get_exposure_chains` | none | shortest attack paths from public entry points to KEV or crown-jewel assets; a chain of length 0 is an asset exposed directly, `summary.multi_hop_chains` counts the others, and `relationship_note` says when no asset relationships exist to build longer paths; steps outside the key owner's data scope come back as hidden steps without name or type | `assets:read` |
+| `list_remediation_groups` | `page`, `limit` | remediation groups (findings fixed by the same solution), most findings first | `findings:read` |
+| `list_assets` | `exposure` (`public`, `private`, `unknown`), `criticality`, `search`, `page`, `limit` | assets, riskiest first, with `risk_score` (0 to 100) and `risk_scored_at` | `assets:read` |
+| `search_assets` | `query` (name or description text, an IP address or a CIDR), `cve` (assets with an open finding of it), comma lists `type`, `exposure`, `criticality`, `monitoring_state`, `scope_status`, `technology`; `internet_facing`, `has_findings`, `owner_id` (a user or group); `page`, `limit` (default 25, max 100) | the assets you can see, as the console's inventory filters them, riskiest first, each with a link to its asset page | `assets:read` |
+| `get_asset` | `asset_id`, or `name` (exact); `sections` (any of `overview`, `findings`, `coverage`, `ports`, `lineage`, `changes`; default all) | one asset as its page shows it: identity and attributes, open findings by severity and the top ones by priority, coverage per capability (last run, gaps and their causes), open ports and services of the addresses it resolves to, how it was discovered, and recent changes. Each section is the asset page's own data under the same data scope; a section you may not read says so | `assets:read` |
 | `compliance_posture` | none | framework and control totals, overdue controls | `compliance:frameworks:read` |
 | `list_campaigns` | `phase`, `role`, `search`, `include_archived`, `page`, `limit` (max 50) | your pentest campaigns with your role, the phase, TLP, dates, finding counts and the next action for your role | `pentest:campaigns:read` |
 | `my_work` | `page`, `limit` | your active campaigns that need something from you: your drafts, findings assigned to you, reviews, retests (for a client: published findings still open) | `pentest:campaigns:read` |
@@ -181,6 +183,18 @@ is listed only for an OAuth connection that holds its write scope.
 | `draft_pentest_finding` | `campaign_id`, `title`, `severity`, `description` (required); `asset_id` or `affected_targets`, `steps_to_reproduce`, `request_responses` (at most 10), `cvss_vector`, `cwe_id`, `owasp_category`, impacts, `remediation_guidance`, `reference_urls` | a draft pentest finding (see below) | `pentest:findings:write` and the `pentest` module |
 
 Tools that took `id` now take `campaign_id` or `finding_id`; `id` is still accepted.
+
+`list_findings`, `list_active_cves`, `list_assets`, `list_remediation_groups`, `search_assets` and the
+pentest list tools are paged: pass `page` (from 1) and `limit`, and read `total`, `has_more` and
+`next_page` in the result. A finding's status is per finding and per asset: the same CVE can be a false
+positive on one asset and new on another.
+
+When a connection reads only the assets of the person's groups (it was not allowed all organization data
+on the consent screen), the asset and finding tools add `scope_notice`, for example "You can see 12 of 40
+assets; the rest are not assigned to a group you belong to." The organization's total is shown only to a
+person whose role reads it in the web console.
+
+`get_asset` and `search_assets` return console links only when the operator set `APP_URL`.
 
 ### Adding a comment
 
