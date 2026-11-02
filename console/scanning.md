@@ -49,11 +49,34 @@ sensors and, once a release enables them, the shared sensor fleet.
   on for a public multi-tenant service, so nobody can point your sensors at someone
   else's systems. Either way, scope entries, exclusions, the platform deny list,
   scan zones for private addresses and tier ceilings stay in force.
-- **Shared sensors** (tabs **Policy**, **Fleet**, **Queue**, **Zones**,
-  **Egress**, **Anomalies**): this release does not make shared sensors available, so
-  the page shows the notice **Shared sensors are not available in this release**
-  instead of the tabs. What they will do is described in
-  [Shared sensors](../sensors/shared-sensors.md).
+- **Shared sensors** (tabs **Policy**, **Queue**, **Egress**, **Anomalies**): this
+  release does not make shared sensors available, so the page shows the notice
+  **Shared sensors are not available in this release** instead of the tabs. What
+  they will do is described in [Shared sensors](../sensors/shared-sensors.md). The
+  sensors themselves and the instance scan zones are on
+  [Platform sensors](#platform-sensors), which the page links to.
+
+## Platform sensors
+
+**Scanning > Platform sensors** (v0.18.0 and later) lists the sensors the platform
+itself owns. Organizations never see them by name. Before v0.18.0 they were in the
+**Fleet** and **Zones** tabs of **Platform scanning**, which stay hidden while shared
+scanning is not available, so a platform sensor could not be enrolled or seen. The
+page does not depend on that switch: while shared scanning is off it says that
+sensors connected now serve platform roles (passive discovery, the AI worker) and
+start scanning for organizations only when shared scanning is turned on.
+
+The page holds:
+
+- the **enrollment** card, which issues a platform sensor's enrollment token (a name,
+  a lifetime, a reason and a fresh authenticator code);
+- the **sensor list**, with pause and retire;
+- the **instance scan zones** (the private address ranges platform sensors may reach).
+
+Any administrator with `platform.sensors.read` sees the page; enrolling, pausing,
+retiring and editing zones need `platform.sensors.manage` (a super admin), a reason
+and a fresh code, enforced by the API. The **Platform sensors online** tile of the
+console **Overview** opens it.
 
 ## Target mappings
 

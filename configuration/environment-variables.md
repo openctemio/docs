@@ -184,7 +184,7 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 | `DB_HOST` | string | `localhost` | yes |  | PostgreSQL host. |
 | `DB_JIT_ENABLED` | bool | `false` |  |  | PostgreSQL JIT for the API's sessions. Off by default because request-path queries pay the JIT compile cost without benefiting from it. |
 | `DB_INGEST_MAX_CONNS` | int | `8` |  |  | Connections of the ingest pool, apart from the API's pool: the asset and finding writes of the ingest worker (CI results, imports, sensor reports) use it, so a burst of uploads cannot take the connections the API's requests need. All are kept idle. |
-| `DB_MAX_IDLE_CONNS` | int | `5` |  |  | Maximum idle connections kept in the pool. |
+| `DB_MAX_IDLE_CONNS` | int | same as `DB_MAX_OPEN_CONNS` |  |  | Maximum idle connections kept in the pool. Defaults to `DB_MAX_OPEN_CONNS`: a smaller value makes every burst of requests close and reopen connections (a TCP and SCRAM handshake and a new server process each). |
 | `DB_MAX_OPEN_CONNS` | int | `25` |  |  | Maximum open connections in the API's pool. |
 | `DB_NAME` | string | `openctem` |  |  | Database name. |
 | `DB_ADMIN_PASSWORD` | string | empty |  | yes | Password of `DB_ADMIN_USER`. Required when `DB_ADMIN_USER` is set; must differ from `DB_PASSWORD`. |
@@ -268,6 +268,7 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 | `AUTH_REFRESH_TOKEN_DURATION` | duration | `168h` |  |  | Refresh token lifetime (7 days). |
 | `AUTH_REQUIRE_EMAIL_VERIFICATION` | bool | `true` |  |  | Require a verified email address. Production refuses `false` with `local` or `hybrid`. |
 | `AUTH_SESSION_DURATION` | duration | `720h` |  |  | Session lifetime (30 days). |
+| `AUTH_REFRESH_REUSE_GRACE` | duration | `30s` |  |  | How long after a refresh-token rotation the same client may present the replaced token again (parallel requests) and receive the successor already issued instead of ending the session. 0 disables; capped at 2m. Any other reuse still ends the session. |
 
 ### Organizations and scope guardrails
 
@@ -409,6 +410,7 @@ Prefixes the API owns: `APP_`, `BRAND_`, `SERVER_`, `DB_`, `REDIS_`, `LOG_`, `AU
 | `SENSOR_LIVENESS_STORE` | string | `shadow` |  |  | Where heartbeat liveness lives. `postgres`: every heartbeat updates the sensor row. `shadow`: as postgres, and Redis records every heartbeat too so `openctem_sensor_liveness_disagreements_total` compares the two. `redis`: Redis holds liveness; Postgres gets state changes and a batched checkpoint every 10 minutes. Switch to `redis` after a week of zero disagreements. |
 | `WORKER_HEARTBEAT_TIMEOUT` | duration | `5m` |  |  | No heartbeat for this long marks a sensor inactive. Advised heartbeat intervals stay below half of it. |
 | `SCAN_ZONE_RESOLVER` | string | empty |  |  | DNS resolver scan-zone routing resolves host names with: `system` (the platform's own resolver, which may know internal names) or `host[:port]` of a recursive resolver. Unset: a public resolver when organizations are self-service, otherwise `system`. |
+| `SCAN_STAGE_STREAMING` | bool | `true` |  |  | Stage streaming: a chained workflow step starts on the results of each finished task of its predecessor instead of waiting for the whole predecessor step; every target still passes the per-hop gate and reaches the sensor in a signed job with an explicit target list. `false` makes every chained step wait for its predecessors (the platform switch; a workflow can also keep its stages behind barriers with its own setting). Read at start-up. |
 | `SENSOR_MTLS_CA_CERT_FILE` | path | empty |  |  | Sensor CA certificate (PEM) for protocol v3 client certificates. Set together with `SENSOR_MTLS_CA_KEY_FILE`; unset, the CA is created once in `SENSOR_MTLS_CA_DIR`. |
 | `SENSOR_MTLS_CA_DIR` | path | `data/sensor-ca` |  |  | Where the sensor CA is created on first start when the two CA files are not set. Keep it on a persistent volume. A relative path is relative to the working directory, so when running from a source checkout point it outside the checkout (the repository ignores /data/ and a push guard rejects committed keys). |
 | `SENSOR_MTLS_CA_KEY_FILE` | path | empty |  |  | Sensor CA private key (PEM). Not the job signer's key. |
@@ -631,6 +633,7 @@ Read by the command-line tools shipped with the server (`bootstrap-admin`, `reke
 | `SIGNER_KEYSET_FILE` | string | empty |  |  | `openctem-signer`: the root-signed keyset the signer serves to sensors. |
 | `SIGNER_KEY_FILE` | string | empty |  |  | `openctem-signer`: the job-signing private key (PEM, mode 0400). |
 | `SIGNER_LEDGER` | string | empty |  |  | `openctem-signer`: scope ledger mode (`enforce`, `audit` or `off`). |
+| `SIGNER_FEED_ORIGINS` | string | empty |  |  | `openctem-signer`: feed origins a feed relay round may name (comma-separated https origins; empty: the official release origins; `none`: no feed relay). |
 | `SIGNER_LEDGER_MIN_APPROVALS` | string | empty |  |  | `openctem-signer`: approvals the ledger requires for a scope change. |
 | `SIGNER_LEDGER_T2_MIN_APPROVALS` | string | empty |  |  | `openctem-signer`: approvals the ledger requires for a tier-2 scope change. |
 | `SIGNER_PUBLISH_DIR` | string | empty |  |  | `openctem-signer serve`: a directory (a volume only the signer writes and the bundled sensor mounts read-only) where the signer writes its public key as `signer.pub` at every start, for the sensor to pin (`SENSOR_JOB_SIGNING_KEYS_FILE`). Unset: nothing is published. |
@@ -678,7 +681,6 @@ Read by the bundled Caddy gateway (`api/deploy/gateway`).
 | `OPENCTEM_TRUSTED_PROXIES` | string | `127.0.0.1/32` |  |  | Space-separated CIDRs of proxies in front of the gateway whose `X-Forwarded-For` it believes. |
 | `OPENCTEM_CLIENT_IP_HEADERS` | string | `X-Forwarded-For` |  |  | Header(s) a proxy in `OPENCTEM_TRUSTED_PROXIES` carries the client address in, tried in order: `X-Forwarded-For` (read right to left), `Cf-Connecting-Ip` (Cloudflare Tunnel) or `True-Client-Ip`. Ignored from any other peer; the gateway then sends the API only the resolved address. |
 | `GATEWAY_MAX_BODY_SIZE` | string | `256MB` |  |  | Largest request body the gateway accepts. The API enforces the per-route limits. |
-| `AUTH_COOKIE_NAME` | string | `auth_token` |  |  | Session cookie name used by the routing rule that sends token clients to the API. |
 | `OPENCTEM_GATEWAY_DIR` | string | `/etc/caddy` |  |  | Directory with `Caddyfile`, `planes.caddy` and `modes/`. |
 | `XDG_DATA_HOME` | string | `/data` |  |  | Caddy storage: certificates, ACME account, internal CA. Keep it on a volume. The all-in-one image uses `/data/gateway` (it moves an older `/data/caddy` there on start). |
 | `OPENCTEM_CADDY_ADMIN` | string | `127.0.0.1:2019` |  |  | Address of Caddy's admin API. The all-in-one image sets a unix socket only the gateway's uid can open (a `unix/<dir>/admin.sock` address with mode 0600), because every process there shares one network namespace. |
@@ -708,6 +710,17 @@ Read by `api/deploy/docker-compose.yml` from its `.env` file.
 | `CONSOLE_IMAGE` | string | `ghcr.io/openctemio/openctem-console` |  |  | Image repository of the platform console. |
 | `MIGRATIONS_IMAGE` | string | `ghcr.io/openctemio/migrations` |  |  | Image repository of the migrations job. |
 | `GATEWAY_IMAGE` | string | `ghcr.io/openctemio/openctem-gateway` |  |  | Image repository of the gateway (Caddy with the layer4 module). |
+| `GATEWAY_VERSION` | string | `OPENCTEM_VERSION` |  |  | Tag of the gateway image. Leave unset to use the release tag. |
+| `OPENCTEM_ADMIN_PUBLIC_URL` | string | empty |  |  | Public origin of the platform console (for example `https://console.example.com`), the origin security keys are registered for in the console. Empty uses the application's public URL. |
+| `BACKUP_STATUS_DIR` | string | `./backup-status` |  |  | Host directory the backup script writes its status file to; the Health page reads it from there. |
+| `PG_SHARED_BUFFERS` | string | `1GB` |  |  | PostgreSQL `shared_buffers` of the bundled database: about 25% of the host's RAM. |
+| `PG_EFFECTIVE_CACHE_SIZE` | string | `3GB` |  |  | PostgreSQL `effective_cache_size` of the bundled database: about 70% of the host's RAM. |
+| `PG_WORK_MEM` | string | `16MB` |  |  | PostgreSQL `work_mem` of the bundled database. |
+| `PG_MAINTENANCE_WORK_MEM` | string | `256MB` |  |  | PostgreSQL `maintenance_work_mem` of the bundled database. |
+| `PG_RANDOM_PAGE_COST` | string | `1.1` |  |  | PostgreSQL `random_page_cost` of the bundled database (1.1 for SSD, 4 for spinning disks). |
+| `PG_MAX_WAL_SIZE` | string | `2GB` |  |  | PostgreSQL `max_wal_size` of the bundled database. |
+| `PG_SHM_SIZE` | string | `256m` |  |  | Size of `/dev/shm` of the bundled database container, shared by parallel queries. |
+| `PG_TOAST_COMPRESSION` | string | `lz4` |  |  | Compression of large values (jsonb, text) in the bundled database: `lz4` or `pglz`. |
 | `API_VERSION` | string | `OPENCTEM_VERSION` |  |  | Per-image tag override. Leave unset. |
 | `UI_VERSION` | string | `OPENCTEM_VERSION` |  |  | Per-image tag override. Leave unset. |
 | `CONSOLE_VERSION` | string | `OPENCTEM_VERSION` |  |  | Per-image tag override. Leave unset. |

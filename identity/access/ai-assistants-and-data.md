@@ -49,7 +49,7 @@ access to all organization data**, appears on the consent screen only for such p
 | Reversible | You, or an organization administrator, can choose **Limit to own data** to return it to scoped data without disconnecting it, or **Disconnect** it. |
 | Audited | The audit log records when it was allowed and when it was removed. |
 | Still bounded | Private bug-bounty program assets and pentest campaigns you are not a member of stay hidden, as for you in the console. |
-| Never for API keys | API keys never get this access. |
+| Never for API keys or terminal codes | API keys never get this access, and neither does an assistant signed in from a terminal with a code (v0.18.0 and later). |
 
 On releases before v0.16.0 the option is not offered and every connection is scoped. See
 [Connect an AI assistant](../../user-guide/12-connect-an-ai-assistant.md) for the consent screen

@@ -48,7 +48,8 @@ them to the API):
 | `GET /.well-known/oauth-protected-resource` and `/.well-known/oauth-protected-resource/api/v1/mcp` | Protected-resource metadata (RFC 9728) naming the authorization server |
 | `GET /.well-known/oauth-authorization-server` | Authorization-server metadata |
 | `GET /oauth/authorize` | Starts the authorization-code flow with PKCE `S256` and the `resource` indicator; sends the person to the consent page |
-| `POST /oauth/token` | Exchanges the code, and refreshes tokens |
+| `POST /oauth/device_authorization` | Starts a terminal sign-in with a code (OAuth device authorization grant, RFC 8628): answers a `device_code`, a `user_code` (`XXXX-XXXX`), `verification_uri` `<APP_URL>/oauth/device`, `expires_in` 600 and `interval` 5. There is no `verification_uri_complete`: the person always types the code. Limited per address like the token endpoint |
+| `POST /oauth/token` | Exchanges the code, and refreshes tokens. With `grant_type=urn:ietf:params:oauth:grant-type:device_code` it polls a terminal sign-in: `authorization_pending`, `slow_down` (the interval grows by 5 seconds, up to 60), `access_denied`, `expired_token`, then the usual token response |
 | `POST /oauth/revoke` | Revokes a token |
 | `POST /oauth/register` | Dynamic client registration (RFC 7591); answers only when the operator set `MCP_OAUTH_DCR_ENABLED=true`. Such clients are always shown as unverified |
 
@@ -59,6 +60,18 @@ them to the API):
   document travels with the authorization request until then), so unauthenticated requests cannot
   add applications; a client blocked after the request started is refused at approval. Approving a
   consent needs a recent sign-in (step-up).
+- **Terminal sign-in with a code.** Only the platform's terminal client `octc_terminal` and
+  clients an administrator registered for the organization may use the device grant (an
+  organization client works in its own organization only); metadata-document and dynamic clients get
+  `unauthorized_client`. The person enters the code at `/oauth/device` in a signed-in browser
+  (`POST /api/v1/oauth/device`, limited per address and per person); the first person who enters a
+  code owns the request, and every unusable code gets the same `404`. The consent page shows the
+  address and user agent the terminal asked from next to the person's own address; approving needs a
+  recent sign-in, never grants full organization data, and the connection is listed with
+  `flow: device` (**Terminal sign-in**). A device code works only for its client, once; a replayed
+  one revokes the connection it created. The organization policy field `device_flow_allowed` (on by
+  default) refuses new codes and stops existing terminal connections when off. Both the device
+  endpoint and the grant type are advertised in the authorization-server metadata.
 - **Tokens.** Authorization codes last 60 seconds. Access tokens (`octm_at_...`) last 10 minutes and
   are bound to one person, one organization, one application and the MCP endpoint. Refresh tokens
   (`octm_rt_...`) rotate on every use; presenting a used one again revokes the connection. An unused

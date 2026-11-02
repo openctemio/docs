@@ -356,9 +356,12 @@ by default).
   **Findings** or by **Assets** (discovery tools that send assets no longer
   show 0), and group by **Tool** or by **Source instance** (a sensor, a CI
   project, a connector or the platform; your choice is remembered in this
-  browser). Sources with nothing in the period fold into one line. A source
-  whose last import or run failed says **Failed** and one that has gone quiet
-  for more than twice its usual interval says **Stale**; both stay in view.
+  browser). Every source is listed by default; sources with nothing in the
+  period (for example dnsx or httpx before their counts arrive) come after the
+  others, and **Hide N with nothing** folds them. A source whose last import or
+  run failed says **Failed** and one that has gone quiet for more than twice
+  its usual interval says **Stale** with its last receipt ("Stale, last receipt
+  6 days ago"); both stay in view.
   When a refresh changes the order, rows slide to their new place (not with
   reduced motion) and say how many places they moved. A source's tooltip
   shows received, new or reopened, seen again and not stored, the instances
@@ -366,15 +369,24 @@ by default).
   receipts.
 - **Received, new or reopened, actionable** (top of the centre): what came in,
   what became new work, and the open findings with a priority class now.
-- **The ring**: actionable findings by priority class (P0 to P3). Each arc is
-  labelled with its count and opens the findings of that class; the number in
-  the middle is the sum of the arcs.
+- **The rings** (v0.18.0 and later): three concentric rings read from the
+  outside in: findings received by source, new or reopened by source, and
+  actionable findings by priority class (P0 to P3), with the actionable total in
+  the middle. Each segment is a link with its name, count and share of its ring;
+  a source keeps one colour on its row, its arcs and its curve, and a curve is
+  as wide as its volume. Every ring has a muted track, so an empty ring still
+  reads as one.
 - **The five stages** under the ring: the same stages as the CTEM loop (below),
   each with its state and its figure; the stage to act on is filled.
 - **Outcomes** (right): open findings with their severity split, those past
   their SLA, in progress, and those fixed, accepted or closed as false
   positive in the period. Under them: how many findings imports still
   detected and how many approved rules removed.
+
+From a card about 900 pixels wide (a full-width card in a 1280-pixel window)
+the flow fills the card in three columns: the sources in a thin frame at the
+left edge, the outcomes at the right edge, and the rings with their curves in
+between, redrawn on every resize.
 
 Point at a figure, move to it with the keyboard, or tap it once on a phone to
 light its path and open a short explanation with a link to its list; tap again
@@ -406,13 +418,25 @@ OpenCTEM did with it:
 
 - every source with its receipts and health, wired into a summary (new, still
   detected, reopened, resolved by the source); pointing at a source shows its
-  own summary;
+  own summary. Each figure stays beside its source's name at every width. A
+  source also shows the assets its reports created or updated, its kind
+  (discovery, detection or platform) and its senders (sensors, CI repositories,
+  connectors, uploads, the platform) with their figures and health; a source is
+  as unhealthy as its worst sender, and only your organization's own sensors are
+  named and linked;
 - **Noise reduction**: what was received, split into **new or reopened**,
   **merged** into findings that already exist, **suppressed by rules**
   (approved suppression rules) and **not stored** (out of scope, excluded,
   invalid or failed); the parts add up to what was received;
 - the findings closed as false positive in the period;
 - the same figures per source as a table.
+
+From v0.18.0 a scan run or CI run that carries the reports of several tools
+books each tool's findings on that tool's own row, instead of on the first tool
+that reported (a discovery tool used to show the findings of the scanners after
+it); receipts written before the upgrade keep their counts on their first tool.
+Findings the platform's own version matcher stores show as their own source
+(the platform, tool `version-match`).
 
 Every intake figure opens **Import and run receipts** (`/findings/imports`): what
 each upload and run did to the organization's findings, with one row per receipt

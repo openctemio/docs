@@ -51,6 +51,9 @@ set) and has no limits until you set some.
 
 ### Ownership invitations
 
+{: .note }
+**Not in v0.18.0.** Ownership invitations for an organization created for an existing account is merged for the next release; v0.18.0 does not have it yet.
+
 Nobody becomes the owner of an organization without accepting. When you create
 an organization for an existing account (or change who is invited, below):
 

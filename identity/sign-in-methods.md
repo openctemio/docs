@@ -74,6 +74,9 @@ has its own setup page.
 
 ## Link your organization's sign-in to a password account
 
+{: .note }
+**Not in v0.18.0.** Linking an organization's sign-in under **Account > Security** is merged for the next release; v0.18.0 does not have it yet.
+
 A member whose account has a password (for example the organization's first owner, who signed up
 with email and password) is not signed in by the organization's SSO on the strength of a matching
 email: the sign-in is refused with "an account with this email already exists". The member links the

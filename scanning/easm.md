@@ -485,6 +485,43 @@ Seeing the page needs `scans:content:read`; changing and testing need
 
 API: `/api/v1/content-rules`.
 
+## Page changes
+
+**Attack surface > Changes > Page changes** (`/attack-surface/pages`, v0.18.0 and later) watches the pages of
+your own web services and tells you when they change, for example when a sign-in page starts loading
+a script from a new host.
+
+- **Watched pages.** **Watch** a URL of one of your web services and choose **What to follow**:
+  **Scripts only** (the default: the scripts the page loads and, for each first-party script, its
+  hash, size and the URLs found in it) or **Full page** (also the page's visible text, with secrets
+  masked). **Check every (hours, 6 to 168)** sets the schedule (24 by default), and **Ignore
+  patterns** (one regular expression per line, at most 10) leave out a script source, a URL in a
+  script or a text line that changes for no reason. The scripts of a page (up to 25) are watched
+  with it. An organization can watch up to 200 URLs.
+- **Suggested URLs.** **Show suggestions** lists the home, sign-in and admin pages and scripts of
+  your web services that nobody watches yet; watch one in a click.
+- **Changes.** What changed, newest first: scripts added and removed, changed scripts with the size
+  and SHA-256 before and after, new URLs in a script, new third-party script hosts, and changed text
+  lines in full-page mode. Filter by **Severity**; a URL that changes on every check is marked
+  **Changes on every check** and muted until you edit its watch (**Show muted changes** lists them).
+  Open a change for the diff view; every value from the page is shown as plain text, and long lists
+  are cut at 100 items and text at 200 lines.
+
+The first fetch of a URL is its baseline; changes appear from the next fetch on. Volatile tokens
+(cache busters, build hashes, nonces) are ignored, only a change is stored (the last 5 snapshots of
+a watch), and changes are kept 180 days. A script from a host the page did not use before also
+raises a **third-party script added** exposure (high), which reaches your channels like the other
+[alerts](#alerts) and resolves when the page drops the host.
+
+Fetches run through automatic coverage, every 10 minutes for the watches that are due, with the same
+scope, exclusion and active-scan checks and signed jobs as every active scan
+([`monitor.web_content`](tools.md), run by httpx). Until one of your sensors can run that capability,
+the watches show **Waiting** and are kept. Reading the page needs `assets:read` (and follows the data
+scope of the web service), watching and editing need `scans:write`, and every change to a watch is
+audited.
+
+API: `/api/v1/easm/page-monitoring` (watches, suggestions, changes with their diff).
+
 ## Alerts
 
 New or reopened EASM exposures reach your notification channels as

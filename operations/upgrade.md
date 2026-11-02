@@ -19,6 +19,7 @@ with breaking changes has its own upgrade guide; read it first.
 
 | From | To | Guide |
 |---|---|---|
+| v0.17.x | v0.18.0 | [From v0.17 to v0.18.0](#from-v017-to-v0180) below: `PLATFORM_CA_CERT_FILE` replaces the API's `SENSOR_CA_CERT_FILE`, `DB_MAX_IDLE_CONNS` defaults to `DB_MAX_OPEN_CONNS`, stage streaming on by default, the CTEM-ID catalog table and download are removed, an organization maximum API key lifetime (90 days), sign-in sessions from another organization's identity provider are narrowed. |
 | v0.15.x | v0.15.6, v0.16.x and v0.17.0 | [From v0.15 to v0.17](#from-v015-to-v017) below: a new migration runner (takes over on its first run; roll back the API, never the migration job), the platform version comes from the release tag, no `admin-cli` image, the vulnerability feed moves to `openctemio/vulnfeed-bundles`, a database role script re-run with `DB_ADMIN_USER`, queued sensor segments sealed at rest. |
 | v0.12.x | v0.13.0 to v0.15.5 | [From v0.12 to v0.15.5](#from-v012-to-v0155) below: audit archives move to the storage provider, API contract changes (ingest answers 202, strict findings filters, task versions), SAML and OIDC provider requirements, retired scan and rule source features, per-integration webhook URLs. |
 | v0.11.x | v0.12.0 and later | [From v0.11 to v0.12.0](#from-v011-to-v0120) below: signed jobs on by default (a job signer is required in production), `AI_TRIAGE_ENABLED` removed, campaigns hold tasks. |
@@ -27,8 +28,7 @@ with breaking changes has its own upgrade guide; read it first.
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
 Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0, then onward to
-v0.12.0 and the later releases), with a backup before each step. v0.16.1 is the newest
-published release at the time of writing; v0.17.0 is being prepared.
+v0.12.0 and the later releases), with a backup before each step.
 
 ### Ingest: uploads are applied in the background
 
@@ -64,6 +64,47 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.17 to v0.18.0
+
+v0.18.0 has 24 migrations. One drops a table (`ctem_id_catalog`, a downloaded copy of public
+reference data with no organization data); the others add tables, columns with constant defaults
+and indexes, and need no maintenance window. What an operator or an API client has to act on:
+
+- **Rename `SENSOR_CA_CERT_FILE` to `PLATFORM_CA_CERT_FILE`** in the API's environment (the bundled
+  `docker-compose.yml` does it already). The old name is still read when the new one is unset, with
+  a warning at startup. On a sensor host `SENSOR_CA_CERT_FILE` keeps its meaning. With the CA set,
+  every install command pins its root (`SENSOR_CA_SHA256`), and `GET /api/v1/sensors/platform-ca`
+  serves the bundle (see [Pairing](../sensors/pairing.md)).
+- **`DB_MAX_IDLE_CONNS` now defaults to `DB_MAX_OPEN_CONNS`** (25) instead of 5, so bursts of
+  requests no longer close and reopen connections. PostgreSQL may now hold up to
+  `DB_MAX_OPEN_CONNS` idle connections from each API replica: check `max_connections`, or set
+  `DB_MAX_IDLE_CONNS` explicitly to keep the old behaviour.
+- **Stage streaming is on by default**: a chained workflow step starts on the results of each
+  finished task of its predecessor instead of waiting for the whole step.
+  `SCAN_STAGE_STREAMING=false` restores the barrier everywhere; `stage_barrier: true` in a workflow's
+  settings restores it for that workflow (see [Stage streaming](../scanning/stage-streaming.md)).
+- **CTEM-ID.** The daily catalog download, `CTEM_ID_FEED_URL`, `GET /api/v1/ctem-ids` and
+  `PUT /api/v1/exposures/{id}/ctem-id` are removed; the code is derived from the platform's own
+  data, and the exposure field `ctem_id` becomes an object. Remove `CTEM_ID_FEED_URL` if set (it is
+  ignored).
+- **API key lifetime.** Each organization has a maximum API key lifetime, 90 days by default
+  (**Settings > API keys**). Existing keys keep their expiry; one minted for longer is flagged
+  **Over the maximum**. Automation that creates keys with a longer `expires_in_days` gets `400`.
+- **Sign-in across organizations.** A session from organization A's single sign-on opens another
+  organization only when that organization trusts A as the member's home organization, or when the
+  account has no sign-in of its own; otherwise `403 OWN_SIGN_IN_REQUIRED`. A Google or Microsoft
+  sign-in of an identity created by the organization's sign-on is refused with
+  `409 OAUTH_USE_ORG_SSO`, and a session without an organization reaches only the account routes
+  (`401 TENANT_REQUIRED`). See [Why was I refused?](../identity/access/refusals.md).
+- **Entra ID.** An organization's Entra ID sign-in is pinned to its directory, and SAML sign-ins
+  from Entra ID are keyed on the Entra object id (see [Entra ID](../identity/sso-entra-id.md) and
+  [SAML](../identity/sso-saml.md)).
+- **Certificate Transparency** no longer promotes a name that resolves to an excluded dedicated
+  address. Names behind a shared CDN edge are still promoted.
+- New optional settings: `AUTH_REFRESH_REUSE_GRACE` (default 30 s: parallel requests that present
+  a just-rotated refresh token get its successor instead of ending the session) and, for the job
+  signer, `SIGNER_FEED_ORIGINS` (only for a feed relay, which v0.18.0 does not run yet).
 
 ### From v0.15 to v0.17
 
@@ -146,7 +187,7 @@ client has to act on, by the release that introduced it.
   recovery-code sign-in fail, and on the tenant plane in production the API refuses to start
   while the app role can still write those tables.
 
-**v0.17.0** (when published; 13 migrations, none drops a table or a column, one removes a key
+**v0.17.0** (13 migrations, none drops a table or a column, one removes a key
 from the sign-up policy setting)
 
 - **Queued sensor segments are sealed at rest** with the organization's key. Do not run API
