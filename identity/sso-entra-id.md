@@ -100,8 +100,10 @@ Users then sign in at `https://<app>/login?org=<organization-slug>` and choose t
 - An **existing member** signs in when their account is already bound to this Entra user, or when
   their account has no password yet (for example invited or SCIM-provisioned), the Entra account's
   verified email matches it and the email domain is verified for the organization. A member who
-  has a password signs in with it once and links Entra under **Account > Security** (with their
-  second factor); SSO never takes over a password account by itself.
+  has a password signs in with it once and links Entra under **Account > Security > Organization
+  sign-in**, confirming with their authenticator code (or their password when two-factor
+  authentication is off) and signing in at Entra again; SSO never takes over a password account by
+  itself. See [Link your organization's sign-in](sign-in-methods.md#link-your-organizations-sign-in-to-a-password-account).
 - A **new person** is provisioned just in time only when auto-provision is on, their email domain is
   DNS-verified for the organization, it is in the provider's allowed domains (if set), and it is in
   the organization's allowed email domains (if set). They get the provider's default role.
@@ -119,7 +121,8 @@ same tab). The card lists its preconditions and turns on only when all hold:
 - a working provider exists (SAML or OIDC);
 - at least one of the organization's domains is verified for SSO (DNS TXT record);
 - an owner or admin has signed in through the organization's identity provider at least once
-  ("Waiting for an owner or admin to sign in through the identity provider once");
+  ("Waiting for an owner or admin to sign in through the identity provider once"); an owner who
+  signed up with a password does this by linking Entra under **Account > Security**;
 - an owner has two-factor authentication on, so owner break-glass works ("Waiting for an owner to
   turn on two-factor authentication").
 

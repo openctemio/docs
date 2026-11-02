@@ -53,7 +53,8 @@ has its own setup page.
   `409 OAUTH_ACCOUNT_EXISTS`; organization SSO: "this email is registered with a different sign-in
   method", `SSO_DIFFERENT_METHOD`), so a verified email at one provider cannot take over an account
   made at another. A sign-in never links itself to an existing account; linking always needs the
-  person's typed code or password. Details: [Existing accounts](social-login.md#existing-accounts).
+  person's typed code or password. Details: [Existing accounts](social-login.md#existing-accounts)
+  and [Link your organization's sign-in](#link-your-organizations-sign-in-to-a-password-account).
 - Only provider-verified emails are accepted: Google `email_verified`, a verified GitHub primary
   email, and for Microsoft the `xms_edov` claim. A verified email proves the mailbox only where the
   provider runs it (Gmail, the account's own Workspace domain, Microsoft); a personal Google account on
@@ -70,6 +71,40 @@ has its own setup page.
   and their second factor (audited and announced to the other owners and admins), and each
   installation should have a break-glass platform administrator. See
   [Enforcing SSO](sso-google.md#enforcing-sso-and-break-glass).
+
+## Link your organization's sign-in to a password account
+
+A member whose account has a password (for example the organization's first owner, who signed up
+with email and password) is not signed in by the organization's SSO on the strength of a matching
+email: the sign-in is refused with "an account with this email already exists". The member links the
+organization's sign-in from their own account instead (OpenID Connect providers: Microsoft Entra ID,
+Okta, Google Workspace; SAML is not supported yet):
+
+1. Sign in with your password (and your second factor).
+2. Open **Account > Security**. The **Organization sign-in** card lists every organization you belong
+   to that has single sign-on.
+3. Select **Link** next to the organization and confirm with the code from your authenticator app, or
+   with your password if two-factor authentication is off. An account with neither must turn on
+   two-factor authentication first.
+4. Sign in at your organization's identity provider. It asks you to sign in again even if you are
+   already signed in there.
+5. You return to **Account > Security**. From now on you can sign in through the organization's
+   identity provider. Your password keeps working until the organization requires single sign-on.
+
+What to know:
+
+- The email at the identity provider does not have to match your account's email; you proved both.
+  Your account keeps its own email address.
+- Linking signs your account out of your other devices and sends you an email. It is recorded in your
+  account's and the organization's audit log.
+- The link only finishes in the browser and the session that started it, within 10 minutes, once, and
+  only while you are an active member of the organization. An identity already linked to another
+  account is refused.
+- Linking counts as signing in through the organization's identity provider, which is one of the
+  preconditions of **Require single sign-on**.
+- **Unlink** (same confirmation) removes the organization's sign-in from an account that has a
+  password. An account the organization's sign-on created, without a password, stays managed by the
+  organization.
 
 ## Where the settings live
 
