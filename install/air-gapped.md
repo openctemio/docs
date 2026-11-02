@@ -148,7 +148,6 @@ them, so in a network with limited egress allow them at the firewall.
 | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog (KEV falls back to its GitHub mirror) | On | Turn each source off in the platform console, **Scanning > Threat intelligence** ([Threat intelligence](#threat-intelligence-epss-and-kev)) |
 | `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery | On | `CERT_MONITOR_ENABLED=false` |
 | `stat.ripe.net` | Lookups of network seeds an organization adds for attack-surface discovery | Only when an organization adds network seeds | Turn network lookups off in the organization's attack-surface settings, or add no network seeds |
-| `ctem.org` | CTEM-ID catalog feed | On | Leave unreachable, or set `CTEM_ID_FEED_URL` to an internal https copy |
 | `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`) | Vulnerability and program feeds | Off until you pin a root key | Keep off, or import from a directory ([Feeds](#vulnerability-and-program-feeds)) |
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme` | Only in mode `acme` | Use TLS mode `internal` or `files` ([TLS](tls-and-gateway.md)) |
 | Integrations, SSO, SMTP, AI providers | Only what you configure | Off | Point them at internal services |
@@ -1235,7 +1234,7 @@ Allow them on the firewall by name, from the listed source only:
 | The host running cosign | `tuf-repo-cdn.sigstore.dev` | The Sigstore trusted root for keyless verification (not needed with `--trusted-root`) |
 | The API | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS and KEV |
 | The API | `github.com`, `release-assets.githubusercontent.com` | Release information, and the vulnerability and program feeds once they publish |
-| The API (optional) | `crt.sh`, `api.certspotter.com`, `stat.ripe.net`, `ctem.org` | Certificate Transparency, network lookups, CTEM-ID catalog |
+| The API (optional) | `crt.sh`, `api.certspotter.com`, `stat.ripe.net` | Certificate Transparency, network lookups |
 | Sensors (optional) | `github.com`, `api.github.com`, `release-assets.githubusercontent.com`, `mirror.gcr.io`, `ghcr.io` | Scanner content ([Network](../sensors/network.md)) |
 
 The API sends these requests directly, without an HTTP proxy. Everything else
