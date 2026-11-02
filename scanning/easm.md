@@ -491,6 +491,9 @@ API: `/api/v1/content-rules`.
 your own web services and tells you when they change, for example when a sign-in page starts loading
 a script from a new host.
 
+![The Page changes page under Attack surface, Changes: the change list with its severity filter, empty until a watched page changes, and the Watched pages card with a URL field, What to follow and Watch]({{ site.baseurl }}/assets/images/scanning/page-changes.png)
+*Figure: Attack surface, Changes, Page changes.*
+
 - **Watched pages.** **Watch** a URL of one of your web services and choose **What to follow**:
   **Scripts only** (the default: the scripts the page loads and, for each first-party script, its
   hash, size and the URLs found in it) or **Full page** (also the page's visible text, with secrets

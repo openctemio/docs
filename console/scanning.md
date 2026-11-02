@@ -66,10 +66,15 @@ page does not depend on that switch: while shared scanning is off it says that
 sensors connected now serve platform roles (passive discovery, the AI worker) and
 start scanning for organizations only when shared scanning is turned on.
 
+![The Platform sensors page: the notice that organizations cannot use shared scanning yet, the Enroll a shared sensor card with name and lifetime, and the empty Fleet list]({{ site.baseurl }}/assets/images/console/platform-sensors.png)
+*Figure: Scanning, Platform sensors.*
+
 The page holds:
 
-- the **enrollment** card, which issues a platform sensor's enrollment token (a name,
-  a lifetime, a reason and a fresh authenticator code);
+- **Enroll a shared sensor**, which issues a single-use enrollment token (an optional
+  name and a lifetime of 5 to 60 minutes); start the sensor with
+  [`SENSOR_INSTANCE_ENROLLMENT_TOKEN`](../sensors/settings.md#SENSOR_INSTANCE_ENROLLMENT_TOKEN) set to it and it pairs with its own key as a
+  sensor of this instance, with no organization and the least-privilege grant;
 - the **sensor list**, with pause and retire;
 - the **instance scan zones** (the private address ranges platform sensors may reach).
 

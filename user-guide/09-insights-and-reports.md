@@ -28,6 +28,10 @@ exposure falling), rather than how much activity there is.
 
 From v0.18.0 the page answers one question first and points at what to act on:
 
+![Program health: P0 fixed within target with the open findings curve, Where to act with three off-track or watched figures, and a strip of five headline tiles]({{ site.baseurl }}/assets/images/user-guide/program-health.png)
+*Figure: Insights, Program health.*
+
+
 - Choose the **Period**: Last 30 days, Last 90 days or Last year.
 - **P0 fixed within target**: one sentence, for example "4 of 5 P0 findings were fixed in the last
   90 days. The target is more than 90%." With no P0 open or fixed in the period it says there is

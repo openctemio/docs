@@ -149,6 +149,10 @@ The **Connect** tab prints the setup for each of them with your server URL:
 When the assistant runs where your browser is not (an SSH session on a server, a container, a remote
 desktop), the browser sign-in cannot return to it. The **Remote or VPS** tab offers three ways:
 
+![The Connect tab of AI assistants (MCP) on the Remote or VPS client tab: sign in with a code through the mcp-remote bridge, as a command and as an MCP server entry]({{ site.baseurl }}/assets/images/api/mcp-remote.png)
+*Figure: Settings, AI assistants (MCP), Connect, Remote or VPS.*
+
+
 1. **Sign in with a code (any client).** Run the assistant through the `mcp-remote` bridge with the
    platform's terminal client:
 
@@ -163,6 +167,9 @@ desktop), the browser sign-in cannot return to it. The **Remote or VPS** tab off
    OpenCTEM (the **Enter a code now** button opens it), type the code and choose **Continue**. The
    consent screen for a terminal shows [where the request came from](#consent-for-a-terminal-sign-in);
    choose **Allow**, then go back to the terminal: it picks the connection up within a few seconds.
+
+   ![The Connect a terminal page: a Code field in the form XXXX-XXXX, the organization it connects to, and the warning to enter only a code you asked for]({{ site.baseurl }}/assets/images/api/mcp-device-code.png)
+
 2. **Paste the address back (Claude Code).** `claude mcp login openctem --no-browser` prints the
    sign-in link instead of opening a browser. Open it on your computer and allow; the browser then
    fails to load a page that starts with `http://localhost`. Copy that address and paste it into the
