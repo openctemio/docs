@@ -65,6 +65,10 @@ release:
 
    Notes for a run against a current release:
 
+   - A plain-HTTP scratch stack on loopback ports runs with `APP_ENV=staging` (production
+     refuses a database or Redis without TLS and needs the job signer) and, when the console
+     API listens on all interfaces of its container, `ADMIN_LISTEN_ALLOW_ALL_INTERFACES=true`;
+     publish every port on `127.0.0.1` only.
    - Start the scratch stack with `CERT_MONITOR_ENABLED=false`. Certificate
      Transparency discovery reads real public logs for `example.com` and adds names that
      belong to other people to the inventory.

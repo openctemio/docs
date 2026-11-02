@@ -416,10 +416,13 @@ async function pairSensor(name: string, profile: string) {
     proc.kill()
     throw new Error('sensor printed no pairing code: ' + out.slice(0, 800))
   }
+  // The approver picks, from the review's choices, the fingerprint the host prints.
+  const shown = /Fingerprint:\s+(.+?)\s+\(expires/.exec(out)?.[1]?.trim() ?? ''
   const view: any = await api('POST', '/api/v1/sensor-pairings/lookup', { code })
   await api('POST', `/api/v1/sensor-pairings/${view.id}/approve`, {
     code,
-    fingerprint_confirmed: true,
+    fingerprint: shown,
+    organization_id: view.organization_id ?? alex.tenantId,
     step_up: { totp: await freshCode(st, 'alex@example.com') },
     name,
     type: 'sensor',
@@ -536,7 +539,7 @@ await step('report schedule 2', () =>
   })
 )
 await step('api key', () => api('POST', '/api/v1/api-keys', { name: 'SIEM export', description: 'Read-only export of findings to the SIEM', scopes: ['findings:read', 'assets:read'], expires_in_days: 90 }))
-await step('api key 2', () => api('POST', '/api/v1/api-keys', { name: 'Asset sync (CMDB)', description: 'Nightly read of the asset inventory', scopes: ['assets:read', 'findings:read'], expires_in_days: 180 }))
+await step('api key 2', () => api('POST', '/api/v1/api-keys', { name: 'Asset sync (CMDB)', description: 'Nightly read of the asset inventory', scopes: ['assets:read', 'findings:read'], expires_in_days: 60 }))
 await step('sla policy', () =>
   api('POST', '/api/v1/sla-policies', { name: 'Default remediation SLA', description: 'Days to fix, by severity', is_default: true, critical_days: 15, high_days: 30, medium_days: 90, low_days: 180, warning_threshold_pct: 80, escalation_enabled: true })
 )
