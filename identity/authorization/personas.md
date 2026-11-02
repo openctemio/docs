@@ -24,13 +24,15 @@ Give each person the **roles** for what they do, a **team** for what they see, a
 | **AppSec or DevSecOps engineer** | AppSec engineer | Product: <name> | The repositories and services of the products they cover. | Permanent. |
 | **Cloud security engineer** | Security analyst, Scan operator | Infrastructure: <domain> | The cloud accounts and their resources. | Permanent. |
 | **Red team or internal penetration tester** | Validation engineer | Validation and red team | The current validation scope. | Permanent; campaign membership per engagement. |
+| **Penetration testing or red team lead** | Validation lead | Validation and red team | The current validation scope. | Permanent; campaign lead per engagement. |
 | **Breach and attack simulation engineer** | Validation engineer | Validation and red team | The assets the simulations target. | Permanent. |
-| **Detection engineer or SOC analyst** | Security analyst | Security operations | The program scope. | Permanent. |
+| **Detection engineer or SOC analyst** | Detection engineer | Security operations | The program scope. | Permanent. |
 | **Scanning operations engineer** | Scan operator | Infrastructure: <domain> | The assets they scan. | Permanent. |
 | **Asset or system owner** | Remediation owner | Business unit: <name> | Their business unit's or system's assets only. | Permanent; usually provisioned by SCIM into the team. |
 | **IT or infrastructure engineer** | Remediation owner | Infrastructure: <domain> | Their infrastructure domain. | Permanent. |
 | **Developer** | Remediation owner | Product: <name> | Their product's repositories and services. | Permanent; usually through SSO and SCIM. |
-| **Engineering manager** | Remediation owner, Executive viewer | Product: <name> | Their product's assets. | Permanent. |
+| **Engineering manager** | Remediation lead | Product: <name> | Their product's assets. | Permanent. |
+| **Security champion** | Remediation lead | Product: <name> | Their product's repositories and services. | Permanent. |
 | **GRC, risk or compliance manager** | Risk approver | Leadership | The assets whose risk they govern (or the whole scope). | Permanent. |
 | **Internal or external auditor** | Auditor | Audit <period> | Everything, read-only. | External membership with an end date (90 days by default); internal auditors by the same team with an end date. |
 | **Executive or board member** | Executive viewer | Leadership | The crown-jewel and in-scope assets, or one business unit. | Permanent. |
@@ -138,7 +140,7 @@ Runs code, dependency and secret scanning for repositories; works the CI gate wi
 - **Team:** Product: <name>
 - **Sees:** The repositories and services of the products they cover.
 - **Access:** Permanent.
-- **Must not:** override the CI gate (administrators); author scanner templates (administrators)
+- **Must not:** configure CI trust or code host connections (administrators); let a commit past the gate without a recent sign-in; author scanner templates (administrators)
 
 ### Cloud security engineer
 
@@ -162,6 +164,17 @@ Proves exploitability and attack paths on prioritized exposures.
 - **Access:** Permanent; campaign membership per engagement.
 - **Must not:** test outside approved scope; approve risk
 
+### Penetration testing or red team lead
+
+Plans engagements: methodology checklists and emulated attacker profiles; leads campaigns. Engagement scope and authorization letters stay with whoever owns scope.
+
+- **CTEM stages:** scoping, validation
+- **Roles:** Validation lead
+- **Team:** Validation and red team
+- **Sees:** The current validation scope.
+- **Access:** Permanent; campaign lead per engagement.
+- **Must not:** change or approve scope; approve risk
+
 ### Breach and attack simulation engineer
 
 Runs simulations and control tests; checks that detections fire.
@@ -175,14 +188,14 @@ Runs simulations and control tests; checks that detections fire.
 
 ### Detection engineer or SOC analyst
 
-Uses validation results to tune detections; follows exposures on critical assets.
+Uses validation results to tune detections and records the compensating controls they prove; follows exposures on critical assets.
 
 - **CTEM stages:** validation, mobilization
-- **Roles:** Security analyst
+- **Roles:** Detection engineer
 - **Team:** Security operations
 - **Sees:** The program scope.
 - **Access:** Permanent.
-- **Must not:** approve risk
+- **Must not:** approve risk; run simulations or scans; change findings
 
 ### Scanning operations engineer
 
@@ -235,11 +248,22 @@ Fixes code and dependency findings in their repositories.
 Plans remediation work for a team and follows its SLA.
 
 - **CTEM stages:** mobilization
-- **Roles:** Remediation owner, Executive viewer
+- **Roles:** Remediation lead
 - **Team:** Product: <name>
 - **Sees:** Their product's assets.
 - **Access:** Permanent.
-- **Must not:** approve risk acceptance
+- **Must not:** approve risk acceptance; verify their team's fixes
+
+### Security champion
+
+The security point of contact in a product team: plans the team's remediation tasks, assigns findings in the team and works the CI gate results with developers.
+
+- **CTEM stages:** mobilization
+- **Roles:** Remediation lead
+- **Team:** Product: <name>
+- **Sees:** Their product's repositories and services.
+- **Access:** Permanent.
+- **Must not:** re-score or verify the team's findings; approve risk acceptance; see other products' findings
 
 ## Governance and leadership
 
@@ -360,11 +384,11 @@ A team (access group) decides what its members see: the assets assigned to it, d
 
 | Team | Type | Purpose | Assets | Usual roles | End date |
 |---|---|---|---|---|---|
-| Security operations | `security_team` | The central security team that triages and validates across the program scope. | A scope rule on the asset groups (or tags) that make up the current CTEM scope. | Security analyst, Vulnerability manager, Threat intelligence analyst |  |
+| Security operations | `security_team` | The central security team that triages and validates across the program scope. | A scope rule on the asset groups (or tags) that make up the current CTEM scope. | Security analyst, Vulnerability manager, Threat intelligence analyst, Detection engineer |  |
 | Business unit: <name> | `department` | Everyone who owns or fixes the systems of one business unit, and its leader. | A scope rule on the business unit's tag (for example bu:payments) or its asset groups. | Remediation owner, Executive viewer |  |
-| Product: <name> | `team` | A product's engineers: its repositories, services and hosts. | The product's asset group, or a scope rule on its tag; repositories by owner. | Remediation owner, AppSec engineer |  |
+| Product: <name> | `team` | A product's engineers: its repositories, services and hosts. | The product's asset group, or a scope rule on its tag; repositories by owner. | Remediation owner, Remediation lead, AppSec engineer |  |
 | Infrastructure: <domain> | `team` | IT and infrastructure engineers for one domain (network, cloud account, endpoints). | A scope rule on the domain's tag or asset group (for example env:cloud-prod). | Remediation owner, Scan operator |  |
-| Validation and red team | `security_team` | Internal testers who prove exploitability on the prioritized exposures. | The assets in the current validation scope (an asset group refreshed each cycle). | Validation engineer |  |
+| Validation and red team | `security_team` | Internal testers who prove exploitability on the prioritized exposures. | The assets in the current validation scope (an asset group refreshed each cycle). | Validation engineer, Validation lead |  |
 | Engagement: <vendor> <dates> | `external` | One external testing engagement. Pair with a pentest campaign whose team is this group. | Only the assets named in the rules of engagement, added explicitly. | External tester | yes |
 | Program: <bug-bounty program> | `project` | Researchers working one bug-bounty program. | The program's targets; nothing from the organization's own inventory. | Researcher |  |
 | Leadership | `department` | Executives who follow outcomes on dashboards and reports. | A scope rule on the crown-jewel and in-scope asset groups, or per business unit. | Executive viewer |  |

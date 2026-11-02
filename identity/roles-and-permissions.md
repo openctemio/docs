@@ -60,13 +60,29 @@ display and sort order. Beyond these four, the
 
 Owners and admins (or anyone with `team:roles:write`) create custom roles under
 **Settings > Access & security > Roles** (`/api/v1/roles`). **New role > Start from a template** begins from one of the
-role templates (CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec
-engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, External tester,
-Researcher, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer;
-see the [matrix](authorization/roles-matrix.md)). A template grants nothing until a role is created
+role templates (CTEM program lead, Security analyst, Vulnerability manager, Remediation owner,
+Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer,
+Validation lead, Detection engineer, External tester, Researcher, Bug-bounty triager, Threat
+intelligence analyst, Risk approver, Auditor, Executive viewer; see the
+[matrix](authorization/roles-matrix.md)). A template grants nothing until a role is created
 from it. The role records the template and its version; when the template changes later the role
 shows **Template update available** with what it adds and removes, and your own edits are kept when
 you apply it. Every role shows a risk tier and what it views or changes.
+
+v0.18.0 adds three templates, each also offered as a team preset:
+
+| Template | For | Adds | Never |
+|---|---|---|---|
+| **Remediation lead** | Engineering managers, security champions | Everything a remediation owner does, plus the team's remediation tasks (create, split, merge, tracker issue, mark fixed, one exception), assignment within the team and bulk status | Severity, verifying a fix, approvals, triage, scans |
+| **Validation lead** | Pentest and red team leads | A validation engineer who also maintains methodology checklists and attacker profiles | Changing or approving scope, approving risk |
+| **Detection engineer** | Detection, SOC and purple team defenders | Reads simulations, control tests and observed campaigns; records compensating controls and their test results | Running attacks or scans, changing findings |
+
+The same release audited every template against the routes its people use. New template versions
+fix grants that opened no page and add work that was missing (for example the program lead and the
+risk approver approve exposure dispositions, the validation engineer runs targeted scans, the
+security analyst drops `scans:execute`, which opened nothing without `scans:write`). Roles and team
+presets created from an older version keep their permissions and show **Template update available**
+until you apply it.
 
 A custom role has a name, a slug, a description, a level below 80, a list of permissions and a
 **full data access** flag. Rules:

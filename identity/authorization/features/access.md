@@ -23,7 +23,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | `integrations:api_keys:read` | Owner, Administrator, Member, Viewer |
 | `integrations:api_keys:write` | Owner, Administrator |
 | `service_accounts:manage` | Owner, Administrator |
-| `settings:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
+| `settings:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | `settings:write` | Owner, Administrator |
 | `team:groups:assets` | Owner, Administrator |
 | `team:groups:delete` | Owner, Administrator |
@@ -31,9 +31,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | `team:groups:read` | Owner, Administrator, Member, Viewer, Auditor |
 | `team:groups:write` | Owner, Administrator |
 | `team:members:invite` | Owner, Administrator |
-| `team:members:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
+| `team:members:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | `team:members:write` | Owner, Administrator |
-| `team:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| `team:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Validation lead, Detection engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | `team:roles:assign` | Owner, Administrator |
 | `team:roles:delete` | Owner, Administrator |
 | `team:roles:read` | Owner, Administrator, Member, Viewer, Auditor |
@@ -81,17 +81,17 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/organization/join-requests` | `team:members:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | POST | `/api/v1/organization/join-requests/{request_id}/approve` | `team:members:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | POST | `/api/v1/organization/join-requests/{request_id}/reject` | `team:members:write` + team role admin | config: organization settings |  | Owner, Administrator |
-| POST | `/api/v1/organization/leave` | `team:read` | config: organization settings | yes | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| POST | `/api/v1/organization/leave` | `team:read` | config: organization settings | yes | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Validation lead, Detection engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | PATCH | `/api/v1/organization/members/{member_id}/access` | `team:members:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/members/{member_id}/access-report` | `team:members:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | POST | `/api/v1/organization/members/{member_id}/erase` | team role owner | config: organization settings | yes | Owner |
 | DELETE | `/api/v1/organization/members/{member_id}/mfa` | team role admin | config: organization settings | yes | Owner, Administrator |
 | POST | `/api/v1/organization/members/{member_id}/offboard` | `team:members:write` + team role admin | config: organization settings | yes | Owner, Administrator |
 | DELETE | `/api/v1/organization/ownership-transfer` | team role owner | config: organization settings |  | Owner |
-| GET | `/api/v1/organization/ownership-transfer` | `team:read` | config: organization settings |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/organization/ownership-transfer` | `team:read` | config: organization settings |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Validation lead, Detection engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/organization/ownership-transfer` | team role owner | config: organization settings | yes | Owner |
-| POST | `/api/v1/organization/ownership-transfer/approve` | `team:read` | config: organization settings | yes | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| POST | `/api/v1/organization/ownership-transfer/reject` | `team:read` | config: organization settings |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| POST | `/api/v1/organization/ownership-transfer/approve` | `team:read` | config: organization settings | yes | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Validation lead, Detection engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| POST | `/api/v1/organization/ownership-transfer/reject` | `team:read` | config: organization settings |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer, Validation lead, Detection engineer, External tester, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | GET | `/api/v1/organization/settings/domains` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/domains/{domain_id}/signup-policy` | `settings:write` + team role owner | config: organization settings | yes | Owner |
 | GET | `/api/v1/organization/trusts` | `team:members:read` + team role admin | config: organization settings |  | Owner, Administrator |
@@ -116,7 +116,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/scim-tokens/group-mappings` | team role admin | config: SCIM tokens | yes | Owner, Administrator |
 | DELETE | `/api/v1/scim-tokens/{id}` | team role owner | config: SCIM tokens |  | Owner |
 | POST | `/api/v1/scim-tokens/{id}/rotate` | team role owner | config: SCIM tokens | yes | Owner |
-| GET | `/api/v1/service-accounts` | `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, AppSec engineer, Scan operator, Validation engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
+| GET | `/api/v1/service-accounts` | `team:members:read` | config: service accounts (organization identities for integrations) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | POST | `/api/v1/service-accounts` | `service_accounts:manage` | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
 | DELETE | `/api/v1/service-accounts/{id}` | `service_accounts:manage` | config: service accounts (organization identities for integrations) | yes | Owner, Administrator |
 | GET | `/api/v1/service-accounts/{id}/api-keys` | `integrations:api_keys:read`, `team:members:read` + team role admin | config: service accounts (organization identities for integrations) |  | Owner, Administrator |
