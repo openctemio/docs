@@ -66,15 +66,18 @@ A platform administrator (super admin) configures SAML:
    |---|---|
    | IdP entity ID (issuer) | The issuer of your IdP |
    | IdP SSO URL | The IdP single sign-on endpoint |
-   | IdP signing certificate (PEM) | The IdP signing certificate. Responses are verified against it. An expired certificate is refused; the card shows when the stored one expires. |
+   | IdP signing certificates (PEM) | One to five IdP signing certificates (for example the current and the next key during a rollover). An assertion signed with any of them verifies. Only expired certificates are refused; the card shows the soonest expiry. |
    | Allowed email domains | Optional email-domain allow-list |
    | Default role for new users | `viewer` (default) or `member` for just-in-time members. Admins and owners are never provisioned by SSO. |
    | Auto-provision users | Create memberships at first sign-in |
    | Enable SAML login | Master switch |
 
-   **Service provider details** on the same card lists the metadata, ACS and login URLs. Because the
-   admin console runs on its own origin, use the values from the table above (built from
-   `APP_URL`), not the origin shown there.
+   **Import from metadata** at the top of the card fills the first three fields from the IdP's
+   federation metadata URL (https only) or an uploaded metadata file. The import only fills the
+   form; nothing is saved until you save.
+
+   **Service provider details** on the same card lists the metadata, ACS and login URLs (built from
+   `APP_URL`) and **Download SP metadata (XML)**, the file to upload in the IdP.
 
 3. If the organization has an owner, saving creates a **pending change**. An owner approves it in the
    organization under **Settings > Access & security > SSO approvals** (with step-up) after comparing the new certificate's SHA-256
@@ -90,12 +93,39 @@ Signature validation, conditions and replay checks are done by an established SA
   valid, and a second use is refused. If Redis cannot be reached, SAML sign-in is refused.
 - Only the HTTP-POST binding is accepted (no artifact binding).
 
+## Microsoft Entra ID in 5 steps
+
+1. **Download our metadata.** In the organization's **Single sign-on** tab, SAML card, select
+   **Download SP metadata (XML)**. Set `APP_URL` on the API first; the file is built on it.
+2. **Create the Entra application.** Microsoft Entra admin center > **Enterprise applications** >
+   **New application** > **Create your own application** > "Integrate any other application you
+   don't find in the gallery (Non-gallery)". Open it > **Single sign-on** > **SAML** > **Upload
+   metadata file**, choose the file from step 1, and save. Under **Users and groups**, assign who
+   may sign in.
+3. **Claims.** **Attributes & Claims** > **Unique User Identifier (Name ID)**: source attribute
+   `user.objectid`, name identifier format **Persistent**. Keep the `emailaddress` (`user.mail`) and
+   `name` claims. Do not use the email or the UPN as the only identifier: both can be renamed and
+   reused in the directory.
+4. **Import Entra's metadata.** In the Entra application, **SAML Certificates** > copy **App
+   Federation Metadata Url**. In the OpenCTEM SAML card > **Import from metadata**, paste it and
+   select **Import** (or upload the Federation Metadata XML file). Turn on **Enable SAML login** and
+   save; an owner approves the change if the organization has one.
+5. **Verify the domain and test.** Verify the organization's email domain under **Verified
+   domains**, then sign in at `https://<app>/login?org=<slug>`.
+
+The import fetches the URL through the platform's outbound address guard (no private or internal
+addresses, no redirect to them or to plain http), refuses a document that declares a DOCTYPE or
+entities, and takes certificates only from the signing keys of the SAML identity provider
+description. It does not refresh the certificate later on its own: when Entra rolls its signing key,
+import again and save.
+
 ## Certificate expiry
 
 Sign-in stops working when the IdP signing certificate expires. The organization's owners get an
 in-app alert and an email 30, 7 and 1 day(s) before it expires, and again when it has expired. Ask
-the IdP administrator for the new certificate and save it in the SAML settings (as a pending change
-if the organization has an owner). Each alert is sent once per certificate; saving a new
+the IdP administrator for the new certificate, or import the IdP's metadata again, and save it in
+the SAML settings (as a pending change if the organization has an owner). During a rollover, keep
+both the old and the new certificate until the IdP signs with the new one. Each alert is sent once per certificate; saving a new
 certificate starts over.
 
 ## Who is admitted
@@ -122,4 +152,5 @@ states a multi-factor authentication context). For
 | Redirect to `/login?error=saml` | Check the API log. Common causes: wrong or expired certificate, the IdP signs only the response and not the assertion, SHA-1 signing, a response posted twice, clock skew, the response was not for a request OpenCTEM sent (IdP-initiated), audience mismatch with the entity ID, email domain not verified, the person is not a member and auto-provision is off. |
 | Sign-in works but lands on `localhost:3000` | `APP_URL` is not set. Set it (or `OAUTH_FRONTEND_CALLBACK_URL`) to the web app origin. |
 | Sign-in fails over plain HTTP | SAML needs HTTPS (secure cookie). |
-| The SP URLs shown in the admin console differ from the metadata | The admin console shows its own origin; the metadata uses `APP_URL`. Register the `APP_URL` values. |
+| The admin console says the public address is not set | `APP_URL` is not set on the API. The SP URLs and the metadata file are built on it. |
+| Import from metadata says the address is not allowed | The URL points to a private or internal address, redirects there, or uses plain http. Upload the metadata file instead. |
