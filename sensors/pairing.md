@@ -349,7 +349,9 @@ installed with a key:
   resolution, code, dependency and image analysis. Active tools such as
   naabu, httpx, katana and nuclei are not dispatched to it;
 - it receives no credentials;
-- it cannot send results that are not bound to a job.
+- it cannot send results that are not bound to a job, so every report of a
+  collector is refused until it is trusted (see
+  [Asset collector](asset-collector.md#2-trust-it)).
 
 Open the sensor, review its **Grant**, narrow it if needed, and choose
 **Promote to Trusted** when you are satisfied. The full grant then applies.
