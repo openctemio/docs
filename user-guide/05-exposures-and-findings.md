@@ -833,10 +833,23 @@ Each source uses a stable fingerprint, so a repeated scan only updates the last
 seen time (and can reactivate a resolved exposure) instead of creating a new
 record.
 
-The platform also keeps a catalog of standardized exposure classes (CTEM IDs),
-refreshed daily from a public feed. It is available through the API
-(`GET /api/v1/ctem-ids`, and `PUT /api/v1/exposures/{id}/ctem-id` to tag an
-exposure); there is no console page for it.
+Where the data settles one, an exposure also shows its
+[CTEM-ID](https://ctem.org) code (for example `CTEM-DOM-2` for a lookalike
+domain made with look-alike characters) in the **Security context** of its
+detail panel, linked to the code's page on ctem.org; the API returns it as
+`ctem_id`. The code is worked out from the exposure type, its details and the
+linked asset, every time the exposure is read:
+
+| Code | When |
+|---|---|
+| `CTEM-DOM-1`, `CTEM-DOM-2` | A lookalike domain made by a spelling change, or with look-alike characters |
+| `CTEM-CRD-1`, `CTEM-CRD-2` | A leaked credential from a breach, the dark web, a paste site or a forum, classified as your organization's or a vendor's |
+| `CTEM-EXP-3` to `CTEM-EXP-6` | An open port, service, web interface, API or MCP server on an internet-facing asset that is a firewall or has scope cloud, shadow or vendor |
+| `CTEM-SRC-3` | A public repository on an asset with scope vendor |
+
+Other exposures show no code. To change an exposure's code, correct what it is
+worked out from: the asset's scope or type, or the credential's
+classification. The platform does not download the CTEM-ID catalog.
 
 ### Vulnerabilities, Secrets, Code weaknesses, Misconfigurations
 

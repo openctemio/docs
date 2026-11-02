@@ -38,7 +38,6 @@ There is no egress proxy support yet (see [known gaps](#known-gaps)).
 | Release feed and version check | `VERSION_CHECK_URL`, `VERSION_CHECK_ENABLED` | Admin import: `POST /api/v1/admin/version-check/import` | On import | Newer versions are not learned |
 | CISA KEV and EPSS | Fixed internet URLs | **None** | | No KEV flags and no EPSS scores |
 | AI triage | Provider URLs are fixed | **None** | | AI triage unavailable |
-| CTEM-ID catalog | `CTEM_ID_FEED_URL` | An internal https copy (the private-range allowlist is needed) | not stated | Catalog not updated |
 | Certificate transparency and RIPEstat (EASM) | Internet | **None**: internet-facing by nature | | Those EASM checks stop |
 | SMTP, Jira, chat, webhooks | Internal targets | Internal targets work (private-range allowlist) | | |
 | API reference page | Loads its script from a CDN | **None** | | The API reference page does not load |
@@ -88,7 +87,6 @@ These are follow-ups, not built:
 - Import of KEV and EPSS data (a file setting and an admin upload).
 - Egress proxy support for the guarded client.
 - A configurable base URL for an AI provider (an on-premises model).
-- CTEM-ID catalog import.
 - Serving the API reference page's script locally.
 - Release-feed and content-root keys pinned in the release.
 - Platform alerts when KEV, EPSS or vulnfeed data goes stale.

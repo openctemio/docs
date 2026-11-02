@@ -261,7 +261,6 @@ mutual-TLS listener on 9443 when the sensor passthrough is on; see
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme`. | Mode `acme` only. |
 | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog for prioritization. | Recommended. |
 | `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery. | Optional (`CERT_MONITOR_ENABLED=false` turns it off). |
-| `ctem.org` | CTEM-ID catalog feed. | Optional. |
 | Your SMTP server | Invitations, verification and password-reset email (set in the platform console, Settings, E-mail). | Recommended. |
 | `github.com` (the signed release feed) | Once a day the API downloads the feed of releases to show newer and security releases. Nothing about the instance is sent; GitHub sees the server's address. | Optional (`VERSION_CHECK_ENABLED=false` turns it off; import the file in the console, Monitoring, Software updates). |
 | Integration endpoints | Jira, GitHub or GitLab, Slack, Teams, Telegram, webhook channels, identity providers, AI providers. | Per integration. |
