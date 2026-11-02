@@ -36,8 +36,8 @@ steps, so they run on whichever implementation your sensors have:
 *Figure: Scan workflows.*
 
 System workflows cannot be edited; clone one to change it. Steps whose
-capability has no tool yet (screenshots, service detection) are optional: a run skips them with "available when a tool that runs
-<capability> is installed" and never fails because of them.
+capability has no tool yet (screenshots, service detection) are optional: a run skips them with "available when a tool that runs a
+capability is installed" and never fails because of them.
 
 **Retired workflows.** The earlier starters **Discover**, **Discover + Vuln**
 and **Web app**, and the older presets, are retired. They are no longer
