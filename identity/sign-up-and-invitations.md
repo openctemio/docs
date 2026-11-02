@@ -161,9 +161,10 @@ ask 5 times a day, and requests expire after 30 days. Nobody becomes an administ
 A platform administrator creates an organization's first owner in the admin console
 (**Organizations**, open the organization, **Members** tab, or when creating the organization with an owner email). The
 owner receives a one-time link to set a password (emailed when the installation can send email; shown
-once otherwise). An owner email that already has an account is refused with 409: nobody becomes the
-owner of an organization they did not ask for, and that person creates the organization after signing
-in. From then on the owner and their admins invite or create users; the platform administrator cannot
+once otherwise). For an owner email that already has an account, nobody becomes the owner of an
+organization they did not ask for: the organization is created with no owner and that person gets an
+[ownership invitation](../console/organizations-and-users.md#ownership-invitations), which they accept
+(confirming their identity) or decline in the app. From then on the owner and their admins invite or create users; the platform administrator cannot
 add further users to an organization that has an owner. The installation command
 `bootstrap-admin -org-name ... -org-owner-email ...` may name an existing account, including the
 installing administrator (never the break-glass one).
