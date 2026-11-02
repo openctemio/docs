@@ -34,16 +34,62 @@ Operations admin or above, with a confirmation:
 
 1. Click **New organization**.
 2. Enter the **Name**, the **Slug** (used in URLs, including the SAML sign-in
-   addresses), the **Owner email** (a person with no account yet, for whom an
-   account is created) and, optionally, the owner name and a description. An owner
-   email that already has an account is refused with 409: nobody becomes the owner
-   of an organization they did not ask for. That person can create the
-   organization after signing in.
-3. Click **Create organization**. The new owner receives a one-time link to set a
-   password by email, or shown to you when the platform [e-mail](settings.md#e-mail) is off.
+   addresses), the **Owner email** and, optionally, the owner name and a
+   description.
+3. Click **Create organization**.
+   - **A new person** (no account yet): an account is created and becomes the
+     owner. The owner receives a one-time link to set a password by email, or
+     shown to you when the platform [e-mail](settings.md#e-mail) is off.
+   - **Someone who already has an account**: the dialog says "This person already
+     has an account. They'll get an invitation to become the owner." The
+     organization is created with no owner, and that person gets an
+     [ownership invitation](#ownership-invitations). Use this to give one person
+     several organizations.
 
 An organization created here is stamped with the deployment region (if one is
 set) and has no limits until you set some.
+
+### Ownership invitations
+
+Nobody becomes the owner of an organization without accepting. When you create
+an organization for an existing account (or change who is invited, below):
+
+- The organization waits with **no owner and no member**: nobody can open it
+  until the invitation is accepted. Its limits and settings apply as for any new
+  organization, and you manage it from the console as usual.
+- The person is emailed and sees **Organizations waiting for you** on **My
+  account** in the app (the email links to the same list). **Accept and become
+  owner** asks them to confirm their identity (password, and their authenticator
+  code when they use two-factor authentication) and needs a verified email
+  address; then they own the organization. **Decline** leaves it to you.
+- Only that account can accept: the invitation is tied to the account, not to the
+  address, and it cannot be passed to someone else.
+- It expires after 7 days. The organization list and Overview show **Waiting for
+  owner to accept** (or expired, declined, canceled).
+
+On the organization's **Members** tab, operations admins and above can:
+
+- **Send again**: emails the invitation again and renews the 7 days (at most 5
+  sends per invitation, 10 minutes apart).
+- **Change invitee**: invites another existing account (the current invitation is
+  canceled and that person told), or creates the owner's account for a new person.
+- **Cancel invitation**: the person is told by email; the organization stays
+  without an owner.
+
+Each step needs a confirmation and is written to the admin activity log and to
+the organization's audit log. Once someone has accepted, or anyone is in the
+organization, the console can no longer invite an existing account into it.
+
+```mermaid
+flowchart LR
+    A[New organization<br/>owner email] --> B{Account exists?}
+    B -- no --> C[Account created<br/>set-password link<br/>owner at once]
+    B -- yes --> D[Organization with no owner<br/>invitation to that account]
+    D --> E{Person in the app}
+    E -- accept + confirm identity --> F[Owner]
+    E -- decline --> G[No owner<br/>admin decides]
+    D -- send again / change invitee / cancel --> D
+```
 
 ### One organization
 
@@ -58,7 +104,9 @@ Open an organization for its tabs:
   view is written to the admin activity log (`organization.view`). A read-only
   administrator does not see the free-text suspension reason.
 - **Members**: the organization's members (a read-only admin sees only the
-  count). While an organization has no owner, **Create first owner** adds one.
+  count). While an organization has no owner, **Create first owner** adds one
+  (or, for an organization waiting for an ownership invitation, the invitation
+  with **Send again**, **Change invitee** and **Cancel invitation**).
   When no owner can act (every owner's membership is suspended, or their account
   is blocked or erased), the Overview raises "without owner" and a super admin can
   use **Recover ownership**: it creates a new owner account and the set-password
