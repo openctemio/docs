@@ -165,7 +165,7 @@ A code is valid for 10 minutes; the sensor starts a new one when it expires.
    default, *Internal network scanner*, fits most sensors),
    re-authenticate and **Approve**.
 
-![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+![The Approve a sensor page a printed link opens: the organization the sensor joins, three fingerprints to pick the one the host shows, the host facts, the name and the authenticator code]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 *Figure: Approving a pairing request.*
 
 Details, and starting from a code made first, are in

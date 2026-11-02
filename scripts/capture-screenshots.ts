@@ -314,6 +314,7 @@ const shots: Shot[] = [
   { section: 'user-guide', name: 'scoping-overview', route: '/scoping' },
   { section: 'scanning', name: 'easm-overview', route: '/attack-surface' },
   { section: 'scanning', name: 'easm-certificates', route: '/attack-surface/certificates' },
+  { section: 'scanning', name: 'page-changes', route: '/attack-surface/pages' },
 
   // Discovery
   // 1680 wide, scaled to 1440 on save: at 1440 the inventory's Name column shrinks to one letter.
@@ -416,6 +417,7 @@ const shots: Shot[] = [
 
   // Insights
   { section: 'user-guide', name: 'insights-executive', route: '/insights/executive' },
+  { section: 'user-guide', name: 'program-health', route: '/insights/program-health' },
   { section: 'user-guide', name: 'dashboards', route: '/dashboards' },
   { section: 'user-guide', name: 'reports', route: '/reports' },
 
@@ -536,34 +538,18 @@ const shots: Shot[] = [
   { section: 'sensors', name: 'sensors-list', route: '/sensors' },
   { section: 'sensors', name: 'scan-zones', route: '/sensors', open: clickTab(/scan zones/i) },
   {
+    // The approval page a person reaches from the sensor's printed link
+    // (/activate?code=...): a live pairing request from the real sensor image
+    // (its `pair` command only), so the page shows the fingerprints to pick from.
     section: 'sensors',
     name: 'pair-dialog',
     route: '/sensors',
-    crop: '[role="dialog"]',
     height: 1250,
     open: async (page) => {
-      await page.getByRole('button', { name: /pair a sensor/i }).first().click()
-      // A live pairing request from the real sensor image (its `pair` command
-      // only), so the dialog shows the fingerprint to compare.
       const code = await startPairing('dc-b-scanner-02')
-      if (code) {
-        await page.getByRole('dialog').locator('input').first().fill(code)
-        // The lookup runs once the code is complete; older consoles had a button.
-        await page.getByRole('dialog').getByRole('button', { name: /find sensor/i }).click({ timeout: 2000 }).catch(() => {})
-        await page.getByText('Hostname', { exact: true }).first().waitFor({ timeout: 15000 })
-        await page.waitForTimeout(1000)
-      }
-    },
-  },
-  {
-    section: 'sensors',
-    name: 'pair-expect',
-    route: '/sensors',
-    crop: '[role="dialog"]',
-    open: async (page) => {
-      await page.getByRole('button', { name: /pair a sensor/i }).first().click()
-      await page.getByRole('tab', { name: /expect/i }).first().click()
-      await page.getByRole('dialog').getByRole('button', { name: /get a code/i }).click()
+      if (!code) return
+      await page.goto(`${WEB}/activate?code=${encodeURIComponent(code)}`)
+      await page.getByText(/fingerprint/i).first().waitFor({ timeout: 15000 })
       await page.waitForTimeout(1500)
     },
   },
@@ -577,6 +563,8 @@ const shots: Shot[] = [
   { section: 'api', name: 'mcp-connect', route: '/settings/mcp' },
   { section: 'api', name: 'mcp-policy', route: '/settings/mcp?tab=policy' },
   { section: 'api', name: 'mcp-applications', route: '/settings/mcp?tab=applications' },
+  { section: 'api', name: 'mcp-remote', route: '/settings/mcp', open: clickTab(/remote or vps/i) },
+  { section: 'api', name: 'mcp-device-code', route: '/oauth/device', clip: { x: 360, y: 120, width: 720, height: 560 } },
   { section: 'user-guide', name: 'notification-channels', route: '/settings/integrations/notifications' },
   { section: 'user-guide', name: 'settings-general', route: '/settings/general' },
   { section: 'security', name: 'audit-log', route: '/settings/audit-log' },
@@ -609,6 +597,7 @@ const shots: Shot[] = [
   { section: 'console', name: 'access-requests', as: 'admin', route: '/requests' },
   { section: 'console', name: 'signups', as: 'admin', route: '/requests/sign-ups' },
   { section: 'console', name: 'platform-scanning', as: 'admin', route: '/scanning/platform' },
+  { section: 'console', name: 'platform-sensors', as: 'admin', route: '/sensors' },
   { section: 'console', name: 'content-catalog', as: 'admin', route: '/scanning/content-catalog' },
   { section: 'console', name: 'administrators', as: 'admin', route: '/security/administrators' },
   { section: 'console', name: 'activity', as: 'admin', route: '/security/activity' },

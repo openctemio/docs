@@ -62,7 +62,7 @@ Add sensor offers one path. The command carries a single-use code, so the
 console finds the sensor by itself, and the sensor prints the same code, a
 link to approve it on and its fingerprint.
 
-![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+![The Approve a sensor page a printed link opens: the organization the sensor joins, three fingerprints to pick the one the host shows, the host facts, the name and the authenticator code]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 *Figure: Approving a pairing request.*
 
 1. In the console open **Discovery > Sensors > Add sensor**. Under **Where
