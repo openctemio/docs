@@ -110,6 +110,9 @@ call CISA and FIRST".
 
 ## Feed relay: no outbound access from the platform
 
+{: .note }
+**Not in v0.18.0.** The feed relay (relay mode, the **Feed delivery** card and the install toggles below) is merged for the next release; v0.18.0 ships only the job signer's part (`SIGNER_FEED_ORIGINS`); the platform still fetches its feeds itself.
+
 A platform in an internal network can receive every feed through a **platform
 sensor** that has internet access (for example in a DMZ), so the platform itself
 needs no outbound access at all. The sensor is only a pipe for signed files: the

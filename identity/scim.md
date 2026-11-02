@@ -55,7 +55,10 @@ Supported:
 
 Bulk operations are not supported. On users, `PUT` and `PATCH` change only `active`; other attribute
 changes are ignored or refused with `400 invalidPath`. `PATCH` on groups accepts both member-array
-and `members[value eq "..."]` filter styles.
+and `members[value eq "..."]` filter styles. A group keeps only the organization's own active
+members (v0.18.0 and later): creating or replacing a group and both member patches drop any other
+id as if it were unknown, so a SCIM client cannot use a group to probe for, or pre-assign roles to,
+accounts outside the organization. If the membership lookup fails, the change is refused.
 
 The organization's IP allowlist does not apply to SCIM requests (the caller is the identity
 provider's service); the token is the boundary.

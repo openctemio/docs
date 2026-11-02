@@ -26,22 +26,33 @@ KEV catalog on internet-facing assets, by asset type"), use the
 scorecard**: is risk being retired (urgent things fixed in time, inventory owned,
 exposure falling), rather than how much activity there is.
 
+From v0.18.0 the page answers one question first and points at what to act on:
+
+![Program health: P0 fixed within target with the open findings curve, Where to act with three off-track or watched figures, and a strip of five headline tiles]({{ site.baseurl }}/assets/images/user-guide/program-health.png)
+*Figure: Insights, Program health.*
+
+
 - Choose the **Period**: Last 30 days, Last 90 days or Last year.
-- Each metric shows its value, its target and a status: **On track**, **Watch**,
-  **Off track** or **Not measured** (not enough data yet; never a made-up
-  number):
-  - P1 remediation completion and time to remediate (P1);
-  - asset owner coverage;
-  - remediation re-open rate and P1s rediscovered in scope;
-  - SLA compliance;
-  - exposure-count trend;
-  - validation downgrade % (the share of validated findings that were
-    downgraded, see [Validation](07-validation.md#re-verify-a-finding)).
-- **Exposure over time**: open findings across the period. A healthy program
-  bends this curve down. It needs at least two risk snapshots.
-- **Activity (context, not goals)**: total open findings, new this period and
-  resolved this period. Useful for context, but not what the program is judged
-  on.
+- **P0 fixed within target**: one sentence, for example "4 of 5 P0 findings were fixed in the last
+  90 days. The target is more than 90%." With no P0 open or fixed in the period it says there is
+  nothing to divide instead of showing a number.
+- **Where to act**: links to the filtered lists behind the figures that are off track, such as **P0
+  findings still open**, **P0 fixes take too long** (mean days to fix), **Findings past their SLA**,
+  **Assets without an owner**, **Open findings are not falling** and **Validation downgrades are out
+  of range**. When nothing is off track it says **Nothing is off track in this period.**
+- One strip of up to five linked tiles with the headline figures (total open findings and its
+  change, the remediation re-open rate, the validation downgrade %, and the like). A figure that
+  opens no list is a plain row, never a tile. **Not measured** still means there is not enough data,
+  never a made-up number.
+- **Exposure over time**: open findings across the period. A healthy program bends this curve down.
+  It needs at least two risk snapshots.
+- **Activity (context, not goals)**: total open findings, new this period and resolved this period.
+  Useful for context, but not what the program is judged on.
+
+The page reads the same scoped figures as before (P1 completion and time to remediate, asset owner
+coverage, re-open rate and P1s rediscovered in scope, SLA compliance, exposure-count trend,
+validation downgrade %); the 19 per-metric cards with **On track** pills of earlier releases are
+gone.
 
 The program metrics and the exposure trend are computed for the whole
 organization, so a member whose data scope is limited needs the

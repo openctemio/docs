@@ -23,6 +23,11 @@ rule applied. The sentence comes with a code, which is also what the API returns
 | `MFA_ENROLLMENT_REQUIRED` (when opening the organization, or creating an API key, sensor key, enrollment token, secret or integration) | The person must have two-factor on: the organization's rule or the platform floor covers them. Creating credentials needs it even during the floor's grace period. | See [Two-factor requirements](two-factor-requirements.md). |
 | `MFA_BELOW_PLATFORM_FLOOR` (saving authentication settings, `422`) | The organization tried to require less two-factor than the platform floor. | Keep the switches the floor raises; see [The platform two-factor floor](../two-factor.md#the-platform-two-factor-floor). |
 | `ACCOUNT_TOKEN_NOT_ALLOWED` (on `/api/v1/tenants/{tenant}/...` routes) | The token is bound to no organization (a sign-in token from a social or SSO sign-in that was not exchanged). | Exchange it for an organization token first (`POST /api/v1/auth/token`). The console does this for you. |
+| "Your session comes from another organization's identity provider. Sign in with your own account to open this organization." (`OWN_SIGN_IN_REQUIRED`, `403`) | You signed in through organization A's single sign-on, which skips your own password and second factor. That session opens only A, an organization that trusts A as your home organization, or every organization when your account has no sign-in of its own (an account the identity provider created). The sign-in page then says "You signed in through another organization's identity provider, which does not cover this organization." (v0.18.0 and later) | Sign out and sign in with your own account (password and two-factor), or ask the other organization to trust A as your home organization. |
+| "Your session comes from an organization's identity provider. Sign in with your own account to change the account itself." (`OWN_SIGN_IN_REQUIRED`) | Deleting your account and signing out everywhere need your own sign-in when your account has one; a session from an organization's identity provider, even a fresh one, cannot do it. A second factor proven by that provider also counts only for its organization, not for another organization's two-factor rule, an owner break-glass or an SSO exception. | Sign in with your own password and second factor, then retry. |
+| "This account signs in through your organization. Use your organization's sign-in." (`OAUTH_USE_ORG_SSO`, `409`) | You used Google or Microsoft sign-in, but that identity was created by your organization's Entra ID or Google Workspace sign-on. Nothing changes on the account and the refusal is audited. | Enter your work email on the sign-in page and use the organization sign-in it offers. |
+| "This needs an organization. Accept an invitation or create one first." (`TENANT_REQUIRED`, `401`) | Your session belongs to no organization (you are in none yet, or you signed in with social or SSO sign-in and have not chosen one). Such a session reaches only your own account: profile, preferences, password, two-factor, sessions, sign-in methods, account deletion, accepting or declining an invitation, creating an organization where allowed. | Accept an invitation or create an organization, or choose one after signing in. |
+| "Your session is using outdated permissions. Refresh your token and retry." (`409`) | Your roles or teams changed after the session started. From v0.18.0 the console renews the session as soon as an answer says so (at most once per 10 seconds) and retries once, so you rarely see it. | Retry; if it persists, sign out and sign in again. |
 
 ## Which one applies to my case?
 
@@ -34,3 +39,17 @@ rule applied. The sentence comes with a code, which is also what the API returns
   stays valid for 10 minutes in that session.
 - **I use SSO and the dialog keeps asking me to sign in**: your identity provider must return a fresh
   authentication time. See [Step-up re-authentication](../two-factor.md#step-up-re-authentication).
+
+## Why was I signed out?
+
+From v0.18.0 the sign-in page says why a session ended:
+
+| Message | Cause |
+|---|---|
+| "Your session expired. Sign in again." | The session reached its end. |
+| "Your session was ended for your safety: the same sign-in was used from two places. Sign in again." | A refresh token that had already been used was presented again (for example a copied session), so the session was revoked. |
+| "Your session was ended: you signed out on another device, or an administrator ended it. Sign in again." | You chose sign out everywhere, or an administrator ended your sessions. |
+| "You signed in through another organization's identity provider, which does not cover this organization. Sign in with your own account." | See `OWN_SIGN_IN_REQUIRED` above. |
+
+Browser tabs share one session refresh, so several open tabs, or many requests sent while the access
+token was being renewed, no longer sign you out.

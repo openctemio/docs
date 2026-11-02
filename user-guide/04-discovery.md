@@ -304,7 +304,7 @@ with no page left is hidden.
 | **Overview** | **Summary** (`/attack-surface`) | `assets:read` |
 | **Inventory** | **Technologies**, **Certificates**, **Web surface** | `assets:read` |
 | **Exposures** | **Exposure items**, **Lookalikes** | `findings:exposures:read` (and `findings:read`); `scope:read` |
-| **Changes** | **Surface** (`/attack-surface/changes`) | `assets:read` |
+| **Changes** | **Surface** (`/attack-surface/changes`), **Page changes** (`/attack-surface/pages`, see [Page changes](../scanning/easm.md#page-changes)) | `assets:read` |
 | **Discovery** | **Stages**, **Decisions** | `scans:read`; `assets:read` |
 
 The number of decisions waiting shows on **Discovery**. Clicking an asset on

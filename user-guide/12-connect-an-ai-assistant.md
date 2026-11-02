@@ -46,7 +46,9 @@ You need an OpenCTEM account in the organization. You do not need to be an admin
 ### Find the server URL
 
 Open **Settings > Access & security > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
-configuration with the server URL of your installation. The URL always has this form:
+server URL of your installation and one setup tab per client, each with copy buttons: **Claude Code**,
+**Codex CLI**, **Gemini CLI**, **VS Code**, **Cursor**, **Claude Desktop** and **Remote or VPS**. The
+snippets never contain a key or a token. The URL always has this form:
 
 ```
 https://openctem.example.com/api/v1/mcp
@@ -79,11 +81,15 @@ can approve it. See [If your organization has not approved the application](#if-
 
 ### Claude Code
 
+Run these in a terminal on the computer where your browser is:
+
 ```bash
 claude mcp add --transport http openctem https://openctem.example.com/api/v1/mcp
+claude mcp login openctem
 ```
 
-Then start `claude`, run `/mcp`, select **openctem** and choose **Authenticate**. A browser window
+The second command opens the sign-in page. You can also start `claude`, run `/mcp`, select
+**openctem** and choose **Authenticate**. A browser window
 opens on OpenCTEM for the same sign-in and consent steps. Claude Code runs on your computer, so the
 consent screen shows the extra notice [Only continue if you started this](#what-each-line-of-the-consent-screen-means).
 
@@ -127,6 +133,73 @@ operator turned that on (`MCP_OAUTH_DCR_ENABLED`, off by default) and the organi
 Scripts without a person at the keyboard use an [API key](../api/mcp.md#connect-a-client) instead,
 if the organization allows API keys on the MCP server.
 
+### Codex CLI, Gemini CLI, VS Code and Cursor
+
+The **Connect** tab prints the setup for each of them with your server URL:
+
+| Client | Setup |
+|---|---|
+| **Codex CLI** | `codex mcp add openctem --url <server URL>`, then `codex mcp login openctem`; or the `[mcp_servers.openctem]` block in `~/.codex/config.toml` |
+| **Gemini CLI** | Needs an application ID: an administrator [registers one](#register-an-organization-application) with the redirect address `http://localhost:33418/oauth/callback`. Put the ID in `clientId` in `~/.gemini/settings.json`, then run `/mcp auth openctem` |
+| **VS Code** | A `servers.openctem` entry of type `http` in `.vscode/mcp.json` (or your user MCP settings); VS Code opens the sign-in page when the server starts |
+| **Cursor** | A `mcpServers.openctem` entry with the URL in `~/.cursor/mcp.json`; Cursor offers to sign in when the server first connects |
+
+### An assistant on a server, in a container or over SSH
+
+When the assistant runs where your browser is not (an SSH session on a server, a container, a remote
+desktop), the browser sign-in cannot return to it. The **Remote or VPS** tab offers three ways:
+
+![The Connect tab of AI assistants (MCP) on the Remote or VPS client tab: sign in with a code through the mcp-remote bridge, as a command and as an MCP server entry]({{ site.baseurl }}/assets/images/api/mcp-remote.png)
+*Figure: Settings, AI assistants (MCP), Connect, Remote or VPS.*
+
+
+1. **Sign in with a code (any client).** Run the assistant through the `mcp-remote` bridge with the
+   platform's terminal client:
+
+   ```bash
+   npx -y mcp-remote https://openctem.example.com/api/v1/mcp --device-code \
+     --static-oauth-client-info '{"client_id":"octc_terminal"}'
+   ```
+
+   The tab also shows the same command as an MCP server entry (`"command": "npx"`) for clients that
+   start their servers from a configuration file. The terminal prints a short code (`XXXX-XXXX`).
+   Open `https://openctem.example.com/oauth/device` in any browser where you are signed in to
+   OpenCTEM (the **Enter a code now** button opens it), type the code and choose **Continue**. The
+   consent screen for a terminal shows [where the request came from](#consent-for-a-terminal-sign-in);
+   choose **Allow**, then go back to the terminal: it picks the connection up within a few seconds.
+
+   ![The Connect a terminal page: a Code field in the form XXXX-XXXX, the organization it connects to, and the warning to enter only a code you asked for]({{ site.baseurl }}/assets/images/api/mcp-device-code.png)
+
+2. **Paste the address back (Claude Code).** `claude mcp login openctem --no-browser` prints the
+   sign-in link instead of opening a browser. Open it on your computer and allow; the browser then
+   fails to load a page that starts with `http://localhost`. Copy that address and paste it into the
+   terminal.
+3. **Forward the sign-in port over SSH.** Connect with the port forwarded and give the client the
+   same fixed port, so the browser on your computer reaches the client on the server:
+
+   ```bash
+   ssh -L 33418:127.0.0.1:33418 you@your-server
+   claude mcp add --transport http --callback-port 33418 openctem https://openctem.example.com/api/v1/mcp
+   claude mcp login openctem
+   ```
+
+CI jobs and containers with nobody at the keyboard use an [API key](../api/mcp.md#connect-a-client)
+kept in the job's secret store, never a code typed by a person.
+
+**About codes.** Type the code yourself: there is no link that fills it in. A code works once,
+belongs to the first person who enters it, and expires after 10 minutes. Entering codes is limited
+per address and per person (**Too many attempts. Wait a minute and try again.**). Enter a code only
+if you just started the sign-in yourself, on a machine you control; never enter a code someone sent
+you. If the page says **Your organization does not allow signing a terminal in with a code**, an
+administrator turned off **Terminal sign-in with a code** in the [policy](#the-policy-fields).
+
+### Test the connection
+
+**Test connection** on the **Connect** tab checks, from your browser, that the server answers the
+sign-in discovery (clients can find how to sign in), whether terminal sign-in with a code is offered,
+and names your newest connection. If nothing is connected yet, set a client up, sign in, and test
+again.
+
 ### What each line of the consent screen means
 
 The consent screen is the one place where you decide. Read it before you choose **Allow**.
@@ -156,6 +229,16 @@ do. You can disconnect it at any time.
 A connection with the all-data option shows an **All organization data** badge in **Your AI applications** and in
 the organization's list of connected applications. Choose **Limit to own data** there to set it back to the
 scoped view without disconnecting it (you, or an organization administrator); **Disconnect** ends it.
+
+### Consent for a terminal sign-in
+
+A sign-in with a code shows **Connect a terminal to OpenCTEM?** and a panel **Where the request came
+from**: the address and the program that asked, when it asked, your own address, and **Same
+address** or **Different address** (expected when the terminal runs on a server or another network:
+check that the address is one you know). A warning asks **Did you start this sign-in yourself?**:
+allow only if you typed this code from your own terminal in the last few minutes. Such a
+connection never offers full organization data, approving needs a recent sign-in, and the page ends
+on **The terminal is connected** (or **Not connected**) instead of sending you anywhere.
 
 ### If your organization has not approved the application
 
@@ -198,6 +281,8 @@ Open **Settings > My account > Connected applications** (`/account/connected-app
 **Your AI applications**. The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
 **Unverified** badge), the access it holds (**Findings**, **Assets**, **Compliance**, **Pentest**),
 when it was connected, when it was last used and from which address, and when it ends.
+
+A connection made with a code carries the **Terminal sign-in** badge.
 
 Choose **Disconnect** and confirm **Disconnect {name}?**. The application loses access at once; to
 use it again, connect it again from the application.
@@ -300,6 +385,7 @@ The **Policy** tab has one **Save policy** button. It applies to existing connec
 | **Limits** | **Connections last (days)** | How long until a person must approve the application again, 1 to 90. | 90 |
 | **Limits** | **Highest TLP sent to AI applications** | Pentest campaigns above this TLP level are never sent: the tools and prompts refuse them and campaign lists leave them out. A campaign lead can also exclude one campaign with **Keep this campaign away from AI assistants** on its Engagement card. | TLP:AMBER |
 | **Limits** | **Require proof of possession (DPoP)** | Applications must sign every request with their own key, so a copied token is useless. Applications without DPoP support can no longer connect, and existing connections without it stop working. | Off |
+| **Limits** | **Terminal sign-in with a code** | Members can sign an assistant in from a terminal with a code typed into their browser ([how](#an-assistant-on-a-server-in-a-container-or-over-ssh)). Off refuses new codes and ends the connections made this way; browser connections keep working. Turning it on is listed in the confirmation of what the save widens. | On |
 | **Limits** | **API keys on the MCP server** | Whether `oct_` keys may call the MCP server. Keys still work on the REST API. | On |
 
 Publishers, requests and the unverified switch are on the **Applications** tab and are not changed
