@@ -116,30 +116,68 @@ needs no outbound access at all. The sensor is only a pipe for signed files: the
 platform decides which files it needs, the sensor downloads exactly those from the
 official feed origins and sends them back, and the platform verifies every file
 with each feed's own pinned key before anything is applied. A relay can delay a
-feed, never change it.
+feed, never change it, and it is never a way out for the platform's data: it only
+downloads named files from fixed origins.
 
 What is relayed: the vulnerability feed with its KEV and EPSS data, and the release
 feed of the version check. In relay mode the platform also stops its own KEV/EPSS
-fetch, the online version check, the program feed's URLs and the CTEM-ID refresh
-(not relayed yet), so it makes no outbound feed request.
+fetch, the online version check and the program feed's URLs (not relayed yet; the
+status lists it), so it makes no outbound feed request. The platform never falls
+back to fetching directly on its own: only an administrator changes the mode.
 
-Set it up:
+**Defaults.** A new compose install with the bundled sensor starts in relay mode:
+the bundled sensor becomes the relay as soon as it enrolls. An existing
+installation keeps fetching directly until an administrator switches it.
 
-1. Run a **platform (shared) sensor** on a host with internet access and set
-   `SENSOR_FEED_RELAY=1` on it (see the [settings reference](../sensors/settings.md#SENSOR_FEED_RELAY)).
-   Only a platform sensor can relay; an organization's sensor refuses the setting.
-2. The platform needs its **job signer** (it signs every relay round). A relay may
-   only download from the official origins; to relay from your own mirror, add it to
-   `SIGNER_FEED_ORIGINS` on the signer **and** `SENSOR_FEED_RELAY_ORIGINS` on the sensor.
-3. In the console, a super administrator opens the feed delivery setting on
-   **System > Threat intelligence**, chooses **Through a relay sensor** and picks
-   the sensor (step-up required, audited).
-4. With several API replicas, `FEED_RELAY_DIR` must be a directory every replica
-   sees (one shared volume).
+Set it up on an existing installation:
+
+1. Run a **platform (shared) sensor** on a host with internet access. A shared
+   sensor with a pinned job-signing key relays by default; set
+   [`SENSOR_FEED_RELAY=0`](../sensors/settings.md#SENSOR_FEED_RELAY) on a host
+   that must not. An organization's sensor never relays.
+2. The platform needs its **job signer** (it signs every relay round). A relay
+   downloads only from the official origins (`VULNFEED_BASE_URL`; the direct-mode
+   mirrors in `VULNFEED_MIRRORS` are not used). To relay from your own mirror, add
+   it to `SIGNER_FEED_ORIGINS` on the signer **and**
+   [`SENSOR_FEED_RELAY_ORIGINS`](../sensors/settings.md#SENSOR_FEED_RELAY_ORIGINS)
+   on the sensor.
+3. A super administrator selects relay mode and designates **one to three** relay
+   sensors in one change (step-up required, audited):
+   `PUT /api/v1/admin/settings/feed-relay` with
+   `{"mode": "relay", "sensor_ids": ["..."], "expected_version": N}` (the console
+   card follows). Each sensor must be an active platform sensor that reports the
+   feed relay; anything else is refused.
+
+**Several relays.** Any designated relay picks up the next round. If one stops
+(no upload for ten minutes) or is removed from the list, another takes over its
+round, so two relays give automatic failover.
+
+**Several API replicas.** Nothing to configure: relayed files are stored in the
+database and every replica sees them. No shared volume is needed on compose, Helm
+or the installer kit. The relayed files are re-fetchable, so backups may skip the
+data of the `feed_relay_files` table.
+
+**Status** (`GET /api/v1/admin/settings/feed-relay`, any administrator): per feed
+the applied release and its age, the round in progress (files and bytes delivered,
+which relay holds it), and when a feed is stale, why:
+
+| Reason | Meaning |
+|---|---|
+| `no_relay_designated` | relay mode is on but no relay sensor is designated (on a new install: the bundled sensor has not enrolled yet) |
+| `relay_offline` | no designated relay was seen in the last 10 minutes |
+| `signer_refused` | the job signer refused the round; the detail names the reason (for example an origin missing from `SIGNER_FEED_ORIGINS`) |
+| `sensor_refused` | the relay sensor refused the round (signature or origin rule on the sensor) |
+| `upstream_missing` | the feed host answered 404 for a file |
+| `nothing_delivered` | the relay delivered no file of the round |
+| `pin_mismatch`, `verify_failed` | a file did not match its pin or signature: someone served altered or unsigned files |
+| `rollback_refused` | the relayed release is older than the one applied |
+| `plan_failed`, `import_failed` | the platform could not plan or apply the relayed files |
+| `round_expired` | the relay did not finish a round within 30 minutes |
+| `spool_full` | the relayed files reached their quota (512 MiB) |
 
 Relay mode is not available while `VULNFEED_BUNDLE_DIR` is set (that directory
-stays the only source). Direct fetch, a mirror and the bundle directory remain the
-other ways to receive the feeds.
+stays the only source) or without a job signer. Direct fetch, a mirror and the
+bundle directory remain the other ways to receive the feeds.
 
 ## Feed status and Sync now
 
