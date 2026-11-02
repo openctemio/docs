@@ -111,25 +111,35 @@ under [Authentication](02-team-and-access.md#sign-in-policy).
 
 ### Modules
 
-**Settings › Organization › Modules** (`/settings/modules`) turns product areas
-on or off for your organization. A module that is off disappears from the
-sidebar and its permissions are left out of the role editor.
+**Settings › Organization › Modules** (`/settings/modules`) turns features on
+or off for your organization. A module that is off disappears from the sidebar,
+its pages stop opening, its scheduled jobs stop, and its permissions are left
+out of the role editor.
 
-- The cards: **Total modules**, **Enabled**, **Disabled** and **Core (always
-  on)**. Core modules are required for the platform to work and cannot be turned
-  off.
-- **Products** narrows the platform to the products you pick; with none selected
-  every module is available.
-- **Fine-tune features**: individual modules grouped by CTEM stage (Scoping,
-  Discovery, Prioritization, Validation, Mobilization, Insights & Reporting,
-  Operations & Data, Settings & Integrations). Toggle them and click **Save
-  changes**, or **Discard**.
-- Modules depend on each other ("Needs N", "Used by N"). When a change would
-  break a dependency, the page tells you which modules block it and offers to
-  **Enable required** modules or to **Disable them too**. Some changes warn that
-  another module will degrade.
-- **Remove my changes** resets every module to the default (all enabled), after
-  confirmation.
+- **Always on** lists the core modules. They are required for the platform to
+  work and cannot be turned off.
+- The other modules are grouped by stage (Scoping, Discovery, Prioritization,
+  Validation, Mobilization, Reporting and compliance, Operations and data,
+  Scanning), every group open, with how many are on. Search by name or
+  description, and use **Show** to list only modules that are on, off or
+  unavailable.
+- Under each module the page says what it needs and what needs it, for example
+  "Requires Scope" or "Required by CTEM cycles".
+- Turn modules on or off, then **Save changes** (or **Discard**). Turning a
+  module off also turns off the modules that need it: they are marked "Turns off
+  with …" on the page, and before saving a preview lists every module that
+  changes and what stops (their pages, scheduled jobs and syncs, and the tools AI
+  assistants get over MCP). The data is kept and comes back when you turn a
+  module on again. Turning a module on also turns on the modules it needs.
+- A module this organization does not have, one turned off for the whole
+  installation, or one in its read-only period shows a lock and the reason
+  instead of a switch you can use. A module running with less than usual shows
+  **Degraded**.
+- Members who may not change modules see the page read-only. With access to the
+  audit log, the page shows who changed the modules last and links to the audit
+  log.
+- **Reset to defaults** turns every module available to the organization on
+  again, after confirmation.
 
 If a page in this guide is missing for your organization, its module is probably
 off here.
