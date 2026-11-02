@@ -82,7 +82,11 @@ The setting applies to the next message, without a restart. The password is
 stored encrypted with `APP_ENCRYPTION_KEY`.
 
 The connection uses TLS 1.2 or later and always verifies the relay's
-certificate.
+certificate. A relay whose certificate comes from your own certificate authority
+is trusted by pasting that CA certificate in **Internal CA certificate** (write-only,
+used only for this server, changing it needs the same second approval as a new
+relay). **Send a test e-mail** names the cause of a failure. No mail provider
+online? See [Send mail without an online provider](mail-without-online-smtp.md).
 
 {: .warning }
 The `SMTP_*` environment variables of earlier releases (`SMTP_ENABLED`,
@@ -108,6 +112,7 @@ in the console. With the Helm chart (0.22.0 and later), set them in
 | `BOOTSTRAP_SMTP_FROM` | Sender address, for example `openctem@example.com`. |
 | `BOOTSTRAP_SMTP_FROM_NAME` | Sender display name (default `OpenCTEM`). |
 | `BOOTSTRAP_SMTP_STARTTLS` | `false` turns STARTTLS off (default on). |
+| `BOOTSTRAP_SMTP_CA_FILE` | Path of a PEM file with the internal CA certificate that signed the relay's certificate (certificates only). |
 
 Links in email use the platform's public origin (`APP_URL`, which the Compose
 stack sets from `OPENCTEM_PUBLIC_URL`). Set `SMTP_BASE_URL` only when the
@@ -141,7 +146,10 @@ docker compose logs -f api | grep -i -E "email|smtp"
 | `email service not configured, skipping ...` | No platform SMTP is saved in **Settings > E-mail** and the organization has no Email channel. |
 | `smtp host rejected: ...` | The host resolves to a private, loopback or link-local address. See [Relays on a private network](#relays-on-a-private-network). |
 | `failed to connect: ...` | Wrong host or port, or outbound SMTP blocked by a firewall. |
+| `failed to start TLS: ... certificate signed by unknown authority` | The relay's certificate is from your own authority: paste its CA certificate in **Internal CA certificate**. |
 | `failed to start TLS: ...` | The relay does not offer STARTTLS on that port, or its certificate does not match the host name. |
+
+The [test e-mail](mail-without-online-smtp.md#send-a-test-e-mail-and-read-the-result) result in the console lists every cause and fix.
 
 If links in email show `localhost`, set `OPENCTEM_PUBLIC_URL` (Compose) or
 `APP_URL` to the public origin.
