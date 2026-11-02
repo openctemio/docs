@@ -44,10 +44,11 @@ In the Azure portal, **Microsoft Entra ID > App registrations > New registration
      Accept the prompt to turn on the Microsoft Graph email permission.
    - `auth_time` (recommended): needed for [step-up re-authentication](two-factor.md#step-up-re-authentication)
      of SSO users who have no authenticator. Without it they cannot perform protected actions.
-   - `sid` (recommended): lets back-channel logout end the exact session (step 4).
 
-Because `xms_edov` must be true, personal Microsoft accounts (outlook.com, hotmail.com, live.com)
-and guest users whose email domain is not verified in the signing directory are refused.
+Because organization SSO is pinned to your directory (the token's `tid` must equal the Directory
+(tenant) ID you enter), accounts of other directories and personal Microsoft accounts are refused.
+`xms_edov` must also be true, so a user whose email domain is not verified in your directory is
+refused.
 
 ## Step 2: Configure organization SSO
 
@@ -64,15 +65,13 @@ authenticator code for every change) in the admin console, not by the organizati
    Then select **Verify now**. A domain can be verified for SSO by only one organization on the
    installation; public email providers, disposable-email domains and public suffixes are refused.
 3. Under **Identity providers**, open **Microsoft Entra ID**. The form opens with **Set up in
-   Microsoft Entra ID**: the **Redirect URI (type: Web)** and the **Front-channel logout URL**, each
-   with a copy button, and the optional ID token claims to add (`xms_edov` required, `auth_time`,
-   `sid`). The addresses come from `APP_URL` on the API; without it the form says so. Okta and Google
+   Microsoft Entra ID**: the **Redirect URI (type: Web)** with a copy button, and the optional ID token claims to add (`xms_edov` required, `auth_time`). The addresses come from `APP_URL` on the API; without it the form says so. Okta and Google
    Workspace show their redirect URI the same way. Fill in:
 
    | Field | Value |
    |---|---|
    | Display name | The button label, for example `Sign in with Contoso` |
-   | Directory (Tenant) ID | Directory (tenant) ID. Do not use `common`. |
+   | Directory (Tenant) ID | Directory (tenant) ID, the GUID from the app's Overview. Required: `common`, `organizations`, `consumers` and domain names are refused. |
    | Client ID | Application (client) ID |
    | Client secret | The secret value. It is stored encrypted with `APP_ENCRYPTION_KEY`. |
    | Allowed email domains | Optional. Narrows which verified domains may sign in. |
@@ -98,8 +97,11 @@ Users then sign in at `https://<app>/login?org=<organization-slug>` and choose t
 
 ### Who is admitted
 
-- An **existing member** of the organization signs in when the Entra account's verified email
-  matches their account (or the account is already bound to this Entra user).
+- An **existing member** signs in when their account is already bound to this Entra user, or when
+  their account has no password yet (for example invited or SCIM-provisioned), the Entra account's
+  verified email matches it and the email domain is verified for the organization. A member who
+  has a password signs in with it once and links Entra under **Account > Security** (with their
+  second factor); SSO never takes over a password account by itself.
 - A **new person** is provisioned just in time only when auto-provision is on, their email domain is
   DNS-verified for the organization, it is in the provider's allowed domains (if set), and it is in
   the organization's allowed email domains (if set). They get the provider's default role.
@@ -164,21 +166,21 @@ provider of their own, and the same admission rules apply.
 | `SSO_ENTRA_DISPLAY_NAME` | `Microsoft Entra ID` | Button label |
 | `SSO_ENTRA_ALLOWED_TENANTS` | empty (fallback off) | Comma-separated organization slugs allowed to use the fallback |
 
-## Step 4: Back-channel logout
+## Step 4: When someone leaves
 
-OpenCTEM supports OpenID Connect Back-Channel Logout. When a user signs out of Entra, or is disabled
-or deleted there, Entra sends a signed logout token and OpenCTEM revokes the matching sessions at
-once.
+Microsoft Entra ID does not send OpenID Connect back-channel logout, and it does not tell OpenCTEM
+when a user is disabled or deleted. Signing out of Microsoft or disabling the user in Entra does
+**not** end that person's OpenCTEM sessions. Do not enter an OpenCTEM address as the app's
+**Front-channel logout URL**: OpenCTEM does not support front-channel logout.
 
-In the app registration, **Authentication > Front-channel logout URL**, set:
+To remove access as soon as someone is removed in Entra:
 
-```
-https://<api-host>/api/v1/auth/backchannel-logout
-```
+- turn on [SCIM provisioning](scim.md): removing or unassigning the user in Entra offboards their
+  membership in the organization, which takes effect on their next request;
+- or remove the member in OpenCTEM (**Settings > Members**), or revoke their sessions.
 
-With the bundled gateway, `<api-host>` is the same host as `<app>`. The token is verified against
-the directory's signing keys, audience and issuer; no secret is configured. With the `sid` optional
-claim a logout ends one session; without it, all of that user's sessions from the directory end.
+Otherwise a session ends when it expires (`AUTH_SESSION_DURATION`, 30 days by default) or its refresh
+token is not used for `AUTH_REFRESH_TOKEN_DURATION` (7 days by default).
 
 ## Step 5: Redirect URI allow-list
 
@@ -189,8 +191,7 @@ SSO_ALLOWED_REDIRECT_URIS=https://app.example.com/auth/sso/callback/entra_id
 ```
 
 When unset, it is derived from `CORS_ALLOWED_ORIGINS`, `OAUTH_FRONTEND_CALLBACK_URL` and
-`SMTP_BASE_URL`. `APP_ENCRYPTION_KEY` must be set: it protects the PKCE verifier carried in the
-signed state.
+`SMTP_BASE_URL`. The callback must present the same redirect URI as the sign-in that started it.
 
 ## Social sign-in with Microsoft
 
@@ -204,7 +205,9 @@ and its own redirect URI. See [Social login with Microsoft](social-microsoft.md)
 | `404 SSO provider not configured` | Wrong or missing `?org=` slug, no active `entra_id` provider for the organization, or a pending change not yet approved by the owner. For the env fallback: the slug is not in `SSO_ENTRA_ALLOWED_TENANTS`. |
 | `AADSTS50011` | The redirect URI in Azure does not exactly match `https://<app>/auth/sso/callback/entra_id`. |
 | `invalid redirect URI` | The callback is not in `SSO_ALLOWED_REDIRECT_URIS`. |
-| Sign-in refused after Microsoft authentication | `xms_edov` claim missing or false; the token's directory does not match the configured tenant identifier; `openid` missing from the scopes. |
+| Sign-in refused after Microsoft authentication | `xms_edov` claim missing or false; `email` claim missing (add the `email` optional claim or scope); the token's directory does not match the configured Directory (tenant) ID; `openid` missing from the scopes. |
+| `SSO provider not configured` for an organization that has an Entra provider | The provider has no Directory (tenant) ID GUID (an empty value, `common` or a domain name was saved before it became required). Set the GUID in the admin console. |
+| A person disabled in Entra can still use OpenCTEM | Entra sends no logout to OpenCTEM. Turn on SCIM provisioning, or remove the member (step 4). |
 | "not a member of this organization" | Just-in-time provisioning was not allowed: verify the domain, turn on auto-provision, or invite the user. |
 | "email is registered with a different login method" | The account belongs to another sign-in method or another Entra user. This is the account-takeover guard. |
 | Protected actions say "sign in again" and then fail | Add the `auth_time` optional claim, or have the user enrol an authenticator. |
