@@ -24,6 +24,142 @@ platform admin console's own site.
 You can also connect Entra ID with [SAML 2.0](sso-saml.md) instead of OIDC, and provision users with
 [SCIM](scim.md).
 
+## How it fits together
+
+Organization SSO with Entra ID has two variants. **SAML is the default**: the
+platform holds only Entra's public signing certificate(s), no Entra secret.
+**OIDC** (Steps 1 to 5 below) needs a client secret, stored encrypted. Both admit people
+into one organization; neither can open the platform admin console.
+
+### Setup: who does what, where (SAML)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor PA as Platform admin<br/>(admin console)
+    actor EA as Entra admin<br/>(Entra admin center)
+    actor OO as Organization owner<br/>(OpenCTEM, Settings)
+    participant API as OpenCTEM API
+    participant ENTRA as Microsoft Entra ID
+
+    PA->>API: Organization > Single sign-on > SAML > Download SP metadata (XML)
+    API-->>PA: SP metadata (entity ID, ACS URL, built on APP_URL)
+    PA->>EA: hand over the SP metadata file
+    EA->>ENTRA: Enterprise applications > New > Create your own (non-gallery)<br/>Single sign-on > SAML > Upload metadata file
+    EA->>ENTRA: Attributes & Claims: Name ID = user.objectid (Persistent),<br/>keep emailaddress + name; assign users and groups
+    ENTRA-->>EA: App Federation Metadata Url
+    EA->>PA: hand over the App Federation Metadata Url
+    PA->>API: SAML > Import from metadata (paste the URL)
+    API->>ENTRA: GET federation metadata (https only, SSRF guard, 1 MiB, 10 s)
+    ENTRA-->>API: entity ID, sign-in URL, signing certificate(s)
+    API-->>PA: form filled in (nothing saved yet)
+    PA->>API: Enable SAML login + Save
+    alt organization has an owner
+        API-->>OO: pending change (in-app + email)
+        OO->>API: Settings > Access & security > SSO approvals > Approve (step-up)
+    end
+    PA->>API: Verified domains: add domain, publish TXT, Verify now
+    API->>API: DNS TXT lookup (_openctem-verify.domain)
+    PA->>API: test: https://app/login?org=slug signs in through Entra
+    PA->>API: optional: Require single sign-on (preconditions checked)
+```
+
+The OIDC variant (Steps 1 and 2 below) replaces steps 1 to 9: the Entra admin registers an app
+(App registrations), adds the redirect URI `https://<app>/auth/sso/callback/entra_id`
+and the optional ID token claims `xms_edov` (required) and `auth_time`, creates
+a client secret, and hands over the client ID, the **Directory (tenant) ID
+GUID** and the secret, which the platform admin enters on the Entra ID form.
+
+### Connections: what talks to what, and who holds what
+
+```mermaid
+flowchart LR
+    B["Browser"]
+    subgraph OC["OpenCTEM"]
+        W["Web app<br/>(Next.js)"]
+        A["API"]
+        DB[("Postgres<br/>SAML: entity ID, sign-in URL,<br/>public signing certs<br/>OIDC: client ID, directory GUID,<br/>client secret (AES-GCM)")]
+        R[("Redis<br/>single-use sign-in state")]
+    end
+    subgraph MS["Microsoft Entra ID"]
+        L["login.microsoftonline.com/{tid}"]
+        FM["App Federation Metadata Url"]
+        SC["SCIM provisioning client"]
+    end
+
+    B -- "1 SAML: GET /api/v1/auth/saml/{org}/login" --> A
+    A -- "302 AuthnRequest (redirect binding)" --> B
+    B -- "2 sign in, MFA" --> L
+    L -- "3 HTML form POST SAMLResponse" --> B
+    B -- "4 POST /api/v1/auth/saml/{org}/acs" --> A
+    B -- "OIDC: /auth/sso/callback/entra_id" --> W
+    W -- "POST /api/v1/auth/sso/entra_id/callback" --> A
+    A -- "OIDC only: token exchange + JWKS (https)" --> L
+    A -- "metadata import (https, SSRF guard)" --> FM
+    SC -- "SCIM /scim/v2 (bearer token per org)" --> A
+    A --- DB
+    A --- R
+```
+
+- The browser carries every SAML message (SP-initiated redirect out, form POST
+  back to the ACS). The API calls Microsoft only to import metadata (SAML) or
+  to redeem the code and fetch signing keys (OIDC).
+- **No logout channel.** Entra sends no back-channel logout and does not tell
+  OpenCTEM when a user is disabled or deleted. Access ends through SCIM
+  ([SCIM](scim.md): unassigning or deleting the user offboards the membership,
+  effective on the next request), by removing the member, or when the session expires.
+- SAML holds no Entra secret. The OIDC client secret is write-only in every API
+  response and never logged.
+
+### Sign-in sequence and refusals
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Person
+    participant B as Browser
+    participant API as OpenCTEM API
+    participant E as Entra ID
+
+    U->>B: https://app/login?org=slug, choose the organization's sign-in
+    B->>API: start (SAML login, or OIDC authorize)
+    API->>API: state: single use, bound to this browser,<br/>nonce + PKCE (OIDC), request id (SAML)
+    API-->>B: redirect to Entra
+    B->>E: authenticate (password, MFA by Conditional Access)
+    E-->>B: SAMLResponse (form POST) or code (redirect)
+    B->>API: ACS POST, or callback with code + state + binding
+    alt SAML
+        API->>API: one signed assertion, configured cert(s), no SHA-1,<br/>audience, destination, InResponseTo, replay cache
+    else OIDC
+        API->>E: redeem code (secret + PKCE verifier), JWKS
+        API->>API: id_token signature, aud, exp/nbf/iat, nonce,<br/>iss == login.microsoftonline.com/{tid}/v2.0
+    end
+    break issuer/tid differs from the configured directory, bad signature, replayed state
+        API-->>B: refused (SSO_INVALID_ID_TOKEN / SSO_INVALID_STATE / saml_failed)
+    end
+    API->>API: identity: Entra oid (+ tid), never the email<br/>OIDC: email trusted only with xms_edov
+    break xms_edov missing (OIDC)
+        API-->>B: refused (EMAIL_UNVERIFIED_AT_IDP)
+    end
+    API->>API: account: bound oid, else email under proof-before-link
+    break password account, or another Entra user bound to the email
+        API-->>B: refused (ACCOUNT_LINK_REQUIRED / SSO_DIFFERENT_METHOD)
+    end
+    API->>API: membership: member, or just-in-time when auto-provision is on<br/>and the email domain is DNS-verified for the organization
+    break domain not verified, not allowed, or JIT off
+        API-->>B: refused (SSO_NOT_A_MEMBER / SSO_DOMAIN_NOT_ALLOWED)
+    end
+    API->>API: session for this organization, MFA evidence recorded<br/>(OIDC amr contains mfa; SAML AuthnContext multipleauthn)
+    API-->>B: signed in
+    B->>API: enter the organization
+    break organization requires IdP MFA evidence and the session has none
+        API-->>B: refused (MFA_IDP_EVIDENCE_REQUIRED): sign in again with MFA
+    end
+```
+
+For SAML, the steps are in [SAML 2.0](sso-saml.md) (download our metadata, upload it in Entra, import
+Entra's App Federation Metadata Url, verify the domain, test).
+
 ## Step 1: Register the application in Entra ID
 
 In the Azure portal, **Microsoft Entra ID > App registrations > New registration**:
@@ -208,6 +344,10 @@ and its own redirect URI. See [Social login with Microsoft](social-microsoft.md)
 | Sign-in refused after Microsoft authentication | `xms_edov` claim missing or false; `email` claim missing (add the `email` optional claim or scope); the token's directory does not match the configured Directory (tenant) ID; `openid` missing from the scopes. |
 | `SSO provider not configured` for an organization that has an Entra provider | The provider has no Directory (tenant) ID GUID (an empty value, `common` or a domain name was saved before it became required). Set the GUID in the admin console. |
 | A person disabled in Entra can still use OpenCTEM | Entra sends no logout to OpenCTEM. Turn on SCIM provisioning, or remove the member (step 4). |
+| "An account with this email already exists" (`ACCOUNT_LINK_REQUIRED`) | The address has a password account. Sign in with the password and second factor, then link the organization's sign-in from your account. |
+| "Your identity provider must confirm a second factor" (`MFA_IDP_EVIDENCE_REQUIRED`) | The organization requires IdP MFA evidence. Enforce MFA for the app with Conditional Access: OIDC tokens then carry `amr` `mfa`, SAML assertions the `multipleauthn` context. Sign in again. |
+| SAML: back on the sign-in page with `error=saml_failed` | Certificate not Entra's current one (import the metadata again), Identifier or Reply URL differs from our SP metadata, SHA-1 signing, clock skew, or a response not started from OpenCTEM's sign-in page. |
+| `AADSTS50105` / `AADSTS700016` | User or group not assigned to the enterprise application / the Identifier differs from our SP entity ID. |
 | "not a member of this organization" | Just-in-time provisioning was not allowed: verify the domain, turn on auto-provision, or invite the user. |
 | "email is registered with a different login method" | The account belongs to another sign-in method or another Entra user. This is the account-takeover guard. |
 | Protected actions say "sign in again" and then fail | Add the `auth_time` optional claim, or have the user enrol an authenticator. |
