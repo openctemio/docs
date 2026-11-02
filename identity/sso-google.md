@@ -125,12 +125,15 @@ Plan the way back in before you enforce:
 ## Existing password accounts
 
 An SSO sign-in never takes over an account that has a password, even when the email matches: it is
-refused with "an account with this email already exists". There is no self-service link action. What to
-do:
+refused with "an account with this email already exists". What to do:
 
 - **People who have never signed in** (invited, or created by an admin and no password set yet) are
   claimed by their first SSO sign-in when the email domain is DNS-verified for the organization.
-- **People with a password account** keep using it until SSO enforcement applies; the owner can grant a
+- **People with a password account** sign in with their password and link the organization's sign-in
+  under **Account > Security > Organization sign-in** (confirmed with their authenticator code, or
+  their password when two-factor authentication is off); see
+  [Link your organization's sign-in](sign-in-methods.md#link-your-organizations-sign-in-to-a-password-account).
+  Until they do, they keep using the password until SSO enforcement applies; the owner can grant a
   time-limited exception while you plan the move.
 
 ## Troubleshooting
