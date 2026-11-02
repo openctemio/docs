@@ -142,6 +142,17 @@ sending them. Several sources, schedules, other vendors, least-privilege
 accounts and every setting are described in the collector's own
 documentation, available with access to the image.
 
+## Load on your systems
+
+The collector reads production systems gently: vCenter daemon runs ask only
+for what changed, Active Directory incremental runs read only the objects
+committed since the last run, requests go one at a time at an adaptive rate
+that backs off as soon as a system slows down, and every run has a request
+budget. `doctor` prints the expected load before the first run. See
+[Safe collection against production systems](asset-collector-safe-collection.md)
+for the defaults, the least-privilege accounts and how to read the load
+metrics.
+
 ## Health and metrics
 
 On port 2112 (no authentication: publish it on loopback or a monitoring
