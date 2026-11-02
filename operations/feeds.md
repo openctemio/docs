@@ -125,9 +125,19 @@ fetch, the online version check and the program feed's URLs (not relayed yet; th
 status lists it), so it makes no outbound feed request. The platform never falls
 back to fetching directly on its own: only an administrator changes the mode.
 
-**Defaults.** A new compose install with the bundled sensor starts in relay mode:
+**Defaults.** A new install with the bundled sensor starts in relay mode:
 the bundled sensor becomes the relay as soon as it enrolls. An existing
 installation keeps fetching directly until an administrator switches it.
+
+| Install | Toggle | Default |
+|---|---|---|
+| Docker Compose (`docker-compose.sensor.yml`) | the sensor-token step runs `bootstrap-admin sensor-token -feed-relay` | relay for a new install |
+| Helm chart `openctem` (0.38.0 and later) | `feedRelay.newInstallRelay` (passes `-feed-relay` to the enrollment Job), `sensor.feedRelay.enabled` (`false` sets `SENSOR_FEED_RELAY=0`), `sensor.feedRelay.origins` (extra origins, also added to the signer's `SIGNER_FEED_ORIGINS`) | relay for a new install |
+| Installer kit (openctem-ansible) | `openctem_sensor_feed_relay_origins` (extra origins for the signer's `SIGNER_FEED_ORIGINS`); the kit installs no bundled sensor, so pair a platform sensor and designate it in the console | direct |
+
+The new-install switch never changes an existing installation: the platform
+already holds its feed delivery setting (`direct`), and the switch only writes
+one that was never written.
 
 Set it up on an existing installation:
 
@@ -141,12 +151,15 @@ Set it up on an existing installation:
    it to `SIGNER_FEED_ORIGINS` on the signer **and**
    [`SENSOR_FEED_RELAY_ORIGINS`](../sensors/settings.md#SENSOR_FEED_RELAY_ORIGINS)
    on the sensor.
-3. A super administrator selects relay mode and designates **one to three** relay
-   sensors in one change (step-up required, audited):
-   `PUT /api/v1/admin/settings/feed-relay` with
-   `{"mode": "relay", "sensor_ids": ["..."], "expected_version": N}` (the console
-   card follows). Each sensor must be an active platform sensor that reports the
-   feed relay; anything else is refused.
+3. A super administrator opens **Console > System > Threat intelligence >
+   Feed delivery**, selects **Relay** and picks **one to three** relay sensors,
+   then saves (a fresh authenticator code is asked for; the change is audited).
+   The list offers only active platform sensors that report the feed relay; the
+   others are named with the reason (not active, or cannot relay: the host set
+   `SENSOR_FEED_RELAY=0`, there is no pinned job-signing key, or the sensor
+   release is too old). An organization's sensor is never offered. The same
+   change through the API: `PUT /api/v1/admin/settings/feed-relay` with
+   `{"mode": "relay", "sensor_ids": ["..."], "expected_version": N}`.
 
 **Several relays.** Any designated relay picks up the next round. If one stops
 (no upload for ten minutes) or is removed from the list, another takes over its
@@ -174,6 +187,30 @@ which relay holds it), and when a feed is stale, why:
 | `plan_failed`, `import_failed` | the platform could not plan or apply the relayed files |
 | `round_expired` | the relay did not finish a round within 30 minutes |
 | `spool_full` | the relayed files reached their quota (512 MiB) |
+
+The **Feed delivery** card shows the same: per feed the last good import, the
+feed age, the round in progress and which relay holds it, the stale reason in
+plain words with the fix, and per relay sensor whether it is online, its last
+round and the bytes it relayed in the last 24 hours.
+
+**Alerts.** In relay mode the platform administrators are told by e-mail and on
+the alert webhook (Console > Settings > Alerts) when:
+
+| Alert | When | Level |
+|---|---|---|
+| No relay sensor online | no designated relay was seen for 1 hour (also when none is designated, or the bundled sensor never enrolled) | critical |
+| Feed out of date | the vulnerability feed's applied release is 48 hours old | warning |
+| Round failed | a relayed release failed verification (`verify_failed`, `pin_mismatch`, `rollback_refused`: possible tampering, nothing applied) | critical |
+| Round refused by the signer | `signer_refused`, with the signer's reason | warning |
+
+Each condition alerts once and sends one "resolved" notice when it clears;
+restarting the API does not repeat it. Open alerts are listed on the card.
+
+**When no relay can reach the feeds.** The platform never falls back by itself.
+A super administrator either chooses **Switch to direct now** on the card
+(confirmed, step-up, audited; the platform then makes outbound feed requests
+itself), or loads a signed offline bundle on the server
+([offline feeds](../airgap/feeds.md)), which replaces relay mode.
 
 Relay mode is not available while `VULNFEED_BUNDLE_DIR` is set (that directory
 stays the only source) or without a job signer. Direct fetch, a mirror and the
