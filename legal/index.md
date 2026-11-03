@@ -12,7 +12,8 @@ OpenCTEM is free software. Each repository carries its own `LICENSE` file:
 | Repository | License |
 |---|---|
 | openctem (API and web console), sensor, ci, connector-tenable | GNU General Public License v3.0 |
-| sdk-go, ctis, helm-charts, openctem-ansible, programfeed, vulnfeed | Apache License 2.0 |
+| sdk-go, ctis (code), contract, helm-charts, openctem-ansible, programfeed, vulnfeed | Apache License 2.0 |
+| ctis (the specification text) | Creative Commons Attribution 4.0 (CC BY 4.0) |
 | sast-rules | MIT License |
 
 The Go SDK (`sdk-go`) is licensed under the Apache License 2.0 so that

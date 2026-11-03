@@ -53,7 +53,8 @@ Each role page sorts its links into tutorials, how-to guides, reference and conc
 | Sensor | [openctemio/sensor](https://github.com/openctemio/sensor) | `ghcr.io/openctemio/sensor` |
 | CI integration | [openctemio/ci](https://github.com/openctemio/ci) | |
 | Go SDK and tool contract | [openctemio/sdk-go](https://github.com/openctemio/sdk-go) | |
-| CTEM Ingest Schema (CTIS) | [openctemio/ctis](https://github.com/openctemio/ctis) | |
+| CTEM Interchange Schema (CTIS) | [openctemio/ctis](https://github.com/openctemio/ctis) | |
+| Platform-sensor contracts (capabilities, tool settings) | [openctemio/contract](https://github.com/openctemio/contract) | |
 | Helm charts | [openctemio/helm-charts](https://github.com/openctemio/helm-charts) | |
 
 ## Releases and license

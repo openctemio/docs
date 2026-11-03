@@ -110,7 +110,8 @@ newer, and stop with a hint when the generated files are missing.
 
 Tool authors test with the conformance kit (`openctem tool test`); see
 [Writing a tool](tool-authoring.md). The SDK has `pkg/testkit` to run a Go tool
-in-process with the runtime's rules and compare its output with golden CTIS.
+in-process with the runtime's rules and compare its output with golden CTIS 2.0 documents. Check any CTIS file with `ctis validate`
+(`go install github.com/openctemio/ctis/v2/cmd/ctis@v0.1.0`).
 
 ## What CI runs
 

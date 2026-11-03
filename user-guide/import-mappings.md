@@ -197,7 +197,7 @@ A CSV export with the header `title,severity,asset,asset_type,cve,description`:
 ```csv
 title,severity,asset,asset_type,cve,description
 Outdated web server,high,198.51.100.10,ip_address,CVE-2024-0001,"Server banner shows an end-of-life version"
-Directory listing enabled,medium,www.example.com,domain,,Listing is open on /files/
+Directory listing enabled,medium,www.example.com,domain_name,,Listing is open on /files/
 ```
 
 Saved as the mapping `acme-portscan` from the **Generic CSV** template, it

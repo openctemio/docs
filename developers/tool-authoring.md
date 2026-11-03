@@ -32,10 +32,10 @@ with it, without a platform change ([How the tool reaches your organization](#ho
 | **Settings schema** | The descriptor's `config`: the options an administrator may set, in a small, closed subset of JSON Schema. The platform and the sensor validate values with the same code. |
 | **Tier** | How intrusive the act is: T0 passive, T1 active, T2 intrusive. The platform assigns it; your declared tier is only a request. |
 | **Trust** | `builtin` for a tool the platform knows the released sensor compiles in, `unverified` for every other tool, including yours. The platform decides it, never the tool. |
-| **Output** | Always CTIS records. The runtime validates them against the descriptor and the capability before anything leaves the sensor. |
+| **Output** | Always CTIS 2.0 records. The runtime validates them against the descriptor and the capability before anything leaves the sensor. |
 
 The capabilities and their required output are listed in
-[docs/capabilities.md of the ctis repository](https://github.com/openctemio/ctis/blob/main/docs/capabilities.md).
+[docs/capabilities.md of the contract repository](https://github.com/openctemio/contract/blob/main/docs/capabilities.md) (`github.com/openctemio/contract`).
 Capabilities marked `routed` are the ones the platform places in scan workflows today:
 
 | If your tool... | Implement |
@@ -106,13 +106,12 @@ class: target-scan
 tier: T1                              # a request; never below the capability's floor
 implements:
   - capability: scan.ports@1
-    output_shape: open_port_assets
     params:                           # the capability's standard params -> your config keys
       ports: {}
       rate: {}
       top_n: {}
-consumes: [domain, subdomain, ip_address, host]
-produces: ["asset:open_port", "asset:service", "asset:ip_address", "asset:host"]
+consumes: [domain_name, ip_address, host]
+produces: ["asset:service", "asset:ip_address", "asset:host"]
 config:                               # the settings schema (next section)
   type: object
   additionalProperties: false
@@ -186,7 +185,7 @@ Rules that keep a tool safe and portable:
 
 `config` is the tool's **settings schema**: what an administrator may set on a sensor and what a
 scan may lower. It is a closed subset of JSON Schema 2020-12, defined and validated by the
-[`settings` package of ctis](https://github.com/openctemio/ctis#tool-settings). The platform
+[`settings` package of contract](https://github.com/openctemio/contract). The platform
 validates what an administrator enters with it, and the sensor validates the same values again
 before a task uses them.
 
@@ -233,7 +232,8 @@ Suppose the scanner prints one line per open port:
 {"ip":"192.0.2.10","port":443,"protocol":"TCP"}
 ```
 
-`mapping.yaml` turns each line into a CTIS record:
+`mapping.yaml` turns each line into a CTIS record. In CTIS 2.0 an open port is a `service` asset
+whose value is `host:port/transport`:
 
 ```yaml
 apiVersion: openctem.io/mapping/v1
@@ -242,11 +242,10 @@ records:
   - when: {path: /port, exists: true}
     kind: asset
     set:
-      type: {const: open_port}
-      value: {template: "{ip}:{port}", vars: {ip: /ip, port: /port}}
-      properties.host: /ip
-      properties.port: {path: /port, as: integer}
-      properties.protocol: {path: /protocol, lower: true, default: tcp}
+      type: {const: service}
+      value: {template: "{ip}:{port}/{proto}", vars: {ip: /ip, port: /port, proto: /protocol}}
+      technical.service.port: {path: /port, as: integer}
+      technical.service.transport: {path: /protocol, lower: true, default: tcp}
 ```
 
 The mapping language is closed on purpose:
@@ -274,7 +273,7 @@ runtime -> {"v":1,"type":"describe"}
 tool    -> {"v":1,"type":"manifest","manifest":{ ...tool.yaml as JSON, without run... }}
 runtime -> {"v":1,"type":"validate","task":{...}}                       (optional)
 tool    -> {"v":1,"type":"validation","ok":true}
-runtime -> {"v":1,"type":"run","task":{"id":"...","targets":[{"ref":"t1","type":"http_service","value":"http://app.example.com"}],"config":{},"workdir":"/run/task"}}
+runtime -> {"v":1,"type":"run","task":{"id":"...","targets":[{"ref":"t1","type":"web_origin","value":"http://app.example.com"}],"config":{},"workdir":"/run/task"}}
 tool    -> {"v":1,"type":"record","kind":"finding","target":"t1","data":{ one CTIS finding }}
 tool    -> {"v":1,"type":"target_status","target":"t1","status":"done"}
 tool    -> {"v":1,"type":"result","status":"ok"}

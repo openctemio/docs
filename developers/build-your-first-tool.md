@@ -41,7 +41,7 @@ How to verify the checksum signature is in
 ## 2. Pick a capability
 
 A tool implements **capabilities** from a closed list
-([capabilities.md](https://github.com/openctemio/ctis/blob/main/docs/capabilities.md)). The
+([capabilities.md](https://github.com/openctemio/contract/blob/main/docs/capabilities.md)). The
 capability decides the phase, the minimum tier, the target types the tool may take and the output
 every report must carry; scans pick tools by capability.
 
@@ -66,7 +66,7 @@ extra packages), `acme-headers.py`, the helper `openctem_tool.py`, a self-test f
 Open `tool.yaml` and narrow what the scaffold filled in from the capability:
 
 - `description`: what the tool does, shown in the console.
-- `consumes`: `["http_service", "website", "web_application"]`. The capability also takes hosts
+- `consumes`: `["web_origin", "web_application"]`. The capability also takes hosts
   and services, but this tool only reads URLs.
 - `produces`: `["finding:misconfiguration"]`.
 - `implements[0].params` and `config`: keep only the standard params the tool takes. A step that
@@ -120,8 +120,8 @@ sensor uses.
 
 ```bash
 python3 -m http.server 8000 --bind 127.0.0.1 &      # a local target with none of the headers
-openctem tool run "$PWD" --target http://127.0.0.1:8000/@http_service --format table
-openctem tool run "$PWD" --target http://127.0.0.1:8000/@http_service --format ctis   # the CTIS report
+openctem tool run "$PWD" --target http://127.0.0.1:8000/@web_origin --format table
+openctem tool run "$PWD" --target http://127.0.0.1:8000/@web_origin --format ctis   # the CTIS 2.0 report
 ```
 
 The table shows the outcome, one line per target and one per record. The CTIS report carries

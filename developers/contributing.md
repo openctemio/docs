@@ -9,7 +9,7 @@ nav_order: 3
 Contributions are welcome in every repository of the
 [openctemio](https://github.com/openctemio) organization. This page describes the workflow of the
 platform repository, [openctemio/openctem](https://github.com/openctemio/openctem). The other
-repositories (sensor, sdk-go, ctis, ci, helm-charts, docs) use the same commit and changelog
+repositories (sensor, sdk-go, ctis, contract, ci, helm-charts, docs) use the same commit and changelog
 conventions, but their pull requests target `main`; check their own `CONTRIBUTING.md` where
 there is one.
 
@@ -134,7 +134,7 @@ Reviewers also check that:
 
 ## Licensing
 
-The platform, sensor, CI and Tenable connector repositories are licensed under GPL-3.0; `sdk-go`, `ctis`, `helm-charts`,
+The platform, sensor, CI and Tenable connector repositories are licensed under GPL-3.0; `sdk-go`, `ctis`, `contract`, `helm-charts`,
 `openctem-ansible`, `programfeed` and `vulnfeed` under Apache-2.0; `sast-rules` under MIT (see each
 repository's `LICENSE`). Contributions are accepted under the Contributor License Agreement below.
 

@@ -110,7 +110,7 @@ published as `bootstrap-admin-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows) 
 
 ## Other repositories
 
-`sensor`, `sdk-go`, `ctis`, `ci` and `helm-charts` have their own version streams and tags on their
+`sensor`, `sdk-go`, `ctis`, `contract`, `ci` and `helm-charts` have their own version streams and tags on their
 `main` branch:
 
 - **sdk-go** follows the same rule (version proposed from Conventional Commits, changelog
@@ -118,7 +118,11 @@ published as `bootstrap-admin-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows) 
   Its public packages carry a stability tier (Stable, Beta, Frozen, Internal-bound, Deprecated) and
   CI refuses incompatible changes to Stable packages without a `breaking-change` label and an
   upgrade note.
-- **ctis** versions its Go module with the specification: module `v1.MINOR.x` implements CTIS
-  `1.MINOR`; a minor release only adds optional members.
+- **ctis** versions its Go module with the specification: module `github.com/openctemio/ctis/v2`
+  at `v2.MINOR.x` implements CTIS `2.MINOR`; a minor release only adds optional members. The format
+  adapters (`v2/interop/<format>`) and the `ctis` command (`v2/cmd/ctis`) are separate modules with
+  their own tags. The 1.x line stays on the `release/v1` branch.
+- **contract** (`github.com/openctemio/contract`) holds the capability taxonomy, tool settings and
+  transfer bundles, with its own semver. It does not depend on `ctis`.
 - **helm-charts** is bumped by the platform release (Release Publish opens the pull request) and
   published with chart-releaser.
