@@ -14,6 +14,7 @@ settings in [Configuration](../configuration/index.md).
 | Page | Covers |
 |---|---|
 | [Upgrading](upgrade.md) | The upgrade procedure for Compose, the all-in-one image and Helm, release-specific guides, rollback. |
+| [Migrating to CTIS 2.0](ctis-2-migration.md) | The move from CTIS 1.x to 2.0 for operators and integrators: upgrade order, automatic data migration, rollback. |
 | [Versioning and releases](versioning.md) | Version numbers, the release train, hotfixes, where changes are recorded, the signed release feed that tells the platform about sensor and SDK releases, sensor and chart compatibility. |
 | [Backup and restore](backup-restore.md) | What to back up (database, secrets, volumes), tested backup and restore commands, and point-in-time recovery with the Ansible kit. |
 | [Air-gapped and controlled supply chain](../install/air-gapped.md) | Taking a release in through your own registry: verifying signatures, SBOMs and provenance, countersigning, deploying by digest, feeds and upgrades without internet access. |

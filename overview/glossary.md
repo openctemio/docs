@@ -27,7 +27,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Crown jewel** | An asset marked as business-critical; findings on it are prioritised higher. |
 | **CTEM** | Continuous Threat Exposure Management: a repeating cycle of scoping, discovery, prioritization, validation and mobilization. |
 | **CTEM cycle** | A period of CTEM work with objectives, scope, attacker profiles and success criteria. |
-| **CTIS** | CTEM Ingest Schema: the open JSON format tools use to send assets, findings and dependencies to OpenCTEM. Specification at [openctemio/ctis](https://github.com/openctemio/ctis). |
+| **CTIS** | CTEM Interchange Schema: the open JSON format tools use to send assets, findings and dependencies to OpenCTEM, currently version 2.0 (media type `application/vnd.ctis+json; version=2.0`). Specification at [openctemio/ctis](https://github.com/openctemio/ctis). |
 | **Data-flow trace** | The path a SAST finding's untrusted data takes from its source to the sink, step by step with the code of each step. See [Data-flow traces](../scanning/data-flow-traces.md). |
 | **Deadline** (of a run) | When a scan run ends at the latest: the scan's max duration, else the workflow's timeout, else the platform's 24-hour cap. |
 | **Elevation** | Acting as one of your platform roles for 15 to 60 minutes in the platform console; without it a console session is read-only. It needs a fresh second-factor proof and a reason, and is audited. |

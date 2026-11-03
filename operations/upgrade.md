@@ -19,6 +19,7 @@ with breaking changes has its own upgrade guide; read it first.
 
 | From | To | Guide |
 |---|---|---|
+| CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
 | v0.17.x | v0.18.0 | [From v0.17 to v0.18.0](#from-v017-to-v0180) below: `PLATFORM_CA_CERT_FILE` replaces the API's `SENSOR_CA_CERT_FILE`, `DB_MAX_IDLE_CONNS` defaults to `DB_MAX_OPEN_CONNS`, stage streaming on by default, the CTEM-ID catalog table and download are removed, an organization maximum API key lifetime (90 days), sign-in sessions from another organization's identity provider are narrowed. |
 | v0.15.x | v0.15.6, v0.16.x and v0.17.0 | [From v0.15 to v0.17](#from-v015-to-v017) below: a new migration runner (takes over on its first run; roll back the API, never the migration job), the platform version comes from the release tag, no `admin-cli` image, the vulnerability feed moves to `openctemio/vulnfeed-bundles`, a database role script re-run with `DB_ADMIN_USER`, queued sensor segments sealed at rest. |
 | v0.12.x | v0.13.0 to v0.15.5 | [From v0.12 to v0.15.5](#from-v012-to-v0155) below: audit archives move to the storage provider, API contract changes (ingest answers 202, strict findings filters, task versions), SAML and OIDC provider requirements, retired scan and rule source features, per-integration webhook URLs. |

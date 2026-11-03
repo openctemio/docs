@@ -6,8 +6,8 @@ nav_order: 5
 
 # Ingesting results (CTIS)
 
-Assets, findings and dependencies enter OpenCTEM in one format, **CTIS** (the CTEM Ingest
-Schema). There are four ways to get results in:
+Assets, findings and dependencies enter OpenCTEM in one format, **CTIS** (the CTEM Interchange
+Schema, version 2.0). There are four ways to get results in:
 
 | Way | Who sends | Credential | Use it when |
 |---|---|---|---|
@@ -38,19 +38,28 @@ The organization always comes from the credential, never from the report.
 CTIS is specified in the [openctemio/ctis](https://github.com/openctemio/ctis) repository:
 
 - the normative specification, [docs/spec.md](https://github.com/openctemio/ctis/blob/main/docs/spec.md);
-- the JSON Schemas, [schemas/v1](https://github.com/openctemio/ctis/tree/main/schemas/v1);
+- the JSON Schemas, [schemas/v2](https://github.com/openctemio/ctis/tree/main/schemas/v2) (JSON Schema 2020-12);
 - worked examples, [examples/](https://github.com/openctemio/ctis/tree/main/examples);
-- Go types (`github.com/openctemio/ctis`), with `Report.Validate()`.
+- how OpenCTEM applies the specification, the [receiver profile](https://github.com/openctemio/ctis/blob/main/docs/profiles/openctem.md);
+- Go types (`github.com/openctemio/ctis/v2`), with `Report.Validate()`.
+
+The media type is `application/vnd.ctis+json; version=2.0` and a CTIS file is named `*.ctis.json`.
+OpenCTEM accepts CTIS 2.x only. A 1.x document is rejected, so producers and the platform are
+upgraded together ([Migrating to CTIS 2.0](../operations/ctis-2-migration.md)).
 
 A minimal report:
 
 ```json
 {
-  "version": "1.6",
-  "metadata": { "timestamp": "2026-10-08T09:30:00Z" },
-  "tool": { "name": "acme-scanner", "version": "1.2.0" },
+  "version": "2.0",
+  "metadata": {
+    "id": "019a2b3c-4d5e-753f-ba0c-a5997982b6ae",
+    "generated_at": "2026-10-08T09:30:00Z",
+    "channel": "scanner"
+  },
+  "tool": { "name": "acme-scanner", "version": "0.4.0", "techniques": ["dast"] },
   "assets": [
-    { "id": "a1", "type": "domain", "value": "app.example.com" }
+    { "id": "a1", "type": "web_origin", "value": "http://app.example.com" }
   ],
   "findings": [
     {
@@ -64,14 +73,31 @@ A minimal report:
 }
 ```
 
+Check a file before you send it with the `ctis` command line tool (it reads only the files you name
+and never fetches a URL):
+
+```bash
+go install github.com/openctemio/ctis/v2/cmd/ctis@v0.1.0
+ctis validate report.ctis.json     # exit 0 valid, 1 invalid, 2 usage or I/O error
+```
+
 Rules that matter in practice:
 
 - `version` is `MAJOR.MINOR`. The receiver decodes **strictly**: an unknown member, or an enum
   value it does not know, is refused, not dropped. Do not send members newer than the CTIS
-  version your OpenCTEM release understands; upgrade the platform before the producers.
-- Producer-specific data goes in `properties`, the only free-form bags.
-- `finding.asset_ref` must name an `assets[].id` of the same report (or give `asset_value` and
-  `asset_type`).
+  version your OpenCTEM release understands.
+- `metadata.id` is required: a UUIDv7 you generate. A retry sends the same id; the platform
+  deduplicates on your credential and that id. A document carries no ids of the receiver; put your
+  own ids in `source_refs` (`system`, `id`).
+- `assets[].id` and every `*_ref` are references local to the document. They are at most 255
+  characters and are never UUID-shaped.
+- `finding.asset_ref` is required and must name an `assets[].id` of the same report.
+- Asset types are `domain_name`, `web_origin` (`scheme://host[:port]`), `host`, `service`
+  (`host:port/transport`, linked from its host by an `exposes` relationship), `identity`,
+  `ip_range`, `kubernetes_cluster` and the others of the specification. Send each value in its
+  canonical form (`ctis validate` refuses a value that is not).
+- `properties` is an opaque bag that receivers give no meaning to. Namespaced data goes in
+  `extensions`.
 - `severity` is `critical`, `high`, `medium`, `low` or `info`. A `status` you send is treated as a
   hint; OpenCTEM manages the finding lifecycle itself.
 - Do not set `criticality` from a scanner: it is business context owned by the asset owner.
@@ -79,7 +105,7 @@ Rules that matter in practice:
 ## Upload a report another tool exported
 
 `POST /api/v1/findings/imports` takes a file exported by another security tool, converts it to
-CTIS with the `ctis/importer` package, and ingests it with the uploader's rights. In the console
+CTIS with the `importer` package of the CTIS module and its format adapters, and ingests it with the uploader's rights. In the console
 this is **Findings > Import results**.
 
 Formats (detected from the content, not from the file name):
@@ -93,7 +119,10 @@ Formats (detected from the content, not from the file name):
 | Other platforms | DefectDojo Generic Findings JSON |
 
 The mapping of each format is documented in
-[ctis docs/importers](https://github.com/openctemio/ctis/tree/main/docs/importers). The response
+[ctis docs/importers](https://github.com/openctemio/ctis/tree/main/docs/importers) and
+[docs/interop.md](https://github.com/openctemio/ctis/blob/main/docs/interop.md). The standard formats
+(SARIF 2.1.0, CycloneDX 1.5 and 1.6, SPDX 2.3, CSAF 2.0, OpenVEX 0.2.0, and OCSF 1.3.0 for export)
+are separate adapter modules, `github.com/openctemio/ctis/v2/interop/<format>`. The response
 lists the formats your server supports as `supported_formats`.
 
 Request (`multipart/form-data`):
@@ -287,14 +316,15 @@ language:
 ```
 PUT /api/v2/sensor/results/{report_id}
 Authorization: Bearer octs_...
-Content-Type: application/vnd.openctem.ctis.v1+json
+Content-Type: application/vnd.ctis+json; version=2.0
 Content-Encoding: gzip                 (optional: gzip or zstd)
 Content-Digest: sha-256=:<base64 SHA-256 of the body as sent>:
 Content-Length: <bytes>
 ```
 
 - `report_id` is a lowercase UUID **you** choose. It is the idempotency key: sending the same
-  report again is answered as a replay, not ingested twice.
+  report again is answered as a replay, not ingested twice. The document's own `metadata.id` (a
+  UUIDv7) is the producer id of the report; send the same one on a retry.
 - `Content-Digest` (RFC 9530) covers the bytes on the wire, compressed if you compress.
 - The answer is `202` with a status document. Poll `GET /api/v2/sensor/results/{report_id}`
   (honour `Retry-After`) until `state` is `completed` or `failed`; the status counts accepted,
@@ -323,12 +353,12 @@ Content-Length: <bytes>
 
 ```bash
 REPORT_ID=$(python3 -c 'import uuid; print(uuid.uuid4())')
-DIGEST="sha-256=:$(openssl dgst -sha256 -binary report.json | base64):"
+DIGEST="sha-256=:$(openssl dgst -sha256 -binary report.ctis.json | base64):"
 curl -X PUT "https://openctem.example.com/api/v2/sensor/results/$REPORT_ID" \
   -H "Authorization: Bearer $OPENCTEM_SENSOR_KEY" \
-  -H "Content-Type: application/vnd.openctem.ctis.v1+json" \
+  -H "Content-Type: application/vnd.ctis+json; version=2.0" \
   -H "Content-Digest: $DIGEST" \
-  --data-binary @report.json
+  --data-binary @report.ctis.json
 
 curl -H "Authorization: Bearer $OPENCTEM_SENSOR_KEY" \
   "https://openctem.example.com/api/v2/sensor/results/$REPORT_ID"
@@ -342,8 +372,9 @@ and RFC-026.
 
 - **Tenant from the credential.** The organization is taken from the sensor key or session, never
   from the report.
-- **Identity and deduplication.** Asset values are normalized (lower-case DNS names, canonical IP
-  form, repository URLs without scheme and `.git`); findings are fingerprinted, so the same finding
-  reported again updates the existing one.
+- **Identity and deduplication.** Asset values are held in the canonical form of their type (lower-case
+  DNS names, canonical IP form, `scheme://host[:port]` for web origins, repository URLs without
+  scheme and `.git`); the platform computes its own finding fingerprints (recipe v2), so the same
+  finding reported again updates the existing one.
 - **Untrusted input.** Report text is treated as hostile: sizes are capped, control characters are
   removed, and secrets in evidence are masked.

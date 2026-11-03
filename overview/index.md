@@ -110,7 +110,7 @@ Then the next cycle starts, with what the last one taught you.
 - **CI scanning**: `openctem-ci` runs code scans in your CI pipelines and
   reports with the job's OIDC identity, without a stored key. See
   [CI integration](../scanning/ci-integration.md).
-- **Open formats**: results arrive as CTIS (the open ingest schema, which also
+- **Open formats**: results arrive as CTIS (the CTEM Interchange Schema, which also
   carries SBOM dependencies) or SARIF, and importers read Nessus, Qualys,
   trivy, grype, semgrep, nuclei, ZAP, CSAF, OpenVEX and DefectDojo files. A REST
   API and an MCP server expose the data. See [API](../api/index.md).

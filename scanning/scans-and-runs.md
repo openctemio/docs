@@ -437,7 +437,7 @@ again does nothing.
 
 ## Results
 
-Sensors send results as CTIS reports bound to their task. The platform
+Sensors send results as CTIS 2.0 reports bound to their task. The platform
 accepts a report only from the sensor that holds the task's current lease,
 for that task's tool and targets, and only with the asset types the tool is
 declared to produce. Out-of-contract assets are, by default, held in the

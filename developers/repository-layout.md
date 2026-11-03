@@ -18,7 +18,8 @@ their own consumers live in their own repositories under the
 | [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web app (`web/`), platform console app (`web/console/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed` |
 | [sensor](https://github.com/openctemio/sensor) | Go | GPL-3.0 | The sensor (`openctemio-sensor`) that runs scanners where the targets are and reports to the platform | its own tags; image `ghcr.io/openctemio/sensor` |
 | [sdk-go](https://github.com/openctemio/sdk-go) | Go | Apache-2.0 | The Go SDK: sensor runtime (`pkg/sensorkit`), tool contract (`pkg/tool`), protocol client, the `openctem` developer CLI | Go module with its own semver |
-| [ctis](https://github.com/openctemio/ctis) | Go, JSON Schema | Apache-2.0 | CTIS, the CTEM Ingest Schema: specification, JSON Schemas, Go types, report importers, the capability taxonomy | Go module `github.com/openctemio/ctis` |
+| [ctis](https://github.com/openctemio/ctis) | Go, JSON Schema | Apache-2.0 | CTIS, the CTEM Interchange Schema 2.0: specification, JSON Schemas, Go types, report importers, the `ctis` validator and converter command, and the format adapters under `interop/` (SARIF, CycloneDX, SPDX, CSAF, OpenVEX, OCSF); spec CC BY 4.0, code Apache-2.0 | Go module `github.com/openctemio/ctis/v2`; adapters `github.com/openctemio/ctis/v2/interop/<format>` |
+| [contract](https://github.com/openctemio/contract) | Go | Apache-2.0 | The platform-sensor contracts: the capability taxonomy, tool settings, outcomes, scope helpers, transfer bundles. It does not depend on ctis | Go module `github.com/openctemio/contract` with its own semver |
 | [ci](https://github.com/openctemio/ci) | Go | GPL-3.0 | `openctem-ci`, the GitHub Action and GitLab templates for scanning in CI pipelines | its own tags; images `ghcr.io/openctemio/ci`, `ci-<tool>` |
 | [helm-charts](https://github.com/openctemio/helm-charts) | Helm | Apache-2.0 | The `openctem` Helm chart (optionally with a bundled sensor) | chart releases |
 | [docs](https://github.com/openctemio/docs) | Markdown | | This documentation site | published on merge |
@@ -40,9 +41,11 @@ flowchart LR
   api --> redis[(Redis)]
   sensor[sensor, built on sdk-go] -->|/api/v2/sensor, CTIS results| gw
   ci[openctem-ci] -->|CI runs, CTIS results| gw
-  ctis[ctis: schema, importers, taxonomy] -.-> api
+  ctis[ctis: schema, importers, adapters] -.-> api
   ctis -.-> sensor
   ctis -.-> ci
+  contract[contract: capabilities, settings] -.-> api
+  contract -.-> sensor
 ```
 
 - **web to api.** Every console screen is REST calls to `/api/v1`. The console holds no business
@@ -52,7 +55,9 @@ flowchart LR
   (`/api/v2/sensor`), takes work, runs tools and submits CTIS results.
 - **sdk-go.** The sensor is built on it. Build your own collector or tool on the same SDK.
 - **ctis is a shared contract, not a leaf.** The API, the SDK, the sensor and `openctem-ci` all
-  decode CTIS strictly. Change the format in `ctis` first, then bump it in the consumers. The API
+  decode CTIS strictly, and CTIS 2.0 documents are the only ones the platform accepts. Change the
+  format in `ctis` first, then bump it in the consumers. Capabilities and tool settings are in
+  `contract`, not in `ctis`. The API
   does not import `sdk-go`.
 
 ## Inside openctem
@@ -104,6 +109,7 @@ and [`api/docs/rfcs`](https://github.com/openctemio/openctem/tree/develop/api/do
 | change a screen | `openctem/web` |
 | change an API response the console reads | `openctem`, one pull request: handler, `make generate`, web change |
 | add a scanner or change sensor behavior | `sensor` (and `sdk-go` for runtime or tool-contract surface); see [Writing a tool](tool-authoring.md) |
-| change the ingested data format or an importer | `ctis` first, then bump it in `openctem/api`, `sdk-go`, `sensor` |
+| change the ingested data format, an importer or a format adapter | `ctis` first, then bump it in `openctem/api`, `sdk-go`, `sensor` |
+| change a capability, the tool settings contract or transfer bundles | `contract` |
 | change Kubernetes packaging | `helm-charts` |
 | change these docs | `docs` |
