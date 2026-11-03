@@ -106,7 +106,6 @@ class: target-scan
 tier: T1                              # a request; never below the capability's floor
 implements:
   - capability: scan.ports@1
-    output_shape: open_port_assets
     params:                           # the capability's standard params -> your config keys
       ports: {}
       rate: {}
