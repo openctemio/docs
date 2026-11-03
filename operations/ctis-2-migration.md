@@ -54,14 +54,15 @@ other way round: results sent in the wrong format are refused until the other si
 5. Check that results arrive: the Sensors page shows the sensors online with recent results, and
    the API log shows no refused-document warnings (see [Log reference](logs.md)).
 
-Minimum versions, to be filled in before publication:
+Minimum versions:
 
+- sensor: v0.36.0
+- connector-tenable: v0.2.0
+- asset-collector: v0.3.0
+- sdk-go (for your own collectors and tools): v0.46.0
+- ai-worker: v0.1.0
+- TODO: openctem-ci: the release that follows the platform switch (expected v0.4.0)
 - TODO: platform release that carries the CTIS 2.0 switch: v?.?.?
-- TODO: sensor: v?.?.?
-- TODO: openctem-ci: v?.?.?
-- TODO: connector-tenable: v?.?.?
-- TODO: asset-collector: v?.?.?
-- TODO: sdk-go (for your own collectors): v?.?.?
 
 ## Data migration
 
