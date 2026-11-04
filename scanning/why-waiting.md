@@ -29,6 +29,20 @@ column of a queued task says what it waits for:
 | **Handed back: its sensor is still scanning one of its hosts** | A sensor took it, found one of its hosts busy on that sensor, and gave it back. |
 | **Withheld:** *reason* | A sensor asked for work and its checks kept this task from it: its grant, its local policy, or the scan's intensity. The reason is the same one the panel lists (see [Reasons that rule out one sensor](#reasons-that-rule-out-one-sensor)). |
 
+The run map (the step cards above the task list) says the same per step.
+A step whose queued tasks all wait for one reason reads:
+
+| Shown on the step | Meaning |
+|---|---|
+| **Waiting for a sensor** | Its queued tasks wait for a free sensor that has the tool. |
+| **Waiting for its hosts: another task is scanning them** | Every queued task waits for hosts another task of your organization is scanning. See [Waiting for its hosts](#waiting-for-its-hosts). |
+| **Waiting for a sensor whose local policy allows it** | A sensor's local policy refused every queued task, so they wait for another sensor that accepts them. Narrow the scan to targets that policy allows, or widen the policy on that sensor. |
+
+When the reasons are mixed, the card and the step panel count each one, for
+example **5 queued: their hosts are being scanned by another task** and
+**4 queued: refused by a sensor's local policy, waiting for another
+sensor**. A running step lists the same counts for its queued tasks.
+
 **Why waiting?** on the task row opens the placement panel. It needs
 `scans:read`; the per-sensor verdicts in it need `sensors:read` as well. The
 same answer is in the API:
@@ -160,7 +174,8 @@ A few things delay a task without being listed as a reason. They show as
   that waits gains priority over time (one class every 30 minutes). Within a
   priority, tasks of different runs take turns.
 - **Sensor backoff.** A sensor that found nothing to take waits a little
-  before it asks again.
+  before it asks again. An idle sensor is told on its next heartbeat when
+  a task waiting for its hosts can start part of its targets on free hosts.
 - **A scheduled start.** A task held for a later time (for example a scan
   window opening) is not offered before it.
 
