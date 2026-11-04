@@ -815,7 +815,10 @@ full page `/assets/{id}`):
   draw them. Select any asset (click it, or use the arrow keys and Enter) to
   **Open asset** or **Show related assets** from it. Related assets you
   cannot access are counted on the asset they hang off ("2 outside your
-  access"), never drawn. The list stays the complete view of every link.
+  access"), never drawn. **Full screen** on the graph (or the `f` key)
+  opens the same graph, with the same hops, opened groups and selection,
+  over the whole screen; **Escape** returns to the side panel. The list
+  stays the complete view of every link.
   **Add relationship** picks the **Relationship Type** and one or more
   **Target Asset** entries, with an optional description, **Confidence**,
   **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.
