@@ -804,7 +804,18 @@ full page `/assets/{id}`):
   hand** or **Inferred**), with **low confidence** when it applies and when a
   scan last reported it ("not seen for N days" once it is stale). Related
   assets you cannot access are never shown, only counted ("2 related assets
-  you can't access"). For up to 30 links, **Graph** draws them.
+  you can't access").
+  **Graph** draws the assets around this one, up to **Hops** 1, 2 or 3 away
+  (2 by default), in both directions. Where the asset comes from is always
+  drawn and named above the graph (**Where this asset comes from**): an
+  address shows the name that resolves to it and the domain that contains
+  that name. The root is at the top, the asset in the middle, and what it
+  exposes below. More than 8 related assets of one kind are grouped into one
+  node ("10 assets"); select it and choose **Show all** (or **Show 50**) to
+  draw them. Select any asset (click it, or use the arrow keys and Enter) to
+  **Open asset** or **Show related assets** from it. Related assets you
+  cannot access are counted on the asset they hang off ("2 outside your
+  access"), never drawn. The list stays the complete view of every link.
   **Add relationship** picks the **Relationship Type** and one or more
   **Target Asset** entries, with an optional description, **Confidence**,
   **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.
