@@ -123,6 +123,8 @@ they say so and link to the assets.
     switch routes, Enter to open the findings of a step and Escape to clear.
     **List view** shows the same routes as a list; it is the default on a
     phone.
+  - **Full screen** on the graph (or `f`) shows it over the whole screen with
+    its legend; **Escape** returns to the page.
   - **Choke points** ranks the steps whose findings, once fixed, cut the most
     routes ("Fix this to cut 2 of 3 paths"). **View finding** opens the
     finding behind the step and **View N findings** opens exactly the N open
