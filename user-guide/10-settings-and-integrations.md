@@ -229,8 +229,8 @@ opens the right tab.
 **AI agents** and **Data masking** are described in
 [Settings > AI: AI agents](ai-agents.md) and
 [Settings > AI: data masking](ai-data-masking.md), and
-[AI suggestions and approval](ai-suggestions-and-approval.md) says how a person decides a
-suggestion. See [AI triage](../api/ai-triage.md) for what the analysis returns.
+[AI suggestions and approval](ai-suggestions-and-approval.md) says what AI triage
+shows and how a person decides what an AI agent proposes. See [AI triage](../api/ai-triage.md) for what the analysis returns.
 
 ## Access & security
 
@@ -381,7 +381,7 @@ fresh exposure. It needs the `team:update` permission; without it the page says
   does not retire your whole inventory. Loosening the lifecycle needs a recent
   sign-in (see [Save changes](#save-changes)).
 - **Enabled** turns the worker on. It stays locked until you have run a dry run:
-  click **Run dry-run**, then **Run now**, and check how many assets **Would be
+  click **Run dry run**, then **Run now**, and check how many assets **Would be
   flagged stale**.
 
 Click **Save changes**.
@@ -474,21 +474,31 @@ protection off is listed and confirmed first.
 
 ### Scan profiles
 
-**Scan profiles** (`/settings/scanning/profiles`) are reusable scan
-configurations: which tools run, how intensively and for how long.
+**Scan profiles** (`/settings/scanning/profiles`) are reusable pass/fail rules
+for scan results: a profile decides whether the results of a scan that uses it
+pass or fail. Tools and intensity are not part of a profile; they are set on the
+scan and its workflow ([Scan workflows](04-discovery.md#scan-workflows)).
 
-- **Add profile**: **Create custom profile** or **Add preset profile** (Discovery
-  Scan, Quick Security Check, Full Security Scan, Compliance Audit; a preset you
-  already have is marked **Exists**).
-- A custom profile has a **Name**, **Description**, **Intensity** (Low, Medium,
-  High), **Timeout (minutes)**, **Max Concurrent Scans**, the **Tools** it runs
-  (for example Semgrep, Trivy, Nuclei, Betterleaks, Checkov, Grype, Syft) and
-  **Set as Default**.
+- **Add profile**: **Create custom profile** or **Add preset profile**. The
+  presets are **Discovery** (never fails a scan: for asset discovery and
+  reconnaissance), **Quick check** (fails on any critical finding), **Full
+  assessment** (fails on any critical finding and on more than 5 high findings)
+  and **Compliance audit** (fails on any critical or high finding and on more
+  than 10 medium findings). A preset you already have is marked **Exists**.
+- A custom profile has a **Name**, a **Description**, the **Pass/fail rule**
+  (**Enforce a pass/fail rule**, **Fail on any critical finding**, **Fail on any
+  high finding**, and the limits **Max critical**, **Max high**, **Max medium**
+  and **Max total**, each one **Unlimited** or a number) and **Set as
+  default** (the profile new scans use when they do not choose one). When the
+  rule is off, results of scans using the profile are never failed.
+- **Detection rules** on a profile choose which rules scans using it run:
+  **Platform and organization rules**, **Platform rules only** or
+  **Organization templates only**. A scan can override it.
 - A row's menu: **Set as default**, **Edit**, **Clone** and **Delete** (system
-  profiles cannot be deleted).
-- A profile's quality gate and which profile is the default apply to the whole
-  organization, so only owners and administrators change them; members do not
-  see **Set as default**.
+  profiles cannot be modified or deleted).
+- The pass/fail rule and the default profile apply to the whole organization,
+  so only owners and administrators change them; members do not see **Set as
+  default**.
 
 ### Tools
 

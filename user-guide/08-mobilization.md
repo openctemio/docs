@@ -39,6 +39,12 @@ django to 4.2.30 on the payment services", "rotate the leaked AWS key". It holds
 the findings that this fix closes. The platform suggests tasks; a person
 accepts them. Nothing is created or changed until someone accepts.
 
+**A finding belongs to at most one active task.** Adding a finding that another
+task already holds is refused until you move it: the platform lists the
+findings in the way, you skip them or move them, a move is recorded on both
+timelines and both owners are told. This holds wherever a task is created from
+(suggestions, the findings list, a vulnerability or an emerging-threat alert).
+
 The Remediation pages have four tabs: **Fix plan**, **Suggestions**, **Tasks**
 and **Campaigns**. Findings that one fix closes are listed under Suggestions;
 the API list `GET /api/v1/findings/remediation-groups` and the MCP tool
@@ -324,10 +330,15 @@ guidance, never a secret from the finding.
 **Mobilization › SLA Compliance** (`/sla`) is where you **monitor** deadlines:
 open findings tracked against their remediation SLA.
 
-- The cards: **SLA exceeded**, **Overdue**, **Warning** and **On track**.
-- **Breaches by severity** and **Aging of breaches** (1-7, 8-30, 31-90 and 90+
-  days past due).
-- **Breached findings** lists the findings past their deadline.
+- Four tiles: **Past due** (past the SLA deadline), **Due soon** (close to the
+  deadline), **On track** (within the SLA) and **Open findings** (everything
+  open in your scope). The **Past due** tile and the list below count the same
+  findings.
+- **Past due by severity** and **How long past due** (up to 7 days, 8-30 days,
+  31-90 days and over 90 days after the deadline).
+- **Past due findings** lists the findings past their deadline, oldest deadline
+  first, with the severity, the asset, **Past due by** and when each was
+  detected. **Open in Findings** opens the same filter in the findings list.
 
 This page reports status; SLAs are configured under SLA policies. SLA compliance
 also appears on the Executive summary and Program health dashboards.

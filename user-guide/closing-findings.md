@@ -134,7 +134,7 @@ finding's host:
   refused closes nothing on those hosts.
 - **Same check.** The same tool and scan profile as the last sighting, and
   the same template release. A finding that recorded no template release is
-  marked as not observed by a run that reports one, not resolved.
+  marked stale (not seen recently) by a run that reports one, not resolved.
 - **Older sensors.** A sensor that does not report per-target outcomes keeps
   the earlier rule: only a full, clean run closes, and only on the assets its
   report named.

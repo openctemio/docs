@@ -587,9 +587,13 @@ delete your comments and add reactions. Posting needs `findings:write`.
 Every finding, whatever its source (scanner, import, CI or pentest), takes its
 status from one set:
 
-**New → Confirmed → In Progress → Fix Applied → Resolved**, plus **Validated
-Fixed**, **Not Observed** (set by the platform when a finding is no longer
-seen), **Duplicate**, **False Positive** and **Risk Accepted**.
+**New → Confirmed → In Progress → Fix Applied → Resolved**, plus **Duplicate**,
+**False Positive** and **Risk Accepted**.
+
+Whether a scanner still reports a finding, and whether a re-check still
+reproduces it, are not statuses. They are two fields beside the status (see
+[Observation and validation](#observation-and-validation)), so a finding keeps
+its working status when it goes stale or a re-check no longer reproduces it.
 
 ```mermaid
 stateDiagram-v2
@@ -602,17 +606,7 @@ stateDiagram-v2
     fix_applied --> resolved: fix verified
     fix_applied --> in_progress: verify rejected or<br/>retest still vulnerable
 
-    new --> validated_fixed: validation finds it gone
-    confirmed --> validated_fixed
-    in_progress --> validated_fixed
-    validated_fixed --> resolved: a person closes it
-    validated_fixed --> confirmed: seen again
-
     confirmed --> resolved: closed by a verifier
-    confirmed --> not_observed: no longer seen<br/>(platform only)
-    not_observed --> confirmed: seen again
-    not_observed --> resolved
-
     new --> false_positive: approval
     confirmed --> false_positive: approval
     confirmed --> accepted: approval
@@ -620,7 +614,6 @@ stateDiagram-v2
     confirmed --> duplicate
 
     new --> resolved: covered scan or source<br/>says it is gone (platform)
-    fix_applied --> validated_fixed: retest passed (platform)
     resolved --> confirmed: seen again<br/>(regression)
     accepted --> confirmed: acceptance expired<br/>or taint source changed
     false_positive --> confirmed: reopened or<br/>taint source changed
@@ -630,11 +623,9 @@ stateDiagram-v2
 | Status | Group | Set by |
 |---|---|---|
 | `new` | open | The first report from a scan, an import or an integration; or the platform when the suppression rule that closed a finding is deleted or expires. |
-| `confirmed` | open | A person; or the platform when a closed, validated-fixed or not-observed finding is seen again, a retest finds it still vulnerable, an accepted risk expires, or a re-scan reports another taint source for a false positive or accepted risk. |
+| `confirmed` | open | A person; or the platform when a closed finding is seen again, a retest finds it still vulnerable, an accepted risk expires, or a re-scan reports another taint source for a false positive or accepted risk. |
 | `in_progress`, `fix_applied` | in progress | A person, or a Jira or GitHub issue linked to the finding. |
-| `validated_fixed` | in progress | A validation re-check that no longer reproduces the finding. Not closed: a person with the verify permission resolves it. |
-| `not_observed` | in progress | The platform only: a later scan with the same coverage no longer reports it, or a branch-only finding expired. Nobody can choose it. |
-| `resolved` | closed | A person with the verify permission, a passing retest (when the retest settles findings automatically), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; the default `dry_run` only records what it would resolve). |
+| `resolved` | closed | A person with the verify permission, a passing retest (only when the organization's retest setting `auto_resolve` is on, which is off by default and set through `/api/v1/organization/settings/retest`; otherwise a passing retest only records that the finding is not reproducible and waits for a person), or a scan that no longer sees it when the operator enables coverage auto-resolve (`INGEST_COVERAGE_AUTO_RESOLVE=enforce`; the default `dry_run` only records what it would resolve). |
 | `false_positive`, `accepted` | closed | An approved request, or an approved [suppression rule](08-mobilization.md#exceptions). |
 | `duplicate` | closed | A person. |
 | `draft`, `in_review` | open, hidden | Pentest findings before publication; left out of dashboards and the open findings list. |
@@ -643,6 +634,25 @@ How a finding was closed is recorded as its resolution method, not as a status:
 `scan_verified`, `retest_verified`, `security_reviewed`, `admin_direct`,
 `source_mitigated`, `source_retired` or `vex_not_affected`. The API refuses an
 unknown status, in a status change and in a list filter, with `400`.
+
+### Observation and validation
+
+Two fields beside the status say what the platform last learned. They never
+change the status by themselves, and a finding that carries either one is still
+open.
+
+| Field | Values | Set by |
+|---|---|---|
+| **Observation** | **Present**, or **Not seen recently** (stale: not reported lately, not fixed) | The platform. An expired feature branch, a stale CI source, a template that changed, or an installed version that is no longer seen mark a finding stale. Any new sighting makes it present again. A stale finding stays open, its SLA keeps running, and it is never counted as fixed. A scan that covers the asset can close a stale finding. |
+| **Validation** | **Reproducible** or **Not reproducible** | A [retest](07-validation.md) or the validation engine. A re-check that matches stamps **Reproducible**; a re-check that answers and no longer matches stamps **Not reproducible**. Re-checks that fail, cannot reach the target or are inconclusive leave it as it was. |
+
+A not-reproducible finding stays in its status until a person with the verify
+permission closes it, a covered scan no longer reports it, or a retest closes it
+when the retest setting `auto_resolve` is on. Both fields are filters in
+the findings list (**Observation**, **Validation**) and are shown in the finding
+properties. The retired status values `validated_fixed` and `not_observed`
+are refused by the API with `400` and name the filter that replaces them
+(`validation=not_reproducible`, `observation=stale`).
 
 A finding that was resolved and is reported again is reopened on the same
 record, unless it was closed as a false positive, an accepted risk or a
@@ -792,8 +802,8 @@ resolve, accept or dismiss them.
    exposures**, **Needs attention**, **Resolved** and **Mean time to resolve**.
 2. Search, filter by **Severity** and by state (**Needs attention**, **Closed**,
    **All states**), and **Export** to CSV.
-3. Columns: exposure (with its type), severity, state (Active, Resolved,
-   Accepted, False positive), source and first seen. A row's menu: **View
+3. Columns: exposure (with its type), severity, state (Active, In progress,
+   Resolved, Accepted, False positive), source and first seen. A row's menu: **View
    details**, **Mark resolved**, **Accept risk**, **Mark false positive** or
    **Reactivate**.
 4. Select rows to **Resolve**, **Accept risk** or mark **False positive**.
@@ -813,6 +823,10 @@ resolve, accept or dismiss them.
    secrets**) and **Activity** (every state change with who and why).
 
 **Analytics** charts exposures by severity, by state and by event type.
+
+The exposures of your external attack surface also have their own list, with
+display categories, a group-by-asset view and a severity override: see
+[Exposure items](04-discovery.md#exposure-items).
 
 The metrics and the charts count only the exposures you may see, the same set
 as the list. A member limited to some assets sees numbers for those assets,
