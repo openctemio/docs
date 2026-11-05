@@ -77,8 +77,8 @@ That is the most important workflow in the product; it is covered first in
    closing modes, and the Ready to close and Recently auto-closed lists.
    [Import any CSV, JSON or XML with a mapping](import-mappings.md): describe a
    file once, then import it as findings from the console, the API or a pipeline.
-   [AI suggestions and approval](ai-suggestions-and-approval.md): what an AI
-   suggestion is, and how a person applies, dismisses or undoes it.
+   [AI suggestions and approval](ai-suggestions-and-approval.md): what AI triage
+   shows, what an AI agent may change, and why risk-lowering needs a person.
    [AI agents](ai-agents.md), [knowledge sources](ai-knowledge-sources.md), [AI use cases](ai-use-cases.md) and
    [AI data masking](ai-data-masking.md): the Settings pages that decide who may
    act on findings as an AI agent, what applies on its own and what the model is

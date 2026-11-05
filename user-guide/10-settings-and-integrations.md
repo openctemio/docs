@@ -229,8 +229,8 @@ opens the right tab.
 **AI agents** and **Data masking** are described in
 [Settings > AI: AI agents](ai-agents.md) and
 [Settings > AI: data masking](ai-data-masking.md), and
-[AI suggestions and approval](ai-suggestions-and-approval.md) says how a person decides a
-suggestion. See [AI triage](../api/ai-triage.md) for what the analysis returns.
+[AI suggestions and approval](ai-suggestions-and-approval.md) says what AI triage
+shows and how a person decides what an AI agent proposes. See [AI triage](../api/ai-triage.md) for what the analysis returns.
 
 ## Access & security
 

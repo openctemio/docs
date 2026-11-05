@@ -47,7 +47,7 @@ false-positive verdict becomes an approval request. A person decides each of the
 | **Restricted** | Also the code snippet. |
 | **Stays in your organization** | Anything not classified: never sent. |
 
-Fields above the ceiling are withheld and listed as withheld in the [Why view](ai-suggestions-and-approval.md#the-why-view).
+Fields above the ceiling are withheld and recorded as withheld in the run's provenance (see [AI suggestions and approval](ai-suggestions-and-approval.md#what-is-sent)).
 A finding for a leaked secret never sends its snippet, whatever the ceiling.
 
 **Minimum confidence to auto-apply** is between 0.50 and 0.99 (default 0.85). A result below it
@@ -73,8 +73,7 @@ requests), the last 50 at most. When rejections reach 20 percent (and there are 
 decisions), the use case falls back to **Suggest**. The page says when and why, and an audit entry
 `ai_use_case.downgraded` is written.
 
-Today only **Triage** files requests, so only it can fall back. Dismissing or undoing a result is
-not counted yet.
+Today only **Triage** files requests, so only it can fall back.
 
 Only an owner or administrator can turn it back on: choose **Turn auto-apply back on**, which clears
 the downgrade. Check first why people were overriding the results.
