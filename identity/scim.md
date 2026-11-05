@@ -6,6 +6,8 @@ nav_order: 9
 
 # SCIM 2.0 provisioning
 
+See how it works: [SCIM provisioning flow](../how-it-works/identity/scim.md).
+
 With SCIM 2.0 your identity provider (for example Okta or Microsoft Entra ID) creates, updates and
 deactivates members of one organization. Deactivation in the identity provider suspends the
 membership and revokes the person's sessions immediately.

@@ -7,6 +7,8 @@ nav_order: 2
 # Versioning and releases
 {: .no_toc }
 
+See how it works: [Release signing and verification](../how-it-works/operations/release-verification.md).
+
 How OpenCTEM releases are numbered and published, and what that means when you
 plan upgrades. The design is
 [RFC-037](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-037-versioning-and-release-train.md);

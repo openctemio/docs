@@ -7,6 +7,8 @@ nav_order: 0
 # Sign-in methods overview
 {: .no_toc }
 
+See how it works: [Password sign-in](../how-it-works/identity/sign-in.md), [Sessions and CSRF](../how-it-works/identity/sessions-csrf.md).
+
 OpenCTEM has four ways to sign in. They are independent: you can use one or all of them, and each
 has its own setup page.
 

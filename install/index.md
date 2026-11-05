@@ -8,6 +8,8 @@ permalink: /install/
 # Requirements and sizing
 {: .no_toc }
 
+See how it works: [Install paths](../how-it-works/operations/install.md).
+
 OpenCTEM is self-hosted. Pick a deployment, check the requirements below, then
 follow the guide. These pages describe OpenCTEM {{ site.data.versions.platform }}; notes say where an
 older release differs. [Versioning](../operations/versioning.md) lists how the

@@ -6,6 +6,8 @@ nav_order: 6
 
 # Audit log
 
+See how it works: [Audit log integrity](../how-it-works/operations/audit-chain.md).
+
 OpenCTEM keeps two audit trails:
 
 | Trail | What it records | Who reads it |

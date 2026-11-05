@@ -6,6 +6,8 @@ nav_order: 1
 
 # Sign-up and invitations
 
+See how it works: [Sign-up and invitations](../how-it-works/identity/sign-up-and-invitations.md), [Ownership invitations](../how-it-works/identity/ownership-invitations.md).
+
 This page explains who may create an account or an organization, and how people join an existing
 organization.
 
@@ -65,7 +67,8 @@ password.
   sends the link again: the answer is always 202, and an address gets at most one email every two
   minutes. The verification failure page and a sign-in refused with `EMAIL_NOT_VERIFIED` offer it.
 - After `AUTH_MAX_LOGIN_ATTEMPTS` (5) wrong passwords or codes, the account is locked for
-  `AUTH_LOCKOUT_DURATION` (15 minutes).
+  `AUTH_LOCKOUT_DURATION` (15 minutes). Each further run of 5 failures doubles the lock, up to
+  24 hours. The counter resets only after a complete sign-in.
 
 ### A server that cannot send email
 

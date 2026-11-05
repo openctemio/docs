@@ -6,6 +6,8 @@ nav_order: 5
 
 # Single sign-on with Microsoft Entra ID
 
+See how it works: [Single sign-on with OIDC](../how-it-works/identity/sso-oidc.md).
+
 OpenCTEM has two independent ways to sign in with Microsoft. They do not share configuration.
 
 | | Organization SSO (recommended) | Social "Sign in with Microsoft" |
