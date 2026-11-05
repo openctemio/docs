@@ -81,11 +81,12 @@ What a result can do:
   the finding.
 - A **detection re-run** (for nuclei findings, the finding's own template is run
   again) is a verdict:
-  - it matched: **reproducible**, the finding stays open (and a finding
-    previously downgraded is reopened as Confirmed);
-  - it did not match while the target answered: **not reproducible**, the
-    finding is downgraded to **validated fixed**. That is not a closed state: a
-    person with the verify permission still resolves it;
+  - it matched: **reproducible**, the finding stays open (a finding previously
+    marked not reproducible is marked reproducible again);
+  - it did not match while the target answered: **not reproducible**. The
+    finding is marked **Not reproducible** (its **Validation** field) and keeps
+    its status. That is not a closed state: a person with the verify permission
+    still resolves it;
   - anything else (target not reachable, template not available, error) changes
     nothing.
 
@@ -96,8 +97,11 @@ allows it. Sensors that have nuclei and accept commands offer this re-run.
 
 To confirm a fix, use **Retest now** on the finding (nuclei findings; needs the
 verify permission). A retest proves reachability with its own probe and then
-settles the finding: fixed and resolved, still vulnerable, regression (reopened)
-or inconclusive. See [Exposures and findings](05-exposures-and-findings.md#the-full-page).
+settles the finding: fixed, still vulnerable, regression (reopened) or
+inconclusive. A confirmed fix marks the finding **Not reproducible** and leaves it
+for a person with the verify permission to close; only when the organization's
+retest setting `auto_resolve` is on (off by default, set through
+`/api/v1/organization/settings/retest`) does a confirmed fix close it. See [Exposures and findings](05-exposures-and-findings.md#the-full-page).
 
 ### The Verification panel: how a finding can be verified
 

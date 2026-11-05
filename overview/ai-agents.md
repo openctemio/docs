@@ -9,8 +9,8 @@ nav_order: 5
 
 An AI agent takes part in triage like a member of your team. It uses the same actions, follows
 the same approvals and is recorded in the same audit trail. Everything it does carries an AI badge
-and says which model, which prompt and which people answer for it. An AI agent has a role; the
-analyst, who triages findings, is the first. You manage AI agents in
+and says which model, which prompt and which people answer for it. An AI agent has a role that names its
+work: analyst (the default, who triages findings), remediator, reporter, hunter or router. You manage AI agents in
 [Settings > AI: AI agents](../user-guide/ai-agents.md). Engineering detail is in
 [ai-analysis.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/ai-analysis.md)
 in the openctem repository.
@@ -24,6 +24,9 @@ in the openctem repository.
 
 - **Its own identity.** An AI agent is a service account of your organization, not a person's
   delegate. It cannot sign in, has no password or MFA, holds no API key or MCP grant, and does not use a seat.
+- **A role.** The role names what the AI agent is for; it grants nothing. Permissions come from
+  the preset and the owners' ceiling. An AI agent created without a role is an analyst.
+  Changing the role is audited as `ai_agent.role_changed`.
 - **A preset.** *Suggest* reads findings, writes comments and opens approval requests. *Triage* can
   also confirm findings, move their status, raise severity, link duplicates and assign.
 - **Accountable owners.** Every AI agent has people or teams who answer for its results. An AI agent

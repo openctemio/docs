@@ -98,8 +98,8 @@ completed step to go back.
    - **Where it runs**: **Auto** (your organization's sensors first, then the
      shared sensors), **Organization sensors** or **Shared sensors** (public
      targets only; offered only where the organization may use them), and the
-     **Scan profile** (tool settings, intensity and quality gate; the
-     organization default unless you pick another).
+     **Scan profile** (the pass/fail rule for the results and the detection
+     rules the scan uses; the organization default unless you pick another).
    - **Advanced: job size, timeout and retries**: **Targets per job** (how
      many targets one sensor job scans; smaller jobs spread a scan over more
      sensors), **Max duration (seconds, optional)** (empty: no limit of its
@@ -115,6 +115,19 @@ completed step to go back.
    (which can be pinned there). Click **Start scan**, **Schedule scan** or
    **Save scan**. If the scan is saved but cannot start, it stays saved and
    you can trigger it later from **View Scan**.
+
+{: .note }
+From v0.20.0, a scan runs as far as your tools and sensors support. Creating or
+saving a scan or a workflow is no longer refused because a step's tool is not
+installed, is turned off, has no sensor, or because no tool provides the step's
+capability. When the scan runs, that step is skipped with its reason
+(`NO_MATCHING_TOOL`, `TOOL_NOT_INSTALLED`, `TOOL_DISABLED` or
+`NO_SENSOR_FOR_TOOL`), the steps that need its results are skipped too
+(`DEPENDENCY_SKIPPED`), every other step runs and the run ends **partial**. The
+**Review** step shows why a step will be skipped. Only a run in which no step can
+run is refused (`NO_RUNNABLE_STEPS`). Scope, intensity, approvals and the
+passive-only entitlement still refuse a run as before. The run view shows each
+skipped step's reason.
 
 Port scans that name no ports scan the top 1,000 ports. Scans built on a
 retired workflow (**Discover**, **Discover + Vuln**, **Web app**) keep
