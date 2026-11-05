@@ -434,6 +434,7 @@ In addition to [the shared checklist](ansible.md#security-checklist):
   is expected. Keep the proxy itself updated with the OS (`apt`), and re-run the checks of step 9 after.
 - **Add a name or change the console host**: edit the inventory and the Caddyfile together, then re-run
   `playbooks/50-openctem.yml` and `sudo systemctl reload caddy`.
+- **Feeds without direct internet**: the API reaches its public feeds directly by default. Set `openctem_feed_proxy` to send them through your HTTPS proxy (a proxy with a password goes in the server file `feed_proxy_url` in the secrets directory), or receive them through a relay sensor ([Feeds](../operations/feeds.md)). With `openctem_egress_policy: restricted`, add a private proxy to `openctem_egress_allow`.
 - **Rollback**: [shared procedure](ansible.md#rollback); the proxy is unaffected.
 - **Take OpenCTEM offline at once**: `sudo systemctl stop caddy` (nothing reaches the gateway), or close 443 in
   ufw.

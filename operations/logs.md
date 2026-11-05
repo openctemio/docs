@@ -64,6 +64,7 @@ Each HTTP request writes one `http request` line after it completes:
 | `request_id` | See [Request IDs](#request-ids). |
 | `remote_addr` | The TCP peer (the gateway or the console in a gateway deployment). The client address used for audit and rate limits is resolved separately from trusted proxies. |
 | `user_agent` | Client User-Agent, up to 200 characters. Sensors identify as `openctemio-sensor/<version> openctem-sdk-go/<version>`. |
+| `user_id`, `tenant_id`, `admin_id` | Who the request authenticated as, once it did (`admin_id` on the platform console's plane), so refused and failed requests can be attributed. Identifiers only, never an e-mail. |
 
 The level follows the outcome: 5xx at ERROR, 4xx at WARN, a request slower than
 `LOG_SLOW_REQUEST_SECONDS` (default 5) at WARN as `slow http request`, everything
@@ -126,12 +127,17 @@ administrators by e-mail and to the alert webhook (Settings > Alerts) when those
 
 | `alert` | Level | Meaning |
 |---|---|---|
-| `system_storage`, `system_backup`, `system_cert` | WARN | Free space, backup age or certificate expiry got worse (Monitoring > Health). |
+| `system_storage`, `system_backup`, `system_cert` | WARN | Free space, backup age or certificate expiry got worse (Monitoring > Health). The line is `system check degraded`, with `check` and `level`. |
 | `signup_burst` | WARN | Many sign-ups from one network or e-mail domain. See [Monitoring](monitoring.md). |
 | `alert_webhook_failed` | WARN | The alert webhook did not accept a delivery; `host` names the receiver. |
 | `audit_chain_break` | ERROR | The audit log hash chain has a new break. Treat it as a security incident. |
 | `platform_setting_changed` | WARN | A platform setting changed in the console. |
-| `platform_admin_main_site_sign_in` | WARN | A platform administrator's account tried to sign in on the organization site, where it is refused. |
+| `break_glass_main_site_sign_in` | WARN | A break-glass administrator account tried to sign in on the organization site, where it is refused. |
+| `break_glass_sign_in` | WARN | A break-glass administrator signed in to the platform console; the other administrators are e-mailed. |
+| `new_network_sign_in` | WARN | An administrator signed in to the platform console from a network not seen before. |
+| `admin_roster_change` | WARN | The platform administrator roster or sign-in policy changed. |
+| `signup_policy_changed` | WARN | The sign-up policy changed; the other administrators are e-mailed. |
+| `audit_chain_rebaselined` | WARN | An organization's audit hash chain was re-baselined by an administrator. |
 
 ## Web console and admin console
 

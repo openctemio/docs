@@ -118,7 +118,7 @@ Alerts reach the active platform administrators by e-mail (which needs the platf
   read back. An optional signing secret adds `X-OpenCTEM-Timestamp` and `X-OpenCTEM-Signature:
   sha256=<hex>`, the HMAC-SHA256 of `timestamp + "." + body` under the secret.
 - **Send a test alert** posts to the saved address and reports whether the receiver accepted it.
-- Only a super admin changes it, with a fresh confirmation and a reason. The change is a critical
+- Only a platform owner changes it, with a fresh confirmation and a reason. The change is a critical
   entry in the administrators' audit log and notifies every administrator.
 - Without e-mail and without a webhook, the WARN log lines (`alert=system_storage`,
   `system_backup`, `system_cert`, `signup_burst`) and the metrics are the alert. A failed webhook

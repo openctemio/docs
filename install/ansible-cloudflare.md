@@ -461,6 +461,7 @@ In addition to [the shared checklist](ansible.md#security-checklist):
   ```
 
   A remotely managed tunnel needs none of this: its routes live in Cloudflare.
+- **Feeds without direct internet**: the API reaches its public feeds directly by default. Set `openctem_feed_proxy` to send them through your HTTPS proxy (a proxy with a password goes in the server file `feed_proxy_url` in the secrets directory), or receive them through a relay sensor ([Feeds](../operations/feeds.md)). With `openctem_egress_policy: restricted`, add a private proxy to `openctem_egress_allow`.
 - **Rollback**: [shared procedure](ansible.md#rollback). Rolling back OpenCTEM does not touch
   Cloudflare: the Access applications and routes stay.
 - **Take OpenCTEM offline at once**: disable the public hostname route in the dashboard (the connector

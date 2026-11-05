@@ -43,7 +43,7 @@ release's.
 | `mirror-images.sh` says an archive does not match its checksum | The file changed in transfer. Compare the `sha256` list on both sides and transfer again |
 | Offline verification fails with a trusted-root error | The trusted root is missing or stale. Fetch a new one on a connected machine (any online `cosign verify` refreshes it) and carry it separately |
 | `unpack.sh` says `dist` exists | Remove `<kit>/dist` and run it again: it refuses to overwrite |
-| `unpack.sh` or `fetch-release.sh` says the checksums file is not signed by the release workflow | The release does not carry `checksums-sha256.txt.sigstore.json`, or the files were altered. The signed checksum file is new from the next release |
+| `unpack.sh` or `fetch-release.sh` says the checksums file is not signed by the release workflow | The release does not carry `checksums-sha256.txt.sigstore.json`, or the files were altered. Releases before v0.19.1 carry no signed checksum file |
 | Kyverno rejects a release image | The policy lacks `type: SigstoreBundle`, the registry path in `imageReferences` is wrong, or the identity regular expression does not match the tag |
 | Kyverno does not check the all-in-one image | The template's `imageReferences` has `openctem-*` and not the plain `openctem` path. Add it |
 

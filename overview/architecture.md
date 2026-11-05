@@ -47,7 +47,7 @@ flowchart LR
     subgraph ext["Internet: services the platform uses"]
         IDP["Identity providers<br/>Entra ID, Google, Okta, SAML"]
         TIX["Jira, GitHub, GitLab"]
-        FEEDS["EPSS, CISA KEV, ctem.org,<br/>CT logs"]
+        FEEDS["Vulnerability feed, EPSS, CISA KEV,<br/>ctem.org, CT logs"]
         NOTIF["Slack, Teams, Telegram,<br/>email, webhooks, Splunk HEC"]
         AI["AI providers<br/>(optional)"]
     end
@@ -68,6 +68,7 @@ flowchart LR
     API <-->|"SSO"| IDP
     API <-->|"issues, webhooks,<br/>repositories"| TIX
     API --> FEEDS
+    SEN -.->|"feed relay mode:<br/>signed files"| API
     API --> NOTIF
     API --> AI
 ```
@@ -146,7 +147,7 @@ Details: [scan-lifecycle.md](https://github.com/openctemio/openctem/blob/develop
 | Imports | Files from other scanners (Nessus, Qualys, SARIF, trivy, nuclei, ZAP and others) uploaded in the console or the API. |
 | Connectors and integrations | SCM repositories (GitHub, GitLab), Tenable.sc, DefectDojo, Entra ID identity exposures, SIEM. |
 | Discovery jobs | Certificate Transparency logs and DNS checks of each organization's own domains, and the automatic coverage loop that plans the checks each asset type needs, run by the API. |
-| Threat intelligence | Vulnerability bundles, EPSS scores and the CISA KEV catalog, refreshed on a schedule (bundles every 20 minutes, KEV hourly, EPSS daily) and used in prioritization. |
+| Threat intelligence | Vulnerability bundles, EPSS scores and the CISA KEV catalog, refreshed on a schedule (bundles every 20 minutes, KEV hourly, EPSS daily) and used in prioritization. The platform fetches them directly, through an HTTPS proxy, from a bundle directory, or, in relay mode, receives them from one to three platform sensors, so that it makes no outbound request for feeds ([Feeds](../operations/feeds.md)). In every mode it verifies each file against a pinned root key before it imports it. |
 
 ### Outputs
 

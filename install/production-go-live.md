@@ -52,7 +52,9 @@ Read the release notes and the upgrade notes of the release.
 - Disk: the database grows with findings and audit history; keep at least 20 %
   free and alert on it. A full disk stops PostgreSQL.
 - Time synchronised (NTP): tokens, signatures and certificates depend on it.
-- Outbound HTTPS for threat-intelligence feeds and, in TLS mode `acme`, Let's Encrypt.
+- Outbound HTTPS for the threat-intelligence feeds and, in TLS mode `acme`, Let's Encrypt. If the
+  platform may not reach the internet, choose another feed mode instead: through a relay sensor,
+  through an HTTPS proxy, or from a bundle directory ([Feeds](../operations/feeds.md)).
 
 ## 4. Configure
 
@@ -87,9 +89,10 @@ Read the release notes and the upgrade notes of the release.
    Decide where the platform console lives (`OPENCTEM_ADMIN_SITE`: `port`,
    `host` or `off`) and which networks may reach it
    (`OPENCTEM_ADMIN_ALLOWED_CIDRS`); a host name of its own is recommended.
-   Set `ADMIN_PUBLIC_URL` to the console's exact origin, or administrators cannot
-   register security keys (a known gap: no deployment sets it for you; see
-   [Docker Compose](docker-compose.md#platform-console)).
+   `ADMIN_PUBLIC_URL` must be the console's exact origin, or administrators cannot
+   register security keys. `setup.sh` (Compose) and the all-in-one image set it
+   from the console address; with Helm, the binaries or your own environment file,
+   set it yourself ([Docker Compose](docker-compose.md#platform-console)).
 5. Keep `APP_ENCRYPTION_KEY` and `FINGERPRINT_KEY` in a secret manager as well
    as in the deployment: without the first, the credentials stored in the
    database cannot be decrypted.
@@ -153,13 +156,16 @@ Schedule `api/deploy/backup.sh` daily, copy its output off the host encrypted,
 and prove a restore before going live ([Backup and restore](../operations/backup-restore.md)):
 
 ```bash
-./backup.sh            # database, attachments, gateway CA, .env
+./backup.sh            # database, attachments, gateway CA, signer volumes, .env
 ./backup.sh verify     # restores into a throwaway PostgreSQL and compares row counts
 ```
 
+Set `BACKUP_AGE_RECIPIENT` first so the backup is encrypted; without it the files are plain.
+
 The nightly backup loses up to a day of data. On the Ansible kit you can add
 continuous WAL archiving to an S3-compatible bucket and restore to a point in
-time (about six minutes of data at risk): see
+time (about six minutes of data at risk), and on Compose the optional pgBackRest overlay does the
+same to S3-compatible storage, SFTP or a local path: see
 [Install with Ansible](ansible.md#backups-and-the-restore-drill) and
 [Backup and restore](../operations/backup-restore.md).
 
@@ -185,7 +191,6 @@ one small scan on a target you own and check the findings arrive.
 Database migrations are not rolled back in production. To roll back an
 upgrade: set `OPENCTEM_VERSION` back to the previous release, then restore the
 backup taken before the upgrade (`./backup.sh restore <dir> --yes`; it stops
-the gateway, web console, platform console and API (from v0.11.0; the v0.10.1
-script leaves the platform console running, so run `docker compose stop console`
-first when you restore with it), restores, and starts the stack on that version). Take that backup before every upgrade
+the gateway, web console, platform console and API, restores, and starts the stack on that
+version). Take that backup before every upgrade
 ([Upgrading](../operations/upgrade.md)).
