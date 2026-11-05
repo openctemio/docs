@@ -12,7 +12,7 @@ nav_order: 18
 Remediation campaigns, suppression and exception rules, assignment rules and automation workflows.
 
 - **CTEM stages:** mobilization
-- **Modules:** `remediation`, `suppressions`, `workflows` (the routes answer `403 MODULE_NOT_ENABLED` when the module is off)
+- **Modules:** `remediation`, `workflows` (the routes answer `403 MODULE_NOT_ENABLED` when the module is off)
 - **Permissions:** `automations:publish`, `automations:read`, `automations:write`, `findings:assign`, `findings:fix_apply`, `findings:read`, `findings:remediation:read`, `findings:remediation:write`, `findings:suppressions:approve`, `findings:suppressions:delete`, `findings:suppressions:read`, `findings:suppressions:write`, `findings:write`, `team:assignment_rules:delete`, `team:assignment_rules:read`, `team:assignment_rules:write`
 
 ## Who can do it
