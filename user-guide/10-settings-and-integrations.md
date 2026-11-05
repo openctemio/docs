@@ -341,7 +341,11 @@ access and never signs in.
   `settings:write` and a recent sign-in.
 - **Vulnerability matching** (`/settings/vulnerability-matching`): opens
   findings when a published CVE affects a product version your assets run.
-  Changing it needs `team:update`.
+  Changing it needs an owner or administrator (`team:update`). See
+  [Vulnerability matching](vulnerability-matching.md).
+- **Emerging threats** (`/settings/emerging-threats`): when new or newly
+  exploited vulnerabilities alert you, and how. Owners and administrators. See
+  [Emerging threats](emerging-threats.md#settings).
 
 - **Risk scoring** (`/settings/risk-scoring`): see
   [Prioritization › Risk scoring](06-prioritization.md#risk-scoring).

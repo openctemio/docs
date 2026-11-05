@@ -22,6 +22,16 @@ add assets by hand. Until your organization has run a scan or an import, most
 asset pages show an empty state with a suggested next step. The recommended order
 is: **set your scope → run a scan → review the assets and findings it found.**
 
+**On this page**
+
+| Part | What it covers |
+|---|---|
+| [Scans](#scans) | Quick scan, new scan, runs, approvals, workflows |
+| [Sensors](#sensors) and [CI/CD](#cicd) | Who runs the scans, and scans from pipelines |
+| [Attack surface](#attack-surface) | The five views: overview and posture, technologies and certificates, exposure items, changes, discovery stages and decisions |
+| [The asset inventory](#the-asset-inventory) | The list, an asset's page, groups, needs attention, lifecycle |
+| [Credential leaks](#credential-leaks) and [Software components](#software-components-sbom) | Leaked credentials, SBOMs and VEX |
+
 ## Scans
 
 **Discovery › Scans** has four tabs: **Scans** (the saved scans and their
@@ -301,7 +311,7 @@ with no page left is hidden.
 
 | View | Pages | Permission to open |
 |---|---|---|
-| **Overview** | **Summary** (`/attack-surface`) | `assets:read` |
+| **Overview** | **Summary** (`/attack-surface`), **Posture** (`/attack-surface/posture`) | `assets:read` |
 | **Inventory** | **Technologies**, **Certificates**, **Web surface** | `assets:read` |
 | **Exposures** | **Exposure items**, **Lookalikes** | `findings:exposures:read` (and `findings:read`); `scope:read` |
 | **Changes** | **Surface** (`/attack-surface/changes`), **Page changes** (`/attack-surface/pages`, see [Page changes](../scanning/easm.md#page-changes)) | `assets:read` |
@@ -341,6 +351,8 @@ fix first and whether discovery keeps up.
     domains**, **Network seed lookups**, **Screenshots of web assets** (off by
     default; kept for 30 days) and the **Weekly digest** (see
     [Changes](#changes)).
+- **Posture**: a card with the grade of your external attack surface from A to
+  F; it opens [Posture](#posture).
 - **Asset breakdown** (by type, with how many are exposed; each row opens the
   inventory for that type) and **Recent changes** (**View all** opens
   **Changes**).
@@ -364,6 +376,42 @@ of scope as a dedicated address is skipped, and gets no Certificate Transparency
 evidence. DNS checks run right after and flag dangling CNAME or NS records and
 weak email security. The platform operator can turn monitoring off or change its
 default interval (24 hours) for the whole installation.
+
+### Posture
+
+**Overview › Posture** (`/attack-surface/posture`) grades your external attack
+surface from **A** to **F**, for the organization and for each root domain. It
+needs `assets:read` and the **Attack surface** module.
+
+- The grade is a score from 0 to 100: A is 90 and above, B 80, C 70, D 60 and F
+  below 60. With no surface asset in your view there is no grade; the page says
+  so and never shows an A by default.
+- **What takes points away** lists six categories, each with a maximum share
+  of the 100 points: vulnerabilities (35), hijackable subdomains (15), exposed
+  services (15), misconfiguration (15), cloud storage (10) and suspicious
+  activity (10). Next to each is the score you would have once its issues are
+  fixed. A category never takes all of its maximum, so fixing any issue raises
+  the score.
+- **How the score is computed**: every open issue on a surface asset has points
+  by severity (critical 10, high 5, medium 2, low 0.5; a known exploited CVE
+  counts double), multiplied by the asset's criticality (critical or crown jewel
+  2, high 1.5, medium 1, low 0.5). A large estate is not graded F for its size.
+- **Fix plan** lists the most effective fixes first, until the grade reaches the
+  next one, with the score after each step.
+- **Risk reduction by asset criticality** shows the share of all points on
+  assets of each criticality and the score points that fixing them would add.
+- **Root domains** scores each root domain on its own assets, worst first;
+  select one to see its posture. Addresses and issues that belong to no asset
+  count in the organization's score only.
+
+The figures are computed ahead, not when you open the page. **Refresh
+schedule** sets how often: manually, every hour, every 6 hours (the default) or
+daily; it needs `settings:write`. **Recalculate now** (needs `assets:write`) can
+run once every 5 minutes. The page shows when it was computed, when it refreshes
+next and **Out of date** when a refresh failed. The figures cover only the
+assets you can see; issues without an asset are counted for people who see the
+whole organization. A **Posture** widget (`surface.posture`) is available for
+dashboards.
 
 ### Technologies
 
@@ -570,6 +618,15 @@ entry; addresses are never added because a name points at them.
   entry that covers it (or **Add to scope**).
 - Select names and decide: **Ours: add to scope**, **Not ours**,
   **Dependency** or **Monitor only** (needs the assets write permission).
+
+{: .note }
+From v0.20.0, the one-click **Add N to scope** takes only the addresses in
+the high ownership band: an anchor your organization set, such as your own
+network, plus more evidence. Every other address is added from its own row
+(**Add**), after a person has read it. The built-in list of published edge
+ranges now covers more CDN, WAF and front-end providers, so their addresses
+fall under **Shared, not offered**: a scope entry on a CDN edge would scan every
+customer of that edge, and names served by those edges get only the web ports.
 
 Discovered names join the inventory without waiting here, unless **Review
 discovered assets first** is on in the scope policy
@@ -805,20 +862,27 @@ full page `/assets/{id}`):
   scan last reported it ("not seen for N days" once it is stale). Related
   assets you cannot access are never shown, only counted ("2 related assets
   you can't access").
-  **Graph** draws the assets around this one, up to **Hops** 1, 2 or 3 away
-  (2 by default), in both directions. Where the asset comes from is always
-  drawn and named above the graph (**Where this asset comes from**): an
-  address shows the name that resolves to it and the domain that contains
-  that name. The root is at the top, the asset in the middle, and what it
-  exposes below. More than 8 related assets of one kind are grouped into one
-  node ("10 assets"); select it and choose **Show all** (or **Show 50**) to
-  draw them. Select any asset (click it, or use the arrow keys and Enter) to
-  **Open asset** or **Show related assets** from it. Related assets you
-  cannot access are counted on the asset they hang off ("2 outside your
-  access"), never drawn. **Full screen** on the graph (or the `f` key)
-  opens the same graph, with the same hops, opened groups and selection,
-  over the whole screen; **Escape** returns to the side panel. The list
-  stays the complete view of every link.
+  **Graph** draws the asset and up to 30 of its relationships. The list is
+  the complete view of every link. Related assets you cannot access are
+  counted, never drawn.
+
+  {: .note }
+  From v0.20.0 the graph draws the **neighborhood** of the asset instead:
+  the assets up to **Hops** 1, 2 or 3 away (2 by default), in both
+  directions, and the 30-relationship limit is gone. Where the asset comes
+  from is always drawn and named above the graph (**Where this asset comes
+  from**): an address shows the name that resolves to it and the domain that
+  contains that name. The root is at the top, the asset in the middle, and
+  what it exposes below. More than 8 related assets of one kind are grouped
+  into one node ("10 assets"); select it and choose **Show all** (or **Show
+  50**) to draw them. Select any asset (click it, or use the arrow keys and
+  Enter) to **Open asset** or **Show related assets** from it. Related assets
+  you cannot access are counted on the asset they hang off ("2 outside your
+  access"), never drawn or walked through. **Full screen** on the graph (or
+  the `f` key) opens the same graph, with the same hops, opened groups and
+  selection, over the whole screen, for the relationships graph and for the
+  attack-path graph; **Escape** returns to the side panel. The API is
+  `GET /api/v1/assets/{id}/neighborhood`, limited to 300 nodes.
   **Add relationship** picks the **Relationship Type** and one or more
   **Target Asset** entries, with an optional description, **Confidence**,
   **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.

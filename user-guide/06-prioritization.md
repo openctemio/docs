@@ -124,7 +124,7 @@ they say so and link to the assets.
     **List view** shows the same routes as a list; it is the default on a
     phone.
   - **Full screen** on the graph (or `f`) shows it over the whole screen with
-    its legend; **Escape** returns to the page.
+    its legend; **Escape** returns to the page. (From v0.20.0.)
   - **Choke points** ranks the steps whose findings, once fixed, cut the most
     routes ("Fix this to cut 2 of 3 paths"). **View finding** opens the
     finding behind the step and **View N findings** opens exactly the N open

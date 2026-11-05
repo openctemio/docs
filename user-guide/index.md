@@ -45,7 +45,7 @@ every stage uses them.
 |---|---|---|
 | **Scoping** | Decide what is in scope and attach business context | [Scoping](03-scoping.md) |
 | **Discovery** | Find assets and the exposures on them | [Discovery and the asset inventory](04-discovery.md), [Exposures and findings](05-exposures-and-findings.md), [The vulnerabilities list](vulnerabilities.md), [Known false positives](known-false-positives.md), [Closing findings](closing-findings.md), [AI suggestions and approval](ai-suggestions-and-approval.md) |
-| **Prioritization** | Rank what to fix first | [Prioritization](06-prioritization.md) |
+| **Prioritization** | Rank what to fix first | [Prioritization](06-prioritization.md), [Emerging threats](emerging-threats.md) |
 | **Validation** | Prove that exposures are real and that fixes and controls work | [Validation](07-validation.md) |
 | **Mobilization** | Drive remediation to closure and automate the routine | [Mobilization](08-mobilization.md) |
 
@@ -71,6 +71,8 @@ That is the most important workflow in the product; it is covered first in
    workbench, triage, approvals, re-verification and the exposure views.
    [The vulnerabilities list](vulnerabilities.md): one row per CVE across your
    assets, saved views, and actions on many vulnerabilities at once.
+   [Vulnerability matching](vulnerability-matching.md): how the software your
+   assets run becomes findings, and which matches the platform keeps.
    [Known false positives](known-false-positives.md): how a decision is
    requested, approved, kept across scanners and re-opened.
    [Closing findings](closing-findings.md): when a scan may close a finding, the
@@ -86,6 +88,8 @@ That is the most important workflow in the product; it is covered first in
 6. [Prioritization](06-prioritization.md): priority classes, exposure chains and
    attack paths, threat intelligence, business impact, compensating controls,
    priority rules and risk scoring.
+   [Emerging threats](emerging-threats.md): alerts when a new or newly exploited
+   vulnerability matches software you run.
 7. [Validation](07-validation.md): automated re-verification, pentest
    campaigns, the retest queue, ATT&CK coverage, attack simulation and control
    testing.
