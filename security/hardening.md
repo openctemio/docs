@@ -6,6 +6,8 @@ nav_order: 2
 
 # Production hardening checklist
 
+See how it works: [Job signer service](../how-it-works/operations/job-signer.md), [Release signing and verification](../how-it-works/operations/release-verification.md).
+
 Work through this list before you expose an installation to users. Every item names the real
 setting; defaults are the values in the API code unless the row says otherwise. The bundled
 production compose file (`api/deploy/docker-compose.yml` with `api/deploy/.env.example`) already

@@ -7,6 +7,8 @@ nav_order: 6
 # Organization SSO with Google Workspace (OpenID Connect)
 {: .no_toc }
 
+See how it works: [Single sign-on with OIDC](../how-it-works/identity/sso-oidc.md).
+
 Lets the members of one organization sign in with their Google Workspace (or Cloud Identity) accounts.
 It is configured per organization by a platform administrator and is different from the installation-wide
 [Sign in with Google button](social-google.md).

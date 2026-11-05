@@ -6,6 +6,8 @@ nav_order: 1
 
 # Authentication and API keys
 
+See how it works: [API key flow](../how-it-works/identity/api-keys.md).
+
 OpenCTEM has one credential per audience. Use the one that matches what you are building:
 
 | You are | Use | Can write? |

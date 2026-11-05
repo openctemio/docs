@@ -6,6 +6,8 @@ nav_order: 8
 
 # Single sign-on with SAML 2.0
 
+See how it works: [Single sign-on with SAML](../how-it-works/identity/sso-saml.md).
+
 OpenCTEM acts as a SAML 2.0 Service Provider (SP) for one organization at a time. Any SAML identity
 provider works, for example Okta, Microsoft Entra ID, ADFS or Keycloak. Each organization has at most
 one SAML configuration, and it is disabled until enabled.

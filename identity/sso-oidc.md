@@ -6,6 +6,8 @@ nav_order: 7
 
 # OpenID Connect: Okta and other providers
 
+See how it works: [Single sign-on with OIDC](../how-it-works/identity/sso-oidc.md).
+
 OpenCTEM uses OpenID Connect (OIDC) in three places. Which one you need depends on who signs in.
 
 | Who signs in | Supported providers | Configured by | Section |

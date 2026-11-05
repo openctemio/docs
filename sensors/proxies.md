@@ -7,7 +7,7 @@ nav_order: 6.2
 # Proxies for scans
 {: .no_toc }
 
-See how it works: [Egress check on every connection](../how-it-works/sensor-execution/egress.md).
+See how it works: [Egress check on every connection](../how-it-works/sensor-execution/egress.md), [Proxy credentials](../how-it-works/secrets/proxy-credentials.md).
 
 Send the scan traffic of your own sensors through proxies you control. You
 paste a list of proxies in the console; the platform stores the credentials

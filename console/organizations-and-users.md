@@ -7,6 +7,8 @@ nav_order: 1
 # Organizations and users
 {: .no_toc }
 
+See how it works: [Organization suspension and deletion](../how-it-works/identity/organization-suspension-deletion.md).
+
 The **Customers** group of the [platform console](index.md): the organizations on
 the installation, the people who sign in, the requests for an organization and the
 sign-up activity.

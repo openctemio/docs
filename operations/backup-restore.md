@@ -7,6 +7,8 @@ nav_order: 4
 # Backup and restore
 {: .no_toc }
 
+See how it works: [Backup and restore flow](../how-it-works/operations/backup-restore.md).
+
 1. TOC
 {:toc}
 

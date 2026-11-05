@@ -7,6 +7,8 @@ nav_order: 6
 # First administrator and organization
 {: .no_toc }
 
+See how it works: [Install paths](../how-it-works/operations/install.md), [Platform console and break-glass](../how-it-works/identity/platform-console.md).
+
 A new installation has no accounts and no sign-up page. You create the first
 **platform administrators** and, usually, the first **organization** with its
 owner from the command line, with `bootstrap-admin`.
@@ -38,10 +40,7 @@ organization through the normal, audited organization service.
 **Docker Compose** (in `api/deploy`):
 
 ```bash
-docker compose exec \
-  -e DB_MIGRATE_USER="$(grep ^DB_MIGRATE_USER= .env | cut -d= -f2-)" \
-  -e DB_MIGRATE_PASSWORD="$(grep ^DB_MIGRATE_PASSWORD= .env | cut -d= -f2-)" \
-  api /app/bootstrap-admin \
+docker compose run --rm bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
   -org-name="Example Corp" \
@@ -49,13 +48,11 @@ docker compose exec \
 ```
 
 {: .note }
-The two `-e` options are needed on a `setup.sh` install, which uses separate
-database roles: the tool must connect as the schema owner
-(`DB_MIGRATE_USER`), and the `api` service does not carry that password, so
-without them the tool fails with `permission denied for table admin_users`. The
-stack does not pass the migrator's credentials to the API on purpose. If
-`DB_MIGRATE_USER` is unset in `.env` (single-role layout), run the command
-without the `-e` options.
+`bootstrap-admin` is a one-off service of the stack (profile `tools`; `up`
+does not start it). It runs the migrations first, connects as the schema owner
+(`DB_MIGRATE_USER` from `.env`, or `DB_USER` in the single-role layout), and
+keeps no container log, so the one-time credentials appear only on your
+terminal. The running API never holds the schema owner's password.
 
 **All-in-one image** (the container's environment already holds
 `DB_MIGRATE_USER`):

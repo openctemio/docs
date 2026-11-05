@@ -6,6 +6,8 @@ nav_order: 4
 
 # Two-factor authentication and step-up
 
+See how it works: [Two-factor and the two-factor floor](../how-it-works/identity/two-factor.md), [Step-up re-authentication](../how-it-works/identity/step-up.md).
+
 Local accounts (email and password) can protect their sign-in with a time-based one-time password
 (TOTP, RFC 6238) from any authenticator app. Organizations can require it. Separately, a few sensitive
 actions ask for a fresh proof of identity even inside a signed-in session (step-up).
@@ -70,7 +72,8 @@ revoke API keys (N)** (on by default) to revoke the API keys you own as well.
 
 Codes are single-use: a code from a time step that was already used is refused. Wrong codes count
 toward the account lockout (`AUTH_MAX_LOGIN_ATTEMPTS`, default 5; `AUTH_LOCKOUT_DURATION`, default
-15 minutes), the same counter as wrong passwords. A sign-in challenge expires after 5 minutes and is
+15 minutes, doubled for each further run of failures up to 24 hours), the same counter as wrong
+passwords. A sign-in challenge expires after 5 minutes and is
 cancelled after 5 wrong codes.
 
 Storage: the TOTP secret is encrypted with `APP_ENCRYPTION_KEY` (AES-256-GCM); recovery codes are

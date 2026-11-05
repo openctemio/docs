@@ -7,6 +7,8 @@ nav_order: 2
 # Console security
 {: .no_toc }
 
+See how it works: [Platform console and break-glass](../how-it-works/identity/platform-console.md).
+
 The **Security and audit** group of the [platform console](index.md): who administers the
 installation, how they sign in, the second-approval rule for the most dangerous
 actions, and the record of what administrators did.

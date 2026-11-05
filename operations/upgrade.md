@@ -7,6 +7,8 @@ nav_order: 1
 # Upgrading
 {: .no_toc }
 
+See how it works: [Upgrade and migrations](../how-it-works/operations/upgrade-migrations.md).
+
 The general procedure for moving an installation to a newer release. A release
 with breaking changes has its own upgrade guide; read it first.
 

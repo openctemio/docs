@@ -8,6 +8,8 @@ has_children: true
 # Social login (Google, GitHub, Microsoft)
 {: .no_toc }
 
+See how it works: [Social sign-in and account linking](../how-it-works/identity/social-login-linking.md).
+
 Social login adds "Sign in with Google", "Sign in with GitHub" and "Sign in with Microsoft" buttons to
 the login page. It is configured once for the whole installation. Each provider has its own guide:
 

@@ -7,6 +7,8 @@ nav_order: 3
 
 # Two-factor requirements
 
+See how it works: [Two-factor and the two-factor floor](../../how-it-works/identity/two-factor.md).
+
 Several independent rules can ask a person for a second factor before they can open an organization.
 They add up: one satisfied rule does not switch off another.
 

@@ -6,6 +6,8 @@ nav_order: 4
 
 # MCP server
 
+See how it works: [MCP server and OAuth](../how-it-works/identity/mcp-oauth.md).
+
 OpenCTEM runs a **Model Context Protocol (MCP) server**, read-only apart from three person-gated write tools, so an AI assistant (Claude
 Desktop, Claude Code or any MCP client) can answer questions about your organization's exposure in
 natural language: "which KEV findings are open on internet-facing assets?", "why is this finding
