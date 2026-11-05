@@ -63,9 +63,6 @@ delivers the message.
 
 ### Internal CA certificate
 
-{: .note }
-**Not in v0.18.0.** Trusting an internal CA certificate for the platform mail server is merged for the next release; v0.18.0 does not have it yet.
-
 If your mail server's certificate comes from your own certificate authority,
 paste the CA certificate (PEM, the `-----BEGIN CERTIFICATE-----` text) into
 **Settings > E-mail > Internal CA certificate** and save. Rules:
@@ -80,6 +77,8 @@ paste the CA certificate (PEM, the `-----BEGIN CERTIFICATE-----` text) into
   host, because whoever controls the certificate authority can read every
   set-password link.
 - It is audited without the certificate text (fingerprints only).
+- A stored bundle that cannot be read turns platform e-mail off; it never falls back to the public authorities.
+- At first install, `bootstrap-admin` reads the file named by `BOOTSTRAP_SMTP_CA_FILE` (certificates only).
 
 ## Option B: run the relay that ships with the kit
 
@@ -166,9 +165,6 @@ on `disabled` (the default).
 In the console: **Settings > E-mail**, save the settings, then **Send a test
 e-mail**. It goes to the signed-in administrator's own address, never to another.
 A failure says what to fix:
-
-{: .note }
-**Not in v0.18.0.** The causes below are named from the next release on; v0.18.0 reports a failed test e-mail without naming the cause.
 
 | The console says | Cause | Fix |
 |---|---|---|

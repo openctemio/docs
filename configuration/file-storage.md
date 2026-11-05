@@ -63,6 +63,10 @@ STORAGE_SSE_KMS_KEY_ID=        # optional KMS key for aws:kms
   other `STORAGE_*` variables go in `api.extraEnv`.
 - Only static keys are used; nothing is read from the ambient AWS
   environment.
+- With `STORAGE_ENDPOINT` set the API always uses path-style addressing
+  (`https://endpoint/bucket/key`); there is no switch for virtual-hosted style.
+  An empty `STORAGE_REGION` means `us-east-1`; a store that wants a fixed
+  region name (some use `auto`) needs that value in `STORAGE_REGION`.
 
 Bucket checklist:
 
