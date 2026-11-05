@@ -130,8 +130,9 @@ against ranges the platform owns, whatever the product. Two things are kept apar
   in `versions.yaml` at the root of the openctem repository, compiled into each API
   release, and changes only with an API upgrade.
 - **Availability** (the newest release) is information. The platform learns it from the
-  signed release feed, so a sensor or SDK release reaches the Sensors page and the install
-  commands within hours, with no platform release and no restart.
+  signed release feed, so a sensor, SDK or CI runner release reaches the Sensors page, the
+  install commands and the CI pipeline snippets within hours, with no platform release and
+  no restart.
 
 | Entry in `versions.yaml` | Effect in the platform |
 |---|---|
@@ -140,6 +141,8 @@ against ranges the platform owns, whatever the product. Two things are kept apar
 | `sdk.latest` | A sensor built with an older sdk-go shows "outdated" (no health effect). The feed raises it. |
 | `sdk.min` | A sensor of any product built with an older sdk-go is degraded with the reason `sdk_unsupported`. Empty today: it is raised only when a protocol change requires it. |
 | `sdk.advisories` | SDK releases with a published security advisory: a sensor built with one is degraded with a warning. |
+| `ci.latest` | The CI runner (openctemio/ci) release this platform release was built with. The pipeline snippets pin the newest known release and pipelines on an older runner show "update available". The feed can only raise it; `CI_RUNNER_LATEST_VERSION`, when set, wins. |
+| `ci.min` | The oldest CI runner the token exchange accepts: v0.4.0, the first runner that speaks CTIS 2.0. An older runner is refused (`RUNNER_OUTDATED`) and its pipeline is degraded. |
 
 The SDK checks apply to sensors built with sdk-go. Everything a sensor declares is
 untrusted input: it changes only what the organization sees. Authorization, grants, scope
