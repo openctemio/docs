@@ -41,6 +41,9 @@ Producers and the platform move together. Do not run a 2.0 platform with 1.x pro
 other way round: results sent in the wrong format are refused until the other side is upgraded.
 
 1. Read the release notes and take a backup (see [Backup and restore](backup-restore.md)).
+   Run the asset name dry run (below) and keep its counts. Review the sensor results held in the
+   results quarantine and accept or reject what is pending: an item stored from a 1.x sensor
+   cannot be accepted after the upgrade. Let the ingest queue drain.
 2. Stop or pause the producers that cannot be upgraded in the same window (scheduled uploads,
    scripts that call the ingest API, a connector you did not upgrade). Sensors queue their results
    and send them after they are upgraded, but a queued 1.x report is refused.
@@ -61,8 +64,12 @@ Minimum versions:
 - asset-collector: v0.3.0
 - sdk-go (for your own collectors and tools): v0.46.0
 - ai-worker: v0.1.0
-- TODO: openctem-ci: the release that follows the platform switch (expected v0.4.0)
-- TODO: platform release that carries the CTIS 2.0 switch: v?.?.?
+- openctem-ci: v0.4.0
+
+The platform release that carries the switch is v0.19.0 (v0.19.1 and later include it). Sensors
+and connectors older than these versions stay connected but show "version unsupported" in the
+console, and their results are refused. A sensor built on an sdk-go older than v0.46.0 shows
+"SDK unsupported".
 
 ## Data migration
 
@@ -73,6 +80,18 @@ The data migration runs automatically when the platform starts; there is nothing
   again by a 2.0 producer updates the existing one instead of creating a second one.
 - **Assets** get the canonical name of their type (for example a web origin is
   `scheme://host[:port]`).
+
+Asset names are moved by the server on its first start. To see what would change first, run the
+dry run, which prints counts only, on a copy of the database or read-only on production:
+
+```bash
+docker compose exec api asset-canonical
+```
+
+An asset is renamed, or merged into the asset of the same type that already has the canonical
+name (references move, findings are folded, triage is kept). An asset whose canonical name an
+asset of another type holds is left as it is and recorded. `asset-canonical -apply` runs it by
+hand; it is idempotent and writes one audit entry per changed organization.
 
 Allow extra time on the first start for a large installation, and watch the migration job log
 (see [Troubleshooting](troubleshooting.md)).
@@ -86,6 +105,12 @@ back:
 2. Restore the backup you took before the upgrade (see [Backup and restore](backup-restore.md)).
 3. Start the **previous** versions of the platform and of the sensors, together. The sensors and
    other producers go back to their 1.x releases as well.
+
+To undo the asset renames before going back, stop the new release and run
+`asset-canonical -revert` with its image: renames return to the old name, **merges are not
+undone**. Findings re-keyed in place are undone with `refingerprint -down -apply` (findings of
+kinds new in this release, created after the upgrade, have no older key and are reported again as
+new by the earlier release).
 
 Do not roll back the platform alone: the previous platform refuses 2.0 documents, and a rolled-back
 database no longer matches a 2.0 sensor.

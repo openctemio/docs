@@ -110,9 +110,6 @@ call CISA and FIRST".
 
 ## Feed relay: no outbound access from the platform
 
-{: .note }
-**Not in v0.18.0.** The feed relay (relay mode, the **Feed delivery** card and the install toggles below) is merged for the next release; v0.18.0 ships only the job signer's part (`SIGNER_FEED_ORIGINS`); the platform still fetches its feeds itself.
-
 A platform in an internal network can receive every feed through a **platform
 sensor** that has internet access (for example in a DMZ), so the platform itself
 needs no outbound access at all. The sensor is only a pipe for signed files: the
@@ -128,14 +125,14 @@ fetch, the online version check and the program feed's URLs (not relayed yet; th
 status lists it), so it makes no outbound feed request. The platform never falls
 back to fetching directly on its own: only an administrator changes the mode.
 
-**Defaults.** A new install with the bundled sensor starts in relay mode:
+**Defaults.** A new Docker Compose install with the bundled sensor starts in relay mode:
 the bundled sensor becomes the relay as soon as it enrolls. An existing
 installation keeps fetching directly until an administrator switches it.
 
 | Install | Toggle | Default |
 |---|---|---|
 | Docker Compose (`docker-compose.sensor.yml`) | the sensor-token step runs `bootstrap-admin sensor-token -feed-relay` | relay for a new install |
-| Helm chart `openctem` (0.38.0 and later) | `feedRelay.newInstallRelay` (passes `-feed-relay` to the enrollment Job), `sensor.feedRelay.enabled` (`false` sets `SENSOR_FEED_RELAY=0`), `sensor.feedRelay.origins` (extra origins, also added to the signer's `SIGNER_FEED_ORIGINS`) | relay for a new install |
+| Helm chart `openctem` | `feedRelay.newInstallRelay` (passes `-feed-relay` to the enrollment Job; `false` by default, set it to `true` together with `sensor.enabled` and a platform image that knows the flag), `sensor.feedRelay.enabled` (`false` sets `SENSOR_FEED_RELAY=0`), `sensor.feedRelay.origins` (extra origins, also added to the signer's `SIGNER_FEED_ORIGINS`) | direct unless `feedRelay.newInstallRelay=true` |
 | Installer kit (openctem-ansible) | `openctem_sensor_feed_relay_origins` (extra origins for the signer's `SIGNER_FEED_ORIGINS`); the kit installs no bundled sensor, so pair a platform sensor and designate it in the console | direct |
 
 The new-install switch never changes an existing installation: the platform
@@ -218,6 +215,21 @@ itself), or loads a signed offline bundle on the server
 Relay mode is not available while `VULNFEED_BUNDLE_DIR` is set (that directory
 stays the only source) or without a job signer. Direct fetch, a mirror and the
 bundle directory remain the other ways to receive the feeds.
+
+## Feeds through a corporate proxy
+
+Where the platform may call out only through an HTTPS proxy, set
+`OPENCTEM_HTTPSEC_FEED_PROXY` (`http://[user:password@]host:port` or `https://...`).
+It carries only the platform's own feed fetchers: vulnerability bundles, CISA KEV,
+EPSS, the CTEM-ID catalog, the public program feed and the release feed. Webhooks,
+integrations, identity providers and anything an organization configures never use
+it, and `HTTPS_PROXY` is not read. Only https destinations are proxied, with TLS
+end to end, and the destination is checked before the request reaches the proxy.
+List hosts to reach directly (an internal mirror) in
+`OPENCTEM_HTTPSEC_FEED_NO_PROXY`; a mirror on a private range also needs
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. The API refuses to start on a value that
+is not a proxy URL and never prints the password. See
+[Environment variables](../configuration/environment-variables.md).
 
 ## Feed status and Sync now
 

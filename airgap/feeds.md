@@ -23,7 +23,17 @@ All outbound calls of the platform go through an SSRF-guarded HTTP client. It
 **ignores `HTTPS_PROXY`** and **refuses private address ranges** unless the
 range is listed in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. A mirror on a private
 address, such as a Nexus raw proxy, therefore needs its range in that setting.
-There is no egress proxy support yet (see [known gaps](#known-gaps)).
+
+Where the only way out is a corporate HTTPS proxy, set
+`OPENCTEM_HTTPSEC_FEED_PROXY` (Ansible kit: `openctem_feed_proxy`). Only the
+platform's own feeds use it (vulnerability bundles, KEV, EPSS, the CTEM-ID
+catalog, the program feed and the release feed); anything an organization
+configures does not. `OPENCTEM_HTTPSEC_FEED_NO_PROXY` lists hosts reached
+directly, such as an internal mirror.
+
+For a platform with no outbound access at all, a platform sensor with internet
+access can relay the signed vulnerability feed and the release feed: see
+[Feed relay](../operations/feeds.md#feed-relay-no-outbound-access-from-the-platform).
 
 ## Feeds at a glance
 
@@ -35,8 +45,8 @@ There is no egress proxy support yet (see [known gaps](#known-gaps)).
 | Platform content packs | Platform admin | Admin upload | On upload | Packs not updated |
 | Scanner templates | Tenant sources | Internal git or S3 source (the private-range allowlist is needed) | not stated | Templates not updated |
 | Sensor scanner content (nuclei, Trivy, opengrep) | A local mirror reachable by the sensor | Sensor-side local mirror or directory | not stated | Sensor health shows stale content |
-| Release feed and version check | `VERSION_CHECK_URL`, `VERSION_CHECK_ENABLED` | Admin import: `POST /api/v1/admin/version-check/import` | On import | Newer versions are not learned |
-| CISA KEV and EPSS | Fixed internet URLs | **None** | | No KEV flags and no EPSS scores |
+| Release feed and version check | `VERSION_CHECK_URL`, `VERSION_CHECK_ENABLED` | Admin import: `POST /api/v1/admin/version-check/import`, or the feed relay | On import | Newer versions are not learned |
+| CISA KEV and EPSS | Fixed internet URLs | Carried as a signed side file of each vulnerability release: with the bundle source on (Console > System > Threat intelligence) and the direct fetch off, they arrive with the bundles from `VULNFEED_BUNDLE_DIR`, a mirror or the relay | With each vulnerability release | No KEV flags and no EPSS scores |
 | AI triage | Provider URLs are fixed | **None** | | AI triage unavailable |
 | Certificate transparency and RIPEstat (EASM) | Internet | **None**: internet-facing by nature | | Those EASM checks stop |
 | SMTP, Jira, chat, webhooks | Internal targets | Internal targets work (private-range allowlist) | | |
@@ -70,8 +80,25 @@ them. See [Vulnerability and program feeds](../operations/feeds.md).
 - **Content catalog.** Use the admin import endpoint with a bundle you verified
   and set `CONTENT_TRUST_ROOT_KEY_IDS`.
 - **Release information.** Use `POST /api/v1/admin/version-check/import`. The
-  release-feed keys are not pinned in the release yet, so verification of
-  imports is a known gap ([below](#known-gaps)).
+  release feed is signed keyless (Sigstore); the platform verifies it offline
+  with the trusted root built into its release and accepts only the release
+  workflow of the official repository. Releases before the one that introduced
+  this format cannot read the new file.
+- **KEV and EPSS.** They arrive inside the vulnerability bundle; no separate
+  import is needed.
+
+## Outbound hosts to allow
+
+The platform's own fetchers use HTTPS on port 443. Allow these at the firewall or
+the proxy, or replace them with a mirror, a relay or a local directory:
+
+| Host | Used for | Replaced by |
+|---|---|---|
+| `github.com`, `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Vulnerability bundles (the download redirects to the asset hosts), release feed | `VULNFEED_BASE_URL`, `VULNFEED_MIRRORS`, `VULNFEED_BUNDLE_DIR`, `VERSION_CHECK_URL`, the relay |
+| `www.cisa.gov`, then `raw.githubusercontent.com` | CISA KEV | The signed bundle |
+| `epss.empiricalsecurity.com` | EPSS | The signed bundle |
+| `ctem.org` | CTEM-ID catalog | None yet; the catalog stays at the shipped version |
+| Your `PROGRAMFEED_URL` host | Public program feed | `PROGRAMFEED_DIR` |
 
 ## Keep the data fresh
 
@@ -84,11 +111,9 @@ them. See [Vulnerability and program feeds](../operations/feeds.md).
 
 These are follow-ups, not built:
 
-- Import of KEV and EPSS data (a file setting and an admin upload).
-- Egress proxy support for the guarded client.
 - A configurable base URL for an AI provider (an on-premises model).
 - Serving the API reference page's script locally.
-- Release-feed and content-root keys pinned in the release.
+- Content-root keys pinned in the release.
 - Platform alerts when KEV, EPSS or vulnfeed data goes stale.
 - An upload endpoint for the programfeed.
 

@@ -20,6 +20,7 @@ with breaking changes has its own upgrade guide; read it first.
 | From | To | Guide |
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
+| v0.18.x | v0.19.0 and v0.19.1 | [From v0.18 to v0.19](#from-v018-to-v019) below: CTIS 2.0 only (upgrade sensors, connectors and CI together), stored findings and asset names are re-keyed on start, the audit log is chained by the database, the release feed is signed keyless, the feed relay and feed proxy are optional. |
 | v0.17.x | v0.18.0 | [From v0.17 to v0.18.0](#from-v017-to-v0180) below: `PLATFORM_CA_CERT_FILE` replaces the API's `SENSOR_CA_CERT_FILE`, `DB_MAX_IDLE_CONNS` defaults to `DB_MAX_OPEN_CONNS`, stage streaming on by default, the CTEM-ID catalog table and download are removed, an organization maximum API key lifetime (90 days), sign-in sessions from another organization's identity provider are narrowed. |
 | v0.15.x | v0.15.6, v0.16.x and v0.17.0 | [From v0.15 to v0.17](#from-v015-to-v017) below: a new migration runner (takes over on its first run; roll back the API, never the migration job), the platform version comes from the release tag, no `admin-cli` image, the vulnerability feed moves to `openctemio/vulnfeed-bundles`, a database role script re-run with `DB_ADMIN_USER`, queued sensor segments sealed at rest. |
 | v0.12.x | v0.13.0 to v0.15.5 | [From v0.12 to v0.15.5](#from-v012-to-v0155) below: audit archives move to the storage provider, API contract changes (ingest answers 202, strict findings filters, task versions), SAML and OIDC provider requirements, retired scan and rule source features, per-integration webhook URLs. |
@@ -66,6 +67,51 @@ together. Then check:
 
 See [Ingesting results](../api/ingest.md).
 
+### From v0.18 to v0.19
+
+v0.19.0 has 8 migrations and v0.19.1 none. None drops a customer table. Take a backup first
+([Backup and restore](backup-restore.md)). Read this list, then follow
+[Migrating to CTIS 2.0](ctis-2-migration.md) for the window.
+
+- **CTIS 2.0 only.** The platform refuses every CTIS 1.x document on every path (sensor results,
+  CI uploads, finding imports, DefectDojo syncs). There is no compatibility layer. Upgrade the
+  sensors to v0.36.0 or later, the Tenable connector to v0.2.0, the asset collector to v0.3.0 and
+  `openctem-ci` to v0.4.0 together with the platform; older sensors stay connected but show
+  "version unsupported" and their results are refused. A CI upload is the document itself: the
+  `{"report": ...}` envelope is refused with `400`. A saved import mapping of version 1 must be
+  re-saved.
+- **Stored data is rewritten on the first start.** Asset names move to their CTIS 2.0 canonical
+  form (renames, or merges into the asset that already has the name; renames can be undone with
+  `asset-canonical -revert`, merges cannot; `asset-canonical` without flags is a dry run). Findings
+  are re-keyed to fingerprint recipe v2 in place, one API replica at a time, with scan auto-resolve
+  paused per organization meanwhile. After the upgrade the log shows one
+  `finding re-key on start finished` line with `incomplete=0`.
+- **Audit log.** The database now chains every audit row and refuses `UPDATE` and `TRUNCATE` of the
+  log. Deleting an account or organization keeps the ids in its audit rows.
+- **Release feed.** The release feed is signed keyless (Sigstore) in a new format. An instance
+  older than v0.19.0 cannot read it and keeps the sensor and SDK versions built into its release.
+  No key to configure.
+- **Modules.** Settings > Modules no longer lists switches that gated nothing (for example Risk
+  Analysis, SBOM Export, Scan Profiles, Business Impact, Crown Jewels). Risk scoring and
+  suppressions are always on: an organization that had switched Suppressions off has its approved
+  suppression rules set to expired by the migration and must approve them again. AI triage stays
+  off for an organization that had switched it off (its AI settings now hold the choice).
+- **Feeds.** Optional: `OPENCTEM_HTTPSEC_FEED_PROXY` and `OPENCTEM_HTTPSEC_FEED_NO_PROXY` send the
+  platform's own feed downloads through a corporate proxy, and the feed relay lets a platform
+  sensor fetch them so the platform needs no outbound access
+  ([feeds](feeds.md)). An existing installation keeps direct delivery until an administrator
+  selects relay mode. Backups may skip the `feed_relay_files` table.
+- **E-mail.** The platform mail server accepts an internal CA certificate
+  (**Settings > E-mail**, `BOOTSTRAP_SMTP_CA_FILE` for `bootstrap-admin`), a failed test e-mail
+  names its cause, and the test is limited to 5 per minute per administrator. Transactional
+  e-mails are sent in English or Vietnamese by the recipient's language.
+- **Active scanning.** A new named feature `active_scanning` lets a hosted control plane deny
+  active scans per organization; self-hosted installations are unaffected (allowed unless denied).
+- **Step-up.** A step-up code can be used once per time step: a second use answers
+  `403 STEP_UP_CODE_USED`. Scripts that reuse one code for several privileged calls must wait for
+  the next code.
+- **Logs.** Request log lines carry `user_id` and `tenant_id` (or `admin_id`) once authenticated.
+
 ### From v0.17 to v0.18.0
 
 v0.18.0 has 24 migrations. One drops a table (`ctem_id_catalog`, a downloaded copy of public
@@ -105,7 +151,7 @@ and indexes, and need no maintenance window. What an operator or an API client h
   address. Names behind a shared CDN edge are still promoted.
 - New optional settings: `AUTH_REFRESH_REUSE_GRACE` (default 30 s: parallel requests that present
   a just-rotated refresh token get its successor instead of ending the session) and, for the job
-  signer, `SIGNER_FEED_ORIGINS` (only for a feed relay, which v0.18.0 does not run yet).
+  signer, `SIGNER_FEED_ORIGINS` (only for a feed relay, which arrives in v0.19.0).
 
 ### From v0.15 to v0.17
 
