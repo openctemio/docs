@@ -7,6 +7,8 @@ nav_order: 7.8
 # Security notes for sensors
 {: .no_toc }
 
+See how it works: [Sensor and platform trust](../how-it-works/sensors/trust.md), [Confined tool run](../how-it-works/sensor-execution/sandbox.md).
+
 A sensor sits inside your network and runs scanners against it. This page
 lists what protects that network from the sensor, the sensor from the
 platform, and both from a third party, and what you have to set for each.

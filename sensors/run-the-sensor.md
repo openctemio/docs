@@ -7,6 +7,8 @@ nav_order: 0.5
 # Run the sensor
 {: .no_toc }
 
+See how it works: [Confined tool run](../how-it-works/sensor-execution/sandbox.md), [Result delivery and local retention](../how-it-works/sensor-execution/result-delivery.md).
+
 The complete guide to running the OpenCTEM sensor in Docker: from the first
 prerequisite to troubleshooting. For the settings behind it see
 [Deploy with Docker](deploy-docker.md) and the [settings reference](settings.md).

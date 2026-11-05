@@ -6,6 +6,8 @@ nav_order: 6
 
 # Network requirements and egress
 
+See how it works: [Egress check on every connection](../how-it-works/sensor-execution/egress.md), [Host local policy](../how-it-works/sensors/local-policy.md).
+
 A sensor only makes outbound connections. It needs no inbound port, no VPN
 and no route from the platform into your network.
 

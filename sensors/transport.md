@@ -7,6 +7,8 @@ nav_order: 7
 # Sensor transport: gRPC, HTTPS and v2
 {: .no_toc }
 
+See how it works: [Sensor identity and heartbeat](../how-it-works/sensors/identity-heartbeat.md).
+
 A paired sensor reaches the platform in one of three ways and picks the best
 one by itself. Nothing has to be configured on the sensor. On the platform,
 gRPC on port 443 needs one Compose override; everything else works as installed. Which setup gives which transport is summarized in

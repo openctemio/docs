@@ -7,6 +7,8 @@ nav_order: 7.4
 # Tool settings
 {: .no_toc }
 
+See how it works: [Tool settings to command line](../how-it-works/sensor-execution/tool-command-line.md).
+
 Each tool a sensor runs declares its options: how fast it may go (rate,
 concurrency), how long it waits (timeout, retries) and tool-specific choices.
 You set them **per organization** (defaults for every sensor) and **per
