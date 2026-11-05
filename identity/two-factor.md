@@ -18,7 +18,9 @@ identity provider's. The platform admin console has its own second step, which i
 In **Settings > My account > Security**:
 
 1. Next to **Two-factor authentication**, select **Set up**. Scan the QR code (or enter the secret)
-   in your authenticator app.
+   in your authenticator app. The entry is labeled with the host of your installation, for example
+   `OpenCTEM (app.example.com)`, so entries of two installations can be told apart. Entries made
+   before keep their label; nothing needs re-enrolling.
 2. Enter your current password and a code from the app.
 3. Save the **10 recovery codes** shown. Each works once. They are shown only now.
 
@@ -46,7 +48,7 @@ Every screen that asks for a code (sign-in, set-up, step-up, self-approvals, the
 uses the same field:
 
 - The six digits show in separate boxes, but it is one field: paste the whole code (spaces or dashes
-  are ignored), or let your phone or password manager fill it in.
+  are ignored, so `123-456` works), or let your phone or password manager fill it in.
 - When the code is the last thing the screen asks for, it is sent as soon as the sixth digit is in;
   otherwise select the button.
 - A refused code is cleared so you can type the next one; wait for the app to show a new code rather
@@ -189,7 +191,8 @@ The admin console has its own sign-in on its own site: email and password (or th
 provider, see [OIDC](sso-oidc.md#platform-administrator-sign-in)), then a second step every time.
 There is no way to turn it off.
 
-- **Authenticator app.** Every administrator enrols a TOTP authenticator at first sign-in.
+- **Authenticator app.** Every administrator enrols a TOTP authenticator at first sign-in. A new
+  entry is labeled `OpenCTEM Admin (admin.example.com)`, the host of `ADMIN_PUBLIC_URL`.
 - **Security keys and passkeys** (**My security keys** in the console, under Security). The console
   offers them before the authenticator code. A key is bound to the console's own origin
   (`ADMIN_PUBLIC_URL`; changing the host makes registered keys unusable). Register at least two keys
@@ -243,7 +246,15 @@ toward the account lockout; the step-up endpoint is limited to 5 attempts per mi
 API: `GET /api/v1/auth/step-up` tells which proof the account needs; `POST /api/v1/auth/step-up` with
 `{"totp": "123456"}` or `{"password": "..."}` opens the window. Protected routes answer
 `403 STEP_UP_REQUIRED` (with `window_seconds`) outside the window, and `403 STEP_UP_UNAVAILABLE` for
-callers that cannot step up, such as API keys.
+callers that cannot step up, such as API keys. A wrong code or password answers `403 STEP_UP_FAILED`.
+A code from a time step that was already used answers `403 STEP_UP_CODE_USED`: it is still refused and
+counted towards the lockout, and the next code works. An authenticator secret that cannot be read is
+a server error, not a wrong code, and does not count towards the lockout. The confirm dialog sends
+each code once and words a wrong code, a used code and too many attempts differently.
+
+Every failed step-up is audited as `auth.step_up_failed` with the reason (`invalid_code`,
+`replayed_code`, `invalid_password`, `account_locked`, `no_totp_factor`, `decrypt_error` or
+`rate_limited`), never the code. A rate-limited step-up is audited once a minute per person.
 
 The engineering reference is
 [step-up-reauth.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/step-up-reauth.md).

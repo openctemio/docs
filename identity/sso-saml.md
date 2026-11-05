@@ -95,9 +95,6 @@ Signature validation, conditions and replay checks are done by an established SA
 
 ## Microsoft Entra ID in 5 steps
 
-{: .note }
-**Not in v0.18.0.** This walkthrough (with **Download SP metadata (XML)**) and **Import from metadata**, with up to five IdP signing certificates in the configuration above, is merged for the next release; v0.18.0 does not have it yet.
-
 1. **Download our metadata.** In the organization's **Single sign-on** tab, SAML card, select
    **Download SP metadata (XML)**. Set `APP_URL` on the API first; the file is built on it.
 2. **Create the Entra application.** Microsoft Entra admin center > **Enterprise applications** >

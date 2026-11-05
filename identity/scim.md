@@ -60,6 +60,11 @@ members (v0.18.0 and later): creating or replacing a group and both member patch
 id as if it were unknown, so a SCIM client cannot use a group to probe for, or pre-assign roles to,
 accounts outside the organization. If the membership lookup fails, the change is refused.
 
+SCIM is a plan feature. When an organization does not have it, creating users, reading and group
+changes are refused, but removing people still works: `DELETE`, `PUT` and `PATCH` on a user pass, and
+the handler accepts only an outcome that removes access (`active:false`, or a delete). `active:true` is
+refused with `403`. A leaver is therefore deprovisioned even after the feature was lost.
+
 The organization's IP allowlist does not apply to SCIM requests (the caller is the identity
 provider's service); the token is the boundary.
 

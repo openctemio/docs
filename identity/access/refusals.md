@@ -11,6 +11,22 @@ When a change to roles, teams or members is refused, the console shows a sentenc
 rule applied. The sentence comes with a code, which is also what the API returns (`403` with
 `"code"`). Use the table to find the cause and the fix.
 
+## A page you may not open
+
+A page the signed-in person may not open shows a notice with the page's name and the missing
+permission by its id (for example "You need the permission `audit:read`."). It also says which
+built-in roles hold the permission ("Owners and administrators have it.", "Every built-in role has
+it.", "Only the owner has it among the built-in roles.", or that no built-in role has it and a custom
+role can grant it), and that an owner or administrator can give it through a role. When the cause is
+a module that is turned off, it says to ask an administrator to turn it on. The notice is shown in
+English and Vietnamese.
+
+The notice is display only: the API decides every request, and a read inside a page that is refused
+shows the same notice. A protected page does not load its data before the check, so a person without
+the permission causes no refused requests (each one is a refused-action row in the audit log).
+
+## Refusals when you change something
+
 | Message (code) | Cause | What to do |
 |---|---|---|
 | "Confirm your identity to continue, then try again." (`STEP_UP_REQUIRED`) | The action is sensitive and your session has not proved who you are in the last 10 minutes. | The console opens a dialog: enter your authenticator code (or your password if you have no authenticator, or sign in again if you use SSO). The action is then retried once automatically. |

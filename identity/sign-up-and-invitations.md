@@ -25,9 +25,12 @@ account is written. A person with a pending invitation, or on an organization's 
 admitted. In the open and domain modes, disposable email addresses cannot sign up.
 
 Registering creates an account only. A signed-in account that belongs to no organization sees its
-options (the onboarding page): its pending invitations, the organization that claims its verified
+options at `/welcome` (the account space): its pending invitations, the organization that claims its verified
 email domain (**Join** or **Ask to join**, then **Waiting for approval**), and a form to create an
-organization when the installation allows it. Offers carry no organization id or slug.
+organization when the installation allows it ("Create an organization" appears only when the sign-up
+policy allows it for the person; on a self-hosted installation by default the page says to ask an
+administrator). The same page links to profile, security, sessions, sign-in methods and preferences,
+and sign out, rendered without the organization sidebar. Offers carry no organization id or slug.
 
 Public sign-in endpoints answer the same way whether or not an email has an account, so they cannot
 be used to find out who is registered. Registering again with an address whose password was never
@@ -164,7 +167,9 @@ owner receives a one-time link to set a password (emailed when the installation 
 once otherwise). For an owner email that already has an account, nobody becomes the owner of an
 organization they did not ask for: the organization is created with no owner and that person gets an
 [ownership invitation](../console/organizations-and-users.md#ownership-invitations), which they accept
-(confirming their identity) or decline in the app. From then on the owner and their admins invite or create users; the platform administrator cannot
+or decline in the app (**My account**, or the page the e-mail links to). Accepting needs a recent
+re-authentication and a verified e-mail address. The invitation lasts 7 days and can be sent again at
+most 5 times, 10 minutes apart. Nobody becomes an owner without accepting. From then on the owner and their admins invite or create users; the platform administrator cannot
 add further users to an organization that has an owner. The installation command
 `bootstrap-admin -org-name ... -org-owner-email ...` may name an existing account, including the
 installing administrator (never the break-glass one).
