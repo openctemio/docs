@@ -116,6 +116,20 @@ run exists, for example `NO_TARGETS`, `ALL_TARGETS_EXCLUDED`,
 `TOOL_DISABLED`, `WILDCARD_TARGET`, `MAX_CONCURRENT_RUNS` or
 `SCAN_WINDOW_NEVER_OPENS`. **Run now** shows the reason with a fix.
 
+{: .note }
+From v0.20.0, a scan runs as far as your tools and sensors support. A step whose
+tool is not installed, is switched off, has no sensor, or whose capability no
+tool implements is no longer a reason to refuse the scan or the run. At run
+time the step is skipped with its reason and a code (`NO_MATCHING_TOOL`,
+`TOOL_NOT_INSTALLED`, `TOOL_DISABLED` or `NO_SENSOR_FOR_TOOL`, required or
+optional), the steps that need its results are skipped as `DEPENDENCY_SKIPPED`,
+the other steps run, and the run ends `partial`. Saving or activating a scan or
+workflow is no longer refused for these reasons (`WORKFLOW_NOT_RUNNABLE` is
+removed). Only a trigger in which no step can run is refused, as a blocked run
+with `NO_RUNNABLE_STEPS` that names the missing steps and why. Scope, intensity
+and approval checks still refuse a run. The run API lists each step's
+`skip_reason`.
+
 The whole path of a run, from the trigger to its final status:
 
 ```mermaid
@@ -313,6 +327,33 @@ targets. The API returns them per task as `egress_refused_targets` and
 needs sensor v0.22.0 or later. The per-target guard count needs sensor
 v0.22.2 or later: up to v0.22.1 the guard refuses the whole task on
 its first refused target, and the task fails.
+
+### Hosts not fully covered
+
+A sensor scans each host politely: it starts at a modest request rate, lowers
+it when the host answers slowly or pushes back (a `429`, a `503`, or a
+connection reset from a host that had answered), and stops sending to a host
+that keeps failing. A host it could not cover in full is a **coverage gap**,
+not a failed scan. The task completes, the run is `partial`, and the step
+reads **Completed with N hosts not fully covered**. **Coverage gaps** in the
+task panel names each host and the reason:
+
+| Reason | Meaning |
+|---|---|
+| blocked the scan | The host answered with a block, such as a run of `403` responses. |
+| blocked or challenged by edge protection | A CDN or WAF answered in place of the service, or asked the scanner to prove it is a browser. The vendor is named when known. |
+| kept rate-limiting the scan | The host kept pushing back even at the lowest rate, or asked to wait longer than a connection can be held. |
+| failed every request | The host did not answer or reset the connections, so the sensor stopped connecting to it. The panel adds what the sensor found when it checked again: no answer, connection refused, a TLS handshake that fails, a host that accepts connections and resets them, or one that answered on the recheck. |
+| the scan's proxy failed | The [proxy pool](../sensors/proxies.md) could not carry the connections. |
+| not fully covered | Any other reason. |
+
+A host that is not covered stays not covered until a later scan reaches it,
+and no finding is closed because of it. If the host or its firewall blocks
+the scanner, allow the scanner addresses there and scan again. For a host
+that completed a TLS handshake, the run also reports the certificate problem
+it saw (expired, name mismatch, not yet valid, self-signed). A reset from a
+host that has already answered only slows the scan; the sensor stops sending
+only after 20 resets in a row with no answer between them (sensor v0.37.0).
 
 ![A completed scan run: findings, tasks, duration, stages and the task timeline]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
 *Figure: A completed run: each stage with its tool, inputs and planned targets, and the timeline of its tasks.*

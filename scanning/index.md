@@ -109,6 +109,20 @@ needs the `scans:write` and `scans:execute` permissions.
 | The target is routed to a zone with sensors | Uncovered targets are skipped and listed |
 | Enough time is left before the run's deadline for the step's tool | The step is not started (`DEADLINE_TOO_CLOSE`) |
 
+{: .note }
+From v0.20.0, the sensor and tool rows above no longer refuse the whole scan: a scan runs as far as your tools and sensors support. A step whose
+tool is not installed, is switched off, has no sensor, or whose capability no
+tool implements is no longer a reason to refuse the scan or the run. At run
+time the step is skipped with its reason and a code (`NO_MATCHING_TOOL`,
+`TOOL_NOT_INSTALLED`, `TOOL_DISABLED` or `NO_SENSOR_FOR_TOOL`, required or
+optional), the steps that need its results are skipped as `DEPENDENCY_SKIPPED`,
+the other steps run, and the run ends `partial`. Saving or activating a scan or
+workflow is no longer refused for these reasons (`WORKFLOW_NOT_RUNNABLE` is
+removed). Only a trigger in which no step can run is refused, as a blocked run
+with `NO_RUNNABLE_STEPS` that names the missing steps and why. Scope, intensity
+and approval checks still refuse a run. The run API lists each step's
+`skip_reason`.
+
 Then, when a sensor claims the work, the scope is checked again, and on the
 sensor its grant, its sensor-local policy and its target guard apply. A
 queued task can still wait for free hosts or a free sensor: see

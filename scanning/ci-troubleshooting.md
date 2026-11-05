@@ -99,10 +99,10 @@ The platform refuses a CI runner below the minimum CI runner release
 (`CI_RUNNER_MIN_VERSION`, v0.3.0 by default from platform v0.9.6). The
 message names the runner's version, the minimum and the line to pin:
 
-- GitHub: `uses: openctemio/ci/.github/workflows/scan.yml@v0.3.0`, or
-  `openctemio/ci@v0.3.0`;
-- GitLab: `- remote: https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml`;
-- other CI systems: `ghcr.io/openctemio/ci:v0.3.0`.
+- GitHub: `uses: openctemio/ci/.github/workflows/scan.yml@{{ site.data.versions.ci }}`, or
+  `openctemio/ci@{{ site.data.versions.ci }}`;
+- GitLab: `- remote: https://raw.githubusercontent.com/openctemio/ci/{{ site.data.versions.ci }}/gitlab/templates/all.yml`;
+- other CI systems: `ghcr.io/openctemio/ci:{{ site.data.versions.ci }}`.
 
 See [Reference](ci-reference.md#versions-to-pin).
 
