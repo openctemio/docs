@@ -7,6 +7,8 @@ nav_order: 4.5
 # Vulnerability and program feeds
 {: .no_toc }
 
+See how it works: [Feed build and signing](../how-it-works/vulnerability-intel/feed-build.md), [Feed delivery](../how-it-works/vulnerability-intel/feed-delivery.md), [KEV and EPSS updates](../how-it-works/vulnerability-intel/kev-epss.md).
+
 Two public feeds give the platform data it never collects itself. Nothing is
 installed on your hosts: the platform downloads a signed bundle (or reads
 one you copied to it), verifies it against a key you pin, and imports it.

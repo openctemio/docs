@@ -6,6 +6,8 @@ nav_order: 6
 
 # Prioritization
 
+See how it works: [Priority from threat intelligence](../how-it-works/vulnerability-intel/priority.md), [KEV and EPSS updates](../how-it-works/vulnerability-intel/kev-epss.md).
+
 **CTEM stage 3.** After Scoping and Discovery comes the most important question:
 **of the hundreds of open findings, which must be fixed first?** There are almost
 always more findings than capacity to fix them, so ranking by CVSS alone is not

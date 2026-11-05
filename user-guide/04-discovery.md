@@ -6,6 +6,8 @@ nav_order: 4
 
 # Discovery and the asset inventory
 
+See how it works: [Attack surface flows](../how-it-works/attack-surface/index.md).
+
 **CTEM stage 2.** Discovery finds what is actually out there: your assets, the
 software they run and the exposures on them. It is driven by **scans**, run by
 **sensors**, and by integrations and imports; it produces **assets** and

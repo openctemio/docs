@@ -6,6 +6,8 @@ nav_order: 6
 
 # Attack surface monitoring
 
+See how it works: [Attack surface flows](../how-it-works/attack-surface/index.md), [Discovery depth](../how-it-works/attack-surface/discovery-depth.md), [Attack surface decisions](../how-it-works/attack-surface/decisions.md), [Dangling DNS](../how-it-works/attack-surface/dangling-dns.md).
+
 Attack surface monitoring (EASM) keeps track of your internet-facing names
 and what is wrong with them:
 

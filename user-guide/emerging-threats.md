@@ -6,6 +6,8 @@ nav_order: 6.5
 
 # Emerging threats
 
+See how it works: [Emerging threat alerts](../how-it-works/vulnerability-intel/emerging-threat-alerts.md).
+
 **Emerging threats** (`/emerging-threats`, in the sidebar under
 **Prioritization**) answers one question: does this new vulnerability hit us?
 It lists the vulnerabilities that were just published or just became exploited
