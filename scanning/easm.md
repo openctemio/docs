@@ -358,24 +358,31 @@ still need a person. Its **Waiting for your decision** section has:
 - **Addresses your in-scope names resolve to.** Adding them scans every port
   of those addresses; today only the names are scanned. A name never makes
   an address yours, so add only addresses you know are yours. The card
-  groups them:
-  - **Network unknown for N: check they are yours**;
-  - **Shared, not offered**: CDN, CDN edge range, shared hosting (names of 3
+  groups them by network, one decision per group:
+  - **Your prefix**: inside a prefix your network seed announces; **Add
+    range** adds the prefix as one entry;
+  - **Your network** and other known networks (AS and holder), each with
+    **Add N addresses** and **Not ours**; a network you have not declared
+    asks **Is this network yours?** (**Yes** records it as a network seed,
+    **No** marks it not yours and is not asked again);
+  - a /24 or /48 block when the network is not known yet ("No network data
+    yet": the weekly network lookup fills it in);
+  - **No decision needed**: CDN, CDN edge range, shared hosting (names of 3
     or more domains point there), another organization's network or a
-    provider network. These are never offered as scope entries (you can
-    still put such an address out of scope, see
-    [CDN and edge addresses](#cdn-and-edge-addresses));
-  - **Your own network**: **Add {prefix}** for your network seeds;
-  - **Already get low-impact checks (add to scope for a full scan)**.
+    provider network, and addresses that already get low-impact checks. A
+    shared address is never part of a bulk add; **Add anyway** adds one on
+    its own (you can also put such an address out of scope, see
+    [CDN and edge addresses](#cdn-and-edge-addresses)).
 
-  Each address shows the open ports seen and its other names, and an
-  ownership assessment (high, medium, low or unknown) with its evidence: your
+  Each group shows its count, the names behind it and its evidence (your
   network seeds, the network holder, the reverse name, how many of your names
-  point at it and for how long, and blockers such as a brand-new address. The
-  strongest come first. Nothing is added to scope on its own
-  (`GET /api/v1/easm/suggestions`). Actions: **Add
-  N to scope**, **Not ours** (never scanned or suggested again, until undone
-  on the asset), **Not now**, and **Undo**.
+  point at it and for how long, and blockers such as a brand-new address).
+  Select addresses across groups for **Add selected** or **Not ours**, or use
+  **Add all**. Every action lists exactly what changes before it runs, goes
+  through your approval rules, is audited, and has an **Undo**. The server
+  accepts only addresses that are on your own card
+  (`POST /api/v1/easm/suggestions/addresses/add`, `/addresses/reject`,
+  `/networks/ours`, `/networks/not-ours`).
 - **Assets you confirmed that are not in scope**: confirmed before
   confirming added a scope entry, so scans skip them; add their exact
   entries to scan them.

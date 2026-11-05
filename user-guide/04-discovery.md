@@ -616,18 +616,20 @@ entry; addresses are never added because a name points at them.
 - **Waiting for your decision** opens with the card **N addresses your
   in-scope names resolve to**. Adding them scans every port of those
   addresses; a name never makes an address yours, so add only addresses you
-  know are yours. The card shows **Network unknown for N: check they are
-  yours**, **Shared, not offered** (CDN, CDN edge range, shared hosting where
-  names of 3 or more domains point, another organization's or a provider's
-  network), **Your own network** with **Add {prefix}**, and **Already get
-  low-impact checks (add to scope for a full scan)**, each address with its
-  open ports and other names. Each address also carries an ownership
-  assessment (high, medium, low or unknown) from your network seeds, the
-  network holder, the reverse name, how many of your names point at it and for
-  how long; the strongest are listed first. Nothing is added automatically.
-  Actions: **Add N to scope**, **Not ours** (never scanned or suggested
-  again, until undone on the asset), **Not now** and **Undo**. A second card
-  lists assets you confirmed that are not in scope.
+  know are yours. The card groups them by network: **Your prefix** (with
+  **Add range**), **Your network**, a known network, or a /24 or /48 block
+  when the network is not known yet; each group shows its count, the names
+  behind it and its evidence, with **Add N addresses** and **Not ours**.
+  Select addresses across groups for **Add selected**, or use **Add all**;
+  every action lists what changes before it runs, and has an **Undo**.
+  **Is this network yours?** is asked once per network: **Yes** records it
+  as a network seed (its strong addresses are then added automatically,
+  through your approval rules), **No** marks it not yours and is not asked
+  again. Shared addresses (CDN, edge, hosting, provider, another
+  organization's network) are listed under **No decision needed**; one can
+  be added with **Add anyway**. A second card lists assets you confirmed
+  that are not in scope. See
+  [Decisions](../how-it-works/attack-surface/decisions.md#one-decision-per-network).
 - The list below (views **Awaiting a decision** and **Not ours**) shows each
   name with its state, confidence, why it may be yours (under a verified
   domain, under a domain you listed, a target you scanned, found by one of
