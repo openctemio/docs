@@ -176,7 +176,7 @@ erDiagram
   `evidence_version`. Findings on one issue are linked through issue groups rather
   than merged; the earliest finding is the original.
 - An **exposure event** is one attack-surface change on an asset, with a state
-  (active, resolved, accepted, false positive) and first and last sightings.
+  (active, in progress, resolved, accepted, false positive) and first and last sightings.
 - **Components** are packages in the **software catalog**. A package is a row of
   `software_products` identified by a purl, a version is a row of
   `software_versions`, and which asset uses which version, from which manifest
