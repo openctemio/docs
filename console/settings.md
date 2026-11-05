@@ -220,6 +220,15 @@ critical and is sent to every administrator. The **Configuration** overview link
 both this and the organization mail setting to their pages. See
 [The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor).
 
+## Leaked credentials
+
+**Leaked credentials** (from v0.20.0) is the platform default for whether the
+values of leaked secrets are kept; each organization can choose for itself in its
+own Settings. Changing it needs a super admin with a fresh confirmation and a
+reason. While it is unset, values are kept on a self-managed install and not kept
+on a managed service (`MANAGED_SERVICE`). Turning it off keeps only the masked
+form, the type and the fingerprint of new imports; values already kept stay.
+
 ## Announcements
 
 **Announcements** publishes a one-line notice (**Information**, **Maintenance** or

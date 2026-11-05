@@ -17,7 +17,14 @@ the console warns about it.
 
 {: .note }
 > Secret delivery to sensors is being redesigned. This page describes what the
-> current release does.
+> current platform release (v0.20.2) does. Sensor v0.38.0 and later are ready for
+> the redesigned delivery (sealed, per task, from the platform) and ask for it,
+> but no platform release serves it yet. On such a sensor, subfinder no longer
+> reads the provider configuration in the sensor user's home directory: its keys
+> come from the task or, on an organization's own sensor, from keys its operator
+> configured for the sensor, so keys left in that directory are no longer used.
+> Sensor v0.37.x still reads keys on the host as described
+> below.
 
 1. TOC
 {:toc}

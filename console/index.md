@@ -162,8 +162,12 @@ your roles allow.
 
 By default (`ADMIN_ELEVATION=required`) every administrator acts as read-only
 after sign-in. To change anything, click **Elevate**, choose one of your **Roles** and a duration (**For**, 15 to 60 minutes), give a reason and
-confirm. The banner shows **Acting as {role} until {time}**; **End now** returns
-to read-only. Elevating needs a fresh authenticator code or security-key
+type your authenticator code, all in one dialog (from v0.20.0 no second "Confirm it is you"
+dialog opens on top; a wrong code shows under the code field, and an administrator with a
+security key can leave the code empty and confirm with the key). From v0.20.0 the state is a
+compact control in the header row with the role and the end time, and **End now** returns
+to read-only (before, a full-width banner read **Acting as {role} until {time}**).
+Elevating needs a fresh authenticator code or security-key
 confirmation given within the last minute (an earlier step-up does not count);
 that proof also opens the step-up window, so the first protected action after
 elevating asks for no second code. Every elevation is written to the admin

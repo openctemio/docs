@@ -22,6 +22,7 @@ with breaking changes has its own upgrade guide; read it first.
 | From | To | Guide |
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
+| v0.19.x | v0.20.0, v0.20.1 and v0.20.2 | [From v0.19 to v0.20](#from-v019-to-v020) below: no migration, leaked-secret fingerprints re-keyed per organization on start, a scan runs as far as your tools and sensors support, the sensor release line moves to v0.38. |
 | v0.18.x | v0.19.0 and v0.19.1 | [From v0.18 to v0.19](#from-v018-to-v019) below: CTIS 2.0 only (upgrade sensors, connectors and CI together), stored findings and asset names are re-keyed on start, the audit log is chained by the database, the release feed is signed keyless, the feed relay and feed proxy are optional. |
 | v0.17.x | v0.18.0 | [From v0.17 to v0.18.0](#from-v017-to-v0180) below: `PLATFORM_CA_CERT_FILE` replaces the API's `SENSOR_CA_CERT_FILE`, `DB_MAX_IDLE_CONNS` defaults to `DB_MAX_OPEN_CONNS`, stage streaming on by default, the CTEM-ID catalog table and download are removed, an organization maximum API key lifetime (90 days), sign-in sessions from another organization's identity provider are narrowed. |
 | v0.15.x | v0.15.6, v0.16.x and v0.17.0 | [From v0.15 to v0.17](#from-v015-to-v017) below: a new migration runner (takes over on its first run; roll back the API, never the migration job), the platform version comes from the release tag, no `admin-cli` image, the vulnerability feed moves to `openctemio/vulnfeed-bundles`, a database role script re-run with `DB_ADMIN_USER`, queued sensor segments sealed at rest. |
@@ -68,6 +69,35 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.19 to v0.20
+
+v0.20.0, v0.20.1 and v0.20.2 add no migration and no required setting. Take a backup first
+([Backup and restore](backup-restore.md)). The point releases carry fixes only.
+
+- **Leaked-secret fingerprints are keyed per organization.** The fingerprint of a leaked
+  credential's secret used one install-wide key, so the same password leaked for two
+  organizations had the same fingerprint. It is now an HMAC under a key derived from
+  `APP_ENCRYPTION_KEY` and the organization. Stored fingerprints are re-keyed on every start
+  (idempotent, in batches, recomputed from the sealed value; no schema change). Nothing to do;
+  to rehearse, run `encrypt-credentials -dry-run` on a restored backup, and to go back to an
+  older build stop the new servers and run `encrypt-credentials -revert-credential-fingerprints`.
+- **A scan runs as far as your tools and sensors support.** Creating or saving a scan or a
+  workflow is no longer refused for a missing tool or sensor (`WORKFLOW_NOT_RUNNABLE` is
+  removed). At run time the step is skipped with a reason and a code, and the run ends
+  `partial`. Scripts that read the old refusal codes must read the skip codes instead
+  ([Partial runs](../how-it-works/scans/partial-runs.md)).
+- **Organizations choose whether leaked secret values are kept** (Settings > Leaked
+  credentials; platform default under System in the console). Unset, a self-managed install
+  keeps values as before.
+- **Sensors.** The platform release does not require a sensor upgrade. The newest sensor is
+  {{ site.data.versions.sensor }} (v0.38.3 has no images); read the sensor notes in
+  [Upgrade, back up and remove](../sensors/operate.md) first: sensor v0.38 and later expect a platform
+  that serves sealed task secrets, which no release up to v0.20.2 does, and then receive no
+  platform keys and refuse a job whose proxy pool needs credentials.
+- **Helm.** Chart {{ site.data.versions.chart }} has `appVersion`
+  {{ site.data.versions.chart_app }}; to run v0.20.x set the image tags
+  ([Kubernetes](../install/kubernetes.md)).
 
 ### From v0.18 to v0.19
 

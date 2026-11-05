@@ -31,6 +31,7 @@ to a sensor that reports it.
 | trivy | `sca.deps`, `iac.misconfig`, `container.image` | T0 | `-trivy` |
 | betterleaks | `secrets.code` | T0 | `-betterleaks` |
 | rdap, asn (built in) | `lookup.rdap`, `lookup.asn` | T0 | every daemon |
+| webguess (built in; in images from sensor v0.38.4) | `enumerate.web_paths` (candidate paths from the signed job, GET and HEAD only, never a body kept; the platform does not plan this capability yet) | T1 | default, `-standard`, `-full` (not `-passive`) |
 | reach-probe (built in) | `reach.probe` (one TCP connect per address and port, on the platform's request, to test reachability) | — | every daemon that takes platform commands |
 
 `monitor.web_content` (page monitoring) is run by httpx only when a step or a
@@ -163,10 +164,19 @@ local policy can always narrow further. See
   (`SENSOR_NUCLEI_MAX_RATE_LIMIT`, `SENSOR_NUCLEI_MAX_CONCURRENCY`,
   `SENSOR_NUCLEI_MAX_BULK_SIZE`; default 150 requests per second, 25 and 25),
   whatever the sensor's [tool settings](../sensors/tool-settings.md) say.
+- Every run also excludes the templates `email-extractor`,
+  `secrets-patterns-pii`, `rdap-whois` and `credit-card-number-detect` (sensor
+  v0.38.2 or later). They report no weakness: their result is the e-mail
+  addresses, phone numbers, registrant details or card numbers of the target.
 - Out-of-band callbacks (interactsh) are off unless the organization allows
   them (**Settings > Organization > General**, "Allow out-of-band callbacks
   (interactsh) in sensor jobs"), the sensor's local policy allows them, and
-  the scan asks for them.
+  the scan asks for them. A sensor policy without `allow_interactsh` allows
+  them from sensor v0.38.4 (before, it did not); only `allow_interactsh: false`
+  turns them off, and a job whose callbacks are turned off runs without them.
+  The callbacks use only the interaction server the sensor's operator
+  configured, through the task's forwarder: a job never names a server and no
+  public interaction server is used.
 
 ## Custom templates
 

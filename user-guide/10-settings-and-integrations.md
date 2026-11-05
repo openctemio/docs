@@ -652,6 +652,19 @@ token, SSH key, AWS role). Secret values are never shown again after you save
 them; when you edit, leave them empty to keep them. Integrations such as
 source control and ticketing store their own credentials on their own pages.
 
+### Leaked credentials
+
+**Leaked credentials** (**Settings > Leaked credentials**, API `/api/v1/organization/settings/credentials`; owners and
+administrators; from v0.20.0) decides whether the values of leaked secrets found
+for your organization are kept. When it is off, an import keeps only the masked
+form, the credential type and the fingerprint, and nothing can be revealed; values
+already kept stay. The fingerprint of a leaked secret is keyed per organization
+from v0.20.0, so the same password leaked for two organizations no longer has the
+same fingerprint; stored fingerprints are re-keyed on the first start after the
+upgrade, with nothing to do. While the platform default (System > Leaked
+credentials in the console) is unset, values are kept on a self-managed install
+and not kept on a managed service.
+
 ### Content freshness
 
 **Content freshness** (`/settings/scanning/content`) sets how fresh the

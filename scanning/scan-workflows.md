@@ -140,6 +140,16 @@ capabilities (for example `check.tls`, `cloud.posture`) are defined but
 **planned**: they are listed as unavailable and cannot be
 used in a step.
 
+Two capabilities became routed in the capability contract after platform
+v0.20.2 was built on contract v1.1.1, so the platform's catalogue above does not
+list them and a step cannot name them yet: `enumerate.web_paths` (contract
+v1.3.0: request platform-supplied candidate paths on a web origin with GET or
+HEAD only and report the ones that answer differently from the origin's
+not-found answer; the sensor tool is `webguess`, from sensor v0.38.3) and
+`detect.services` (contract v1.4.0: credential-free handshakes on known open
+ports, never a login or a range; no official sensor tool implements it yet).
+`enumerate.web_params` is reserved and not runnable.
+
 ## Choosing the tool of a step
 
 A step picks its tool in one of three ways:

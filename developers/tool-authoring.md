@@ -172,7 +172,12 @@ Rules that keep a tool safe and portable:
 - **Unknown keys are errors.** The descriptor is loaded strictly.
 - **Secrets are never config.** Declare them under `permissions.credentials`; the sensor operator
   stores them, and the tool receives them only in the run message, never in the environment, argv
-  or a file.
+  or a file. A tool that cannot take a secret in the run message writes it with
+  `tool.WriteSecretFile` (sdk-go v0.47.0 or later): a file of mode 0600, created exclusively in the
+  task's own directory and removed with it. From v0.47.0, on a platform that serves task secrets (none up to v0.20.2), the values of a task (third-party provider
+  keys, the job's proxy credentials) reach the sensor in one sealed fetch per task, listed by name
+  in the signed job; a tool never receives a platform secret it did not declare, and everything a
+  task sends out is scrubbed of each delivered value.
 - **`params` is the bridge to scan workflows.** A standard param you do not map is one your tool
   does not take; a workflow step that sets it will not pick your tool.
 - **Declare side effects** (`safety.side_effects`). A tool that can change the target is T2.
@@ -387,7 +392,7 @@ the tool behaves as it will on a sensor.
 | Fixtures | each self-test task produces exactly its expected CTIS |
 | Lint | warns about missing `implements`, missing fixtures, no engine version probe, a rate param with no rate key, a mapped param no argument uses, deprecated keys |
 | FixtureContract | every fixture meets the required output of each implemented capability |
-| `--capability` | runs a suite per capability on local fixtures (for example, `scan.ports@1`: two open ports and one closed must produce exactly the open ones; `secrets.code@1`: the raw secret never appears in the report or logs) |
+| `--capability` | runs a suite per capability on local fixtures (for example, `scan.ports@1`: two open ports and one closed must produce exactly the open ones; `secrets.code@1`: the raw secret never appears in the report or logs; `detect.services@1`, from sdk-go v0.47.2: seven loopback fixtures, each a credential sentinel that fails the tool if it sends a login or a state-changing command; `enumerate.web_paths@1`, from sdk-go v0.47.3) |
 | `--scope` | the tool gets target A while address B listens nearby; any connection to B fails |
 | `--fuzz 30s` | fuzzes the output parser; a panic, a non-deterministic result or a size-cap breach fails |
 

@@ -70,8 +70,16 @@ needs the scan write and execute permissions.
 ### New scan
 
 **New scan** opens a five-step wizard: **What → Targets → Options →
-Schedule → Review**. Each step is checked before you can go on; click a
-completed step to go back.
+Schedule → Review**. From v0.20.0 you can open any step at any time, also
+before the earlier ones are complete. Each step shows whether it is complete or
+how many problems it has; **Create** (or **Save**) stays disabled until every
+step is valid and names the first problem as a link to its step. Ctrl/Cmd+Enter
+creates or saves. A summary beside every step (a bar above the footer on a
+phone) shows what will run, the intensity in plain words, whether the scan needs
+an approval, how many targets there are, the schedule with its next runs and an
+estimate of the jobs per run. An organization that may only scan passively is
+offered the Passive intensity only, with one line saying why, and so only
+passive tools and workflows.
 
 ![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
 *Figure: The New scan wizard.*
@@ -96,6 +104,12 @@ completed step to go back.
    reason under it; when only some can, the **Review** step lists the ones
    that will be skipped. On a phone the wizard shows "Step N of M" with a
    progress bar.
+   - **Paste or upload a list** reads a pasted list or a `.txt` or `.csv` file in
+     the browser, shows the kinds, the repeats and every entry that will not be
+     added with the reason, and adds the new ones in one go. Past 20 typed targets
+     they show as a searchable list with the scope answer of each. Ranges larger
+     than 65,536 addresses, punycode top-level domains and repository references
+     are refused with the reason.
    - Pasted targets are checked as you type: domain (`example.com`),
      wildcard (`*.example.com`), IPv4 or IPv6 address, CIDR range
      (`192.0.2.0/24`), URL (`https://example.com`) or host and port

@@ -137,9 +137,9 @@ against ranges the platform owns, whatever the product. Two things are kept apar
 | Entry in `versions.yaml` | Effect in the platform |
 |---|---|
 | `<product>.latest` (`sensor`, `connector-tenable`) | The release this platform release was built with. Sensors of the product below the newest known release show "update available"; the install commands pin the image tag (and the digest, when the feed gave one). The feed can only raise it. |
-| `<product>.min` | Sensors of the product below it are degraded, "version unsupported". The oldest supported sensor is v0.9.0 (sensor protocol v1 is removed, so older sensors cannot connect at all). |
+| `<product>.min` | Sensors of the product below it are degraded, "version unsupported". In platform v0.20.2 the minimum is sensor v0.36.0 (CTIS 2.0 results); a sensor older than v0.9.0 cannot connect at all (sensor protocol v1 is removed). |
 | `sdk.latest` | A sensor built with an older sdk-go shows "outdated" (no health effect). The feed raises it. |
-| `sdk.min` | A sensor of any product built with an older sdk-go is degraded with the reason `sdk_unsupported`. Empty today: it is raised only when a protocol change requires it. |
+| `sdk.min` | A sensor of any product built with an older sdk-go is degraded with the reason `sdk_unsupported`. In platform v0.20.2 it is v0.46.0; it is raised only when a protocol change requires it. |
 | `sdk.advisories` | SDK releases with a published security advisory: a sensor built with one is degraded with a warning. |
 | `ci.latest` | The CI runner (openctemio/ci) release this platform release was built with. The pipeline snippets pin the newest known release and pipelines on an older runner show "update available". The feed can only raise it; `CI_RUNNER_LATEST_VERSION`, when set, wins. |
 | `ci.min` | The oldest CI runner the token exchange accepts: v0.4.0, the first runner that speaks CTIS 2.0. An older runner is refused (`RUNNER_OUTDATED`) and its pipeline is degraded. |

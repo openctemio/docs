@@ -17,7 +17,10 @@ and uses them only in its own forwarder.
 
 {: .note }
 > Secret delivery to sensors is being redesigned. This page describes what the
-> current release does.
+> current platform release (v0.20.2) does. Sensor v0.38.0 and later fetch pool
+> credentials only through the redesigned delivery, which no platform release
+> serves yet: such a sensor refuses a job whose pool needs credentials. Use
+> sensor v0.37.2 with credentialed pools until your platform serves it.
 
 1. TOC
 {:toc}

@@ -20,13 +20,13 @@ Community never shows locked items, greyed-out features or upgrade prompts.
 
 | Feature | What it does | Status |
 |---|---|---|
-| Audit streaming | Copy of the administrators' audit log streamed off the box (syslog over TLS, HTTPS) with a resumable cursor | in Community up to v0.20.x; Enterprise from v0.21 |
-| Trusted organizations | Members of a trusted organization sign in with their home identity under a role ceiling and key policy you set | in Community up to v0.20.x; Enterprise from v0.21 |
-| SCIM provisioning and IdP group links | Create and reactivate members from your identity provider and map its groups to roles | in Community up to v0.20.x; Enterprise from v0.21 |
-| White-label branding | Your product name, logo and colours on the installation, reports and e-mails | in Community up to v0.20.x; Enterprise from v0.21 |
-| Executive summary | Board-level exposure summary with HTML and PDF export | in Community up to v0.20.x; Enterprise from v0.21 |
-| Attack simulation and control testing | Scheduled attack simulations and control tests with evidence linked to validation runs | in Community up to v0.20.x; Enterprise from v0.21 |
-| Scheduled reports | Recurring report delivery on a schedule | in Community up to v0.20.x; Enterprise from v0.21 |
+| Audit streaming | Copy of the administrators' audit log streamed off the box (syslog over TLS, HTTPS) with a resumable cursor | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| Trusted organizations | Members of a trusted organization sign in with their home identity under a role ceiling and key policy you set | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| SCIM provisioning and IdP group links | Create and reactivate members from your identity provider and map its groups to roles | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| White-label branding | Your product name, logo and colours on the installation, reports and e-mails | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| Executive summary | Board-level exposure summary with HTML and PDF export | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| Attack simulation and control testing | Scheduled attack simulations and control tests with evidence linked to validation runs | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| Scheduled reports | Recurring report delivery on a schedule | in Community in every release so far (v0.20.x); planned to move to Enterprise |
 | Licence and subscription | Licence status, activation, usage and expiry notices in the platform console | planned |
 | Evidence packs and custom frameworks | Your own frameworks and controls, evidence mapping, signed snapshots for auditors | planned |
 | Legal hold and per-class retention | Holds that keep covered data from retention and erasure | planned |
@@ -37,10 +37,10 @@ Community never shows locked items, greyed-out features or upgrade prompts.
 | Risk in money | Expected loss per business service, with the assumptions shown | planned |
 | Policy gates, risk-model governance | Organization-wide required checks; approval and back-testing of scoring models | planned |
 
-Running SCIM provisioning or an audit sink? Before upgrading Community to
-v0.21, switch to the Enterprise images of the same version or plan for manual
-provisioning and audit export. Deprovisioning through SCIM keeps working in
-Community.
+Running SCIM provisioning or an audit sink? The features marked "planned to move
+to Enterprise" are in Community today. No release and no date is committed: the
+release notes of the release that moves them will say so, and an upgrade guide
+will say what to do. Deprovisioning through SCIM keeps working in Community.
 
 Two components with their own runtime are licensed separately: the **asset
 collector** (on-premises estate, directory and MDM sources) and the **AI
