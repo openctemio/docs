@@ -20,7 +20,8 @@ MCP, results ingest).
 | [MCP server](mcp.md) | Model Context Protocol access for AI clients: OAuth, API keys, tools, policy |
 | [Query language](query.md) | Text queries over your findings and assets: counts, grouped tables and time series |
 | [Ingesting results (CTIS)](ingest.md) | Sending scan results and importing reports from other tools |
-| [AI triage](ai-triage.md) | Endpoints of the AI triage feature |
+| [AI triage](ai-triage.md) | Endpoints of the AI triage feature, AI agents and analysis |
+| [AI analyze contract](ai-analyze-contract.md) | The job and result schemas an AI agent works with |
 
 ## Base URL
 

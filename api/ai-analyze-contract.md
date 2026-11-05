@@ -13,7 +13,8 @@ provenance and approval path (see [AI suggestions and approval](../user-guide/ai
 
 Status: the schemas and the validator are available, and the built-in executor
 (`POST /api/v1/findings/{id}/ai/analyze`, see [AI triage](ai-triage.md#ai-agents-and-analysis))
-writes its runs through the contract. Planned: the AI worker that receives jobs. Treat the
+writes its runs through the contract. An AI worker, which receives jobs, is a sensor in the `ai-worker` role that is distributed separately from
+the core; the job, grant and result contract on this page is open, so anyone can build a worker against it. Treat the
 schemas as stable for `v1`; a breaking change is a new version.
 
 ## Schemas

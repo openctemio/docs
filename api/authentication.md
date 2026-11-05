@@ -117,8 +117,8 @@ and acts as the user who created it.
 
 ### Create a key
 
-In the console: **Settings > Access & security > API keys > Generate API Key**. Choose a name, an expiry (30 days,
-90 days or 1 year) and the scopes. The secret (`oct_...`) is shown **once**; store it in your
+In the console: **Settings > Access & security > API keys > Generate API Key**. Choose a name, an expiry (within the
+organization's maximum, see below) and the scopes. The secret (`oct_...`) is shown **once**; store it in your
 secret manager.
 
 ![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
@@ -149,8 +149,17 @@ curl -X POST https://openctem.example.com/api/v1/api-keys \
 | `name` | required, 1 to 255 characters |
 | `description` | optional, up to 1,000 characters |
 | `scopes` | up to 50 permission names; each must exist and you must hold it yourself |
-| `expires_in_days` | required, 1 to 365. Every key expires. |
+| `expires_in_days` | required, 1 to the organization's maximum key lifetime (90 by default, at most 365). Every key expires. A longer value is refused. |
 | `rate_limit` | optional, requests per hour (0 = no per-key limit), up to 100,000 |
+
+The organization's maximum key lifetime applies to every way of minting a key (API keys, service
+accounts, the MCP connection key). `GET /api/v1/organization/settings/api-keys` returns
+`max_lifetime_days`, `default_max_lifetime_days` (90) and `ceiling_days` (365); it needs one of the
+API key permissions or `settings:read`. `PUT` with `{"max_lifetime_days": n}` (1 to 365) needs the
+administrator role and `settings:write`; raising the maximum needs a recent sign-in and is audited,
+and lowering it applies at once. Existing keys keep their expiry; a key minted for longer than the
+current maximum is flagged `exceeds_org_max`. The person who minted a key gets an in-app notice a
+week before it expires.
 
 The response contains the key's metadata and, only in this response, `key`.
 

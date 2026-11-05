@@ -103,18 +103,16 @@ positive, the platform opens a pending false-positive
 - Nothing is proposed when the model's output needed correcting or the finding contained text
   that looks like a prompt injection.
 
-## Suggestion endpoints
+## Use-case settings
 
 | Method and path | Purpose | Needs |
 |---|---|---|
-| `GET /api/v1/findings/{id}/ai/suggestions` | the finding's AI suggestions | `findings:read` and `ai_triage:read` |
-| `GET /api/v1/ai/runs/{id}` | one run with its provenance | same, within your data scope |
-| `POST /api/v1/ai/suggestions/{id}/apply`, `/dismiss`, `/undo` | decide a suggestion | same, plus the permission of the change |
-| `POST /api/v1/ai/runs/{id}/undo` | undo everything a run applied | same |
-| `GET /api/v1/organization/settings/ai/use-cases`, `PUT .../use-cases/{use_case}` | the per-use-case mode, data class ceiling and minimum confidence | owner or administrator; a recent sign-in to turn on auto-apply or raise the ceiling |
+| `GET /api/v1/organization/settings/ai/use-cases` | the per-use-case mode (`off`, `suggest`, `auto_apply`), data class ceiling and minimum confidence | `settings:read` |
+| `PUT /api/v1/organization/settings/ai/use-cases/{use_case}` | change one use case (`triage`, `remediation` or `summary`) | `settings:write` and the administrator role; a recent sign-in to turn on auto-apply or raise the ceiling |
 
-Every AI response carries `origin: "ai"`. Undo answers 409 `AI_UNDO_CONFLICT` when the field changed
-since.
+`GET` and `PUT /api/v1/organization/settings/ai/auto-triage` read and change automatic triage of new
+findings (administrators with `settings:read` or `settings:write`; turning it on or adding severities
+needs a recent sign-in). With a use case off, a triage request is refused with `AI_USE_CASE_OFF`.
 
 ## AI agents and analysis
 
