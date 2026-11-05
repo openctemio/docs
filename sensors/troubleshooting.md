@@ -6,6 +6,8 @@ nav_order: 8
 
 # Troubleshooting sensors
 
+See how it works: [Sensor identity and heartbeat](../how-it-works/sensors/identity-heartbeat.md), [Result delivery and local retention](../how-it-works/sensor-execution/result-delivery.md).
+
 ## Start with the setup checklist
 
 A sensor checks its own setup when it starts and sends the results to the

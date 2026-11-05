@@ -7,6 +7,8 @@ nav_order: 5.5
 # Shared sensors
 {: .no_toc }
 
+See how it works: [Shared sensors and zones](../how-it-works/sensors/shared-sensors-zones.md), [Feed relay sensors](../how-it-works/sensors/feed-relay.md).
+
 A **shared sensor** belongs to the installation, not to an organization. Whoever
 runs the installation operates it (on a self-hosted install, the instance
 administrators). It scans for every organization the administrator allows, and

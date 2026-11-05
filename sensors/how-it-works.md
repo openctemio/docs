@@ -7,6 +7,8 @@ nav_order: 9
 # How sensors work
 {: .no_toc }
 
+See how it works: [Sensor flows](../how-it-works/sensors/index.md), [Sensor execution flows](../how-it-works/sensor-execution/index.md).
+
 Background for operators. To install a sensor, start with the
 [quickstart](index.md#quickstart-a-working-sensor-in-five-minutes).
 

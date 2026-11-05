@@ -6,6 +6,8 @@ nav_order: 5
 
 # Scan zones and pools
 
+See how it works: [Shared sensors and zones](../how-it-works/sensors/shared-sensors-zones.md).
+
 A **scan zone** is a set of address ranges plus the sensors that can reach
 them. Zones answer "which sensor can reach this address"; [scope](../scanning/scope.md)
 answers "may we scan it". Zones are optional: an organization without zones

@@ -6,6 +6,8 @@ nav_order: 4
 
 # Pairing and enrollment
 
+See how it works: [Sensor pairing](../how-it-works/sensors/pairing.md), [Disable, revoke and delete a sensor](../how-it-works/sensors/revoke.md).
+
 Pairing connects a new sensor to your organization without any secret being
 copied or pasted. The sensor creates its own Ed25519 key, which never leaves
 its host. An administrator approves the sensor by picking, in the console, the

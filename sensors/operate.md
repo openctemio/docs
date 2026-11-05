@@ -7,6 +7,8 @@ nav_order: 7.7
 # Upgrade, back up and remove a sensor
 {: .no_toc }
 
+See how it works: [Sensor upgrade](../how-it-works/sensors/upgrade.md), [Disable, revoke and delete a sensor](../how-it-works/sensors/revoke.md).
+
 Everything a sensor keeps is on one volume at `/var/lib/openctem`: its
 identity (`state/`), the results the platform has not accepted yet
 (`outbox/`) and a scanner cache (`content/`). Upgrades, rollbacks and moves
