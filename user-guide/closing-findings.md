@@ -10,6 +10,8 @@ A finding can close because a scan no longer finds it. This page explains when
 that is allowed, how your organization controls it, and where people review
 the closes that wait for a decision.
 
+See how it works: [Automatic closing](../how-it-works/results/auto-close.md).
+
 ## The principle
 
 A finding closes only when the same check looks again and the issue is gone.

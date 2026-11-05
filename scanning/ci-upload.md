@@ -15,6 +15,8 @@ detects each file's format and reads it with the same importers as the
 finding import ([Ingesting results](../api/ingest.md)). The run's gate judges the uploaded
 findings with everything else in the run.
 
+See how it works: [From sensor result to findings](../how-it-works/results/result-ingest.md).
+
 ```sh
 openctem-ci upload [flags] <file or directory>...
 openctem-ci upload --gate trivy.json zap.xml

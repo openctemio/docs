@@ -9,6 +9,8 @@ nav_order: 5
 Discovery produces two related kinds of records. Knowing the difference helps
 you use the right page for the job.
 
+See how it works: [Finding status lifecycle](../how-it-works/results/finding-lifecycle.md), [Finding deduplication](../how-it-works/results/deduplication.md) and [From sensor result to findings](../how-it-works/results/result-ingest.md).
+
 - A **finding** is **one security issue** on a specific asset or location: a
   static-analysis issue on a line of code, a secret committed in a repository, a
   CVE on a host, a pentest finding. A finding has a severity, a status, a

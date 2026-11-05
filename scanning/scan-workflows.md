@@ -11,6 +11,8 @@ A **scan workflow** is a graph of steps. Each step runs one **capability**
 step finds becomes the input of the steps after it. A scan runs either a
 single tool or a scan workflow.
 
+See how it works: [From scan to results](../how-it-works/scans/scan-to-results.md).
+
 Manage scan workflows under **Discovery > Scans > Workflows**: a visual
 builder with a palette of capabilities, or the API `/api/v1/scan-workflows`.
 They need the `scan_workflows` module and the `scans:workflows:read`,

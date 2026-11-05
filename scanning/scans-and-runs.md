@@ -12,6 +12,8 @@ per tool or workflow step), and each step is cut into **tasks** that sensors
 claim and run. Results flow back into the inventory, and the next steps take
 what the earlier ones found.
 
+See how it works: [From scan to results](../how-it-works/scans/scan-to-results.md), [Cancel, retry and deadlines](../how-it-works/scans/cancel-retry-deadlines.md) and [Skipped steps and coverage gaps](../how-it-works/scans/partial-runs.md).
+
 ```mermaid
 flowchart LR
     SC["Scan<br/>(definition)"] -->|"fires"| RUN["Scan run"]

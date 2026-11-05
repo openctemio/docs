@@ -11,6 +11,8 @@ and **checks whether your defenses detect or stop an attack**. Instead of relyin
 only on automated scan results (which can contain false positives), it answers:
 "can an attacker really use this, and if they try, do our controls work?"
 
+See how it works: [Retesting a finding](../how-it-works/results/retest.md).
+
 OpenCTEM groups this stage into four kinds of work:
 
 - **Automated re-checks of findings**: **Re-verify** and **Retest** on a
