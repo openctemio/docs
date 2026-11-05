@@ -38,6 +38,7 @@ work). A failed or warning check also makes an online sensor `degraded`.
 | `config.commands_disabled` | Platform commands are turned off, so no platform scan runs here | Remove `-enable-commands=false` / `sensor.enable_commands: false` ([Daemon without jobs](#config-commands-disabled)) |
 | `config.tools_deprecated` | `SENSOR_TOOLS` or `-tools` is set; it only narrows the detected tools | Remove it; narrow with the local policy's `tools.allow` ([Deprecated tool list](#config-tools-deprecated)) |
 | `runtime.sandbox_network` (sensors after v0.18.0) | Scans are not network-confined | Run with the sensor's seccomp profile ([Tool confinement](deploy-docker.md#tool-confinement)) |
+| `runtime.task_root_memory` `on_disk` | Files a tool writes for its run (with the keys the task received) are written to disk | Mount a tmpfs at the task directory root, or point `TMPDIR` at one ([Task files on disk](#runtime-task-root-memory)) |
 
 The same problems are printed at start as `Warning: ...` lines, followed by
 `Preflight: N passed, M warning(s), K failed`.
@@ -420,6 +421,17 @@ the host restricts unprivileged user namespaces; keep the default AppArmor
 profile (binary: give it an AppArmor profile). `off` / `sandbox_off`:
 `SENSOR_SANDBOX_NETWORK=off` or `SENSOR_SANDBOX=off`. `unavailable`: another
 cause, shown in the excerpt. See [Tool confinement](deploy-docker.md#tool-confinement).
+
+### Task files on disk
+{: #runtime-task-root-memory }
+
+`runtime.task_root_memory`: whether the directory where tools write files
+for a run is in memory. Some tools receive the organization's keys as a file
+in their task's own directory (mode 0600, removed when the task ends).
+`in_memory` is the goal. `on_disk`: such a file reaches the disk until the
+task ends; mount a tmpfs at the reported path, or point `TMPDIR` at one
+(Docker: `--tmpfs /tmp:rw,noexec,nosuid,size=256m`; Compose: `tmpfs: [/tmp]`).
+At start the sensor also removes task directories an earlier run left behind.
 
 ### Template signing keys
 {: #policy-template-keys }
