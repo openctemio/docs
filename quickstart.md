@@ -8,8 +8,8 @@ nav_order: 2
 
 From nothing to your first findings in about 15 minutes: install the platform
 on one host with Docker Compose, create the first administrator and
-organization, authorize a target, pair a sensor, run a scan and read the
-results. Each step links to the full page when you need more than the short
+organization, authorize a target, pair a sensor, run a scan, read the
+results and start the remediation. Each step links to the full page when you need more than the short
 path.
 
 1. TOC
@@ -25,6 +25,7 @@ flowchart LR
     D --> E["5. Pair a sensor"]
     E --> F["6. First scan"]
     F --> G["7. Findings<br/>and assets"]
+    G --> H["8. Remediation"]
 ```
 
 ## What you need
@@ -249,6 +250,16 @@ when part of the work could not be done. Details:
 
 *Figure: the findings list after the first scans.*
 
+## 8. Fix what you found
+
+Findings become work when someone owns them. Open a finding, **assign** it, set a due
+date by its severity (the SLA policy does this for you once set), and ask for a **retest**
+after the fix: a finding closes only when a retest or a later scan confirms the fix.
+Related findings that one change fixes are grouped under **Mobilization > Remediation**.
+Details: [Exposures and findings](user-guide/05-exposures-and-findings.md),
+[Closing findings](user-guide/closing-findings.md) and
+[Mobilization](user-guide/08-mobilization.md).
+
 ## Next
 
 - Invite your team: [Sign-up and invitations](identity/sign-up-and-invitations.md)
@@ -257,6 +268,6 @@ when part of the work could not be done. Details:
 - Schedule the scan, and scan code in CI with
   [CI integration](scanning/ci-integration.md).
 - Add business context and run the loop as CTEM cycles: [User guide](user-guide/index.md).
-- Before production: [email](configuration/email.md),
+- Before production: [going live](install/production-go-live.md), [email](configuration/email.md),
   [backups](operations/backup-restore.md),
   [monitoring](operations/monitoring.md) and [hardening](security/hardening.md).

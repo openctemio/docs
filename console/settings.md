@@ -7,12 +7,15 @@ nav_order: 3
 # Console settings
 {: .no_toc }
 
-The **Settings** group of the [platform console](index.md): instance-wide behaviour
-that applies to every organization. Settings made here apply at once, on every API
+The **Settings** entry of the [platform console](index.md) opens the settings rail:
+instance-wide behaviour that applies to every organization. Settings made here apply at once, on every API
 replica, without a restart.
 
 Common rules:
 
+- A settings form has no Save button of its own: a bar appears at the bottom while there
+  are unsaved changes, with **Discard** and **Save changes** (Ctrl or Cmd+S), and the page
+  asks before you leave with unsaved changes.
 - Reading needs any console role; changing a setting needs a **super admin**
   (acting as one, see [Roles and elevation](index.md#roles-and-elevation)), a fresh
   confirmation and, for most settings, a reason. The sign-up policy, platform
@@ -149,7 +152,13 @@ password and administrator e-mails: **Send e-mail**, **SMTP server**, **Port**,
 STARTTLS** (TLS 1.2 or later). With **Send e-mail** off, no e-mail is sent and
 set-password links are shown to the administrator instead (never for a new super
 admin while approvals are on, see [Administrators](security.md#administrators)).
-**Send a test e-mail** sends to your own address only. Each save asks for a fresh
+**Internal CA certificate** takes the PEM certificate of your own authority when it signed
+the mail server's certificate (write-only; the page shows its SHA-256 fingerprint; setting,
+replacing or removing it needs a second super admin like a new host; see
+[Mail without online SMTP](../configuration/mail-without-online-smtp.md#internal-ca-certificate)).
+**Send a test e-mail** sends to your own address only, at most 5 a minute per
+administrator, and a failure names its cause (untrusted certificate, name mismatch,
+login refused, relay denied, cannot connect and so on). Each save asks for a fresh
 authenticator code.
 
 The relay receives every set-password, password reset and invitation link, so

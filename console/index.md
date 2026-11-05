@@ -17,7 +17,7 @@ organization web app. An administrator signs in to the console with the same
 account they use in the organization web app, if they are also a member of an
 organization: the platform role counts only in the console.
 
-These pages describe OpenCTEM v0.16.1 and the changes coming in v0.17.0.
+These pages describe the console of the current release ({{ site.data.versions.platform }}).
 
 1. TOC
 {:toc}
@@ -203,17 +203,31 @@ the change is refused with `503 AUDIT_UNAVAILABLE` and nothing changes.
 ![The console Overview: the Needs attention list with a service that does not answer, refused actions, an overdue break-glass test, low disk space and backups not reported, above the counts of organizations, sensors, refused actions and the schema version]({{ site.baseurl }}/assets/images/console/overview.png)
 *Figure: Platform console, Overview.*
 
-The sidebar groups the pages by what you are doing. A page whose permission none
-of your roles holds is hidden.
+The sidebar has four groups and one **Settings** entry, grouped by what you are doing. A
+page whose permission none of your roles holds is hidden.
 
 | Group | Pages | Guide |
 |---|---|---|
 | (top) | **Overview** | [below](#overview) |
-| **Customers** | **Organizations**, **Users** (roles that hold `platform.users.read`: platform owner, platform admin, support), **Access requests**, **Sign-ups**, **Support access** (roles that hold `platform.support.access`) | [Organizations and users](organizations-and-users.md) |
-| **Scanning** | **Platform sensors**, **Scan approval**, **Scan identification**, **Platform scanning**, **Target mappings**, **Content packs**, **Content catalog**, **Threat intelligence** | [Scanning](scanning.md) |
-| **Security** | **Administrators**, **Sessions**, **Approvals**, **Roles**, **Admin sign-in**, **Admin activity** | [Security](security.md) |
-| **Settings** | **Configuration**, **Sign-up**, **Social login**, **Limits**, **CAPTCHA**, **E-mail**, **Two-factor**, **Legal**, **Announcements**, **Alerts**, **AI provider**, **AI applications** | [Settings](settings.md) |
+| **Customers** | **Organizations**, **Users** (roles that hold `platform.users.read`: platform owner, platform admin, support), **Access requests**, **Sign-ups**, **Support access** (roles that hold `platform.support.access`), **Announcements** | [Organizations and users](organizations-and-users.md) |
+| **Sensors and scanning** | **Platform sensors**, **Target mappings**, **Content packs**, **Content catalog**, **Threat intelligence** | [Scanning](scanning.md) |
+| **Security and audit** | **Admin activity**, **Approvals**, **Administrators**, **Sessions**, **Roles**, **AI applications** | [Security](security.md) |
 | **Monitoring** | **Health**, **Software updates** | [Monitoring](monitoring.md) |
+| **Settings** | The settings rail, below | [Settings](settings.md) |
+
+On a settings page the sidebar shows the **settings rail** with a way back to the console:
+
+| Rail section | Pages |
+|---|---|
+| **General** | **Configuration**, **Legal** |
+| **Sign-in and sign-up** | **Sign-up**, **Social login**, **CAPTCHA**, **Admin sign-in** |
+| **Organizations** | **Limits**, **Two-factor** |
+| **Scanning** | **Scan approval**, **Scan identification**, **Platform scanning** |
+| **Notifications** | **E-mail**, **Alerts** |
+| **AI** | **AI provider** |
+
+Page addresses did not change with the rails, and the command palette finds every page.
+**About > Open-source licenses** (Help) lists the open-source components of the build.
 
 The sidebar footer holds **Help**, the signed-in administrator, **My security
 keys**, **Language** and **Sign out**. **Search the console** (Ctrl+K or ⌘K)

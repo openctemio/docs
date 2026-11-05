@@ -19,11 +19,13 @@ sign-up activity.
 ## Organizations
 
 **Organizations** lists every organization with its status, owners, limits,
-members, single sign-on setup and creation date. The list does not carry owners'
+members, single sign-on setup, the latest sign-in of any member and creation date. The list does not carry owners'
 email addresses: operations admins and above see the owners' domains, a read-only
 administrator sees the owner count. Search by name or slug and filter
-by owner (**With an owner**, **Without an owner**). A status badge marks an
-organization that is **Suspended** or has **Deletion scheduled**.
+by owner (**With an owner**, **Without an owner**) or by **Status**. The Status column
+shows **Active**, **Suspended** or **Deletion scheduled**. **Last member sign-in** is the
+latest sign-in of any active member; sign-in times are kept per account, so a member's
+sign-in to another organization counts.
 
 ![The Organizations page listing Example Corp with its owner, limits, members and single sign-on providers]({{ site.baseurl }}/assets/images/console/organizations.png)
 *Figure: Platform console, Organizations.*
@@ -50,9 +52,6 @@ An organization created here is stamped with the deployment region (if one is
 set) and has no limits until you set some.
 
 ### Ownership invitations
-
-{: .note }
-**Not in v0.18.0.** Ownership invitations for an organization created for an existing account is merged for the next release; v0.18.0 does not have it yet.
 
 Nobody becomes the owner of an organization without accepting. When you create
 an organization for an existing account (or change who is invited, below):
@@ -95,9 +94,6 @@ flowchart LR
 ```
 
 ### One organization
-
-![An organization page with the Suspend organization and Delete now buttons, its tabs and the Overview cards]({{ site.baseurl }}/assets/images/console/organization-detail.png)
-*Figure: An organization whose owner scheduled its deletion.*
 
 Open an organization for its tabs:
 
@@ -144,7 +140,7 @@ Open an organization for its tabs:
 - **Scope**: the organization's scan approval policy and its modules. Modules are
   available unless denied here; the organization then switches on or off what is
   available. Core modules are always on.
-- **Activity**: administrator actions on this organization.
+- **Activity**: administrator actions on this organization. It opens on **Changes** (writes, sign-ins, elevations and refused attempts); page views and the record written before each change are under **All events**.
 - **Audit chain**: checks the integrity of the organization's audit log.
   **Re-check** verifies the chain and lists entries that do not verify. A super
   admin can re-sign (rebaseline) the chain when every break is explained; this is
@@ -153,8 +149,8 @@ Open an organization for its tabs:
 
 ### Suspend an organization
 
-**Suspend organization** (operations admin or above, a fresh confirmation and a
-reason) closes the organization to every credential from the next request on:
+In the **Danger zone** at the end of the **Overview** tab, **Suspend organization**
+(operations admin or above, a fresh confirmation and a reason) closes the organization to every credential from the next request on:
 sign-in and session refresh, API keys, MCP tokens, sensor keys, SCIM tokens, CI
 run tokens and inbound Jira and GitHub webhooks answer
 `403 ORGANIZATION_SUSPENDED` ("This organization is suspended — contact
@@ -179,7 +175,7 @@ accounts are kept (people may belong to other organizations).
   active owner can open the sign-in page, sign in and choose **Cancel deletion**;
   everything works again as before. When the 14 days end, the
   `organization-delete` background job deletes it.
-- **A super admin deletes it now.** **Delete now** on the organization page (any
+- **A super admin deletes it now.** **Delete now** in the **Danger zone** of the organization's Overview tab (any
   status) needs a super admin, a reason and a fresh code. It cannot be undone.
   When a second super admin exists, the console first asks for their approval
   (action `organization.purge`, the exact organization as target): the request
@@ -211,7 +207,8 @@ owner; for other roles they are left out of the rows and the counts.
 
 Open an account for its organizations, linked identities, active sessions and the
 administrator actions on it. The actions, each with a reason that goes to the
-admin activity log:
+admin activity log. **Sign out everywhere**, **Reset two-factor** and **Block account** are in a
+**Danger zone** at the end of the page; the everyday actions stay under the name:
 
 | Action | Effect |
 |---|---|

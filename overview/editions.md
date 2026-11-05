@@ -21,13 +21,13 @@ Community never shows locked items, greyed-out features or upgrade prompts.
 | Feature | What it does | Status |
 |---|---|---|
 | Audit streaming | Copy of the administrators' audit log streamed off the box (syslog over TLS, HTTPS) with a resumable cursor | available |
-| Trusted organizations | Members of a trusted organization sign in with their home identity under a role ceiling and key policy you set | moving from Community (v0.19) |
-| SCIM provisioning and IdP group links | Create and reactivate members from your identity provider and map its groups to roles | moving from Community (v0.19) |
-| White-label branding | Your product name, logo and colours on the installation, reports and e-mails | moving from Community (v0.19) |
-| Executive summary | Board-level exposure summary with HTML and PDF export | moving from Community (v0.19) |
-| Attack simulation and control testing | Scheduled attack simulations and control tests with evidence linked to validation runs | moving from Community (v0.19) |
-| Scheduled reports | Recurring report delivery on a schedule | moving from Community (v0.19) |
-| Licence and subscription | Licence status, activation, usage and expiry notices in the platform console | planned (v0.19) |
+| Trusted organizations | Members of a trusted organization sign in with their home identity under a role ceiling and key policy you set | in Community in {{ site.data.versions.platform }}; planned to move to Enterprise |
+| SCIM provisioning and IdP group links | Create and reactivate members from your identity provider and map its groups to roles | in Community in {{ site.data.versions.platform }}; planned to move to Enterprise |
+| White-label branding | Your product name, logo and colours on the installation, reports and e-mails | in Community in {{ site.data.versions.platform }}; planned to move to Enterprise |
+| Executive summary | Board-level exposure summary with HTML and PDF export | in Community in {{ site.data.versions.platform }}; planned to move to Enterprise |
+| Attack simulation and control testing | Scheduled attack simulations and control tests with evidence linked to validation runs | in Community in {{ site.data.versions.platform }}; planned to move to Enterprise |
+| Scheduled reports | Recurring report delivery on a schedule | in Community in {{ site.data.versions.platform }}; planned to move to Enterprise |
+| Licence and subscription | Licence status, activation, usage and expiry notices in the platform console | planned |
 | Evidence packs and custom frameworks | Your own frameworks and controls, evidence mapping, signed snapshots for auditors | planned |
 | Legal hold and per-class retention | Holds that keep covered data from retention and erasure | planned |
 | SIEM and SOAR pack | Audit and finding event streams in SIEM formats, inbound SOAR actions | planned |
