@@ -34,7 +34,9 @@ In production mode the API refuses to start when:
 - `REDIS_PASSWORD` is shorter than 32 characters, `REDIS_TLS_ENABLED` is not `true`, or
   `REDIS_TLS_SKIP_VERIFY` is `true`;
 - the Redis pool size is outside 10 to 500;
-- `RATE_LIMIT_ENABLED` is `false`, `APP_DEBUG` is `true` or `LOG_LEVEL` is `debug`;
+- `RATE_LIMIT_ENABLED` is `false` or `LOG_LEVEL` is `debug`;
+- `SIGNER_SOCKET` is unset (sensor jobs are signed by the job signer; the default compose file runs it),
+  unless `SIGNER_DANGEROUS_ALLOW_UNSIGNED_JOBS=true` accepts unsigned jobs;
 - with local accounts: `AUTH_PASSWORD_MIN_LENGTH` is below 8 or `AUTH_REQUIRE_EMAIL_VERIFICATION`
   is not `true`;
 - with an OAuth social provider enabled: `OAUTH_STATE_SECRET` is unset and cannot be derived
@@ -290,7 +292,7 @@ stored secrets (AES-256-GCM), and keys the hashes of API keys, SCIM tokens and s
 | `AUTH_COOKIE_SAMESITE` | `lax` | Keep `lax` (or `strict`). `none` requires `Secure`. |
 | `AUTH_COOKIE_DOMAIN` | empty (current host) | Leave empty unless the console and API are on different subdomains. |
 | `SECURE_COOKIES` (web) | `true` | Keep `true`. |
-| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000` | Your public console origin only (the compose file uses `OPENCTEM_PUBLIC_URL`). |
+| `CORS_ALLOWED_ORIGINS` | origin of `APP_URL`, else `http://localhost:3000` | Your public console origin only (the compose file uses `OPENCTEM_PUBLIC_URL`). |
 | `SSO_ALLOWED_REDIRECT_URIS` | derived from CORS origins, `OAUTH_FRONTEND_CALLBACK_URL` and `SMTP_BASE_URL` | Set explicitly when you use SSO. Exact match only. |
 | `SERVER_TRUSTED_PROXIES` | empty | The addresses of the gateway and the web container, so client IPs are correct for the IP allowlist, rate limits and the audit log. Forwarding headers from any other peer are ignored. |
 | `OPENCTEM_TRUSTED_PROXIES` (gateway) | `127.0.0.1/32` | Add your load balancer if one sits in front of the gateway. |

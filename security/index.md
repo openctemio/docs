@@ -291,11 +291,13 @@ organization key its operator pinned.
 
 **Signed jobs.** A separate signing process (`openctem-signer`, its own container, reached only over
 a Unix socket) can sign every job when a sensor claims it, and signs only targets inside the scope
-recorded in its own hash-chained ledger. It is built and **off by default** (`SIGNER_SOCKET`); a
-sensor that pinned the platform's job-signing keys at pairing runs only signed jobs.
+recorded in its own hash-chained ledger. In production the API refuses to start without it
+(`SIGNER_SOCKET`; the default compose file runs the signer), unless `SIGNER_DANGEROUS_ALLOW_UNSIGNED_JOBS=true`
+is set, which is for development only. A sensor that pinned the platform's job-signing keys at pairing
+runs only signed jobs, and a sensor paired while jobs are unsigned refuses to start without a signer.
 
 **Limits.** A separate sensor gateway process is **planned** (RFC-040). Today the API process that
-serves sensors also serves users; where job signing is off, a sensor's local policy and its pinned
+serves sensors also serves users; where job signing is not in use, a sensor's local policy and its pinned
 platform identity are what stop a compromised platform from directing it. The engineering status is in
 [sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sensor-platform-trust.md).
 

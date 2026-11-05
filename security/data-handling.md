@@ -109,8 +109,9 @@ Erasure keeps the account row so that references from findings, comments and his
 
 Erasure does **not** rewrite the audit log: existing audit entries keep the actor email, IP address and
 user agent recorded at the time, so the history remains verifiable. The erasure itself is audited at
-critical severity. If you must remove personal data from audit entries, that is a database operation
-that breaks the hash chain from that point; plan it with your auditors.
+critical severity. The database refuses `UPDATE` of audit rows, so removing personal data from audit
+entries is an operation by the database owner outside the application: plan it with your auditors
+(see [Audit log](audit-log.md#hash-chain) for what the chain covers).
 
 People provisioned by SCIM are offboarded when the identity provider deletes them; erasure is still a
 separate owner action.
