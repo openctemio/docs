@@ -17,7 +17,7 @@ headers (`Strict-Transport-Security`, `Content-Security-Policy`, `X-Content-Type
 finished tool is not shipped as a sample; the closest runnable example in the SDK repository is
 [examples/python-adapter](https://github.com/openctemio/sdk-go/tree/main/examples/python-adapter).
 
-You need Python 3 and either the `openctem` CLI binary or Go 1.26.
+You need Python 3 and either the `openctem` CLI binary or Go 1.27.
 
 ## 1. Install the CLI
 

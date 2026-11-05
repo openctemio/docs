@@ -67,8 +67,9 @@ openctem/
 ├── Makefile            root targets: setup, generate, dev-api, dev-web, build, test, lint, check
 ├── versions.yaml       the released versions the platform pins (sensor, SDK, CI runner)
 ├── api/                Go module github.com/openctemio/openctem/api
-│   ├── cmd/            server, bootstrap-admin, rekey, refingerprint, seed, content-bundle,
-│   │                   chainaudit, signer, code generators (gen-modules, envdoc, ...)
+│   ├── cmd/            server, openctem-migrate, bootstrap-admin, rekey, refingerprint,
+│   │                   asset-canonical, seed, content-bundle, release-feed, chainaudit, signer,
+│   │                   code generators (gen-modules, envdoc, ...)
 │   ├── internal/
 │   │   ├── app/        application services (use cases)
 │   │   ├── config/     configuration from the environment
