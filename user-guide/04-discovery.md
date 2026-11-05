@@ -11,6 +11,8 @@ software they run and the exposures on them. It is driven by **scans**, run by
 **sensors**, and by integrations and imports; it produces **assets** and
 **findings**.
 
+See how it works: [Scan approvals](../how-it-works/scans/scan-approvals.md) and [Asset identity and relationships](../how-it-works/results/asset-identity.md).
+
 The pages are under **Discovery** in the sidebar: **Scans** (with **Runs** and
 **Workflows**), **Sensors**, **CI/CD**, **Attack surface**, **Assets**,
 **Exposures**, **Credential leaks** and **Components**. Exposures and findings

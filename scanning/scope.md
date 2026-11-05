@@ -8,6 +8,8 @@ nav_order: 1
 
 **Scope** is what your organization may actively probe.
 
+See how it works: [Signed jobs](../how-it-works/scans/signed-jobs.md).
+
 - An **active scope entry** authorizes the full scan of what it covers.
 - An inventory asset that no entry covers, and that nobody excluded or
   marked "Not ours", is **unclassified**. By default it gets low-impact

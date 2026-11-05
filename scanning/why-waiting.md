@@ -12,6 +12,8 @@ A scan run is cut into tasks that sensors claim (see
 while, even when your sensors have free slots. This page explains where to
 see why, what each reason means, and what to do.
 
+See how it works: [How a sensor takes a task](../how-it-works/scans/task-claim-and-lease.md) and [Host politeness and rate](../how-it-works/scans/politeness.md).
+
 1. TOC
 {:toc}
 
