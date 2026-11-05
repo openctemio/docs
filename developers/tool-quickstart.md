@@ -22,7 +22,7 @@ openctem tool init --kind go --capability vuln.templates@1 --name hello-tool hel
 cd hello-tool
 go get github.com/openctemio/sdk-go@{{ site.data.versions.sdk_go }}
 make build                                      # edit tool.yaml and main.go first
-openctem tool run . --target http://127.0.0.1:8000/@http_service --format table
+openctem tool run . --target http://127.0.0.1:8000/@web_origin --format table
 openctem tool test .                            # protocol checks and your fixtures
 openctem tool build . --push registry.example.com/acme/hello-tool:0.1.0
 ```

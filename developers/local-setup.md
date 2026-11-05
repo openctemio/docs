@@ -14,7 +14,7 @@ containers.
 
 | Tool | Version | Used for |
 |---|---|---|
-| Go | 1.26 (the toolchain pinned in `api/go.mod`) | the API |
+| Go | 1.27 (the toolchain pinned in `api/go.mod`) | the API |
 | Node.js | 26 (`web/.nvmrc`) | the web console |
 | Docker with Compose | recent | PostgreSQL 17, Redis 7, optional containerized API |
 | GNU Make, Git | any recent | the root `Makefile` |

@@ -339,7 +339,7 @@ the capability is mapped to it):
 var Dotenv = tool.Define("dotenv", "1.0.0").
 	Describe("Finds .env files a web server serves").
 	Implements("vuln.templates@1").
-	Targets("http_service").
+	Targets("web_origin").
 	Produces("finding:misconfiguration").
 	Params(
 		tool.StringParam("path").Label("Path").Default("/.env").Pattern("^/").MaxLength(256),
