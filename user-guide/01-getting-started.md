@@ -82,7 +82,7 @@ later from **Account > Security > Connected sign-in methods**.
 
 - **Suspended**: when the platform operator suspends an organization, signing in
   to it, and every API key, AI assistant token, sensor and integration of it,
-  is refused with **This organization is suspended — contact support**. Nothing
+  is refused with "This organization is suspended. Contact support." Nothing
   is deleted; everything works again once the suspension is lifted.
 - **Scheduled for deletion**: after an owner deletes the organization it stays
   closed to everyone for 14 days, then it is deleted. When an owner signs in
@@ -94,8 +94,8 @@ later from **Account > Security > Connected sign-in methods**.
 {: .note }
 In the current release the **Cancel deletion** prompt appears only when the
 owner signs in with a password alone. An owner whose sign-in asks for a
-two-factor code (or whose organization requires two-factor setup) sees **This
-organization is suspended — contact support** instead and cannot cancel from the
+two-factor code (or whose organization requires two-factor setup) sees "This
+organization is suspended. Contact support." instead and cannot cancel from the
 sign-in page; contact your platform operator before the 14 days end.
 
 If your own account is blocked by the platform operator, sign-in is refused and
@@ -207,6 +207,14 @@ open the organization. Invitations last seven days by default.
 If the invitation has expired or was already used, the page says so; ask the
 person who invited you for a new one.
 
+### Ownership invitation
+
+A platform administrator can create an organization for you and leave its
+owner seat empty. You then get an e-mail, and **Organizations waiting for you**
+lists it in your account. Choose **Accept and become owner** (you confirm your
+identity again, and your e-mail address must be verified) or **Decline**.
+Nobody becomes an owner without accepting. The invitation lasts seven days.
+
 ## Find your way around
 
 ### The sidebar
@@ -216,7 +224,13 @@ person who invited you for a new one.
 - Below it are the CTEM stage groups (**Scoping**, **Discovery**,
   **Prioritization**, **Validation**, **Mobilization**) and **Insights**.
 - The footer holds **Settings** and **Help** (**Documentation**, **Keyboard
-  shortcuts**, **Report an issue**, **About OpenCTEM**).
+  shortcuts**, **Report a bug**, **Send feedback or request a feature**,
+  **Report a security vulnerability** and **About**; a vulnerability report
+  never opens a public issue). **About** shows the release and, under
+  **Open-source licenses**, the open-source components of the build with their
+  licenses. Error pages offer **Report this problem** and **Copy diagnostics**
+  (version, browser, error code and request ID; no organization names, e-mail
+  addresses or data).
 - A **Pinned** section at the top holds the pages, findings quick views and saved
   views you pinned (up to 12 per organization), each view with its live count; see
   [Exposures and findings](05-exposures-and-findings.md#header-and-quick-views).

@@ -382,6 +382,13 @@ in the excluded range stop too, with a sample. It adds one **Do not scan**
 exclusion through the normal path (same permission, audit and approval
 rule). See [CDN and edge addresses](../scanning/easm.md#cdn-and-edge-addresses).
 
+{: .note }
+From v0.20.0, the built-in list of edge ranges covers more CDN and shared
+front-end providers, so their addresses are no longer offered for scope. On the
+Decisions card the one-click add takes only addresses with strong ownership
+evidence (for example, inside a network your organization set); every other
+address is added from its own row after you read it.
+
 **How an exclusion reaches the sensors.** Every way a scan starts (scheduled,
 manual or quick scans, workflow runs and each later step, automation,
 validation and retests) leaves excluded targets out of the job, and cuts a

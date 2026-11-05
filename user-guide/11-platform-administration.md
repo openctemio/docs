@@ -9,7 +9,9 @@ nav_order: 11
 **Platform administrators** run the installation as a whole. They work in the
 **platform console**, a separate application with its own sign-in page and its own
 site, not a part of the organization web app; an administrator account belongs to
-no organization. The console has its own section of this documentation:
+no organization. Their platform roles are named **Platform owner** and
+**Platform admin** (see [Roles and elevation](../console/index.md#roles-and-elevation)).
+The console has its own section of this documentation:
 [Platform console](../console/index.md).
 
 | Task | Page |

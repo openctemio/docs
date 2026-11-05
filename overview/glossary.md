@@ -16,7 +16,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **AI assistant (MCP)** | An AI application that connects to the MCP server with a sign-in flow and works with an organization's data as the person who approved it, within the organization's policy (**Settings > Access & security > AI assistants (MCP)**). See [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md). |
 | **API key** | A credential for scripts and AI clients, shown once as `oct_...`. Bound to one organization and the user who created it; read-only on the REST API, also used by the MCP server. |
 | **Asset** | Anything an organization owns that can be attacked: domain, IP address, host, service, web endpoint, certificate, repository, cloud account, container image, identity and more. |
-| **Asset group** | A named set of assets used to organise them and as scan targets. |
+| **Asset group** | A named set of assets used to organise them and as scan targets. It can fill itself from a rule. See [Groups that update themselves](../user-guide/groups-that-update-themselves.md). |
 | **Attack path** | A chain of exposures from a public entry point to an important asset. |
 | **Automation** | An event rule: when an event happens and conditions hold, take actions (assign, notify, open a ticket). |
 | **Break-glass administrator** | A local platform administrator for emergencies, never bound to an identity provider; console-only (it cannot join an organization or sign in on the main site), and every sign-in is audited and alerted. |
@@ -67,6 +67,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Step** | One step of a scan run. |
 | **Step-up** | A fresh proof of identity (an authenticator code, the password, or a new sign-in at the identity provider) that a sensitive action asks for inside a signed-in session. See [Step-up re-authentication](../identity/two-factor.md#step-up-re-authentication). |
 | **Suppression rule** | An approved rule that marks matching findings as false positive or accepted risk, both the open ones when it is approved and new ones at ingest. |
+| **Tag** | A short label on an asset, for filters, groups that update themselves and rules. System tags are set by the platform and are read-only. See [Tags](../user-guide/tags.md). |
 | **Task** | One unit of sensor work within a step, for a chunk of targets. Also the word for a unit of remediation work (a **remediation task**); the console always shows which. Not called a job. |
 | **Team** | A group of members within an organization that is assigned assets (**Settings > Access & security > Teams**; `/api/v1/groups` in the API). A member sees the assets (and their findings) of their teams, plus individual grants. Never the organization itself. |
 | **Tenant** | Not used in these docs: an organization. The word remains in a few API paths, settings and CI inputs (for example `tenant-id`). |
