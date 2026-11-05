@@ -7,6 +7,8 @@ nav_order: 12
 # Content and intelligence feeds in air-gapped sites
 {: .no_toc }
 
+See how it works: [Feed delivery](../how-it-works/vulnerability-intel/feed-delivery.md), [KEV and EPSS updates](../how-it-works/vulnerability-intel/kev-epss.md).
+
 Besides images, the platform fetches data: vulnerability catalogs, program
 lists, content packs, release information and more. This page lists what each
 feed needs, how to feed it without internet access today, how often it runs and
