@@ -105,7 +105,8 @@ flowchart TD
   C -- no --> E{"CDN, edge range, provider<br/>network, 3+ of your domains,<br/>or another organization's network?"}
   E -- yes --> SH["Listed as shared, not offered"]
   E -- no --> O["Offered with an ownership band:<br/>high, medium, low or unknown"]
-  O --> P["A person adds it to scope,<br/>marks it not ours, or waits"]
+  O --> G["Grouped by network:<br/>your prefix, a network, a /24 or /48 block"]
+  G --> P["A person decides the group, a selection<br/>or all, or answers: is this network yours?"]
 ```
 
 An address is never added to scope because a name points at it: dangling
@@ -113,11 +114,47 @@ records, shared hosting and released cloud addresses would make a scan
 probe a third party. The **Addresses your in-scope names resolve to** card
 offers the others with their ownership evidence, strongest first.
 
-{: .note }
-> From v0.20.0: the card's one-click **Add N to scope** takes only addresses
-> in the high ownership band; every other address is added from its own row.
-> Automatic addition of addresses with ownership evidence is not part of
-> v0.20.0.
+### One decision per network
+
+The card groups the addresses so you decide a network once, not each
+address:
+
+| Group | What it is | What you can do |
+|---|---|---|
+| **Your prefix** | inside a prefix your own network seed announces | **Add range** (one entry for the prefix), **Not ours** |
+| **Your network** | in one of your network seeds | **Add N addresses**, **Not ours** |
+| A network (AS and holder) | a known network you have not declared | **Add N addresses**, **Not ours**, and **Is this network yours?** |
+| A /24 or /48 block | no network data yet | **Add N addresses**, **Not ours** (a block is never added as a range) |
+| Announced by another organization | shared: not offered | **Is this network yours?**, **Add anyway** for one address |
+| A provider, shared hosting | CDN, edge, hosting or cloud provider space | **Add anyway** for one address, **Not ours** |
+
+Each group shows how many addresses it holds, the in-scope names that point
+at them and its evidence (for example "In your own prefix", "No network data
+yet", "New, first seen less than a day ago"). Select addresses across groups
+for **Add selected** or **Not ours**, or use **Add all**. Every action opens
+a dialog that lists exactly what is added or marked, and every decision has
+an **Undo**.
+
+**Is this network yours?** **Yes** records the network (its AS, or its
+holder's name) as one of your network seeds: its addresses, now and later,
+are then added automatically when the evidence is strong, through your
+approval rules. **No** marks the group's addresses not yours and the
+question is not asked again (**Ask me again** undoes it).
+
+The server accepts only addresses and ranges that are on your own card: an
+address of another organization, one outside your data scope, one already in
+scope or a range that is not your own announced prefix is refused, and
+nothing is written. A shared or provider address is never part of a bulk
+add. With scope approvals on, every added entry waits for your approvers.
+
+### Why "No network data yet"
+
+An address's network (AS, holder, announced prefix) comes from the network
+lookup your sensor runs in discovery runs and every week for each address.
+An address that a DNS answer just created has none until that lookup runs.
+The weekly lookup also reaches addresses that no scope entry covers, as long
+as one of your in-scope names points at them: it reads public routing data
+and sends nothing to the address.
 
 ## When something fails
 
