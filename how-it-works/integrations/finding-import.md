@@ -12,11 +12,7 @@ description: How a file another security tool exported, or any CSV, JSON or XML 
 **Import results** on the findings list loads a file another tool exported:
 Nessus, Qualys, SARIF, trivy, grype, semgrep, gitleaks, nuclei, ZAP, vuls,
 CycloneDX, SPDX, OSV, CSAF, OpenVEX, DefectDojo, a recon results directory, or
-a ZIP of these, or a CTIS report. The `openctem import` CLI converts the output
-of tools you run yourself (nmap, testssl.sh, line lists) on your machine and
-uploads the CTIS report
-([Import results from your own tools](../../user-guide/import-your-own-tools.md)).
-A file in any other CSV, JSON or XML shape is read through an
+a ZIP of these. A file in any other CSV, JSON or XML shape is read through an
 **import mapping** your organization saved. The platform converts the file
 to a CTIS report, queues it, and applies it with the rights of the person who
 uploaded it.
