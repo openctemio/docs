@@ -6,6 +6,8 @@ nav_order: 5.8
 
 # AI suggestions and approval
 
+See how it works: [AI triage of findings](../how-it-works/remediation/ai-triage.md), [AI agents and approvals](../how-it-works/remediation/ai-agents.md).
+
 When OpenCTEM asks an AI model to look at a finding, the answer is advice, never a
 decision. The AI either shows its analysis, writes a comment as an
 [AI agent](ai-agents.md), or files an approval request that a person decides.
@@ -76,8 +78,9 @@ request form, and you send it.
 
 ## What is sent
 
-What the AI sees is masked first: hosts, addresses, people and secrets are replaced (see
-[Settings > AI: data masking](ai-data-masking.md)), and fields above the use case's data ceiling
+For an AI agent's analysis, what the AI sees is masked first: hosts, addresses, people and secrets
+are replaced (see [Settings > AI: data masking](ai-data-masking.md)). AI triage is not masked
+today; only leaked secrets are redacted. In both, fields above the use case's data ceiling
 are withheld ([use cases](ai-use-cases.md#settings-per-use-case)). Every run keeps its
 provenance (provider, model, prompt template, what was sent and withheld, tokens), which the API
 returns for a run; see [AI triage](../api/ai-triage.md#ai-agents-and-analysis).

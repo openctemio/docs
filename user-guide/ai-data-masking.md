@@ -11,8 +11,9 @@ other identifiers with typed placeholders. The model reasons on `HOST_4K2QA` and
 `IP_PRIV_7M3XB`, and OpenCTEM turns the placeholders in its answer back into real values. The
 mapping never leaves the platform.
 
-Every context bundle built for an AI model is masked this way: AI triage, an AI agent's analysis and
-the preview below. The **Settings > Organization > AI** page (**Limits and data** tab, **Data masking**) has been in the console since v0.16.0. The policy is
+An AI agent's analysis and the preview below are masked this way. AI triage is not masked today:
+it sends the finding fields its use case's data ceiling allows, with a leaked secret's value
+redacted, but host names and addresses in those fields reach the model as they are. The **Settings > Organization > AI** page (**Limits and data** tab, **Data masking**) has been in the console since v0.16.0. The policy is
 also read and changed through the API (`GET` and `PUT /api/v1/organization/settings/ai/masking`,
 and `POST .../masking/preview`). The AI worker, which will use the same
 masking at its tool boundary, is planned.

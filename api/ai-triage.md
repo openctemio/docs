@@ -6,6 +6,8 @@ nav_order: 6
 
 # AI triage
 
+See how it works: [AI triage of findings](../how-it-works/remediation/ai-triage.md).
+
 AI triage asks a large language model to assess a finding: a severity assessment with its
 justification, exploitability, business impact, a false-positive likelihood and a summary. The
 result is advice stored next to the finding; it does not change the finding's severity, status or

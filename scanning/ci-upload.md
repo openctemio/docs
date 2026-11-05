@@ -15,16 +15,15 @@ detects each file's format and reads it with the same importers as the
 finding import ([Ingesting results](../api/ingest.md)). The run's gate judges the uploaded
 findings with everything else in the run.
 
-See how it works: [From sensor result to findings](../how-it-works/results/result-ingest.md).
+See how it works: [From sensor result to findings](../how-it-works/results/result-ingest.md), [CI runner identity and upload](../how-it-works/integrations/ci-runner.md).
 
 ```sh
 openctem-ci upload [flags] <file or directory>...
 openctem-ci upload --gate trivy.json zap.xml
 ```
 
-Needs `openctem-ci` from the first release after v0.3.1 and OpenCTEM v0.11.0
-or later. Platform v0.19.x accepts CTIS 2.0 only, which the next release
-(v0.4.0, not published yet) sends; `upload` is not in the published v0.3.1.
+Needs `openctem-ci` v0.4.0 or later (`upload` is not in v0.3.1) and OpenCTEM
+v0.11.0 or later. Platform v0.19.x accepts CTIS 2.0 only, which v0.4.0 sends.
 
 1. TOC
 {:toc}

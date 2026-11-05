@@ -6,6 +6,8 @@ nav_order: 8
 
 # Mobilization
 
+See how it works: [Remediation groups, campaigns and tasks](../how-it-works/remediation/remediation-work.md), [SLA deadlines and escalation](../how-it-works/remediation/sla-escalation.md), [Creating tickets](../how-it-works/remediation/tickets.md), [Ticket two-way sync](../how-it-works/remediation/ticket-sync.md), [Automation rules](../how-it-works/remediation/automations.md).
+
 **CTEM stage 5.** Mobilization turns what you found and prioritized into
 **remediation that is tracked until it is closed**, and **automates** the
 repetitive steps. It is where risk actually goes down, not just where you learn
@@ -214,10 +216,9 @@ membership ends or expires. Each move made this way is recorded in the audit log
 
 **Campaigns** (`/remediation/campaigns`) are programs that track many fixes
 toward one goal and deadline. A campaign's status is one of **Draft**,
-**Active**, **Paused**, **Validating**, **Completed** or **Canceled**; open one
+**Active**, **Completed** or **Canceled**; open one
 (`/remediation/campaigns/{id}`) to see its progress, dates, owner, validator and
-findings, to **Resolve open findings** (each is claimed fixed and checked again
-on its own) and to **Create Jira Epic**.
+findings, and to **Create Jira Epic**.
 
 ![A campaign page: progress, owner, due date and the tasks it holds]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
 *Figure: A campaign.*
@@ -321,7 +322,8 @@ guidance, never a secret from the finding.
   P3 30**. Create the default policy to set your own windows.
 - Click **New policy**, give it a **Name** and **Description**, set the windows
   in days and the warning threshold, and tick **Make this the default policy**.
-  Only the default policy applies to findings.
+  Of the policies made here, only the default applies to findings. A policy
+  set through the API for one asset applies to that asset's findings instead.
 - Saving a policy changes deadlines computed from then on, not deadlines already
   set.
 

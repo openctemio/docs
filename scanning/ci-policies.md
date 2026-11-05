@@ -8,6 +8,8 @@ nav_order: 3
 # Gate policies
 {: .no_toc }
 
+See how it works: [CI policy gate and break-glass](../how-it-works/integrations/ci-policy-gate.md).
+
 For AppSec admins: what fails a pipeline, how a policy is chosen, and how to
 change it safely. Open **Discovery › CI/CD › Settings › Gate policy**.
 

@@ -8,6 +8,8 @@ nav_order: 1
 # CI/CD quickstart: connect a pipeline
 {: .no_toc }
 
+See how it works: [CI runner identity and upload](../how-it-works/integrations/ci-runner.md).
+
 This page connects one GitHub Actions or GitLab CI pipeline to OpenCTEM. The
 pipeline scans code, dependencies, secrets and infrastructure-as-code on
 every push and pull request. It reports with its own short-lived OIDC

@@ -6,6 +6,8 @@ nav_order: 3
 
 # Scoping
 
+See how it works: [Bug bounty reports](../how-it-works/integrations/bug-bounty.md).
+
 **CTEM stage 1.** Scoping decides *what* is in scope for exposure management and
 *why it matters to the business*. In OpenCTEM you run the program as CTEM cycles,
 record which assets are business-critical and who owns them, set the boundary

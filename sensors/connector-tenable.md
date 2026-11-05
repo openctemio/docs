@@ -7,6 +7,8 @@ nav_order: 6.8
 # Tenable.sc connector
 {: .no_toc }
 
+See how it works: [Connector sync](../how-it-works/integrations/connectors.md).
+
 The Tenable.sc connector brings a **Tenable Security Center** (Tenable.sc) you
 run inside your network into OpenCTEM. It:
 

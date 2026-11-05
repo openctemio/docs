@@ -6,6 +6,8 @@ nav_order: 9
 
 # Insights and reports
 
+See how it works: [Reports and exports](../how-it-works/remediation/reports-exports.md).
+
 The **Insights** section of the sidebar turns what the platform tracks into
 dashboards for different audiences: **Program health**, **Data quality**,
 **Executive summary**, **CTEM maturity**, **Reports** and **Compliance**. These

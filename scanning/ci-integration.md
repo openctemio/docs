@@ -8,6 +8,8 @@ has_children: true
 # CI/CD integration
 {: .no_toc }
 
+See how it works: [CI runner identity and upload](../how-it-works/integrations/ci-runner.md), [CI policy gate and break-glass](../how-it-works/integrations/ci-policy-gate.md).
+
 [`openctemio/ci`](https://github.com/openctemio/ci) scans code in your CI
 pipelines and reports to OpenCTEM. A CI job proves who it is with the OIDC
 token its CI system issues, so **no API key or other secret is stored in CI**.
@@ -19,10 +21,8 @@ platform, inside your networks. A CI job runs a one-shot binary in a small
 image per tool. Both produce the same CTIS 2.0 reports.
 
 {: .note }
-Platform v0.19.x accepts CTIS 2.0 only. The latest published `openctem-ci`
-release, v0.3.1, still sends CTIS 1.x, so its uploads are refused; the
-release that sends CTIS 2.0 (v0.4.0) is not published yet. Until it is,
-uploads from the released runner fail.
+Platform v0.19.x accepts CTIS 2.0 only. Use `openctem-ci` v0.4.0 or later:
+v0.3.1 and older send CTIS 1.x, and their uploads are refused.
 
 1. TOC
 {:toc}
@@ -336,6 +336,7 @@ A finding seen only on a feature or merge request branch is **branch-only**.
 It shows in the CI gate, on the run and on the branch. It does not show in
 exposure views, dashboards, SLA clocks or notifications. It joins the
 organization's exposure when the code reaches a branch that counts: the
-default branch, a protected branch, or a `main` or `release` branch. In a
+default branch or a protected branch (a name such as `release/x` alone does
+not count). In a
 repository whose default branch is not known yet, nothing is hidden.
 Branch-only findings that no branch reports any longer expire.

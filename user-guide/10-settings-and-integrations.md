@@ -6,6 +6,8 @@ nav_order: 10
 
 # Settings and integrations
 
+See how it works: [Creating tickets](../how-it-works/remediation/tickets.md), [Ticket two-way sync](../how-it-works/remediation/ticket-sync.md), [Notification delivery](../how-it-works/remediation/notifications.md), [Outgoing webhooks](../how-it-works/remediation/outgoing-webhooks.md), [SIEM ingest](../how-it-works/integrations/siem-ingest.md).
+
 **Settings** (in the sidebar footer) is where you shape the platform to your
 organization: its details, how it is protected, who may sign in, the policies it
 applies, how scanning is set up, and how it connects to your other tools. Inside

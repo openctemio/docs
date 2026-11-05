@@ -8,6 +8,8 @@ nav_order: 7
 # CI/CD troubleshooting
 {: .no_toc }
 
+See how it works: [CI runner identity and upload](../how-it-works/integrations/ci-runner.md), [CI policy gate and break-glass](../how-it-works/integrations/ci-policy-gate.md).
+
 1. TOC
 {:toc}
 

@@ -6,6 +6,8 @@ nav_order: 10.4
 
 # Settings > AI: AI agents
 
+See how it works: [AI agents and approvals](../how-it-works/remediation/ai-agents.md).
+
 An **AI agent** takes part in triage like a person, as its own service account. It calls
 the same finding commands a person calls, with its own role and data scope, and its
 changes go through the same approvals, audit log and notifications. People or teams answer

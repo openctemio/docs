@@ -9,6 +9,8 @@ nav_order: 15
 
 # Bug-bounty programs: permissions
 
+See how it works: [Bug bounty reports](../../../how-it-works/integrations/bug-bounty.md).
+
 Programs the organization tests under their published rules: import with an attestation, re-import, pause, resume and end.
 
 - **CTEM stages:** scoping
