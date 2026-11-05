@@ -43,7 +43,9 @@ Each entry records:
 - the action, resource type, resource id and name;
 - the result (`success`, `failure` or `denied`) and a severity (`low`, `medium`, `high`, `critical`);
 - before and after values for changes where available, a message, free-form metadata;
-- the request id and session id, and the time.
+- the request id and session id, and the time. A row written during a request carries the request id
+  and the client address (trusted-proxy rule applied) even when the code that wrote it did not pass
+  them; work done in the background records neither.
 
 Actions taken by a platform administrator inside an organization (for example creating the first
 owner or rebaselining the chain) are written to that organization's log with the actor
@@ -83,19 +85,30 @@ audit log: a key never has full data access (see
 [API authentication](../api/authentication.md)).
 
 Platform administrators read the administrators' audit log in the platform console (**Security >
-Admin activity**) or with `GET /api/v1/admin/audit-logs`.
+Admin activity**) or with `GET /api/v1/admin/audit-logs`. `GET /api/v1/admin/audit-logs/chain`
+reports the chain state.
 
 ## Hash chain
 
-Every organization audit entry gets a row in `audit_log_chain`:
+The database chains every organization audit row in the same transaction that inserts it, so no
+write path (API handler, repository transaction or data migration) can leave a row unchained. Each
+entry gets a row in `audit_log_chain`:
 
 ```
-hash = SHA-256(prev_hash | audit_log_id | action|resource_type|resource_id|result | timestamp)
+hash = SHA-256(prev_hash | "|" | row payload)
 ```
 
-The timestamp is rounded to microseconds, as PostgreSQL stores it. Events without an organization
-(for example failed sign-ins for an unknown account) go into a separate system chain. Chain rows
-reference their audit rows with `ON DELETE RESTRICT`, so a plain `DELETE` of an audit row fails.
+The payload is a JSON array of the row's id, organization, actor id, action, resource type, resource
+id and name, changes, result, severity, message, metadata, request id, session id and time (whole
+microseconds). The actor's e-mail, IP address and user agent are not part of it, because an erasure
+may have to remove them. Rows written before v0.19.0 keep the older hash over action, resource type,
+resource id, result and time only; both versions verify, and the chain row says which one it is.
+
+Events without an organization (for example failed sign-ins for an unknown account) go into a
+separate system chain. The database refuses `UPDATE` and `TRUNCATE` of `audit_logs` and of the chain
+evidence tables (`audit_log_chain` hashes change only in a platform rebaseline), and a chain row
+references its audit row with `ON DELETE RESTRICT`. Deleting an account or an organization leaves its
+audit rows and their ids as recorded. Only the retention job removes old rows (see below).
 
 ### Verifying
 
@@ -115,8 +128,8 @@ Read these before relying on the chain as evidence:
   access to the database can rewrite rows and recompute the chain consistently. Keep database write
   access to the API's own role (see [Hardening](hardening.md)) and copy the log to a separate system
   if you need evidence that survives a database compromise.
-- The hash covers the action, resource type, resource id, result and time. The actor, message,
-  metadata and change values are stored with the entry but are not part of the hash.
+- The hash covers the whole row except the actor's e-mail, IP address and user agent (see above).
+  Rows chained before v0.19.0 are covered only by action, resource type, resource id, result and time.
 - A **rebaseline** re-signs an organization's chain from the current rows. It exists only to repair
   breaks left by a historical timestamp-precision defect. It is available only to a platform
   super admin in the platform console (**Organizations**, open the organization, **Audit chain** tab), after a
@@ -133,9 +146,12 @@ The design reference is
 The administrators' log is append-only: database triggers refuse updates, deletes and truncation
 of `admin_audit_logs`, the application role has no grant to change it, and every row is linked
 into a SHA-256 hash chain computed by the database. **Security > Admin activity** shows whether
-every entry verifies, and `bootstrap-admin verify-audit [-json]` checks it
-from the command line and exits 1 on a break (run it from the API image, which ships
-`/app/bootstrap-admin`: `docker compose run --rm bootstrap-admin verify-audit`). Before any
+every entry verifies. The chain report (`GET /api/v1/admin/audit-logs/chain`, and
+`bootstrap-admin verify-audit [-json]`, which exits 1 on a break) also carries the chain head: the
+position and hash of the newest row, or of the newest anchor when no row is online. A copy of the log
+can be verified offline and compared with an earlier copy even without a forwarding sink. Run the
+command from the API image, which ships `/app/bootstrap-admin`:
+`docker compose run --rm bootstrap-admin verify-audit`. Before any
 state-changing console request runs, whatever the administrator's role, and before an elevation is
 granted, the API writes an `admin.write_started` row with the redacted request body; if that row
 cannot be written the request is refused with `503 AUDIT_UNAVAILABLE`. Address fields (`url`,
