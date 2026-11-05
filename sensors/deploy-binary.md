@@ -164,7 +164,7 @@ identity and the outbox over. Rollback and removal:
 
 ## Build from source
 
-The sensor needs Go 1.26:
+The sensor needs Go 1.27 (the toolchain pinned in its `go.mod`):
 
 ```bash
 git clone https://github.com/openctemio/sensor.git

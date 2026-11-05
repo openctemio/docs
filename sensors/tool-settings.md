@@ -100,7 +100,7 @@ the console shows exactly what your sensor declares.
 
 | Tool | Option (native flag) |
 |---|---|
-| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`), `tags`, `exclude_tags`, `severity` |
+| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`), `tags`, `exclude_tags`, `severity`, `response_read_kb` (`-rsr`, sensor only), `response_save_kb` (`-rss`) |
 | naabu | `rate` (`-rate`, common), `retries` (`-retries`, common), `ports` (`-p`), `top_ports` (`-top-ports`), `exclude_ports` (`-exclude-ports`) |
 | httpx | `rate_limit` (`-rl`, common), `threads` (`-threads`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `ports` (`-ports`), `follow_redirects` (`-follow-host-redirects`), `tech_detect` (`-tech-detect`), `tls_grab` (`-tls-grab`) |
 | dnsx | `rate_limit` (`-rl`, common), `threads` (`-t`, common), `timeout` (`-timeout`, common), `retries` (`-retry`, common), `record_types`, `wildcard_filter` (`-auto-wildcard`) |
@@ -115,6 +115,20 @@ the console shows exactly what your sensor declares.
 | rdap | `follow_registrar` |
 
 semgrep declares no options.
+
+Two nuclei details (sensor v0.37.0 or later):
+
+- With no `severity` setting nuclei runs every severity, info included
+  (technology detection, login panels, TLS and header posture, WAF
+  detection). Before, the default was low to critical. The platform files
+  info matches as info exposures of the asset, not as findings, and needs a
+  platform that reads them that way: upgrade the platform first. A scan or a
+  workflow step narrows the severities with its `severity` setting.
+- `response_read_kb` (64 to 65536 KiB, default 10240) is how much of each
+  response nuclei reads and matches on; matches past it are missed.
+  `response_save_kb` (16 to 1024 KiB, default 1024, never above the read
+  limit) is how much of a matching response is kept as the finding's
+  evidence. The defaults are nuclei's own.
 
 These options are the ones the current sensor release ({{ site.data.versions.sensor }}) declares (opengrep from v0.22.0); older sensors declare fewer.
 

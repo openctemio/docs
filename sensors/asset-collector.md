@@ -170,6 +170,21 @@ concurrency limit per endpoint, retries only for transient failures, exactly
 one login attempt (a refused password is not retried, so the account is not
 locked), and a circuit breaker after repeated failures.
 
+## Upgrading
+
+- **Collector v0.3.0 and platform v0.19.0 go together.** Collector reports
+  are CTIS 2.0 documents from v0.3.0, and a platform from v0.19.0 accepts
+  only CTIS 2.0. An older platform refuses the new reports, and a newer
+  platform refuses the old ones, including any still waiting in the
+  collector's outbox. Upgrade the platform first, then the collector.
+- **One writable volume at `/var/lib/openctem`.** The collector keeps its
+  identity, its outbox, a local store and a content cache there. A container
+  with a read-only root and volumes only on `outbox` and `state` stops at
+  start: mount a named volume at `/var/lib/openctem` as in the commands above.
+- **`exclude_properties`** no longer accepts `ad_object_guid`, `ad_device_id`,
+  `moref`, `prtg_id` and `root_domain`. Remove them from the configuration
+  file.
+
 ## Verify the image
 
 The images are signed (keyless, with an SBOM and provenance):

@@ -62,7 +62,7 @@ never shares a process with the keys.
      -v connector-tenable-data:/var/lib/openctem \
      -v /etc/openctem/connectors:/etc/openctem/connectors:ro \
      -v /run/secrets/tenable-sc:/run/secrets/tenable-sc:ro \
-     ghcr.io/openctemio/connector-tenable:v0.1.0
+     ghcr.io/openctemio/connector-tenable:v0.2.0
    ```
 
 5. Approve the pairing in OpenCTEM (check the fingerprint in
@@ -93,10 +93,17 @@ and the licence guard are in the connector's
 ## Verify the image
 
 ```bash
-cosign verify ghcr.io/openctemio/connector-tenable:v0.1.0 \
+cosign verify ghcr.io/openctemio/connector-tenable:v0.2.0 \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   --certificate-identity-regexp '^https://github\.com/openctemio/connector-tenable/\.github/workflows/images\.yml@refs/tags/v'
 ```
+
+## Upgrading
+
+Connector v0.2.0 sends CTIS 2.0 documents, and a platform from v0.19.0
+accepts nothing else. Run connector v0.2.0 or later with platform v0.19.0 or
+later; an older connector shows "version unsupported" in the console and its
+results are refused. Upgrade the platform first, then the connector.
 
 ## Moving from the sensor
 

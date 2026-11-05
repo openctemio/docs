@@ -240,6 +240,17 @@ Nothing needs editing: the sensor follows the organization's scope.
 | `./sensors.sh repair NAME --pairing-code CODE [--yes]` | Answer the console's Re-pair for one sensor ([below](#re-pair-one-sensor-of-the-kit)). |
 | `./sensors.sh remove NAME [--purge] [--yes]` | Stop and remove one sensor, its `sensors/NAME/` directory and its `compose.yaml` blocks; `--purge` also deletes its data volume. |
 
+The kit's `.env` holds the settings every sensor of the directory shares:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `SENSOR_VERSION` | required | The release every sensor runs; change it with `./sensors.sh upgrade`. |
+| `SENSOR_IMAGE` | `ghcr.io/openctemio/sensor` | A mirror of the image, for hosts that cannot reach the registry. |
+| `SENSOR_VARIANT` | empty | A profile image for every sensor: `-passive`, `-standard` (the default image) or `-full`. |
+| `SENSOR_MEM_LIMIT`, `SENSOR_CPUS`, `SENSOR_PIDS_LIMIT` | `4g`, `2`, `2048` | Ceilings of each sensor's container. The sensor sizes its job slots from what it sees. Override one sensor in its own block of `compose.yaml`. |
+| `SENSOR_TMP_SIZE` | `1g` | Size of each sensor's `/tmp` (a tmpfs). |
+| `COMPOSE_PROJECT_NAME` | `openctem-sensors` | Another name lets a second directory run its own set on the host. |
+
 A sensor that was stopped before anyone approved it keeps its key: start it
 again (`./sensors.sh pair acme`) and open its new link. A key that was
 approved once never pairs again: the sensor then says its key is already
