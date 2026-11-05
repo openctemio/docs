@@ -114,8 +114,8 @@ services:
       # Refuse to start unless each scan's network can be confined.
       SENSOR_SANDBOX_NETWORK: required
       # SENSOR_PAIRING_CODE: "K7QM-4ZTD"           # attach to the code of the Add sensor command
-      # What this sensor may scan. Without it (or a policy file) a newly
-      # paired sensor refuses every job with network targets.
+      # Optional: narrows what this sensor may scan. Without it (or a policy
+      # file) the sensor follows the platform's signed scope.
       SENSOR_ALLOWED_RANGES: "203.0.113.0/24,*.example.com"
       XDG_CONFIG_HOME: /tmp/.config
       XDG_CACHE_HOME: /tmp/.cache

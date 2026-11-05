@@ -8,7 +8,7 @@ nav_order: 6.5
 {: .no_toc }
 
 Scanners need content: nuclei templates, SAST rules, the trivy database,
-wordlists. This page says where a sensor gets it today, what content packs
+wordlists. This page says where a sensor gets it, what content packs
 are, how the platform serves packs to sensors by digest, and how signed
 packages from the content catalog are installed.
 
@@ -19,7 +19,7 @@ packages from the content catalog are installed.
 
 ## What a sensor scans with today
 
-Sensor releases up to {{ site.data.versions.sensor }} (the current ones) manage their own content. Each sensor
+Sensors manage the content of their built-in scanners themselves. Each sensor
 downloads it from its upstream, verifies it, and switches to it atomically:
 
 | Content | Where from | Verified by |
@@ -70,7 +70,7 @@ channel that names it back to the newest older active pack of that name.
 
 ## Delivery to sensors by digest
 
-From platform v0.9.6, the platform serves packs to sensors over the sensor
+The platform serves packs to sensors over the sensor
 channel, with the sensor's own credentials:
 
 | Route | Returns |
@@ -124,13 +124,37 @@ sequenceDiagram
 - **Revocation.** A revoked pack leaves the desired set within 10 seconds,
   and its digest is listed as revoked.
 
-The client side of these routes is in sdk-go v0.32.0 (`contentcache`, with
-delta installs, conditional requests, a jittered prefetch and hit, miss and
-bytes-saved counters). **Current sensor releases (up to {{ site.data.versions.sensor }}) do not use these routes yet**: it
-keeps managing its content as described in
-[What a sensor scans with today](#what-a-sensor-scans-with-today), and
-scans do not run content packs. There is nothing to configure on the sensor
-for content packs.
+The client side of these routes is in sdk-go (`contentcache`, with delta
+installs, conditional requests, a jittered prefetch and hit, miss and
+bytes-saved counters). A paired sensor opens the cache in `content/` next to
+its local store and refreshes it on a schedule and when a heartbeat answer
+carries a new `content_version`. The pairing pins the content signing keys:
+the platform key, and for a sensor of one organization that organization's
+key. A sensor paired before this has no content keys and runs no job that
+names packs until it is paired again. A shared sensor reads the platform's
+`stable` packs only; an organization's pack is never sent to it.
+
+**Jobs pin the packs they read.** When a scan or retest job is claimed, the
+platform lists the packs it needs by digest (and any lists it generated from
+your own names) in the job, and the signed statement of the job names each
+pack. The sensor mounts a pack only when the verified statement lists it,
+checks it against the pinned keys, its digest and the archive rules, and
+fetches a missing one at claim. A pack that cannot be delivered fails the job
+as `content_unavailable` and the platform queues it again. An example is the
+label list of subdomain brute force: the sensor has no list of its own, so a
+job without a wordlist pack is refused. The packs a result was matched with
+are recorded on its command. There is nothing to configure on the sensor for
+content packs.
+
+What the sensor manages itself is unchanged: nuclei templates, SAST rules and
+the trivy database come from their upstreams as described in
+[What a sensor scans with today](#what-a-sensor-scans-with-today).
+
+Two kinds of platform pack are not sent to sensors at all:
+`web-fingerprints` and `secret-rules` are run by the platform on the web
+content each report already carries (see
+[Detection rules](../scanning/easm.md#detection-rules)). Wordlists are managed
+under **Settings > Scanning > Wordlists** ([EASM](../scanning/easm.md)).
 
 ## Content catalog
 
@@ -156,7 +180,7 @@ writes a high-severity admin audit entry at start-up. A separate secret,
 `APP_CONTENT_SIGNING_KEY`, is the master of each organization's content pack
 signing key; see [Environment variables](../configuration/environment-variables.md).
 
-**Use it.** **Settings > Scanning > Content catalog** (needs `content:read`, held by every
+**Use it.** **Settings > Content catalog** (needs `content:read`, held by every
 default role):
 
 | Tab | What it does |

@@ -18,7 +18,7 @@ writing migrations. How operators apply them during an upgrade is in
 api/migrations/
 ├── 001146_baseline.up.sql      the whole schema up to 001146, plus built-in rows
 ├── 001146_baseline.down.sql    refuses: the baseline is never reverted
-├── 001147_<name>.up.sql        legacy six-digit versions (no new ones)
+├── 001147_<name>.up.sql        legacy six-digit versions (no new ones; the last is 001148)
 ├── 001147_<name>.down.sql
 ├── ...
 ├── 20261030064455_<name>.up.sql   every new change: a UTC timestamp version
@@ -79,13 +79,13 @@ breaking change is split:
 Renaming `findings.owner` to `findings.owner_email`, safely:
 
 ```sql
--- Expand: 001200_add_owner_email.up.sql
+-- Expand: 20261105090000_add_owner_email.up.sql
 ALTER TABLE findings ADD COLUMN owner_email TEXT;
 UPDATE findings SET owner_email = owner WHERE owner_email IS NULL;
 ```
 
 ```sql
--- Contract, once no running code reads `owner`: 001230_drop_owner.up.sql
+-- Contract, once no running code reads `owner`: 20261201090000_drop_owner.up.sql
 -- expand-contract-ok: contract step; owner unused since the release that added owner_email
 ALTER TABLE findings DROP COLUMN owner;
 ```
@@ -124,7 +124,7 @@ or label the pull request `allow-destructive-migration`. Run it locally:
 ```bash
 cd api
 scripts/check-migrations.sh                              # against the base branch
-scripts/check-migrations.sh migrations/001200_*.up.sql   # specific files
+scripts/check-migrations.sh migrations/2026*_add_owner_email.up.sql   # specific files
 ```
 
 **SQL Schema Drift** (`api/scripts/check-sql-schema.sh`) also prepares every SQL statement in the

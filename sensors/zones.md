@@ -115,6 +115,8 @@ still runs on its own sensors.
 
 ## Network paths
 
-A zone has no network path of its own: its sensors reach its ranges directly,
-or through whatever proxy their environment sets. Per-zone egress proxies are
-planned; see [Network requirements](network.md#proxies).
+A zone has no network path of its own: its sensors reach its ranges directly.
+Scan traffic can go through a proxy pool, which you choose per sensor (**Network
+path** on the sensor) or as the organization default; see
+[Proxies for scans](proxies.md). The path from a sensor to the platform is
+`SENSOR_CONTROL_PROXY`; see [Network requirements](network.md#proxies).

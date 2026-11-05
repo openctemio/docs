@@ -41,6 +41,9 @@ make lint test check   # what CI gates on, for both components
 
 - `pre-commit` runs `gofmt` on staged Go files, and the TypeScript type check and lint-staged
   when web files are staged;
+- `pre-push` runs `scripts/precheck.sh --verify`: it refuses a branch that is behind the branch its
+  pull request targets, then runs the lint and static checks CI gates on. `make precheck` syncs the
+  branch with its base first and then runs the same checks;
 - `commit-msg` rejects AI-tool attribution lines (`Co-Authored-By:` an AI assistant, "Generated
   with ..." footers, session links). Commits are authored by people.
 

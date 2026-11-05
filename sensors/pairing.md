@@ -391,6 +391,8 @@ the Helm chart currently uses a key; see
 | `POST /api/v1/sensor-pairings/expectations`, `GET /api/v1/sensor-pairings/expectations/{id}` (a pairing code made first; with `repair_sensor_id` and `repair_reason` a re-pair code) | `sensors:pair` |
 | `POST /api/v1/sensor-pairings/{id}/approve` (body `organization_id`, `fingerprint`, and `repair_sensor_id` for a re-pair) | `sensors:approve` |
 | `POST /api/v1/sensor-pairings/{id}/reject` (body `code`) | `sensors:pair` |
+| `GET /api/v1/sensor-pairings/pending` (sensors waiting for an administrator) | `sensors:pair` |
+| `GET` / `POST /api/v1/sensor-pairings/enrollment-tokens`, `POST /api/v1/sensor-pairings/enrollment-tokens/{id}/revoke` | `sensors:read` to list; `sensors:approve` (and a recent sign-in) to create or revoke |
 | `GET` / `PUT /api/v1/sensors/{id}/grant`, `GET /api/v1/sensors/grant-profiles` | `sensors:read` / narrow or widen |
 | `GET` / `PUT /api/v1/sensors/identity-policy` | `sensors:read` / narrow or widen |
 | `GET /api/v1/sensors/{id}/keys`, `POST /api/v1/sensors/{id}/keys/{key_id}/revoke` | `sensors:read` / `sensors:write` or `sensors:revoke` |
