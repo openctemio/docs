@@ -181,6 +181,8 @@ there.
 | `openctem_admin_port`, `openctem_admin_bind` | `8443`, empty | Port mode: the console port and the address it is published on (empty is `127.0.0.1`; never a public address). |
 | `openctem_signup_mode` | `disabled` | `disabled`, `domain` or `open` ([Sign-up and invitations](../identity/sign-up-and-invitations.md)). `open` also needs the platform e-mail and, on the internet, Turnstile keys. |
 | `openctem_api_env` | `{}` | Extra non-secret API settings, for example `ASSET_COVERAGE_DAILY_BUDGET`. The role refuses names it manages itself and secret-looking names. |
+| `openctem_feed_proxy`, `openctem_feed_no_proxy` | empty | Send the platform's own feed downloads through an HTTPS proxy, and name hosts reached directly. A proxy that needs a password: leave `openctem_feed_proxy` empty and write the whole URL to `/opt/openctem/secrets/feed_proxy_url` (mode 0400, root). See [Feeds](../operations/feeds.md). |
+| `openctem_sensor_feed_relay_origins` | `[]` | Extra https origins (a mirror) the feed relay sensor may fetch, added to the job signer's allowlist; set the same list on the sensor as `SENSOR_FEED_RELAY_ORIGINS`. The kit installs no sensor. |
 | `openctem_job_signer` | `false` | Sign sensor jobs; the key is created on the VM. |
 | `openctem_captcha_turnstile_site_key` | empty | Public Turnstile site key for `openctem_signup_mode: open`; the secret goes in `/opt/openctem/secrets/captcha_turnstile_secret` on the VM. |
 | `openctem_admin_audit_sink` | empty | Off-database copy of the platform administrators' audit log: empty (off), `file` or an `https://` URL. Sets the API's `ADMIN_AUDIT_SINK`. Required for a hosted service ([below](#hosted-service-the-administrators-audit-sink)). |
@@ -345,14 +347,11 @@ procedure see [Backup and restore](../operations/backup-restore.md).
 
 ## Security keys for the console
 
-The kit does not set `ADMIN_PUBLIC_URL`, so the API uses the origin of the app host
-and administrators cannot register security keys on the console's origin (a known
-gap). Set it through `openctem_api_env`:
-
-```yaml
-openctem_api_env:
-  ADMIN_PUBLIC_URL: https://admin.example.com   # openctem_admin_host
-```
+With `openctem_admin_site: host` the kit sets `ADMIN_PUBLIC_URL` to
+`https://<openctem_admin_host>`, the origin security keys and passkeys are bound to. In `port`
+or `off` mode it does not set it, and `openctem_api_env` refuses `ADMIN_PUBLIC_URL` (the role
+owns it), so administrators cannot register security keys on the console's port origin. Use
+host mode for production.
 
 ## Hosted service: the administrators' audit sink
 

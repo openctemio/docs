@@ -47,6 +47,7 @@ cd api/deploy
 | `docker-compose.sensor-passthrough.yml` | Overlay: sensors reach the platform on the same port 443, routed to the API's mutual-TLS listener (see [Transport](../sensors/transport.md)). |
 | `docker-compose.sensor.yml` | Overlay: a bundled sensor, enrolled as a shared sensor of the installation (see [Overlays](#overlays)). |
 | `docker-compose.clamav.yml` | Overlay: malware scanning of uploaded files (see [File storage](../configuration/file-storage.md)). |
+| `docker-compose.backup.yml` | Overlay: scheduled backups with a status file the console health page reads (see [Backup and restore](../operations/backup-restore.md)). |
 | `docker-compose.job-signer.yml` | Overlay: the optional signed-jobs steps (key set, scope ledger). The signer itself is part of the base file (see [Signed jobs](#signed-jobs)). |
 | `setup.sh` | Writes `.env` with generated secrets (see step 2). |
 | `.env.example` | Settings template. |
@@ -236,27 +237,17 @@ described in [the console guide](../user-guide/11-platform-administration.md). T
 control; the controls are the separate origin, the network list, the console's
 own sign-in with a second factor, step-up and its audit log.
 
-{: .warning }
-**Known gap: security keys need `ADMIN_PUBLIC_URL`.** The API defaults it to the
-origin of `APP_URL` (`https://<host>`), but the console is on another origin, so
-registering a security key or passkey fails ("The security key response was not
-accepted"; the API log says `Error validating origin`). Set it to the console's
-exact origin and apply it. The stack does not pass it
-yet, so use `docker-compose.override.yml` (host mode: `https://<OPENCTEM_ADMIN_HOST>`):
-
-```yaml
-services:
-  api:
-    environment:
-      ADMIN_PUBLIC_URL: https://ctem.example.com:8443
-```
-
-Then `docker compose up -d api`. Changing it later makes registered keys unusable.
+Security keys and passkeys of the console are bound to the console's exact origin.
+`setup.sh` writes it as `OPENCTEM_ADMIN_PUBLIC_URL` in `.env` and the stack passes it to the
+API as `ADMIN_PUBLIC_URL`. If you wrote `.env` by hand, set it
+(`https://<OPENCTEM_ADMIN_HOST>` in host mode, `https://<OPENCTEM_HOSTNAME>:<OPENCTEM_ADMIN_PORT>`
+in port mode) and run `docker compose up -d api`; left empty, registering a key fails
+("Error validating origin" in the API log). Changing it later makes registered keys unusable.
 
 ## Setting other variables
 
 The `api` service passes a fixed list of variables from `.env` to the API:
-`APP_ENV`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_ADMIN_USER`,
+`APP_ENV`, `ADMIN_PUBLIC_URL`, `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_ADMIN_USER`,
 `DB_ADMIN_PASSWORD`, `DB_NAME`, `DB_SSLMODE`, `REDIS_HOST`, `REDIS_PORT`,
 `REDIS_DB`, `REDIS_PASSWORD`, `REDIS_TLS_ENABLED`, `REDIS_TLS_CA_FILE`,
 `LOG_LEVEL`, `LOG_FORMAT`, `AUTH_PROVIDER`, `AUTH_JWT_SECRET`,

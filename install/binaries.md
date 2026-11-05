@@ -26,7 +26,7 @@ only. The commands below use `vX.Y.Z` for the release you install.
 
 | Archive | Platforms | Contents |
 |---|---|---|
-| `openctem-server-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 | `openctem-server` (the API) and its operator commands as links (`bootstrap-admin`, `refingerprint`, `repomerge`, `ci-trust-scope-plan`), `openctem-signer` (job signer), `openctem-migrate` (the migration runner), `migrations/`, `configs/`, `api/openapi/swagger.yaml`, systemd units for the server, the signer and migrations, env examples |
+| `openctem-server-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 | `openctem-server` (the API) and its operator commands as links (`bootstrap-admin`, `refingerprint`, `repomerge`, `ci-trust-scope-plan`, `asset-canonical`), `openctem-signer` (job signer), `openctem-migrate` (the migration runner), `migrations/`, `configs/`, `api/openapi/swagger.yaml`, systemd units for the server, the signer and migrations, env examples |
 | `openctem-gateway-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 | `caddy` with the layer4 module (the gateway image's build), the gateway configuration and entrypoint, systemd unit, env example |
 | `openctem-web-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 (glibc) | the web console as a Next.js standalone bundle, systemd unit, env example, `NODE_VERSION` |
 | `openctem-console-<v>-linux-<arch>.tar.gz` | linux amd64, arm64 (glibc) | the platform console, same layout |
@@ -44,7 +44,7 @@ distributions (Debian, Ubuntu, RHEL and derivatives), not on Alpine or other
 musl systems. Node.js is not bundled: it gets security releases between ours,
 and your package manager should apply them.
 
-Not shipped as archives: PostgreSQL and Redis (use your distribution's or a
+Not shipped as archives: PostgreSQL (16, 17 or 18; 17 recommended) and Redis 7 (use your distribution's or a
 managed service), the scanning sensor (released by `openctemio/sensor` with its
 own signed archives, see [Deploy a sensor as a binary](../sensors/deploy-binary.md)),
 and the all-in-one image (containers only).

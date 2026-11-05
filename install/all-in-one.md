@@ -290,14 +290,10 @@ docker run -d --name openctem --restart unless-stopped \
   ghcr.io/openctemio/openctem:$NEW_VERSION
 ```
 
-{: .warning }
-**Known gap: security keys need `ADMIN_PUBLIC_URL`.** The API defaults it to the
-origin of `APP_URL` (`https://<host>`), but the console is on another origin, so
-registering a security key or passkey fails ("The security key response was not
-accepted"; the API log says `Error validating origin`). Set it to the console's
-exact origin: add
-`ADMIN_PUBLIC_URL=https://ctem.example.com:8443` (or `https://<OPENCTEM_ADMIN_HOST>`)
-to `openctem.env` and recreate the container.
+Security keys and passkeys of the console are bound to the console's origin. The image derives
+`ADMIN_PUBLIC_URL` from the gateway's console site settings. To use another origin, add
+`ADMIN_PUBLIC_URL=https://admin.ctem.example.com` to `openctem.env` and recreate the container;
+changing it later makes registered keys unusable.
 
 ## Hosted service
 
