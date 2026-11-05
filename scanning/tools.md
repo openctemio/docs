@@ -102,6 +102,11 @@ run, with the same reason.
 A trigger is refused with `NO_SENSOR_FOR_TOOL` when a tool it needs has no
 online sensor that may run it, instead of queuing work nobody claims.
 
+{: .note }
+From v0.20.0, a step whose tool has no sensor is skipped with that reason and
+the run ends `partial`; only a trigger in which no step can run is refused.
+See [Scans and scan runs](scans-and-runs.md#starting-a-run).
+
 The same data is available as `GET /api/v1/tools?include=availability`
 (optionally `&zone_id=<scan zone>`).
 

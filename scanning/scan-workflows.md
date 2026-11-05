@@ -220,6 +220,14 @@ after it get the live hosts it found plus the addresses the inventory already
 holds in the ranges. A workflow without a Host discovery step cannot use it
 (`LIVENESS_NEEDS_HOST_DISCOVERY`).
 
+Host discovery is a TCP connect probe, not a ping: an address is live when it
+accepts a connection on one of the probe ports. The step's `ports` setting
+names them; when it names none, the platform sends `80,443,22,3389,8080,8443`
+with every host discovery job. A sensor never picks its own set, and refuses a
+host discovery job that has none. The sensor sends no ICMP echo (its tool
+sandbox grants no raw sockets), so a host that is up but listens on none of
+the probe ports is not found: add the ports your hosts use to the step.
+
 **Politeness.** Within an organization, a task is claimed only while no
 other running task of the organization holds one of its hosts, so one host is
 probed by one task at a time. A name or address is one host; an address and a
@@ -251,6 +259,11 @@ sensor in the scan's zone can run it; the zone routing of a sample of the
 targets, with the targets left out by exclusions; and which targets would
 wait for a scan window. A step no sensor can run blocks the
 scan with the same `NO_SENSOR_FOR_TOOL` reason the trigger would give.
+
+{: .note }
+From v0.20.0, a step no sensor can run, or that no tool implements, no longer
+blocks the scan. The preview marks it as skipped with the reason, and so do
+its dependent steps. See [Scans and scan runs](scans-and-runs.md#starting-a-run).
 
 ## Automations are different
 

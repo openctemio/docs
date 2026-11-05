@@ -78,7 +78,7 @@ on:
 
 jobs:
   openctem:
-    uses: openctemio/ci/.github/workflows/scan.yml@v0.3.0
+    uses: openctemio/ci/.github/workflows/scan.yml@{{ site.data.versions.ci }}
     with:
       capabilities: sast,sca,secrets,iac
       api-url: https://openctem.example.com
@@ -100,16 +100,15 @@ Add to `.gitlab-ci.yml` (the jobs run in the `test` stage):
 
 ```yaml
 include:
-  - remote: https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml
+  - remote: https://raw.githubusercontent.com/openctemio/ci/{{ site.data.versions.ci }}/gitlab/templates/all.yml
 
 variables:
   OPENCTEM_API_URL: https://openctem.example.com
   OPENCTEM_TENANT_ID: <organization id> # jobs use their ID token; no stored secret
 ```
 
-Pin `v0.3.0` (or its commit) as shown, never a branch such as `main`. From
-platform v0.9.6, v0.3.0 is also the oldest release the platform accepts by
-default: an older one is refused with `RUNNER_OUTDATED`. See [Reference](ci-reference.md#versions-to-pin).
+Pin the release (or its commit) as shown, never a branch such as `main`. The
+platform refuses a release older than v0.3.0 with `RUNNER_OUTDATED`. See [Reference](ci-reference.md#versions-to-pin).
 
 ## 4. Push and watch the first run
 

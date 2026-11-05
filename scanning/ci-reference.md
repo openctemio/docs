@@ -13,32 +13,34 @@ nav_order: 8
 
 ## Versions to pin
 
-The current release of `openctemio/ci` is **v0.3.0** (commit
-`c77ac12253277edde4f6947f1d3850ce85b70d44`). Pin it, or that commit:
+The current release of `openctemio/ci` is **{{ site.data.versions.ci }}**. Pin
+it, or the commit it points to:
 
 | Use | Reference |
 |---|---|
-| GitHub reusable workflow | `openctemio/ci/.github/workflows/scan.yml@v0.3.0` |
-| GitHub action | `openctemio/ci@v0.3.0` |
-| GitLab template | `https://raw.githubusercontent.com/openctemio/ci/v0.3.0/gitlab/templates/all.yml` |
-| Image (all tools) | `ghcr.io/openctemio/ci:v0.3.0`, or its digest |
+| GitHub reusable workflow | `openctemio/ci/.github/workflows/scan.yml@{{ site.data.versions.ci }}` |
+| GitHub action | `openctemio/ci@{{ site.data.versions.ci }}` |
+| GitLab template | `https://raw.githubusercontent.com/openctemio/ci/{{ site.data.versions.ci }}/gitlab/templates/all.yml` |
+| Image (all tools) | `ghcr.io/openctemio/ci:{{ site.data.versions.ci }}`, or its digest |
 
-Platform v0.9.6 and later accept v0.3.0 and later only by default
-(`CI_RUNNER_MIN_VERSION`). An older runner is refused with
-`403 RUNNER_OUTDATED`, and the message names the exact line to change: the
-`uses:` line on GitHub, the `include` URL on GitLab, or the image tag
-elsewhere. Older runners read scanner configuration and ignore files from the
-scanned tree, which could hide findings.
+The platform accepts v0.3.0 and later by default (`CI_RUNNER_MIN_VERSION`). An
+older runner is refused with `403 RUNNER_OUTDATED`, and the message names the
+exact line to change: the `uses:` line on GitHub, the `include` URL on GitLab,
+or the image tag elsewhere. Older runners read scanner configuration and ignore
+files from the scanned tree, which could hide findings. The console's
+snippets pin the release the platform was built with.
 
-`openctemio/ci` v0.3.1 is a fix release: the job log shows why the platform
-refused a token, and every `openctem-ci` step of a job shares one run token.
-The console's snippets of platform v0.10.1 still pin v0.3.0, which stays
-accepted. To use v0.3.1, change the version in the pin.
+{: .warning }
+Platform v0.19.0 and later accept CTIS 2.0 documents only, and the first
+`openctem-ci` release that sends them is v0.4.0. A pipeline on a v0.3.x runner
+stops uploading to such a platform until you move the pin to v0.4.0 or later.
+Upgrade the platform first, then the pins; a report an older runner left
+pending for the gate is refused with a message that names the upgrade.
 
 Never pin a branch such as `@main`. `edge` images follow the main branch and
 change without notice. The workflow and the action run the images of the
 release tag they are pinned to. When you pin a commit instead, set
-`image-tag: v0.3.0`, or they run `edge`. The console's snippets pin the
+`image-tag` to the same release, or they run `edge`. The console's snippets pin the
 release the platform was built with.
 
 A GitHub job that calls the reusable workflow must grant
@@ -75,7 +77,7 @@ signature before running it (`verify-signature`, on by default).
 | `upload-sarif` | `false` | Also upload SARIF to GitHub code scanning |
 | `image-tag`, `scanner-image`, `verify-signature` | | Advanced: the image tag, one image for every capability, signature check |
 
-The action (`openctemio/ci@v0.3.0`) takes the same inputs plus `path`,
+The action (`openctemio/ci@{{ site.data.versions.ci }}`) takes the same inputs plus `path`,
 `sast-rules` (default: `openctem`, the signed rules pack in the image; or a
 path in the repository, or a registry pack fetched on the runner),
 `aggregate`, `skip-gate`, `command` (`scan` or `gate`), `status-dir` and
@@ -120,9 +122,9 @@ in the merge request security widget.
 
 Azure Pipelines, Bitbucket Pipelines, CircleCI and Jenkins (with the OpenID
 Connect Provider plugin) report the same way: see
-[`examples/`](https://github.com/openctemio/ci/tree/v0.3.0/examples) and
-[docs/other-ci.md](https://github.com/openctemio/ci/blob/v0.3.0/docs/other-ci.md).
-In the image `ghcr.io/openctemio/ci:v0.3.0`:
+[`examples/`](https://github.com/openctemio/ci/tree/{{ site.data.versions.ci }}/examples) and
+[docs/other-ci.md](https://github.com/openctemio/ci/blob/{{ site.data.versions.ci }}/docs/other-ci.md).
+In the image `ghcr.io/openctemio/ci:{{ site.data.versions.ci }}`:
 
 ```bash
 openctem-ci scan --capability sast --aggregate   # one per capability, in parallel
@@ -171,7 +173,7 @@ is empty. The verdict is not affected. A pipeline that calls the API directly mu
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `CI_RUNNER_LATEST_VERSION` | v0.3.0 (the CI release the API was built with) | Snippets pin it; an older runner shows an update |
+| `CI_RUNNER_LATEST_VERSION` | the CI release the API was built with | Snippets pin it; an older runner shows an update |
 | `CI_RUNNER_MIN_VERSION` | v0.3.0 | An older runner is refused (`RUNNER_OUTDATED`). `none` turns the minimum off |
 | `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` | none | Private ranges the API may reach, for example a self-managed GitLab issuer |
 | `GITHUB_APP_*` | | The deployment's GitHub App ([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/github-app.md)) |

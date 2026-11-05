@@ -43,6 +43,12 @@ example **5 queued: their hosts are being scanned by another task** and
 **4 queued: refused by a sensor's local policy, waiting for another
 sensor**. A running step lists the same counts for its queued tasks.
 
+{: .note }
+The step-level reasons on the run map, their counts on a running step and the
+`hosts_busy` and `refused` counts and `waiting_for_hosts` and
+`waiting_after_refusal` reasons of `GET /api/v1/scan-runs/{id}/map` are new in
+v0.20.0. Before, a waiting step always read **Waiting for a sensor**.
+
 **Why waiting?** on the task row opens the placement panel. It needs
 `scans:read`; the per-sensor verdicts in it need `sensors:read` as well. The
 same answer is in the API:
