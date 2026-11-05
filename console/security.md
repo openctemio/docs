@@ -7,7 +7,7 @@ nav_order: 2
 # Console security
 {: .no_toc }
 
-The **Security** group of the [platform console](index.md): who administers the
+The **Security and audit** group of the [platform console](index.md): who administers the
 installation, how they sign in, the second-approval rule for the most dangerous
 actions, and the record of what administrators did.
 
@@ -184,12 +184,14 @@ account has one).
 **Admin activity** records every action of the platform administrators, including
 sign-ins, elevations and refused attempts. Filter by action (for example
 `console.login`), administrator, outcome and time; open an entry for the request,
-resource and client; **Export** downloads the filtered list.
+resource and client; **Export** downloads the filtered list. The page opens on **Changes**
+(writes, sign-ins, elevations and refused attempts); page views and the record written before
+each change are under **All events**. No row leaves the log.
 
 ![The Admin activity page listing administrator actions with their result and IP address]({{ site.baseurl }}/assets/images/console/activity.png)
 *Figure: Platform console, Admin activity.*
 
-The log is append-only (the API's database role cannot update or delete it) and a
+The log is append-only (the database refuses `UPDATE` and `TRUNCATE`, also of the chain evidence tables) and a
 hash chain whose state the console shows. Request bodies are stored with secrets,
 passwords, keys, tokens and codes redacted, and address fields (`url`, `*url`,
 `*webhook*`) keep only their scheme and host. Rows written before v0.16.0 may still

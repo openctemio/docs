@@ -27,15 +27,15 @@ addresses `/operations` and `/system` no longer exist).
 ![The Health page: Services, Storage, Backup, and Certificates, schema and version cards, then Work queues and Sensor fleet]({{ site.baseurl }}/assets/images/console/health.png)
 *Figure: Monitoring, Health.*
 
-| Card | Shows |
-|---|---|
-| **Services** | API build and version, PostgreSQL (pool use and latency), Redis, the web app and the gateway, connected sensors |
-| **Storage** | Free space of each data volume (warning below 20% free, critical below 10%) and the database size |
-| **Backup** | The last successful backup, its age (warning when older than 26 hours) and the last run |
-| **Certificates, schema and version** | Expiry of the sensor CA and other certificates (warning within 30 days, critical within 7), the database schema against the version this release ships, and the state of the version check |
-| **Work queues** | Sensor jobs waiting and running (and the oldest waiting), scan runs open and past their deadline, notifications waiting, retrying and given up |
-| **Sensor fleet** | Platform and organization sensors online, how sensors connect (gRPC or HTTPS, with the reason code when they fall back to HTTPS) and the SDK versions in the field |
-| **Background jobs** | Each background worker, its last run, its errors since start and its state |
+| Tab | Card | Shows |
+|---|---|---|
+| Summary | **Services** | API build and version, PostgreSQL (pool use and latency), Redis, the web app and the gateway, connected sensors |
+| Summary | **Storage** | Free space of each data volume (warning below 20% free, critical below 10%) and the database size |
+| Summary | **Backup** | The last successful backup, its age (warning when older than 26 hours) and the last run |
+| Summary | **Certificates, schema and version** | Expiry of the sensor CA and other certificates (warning within 30 days, critical within 7), the database schema against the version this release ships, and the state of the version check |
+| Queues and sensors | **Work queues** | Sensor jobs waiting and running (and the oldest waiting), scan runs open and past their deadline, notifications waiting, retrying and given up |
+| Queues and sensors | **Sensor fleet** | Platform and organization sensors online, how sensors connect (gRPC or HTTPS, with the reason code when they fall back to HTTPS) and the SDK versions in the field |
+| Background jobs | **Background jobs** | The jobs that stopped or failed since the start, most errors first; the others are one click away behind **Show all** |
 
 A watcher checks free space, backup age and certificate expiry every
 `SYSTEM_WATCH_INTERVAL` (default 5 minutes), sets the `openctem_system_*` metrics
@@ -52,7 +52,7 @@ What the page can see is set on the API:
 | `SYSTEM_TLS_CERT_FILES` | `name=path,...` PEM certificates whose expiry is shown | only the sensor CA |
 | `SYSTEM_WEB_HEALTH_URL`, `SYSTEM_GATEWAY_HEALTH_URL` | internal health URLs of the web app and the gateway (one GET, no redirects) | **Not configured** |
 
-The Compose file (v0.16.1) already passes the web and gateway health URLs and the
+The Compose file already passes the web and gateway health URLs and the
 backup status file to the API; `backup.sh` writes the status file to `BACKUP_STATUS_DIR`
 (default `./backup-status`), mounted read-only. Set `SYSTEM_WEB_HEALTH_URL`,
 `SYSTEM_GATEWAY_HEALTH_URL`, `SYSTEM_STORAGE_PATHS` or `SYSTEM_TLS_CERT_FILES` in `.env`
@@ -66,9 +66,6 @@ them. Metrics and alert rules for the host monitoring:
 **Software updates** shows newer releases and security advisories for this
 installation, from the signed release feed. Upgrading is always your action:
 nothing is downloaded or installed automatically.
-
-![The Software updates page: release checks are not active in this build, This instance with its running version and the daily online check switch, Sensors and SDK, and Import release information]({{ site.baseurl }}/assets/images/console/software-updates.png)
-*Figure: Monitoring, Software updates on a build without a release feed key.*
 
 - **This instance**: the running version, the latest release, where the
   information comes from (**Daily online check** or **Imported file**), until when
@@ -91,7 +88,7 @@ nothing is downloaded or installed automatically.
   and upload it here (JSON, up to 256 KiB). It is verified like the online check.
 
 {: .note }
-A build must pin a release feed key for the check and the import to work. Builds
-that pin none say **Release checks are not active in this build**, and the Health
-page shows **No release feed key in this build**; the versions built into the
-release then apply. The API logs a warning once at start-up in that case.
+The release feed is signed keyless (Sigstore) and verified offline with the trusted root
+built into the release, so there is no key to configure. An instance older than v0.19.0
+cannot read the current feed format and keeps the versions built into its release until
+you upgrade.

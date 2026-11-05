@@ -32,9 +32,9 @@ Each role page sorts its links into tutorials, how-to guides, reference and conc
 
 | If you want to | Read |
 |---|---|
-| Try it in 15 minutes | [Quickstart](quickstart.md): install, pair a sensor, run a first scan |
+| Try it in 15 minutes | [Quickstart](quickstart.md): install, first administrator, pair a sensor, first scan, findings, remediation |
 | Understand what OpenCTEM does and how it is built | [Overview](overview/) and [Architecture](overview/architecture.md) |
-| Install it | [Install](install/): Docker Compose, the all-in-one image, or Kubernetes with Helm |
+| Install it | [Install](install/): Docker Compose, the all-in-one image, Kubernetes with Helm, the Ansible kit or release binaries; [air-gapped](airgap/) sites too |
 | Configure it | [Configuration](configuration/) and the [environment variables reference](configuration/environment-variables.md) |
 | Run it in production | [Operations](operations/): upgrades, backups, monitoring, troubleshooting |
 | Administer the installation | [Platform console](console/): organizations, users, approvals, settings, health |

@@ -36,7 +36,7 @@ flowchart LR
 - No internet access: [air-gapped and private registry](../airgap/index.md).
 - [TLS and the gateway](../install/tls-and-gateway.md) and [going live](../install/production-go-live.md).
 - Sensors: [deploy with Docker](../sensors/deploy-docker.md), [on Kubernetes](../sensors/deploy-kubernetes.md) or [as a binary](../sensors/deploy-binary.md); [pair](../sensors/pairing.md) and [operate](../sensors/operate.md) them.
-- Day two: [upgrade](../operations/upgrade.md), [back up and restore](../operations/backup-restore.md), [monitor](../operations/monitoring.md), [scale](../operations/scaling.md), [troubleshoot](../operations/troubleshooting.md).
+- Day two: [upgrade](../operations/upgrade.md), [back up and restore](../operations/backup-restore.md), [monitor](../operations/monitoring.md), [feeds](../operations/feeds.md), [scale](../operations/scaling.md), [troubleshoot](../operations/troubleshooting.md).
 - Harden: [production hardening](../security/hardening.md).
 
 ## Reference

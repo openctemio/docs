@@ -7,9 +7,11 @@ nav_order: 4
 # Console scanning settings
 {: .no_toc }
 
-The **Scanning** group of the [platform console](index.md): what the platform may
-scan for organizations, with which sensors, and the content and intelligence every
-organization shares.
+The **Sensors and scanning** group and the **Scanning** section of the settings rail of the
+[platform console](index.md): what the platform may scan for organizations, with which
+sensors, and the content and intelligence every organization shares. **Scan approval**,
+**Scan identification** and **Platform scanning** are pages of the settings rail; the other
+pages are in the sidebar group.
 
 1. TOC
 {:toc}
@@ -58,16 +60,14 @@ sensors and, once a release enables them, the shared sensor fleet.
 
 ## Platform sensors
 
-**Scanning > Platform sensors** (v0.18.0 and later) lists the sensors the platform
-itself owns. Organizations never see them by name. Before v0.18.0 they were in the
-**Fleet** and **Zones** tabs of **Platform scanning**, which stay hidden while shared
-scanning is not available, so a platform sensor could not be enrolled or seen. The
-page does not depend on that switch: while shared scanning is off it says that
+**Sensors and scanning > Platform sensors** lists the sensors the platform
+itself owns. Organizations never see them by name. The page does not depend on the
+shared scanning switch: while shared scanning is off it says that
 sensors connected now serve platform roles (passive discovery, the AI worker) and
 start scanning for organizations only when shared scanning is turned on.
 
 ![The Platform sensors page: the notice that organizations cannot use shared scanning yet, the Enroll a shared sensor card with name and lifetime, and the empty Fleet list]({{ site.baseurl }}/assets/images/console/platform-sensors.png)
-*Figure: Scanning, Platform sensors.*
+*Figure: Platform sensors.*
 
 The page holds:
 
@@ -166,3 +166,19 @@ platform fetches from CISA and FIRST itself only when the release's copy is stal
 and FIRST** (on by default) can be turned off on installs with strict egress rules:
 the release is then the only source and a stale copy shows as stale. Each feed shows
 which path supplied the data it holds. See [Feeds](../operations/feeds.md).
+
+### Feed delivery
+
+The **Feed delivery** card on this page chooses how the platform receives its feeds
+(super admin, a fresh authenticator code, audited): **Direct** (the platform downloads them
+itself) or **Relay** (one to three platform sensors with internet access download them for
+the platform, which then makes no outbound feed request). The sensor list offers only
+active platform sensors that can relay and names the reason for the others (not active,
+`SENSOR_FEED_RELAY=0` on the host, no pinned job-signing key, or a sensor release that is
+too old); an organization's sensor is never offered. In relay mode the card shows per feed
+the last good import, the feed age, the round in progress and why a feed is stale, per relay
+sensor whether it is online and the bytes it relayed in the last 24 hours, and the alerts sent
+to administrators. **Switch to direct now** (confirmed, audited) is the escape hatch; the
+platform never falls back on its own. A new Compose install with the bundled sensor starts in
+relay mode; an existing installation stays direct until you choose. Setup, reasons and alerts:
+[Feeds](../operations/feeds.md#feed-relay-no-outbound-access-from-the-platform).
