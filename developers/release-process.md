@@ -34,7 +34,7 @@ means, how long a release is supported, how to upgrade) is in
 | 2 | **Release Train** (manual, `dry_run` first) | picks the newest `develop` commit whose required checks are green (or a given `sha`), builds `release/vX.Y.Z`, and opens the pull request into `main`, queued for the merge queue |
 | 3 | merge queue | merges the release pull request |
 | 4 | **Release Publish** | checks that `main`'s tree equals the release branch, tags `vX.Y.Z`, starts Docker Publish and Release, and opens follow-up pull requests |
-| 5 | follow-ups | `main` is merged back into `develop` (`-s ours`, no file change; there is no version-bump pull request); `helm-charts` gets the new `appVersion` and chart version |
+| 5 | follow-ups | `main` is merged back into `develop` by a pull request with a real merge, so the tag becomes reachable from `develop` and a fix made for the release lands there (the version file never does; there is no version-bump pull request; a conflict opens an issue instead); `helm-charts` gets the new `appVersion` and chart version |
 
 ```bash
 # plan only: the run summary shows the version, the commit and the changelog
@@ -46,8 +46,11 @@ gh workflow run release-train.yml --ref develop -f dry_run=false
 **Hotfix:** merge the fix into `develop`, then run Release Train with `mode: hotfix` and
 `cherry_picks: <develop SHAs>` (a pull request's merge commit works too: it is picked by its
 first-parent diff). The release is the last tag's patch + 1, built from that tag plus the
-cherry-picks, and its version checks run with that tag's own scripts. When every pick is already
-on `develop`, the back-merge is a `-s ours` merge.
+cherry-picks, and its version checks run with that tag's own scripts.
+
+Before it cuts a train, Release Train runs a preflight (high or critical alerts, fixable image
+advisories on `develop`, a bad migration number). Blockers stop the run unless you set
+`allow_blockers`.
 
 Release images are built without a shared registry cache: every layer comes from the tag's
 sources and the digest-pinned base images, so a release build takes longer than a pull request
@@ -99,14 +102,29 @@ cosign verify-attestation --type spdxjson ghcr.io/openctemio/openctem:vX.Y.Z \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
 
-**Release** creates the GitHub Release. Its notes start with a header: the image pull lines, these
-two `cosign` commands for the release's tag, and the upgrade steps (back up the database and the
-`api-data` volume, set `OPENCTEM_VERSION`, run `docker compose pull && docker compose up -d`, where
-the one-shot `migrate` service applies the migrations before the API starts); the generated notes
-follow. GitHub API calls in the release scripts are retried with backoff, and the publish step is
-safe to rerun. The release also carries the `bootstrap-admin` binaries for linux (amd64, arm64), macOS (amd64, arm64) and Windows (amd64),
-published as `bootstrap-admin-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows) with
-`checksums-sha256.txt`.
+**Release** creates the GitHub Release for the tag. Its notes start with a header: the image pull
+lines, the `cosign verify` and `gh attestation verify` commands for the release's tag, how to
+install from the archives, and the upgrade steps (back up the database and the `api-data` volume,
+set `OPENCTEM_VERSION`, run `docker compose pull && docker compose up -d`, where the one-shot
+`migrate` service applies the migrations before the API starts); the generated notes follow. GitHub
+API calls in the release scripts are retried with backoff, and the publish step is safe to rerun.
+
+The release also carries, for installs without containers and for private registries
+(**Release archives**, built reproducibly from the tag's sources):
+
+- `openctem-server-<version>-linux-<arch>.tar.gz` (API server, job signer, `openctem-migrate` with
+  the migration files, systemd units), `openctem-gateway-...`, `openctem-web-...` and
+  `openctem-console-...` for linux amd64 and arm64;
+- `bootstrap-admin-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows) for linux, macOS and Windows;
+- `openctem-image-kit-<version>.tar.gz`, which builds the images from those archives;
+- one SPDX SBOM per archive, and `checksums-sha256.txt` with its Sigstore bundle
+  `checksums-sha256.txt.sigstore.json`. Build provenance is attested too
+  (`gh attestation verify <archive> --owner openctemio`).
+
+After every release, and every six hours, the **Release Feed** workflow publishes
+`openctem-releases.json`, a keyless-signed list of releases (platform, and the latest sensor and
+SDK releases) as an asset of the latest release. Instances read it for the version check and verify
+the signature offline. A sensor or SDK release reaches the feed without a platform release.
 
 ## Other repositories
 

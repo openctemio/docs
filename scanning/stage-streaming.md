@@ -12,8 +12,7 @@ With stage streaming a step starts on the results of the first finished tasks
 of the step before it, instead of waiting for all of them. One slow task no
 longer holds back the rest of the chain.
 
-It is on by default from the platform release after
-{{ site.data.versions.platform }}. Your sensors need no change.
+It is on by default from platform v0.18.0. Your sensors need no change.
 
 1. TOC
 {:toc}

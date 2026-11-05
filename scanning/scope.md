@@ -98,6 +98,13 @@ The platform labels such addresses and never refuses them by itself; you
 decide with one click (**Add to out of scope** on the label). See
 [CDN and edge addresses](easm.md#cdn-and-edge-addresses).
 
+{: .note }
+From v0.20.0, the built-in list of published edge ranges also covers more
+CDN and edge providers, so their addresses are labeled as edge and are no
+longer offered for scope. On the **Decisions** card, the one-click add takes
+only addresses with strong ownership evidence; every other address is added
+from its own row after you read it.
+
 The bulk exclusion preview (`POST /api/v1/scope/exclusions/bulk/preview`)
 says what an exclusion would stop before you save it: `resolving_names` and
 `resolving_sample` (names in your data scope that it also stops), for a

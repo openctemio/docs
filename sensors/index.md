@@ -294,9 +294,11 @@ and [Troubleshooting](troubleshooting.md).
   (`/app/data/sensor-ca`) that signs the gRPC certificates; the `gateway-data`
   volume holds the gateway's CA in TLS mode `internal`. See
   [Platform side](transport.md#platform-side-the-sensor-ca).
-- **Install a local policy.** The network owner limits what the sensor may
-  scan with a read-only file or `SENSOR_ALLOWED_RANGES`; the platform cannot
-  change it. See [Sensor-local policy](network.md#sensor-local-policy).
+- **Consider a local policy.** It is optional: without one the sensor follows
+  the platform's signed scope. The network owner can narrow what the sensor
+  may scan with a read-only file or `SENSOR_ALLOWED_RANGES`; the platform
+  cannot change it, and a policy can only narrow. See
+  [Sensor-local policy](network.md#sensor-local-policy).
 - **Know how to revoke.** Revoking the sensor or its key takes effect at the
   sensor's next request (open gRPC streams end within seconds), and the
   sensor never falls back to a weaker transport. To replace a lost or stolen

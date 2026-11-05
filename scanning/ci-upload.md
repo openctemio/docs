@@ -21,7 +21,8 @@ openctem-ci upload --gate trivy.json zap.xml
 ```
 
 Needs `openctem-ci` from the first release after v0.3.1 and OpenCTEM v0.11.0
-or later.
+or later. Platform v0.19.x accepts CTIS 2.0 only, which the next release
+(v0.4.0, not published yet) sends; `upload` is not in the published v0.3.1.
 
 1. TOC
 {:toc}

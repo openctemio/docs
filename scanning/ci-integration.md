@@ -18,6 +18,12 @@ CI pipelines are not sensors. Sensors run long-lived scans, dispatched by the
 platform, inside your networks. A CI job runs a one-shot binary in a small
 image per tool. Both produce the same CTIS 2.0 reports.
 
+{: .note }
+Platform v0.19.x accepts CTIS 2.0 only. The latest published `openctem-ci`
+release, v0.3.1, still sends CTIS 1.x, so its uploads are refused; the
+release that sends CTIS 2.0 (v0.4.0) is not published yet. Until it is,
+uploads from the released runner fail.
+
 1. TOC
 {:toc}
 
@@ -319,7 +325,7 @@ learns nothing about findings it did not report. See
 
 The token exchange gives the job a key for its organization and repository.
 The job sends each secret as a keyed hash of its raw value (HMAC-SHA256, the
-the secret digest of CTIS fingerprint recipe v2, `ctis-fp/2`). The raw value never leaves the job. Two
+secret digest of CTIS fingerprint recipe v2, `ctis-fp/2`). The raw value never leaves the job. Two
 different secrets that look the same once masked are two findings, and a
 change in masking does not create a new finding. A finding keyed on its masked
 value moves to the new key the next time it is seen, and keeps its triage.
