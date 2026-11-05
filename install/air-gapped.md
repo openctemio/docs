@@ -20,8 +20,10 @@ For the tested supply paths, the scripts and templates of the release's image
 kit, and a decision guide, see the section
 [Air-gapped and private registry](/airgap/).
 
-The commands were checked against release v0.11.0 (chart 0.29.0 for v0.10.1,
-sensor v0.23.2). Replace the versions with the release you take in.
+Replace the example versions below with the release you take in. For the current
+feed behaviour (relay, bundle directory, feed proxy) the pages of the
+[Air-gapped and private registry](/airgap/) section and
+[Vulnerability and program feeds](../operations/feeds.md) are the reference.
 
 1. TOC
 {:toc}
@@ -139,16 +141,19 @@ installation needs no connection to OpenCTEM to run.
 There is no usage telemetry of any kind: the API sends nothing about the
 installation anywhere, and the web images are built with
 `NEXT_TELEMETRY_DISABLED=1`. The outbound requests below are all feature
-downloads. The API makes them directly; it does not use an HTTP proxy for
-them, so in a network with limited egress allow them at the firewall.
+downloads. The API makes them directly and does not read `HTTPS_PROXY`. Where
+the only way out is an HTTPS proxy, set `OPENCTEM_HTTPSEC_FEED_PROXY`: the
+platform's own feeds then use it, and nothing an organization configures does.
+Otherwise allow the hosts below at the firewall, or let a platform sensor relay
+the feeds ([Feed relay](../operations/feeds.md#feed-relay-no-outbound-access-from-the-platform)).
 
 | Destination | Purpose | Default | Air-gapped setting |
 |---|---|---|---|
-| `github.com`, `release-assets.githubusercontent.com` | The signed release feed (version check) | On, but inert in v0.11.0: no feed key is pinned in this build, so no request is made | `VERSION_CHECK_ENABLED=false`; import the file by hand ([Release information](#release-information)) |
-| `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog (KEV falls back to its GitHub mirror) | On | Turn each source off in the platform console, **Scanning > Threat intelligence** ([Threat intelligence](#threat-intelligence-epss-and-kev)) |
+| `github.com`, `release-assets.githubusercontent.com` | The signed release feed (version check) | On | `VERSION_CHECK_ENABLED=false`; import the file by hand ([Release information](#release-information)) |
+| `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog (KEV falls back to its GitHub mirror) | On | They also travel inside each signed vulnerability release: switch the direct fetch off in **System > Threat intelligence** ([Threat intelligence](#threat-intelligence-epss-and-kev)) |
 | `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery | On | `CERT_MONITOR_ENABLED=false` |
 | `stat.ripe.net` | Lookups of network seeds an organization adds for attack-surface discovery | Only when an organization adds network seeds | Turn network lookups off in the organization's attack-surface settings, or add no network seeds |
-| `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`) | Vulnerability and program feeds | Off until you pin a root key | Keep off, or import from a directory ([Feeds](#vulnerability-and-program-feeds)) |
+| `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`) | Vulnerability and program feeds | Vulnerability feed on with the official root key; program feed off until you pin a root key | A directory, a mirror or a relay ([Feeds](#vulnerability-and-program-feeds)) |
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme` | Only in mode `acme` | Use TLS mode `internal` or `files` ([TLS](tls-and-gateway.md)) |
 | Integrations, SSO, SMTP, AI providers | Only what you configure | Off | Point them at internal services |
 
@@ -1043,46 +1048,47 @@ vars generated from the same list), so what was checked is what runs.
 ### Release information
 
 The platform console shows newer releases and security advisories from a
-signed release feed (`openctem-releases.json`). In v0.11.0 no feed key is
-pinned in the build, so the check makes no request and the console says "No
-release feed key in this build"; nothing is published to import yet. Set
-`VERSION_CHECK_ENABLED=false` anyway, so a later release that pins a key does
-not start trying to reach GitHub.
-
-Once releases publish the feed: download `openctem-releases.json` from the
-release in the transfer zone, carry it in, and a super administrator imports it
-under **Monitoring > Software updates > Import**. It is verified exactly like
-the online file (the key pinned in the build, no rollback, expiry after at most
-45 days), and the import is audited. Or serve it from an internal https mirror
-with `VERSION_CHECK_URL`. Either way the feed is display-only: the platform
-never downloads or installs anything because of it. Your own source of truth
-for new releases remains the intake process. See
-[Versioning](../operations/versioning.md#the-release-feed).
+signed release feed (`openctem-releases.json`, attached to every release). It is
+signed keyless (Sigstore): the platform verifies it offline with the trusted
+root built into its release (`CONTENT_SIGSTORE_TRUSTED_ROOT` may name a newer
+one) and accepts only the release workflow of the official repository. Download
+`openctem-releases.json` from the release in the transfer zone, carry it in, and
+a super administrator imports it under **Monitoring > Software updates >
+Import**. It is verified like the online file (no rollback, expiry after at
+most 45 days), and the import is audited. Or serve it from an internal https
+mirror with `VERSION_CHECK_URL`, or set `VERSION_CHECK_ENABLED=false`. Either way
+the feed is display-only: the platform never downloads or installs anything
+because of it. Your own source of truth for new releases remains the intake
+process. See [Versioning](../operations/versioning.md#the-release-feed).
 
 ### Threat intelligence: EPSS and KEV
 
-The API downloads EPSS scores and the CISA KEV catalog directly. There is no
-offline import for these two sources yet (planned). Choose one:
+Each signed vulnerability release carries the CISA KEV catalog and the EPSS
+scores as signed side files. For an isolated installation, load the vulnerability
+bundle from `VULNFEED_BUNDLE_DIR` (or a mirror), then in **System > Threat
+intelligence > Where KEV and EPSS come from** switch on "Use the signed release
+as the source" and switch off "Allow the platform to call CISA and FIRST" (super
+administrator, confirmed and audited). KEV and EPSS then arrive with the
+bundles and a stale copy is shown as stale. See
+[Vulnerability and program feeds](../operations/feeds.md#kev-and-epss).
 
-- **Limited egress**: allow `epss.empiricalsecurity.com`, `www.cisa.gov` and
-  `raw.githubusercontent.com` from the API (directly, not through a proxy).
-  Both are public data downloads; nothing about the installation is sent.
-- **Fully isolated**: turn both sources off in the platform console
-  (**Scanning > Threat intelligence**, an operations administrator, confirmed and
-  audited). Findings are then prioritized without EPSS and KEV signals; keep this
-  in mind when you read priorities and dashboards.
+With limited egress you can instead allow `epss.empiricalsecurity.com`,
+`www.cisa.gov` and `raw.githubusercontent.com` from the API (through
+`OPENCTEM_HTTPSEC_FEED_PROXY` if a proxy is the only way out).
 
 ### Vulnerability and program feeds
 
 The vulnerability feed (CVEs and affected version ranges for matching your
-software inventory) and the program feed are imported only when you pin their
-root key id. Neither has published a signed release yet ([Feeds](../operations/feeds.md#status)).
-When they do, the air-gapped path already exists: verify a release in the
-transfer zone with the feed's own tool, copy the directory in, and point
-`VULNFEED_BUNDLE_DIR` (or `PROGRAMFEED_DIR`) at it. The platform verifies the
-same signatures and hashes as online, refuses older sequences and bundles older
-than 7 days, and keeps the previous data when a check fails. Plan a transfer at
-least weekly.
+software inventory) is published hourly in `openctemio/vulnfeed-bundles` and the
+platform pins its official root key, so nothing needs configuring when it can
+reach the release host. The program feed has no signed release yet, and is
+imported only when you pin its root key id. For an isolated installation, verify
+a release in the transfer zone with the feed's own tool, copy the directory in,
+and point `VULNFEED_BUNDLE_DIR` (or `PROGRAMFEED_DIR`) at it, or have a platform
+sensor with internet access relay the files. The platform verifies the same
+signatures and hashes as online, refuses older sequences and bundles older than
+7 days, and keeps the previous data when a check fails. Plan a transfer at least
+weekly. Details: [Vulnerability and program feeds](../operations/feeds.md).
 
 ### Content packs and the content catalog
 
@@ -1093,8 +1099,7 @@ least weekly.
   ([Content delivery](../sensors/content-delivery.md)).
 - **Content catalog** bundles are imported as a file by a super administrator,
   verified offline against the catalog roots and the Sigstore trusted root
-  embedded in the release. The v0.11.0 build pins no catalog root and no
-  first-party bundle is published yet, so imports are refused unless you add a
+  embedded in the release. The build pins no catalog root, so imports are refused unless you add a
   root of your own (`CONTENT_TRUST_ROOT_KEY_IDS`). When you update the Sigstore
   trusted root, set `CONTENT_SIGSTORE_TRUSTED_ROOT` to the same file you carry
   in for image verification.
@@ -1148,8 +1153,8 @@ the cadence and monitor it:
 | trivy database (sensors and your intake scanner) | Daily | Sensor **Setup & health**; content maximum ages under **Settings > Scanning > Scanner content** |
 | nuclei templates | Weekly | Same |
 | SAST rules pack | Per release | Same |
-| Vulnerability feed (when published) | Weekly or faster (bundles expire after 7 days) | Platform console, **Scanning > Threat intelligence** |
-| Release information (when published) | With each intake (the feed expires after 45 days) | **Monitoring > Software updates** |
+| Vulnerability feed with KEV and EPSS | Weekly or faster (bundles expire after 7 days) | Platform console, **System > Threat intelligence** |
+| Release information | With each intake (the feed expires after 45 days) | **Monitoring > Software updates** |
 
 Set maximum content ages in the scanner content policy, so a sensor whose
 content is too old reports `stale` instead of scanning silently with old data.
@@ -1232,12 +1237,13 @@ Allow them on the firewall by name, from the listed source only:
 |---|---|---|
 | Hosts that pull images (or only the intake host) | `ghcr.io` (and `pkg-containers.githubusercontent.com`, which GHCR may redirect downloads to) | Images, signatures and attestations |
 | The host running cosign | `tuf-repo-cdn.sigstore.dev` | The Sigstore trusted root for keyless verification (not needed with `--trusted-root`) |
-| The API | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS and KEV |
-| The API | `github.com`, `release-assets.githubusercontent.com` | Release information, and the vulnerability and program feeds once they publish |
+| The API | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS and KEV (not needed when they arrive with the signed bundle) |
+| The API | `github.com`, `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Release information and the vulnerability feed |
+| The API | `ctem.org` | CTEM-ID catalog |
 | The API (optional) | `crt.sh`, `api.certspotter.com`, `stat.ripe.net` | Certificate Transparency, network lookups |
 | Sensors (optional) | `github.com`, `api.github.com`, `release-assets.githubusercontent.com`, `mirror.gcr.io`, `ghcr.io` | Scanner content ([Network](../sensors/network.md)) |
 
-The API sends these requests directly, without an HTTP proxy. Everything else
+The API sends these requests directly; `HTTPS_PROXY` is not read. Only the platform's own feeds can use `OPENCTEM_HTTPSEC_FEED_PROXY`. Everything else
 (integrations, SSO, SMTP, AI providers) is only what you configure.
 
 ## Known limitations and planned work
@@ -1248,7 +1254,4 @@ The API sends these requests directly, without an HTTP proxy. Everything else
 | Compose: migrations share `API_VERSION`; no per-image digest variables | Digest variables per image | The override file in [Docker Compose](#docker-compose) |
 | Ansible kit: no registry setting, keyless check needs the Sigstore TUF host, no customer-key check | A registry variable, a local trusted root, an optional organization key | Extra-vars file and the [pre-flight check](#compose-and-ansible-check-both-signatures-before-deploying) |
 | Helm chart not signed | Signed chart releases | SHA-256, review of the rendered manifests, your own signature on the mirrored chart |
-| No offline import for EPSS and KEV | File import in the platform console | Limited egress, or turn the sources off |
-| No release feed published yet | A signed feed with each release, importable offline | Your intake process is the source of release information |
 | Sensors page install commands name `ghcr.io` | A registry setting for the commands | Replace the image when copying the command |
-| API calls to feeds do not use an HTTP proxy | Proxy support | Firewall allowlist by host name |

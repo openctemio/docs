@@ -61,7 +61,7 @@ without the `-e` options.
 `DB_MIGRATE_USER`):
 
 ```bash
-docker exec openctem /opt/openctem/api/bootstrap-admin \
+docker exec -it openctem /opt/openctem/api/bootstrap-admin \
   -email=admin@example.com \
   -backup-email=breakglass@example.com \
   -org-name="Example Corp" \
@@ -83,7 +83,7 @@ The output contains, for each administrator, a block like this:
   Password: ...   (temporary, shown once; must be changed at first sign-in)
 ```
 
-and an `=== Organization created ===` block. Copy the passwords now; they are not
+and an `=== Organization created ===` block. The tool prints one-time credentials, so it refuses to run, and changes nothing, when its output is not a terminal unless you pass `-print-secrets` (the Helm chart's Job does). Run it attached to a terminal (`docker compose run` and `docker exec -it` do). Copy the passwords now; they are not
 stored anywhere you can read them again. Keep the break-glass credentials offline.
 
 The organization owner gets a one-time set-password link, valid for 24 hours:
@@ -142,7 +142,10 @@ address in [Sign in](#sign-in), not on the organization sign-in page.
 | `-org-slug` | `ORG_SLUG` | URL slug of the organization (default: derived from the name). |
 | `-org-owner-email` | `ORG_OWNER_EMAIL` | Owner of the organization. An existing account keeps its credentials; a new one gets the set-password link. |
 | `-org-owner-name` | `ORG_OWNER_NAME` | Owner's display name for a new account. |
-| `-force` | | Delete and re-create an existing administrator with the same email. |
+| `-force` | | Delete and re-create an existing administrator with the same email. Asks you to type the email back. |
+| `-force-backup` | | The same for the break-glass administrator. |
+| `-yes` | | Confirms `-force` and `-force-backup` without typing the email, for runs without a terminal. |
+| `-print-secrets` | | Print the temporary passwords and the set-password link even when stdout is not a terminal (they then reach a file, a pipe or a log). |
 | `-link` | | Link an administrator created by v0.8.0 or earlier to a sign-in account, keeping its role and authenticator. |
 | `-db` | `DATABASE_URL` | Database URL. Default: built from `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` and `DB_SSLMODE`. |
 
