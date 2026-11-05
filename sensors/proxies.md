@@ -120,6 +120,13 @@ A sensor receives the credentials of the pool a job uses only while it holds
 that job, over its authenticated connection, and passes them to its own scan
 forwarder. The scan tools never see them.
 
+{: .warning }
+Sensor v0.38.0 and later fetch these credentials only through sealed task
+secrets, which no platform release up to v0.20.2 serves. Such a sensor refuses
+a job whose pool needs credentials; keep credentialed pools on sensor v0.37.2
+until your platform serves task secrets. Pools without credentials are not
+affected.
+
 ## More pools and the per-sensor Network path
 
 Under **More pools**, **New pool** creates a pool with its own name,

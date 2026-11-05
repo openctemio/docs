@@ -102,7 +102,7 @@ the console shows exactly what your sensor declares.
 
 | Tool | Option (native flag) |
 |---|---|
-| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`), `tags`, `exclude_tags`, `severity`, `response_read_kb` (`-rsr`, sensor only), `response_save_kb` (`-rss`) |
+| nuclei | `rate_limit` (`-rate-limit`, common), `concurrency` (`-c`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `bulk_size` (`-bs`, sensor only), `max_host_errors` (`-mhe`), `scan_strategy` (`-ss`), `tags`, `exclude_tags`, `severity`, `response_read_kb` (`-rsr`, sensor only), `response_save_kb` (`-rss`), `template_ids` (`-id`, at most 8; sensor v0.38.4 or later) |
 | naabu | `rate` (`-rate`, common), `retries` (`-retries`, common), `ports` (`-p`), `top_ports` (`-top-ports`), `exclude_ports` (`-exclude-ports`) |
 | httpx | `rate_limit` (`-rl`, common), `threads` (`-threads`, common), `timeout` (`-timeout`, common), `retries` (`-retries`, common), `ports` (`-ports`), `follow_redirects` (`-follow-host-redirects`), `tech_detect` (`-tech-detect`), `tls_grab` (`-tls-grab`) |
 | dnsx | `rate_limit` (`-rl`, common), `threads` (`-t`, common), `timeout` (`-timeout`, common), `retries` (`-retry`, common), `record_types`, `wildcard_filter` (`-auto-wildcard`) |
@@ -131,6 +131,13 @@ Two nuclei details (sensor v0.37.0 or later):
   `response_save_kb` (16 to 1024 KiB, default 1024, never above the read
   limit) is how much of a matching response is kept as the finding's
   evidence. The defaults are nuclei's own.
+
+`template_ids` selects the sensor's own compiled-in checks (for example
+`openctem-backup-file-signature`, one GET of a guessed backup, archive or dump
+URL that matches only a non-HTML 200 whose first bytes are a zip, gzip or tar
+signature or a database dump header). Only those ids are accepted (any other id
+fails the scan); the sensor runs its own signed copies of them, signatures stay
+required and the tier's excluded tags stay on.
 
 These options are the ones the current sensor release ({{ site.data.versions.sensor }}) declares (opengrep from v0.22.0); older sensors declare fewer.
 

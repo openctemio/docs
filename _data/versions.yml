@@ -3,9 +3,9 @@
 # the latest GitHub releases (it opens a pull request when one changes); a
 # manual edit is overwritten by the next sync. scripts/check_versions.py
 # fails CI when a page hard-codes one of these releases instead.
-platform: v0.19.1     # openctemio/openctem
-sensor: v0.37.0       # openctemio/sensor
-sdk_go: v0.46.3       # openctemio/sdk-go
-ci: v0.3.1            # openctemio/ci
-chart: 0.38.0         # openctemio/helm-charts, chart openctem
-chart_app: v0.12.0    # appVersion of that chart
+platform: v0.20.2     # openctemio/openctem
+sensor: v0.38.4       # openctemio/sensor
+sdk_go: v0.47.3       # openctemio/sdk-go
+ci: v0.4.0            # openctemio/ci
+chart: 0.40.0         # openctemio/helm-charts, chart openctem
+chart_app: v0.19.1    # appVersion of that chart

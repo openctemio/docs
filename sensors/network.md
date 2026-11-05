@@ -232,7 +232,7 @@ kill_switch_file: /etc/openctem/STOP
 | `ports.allow` | Ports a job may name |
 | `tools.allow` | Tools that may run; others are neither run nor reported. This replaces the deprecated `SENSOR_TOOLS` |
 | `checks.allow` | Job types: `scan`, `validate`, `retest`, `collect`, `refresh_content` |
-| `allow_custom_templates`, `allow_interactsh` | Platform-supplied custom templates; out-of-band callbacks. Off unless set |
+| `allow_custom_templates`, `allow_interactsh` | Platform-supplied custom templates (off unless `true`); out-of-band callbacks (from sensor v0.38.4 they follow the platform's job unless `allow_interactsh: false`; before, off unless `true`) |
 | `rate.max_rps`, `rate.max_job_seconds` | Request rate ceiling; longest job run |
 | `kill_switch`, `kill_switch_file` | Stop every job (while the file exists) |
 | `http.user_agent`, `http.allow_insecure_tls`, `http.headers` | A User-Agent for every tool; `false` refuses tools that skip TLS verification; up to 4 headers that mark this sensor's scan traffic (below) |

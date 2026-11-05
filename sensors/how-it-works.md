@@ -218,7 +218,7 @@ Images are published as `ghcr.io/openctemio/sensor:<version>` (and
 
 | Image | Tools | Default command |
 |---|---|---|
-| `sensor:<version>` (also `-default`) | nuclei, subfinder, dnsx, naabu, httpx, katana, with a pinned nuclei-templates release | `-verbose` (the daemon, taking platform commands) |
+| `sensor:<version>` (also `-default`) | nuclei, subfinder, dnsx, naabu, httpx, katana, with a pinned nuclei-templates release; the compiled-in rdap, asn and (from v0.38.4) webguess path discovery | `-verbose` (the daemon, taking platform commands) |
 | `sensor:<version>-nuclei` | nuclei | `-tool nuclei --help` |
 | `sensor:<version>-semgrep` | semgrep | `-tool semgrep --help` |
 | `sensor:<version>-opengrep` (v0.22.0 and later) | opengrep | `-tool opengrep --help` |

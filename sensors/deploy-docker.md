@@ -39,7 +39,9 @@ docker pull ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }}
 The default image runs nuclei and the recon tools (subfinder, dnsx, naabu,
 httpx, katana). From v0.29.0 there are profile images too: `:{{ site.data.versions.sensor }}-passive`
 (passive discovery only: subfinder, with RDAP and ASN lookups built in; it holds
-no program that can touch a target), `:{{ site.data.versions.sensor }}-standard` (the default image) and
+no program that can touch a target, and since v0.38.4 its binary registers no
+compiled-in tool above tier T0, such as the path discovery tool `webguess`;
+v0.38.3 has no images, use v0.38.4 or later), `:{{ site.data.versions.sensor }}-standard` (the default image) and
 `:{{ site.data.versions.sensor }}-full` (every tool, code, dependency and image scanning included). For
 code scanning on a daemon you can also use a per-tool image such as
 `ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }}-opengrep` (or `-semgrep`). See
