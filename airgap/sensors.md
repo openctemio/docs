@@ -66,6 +66,16 @@ sensor reads them from a local mirror or directory. The settings are on
 
 Details: [Sensor network requirements](../sensors/network.md).
 
+## A sensor that relays the feeds
+
+If the platform may not reach the internet, one to three platform (shared) sensors can fetch the
+signed vulnerability feed, KEV, EPSS and the release feed for it (feed relay mode in the platform
+console; [Feeds](../operations/feeds.md)). A relay sensor needs HTTPS to the feed origins
+(the `openctemio/vulnfeed-bundles` and release feed GitHub release URLs, or your own mirror of them
+listed in the signer's allowed origins) and nothing else; it uploads the files to the platform,
+which verifies them. This is the one case in which a sensor needs outbound internet access to
+something other than its scan targets. It stays off for a sensor with `SENSOR_FEED_RELAY=0`.
+
 ## Updates
 
 Sensors do not update themselves. Take each sensor release in through the same

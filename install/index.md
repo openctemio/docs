@@ -166,7 +166,7 @@ flowchart TB
   sign-up ([First administrator](first-admin.md#sign-up-and-more-organizations)).
 - Organization sensors take only their own organization's work. Platform
   sensors (shared sensors) are capacity run by the operator for the
-  organizations it allows; they are off until a super administrator turns them
+  organizations it allows; they are off until a platform owner turns them
   on (see [Shared sensors](../sensors/shared-sensors.md) and
   [Sensors](../sensors/how-it-works.md#organization-sensors-and-platform-sensors)).
 - Whether platform sensors need a verified domain before they scan a target
@@ -260,6 +260,7 @@ mutual-TLS listener on 9443 when the sensor passthrough is on; see
 |---|---|---|
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme`. | Mode `acme` only. |
 | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog for prioritization. | Recommended. |
+| `github.com` (releases of `openctemio/vulnfeed-bundles`) | The signed vulnerability feed, which also carries KEV and EPSS. | Recommended. |
 | `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery. | Optional (`CERT_MONITOR_ENABLED=false` turns it off). |
 | Your SMTP server | Invitations, verification and password-reset email (set in the platform console, Settings, E-mail). | Recommended. |
 | `github.com` (the signed release feed) | Once a day the API downloads the feed of releases to show newer and security releases. Nothing about the instance is sent; GitHub sees the server's address. | Optional (`VERSION_CHECK_ENABLED=false` turns it off; import the file in the console, Monitoring, Software updates). |
@@ -267,6 +268,11 @@ mutual-TLS listener on 9443 when the sensor passthrough is on; see
 
 Without internet access, turn these off or replace them one by one: see
 [What the platform contacts](air-gapped.md#what-the-platform-contacts).
+
+The feeds (vulnerability, KEV, EPSS, release feed) have three other ways in when the platform may
+not call out: through an HTTPS proxy (`OPENCTEM_HTTPSEC_FEED_PROXY`), through one to three platform
+sensors that relay the signed files (the platform then makes no outbound feed request), or from a
+bundle directory you fill. See [Feeds](../operations/feeds.md).
 
 Webhook and integration URLs that resolve to private addresses (RFC 1918) are
 refused unless their range is listed in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`;

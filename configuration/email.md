@@ -31,8 +31,8 @@ logged.
 
 Whether an organization's relay may carry its business mail is the platform
 setting `email.tenant_relay` (console **Settings > E-mail > Organization mail
-servers**, API `/api/v1/admin/settings/email-relay`; changing it needs a super
-administrator, a fresh step-up and a reason, is audited as critical and every
+servers**, API `/api/v1/admin/settings/email-relay`; changing it needs a platform
+owner, a fresh step-up and a reason, is audited as critical and every
 administrator is told). The console offers **Never**, **Only from a verified
 domain** and **Always, as configured**:
 
@@ -42,7 +42,7 @@ domain** and **Always, as configured**:
 | `verified_sender` | Business mail may use the organization's relay when its sender address is on a DNS-verified domain of the organization. Default with `MANAGED_SERVICE=true`. |
 | `on` | Business mail may use the organization's relay. Default on a self-managed install. |
 
-Until a super administrator stores a value, `ORG_EMAIL_RELAY_MODE` sets the
+Until a platform owner stores a value, `ORG_EMAIL_RELAY_MODE` sets the
 default. The tick box is off on every channel until an owner or administrator
 ticks it. When an organization's relay cannot be used, invitation notices fall
 back to the platform SMTP and scheduled reports are not sent.
@@ -61,6 +61,10 @@ sending; its owners get a notice. Self-managed installs are not affected.
 
 ### How mail is formatted
 
+Transactional mail (verification, password reset, welcome, invitations, security notices) is
+written in English or Vietnamese: the recipient account's language, else the default language of
+the organization the mail is for, else English.
+
 Platform and organization mail go through the same sender. Every message carries a
 `Date`, a `Message-ID` on the sender's domain and `Auto-Submitted: auto-generated`.
 Subjects and sender names with non-ASCII text (for example Vietnamese organization
@@ -72,12 +76,12 @@ Line breaks in any header value are removed, so a value cannot inject a header.
 
 Open the platform console (its own address, not a path of the main application) as a platform administrator, go to
 **Settings > E-mail**, enter the relay (host, port, user, password, sender
-address and name, STARTTLS) and save. Saving needs a super administrator and a
+address and name, STARTTLS) and save. Saving needs a platform owner and a
 fresh authenticator code. Pointing platform email at another relay (a different
-host, port, connection security or SMTP username) also needs a second super
-administrator's approval, because the relay receives every set-password and
+host, port, connection security or SMTP username) also needs a second platform
+owner's approval, because the relay receives every set-password and
 password-reset link; rotating the password of the same login, changing the sender,
-sending a test and turning email off do not. **Send a test e-mail** sends a message to your own address.
+sending a test and turning email off do not. **Send a test e-mail** sends a message to your own address (5 a minute per administrator).
 The setting applies to the next message, without a restart. The password is
 stored encrypted with `APP_ENCRYPTION_KEY`.
 

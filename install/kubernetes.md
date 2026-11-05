@@ -338,7 +338,7 @@ kubectl -n openctem exec deploy/openctem-gateway -- \
 
 The chart does not set `ADMIN_PUBLIC_URL`, so the API uses the origin of
 `APP_URL` and administrators cannot register security keys on the console's
-origin (a known gap). Set it in the values:
+origin (Compose and the all-in-one image set it for you; the chart does not). Set it in the values:
 
 ```yaml
 api:
@@ -358,6 +358,35 @@ no value of its own for them. See
 [Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)
 for what each destination does.
 
+## Feeds
+
+By default the API downloads the public feeds itself. In a cluster without direct internet access
+choose one of these ([Feeds](../operations/feeds.md) explains the modes):
+
+- **A relay sensor.** The bundled sensor (`sensor.enrollment: instance`, with its pinned
+  job-signing key) relays the signed feed files to the API; the API then makes no outbound feed
+  request, and the files are kept in PostgreSQL, so no volume is needed. On a new database
+  `feedRelay.newInstallRelay: true` starts in relay mode; the chart default is `false`, and an
+  existing installation stays on direct delivery until an administrator selects relay in the
+  console. Turn it on only with an API image whose `bootstrap-admin` knows `-feed-relay`
+  (v0.19.0 and later). `sensor.feedRelay.enabled: false` stops that sensor from relaying, and
+  `sensor.feedRelay.origins` adds your own mirror to the allowed download origins.
+- **An HTTPS proxy.** Set `OPENCTEM_HTTPSEC_FEED_PROXY` on the API (a Secret through
+  `api.extraEnvFrom`, because the URL may hold a password). Only the feed fetchers use it.
+- **A bundle directory** (`VULNFEED_BUNDLE_DIR`) that you fill yourself.
+
+## Backups
+
+The platform's data is in your PostgreSQL, so use the managed service's snapshots and
+point-in-time recovery. The chart can also run a scheduled logical dump: `backup.enabled: true`
+creates a CronJob (`17 2 * * *` UTC) that runs `pg_dump`, encrypts the dump with an rclone
+`crypt` remote and uploads it to S3-compatible storage or an SFTP host. The storage settings are in
+a Secret with the key `rclone.conf` (`backup.rclone.existingSecret`). Give its credential no delete
+right and expire old dumps with a bucket rule (`backup.retentionDays` defaults to `0`, no
+deletion). The dump holds the database only: back up the attachments volume or bucket and the
+Secrets as in [Backup and restore](../operations/backup-restore.md#managed-postgresql-and-kubernetes).
+The chart README, "Backups to off-cluster storage", has the Secret and the restore command.
+
 ## Upgrades and rollback
 
 ```bash
@@ -370,8 +399,4 @@ Kubernetes objects only, not the database schema; see
 [Upgrading](../operations/upgrade.md). Read the chart README's "Upgrading to"
 sections for the chart versions you cross.
 
-**Upgrading the platform from v0.10 to v0.11.0.** The migrations (002908 to 002915) only add
-objects. If you use `database.console`, re-run `least-privilege-roles.sql` as a
-superuser (with `admin_user` and `admin_password`) before the upgrade, so the
-console's new `admin_approvals` table gets its grants. API clients should expect
-the SLA and MTTR dashboard fields to be null where there is no data.
+If you use `database.console`, re-run `least-privilege-roles.sql` as a superuser (with `admin_user` and `admin_password`) on every platform upgrade, so new console tables get their grants ([Upgrading](../operations/upgrade.md)).

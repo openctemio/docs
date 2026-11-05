@@ -170,10 +170,13 @@ downloads or runs anything because of it, the image repository always comes from
 catalog built into the platform, and a learned version is used only when it is not older
 than the built-in one.
 
-The platform trusts only the feed signing key pinned in its own build (there is no setting
-to change it). Releases before v0.15.5 pin no feed key: on those the check does nothing, the
-console says "No release feed key in this build" and the sensor and SDK versions built into
-the release apply.
+The feed is signed keyless (Sigstore) by the `release-feed` workflow of `openctemio/openctem`;
+there is no signing key to hold. The platform verifies it offline, with the Sigstore trusted
+root embedded in the release, and accepts only that workflow on `main` or a release tag. The
+published file has the format `openctem.io/release-bundle/v2`: a platform older than v0.19.0
+cannot read it, and keeps the sensor and SDK versions built into its release until it is
+upgraded. The online check goes direct, through the feed proxy (`OPENCTEM_HTTPSEC_FEED_PROXY`)
+or, in feed relay mode, through a relay sensor ([Feeds](feeds.md)).
 
 Operators see it in the platform console under **Monitoring > Software updates**: the running
 and latest platform release, newer releases, security advisories that affect the running
@@ -185,7 +188,7 @@ feed cannot be read, the page says why (not published, signature invalid, unreac
 expired) and the API logs one warning when that state changes.
 
 **Air-gapped.** Set `VERSION_CHECK_ENABLED=false`. On a connected machine download
-`openctem-releases.json` from the latest release, carry it in, and a super administrator
+`openctem-releases.json` from the latest release, carry it in, and a platform owner
 imports it under Monitoring > Software updates > Import (a fresh confirmation; the import is
 audited). It is verified exactly like the online file, including rollback and expiry. Or
 point `VERSION_CHECK_URL` at an internal https mirror of the file; a mirror on a private

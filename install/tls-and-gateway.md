@@ -199,6 +199,7 @@ fails when the two disagree.
 | `/api/v1/mcp`, `/.well-known/oauth-*`, `/oauth/*` | API: MCP server (`oct_` API key, and its OAuth endpoints) |
 | `/api/v1/auth/saml/*`, `/api/v1/auth/backchannel-logout` | API: called by the identity provider |
 | `/api/v1/ws` | API: the browser's WebSocket (session cookie) |
+| `/api/v1/ci/oidc/exchange` | API: the CI runners' token exchange (its credential is in the request body, so it cannot go through the console's proxy; the other CI run endpoints reach the API by their bearer token) |
 | `/health`, `/openapi.yaml`, `/docs` | API: liveness and API reference |
 | `/api/*` with `Authorization: Bearer oct_...` or an `X-API-Key` header | API: API-key clients |
 | `/api/*` with `Authorization: Bearer ...` and no `auth_token` cookie | API: other token clients |
