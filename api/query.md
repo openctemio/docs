@@ -15,8 +15,9 @@ findings where state = open and severity = critical and is_in_kev = true
   and asset.internet_facing = true and first_detected_at < -14d | count
 ```
 
-The query language is available over the REST API (`/api/v1/query/*`). There is
-no editor in the web console yet.
+The query language is available over the REST API (`/api/v1/query/*`). The web console has no
+general query editor; it uses the language in one place, **New task from query** in the remediation
+hub, which selects the findings of a remediation task with a query and shows a live check and a preview.
 
 1. TOC
 {:toc}

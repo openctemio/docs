@@ -44,7 +44,8 @@ CTIS is specified in the [openctemio/ctis](https://github.com/openctemio/ctis) r
 - Go types (`github.com/openctemio/ctis/v2`), with `Report.Validate()`.
 
 The media type is `application/vnd.ctis+json; version=2.0` and a CTIS file is named `*.ctis.json`.
-OpenCTEM accepts CTIS 2.x only. A 1.x document is rejected, so producers and the platform are
+OpenCTEM accepts CTIS 2.x only, on every path. A 1.x document is rejected (`422 version-mismatch` on the
+sensor protocol, a validation error elsewhere) with a message that names the upgrade, so producers and the platform are
 upgraded together ([Migrating to CTIS 2.0](../operations/ctis-2-migration.md)).
 
 A minimal report:
@@ -242,7 +243,7 @@ Other upload endpoints:
 | `POST /api/v1/components/import` | an SBOM for the components inventory (`components:write`) |
 | `POST /api/v1/assets/import/csv` | assets from CSV (`assets:write` and `assets:import`) |
 | `POST /api/v1/pentest/campaigns/{id}/findings/import` | findings into a pentest campaign |
-| `POST /api/v1/ci/runs/{id}/results` | a CI run's results: CTIS, or a tool's output file in any importer format (or a ZIP), filed on the run's repository; used by `openctem-ci` with the run token. Answers `202` (see below) |
+| `POST /api/v1/ci/runs/{id}/results` | a CI run's results: the CTIS document itself (the `{"report": ...}` envelope of 1.x is refused with `400`), or a tool's output file in any importer format (or a ZIP), filed on the run's repository; used by `openctem-ci` with the run token. Answers `202` (see below) |
 
 ### CI results are applied in the background
 

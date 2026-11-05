@@ -175,7 +175,9 @@ The sensor plane (`/api/v2/sensor`) returns RFC 9457 problem documents
 
 ## Idempotency
 
-The tenant API does not read an `Idempotency-Key` header. Make retries safe yourself: `GET`, `PUT`
+Most of the tenant API does not read an `Idempotency-Key` header. The exceptions are the file import
+(`POST /api/v1/findings/imports`, see [Ingesting results](ingest.md#upload-a-report-another-tool-exported))
+and the CI results upload. For the rest, make retries safe yourself: `GET`, `PUT`
 and `DELETE` are idempotent; before retrying a `POST` that may have succeeded, check whether the
 object exists.
 
