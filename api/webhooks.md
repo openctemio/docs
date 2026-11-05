@@ -6,6 +6,8 @@ nav_order: 3
 
 # Webhooks and outbound integrations
 
+See how it works: [Outgoing webhooks](../how-it-works/remediation/outgoing-webhooks.md), [Ticket two-way sync](../how-it-works/remediation/ticket-sync.md), [Notification delivery](../how-it-works/remediation/notifications.md).
+
 OpenCTEM sends events out through **notification channels**, and accepts a small set of
 **inbound webhooks** from ticketing and source-control systems. This page describes what goes over
 the wire. How to set up a channel in the console is in
@@ -280,8 +282,9 @@ integration and **Inbound webhook**: the dialog shows the URL and lets you gener
 (shown once) or enter the one you set in Jira. The secret is stored encrypted and never returned.
 In Jira, create a webhook with that URL and secret for issue updates.
 
-- Replays are refused: by delivery id (`X-Atlassian-Webhook-Identifier`, or the body hash when
-  absent) for 24 hours, and by the payload timestamp (at most one hour old).
+- Replays are refused for 24 hours by the body hash, and also by the delivery id
+  (`X-Atlassian-Webhook-Identifier`) when Jira sends one: the same signed body sent again with a new
+  delivery id is still a replay. The payload timestamp must be at most one hour old.
 - Bodies over 2 MiB are `400`. The route is rate limited per client address and per integration.
 - A valid delivery answers `200`. A delivery that fails to process answers `5xx` and is forgotten, so
   Jira's retry is processed.

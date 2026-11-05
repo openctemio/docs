@@ -6,6 +6,8 @@ nav_order: 5.7
 
 # Import any CSV, JSON or XML with a mapping
 
+See how it works: [Finding import](../how-it-works/integrations/finding-import.md).
+
 Most tools that OpenCTEM reads have a built-in importer. For everything else
 (a spreadsheet export, the output of an in-house script, a JUnit-style report,
 a JSON export of another product) you describe the file once in an **import

@@ -8,6 +8,8 @@ nav_order: 2
 # Understand a blocked pull request
 {: .no_toc }
 
+See how it works: [CI policy gate and break-glass](../how-it-works/integrations/ci-policy-gate.md).
+
 For developers: what the **OpenCTEM gate** check means, how to see why it
 failed, and what to do next.
 
@@ -59,10 +61,11 @@ assign the repository to your team.
 A finding whose accepted risk has ended counts again under its usual reason.
 Fix it, or ask for the acceptance to be renewed.
 
-**New compared with what?** A pull request into a release line (the default
-branch, a protected branch, or a `main` or `release` branch the repository
-has scanned) is compared with that branch. Anything else is compared with the
-default branch.
+**New compared with what?** A pull request into the default branch or a
+protected branch is compared with that branch, when the platform can confirm
+the base branch (GitHub signs it, GitLab is asked through the connection).
+Anything else is compared with the default branch. A branch name such as
+`main` or `release/x` alone never makes a branch count.
 
 ## Fix it, or ask for an exception
 

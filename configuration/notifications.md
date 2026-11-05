@@ -7,6 +7,8 @@ nav_order: 3
 # Notification channels
 {: .no_toc }
 
+See how it works: [Notification delivery](../how-it-works/remediation/notifications.md), [Outgoing webhooks](../how-it-works/remediation/outgoing-webhooks.md).
+
 Notification channels send an organization's events (new findings, SLA
 breaches, approvals, offline sensors and more) to Slack, Microsoft Teams,
 Telegram, email or any HTTPS endpoint. Channels are configured per organization

@@ -8,6 +8,8 @@ nav_order: 4
 # Break-glass
 {: .no_toc }
 
+See how it works: [CI policy gate and break-glass](../how-it-works/integrations/ci-policy-gate.md).
+
 A break-glass lets **one commit of one repository** pass the gate for a
 limited time, for example an urgent fix that must ship before a finding can be
 resolved. It is the exception, not the way to handle false positives: for

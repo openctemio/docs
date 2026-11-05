@@ -6,6 +6,8 @@ nav_order: 5
 
 # Ingesting results (CTIS)
 
+See how it works: [Finding import](../how-it-works/integrations/finding-import.md).
+
 Assets, findings and dependencies enter OpenCTEM in one format, **CTIS** (the CTEM Interchange
 Schema, version 2.0). There are four ways to get results in:
 

@@ -6,7 +6,7 @@ nav_order: 6
 
 # Prioritization
 
-See how it works: [Priority from threat intelligence](../how-it-works/vulnerability-intel/priority.md), [KEV and EPSS updates](../how-it-works/vulnerability-intel/kev-epss.md).
+See how it works: [Priority from threat intelligence](../how-it-works/vulnerability-intel/priority.md), [KEV and EPSS updates](../how-it-works/vulnerability-intel/kev-epss.md), [SIEM ingest](../how-it-works/integrations/siem-ingest.md).
 
 **CTEM stage 3.** After Scoping and Discovery comes the most important question:
 **of the hundreds of open findings, which must be fixed first?** There are almost

@@ -7,6 +7,8 @@ nav_order: 6.7
 # Asset collector
 {: .no_toc }
 
+See how it works: [Asset collector flow](../how-it-works/integrations/asset-collector.md).
+
 The asset collector reads the inventory of systems you already run and sends
 it to OpenCTEM as assets. It is a sensor of type **Collector**: it connects
 out to the platform, needs no inbound port, takes no scan jobs and runs no
