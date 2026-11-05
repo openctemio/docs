@@ -7,8 +7,8 @@ nav_order: 9
 # Insights and reports
 
 The **Insights** section of the sidebar turns what the platform tracks into
-dashboards for different audiences: **Program Health**, **Data Quality**,
-**Executive Summary**, **CTEM Maturity**, **Reports** and **Compliance**. These
+dashboards for different audiences: **Program health**, **Data quality**,
+**Executive summary**, **CTEM maturity**, **Reports** and **Compliance**. These
 are views: you look, filter and export; you change data elsewhere.
 
 Most dashboards need the dashboard read permission. Some are modules: if a
@@ -22,7 +22,7 @@ KEV catalog on internet-facing assets, by asset type"), use the
 
 ## Program health
 
-**Insights › Program Health** (`/insights/program-health`) is the **outcome
+**Insights › Program health** (`/insights/program-health`) is the **outcome
 scorecard**: is risk being retired (urgent things fixed in time, inventory owned,
 exposure falling), rather than how much activity there is.
 
@@ -54,7 +54,9 @@ coverage, re-open rate and P1s rediscovered in scope, SLA compliance, exposure-c
 validation downgrade %); the 19 per-metric cards with **On track** pills of earlier releases are
 gone.
 
-The program metrics and the exposure trend are computed for the whole
+Opening a dashboard does not recompute it: its figures are kept as a snapshot
+(see [The dashboard](01-getting-started.md#stored-dashboard-figures-and-refresh-now)). The
+program metrics and the exposure trend are computed for the whole
 organization, so a member whose data scope is limited needs the
 `dashboard:aggregate` permission (or full data access) to see them. Pentest
 findings in draft or in review never count.
@@ -64,7 +66,7 @@ How each metric is defined is documented in
 
 ## Data quality
 
-**Insights › Data Quality** (`/insights/data-quality`) shows whether the
+**Insights › Data quality** (`/insights/data-quality`) shows whether the
 inventory is owned, evidenced and fresh enough to prioritize on: the inputs the
 rest of the CTEM loop trusts.
 
@@ -78,7 +80,7 @@ Use it to tell whether the attack surface is scanned often enough.
 
 ## Executive summary
 
-**Insights › Executive Summary** (`/insights/executive`) is the leadership view
+**Insights › Executive summary** (`/insights/executive`) is the leadership view
 of risk posture, remediation performance and process health.
 
 ![The Executive summary with risk score, findings resolved, the share of open findings within SLA, the time to fix and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
@@ -115,7 +117,7 @@ shown.
 
 ## CTEM maturity
 
-**Insights › CTEM Maturity** (`/insights/ctem-maturity`) scores program maturity
+**Insights › CTEM maturity** (`/insights/ctem-maturity`) scores program maturity
 as a transparent, weighted composite across your **closed** CTEM cycles:
 `score = Σ (component score × weight)`. Every component and its weight is shown,
 so you can check the number by hand.
@@ -143,14 +145,18 @@ maturity data yet": activate a cycle, work it and close it.
 - **Scheduled reports**: recurring digests emailed to recipients.
   1. Click **New schedule**.
   2. Enter a **Name** (for example "Weekly exec digest") and pick the **Report
-     type**: **Executive Summary**, **Summary Digest** or **Findings Digest**.
-     The format is an HTML email digest.
+     type**: **Executive summary**, **Summary digest** or **Findings digest**.
+     The **Format** is an HTML email digest.
   3. Choose the **Cadence** (Daily, Weekly, Monthly, or a standard five-field
      **Cron expression**), the **Time**, the day where it applies, and the
      **Timezone**. The dialog shows the next runs.
-  4. Add the **Recipients** (at least one email address) and save.
+  4. Add the **Recipients** (at least one email address) and click **Create
+     schedule**.
 
-  Each schedule shows when it last ran and can be deleted.
+  The list shows each schedule's **Type**, **Cadence**, **Recipients**,
+  **Owner**, **Last run** and **Next run**. A schedule can be paused and
+  resumed (**Active** or **Paused**) and deleted. A run ends as completed,
+  failed, no recipients or unsupported.
 
 The platform does not keep a library of generated report files: Reports means
 *export now* and *email on a schedule*.

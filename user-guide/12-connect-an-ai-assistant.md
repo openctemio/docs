@@ -25,7 +25,7 @@ The endpoint, the tool list and the API-key method are in the [MCP server refere
 
 | It can | It cannot |
 |---|---|
-| Read findings (with the Findings page's filters), vulnerabilities and their priority, assets (search the inventory, or read one asset as its page shows it) and attack paths, compliance posture, and pentest campaigns, findings, retests and templates, as far as you were allowed to grant (see [the permissions list](#what-each-line-of-the-consent-screen-means)). | Change anything on its own. The tool that adds a comment to a finding runs only after you confirm the exact comment in OpenCTEM, and is off unless your administrator allows it. The tool that saves a pentest finding as a draft (`draft_pentest_finding`, scope `mcp:pentest.draft`, shown as **Pentest drafts**) is off by default, and its drafts are confirmed by another campaign member; see [Pentest findings](07-validation.md#write-a-finding). The tool that proposes a false positive or an accepted risk (`propose_finding_status`, scope `mcp:findings.propose`) only files an approval request in your name, marked as written by the AI application; another person decides it, never you. Both are granted only when your organization allows them; see [MCP server](../api/mcp.md). |
+| Read findings (with the Findings page's filters), vulnerabilities and their priority, assets (search the inventory, or read one asset as its page shows it) and attack paths, compliance posture, and pentest campaigns, findings, retests and templates, as far as you were allowed to grant (see [the permissions list](#what-each-line-of-the-consent-screen-means)). | Change anything on its own. The tool that adds a comment to a finding runs only after you confirm the exact comment in OpenCTEM, and is off unless your administrator allows it. The tool that saves a pentest finding as a draft (`draft_pentest_finding`, scope `mcp:pentest.draft`, shown as **Pentest drafts**) is off by default, and its drafts are confirmed by another campaign member; see [Pentest findings](07-validation.md#write-a-finding). The tool that proposes a false positive or an accepted risk (`propose_finding_status`, scope `mcp:findings.propose`, shown as **Proposals**) only files an approval request in your name, marked as written by the AI application; another person decides it, never you. Both are granted only when your organization allows them; see [MCP server](../api/mcp.md). |
 | See what **you** can see in that organization: your role, your teams and your data scope apply exactly as in the console. | See more than you can. An administrator's bypass never applies to an assistant, and the assistant never gets a permission you do not hold. |
 | Keep working until the connection ends (see [how long a connection lasts](#how-long-a-connection-lasts)). | Keep working after you lose access. If you are suspended or removed from the organization, or lose a permission, the assistant loses it at the next request. |
 | | Read evidence files or attachments. The tools return only counts for them. |
@@ -532,10 +532,14 @@ For security reviewers.
   once (replay cache), and a stolen token alone is useless. **Require proof of possession (DPoP)**
   makes this mandatory for the organization; bearer-only clients are then refused at token issue and
   at refresh, and existing bearer grants stop working.
-- **Writes.** The only write is `add_finding_comment`, behind a separate scope that is off by default and is allowed only by the policy's **Add comments
-  to findings** option. The first call returns a confirmation link; the person sees the exact
-  comment and visibility in OpenCTEM and confirms within 5 minutes; the assistant repeats the call
-  with the confirmation. It never touches severity or status.
+- **Writes.** Three tools write, each behind its own scope that is off by default and allowed only
+  by the policy. `add_finding_comment` (scope shown as **Add comments to findings**) returns a
+  confirmation link on its first call; the person sees the exact comment and visibility in
+  OpenCTEM and confirms within 5 minutes, and the assistant repeats the call with the
+  confirmation. `propose_finding_status` (**Proposals**) only files an approval request for a
+  false positive or an accepted risk, which another person decides. `draft_pentest_finding`
+  (**Pentest drafts**) saves a draft that another campaign member confirms. None of them changes
+  a severity or a status by itself.
 - **Network and abuse controls.** The browser-origin guard, the organization's IP allowlist and a
   per-address rate limit run before authentication; each connection is limited to 3600 requests per
   hour. List tools return at most 100 rows per page and say whether there are more (`has_more`,

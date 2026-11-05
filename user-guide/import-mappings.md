@@ -61,13 +61,14 @@ Nothing is imported by the editor: the preview never writes data.
 
 ### Starter templates
 
-**New mapping** offers three starting points, each with a matching sample:
+**New mapping** offers **Start from** a blank mapping (one finding per CSV row
+from `title` and `severity` columns) or one of three starter templates:
 
 | Template | For |
 |---|---|
 | **Generic CSV** | One finding per row from the columns `title`, `severity`, `asset`, `asset_type`, `cve` and `description`. |
 | **Generic findings JSON** | A JSON document with a `findings` list, one finding per item. |
-| **JUnit-style XML** | Test results: a failed test case becomes a misconfiguration finding, an errored one a low finding, and passed or skipped cases give nothing. |
+| **JUnit-style XML** | Test results: a failed test case becomes a misconfiguration finding (severity from the failure type, else medium), an errored one a low misconfiguration finding, and passed or skipped cases give nothing. |
 
 Pick the closest one, paste a sample of your own file, then rename the columns
 in the **Fields** table until the preview shows the findings you expect.

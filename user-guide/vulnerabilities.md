@@ -29,7 +29,7 @@ the list shows finding counts.
 | Remediation | How many of its open findings are already in a remediation task |
 | Last seen | When a scan last reported it |
 
-The **Display** menu adds Product, Findings, KEV due and First seen.
+The **Display** menu adds Affected product, Findings, KEV due and First seen.
 
 **Counts follow your data scope.** Every number equals what the findings list
 shows you for the same CVE and filters. Assets outside your scope are neither

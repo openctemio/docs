@@ -22,10 +22,10 @@ tabs.
 
 ### Rule
 
-The rule uses the same filters as the Assets page (types, tags, criticality,
+The rule uses the same filters as the Assets page (types, [tags](tags.md), criticality,
 environment, internet-facing, name and more), plus:
 
-- **Domains.** Type `example.com` or `*.example.com`, one per line. With
+- **Domains.** Type `example.com` or `*.example.com`, one per line, at most 20 domains. With
   **Include subdomains** a domain matches the name itself and every name below
   it. A name matches only on a whole label: `example.com` never matches
   `evilexample.com` or `example.com.evil.net`. Internationalized names are
