@@ -15,7 +15,7 @@ and what is wrong with them:
 4. **What changed?** Continuous monitoring and alerts.
 
 It needs the **Attack surface** module. The pages are under
-**Discovery › Attack surface** (`/attack-surface`), five views: **Overview**,
+**Discovery › Attack surface** (`/attack-surface`), five views: **Overview** (**Summary**, **Posture**),
 **Inventory** (**Technologies**, **Certificates**, **Web surface**),
 **Exposures** (**Exposure items**, **Lookalikes**), **Changes** and
 **Discovery** (**Stages**, **Decisions**). The
@@ -28,6 +28,10 @@ Only your own attack surface is covered, under your own scope.
 The overview opens with five tiles (**Surface assets**, **Internet-facing
 assets**, **New in the last 7 days**, **Open exposures**, **Waiting for a
 decision**), then **Fix first** and **Discovery**.
+
+**Posture** grades the external surface from A to F, for the organization and
+for each root domain, and lists what to fix to reach the next grade
+([Posture](../user-guide/04-discovery.md#posture)).
 
 Discovered assets join the inventory at once. Scope decides what is actively
 scanned: entries authorize the full scan, and assets no entry covers get
@@ -124,6 +128,23 @@ runs it with the `takeover` templates only: the platform fixes the template set
 when it dispatches the job and the sensor checks it again, so the step cannot
 run other templates. Any sensor version takes the job. A match on a name that
 has an open dangling CNAME raises a confirmed subdomain takeover.
+
+{: .note }
+From v0.20.0, the DNS check no longer resolves an open `dangling_cname` (or a
+confirmed `subdomain_takeover`) as soon as the missing CNAME target exists
+again, because that is also what a successful takeover looks like. It resolves
+only when the name points into your organization: your own domain or a
+confirmed root, confirmed addresses outside provider space, or no record at all.
+A name that starts answering from a new third party raises a suspected
+`subdomain_takeover` (high) that only a person resolves. Names that point at a
+provider which no longer serves them (its "not configured" page, or certificate
+trouble on the name while the CNAME still points at the provider) raise
+`dangling_cname` with the response class and evidence (the CNAME chain, the
+provider, whether the name can be claimed and the TLS state). A takeover
+template match on such a name is confirmed without an earlier DNS-only record.
+An asset with an open dangling or takeover exposure is never demoted to stale
+and carries the tag `dangling_cname` while the exposure is open, so it stays
+tracked and is checked again until the name points somewhere you own.
 
 ## Monitoring settings
 
@@ -310,6 +331,12 @@ cloud static address, or one labeled an edge only by its network holder or
 CDN record) also stops every name that resolves to it. See
 [Exclusions and the names behind them](scope.md#exclusions-and-the-names-behind-them).
 
+{: .note }
+From v0.20.0, a version-based vulnerability match on a host that a provider's
+shared front end serves is attributed to the provider and capped at priority
+P3. It is context on your name, not your own critical vulnerability. See
+[Vulnerability matching](../user-guide/vulnerability-matching.md#shared-hosting-and-cdn-edges).
+
 ## Review
 
 Every internet-facing asset carries an **attribution**: `confirmed`,
@@ -388,6 +415,28 @@ It needs `assets:read`, and each certificate follows your data scope. API:
 `GET /api/v1/attack-surface/certificates` and
 `GET /api/v1/attack-surface/certificates/stats` (counts by status), with the
 usual list filters, sort, search and pagination.
+
+### Certificate exposures per host
+
+When a scan reads the TLS certificate a host serves, the platform judges each
+https service and its certificate and raises one exposure per service and
+problem:
+
+| Exposure | When | Severity |
+|---|---|---|
+| `certificate_expired` | The certificate has expired | High |
+| `certificate_expiring` | The certificate expires within 30 days | Medium, high within 7 days |
+| `ssl_issue`, issue `not_yet_valid` | The certificate is not valid yet | Medium |
+| `ssl_issue`, issue `name_mismatch` | No name of the certificate covers the host | Medium |
+| `ssl_issue`, issue `foreign_certificate` | No name of the certificate shares the host's registrable domain. This is typically a hosting platform's default certificate on a name that points at an unclaimed site; the exposure is marked as a takeover candidate with the host's CNAME chain | High |
+
+The facts come from the TLS handshake, so a host that completes the handshake
+and then resets every HTTP request is judged too. A later scan that sees the
+host serve a certificate without the problem resolves the exposure by itself,
+and seeing the problem again reopens it. Accepted and false-positive exposures
+are never changed. A certificate-level expiry exposure is raised only for a
+certificate seen without a serving host; once a scan sees a host serve it, the
+per-host exposures replace it.
 
 ### Names from certificates
 
