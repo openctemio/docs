@@ -18,12 +18,14 @@ Shared sensors are in every edition. They are off until a super administrator
 turns them on, and an organization can always opt out.
 
 {: .warning }
-**Not available in v0.11.0.** This release does not enable shared sensors: the
-platform console shows "Shared sensors are not available in this release" on
-**Scanning > Platform scanning**, and no organization's scan goes to a shared
-sensor. The fleet, queue, zones and settings described below appear once a
-release enables them; the domain-proof policy on that page already applies to
-the platform sensors.
+**Shared scanning is not available yet.** The current release does not enable
+it: the platform console shows "Shared sensors are not available in this
+release" on **Scanning > Platform scanning**, and no organization's scan goes
+to a shared sensor. The fleet, queue, zones and settings described below
+appear once a release enables them. The domain-proof policy on that page
+already applies to the platform sensors. A **platform sensor** can still be
+enrolled today for the platform's own work (see
+[Platform sensors for the platform's own work](#platform-sensors-for-the-platforms-own-work)).
 
 {: .note }
 Shared mode and instance enrollment need a sensor release that includes them
@@ -92,7 +94,8 @@ A deny wins over the default.
 A shared sensor enrolls with a **single-use instance enrollment token** instead
 of an approval in an organization.
 
-1. In **Scanning > Platform scanning**, card **Enroll a shared sensor**, give
+1. In the platform console open **Scanning > Platform sensors** (needs the
+   `platform.sensors.read` permission), use the enrollment card, give
    the sensor a name (optional) and a lifetime (5 to 60 minutes) and choose
    **Issue token**. Confirm with a reason and your authenticator code.
 2. Copy the token (`octe_` followed by 49 letters or digits). It is shown once
@@ -125,6 +128,28 @@ of an approval in an organization.
 The local policy file is mandatory in shared mode; start from the example in
 the sensor repository (public targets only by default) and see
 [Sensor-local policy](network.md#sensor-local-policy).
+
+## Platform sensors for the platform's own work
+
+The **Platform sensors** page (**Scanning > Platform sensors** in the platform
+console) holds the enrollment card, the list of platform sensors with **Pause**
+and **Retire**, and the instance scan zones. It does not depend on the shared
+scanning switch, so an administrator can enroll a platform sensor for work the
+platform itself needs, such as relaying the platform's signed feeds, passive
+discovery or the AI worker.
+
+**Feed relay.** A platform sensor with a pinned job-signing key relays the
+platform's signed feeds (the vulnerability feed with its KEV and EPSS data, and
+the release feed of the version check) by default, so a platform with no
+outbound access still receives them. The sensor downloads only the files the
+platform names, from the official feed origins and the extra origins in
+`SENSOR_FEED_RELAY_ORIGINS`, through its SSRF-guarded client, and sends them
+back. The platform verifies every file with each feed's own pinned key, so a
+relay can delay a feed but never change it. `SENSOR_FEED_RELAY=0` turns the
+role off on a sensor; `1` requires it and is a usage error on a sensor that
+cannot relay; any sensor that is not a shared sensor with a pinned key never
+relays. An administrator designates one to three relays and switches the
+delivery mode in the console: see [Feeds](../operations/feeds.md).
 
 ### The bundled sensor of the Compose install
 

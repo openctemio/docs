@@ -32,6 +32,7 @@ Nothing secret goes through Helm values.
 ```bash
 helm upgrade openctem openctem/openctem -n openctem --reuse-values \
   --set sensor.enabled=true \
+  --set sensor.apiUrl=https://openctem.example.com \
   --set sensor.image.tag={{ site.data.versions.sensor }} \
   --set sensor.sandbox.seccompProfile=openctem \
   --set sensor.localPolicy.enabled=true \
@@ -39,6 +40,10 @@ helm upgrade openctem openctem/openctem -n openctem --reuse-values \
 kubectl -n openctem logs deploy/openctem-openctem-sensor   # the code and fingerprint
 ```
 
+- `sensor.apiUrl` must be an `https` URL the sensor reaches. The chart's
+  default is the in-cluster API service over plain http, which the sensor
+  refuses and the chart fails to render; `sensor.allowInsecureHTTP=true`
+  accepts it for evaluation only.
 - `sensor.sandbox.seccompProfile=openctem` installs the sensor's seccomp
   profile on the nodes (a small DaemonSet) and runs the sensor with it, so
   each scan's network is confined ([Tool confinement](#tool-confinement)).
@@ -56,17 +61,23 @@ copy its key (shown once) and:
 ```bash
 kubectl -n openctem create secret generic openctem-sensor --from-literal=api-key='<key>'
 helm upgrade openctem openctem/openctem -n openctem --reuse-values \
-  --set sensor.enabled=true --set sensor.existingSecret=openctem-sensor
+  --set sensor.enabled=true --set sensor.apiUrl=https://openctem.example.com \
+  --set sensor.existingSecret=openctem-sensor
 ```
 
 | Value | Default | Meaning |
 |---|---|---|
 | `sensor.enabled` | `false` | Run the bundled sensor |
-| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform. Chart 0.28.0 pins v0.23.0; older charts pin older releases (a chart that pins v0.21.1 finds no open ports with confined port scans, fixed in v0.22.0), so set `sensor.image.tag` to the release you want |
+| `sensor.image.repository` / `.tag` | `ghcr.io/openctemio/sensor` / a pinned release | The sensor is versioned separately from the platform, and the release a chart pins can trail the newest one: set `sensor.image.tag` to the release you want. A sensor from v0.36.0 sends CTIS 2.0 results and needs platform v0.19.0 or later |
 | `sensor.sandbox.seccompProfile` | `openctem` | The sensor's own seccomp profile, installed on the nodes by a DaemonSet (`sensor.sandbox.installProfile`), so scans are network-confined. `runtime-default` where a DaemonSet with a host path cannot run; tasks then run unconfined |
 | `sensor.sandbox.network` | `auto` | `SENSOR_SANDBOX_NETWORK`: `required` refuses to run a task unconfined |
 | `sensor.caFingerprint` / `sensor.platformKey` | empty | `SENSOR_CA_FINGERPRINT` and `SENSOR_PLATFORM_KEY` pins (see [Security notes](security.md#tls-and-pinning)) |
 | `sensor.existingSecret` / `.existingSecretKey` | none / `api-key` | Secret holding an API key (preferred over `sensor.apiKey`). Empty: the sensor pairs |
+| `sensor.enrollment` | `pairing` | How a sensor without an API key gets its identity: `pairing` (an organization administrator approves it), `token` (an organization enrollment token from **Sensors > Enrollment tokens**, in a Secret named by `sensor.enrollmentToken.existingSecret`) or `instance` (a shared sensor of the installation; the render needs `sensor.sandbox.network=required`, the sensor's seccomp profile and `sensor.localPolicy.enabled=true`) |
+| `sensor.pairingCode` / `sensor.pairingCodeExistingSecret` | empty | A single-use pairing code made under **Discovery > Sensors > Add sensor** (valid 10 minutes), used as `SENSOR_PAIRING_CODE`. Empty: the sensor prints its own code in `kubectl logs`. Remove it after pairing |
+| `sensor.feedRelay.enabled` / `.origins` | `true` / empty | Whether this sensor may relay the platform's signed feeds (`false` renders `SENSOR_FEED_RELAY=0`), and extra https origins for a mirror (`SENSOR_FEED_RELAY_ORIGINS`). See [Feeds](../operations/feeds.md) |
+| `sensor.allowInsecureHTTP` | `false` | The default `sensor.apiUrl` is the in-cluster service over http, which the sensor refuses unless this is `true` (the traffic is signed but not encrypted: evaluation only) or you set an https `sensor.apiUrl` |
+| `sensor.persistence.keepOnUninstall` | `true` | Keep the identity volume when the release is uninstalled, so the sensor does not pair again after a reinstall |
 | `sensor.apiUrl` | the in-cluster API service | Override `SENSOR_API_URL` |
 | `sensor.tools` | empty | Deprecated (`-tools`): from sensor v0.21.0 the sensor detects its tools and this only narrows them. Leave it empty and narrow with `tools.allow` in `sensor.localPolicy` |
 | `sensor.allowPrivateTargets` | empty | `"1"` sets `SENSOR_ALLOW_PRIVATE_TARGETS=1`; any other value fails the render |

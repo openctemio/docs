@@ -150,6 +150,19 @@ A **command** is the sensor-side name of a [scan run's task](../scanning/scans-a
      The sensor page has a **Host pressure** section and warns when other
      programs on the host use most of its CPU. The report can only lower what
      a sensor is offered.
+   - **Slots follow the host.** A sensor sizes its job slots from the CPU and
+     memory free on its host (and `SENSOR_MAX_JOBS`, when set), so its
+     capacity can fall below the jobs it already runs when the host gets
+     busier. It then runs the jobs it has and takes no new one until they
+     finish. From sensor v0.37.0 (sdk-go v0.46.3) it also no longer claims
+     slots it cannot fill.
+
+     {: .note }
+     From platform v0.20.0 the console shows such a sensor as **Over capacity
+     by N, no new jobs** instead of a bare "2 / 1". The free slots it shows are
+     the figure the platform dispatches by (`available_slots`: capacity minus
+     the jobs held, the sensor's last load report and host pressure), and
+     **host busy** appears when pressure is what narrows them.
    - **A failure that is not the target's moves on.** When a task fails because
      the tool crashed or is missing, the sensor ran out of memory or disk, the
      tool's content could not be read, or the sensor's own network or resolver
