@@ -74,9 +74,6 @@ has its own setup page.
 
 ## Link your organization's sign-in to a password account
 
-{: .note }
-**Not in v0.18.0.** Linking an organization's sign-in under **Account > Security** is merged for the next release; v0.18.0 does not have it yet.
-
 A member whose account has a password (for example the organization's first owner, who signed up
 with email and password) is not signed in by the organization's SSO on the strength of a matching
 email: the sign-in is refused with "an account with this email already exists". The member links the
@@ -93,6 +90,11 @@ Okta, Google Workspace; SAML is not supported yet):
    already signed in there.
 5. You return to **Account > Security**. From now on you can sign in through the organization's
    identity provider. Your password keeps working until the organization requires single sign-on.
+
+The console does this with `GET /api/v1/me/sso-links` (the organizations you can link),
+`POST /api/v1/me/sso-links/{provider}/start`, `POST /api/v1/me/sso-links/{provider}/complete` and
+`DELETE /api/v1/me/sso-links/identities/{identity}`; they take a console session, and `start` and the
+unlink need the typed proof.
 
 What to know:
 
