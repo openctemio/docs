@@ -31,6 +31,26 @@ export OPENCTEM_URL=https://console.example.com
 export OPENCTEM_API_KEY=...
 ```
 
+## Give the tool its targets
+
+```sh
+# your organization's in-scope names, one per line (the API key's data scope applies)
+openctem targets export --type domain > names.txt
+
+# export, run, import in one step: no shell, the command never sees the API key
+openctem run --type ip --format nmap -- nmap -sV -iL {targets_file} -oX {output_file}
+openctem run --type domain --format lines --as domain --tool puredns -- puredns resolve {targets_file} -w {output_file}
+```
+
+`--type` is `domain`, `ip`, `url` or `service`; by default only assets an
+active scope entry covers are exported (`--scope in_scope`), and `--tag`
+narrows further. Run either from cron or a scheduled CI job.
+
+Tools your sensor runs for you are scheduled as scan steps instead: the
+platform picks the in-scope targets, signs the job, and the sensor enforces
+the scope on every connection. With `openctem run` the platform cannot see
+what your command actually scanned, which is why the checks below apply.
+
 ## Examples
 
 ```sh
