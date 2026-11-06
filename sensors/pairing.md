@@ -67,8 +67,21 @@ link to approve it on and its fingerprint.
 ![The Approve a sensor page a printed link opens: the organization the sensor joins, three fingerprints to pick the one the host shows, the host facts, the name and the authenticator code]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 *Figure: Approving a pairing request.*
 
-1. In the console open **Discovery > Sensors > Add sensor**. Under **Where
-   will it run?** pick Docker, Docker Compose, Kubernetes or a Linux service.
+1. In the console open **Discovery > Sensors > Add sensor**. It first asks
+   **What will this sensor scan?**
+   - **Internet-facing** (the default): public domains and addresses. The
+     command never lets the sensor reach private networks.
+   - **Internal networks**: the private networks the host reaches, such as
+     `10.0.0.0/16`. The command adds `SENSOR_ALLOW_PRIVATE_TARGETS=1` with a
+     comment that explains it: running the command is the host owner's
+     consent to scan private addresses. Tick **Also restrict this host to
+     these networks** to add `SENSOR_ALLOWED_RANGES` as well; the sensor then
+     refuses every target outside them.
+   - **Both**: internal networks and internet-facing targets (the private
+     switch, never a range restriction).
+
+   Under **Where will it run?** pick Docker, Docker Compose, Kubernetes or a
+   Linux service.
    The dialog shows **Run this command on the host**: copy it and paste it on
    the host. A platform behind a private certificate authority gets a command
    that pins that authority (the dialog names its SHA-256).
@@ -105,10 +118,27 @@ link to approve it on and its fingerprint.
    the sensor and pick the same one. A wrong pick closes the request, is
    audited at high severity and notifies every administrator; the sensor then
    shows a new code and link.
-6. Under **More options** choose the name, the type, **What it may do** (the
-   grant profile, below) and the scan zones, then **Approve into** the
+6. **Set it up for scanning** (shown when it applies):
+   - **Networks it scans**: the private ranges, prefilled from the first
+     question. The sensor joins the scan zone with exactly these ranges, or a
+     new zone named after it is created, in the same step (needs the
+     permission to manage scan zones).
+   - **Also add these networks to scope**: after the approval the console
+     adds them to scope as their own entry, through your organization's
+     usual scope approvals. An entry someone else must approve shows as
+     waiting.
+   - **Trusted for active scanning**: the sensor may run active checks at
+     once. Offered only for a sensor started with the code this console
+     made (never for a code the sensor printed itself, an enrollment token
+     or a re-pair), for the internal scanner, external attack surface and
+     scanner connector profiles, and to someone who may widen grants. It is
+     audited and announced exactly like a promotion.
+7. Under **More options** choose the type, **What it may do** (the grant
+   profile, below) and existing scan zones, then **Approve into** the
    organization, re-authenticating (your authenticator code, or your password;
    no prompt if you signed in recently).
+8. The dialog ends on **Ready to scan?**, the sensor's readiness checklist
+   (below).
 
 The approval names the organization it was reviewed in: if you switched
 organization after looking the code up, it is refused and you enter the code
@@ -326,6 +356,28 @@ Disable, revoke access to or delete a sensor from the **⋯** menu of its sheet 
   activate and the status edit do, so a revoked sensor cannot be turned into
   a paused one and brought back.
 
+## Ready to scan?
+
+Every sensor has a readiness checklist: on its page, at the end of Add
+sensor, and in **New scan** for the sensors of the chosen zone. It lists what
+still stops the sensor from scanning, in the order to fix it, each with one
+action:
+
+| Item | Fix |
+|---|---|
+| Online | Run the install command, or check the sensor reaches the platform |
+| Trusted for active scanning | **Trust this sensor** (needs the permission to widen grants) |
+| Host allows private networks | The host owner sets `SENSOR_ALLOW_PRIVATE_TARGETS=1` and restarts the sensor |
+| Host kill switch off | The host owner removes `/etc/openctem/STOP` |
+| Networks assigned | **Assign networks** (scan zones) |
+| Networks in scope | **Add to scope**, or wait for the approval someone else gives |
+| Tool runs confined on the host | [Host requirements](host-requirements.md) |
+
+An item that does not apply (an internet-only sensor needs no private
+networks) is left out. Without the permission an action needs, the item says
+who can fix it. The checklist only reads; every action goes through its own
+page, permission and audit. API: `GET /api/v1/sensors/{id}/readiness`.
+
 ## Grants and trust
 
 Every sensor has a **grant**: the job types, zones, tools, highest tier,
@@ -345,7 +397,8 @@ The approver picks a profile as the starting grant:
 | Endpoint (`endpoint-agent`) | Inspects its own host only |
 
 Every new sensor starts at trust level **New**, whether it was paired or
-installed with a key:
+installed with a key, unless its approver ticked **Trusted for active
+scanning** (above):
 
 - it receives **passive (T0) work only**: subdomain discovery, DNS
   resolution, code, dependency and image analysis. Active tools such as
