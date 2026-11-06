@@ -110,10 +110,35 @@ has no pin button.
   severity, a condition and a number for a score or a port, a quick range ("7 days
   ago", "30 days from now") or a date for time fields, **Yes** or **No**, **Is
   empty**, or a person from your members. New fields the server adds show up
-  here without an update of the console. Asset-based fields (asset tag,
-  criticality, group, owner) are offered only if you can read assets. A field the
+  here without an update of the console. Asset-based fields (asset type,
+  domain, name pattern, tag, criticality, group, owner) are offered only if you
+  can read assets. A field the
   open saved view already sets is greyed out, because a filter on it would
   override the view.
+- **Asset type, Domain and Asset name pattern** (under **Asset** in **Add
+  filter**) narrow the list by the asset a finding is on:
+  - **Asset type**: tick the types (domain, subdomain, IP address, service,
+    repository, ...); **is not** excludes them.
+  - **Domain**: `example.com` is every finding on anything that belongs to the
+    domain: its names and subdomains, the IP addresses those names resolve
+    to, the services and open ports on those addresses, certificates issued
+    for the names (a wildcard certificate `*.example.com` counts for
+    `example.com`), web applications and APIs at those names, and databases,
+    load balancers and hosts named under it. `*.example.com` leaves the domain
+    itself out and keeps everything under it. An address counts only when one
+    of the names resolves to it and it is not shared: CDN, WAF, hosting
+    platform and cloud front-end addresses, and addresses that names of three
+    or more different domains resolve to, never count. Repositories,
+    identities, containers, cloud accounts and storage buckets have no network
+    name and never belong to a domain. Case, a trailing dot and accented
+    (Unicode) labels do not matter; a public suffix such as `com.vn` is not a
+    domain. A change to an asset (a new name, a name that stops resolving)
+    shows in this filter within a few seconds.
+  - **Asset name pattern**: `*` matches any characters and `?` one character
+    (`api-*`, `db?.corp.example.com`); everything else is literal. A pattern has
+    at most 3 wildcards and at least 3 other characters in a row.
+  - At most two pattern or text-contains filters can be combined in one list;
+    a third is refused with "narrow the filter".
 - A link can carry a filter the console does not know (a typo such as
   `sevrity=high`). It is shown as **Unknown filter** with an x, and the list
   still loads without it. If the server refuses it, the list says "This link has

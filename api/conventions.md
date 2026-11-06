@@ -80,6 +80,29 @@ curl -H "Authorization: Bearer $OPENCTEM_API_KEY" \
   "https://openctem.example.com/api/v1/findings?severity=critical,high&epss_score_gte=0.1&q=log4j&sort=-priority_class"
 ```
 
+Findings can be narrowed by the asset they are on:
+
+| Parameter | Meaning |
+|---|---|
+| `asset_type`, `asset_type_not` | the asset's type: `domain`, `subdomain`, `ip_address`, `certificate`, `service`, `application`, `host`, `repository`, ... |
+| `asset_domain`, `asset_domain_not` | `example.com`: the domain and every asset that belongs under it (names, the addresses they resolve to unless shared CDN or hosting addresses, services on them, certificates, web applications); `*.example.com`: only under it. Up to 20 values; a public suffix is refused |
+| `asset_name`, `asset_name_not` | an asset name pattern: `*` any characters, `?` one, everything else literal; at most 3 wildcards and 200 characters; up to 10 values |
+
+```bash
+# Everything of example.com.vn
+curl -H "Authorization: Bearer $OPENCTEM_API_KEY" \
+  "https://openctem.example.com/api/v1/findings?asset_domain=example.com.vn"
+# Subdomain assets under example.com.vn, without the domain itself
+curl -H "Authorization: Bearer $OPENCTEM_API_KEY" \
+  "https://openctem.example.com/api/v1/findings?asset_domain=*.example.com.vn&asset_type=domain,subdomain"
+# Findings on repositories only
+curl -H "Authorization: Bearer $OPENCTEM_API_KEY" \
+  "https://openctem.example.com/api/v1/findings?asset_type=repository"
+```
+
+A request takes at most two pattern or `_contains` filters; a third is `400 INVALID_FILTER`
+("narrow the filter"). A list that runs past its time limit answers `503 QUERY_TIMEOUT`.
+
 For OR conditions and nesting, `POST /api/v1/findings/search` takes a filter document:
 
 ```json
@@ -91,7 +114,7 @@ operators, its enum values, and the JSON Schema of the filter document. `GET /ap
 and `GET /api/v1/findings/groups` take the same parameters as the list, so their counts match it.
 
 Limits: 50 conditions, nesting depth 3, 100 values per list (500 ids in a search document), 200
-characters per value (`q`: 255), 32 KB search body. A filter that does not parse, or a field that
+characters per value (`q`: 255), 32 KB search body, 2 pattern or contains filters. A filter that does not parse, or a field that
 cannot be sorted, is `400 INVALID_FILTER` with `details` naming each bad parameter or JSON path.
 
 Older parameter names on findings (`severities`, `search`, ...) still work as deprecated aliases and
