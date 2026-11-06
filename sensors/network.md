@@ -15,7 +15,7 @@ and no route from the platform into your network.
 |---|---|---|
 | Control | The platform URL on TCP 443 (HTTPS; gRPC on the same port when the platform offers it, or the [dedicated sensor host name or port](transport.md#a-dedicated-sensor-host-name) if one is set up) | Pairing, heartbeats, jobs, results |
 | Content | `github.com` and `api.github.com` (nuclei templates); `mirror.gcr.io` and `ghcr.io` (trivy database, per-tool trivy image); `github.com`, `api.github.com` and `release-assets.githubusercontent.com` (the OpenCTEM SAST rules pack); `semgrep.dev` (registry rule sets, only when configured) | Keeping scanner content current. Optional: mirrors and local files work, see below |
-| DNS | The resolvers in `/etc/resolv.conf`, or `SENSOR_DNS_RESOLVERS` | Resolving targets; dnsx, naabu and subfinder never use their built-in public resolver lists |
+| DNS | The resolvers in `/etc/resolv.conf` (the platform host name and targets), or `SENSOR_DNS_RESOLVERS` (dnsx, naabu and subfinder) | Resolving the platform and targets. dnsx, naabu and subfinder never use their built-in public resolver lists. To make the platform connection independent of DNS, pin the platform host ([Platform name resolution](host-requirements.md#platform-name-resolution)) |
 | Scan | Your targets | The scans themselves |
 
 ## The platform URL

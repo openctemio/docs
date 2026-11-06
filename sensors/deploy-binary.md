@@ -123,6 +123,19 @@ policy file goes in `/etc/openctem/sensor-policy.yaml`, owned by root and not
 writable by the sensor's user (see [Network](network.md#sensor-local-policy));
 it replaces `SENSOR_ALLOWED_RANGES`, which must then be removed. Reload it with `systemctl kill -s HUP openctem-sensor`.
 
+## Pin the platform host
+
+A sensor that scans internal networks should reach the platform without DNS.
+An intrusive scan can block or knock over the DNS server. Add the platform host
+to `/etc/hosts`, and keep the host name in `SENSOR_API_URL` (TLS checks the
+certificate against it):
+
+```bash
+echo '192.0.2.10 openctem.example.com' | sudo tee -a /etc/hosts
+```
+
+See [Platform name resolution](host-requirements.md#platform-name-resolution).
+
 ## Tool confinement on a host
 
 A binary sensor confines each scan's network with unprivileged user

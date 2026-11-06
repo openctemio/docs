@@ -71,6 +71,7 @@ loop until it is fixed.
 | `scan target refused by guard: DNS lookup failed for scanner target "203.0.113.7:80"` | task log | Sensor v0.22.0 or older: the target guard looked up a `host:port` target (as a port scan hands to the HTTP probe) as a name, and refused the whole task | Upgrade the sensor to v0.22.1 or later |
 | `scan target refused by guard: ...` (other reasons) | task log | Up to v0.22.1 one target the guard refuses (a blocked address, a name that does not resolve) fails the whole task | Remove or fix the target; sensor v0.22.2 and later leave only that target out ([What targets need](network.md#what-targets-need)) |
 | *Step* `could not reach N targets (blocked by the sensor's network confinement)` | run page | The task's confinement refused every connection the tool made toward those targets (sensor v0.22.0 or later) | Check that the targets are what the job names (a redirect to another host is refused by design). On sensor v0.21.x a confined port scan found no open ports at all: upgrade to v0.22.0 or later |
+| `lookup openctem.example.com on 127.0.0.11:53: server misbehaving` (heartbeat, poll, logs and results fail) | sensor | Docker's embedded DNS cannot reach the resolver it forwards to. Often an intrusive scan blocked or knocked over that DNS server, or tools' lookups overloaded it. After the lease ends, the platform hands the sensor's running jobs to another sensor | Pin the platform host with `extra_hosts`, check the resolver, and exclude the DNS server from intrusive scans ([Platform host name resolution](#runtime-control-dns)). Sensors with the last-known-good address keep reaching the platform through such an outage |
 | `Max dispatch attempts exceeded` | task | The task was taken back from its sensor too many times (lease lost, overrun) | On platforms before v0.9.6 a slow task with a long step timeout was taken back at twice its budget: upgrade the platform. Otherwise check the sensor's logs for restarts |
 
 ## Read the logs
@@ -333,6 +334,56 @@ stop a scanner before the sensor itself. `no_permission`: add the
 `runtime.command_poller` `stopped`: the loop that fetches jobs from the
 platform stopped with an error, so the sensor runs nothing. Restart the
 sensor and check its log ([Read the logs](#read-the-logs)).
+
+### Platform host name resolution
+{: #runtime-control-dns }
+
+`runtime.control_dns`: whether the platform host name in `SENSOR_API_URL`
+resolves. `resolving` is the goal. When a lookup fails (a DNS error only, never
+a TLS or HTTP error), the sensor dials the address the last successful lookup
+returned, for up to `SENSOR_CONTROL_DNS_MAX_STALE` (default `24h`; `0` turns
+this off). TLS still checks the certificate against the platform host name, so
+an address that now belongs to someone else fails the handshake. The address is
+also kept in the state directory, so a sensor restarted during an outage still
+connects.
+
+- `cached_address` (the cause is in the check: `timeout`, `server_misbehaving`,
+  `not_found`, ...): the platform host does not resolve, and the sensor uses the
+  cached address. It stays connected. Fix the resolver, or pin the host (below).
+- `lookup_failed`: the host does not resolve and no cached address is young
+  enough, so the sensor cannot reach the platform. While the sensor is offline,
+  its detail shows **DNS failure** as the reason when its last report said so.
+- `recovered` (information only): the host resolves again. The check gives the
+  time the lookups failed and the time they recovered.
+- `via_proxy`: requests to the platform go through a proxy, and the proxy
+  resolves the platform host. `plain_http`: there is no TLS check, so the
+  sensor never uses a cached address.
+
+Fix: pin the platform host so the sensor does not need DNS to reach it. In
+Compose, set `extra_hosts: ["openctem.example.com:192.0.2.10"]`; with
+`docker run`, use `--add-host openctem.example.com:192.0.2.10`; in Kubernetes,
+use `hostAliases`; on a host, add an `/etc/hosts` entry. Then check the
+resolver the sensor uses (`/etc/resolv.conf`, or Docker's `dns:` setting). Keep
+that resolver out of intrusive scans
+([Core infrastructure](host-requirements.md#core-infrastructure-and-intrusive-scans)).
+
+### Core infrastructure addresses
+{: #network-core-addresses }
+
+`network.core_addresses` (information only): the addresses scans from this
+sensor should leave alone. The check lists them in groups:
+
+- `resolvers`: the sensor's DNS resolvers. Behind Docker's embedded DNS
+  (`127.0.0.11`), these are the servers it forwards to.
+- `tool_resolvers`: the servers set in `SENSOR_DNS_RESOLVERS`.
+- `gateways`: the default gateways.
+- `host_addrs`: the sensor's address as the platform sees it.
+- `platform_addrs`: the platform's addresses.
+
+When a new scan's targets cover one of them, the console warns and offers to
+exclude them. The scan is never blocked. The check lists only addresses the
+sensor-local policy lets this sensor scan. With `SENSOR_NETWORK_REPORT=off` it
+lists nothing (`not_reported`).
 
 ### Renamed setting
 {: #config-alias-deprecated }

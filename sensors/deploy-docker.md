@@ -202,6 +202,29 @@ The sensor is `online` under **Discovery > Sensors**, and its **Setup &
 health** section lists no failed check. What each line means and what to do
 when it differs: [Check that it works](index.md#4-check-that-it-works).
 
+## Pin the platform host
+
+A sensor that scans internal networks should not need DNS to reach the
+platform. An intrusive scan can block or knock over the DNS server, and every
+heartbeat then fails with
+`lookup openctem.example.com on 127.0.0.11:53: server misbehaving`. Pin the
+platform host to its address, and keep the host name in `SENSOR_API_URL` so
+TLS still checks the certificate against it:
+
+```yaml
+services:
+  sensor:
+    extra_hosts:
+      - "openctem.example.com:192.0.2.10"
+```
+
+With `docker run`, add `--add-host openctem.example.com:192.0.2.10`. Without
+a pin, the sensor keeps dialing the platform's last-known-good address during
+a DNS outage, for up to `SENSOR_CONTROL_DNS_MAX_STALE` (default `24h`). Also
+exclude the DNS servers, gateways, the platform host and the sensor host from
+intrusive scans. See
+[Platform name resolution](host-requirements.md#platform-name-resolution).
+
 ## Tool confinement
 
 The sensor runs every scanner in a sandbox (private directory, resource

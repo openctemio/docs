@@ -255,6 +255,26 @@ containers:
 To stop all jobs, set `kill_switch: true` in the policy and restart the pod.
 The policy format is described in [Network](network.md#sensor-local-policy).
 
+### Pin the platform host
+
+A sensor that scans internal networks should reach the platform without DNS.
+An intrusive scan can block or knock over the cluster's upstream resolver.
+Add the platform host to the pod spec, and keep the host name in
+`SENSOR_API_URL` (TLS checks the certificate against it):
+
+```yaml
+spec:
+  template:
+    spec:
+      hostAliases:
+        - ip: "192.0.2.10"
+          hostnames: ["openctem.example.com"]
+```
+
+A sensor that reaches the platform through an in-cluster service name does
+not need this. See
+[Platform name resolution](host-requirements.md#platform-name-resolution).
+
 ## Transport on Kubernetes
 
 A sensor in or outside the cluster uses the **HTTPS** transport through any
