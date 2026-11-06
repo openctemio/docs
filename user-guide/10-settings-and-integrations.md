@@ -260,7 +260,10 @@ score and the first three things to fix are shown at the top of **Settings**.
 
 **Settings › Access & security › Authentication** (`/settings/authentication`) sets how
 people sign in and who may join: see
-[Team and access › Sign-in policy](02-team-and-access.md#sign-in-policy). What
+[Team and access › Sign-in policy](02-team-and-access.md#sign-in-policy). The
+**Re-verification** card sets how often people confirm their identity again before critical,
+sensitive and routine actions: see
+[Re-verification policy](../identity/two-factor.md#re-verification-policy). What
 scan jobs may do on your sensors is on
 [Sensor job safety](#sensor-job-safety).
 

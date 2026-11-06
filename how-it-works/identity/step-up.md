@@ -13,6 +13,10 @@ Some actions, such as creating an API key, deleting an organization or
 accepting ownership, need a recent proof of identity even when the person is
 signed in. The console shows **Confirm it is you**, the person proves
 themselves once, and for the next 10 minutes the session may do such actions.
+Each organization can change how often each tier of action asks (every
+time, a longer window, or never for sensitive and routine actions; critical
+actions always ask): see the
+[re-verification policy](../../identity/two-factor.md#re-verification-policy).
 
 1. TOC
 {:toc}
@@ -75,6 +79,10 @@ sequenceDiagram
 - **Bound to the session.** A proof made in one session does not help
   another.
 - **Audit.** Every proof and every failed proof is audited.
+- **Policy floor.** Critical actions (credentials, roles, sign-in, secrets,
+  deletion, approving active scanning, exports) ask every time or once per
+  10 minutes in every organization. API keys never pass critical or
+  sensitive actions.
 
 ## Related
 
