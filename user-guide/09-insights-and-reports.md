@@ -64,7 +64,7 @@ organization, so a member whose data scope is limited needs the
 findings in draft or in review never count.
 
 How each metric is defined is documented in
-[Program metrics](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/program-metrics.md).
+[Program metrics](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/program-metrics.md).
 
 ## Data quality
 

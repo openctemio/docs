@@ -54,7 +54,11 @@ jobs:
       - name: Skip a release that has no generator
         id: has
         run: |
-          if [ -f openctem/api/cmd/gen-authz-docs/main.go ]; then
+          # The backend directory is server/ since the rename after v0.20.x.
+          backend=server
+          [ -d openctem/server ] || backend=api
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          if [ -f "openctem/$backend/cmd/gen-authz-docs/main.go" ]; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
             echo "::notice::openctem ${{ steps.ref.outputs.ref }} does not ship cmd/gen-authz-docs yet"
@@ -63,8 +67,8 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         if: steps.has.outputs.ok == 'true'
         with:
-          go-version-file: openctem/api/go.mod
-          cache-dependency-path: openctem/api/go.sum
+          go-version-file: openctem/${{ steps.has.outputs.backend }}/go.mod
+          cache-dependency-path: openctem/${{ steps.has.outputs.backend }}/go.sum
 
       - name: Generate
         if: steps.has.outputs.ok == 'true'

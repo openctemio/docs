@@ -28,9 +28,9 @@ schemas as stable for `v1`; a breaking change is a new version.
 | Remediation output (`openctem.ai.remediation/v1`) | `https://openctem.io/schemas/analyze/output/remediation/v1.json` |
 | Summary output (`openctem.ai.summary/v1`) | `https://openctem.io/schemas/analyze/output/summary/v1.json` |
 
-The files are `api/pkg/sensorproto/analyze/schemas/*.schema.json` in the
+The files are `server/pkg/sensorproto/analyze/schemas/*.schema.json` in the
 [openctem repository](https://github.com/openctemio/openctem). The design is
-`api/docs/rfcs/RFC-131-ai-analysis.md` and `api/docs/architecture/ai-analyze-contract.md`.
+`server/docs/rfcs/RFC-131-ai-analysis.md` and `server/docs/architecture/ai-analyze-contract.md`.
 
 ## Kinds
 

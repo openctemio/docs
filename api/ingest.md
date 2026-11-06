@@ -368,7 +368,7 @@ curl -H "Authorization: Bearer $OPENCTEM_SENSOR_KEY" \
 ```
 
 The protocol, including the limits, is specified in
-[sensor-protocol-v2.yaml](https://github.com/openctemio/openctem/blob/develop/api/api/openapi/sensor-protocol-v2.yaml)
+[sensor-protocol-v2.yaml](https://github.com/openctemio/openctem/blob/develop/server/api/openapi/sensor-protocol-v2.yaml)
 and RFC-026.
 
 ## What happens to the data

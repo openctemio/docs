@@ -14,7 +14,7 @@ one by itself. Nothing has to be configured on the sensor. On the platform,
 gRPC on port 443 needs one Compose override; everything else works as installed. Which setup gives which transport is summarized in
 [Choose your setup](index.md#choose-your-setup).
 
-Design: [RFC-059](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-059-sensor-transport-v3.md).
+Design: [RFC-059](https://github.com/openctemio/openctem/blob/develop/server/docs/rfcs/RFC-059-sensor-transport-v3.md).
 
 1. TOC
 {:toc}

@@ -263,7 +263,7 @@ flowchart TD
 ### GitHub App permissions
 
 An operator registers the GitHub App once per deployment
-([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/github-app.md)).
+([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/server/docs/how-to/github-app.md)).
 Each organization then installs it from **Pull request feedback**.
 
 | Permission | Access | Why |

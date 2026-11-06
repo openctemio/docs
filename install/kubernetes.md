@@ -67,7 +67,7 @@ characters, an encryption key and secure cookies. See
 - A default StorageClass (attachments volume, gateway data, sensor state), or
   S3-compatible storage for attachments.
 - The least-privilege database roles: run
-  [`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/api/deploy/postgres/least-privilege-roles.sql)
+  [`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/server/deploy/postgres/least-privilege-roles.sql)
   once as a superuser (see [All-in-one image](all-in-one.md#1-prepare-the-database-roles)
   for the command). It creates `openctem_migrator` and `openctem_app`.
 - Cluster capacity for the size you install, and a PostgreSQL instance class to

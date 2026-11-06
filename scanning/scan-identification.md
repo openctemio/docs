@@ -111,4 +111,4 @@ signed scan token a target can verify, and overrides per scan profile or
 asset group.
 
 How it works in detail:
-[scan identification markers](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/scan-identification.md).
+[scan identification markers](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/scan-identification.md).

@@ -10,7 +10,7 @@ nav_order: 1
 The components of an OpenCTEM installation, how data moves between them, how
 organizations are kept apart, and where the trust boundaries are. Engineering
 detail for each part is in
-[api/docs/architecture](https://github.com/openctemio/openctem/tree/develop/api/docs/architecture)
+[server/docs/architecture](https://github.com/openctemio/openctem/tree/develop/server/docs/architecture)
 in the openctem repository.
 
 1. TOC
@@ -83,10 +83,10 @@ connection to a sensor or a CI job, and never sends probes to targets itself.
 
 | Component | What it does | Code |
 |---|---|---|
-| Gateway | The public entry point. Terminates TLS (four modes) and routes each request to the API or the web console by path and credential. On the main HTTPS port it also hands sensor connections that offer the sensor protocol's ALPN id to the API's mutual-TLS listener (`api:9443`), and it serves the platform console's own site. | [`api/deploy/gateway`](https://github.com/openctemio/openctem/tree/develop/api/deploy/gateway) |
+| Gateway | The public entry point. Terminates TLS (four modes) and routes each request to the API or the web console by path and credential. On the main HTTPS port it also hands sensor connections that offer the sensor protocol's ALPN id to the API's mutual-TLS listener (`api:9443`), and it serves the platform console's own site. | [`server/deploy/gateway`](https://github.com/openctemio/openctem/tree/develop/server/deploy/gateway) |
 | Web console | The organizations' user interface. Serves pages and proxies the browser's API calls (authenticated by the session cookie) to the API on the server side. The browser's WebSocket goes from the gateway straight to the API. Holds no state of its own and contains no platform-administration page. | [`web/`](https://github.com/openctemio/openctem/tree/develop/web) |
 | Platform console | The operators' user interface (organizations, users, system settings, shared sensors, health): a separate application and image (`ghcr.io/openctemio/openctem-console`) on its own site, with its own sign-in and second factor. It talks to the API's console listener (`api:8081`). Holds no state of its own. See [Platform administration](../user-guide/11-platform-administration.md). | [`web/console`](https://github.com/openctemio/openctem/tree/develop/web/console) |
-| API | All business logic: the REST API, the sensor protocol, ingest of scan results, the WebSocket for live updates, the console API, and the background work (see [Background work](#background-work)). One long-running process with three listeners: the main one (`:8080`), the console API (`:8081`) and the sensor mutual-TLS listener (`:9443`); none is published, the gateway reaches them. `bootstrap-admin` and the maintenance commands are separate one-shot binaries. | [`api/`](https://github.com/openctemio/openctem/tree/develop/api) |
+| API | All business logic: the REST API, the sensor protocol, ingest of scan results, the WebSocket for live updates, the console API, and the background work (see [Background work](#background-work)). One long-running process with three listeners: the main one (`:8080`), the console API (`:8081`) and the sensor mutual-TLS listener (`:9443`); none is published, the gateway reaches them. `bootstrap-admin` and the maintenance commands are separate one-shot binaries. | [`api/`](https://github.com/openctemio/openctem/tree/develop/server) |
 | PostgreSQL | The system of record for every organization's data, the audit logs and the job queues that must survive a restart. | |
 | Redis | Caches, permission versions, rate-limit state, the background job queue and the WebSocket fan-out. Not a system of record. | |
 | Sensors | Run scans close to the targets. Connect outbound to the gateway, claim tasks, run the scanners, report results. Released separately. | [openctemio/sensor](https://github.com/openctemio/sensor), [openctemio/sdk-go](https://github.com/openctemio/sdk-go) |
@@ -94,9 +94,9 @@ connection to a sensor or a CI job, and never sends probes to targets itself.
 
 The API is a single Go binary organised in layers (domain, application services,
 infrastructure adapters) per bounded context; see
-[clean-arch.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/clean-arch.md)
+[clean-arch.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/clean-arch.md)
 and
-[project-structure.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/project-structure.md).
+[project-structure.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/project-structure.md).
 
 ## Data flow
 
@@ -135,9 +135,9 @@ sequenceDiagram
   key, never to anything the report says about itself. Sensor results are
   stored first and applied by the background ingest worker.
 
-Details: [scan-lifecycle.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/scan-lifecycle.md),
-[scan-orchestration.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/scan-orchestration.md),
-[sensors.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sensors.md).
+Details: [scan-lifecycle.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/scan-lifecycle.md),
+[scan-orchestration.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/scan-orchestration.md),
+[sensors.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/sensors.md).
 
 ### Other inputs
 
@@ -239,8 +239,8 @@ tables but are not enabled; they will be turned on table by table as a second
 layer under the application's checks.
 
 Details:
-[authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/authorization-matrix.md),
-[access-control-rules.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/access-control-rules.md).
+[authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/authorization-matrix.md),
+[access-control-rules.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/access-control-rules.md).
 
 ## Trust boundaries
 
@@ -271,4 +271,4 @@ flowchart LR
 
 Security model and hardening: [Security](../security/index.md). Engineering
 detail:
-[sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sensor-platform-trust.md).
+[sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/sensor-platform-trust.md).

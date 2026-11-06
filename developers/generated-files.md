@@ -17,10 +17,10 @@ queue can test several API changes together.
 
 | File | Generated from | By |
 |---|---|---|
-| `api/api/openapi/swagger.yaml` | the handler annotations (`// @Router`, `// @Param`, request and response types) | `make -C api swagger` (swag, pinned version) |
-| `api/api/openapi/routes.txt` | the router: every registered route | `make -C api contract` |
-| `web/src/config/api-route-permissions.json` | the route authorization gates | `make -C api contract` |
-| `web/src/config/authz-matrix.json` | the authorization reference: permission catalog, roles, role templates, route gates and data-scope classes | `make -C api contract` (`cmd/gen-authz-docs`) |
+| `server/api/openapi/swagger.yaml` | the handler annotations (`// @Router`, `// @Param`, request and response types) | `make -C server swagger` (swag, pinned version) |
+| `server/api/openapi/routes.txt` | the router: every registered route | `make -C server contract` |
+| `web/src/config/api-route-permissions.json` | the route authorization gates | `make -C server contract` |
+| `web/src/config/authz-matrix.json` | the authorization reference: permission catalog, roles, role templates, route gates and data-scope classes | `make -C server contract` (`cmd/gen-authz-docs`) |
 | `web/src/lib/api/generated/api.types.ts` | the spec (Swagger 2.0, converted to OpenAPI 3, then to TypeScript) | `npm run generate:api-types` in `web/` |
 
 Generate them after cloning, after every pull, and after changing a handler, a route or its gate:
@@ -44,10 +44,10 @@ image context is `web/` only), so run `make generate` before `docker build web`,
 
 ### How CI uses them
 
-- **API CI > OpenAPI Contract** (`api/scripts/check-openapi.sh`) generates the spec and checks it
+- **API CI > OpenAPI Contract** (`server/scripts/check-openapi.sh`) generates the spec and checks it
   against the handlers and the router: every annotation is in the spec, every documented operation
   is routed, every route is documented (or listed in the shrink-only
-  `api/api/openapi/undocumented-routes.txt`), and path parameter names agree.
+  `server/api/openapi/undocumented-routes.txt`), and path parameter names agree.
 - **Web CI > API contract** generates the files once and hands them to **Web checks**, which
   type-checks, lints and tests the web against them, including a check that the web only calls
   routes that exist. For an API change it also generates the base branch's contract and posts the
@@ -68,23 +68,23 @@ files together.
 | `configs/asset-types.yaml` (asset types, classes, inventory lenses) | `pkg/domain/asset/registry_generated.go`, `web/src/features/asset-types/registry.generated.ts` | `make generate-asset-types` |
 | `configs/relationship-types.yaml` (asset relationship types and constraints) | `pkg/domain/asset/relationship_types_generated.go`, `web/src/features/assets/types/relationship.types.generated.ts` | `make generate-relationships` |
 | `configs/modules/<id>.yaml` (the module registry: one file per top-level module, its sub-modules inside) | `pkg/domain/module/registry_generated.go`, `web/src/config/modules.generated.ts` | `make generate-modules` |
-| `internal/config/env_registry.yaml` (every environment variable) | `api/.env.example`, `api/docs/configuration/environment-variables.md` | `make env-docs` (a test fails when they are stale) |
+| `internal/config/env_registry.yaml` (every environment variable) | `server/.env.example`, `server/docs/configuration/environment-variables.md` | `make env-docs` (a test fails when they are stale) |
 
 A change to the module catalog rows needs a migration whose body is the output of
 `make modules-sql`; `make modules-check` (CI) fails on drift. The RFC index
-`api/docs/rfcs/README.md` is generated too: give an RFC a `# RFC-NNN: Title` heading and a
+`server/docs/rfcs/README.md` is generated too: give an RFC a `# RFC-NNN: Title` heading and a
 `Status` line and run `python3 scripts/rfc_index.py` from the repository root; never edit its rows.
 
 When asset class, lens or alias data changes, also add a migration whose body is the output of
 `make asset-types-sql`. `make asset-types-check` (CI: Asset Types Drift) fails when the YAML, the
 generated files and the newest registry migration disagree. The details are in
-[asset-type-registry.md](https://github.com/openctemio/openctem/blob/develop/api/docs/development/asset-type-registry.md)
-and [relationship-types.md](https://github.com/openctemio/openctem/blob/develop/api/docs/development/relationship-types.md).
+[asset-type-registry.md](https://github.com/openctemio/openctem/blob/develop/server/docs/development/asset-type-registry.md)
+and [relationship-types.md](https://github.com/openctemio/openctem/blob/develop/server/docs/development/relationship-types.md).
 
 ## Other generators
 
 | What | Command | Output |
 |---|---|---|
 | Filter parameter annotations of list endpoints, from the field registry (RFC-048) | `GOWORK=off go run ./tools/gen/filterparams` in `api/`, then `make swagger` | the `@Param` lines between `// filterspec-params:` markers in handler files (committed) |
-| Test mocks | `make -C api generate` (`go generate ./...`) | mock packages |
-| Gateway plane matchers | `UPDATE_GATEWAY_PLANES=1 go test ./internal/infra/http/routes/plane/` in `api/` | `api/deploy/gateway/planes.caddy` (committed; a test fails when it disagrees with the plane table) |
+| Test mocks | `make -C server generate` (`go generate ./...`) | mock packages |
+| Gateway plane matchers | `UPDATE_GATEWAY_PLANES=1 go test ./internal/infra/http/routes/plane/` in `api/` | `server/deploy/gateway/planes.caddy` (committed; a test fails when it disagrees with the plane table) |

@@ -66,7 +66,7 @@ flowchart LR
 openctem/
 ├── Makefile            root targets: setup, generate, dev-api, dev-web, build, test, lint, check
 ├── versions.yaml       the released versions the platform pins (sensor, SDK, CI runner)
-├── api/                Go module github.com/openctemio/openctem/api
+├── server/             Go module github.com/openctemio/openctem/server (api/ up to v0.20.x)
 │   ├── cmd/            server, openctem-migrate, bootstrap-admin, rekey, refingerprint,
 │   │                   asset-canonical, seed, content-bundle, release-feed, chainaudit, signer,
 │   │                   code generators (gen-modules, envdoc, ...)
@@ -99,18 +99,18 @@ openctem/
 The API follows a layered (clean) architecture: domain types have no infrastructure dependencies,
 application services hold the use cases, and `internal/infra` adapts HTTP, the database and
 external systems. Design notes and decisions live in
-[`api/docs/architecture`](https://github.com/openctemio/openctem/tree/develop/api/docs/architecture)
-and [`api/docs/rfcs`](https://github.com/openctemio/openctem/tree/develop/api/docs/rfcs).
+[`server/docs/architecture`](https://github.com/openctemio/openctem/tree/develop/server/docs/architecture)
+and [`server/docs/rfcs`](https://github.com/openctemio/openctem/tree/develop/server/docs/rfcs).
 
 ## Where to make a change
 
 | I want to... | Go to |
 |---|---|
-| add or change an endpoint, a domain rule or a migration | `openctem/api` |
+| add or change an endpoint, a domain rule or a migration | `openctem/server` |
 | change a screen | `openctem/web` |
 | change an API response the console reads | `openctem`, one pull request: handler, `make generate`, web change |
 | add a scanner or change sensor behavior | `sensor` (and `sdk-go` for runtime or tool-contract surface); see [Writing a tool](tool-authoring.md) |
-| change the ingested data format, an importer or a format adapter | `ctis` first, then bump it in `openctem/api`, `sdk-go`, `sensor` |
+| change the ingested data format, an importer or a format adapter | `ctis` first, then bump it in `openctem/server`, `sdk-go`, `sensor` |
 | change a capability, the tool settings contract or transfer bundles | `contract` |
 | change Kubernetes packaging | `helm-charts` |
 | change these docs | `docs` |

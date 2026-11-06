@@ -18,24 +18,24 @@ make check       # the contract checks: OpenAPI spec vs routes, then tsc against
 
 ## API (Go)
 
-Tests live next to the code (`*_test.go`) and in `api/tests/`:
+Tests live next to the code (`*_test.go`) and in `server/tests/`:
 
 | Where | What |
 |---|---|
 | `internal/...`, `pkg/...` | unit tests beside the code, and `*_db_test.go` files that need a database |
-| `api/tests/unit/` | cross-cutting unit tests, for example "every route has an authorization gate" |
-| `api/tests/integration/` | multi-service scenarios against a real database |
-| `api/tools/lint/` | the route-style and OpenAPI contract linters, with their tests |
+| `server/tests/unit/` | cross-cutting unit tests, for example "every route has an authorization gate" |
+| `server/tests/integration/` | multi-service scenarios against a real database |
+| `server/tools/lint/` | the route-style and OpenAPI contract linters, with their tests |
 
 ```bash
-cd api
+cd server
 make test                        # go test -v -race -cover ./... ; DB-backed tests skip without TEST_DATABASE_URL
 GOWORK=off go test ./internal/app/...   # one area
 make test-coverage               # writes coverage.html
 ```
 
 Tests use the standard library `testing` package with table-driven cases. Mocks are generated with
-`mockgen` (`go generate ./...` or `make -C api generate`).
+`mockgen` (`go generate ./...` or `make -C server generate`).
 
 ### Database-backed tests
 
@@ -58,7 +58,7 @@ Run them against a throwaway database:
 ```bash
 docker run -d --name pg-test -p 127.0.0.1:55432:5432 \
   -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=app_test postgres:17-alpine
-cd api
+cd server
 go run ./cmd/openctem-migrate -path migrations -database "postgres://postgres@localhost:55432/app_test?sslmode=disable" up
 make test-db TEST_DATABASE_URL="postgres://postgres@localhost:55432/app_test?sslmode=disable"
 ```

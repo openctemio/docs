@@ -176,6 +176,6 @@ is empty. The verdict is not affected. A pipeline that calls the API directly mu
 | `CI_RUNNER_LATEST_VERSION` | the CI release the API was built with | Snippets pin it; an older runner shows an update |
 | `CI_RUNNER_MIN_VERSION` | v0.3.0 | An older runner is refused (`RUNNER_OUTDATED`). `none` turns the minimum off |
 | `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` | none | Private ranges the API may reach, for example a self-managed GitLab issuer |
-| `GITHUB_APP_*` | | The deployment's GitHub App ([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/github-app.md)) |
+| `GITHUB_APP_*` | | The deployment's GitHub App ([GitHub App guide](https://github.com/openctemio/openctem/blob/develop/server/docs/how-to/github-app.md)) |
 
 See [Environment variables](../configuration/environment-variables.md).

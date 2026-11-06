@@ -163,7 +163,7 @@ Permissions are re-read on each request, so a revoked permission takes effect at
 API keys are read-only and never get the owner/admin bypass or full data access.
 
 See [Roles, groups and permissions](../identity/roles-and-permissions.md). The route-by-route matrix is
-[authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/authorization-matrix.md).
+[authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/authorization-matrix.md).
 
 ## Organization isolation
 
@@ -299,7 +299,7 @@ runs only signed jobs, and a sensor paired while jobs are unsigned refuses to st
 **Limits.** A separate sensor gateway process is **planned** (RFC-040). Today the API process that
 serves sensors also serves users; where job signing is not in use, a sensor's local policy and its pinned
 platform identity are what stop a compromised platform from directing it. The engineering status is in
-[sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sensor-platform-trust.md).
+[sensor-platform-trust.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/sensor-platform-trust.md).
 
 ## Secrets
 

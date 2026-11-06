@@ -198,7 +198,7 @@ the number of sightings. If the old version is seen again before anyone
 decides, the proposal is canceled and the finding stays open.
 
 How it works in detail:
-[software version history](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/software-version-history.md).
+[software version history](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/software-version-history.md).
 
 ## Out of scope is not fixed
 

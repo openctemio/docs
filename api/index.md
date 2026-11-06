@@ -75,7 +75,7 @@ nothing.
 
 The API reference is generated from the handler annotations in the Go source
 (`// @Router`, `// @Param`, ...) with [swag](https://github.com/swaggo/swag). The result is a
-Swagger 2.0 (OpenAPI 2) document, `api/api/openapi/swagger.yaml`, with base path `/api/v1`. CI
+Swagger 2.0 (OpenAPI 2) document, `server/api/openapi/swagger.yaml`, with base path `/api/v1`. CI
 fails when a route is registered without being documented, or documented without being routed.
 
 The generated file is not committed. To produce it from a checkout of
@@ -84,7 +84,7 @@ The generated file is not committed. To produce it from a checkout of
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
-make -C api swagger        # needs Go; writes api/api/openapi/swagger.yaml
+make -C server swagger        # needs Go; writes server/api/openapi/swagger.yaml
 # or, with only Docker installed:
 make generate-docker       # all contract files, see Developers > Generated files
 ```
@@ -99,7 +99,7 @@ The API server also serves the document and an interactive reference:
 The release images generate the spec at build time and ship it next to the server binary, so the
 document always matches the running release. The server reads the spec from
 `api/openapi/swagger.yaml` relative to its working directory; in a source checkout, run
-`make -C api swagger` first, or `/openapi.yaml` answers `404 OpenAPI spec not found`.
+`make -C server swagger` first, or `/openapi.yaml` answers `404 OpenAPI spec not found`.
 
 Who may read it depends on `APP_ENV`. With `APP_ENV=production`, `GET /openapi.yaml` is served only
 to a signed-in user and there is no public `/docs` page (the public reference is this site);
@@ -108,7 +108,7 @@ platform administrators with a console session read the same document at
 environment `/openapi.yaml` and `/docs` are public.
 
 The sensor protocol (`/api/v2/sensor`) is described separately by a hand-maintained OpenAPI 3.1
-document, [`api/api/openapi/sensor-protocol-v2.yaml`](https://github.com/openctemio/openctem/blob/develop/api/api/openapi/sensor-protocol-v2.yaml),
+document, [`server/api/openapi/sensor-protocol-v2.yaml`](https://github.com/openctemio/openctem/blob/develop/server/api/openapi/sensor-protocol-v2.yaml),
 which CI checks against the registered routes.
 
 ## Versioning and stability

@@ -22,7 +22,7 @@ is generated from the source:
 - one permissions page per feature.
 
 The design rules are in
-[authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/authorization-matrix.md).
+[authorization-matrix.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/authorization-matrix.md).
 
 ## Built-in roles
 
@@ -145,7 +145,7 @@ Permissions are named `module[:resource]:action`, for example `findings:triage` 
 
 `*` stands for the read, write and delete actions of that resource. AI assistants (MCP) have their own
 access settings (**Settings > Access & security > AI assistants (MCP)**); see [MCP](../api/mcp.md). The authoritative list is
-`api/pkg/domain/permission/permission.go`; `GET /api/v1/permissions` returns it, and
+`server/pkg/domain/permission/permission.go`; `GET /api/v1/permissions` returns it, and
 `GET /api/v1/me/permissions` returns what you hold.
 
 ## Groups and data scope

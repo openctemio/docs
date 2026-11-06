@@ -12,7 +12,7 @@ the same approvals and is recorded in the same audit trail. Everything it does c
 and says which model, which prompt and which people answer for it. An AI agent has a role that names its
 work: analyst (the default, who triages findings), remediator, reporter, hunter or router. You manage AI agents in
 [Settings > AI: AI agents](../user-guide/ai-agents.md). Engineering detail is in
-[ai-analysis.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/ai-analysis.md)
+[ai-analysis.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/ai-analysis.md)
 in the openctem repository.
 
 1. TOC

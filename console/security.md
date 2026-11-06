@@ -85,7 +85,7 @@ who holds which role.
   sees them.
 
 Every console page and action needs a platform permission; the generated
-reference lists them per role and per route (`api/docs/architecture/platform-permissions.md`
+reference lists them per role and per route (`server/docs/architecture/platform-permissions.md`
 in the source).
 
 ## Sessions

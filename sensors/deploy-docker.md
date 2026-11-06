@@ -322,7 +322,7 @@ install command already carries: when the platform's administrator has set
 root's SHA-256 as `SENSOR_CA_SHA256`, and the sensor fetches the CA from the
 platform and trusts only that root. The console shows the root's name and
 SHA-256 and offers the file for download. Setup, security and rotation:
-[Sensors behind a private CA](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/sensors-behind-a-private-ca.md).
+[Sensors behind a private CA](https://github.com/openctemio/openctem/blob/develop/server/docs/how-to/sensors-behind-a-private-ca.md).
 
 The images run as a non-root user and cannot run `update-ca-certificates`.
 Use one of:

@@ -7,7 +7,7 @@ nav_order: 4
 # Glossary
 
 Terms as OpenCTEM uses them, in the console, the API and these docs. Each concept has one name; the
-engineering glossary in the openctem repository ([api/docs/glossary.md](https://github.com/openctemio/openctem/blob/develop/api/docs/glossary.md))
+engineering glossary in the openctem repository ([server/docs/glossary.md](https://github.com/openctemio/openctem/blob/develop/server/docs/glossary.md))
 adds the API, database and code names and the Vietnamese console wording.
 
 | Term | Meaning |

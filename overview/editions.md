@@ -86,4 +86,4 @@ To go back, switch the images back.
 Community has a public, versioned extension API: anyone can build an edition
 with their own pages, settings, background jobs and integrations, and the
 Enterprise edition is built the same way. See the extension API guide in the
-repository: `api/docs/development/extension-api.md`.
+repository: `server/docs/development/extension-api.md`.

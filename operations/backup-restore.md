@@ -43,8 +43,8 @@ you can, keep the secrets separate from the database dumps: a dump together with
 
 ## Back up (Docker Compose)
 
-`api/deploy/backup.sh` backs up a running Compose stack. Run it in
-`api/deploy` of your checkout:
+`server/deploy/backup.sh` backs up a running Compose stack. Run it in
+`server/deploy` of your checkout:
 
 ```bash
 ./backup.sh            # back up now
@@ -148,13 +148,13 @@ for `permission denied` errors in the API log.
 
 The same order applies to any PostgreSQL: restore as a superuser into an empty
 database with `--no-owner --no-privileges`, then run
-[`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/api/deploy/postgres/least-privilege-roles.sql)
+[`least-privilege-roles.sql`](https://github.com/openctemio/openctem/blob/develop/server/deploy/postgres/least-privilege-roles.sql)
 again to give the schema to `openctem_migrator` and the grants to
 `openctem_app`, then start the platform. If you run the console database role
 (`DB_ADMIN_USER`), pass `admin_user` and `admin_password` to the script as well, or the
 console tables (including `admin_approvals`, the four-eyes approvals) keep the
 application role's grants. See the
-[database roles guide](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/database-roles.md).
+[database roles guide](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/database-roles.md).
 
 ## Off-host backups and point-in-time recovery (Docker Compose)
 
@@ -167,7 +167,7 @@ off by default, covers the database only (keep running `backup.sh` for the volum
 and enabling archiving restarts PostgreSQL once.
 
 ```bash
-cd api/deploy
+cd server/deploy
 install -d -m 0700 backup-secrets
 openssl rand -base64 32 | tr -d '\n' > backup-secrets/cipher_pass   # then copy it off this host
 docker compose -f docker-compose.yml -f docker-compose.backup.yml up -d --build
@@ -178,7 +178,7 @@ The credentials are files under `backup-secrets/` (`cipher_pass` always; `s3_acc
 `cipher_pass` makes every backup unreadable. Retention is `BACKUP_RETENTION_FULL` (4) and
 `BACKUP_RETENTION_DIFF` (7). The full guide, with the settings, the per-provider policies, restore
 (`docker compose run --rm --no-deps backup restore --delta`) and the monthly drill, is
-[backup-and-restore.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/backup-and-restore.md)
+[backup-and-restore.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/backup-and-restore.md)
 in the openctem repository.
 
 ## Point-in-time recovery (Ansible kit)
@@ -251,5 +251,5 @@ backups. Restore it with `tar -xzf` into the directory. With an `https` sink, th
 
 Rotating `APP_ENCRYPTION_KEY` re-encrypts the stored credentials with a tool
 and keeps the old key in `APP_ENCRYPTION_KEY_PREVIOUS` during the change. Follow
-[encryption-key-rotation.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/encryption-key-rotation.md),
+[encryption-key-rotation.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/encryption-key-rotation.md),
 and take a backup (with the old key) first.

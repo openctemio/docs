@@ -8,7 +8,7 @@ nav_order: 7
 {: .no_toc }
 
 Start with the state of the services and the API log; most start-up problems
-name the setting at fault. Commands assume the Compose stack in `api/deploy`;
+name the setting at fault. Commands assume the Compose stack in `server/deploy`;
 see [Log reference](logs.md) for the other deployments.
 
 1. TOC
@@ -81,7 +81,7 @@ docker compose logs migrate
   database was migrated by a development build or left dirty by the earlier
   runner. Check the schema, list every applied version one per line in a file and
   run the runner once with `-assume-applied FILE ... up`. See
-  [safe-deploy-and-migrations.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/safe-deploy-and-migrations.md#dirty-migration-recovery).
+  [safe-deploy-and-migrations.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/safe-deploy-and-migrations.md#dirty-migration-recovery).
 - **`no migration found for version 9223372036854775807`**: an older migrations
   image ran against a database a newer release migrated. Roll back the API image
   only, never the migration job (see [Rollback](upgrade.md#rollback)).

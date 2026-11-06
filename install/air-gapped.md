@@ -130,7 +130,7 @@ Other artifacts:
 | Sensor binaries | `openctemio/sensor` releases: archives and `checksums.txt` | `checksums.txt.sigstore.json`, identity `https://github.com/openctemio/sensor/.github/workflows/release.yml@refs/tags/vX.Y.Z` |
 | `bootstrap-admin` binaries | `openctemio/openctem` releases, with `checksums-sha256.txt` | Checksums only, not signed: prefer the signed `openctem-api` image, which contains it (`/app/bootstrap-admin`) |
 | Helm chart | `openctemio/helm-charts` releases (`openctem-<chart version>.tgz`) | Not signed: record its SHA-256 and review the rendered manifests ([Helm](#helm)) |
-| Compose files | `api/deploy/` of the repository at the release commit | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
+| Compose files | `server/deploy/` of the repository at the release commit (`api/deploy/` up to v0.20.x) | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
 | Ansible kit | `openctemio/openctem-ansible`; `versions.yml` pins every image by digest | Images verified by the kit; the kit itself is a repository you review |
 
 OpenCTEM has no license key, activation or edition check: a self-managed
@@ -341,7 +341,7 @@ cannot pin every digest. Use an override file instead: it names the full
 reference of every service, including the bundled PostgreSQL and Redis.
 
 ```yaml
-# api/deploy/docker-compose.digests.yml: v0.11.0 from the internal registry
+# server/deploy/docker-compose.digests.yml: v0.11.0 from the internal registry
 services:
   gateway-init:  { image: registry.example.com/openctem/openctem-gateway@sha256:e3ba3279b85f81894c15ccc3164588f435e37b39b8a578ee5c9408bb010c2873 }
   gateway:       { image: registry.example.com/openctem/openctem-gateway@sha256:e3ba3279b85f81894c15ccc3164588f435e37b39b8a578ee5c9408bb010c2873 }
@@ -362,7 +362,7 @@ The PostgreSQL and Redis digests above are `postgres:17.11` and
 overlay, add `sensor-enrollment` (the API digest) and `sensor`.
 
 ```bash
-cd api/deploy
+cd server/deploy        # api/deploy up to v0.20.x
 docker login registry.example.com          # pull-only credentials
 docker compose -f docker-compose.yml -f docker-compose.digests.yml config --images   # every line must be @sha256
 docker compose -f docker-compose.yml -f docker-compose.digests.yml pull
@@ -502,9 +502,9 @@ provenance names, so they match the images:
 ```bash
 COMMIT=$(cat "intake/$RELEASE/commit.txt")
 git clone --filter=blob:none https://github.com/openctemio/openctem.git src
-git -C src archive --format=tar.gz -o "intake/$RELEASE/deploy-$RELEASE.tar.gz" "$COMMIT" api/deploy
+git -C src archive --format=tar.gz -o "intake/$RELEASE/deploy-$RELEASE.tar.gz" "$COMMIT" server/deploy
 sha256sum "intake/$RELEASE/deploy-$RELEASE.tar.gz" > "intake/$RELEASE/deploy-$RELEASE.tar.gz.sha256"
-git -C src diff --stat "<previous release commit>" "$COMMIT" -- api/deploy   # what changed, for the review
+git -C src diff --stat "<previous release commit>" "$COMMIT" -- server/deploy   # what changed, for the review
 ```
 
 Release tags are not signed with a key; the commit recorded in the signed
@@ -1166,7 +1166,7 @@ content is too old reports `stale` instead of scanning silently with old data.
    settings, removed ones, migrations with special handling.
 2. **Take the release in** with approach 1, 2 or 3, including the deployment
    files from the signed commit. Diff them against the current release
-   (`api/deploy`, `.env.example`) and update your configuration.
+   (`server/deploy`, `.env.example`) and update your configuration.
 3. **Rehearse on staging with a restored production backup**, not an empty
    database: restore the latest backup ([Backup and restore](../operations/backup-restore.md)),
    deploy the new digests, and check that the `migrate` job (Compose), the

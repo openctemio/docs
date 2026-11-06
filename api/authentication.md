@@ -82,7 +82,7 @@ another organization. The ones a client most often needs:
 | `RATE_LIMIT_EXCEEDED` | 429 | Too many attempts; the sign-in form asks the person to wait a minute |
 
 A SAML failure redirects to `/login?error=<code>`. The full table is
-`api/internal/infra/http/handler/auth_error_codes.go` in the source.
+`server/internal/infra/http/handler/auth_error_codes.go` in the source.
 
 ### CSRF protection
 

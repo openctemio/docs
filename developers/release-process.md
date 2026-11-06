@@ -21,7 +21,7 @@ means, how long a release is supported, how to upgrade) is in
    anything else the patch.
 4. **Nothing is tagged by hand.** The workflows build the release branch, tag it and publish.
 5. **No version is hardcoded.** The platform version comes from the tag: a release branch gets
-   `api/deploy/VERSION` (it never reaches `develop`), `./setup.sh` writes `OPENCTEM_VERSION` from
+   `server/deploy/VERSION` (it never reaches `develop`), `./setup.sh` writes `OPENCTEM_VERSION` from
    it, and the API reports the version it was built with. Other defaults (latest sensor and SDK
    versions, the CI runner) live in `versions.yaml` and are copied to their consumers by
    `.github/scripts/release/sync-versions.sh`; CI fails when they disagree.
@@ -68,13 +68,13 @@ only then pushes it and merges the architectures into one manifest list per tag.
 
 | Image | Built from | Contents |
 |---|---|---|
-| `ghcr.io/openctemio/openctem-api` | `api/Dockerfile` (target `production`) | API server, port 8080, non-root |
+| `ghcr.io/openctemio/openctem-api` | `server/Dockerfile` (target `production`) | API server, port 8080, non-root |
 | `ghcr.io/openctemio/openctem-web` | `web/Dockerfile` | the tenant web app, port 3000 |
 | `ghcr.io/openctemio/openctem-console` | `web/Dockerfile` (target `console`) | the platform console app (its own site), port 3000 |
-| `ghcr.io/openctemio/openctem-gateway` | `api/deploy/gateway/Dockerfile` | the Caddy gateway with the layer-4 module that routes sensor mTLS on port 443 |
+| `ghcr.io/openctemio/openctem-gateway` | `server/deploy/gateway/Dockerfile` | the Caddy gateway with the layer-4 module that routes sensor mTLS on port 443 |
 | `ghcr.io/openctemio/openctem` | `deploy/allinone/` | all-in-one: API, web and the Caddy gateway (PostgreSQL and Redis external) |
-| `ghcr.io/openctemio/migrations` | `api/Dockerfile.migrations` | one-shot migration runner (`openctem-migrate`) |
-| `ghcr.io/openctemio/seed` | `api/Dockerfile.seed` | seeding utility |
+| `ghcr.io/openctemio/migrations` | `server/Dockerfile.migrations` | one-shot migration runner (`openctem-migrate`) |
+| `ghcr.io/openctemio/seed` | `server/Dockerfile.seed` | seeding utility |
 
 Tags: `vX.Y.Z` and `latest`. A `vX.Y.Z-staging` tag (or a manual run with
 `environment: staging`) publishes `vX.Y.Z-staging` and `staging-latest` instead. During a

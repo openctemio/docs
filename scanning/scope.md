@@ -30,7 +30,7 @@ organization's scan approval is **Strict** or a change still waits for a
 decision. The organization's rules are in **Settings > Scanning > Scope
 policy**.
 
-Design: [RFC-054](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-054-scope-model.md).
+Design: [RFC-054](https://github.com/openctemio/openctem/blob/develop/server/docs/rfcs/RFC-054-scope-model.md).
 
 ## Patterns
 
