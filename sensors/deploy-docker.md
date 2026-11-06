@@ -214,6 +214,7 @@ default `auto`).
 |---|---|
 | `Tool network: confined (...)` | Confined. Every job type runs. |
 | `Warning: tool network not confined (SENSOR_SANDBOX_NETWORK=auto): network: user namespaces: ... operation not permitted` | The container runs under Docker's default seccomp profile, which refuses the namespaces. Add `--security-opt seccomp=openctem-sensor-seccomp.json`. |
+| `Warning: tool network not confined ...: ... operation not permitted` with the setup check `userns_disabled_host` | The host disables unprivileged user namespaces; no container setting fixes it. See [Host requirements](host-requirements.md). |
 | `Warning: tool network not confined ...: ... permission denied` | The host restricts unprivileged user namespaces. Keep Docker's default AppArmor profile (do not add `apparmor=unconfined`); see below. |
 | `Error: executor: network confinement required but not available: ...` (exit 2) | `SENSOR_SANDBOX_NETWORK=required` and confinement is not possible. Fix the cause above, or use `auto`. |
 
@@ -226,6 +227,7 @@ An unconfined sensor still runs most scans, but:
 
 Notes:
 
+- The host must allow unprivileged user namespaces; see [Host requirements: tool network confinement](host-requirements.md).
 - Ubuntu 23.10 and later restrict unprivileged user namespaces for processes
   without an AppArmor profile (`kernel.apparmor_restrict_unprivileged_userns=1`).
   Docker's default AppArmor profile allows them, so the profile above works on
