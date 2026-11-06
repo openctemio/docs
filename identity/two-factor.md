@@ -213,7 +213,9 @@ There is no way to turn it off.
 ## Step-up re-authentication
 
 Some actions could hand the organization to someone who has stolen a session. For those, the API
-requires that the session proved the user's identity within the last **10 minutes**:
+asks the person to prove their identity again. How often depends on the action's tier and on the
+organization's [re-verification policy](#re-verification-policy). The default is within the last
+**10 minutes**. These actions are critical:
 
 - creating or deleting an API key; creating or rotating a SCIM token;
 - changing organization security settings (2FA requirement, IP allowlist, allowed domains, SSO
@@ -233,6 +235,34 @@ requires that the session proved the user's identity within the last **10 minute
 - widening scope (creating, approving or extending scope entries, turning on discovery, removing
   exclusions).
 
+### Re-verification policy
+
+Owners choose how often people confirm their identity again. The setting is under
+**Settings > Access & security > Authentication**, card **Re-verification**. Each tier has its own
+rule:
+
+| Tier | Actions | Choices | Default for a new organization |
+|---|---|---|---|
+| Critical | The actions listed above | Every time, or once per 10 minutes. It cannot be turned off. | Once per 10 minutes |
+| Sensitive | Governance settings (priority rules, lifecycles, modules, risk scoring, scan and finding approval rules, content, programs, AI agents), approving false positives, accepted risk, severity and suppression requests, deleting a finding, and closing two or more findings at once | Every time, once per 10 minutes, 1 hour, 4 hours, 8 hours, once per sign-in, or never | Once per hour |
+| Routine | Closing or changing the status of one finding | The same | Never |
+
+Notes on how the rules work:
+
+- **Older organizations.** An organization created before the setting existed keeps what it had:
+  critical and sensitive once per 10 minutes. Routine is never asked.
+- **One confirmation covers every tier.** Each tier keeps its own time limit, so confirming for a
+  critical action also covers sensitive actions for their time.
+- **"Every time".** Each action needs its own confirmation, given in the last 5 minutes. The action
+  uses it up.
+- **API keys and connected apps.** They are never asked for routine actions. They can never do
+  critical or sensitive actions that need re-verification, even when the tier is set to "never".
+- **Changing the policy.** Only the owner can change it, and they must confirm their identity to
+  do so. The change is recorded as `tenant.step_up_policy_changed`. Asking less often is recorded
+  at high severity, and owners and administrators are told.
+- **Audit of each action.** Every audited action records the rule that let it through (`step_up`:
+  tier, mode and window).
+
 When needed, the console shows one dialog and retries the action:
 
 | Account | Proof |
@@ -248,8 +278,10 @@ toward the account lockout; the step-up endpoint is limited to 5 attempts per mi
 
 API: `GET /api/v1/auth/step-up` tells which proof the account needs; `POST /api/v1/auth/step-up` with
 `{"totp": "123456"}` or `{"password": "..."}` opens the window. Protected routes answer
-`403 STEP_UP_REQUIRED` (with `window_seconds`) outside the window, and `403 STEP_UP_UNAVAILABLE` for
-callers that cannot step up, such as API keys. A wrong code or password answers `403 STEP_UP_FAILED`.
+`403 STEP_UP_REQUIRED` (with `tier`, `mode`, `window` and `window_seconds`) outside the window, and `403 STEP_UP_UNAVAILABLE` for
+callers that cannot step up, such as API keys. The policy is the `step_up` field of
+`PATCH /api/v1/tenants/{tenant}/settings/security`. A critical rule other than every time or
+10 minutes answers `422 STEP_UP_POLICY_BELOW_FLOOR`. A wrong code or password answers `403 STEP_UP_FAILED`.
 A code from a time step that was already used answers `403 STEP_UP_CODE_USED`: it is still refused and
 counted towards the lockout, and the next code works. An authenticator secret that cannot be read is
 a server error, not a wrong code, and does not count towards the lockout. The confirm dialog sends
