@@ -311,7 +311,7 @@ government and military names, shared-provider apexes used as wildcard roots,
 link-local and cloud-metadata addresses, and very large public ranges.
 
 The In scope table shows each entry's kind, status (**Active**, **Pending
-approval**, **Expired**, **Inactive**, **Rejected**), deepest probe, reason and
+approval**, **Expired**, **Inactive**, **Rejected**, **Replaced**), deepest probe, reason and
 who added it. Row actions: **Edit**, **Deactivate**, **Activate** and **Extend**,
 and **Remove**. Under Strict, activating and extending need approval, and an
 edit that widens scope sends the entry back to pending. A repository entry that
@@ -321,6 +321,39 @@ pipeline has been seen); it changes through the trust, so its only action is
 repositories**. An address, range or CIDR entry wholly inside a range a CDN
 or edge provider publishes is labeled with the provider (see
 [Edge addresses](#edge-addresses)).
+
+#### Correct an entry's pattern
+
+An entry's type and pattern never change in place: its approvals, its audit
+history and the scans that name it belong to that pattern. To fix a mistyped
+pattern (for example a wrong address range), open **Edit** on an active entry
+and use **Replace pattern**:
+
+1. Enter the new pattern and why it changes, then click **Show the change**.
+   The dialog lists the coverage the new pattern adds and removes (with
+   address counts for addresses, ranges and CIDRs), whether the change needs
+   approval, and the scan zones that name the old range.
+2. Click **Replace pattern**. A new entry of the same type takes the old
+   entry's place. It goes through every check and approval of adding an entry
+   (the same refusals, the same identity check, and under **Strict** the same
+   approvals, even when the new pattern is narrower). It keeps the old entry's
+   description, tags, deepest probe and expiry.
+3. If no approval is needed, the new entry takes effect and the old one is
+   marked **Replaced** at the same moment, so nothing drops out of scope in
+   between. If approval is needed, the old entry stays in effect until the new
+   one is approved; a rejected replacement leaves it as it was. Only one
+   replacement of an entry can wait at a time.
+
+A replaced entry authorizes nothing and keeps its history; find it with the
+**Replaced** status filter. One audit event (`scope_target.replaced`) names
+both patterns and the reason.
+
+Scan zones are never changed by the replacement itself. When a zone names the
+old range and you may change scan zones, tick **Also update the zone** to swap
+the range in the same flow; otherwise the dialog tells you to ask someone who
+manages scan zones. (API: `POST /api/v1/scope/targets/{id}/replace` with
+`{"pattern", "reason"}`, and `/replace/preview` to see the change first;
+`attack_surface:scope:write`.)
 
 ### Put out of scope
 
