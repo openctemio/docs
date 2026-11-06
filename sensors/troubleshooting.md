@@ -37,7 +37,7 @@ work). A failed or warning check also makes an online sensor `degraded`.
 | `platform.ca_pin_host` `ip_url_with_pin` | `SENSOR_CA_FINGERPRINT` is set but `SENSOR_API_URL` is an IP address | Use the host name in the platform's certificate |
 | `config.commands_disabled` | Platform commands are turned off, so no platform scan runs here | Remove `-enable-commands=false` / `sensor.enable_commands: false` ([Daemon without jobs](#config-commands-disabled)) |
 | `config.tools_deprecated` | `SENSOR_TOOLS` or `-tools` is set; it only narrows the detected tools | Remove it; narrow with the local policy's `tools.allow` ([Deprecated tool list](#config-tools-deprecated)) |
-| `runtime.sandbox_network` (sensors after v0.18.0) | Scans are not network-confined | Run with the sensor's seccomp profile ([Tool confinement](deploy-docker.md#tool-confinement)) |
+| `runtime.sandbox_network` (sensors after v0.18.0) | Scans are not network-confined | See [Host requirements](host-requirements.md), then [Tool confinement](deploy-docker.md#tool-confinement) |
 | `runtime.task_root_memory` `on_disk` | Files a tool writes for its run (with the keys the task received) are written to disk | Mount a tmpfs at the task directory root, or point `TMPDIR` at one ([Task files on disk](#runtime-task-root-memory)) |
 
 The same problems are printed at start as `Warning: ...` lines, followed by
@@ -415,10 +415,13 @@ with a pin).
 
 `runtime.sandbox_network` (reported by sensors released after v0.18.0):
 whether each scan's network is confined to its targets. `confined` is the
-goal. `userns_blocked`: the container's seccomp profile refuses user
-namespaces; run it with the sensor's seccomp profile. `userns_restricted`:
-the host restricts unprivileged user namespaces; keep the default AppArmor
-profile (binary: give it an AppArmor profile). `off` / `sandbox_off`:
+goal. `userns_disabled_host`: the host disables unprivileged user namespaces
+(`kernel.unprivileged_userns_clone=0` or `user.max_user_namespaces=0`); set
+the sysctl on the host and keep the AppArmor restriction on. `userns_blocked`:
+the host allows them but the container's seccomp profile refuses them; run it
+with the sensor's seccomp profile. `userns_restricted`: the host's AppArmor
+restriction applies; keep the default AppArmor profile (binary: give it an
+AppArmor profile that grants `userns`). Full guide: [Host requirements](host-requirements.md). `off` / `sandbox_off`:
 `SENSOR_SANDBOX_NETWORK=off` or `SENSOR_SANDBOX=off`. `unavailable`: another
 cause, shown in the excerpt. See [Tool confinement](deploy-docker.md#tool-confinement).
 
