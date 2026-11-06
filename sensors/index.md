@@ -271,7 +271,7 @@ name or a port of its own, and use HTTPS otherwise.
 | [Docker and Compose](deploy-docker.md) | Most installs. The image pins every scanner. |
 | [Kubernetes](deploy-kubernetes.md) | A sensor in a cluster, paired like a Docker sensor, or the chart's bundled sensor. |
 | [Binary](deploy-binary.md) | Hosts without containers; you install the scanners. |
-| [Host requirements](host-requirements.md) | The host settings tool network confinement needs (user namespaces), and how to check them. |
+| [Host requirements](host-requirements.md) | The host settings tool network confinement needs (user namespaces), pinning the platform host against DNS outages, and the core infrastructure to keep out of intrusive scans. |
 
 An instance administrator who wants a sensor that scans for every
 organization enrolls a [shared sensor](shared-sensors.md) instead.

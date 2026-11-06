@@ -1,11 +1,15 @@
 ---
-title: Host requirements for tool network confinement
+title: Host requirements
 parent: Sensors
 nav_order: 8.5
 ---
 
-# Sensor host requirements: tool network confinement
+# Sensor host requirements
 {: .no_toc }
+
+What the sensor host needs: user namespaces for tool network confinement, a
+way to reach the platform that survives a DNS outage, and core infrastructure
+kept out of intrusive scans.
 
 1. TOC
 {:toc}
@@ -86,6 +90,70 @@ Cost: unprivileged user namespaces become available to local processes on the ho
 **C. A dedicated VM or host for the sensor, with option A there (recommended on shared machines).** The sysctl then affects only a machine that runs the sensor and nothing else.
 
 A runtime that isolates the container with its own kernel, such as gVisor, is untested with the sensor; expect limits for scans that need raw sockets.
+
+## Platform name resolution
+
+The sensor looks up the platform host name in `SENSOR_API_URL` for every new
+connection. If that lookup fails, heartbeats, job polls, logs and results all
+fail, even though the platform is up. After the lease ends, the platform
+gives the sensor's running jobs to another sensor. A common case is a sensor
+in Docker during an intrusive scan of an internal range: the corporate DNS
+server is inside the range, and an IPS blocks it or the scan knocks it over.
+Docker's embedded DNS then answers
+`lookup openctem.example.com on 127.0.0.11:53: server misbehaving`.
+
+The sensor guards against this in two ways:
+
+- **Last-known-good address.** When a lookup of the platform host fails with a
+  DNS error, the sensor dials the address the last successful lookup returned.
+  It does this for up to `SENSOR_CONTROL_DNS_MAX_STALE` (default `24h`; `0`
+  turns it off), and logs once when it switches to the cached address and once
+  when it switches back. TLS is unchanged: the sensor sends the platform host
+  name and checks the certificate against it. A TLS or HTTP error never
+  triggers the fallback, and neither does a plain `http://` URL. With a proxy,
+  the proxy resolves the platform. The address is kept in the state directory,
+  so a restart during an outage still connects. The
+  [`runtime.control_dns` check](troubleshooting.md#runtime-control-dns) shows
+  the state.
+- **Pin the platform host** (recommended for sensors that scan internal
+  networks). Then the sensor never needs DNS to reach the platform:
+
+  ```yaml
+  # docker-compose.yml, under services.sensor
+  extra_hosts:
+    - "openctem.example.com:192.0.2.10"
+  ```
+
+  With `docker run`, use `--add-host openctem.example.com:192.0.2.10`. In
+  Kubernetes, use the pod's `hostAliases`. On a host (binary install), add the
+  same entry to `/etc/hosts`. Keep the host name in `SENSOR_API_URL`, because
+  TLS checks the certificate against it. Update the pin when the platform's
+  address changes.
+
+**Separate the tools' resolver.** dnsx, naabu and subfinder use
+`SENSOR_DNS_RESOLVERS` when it is set. Point it at resolvers other than the
+ones in `/etc/resolv.conf` (or Docker's `dns:` setting). Heavy enumeration then
+cannot overload the resolver the sensor uses for the platform. Other tools,
+and the network confinement forwarder, use the system resolvers.
+
+## Core infrastructure and intrusive scans
+
+Exclude core infrastructure from intrusive scans (port scans with high rates,
+vulnerability templates, fuzzing): the DNS servers, the default gateways and
+firewalls, the platform host, and the sensor host itself. If a scan knocks one
+of these over, or an IPS blocks it, the scan cuts off the sensor's own
+connection to the platform. The sensor loses its jobs, and every other system
+that depends on that server is affected. Scan these systems on their own, in a
+maintenance window, at a low rate.
+
+The sensor reports these addresses in its
+[`network.core_addresses` check](troubleshooting.md#network-core-addresses):
+its resolvers (behind Docker's `127.0.0.11`, the servers Docker forwards to),
+the tools' resolvers, its gateways, its own address as the platform sees it,
+and the platform's addresses. When a new scan's targets cover one of them,
+the console shows a warning with an **Exclude these** action. The scan is
+never blocked. Firewalls that are not the default gateway are not detected:
+exclude them yourself.
 
 ## When the console sees a change
 
