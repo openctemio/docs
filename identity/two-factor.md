@@ -260,4 +260,4 @@ Every failed step-up is audited as `auth.step_up_failed` with the reason (`inval
 `rate_limited`), never the code. A rate-limited step-up is audited once a minute per person.
 
 The engineering reference is
-[step-up-reauth.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/step-up-reauth.md).
+[step-up-reauth.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/step-up-reauth.md).

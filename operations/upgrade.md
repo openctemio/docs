@@ -30,7 +30,7 @@ with breaking changes has its own upgrade guide; read it first.
 | v0.11.x | v0.12.0 and later | [From v0.11 to v0.12.0](#from-v011-to-v0120) below: signed jobs on by default (a job signer is required in production), `AI_TRIAGE_ENABLED` removed, campaigns hold tasks. |
 | v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, `ADMIN_AUDIT_SINK` for managed services, re-run of the database role script, console pages moved, second super admin approvals. |
 | v0.9.x | v0.10.x | [From v0.9 to v0.10](#from-v09-to-v010) below: the platform console becomes its own service on its own site, new required settings, removed variables, migrations that need the API stopped. Plan a maintenance window. |
-| v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
+| v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/server/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
 Cross one minor version at a time (v0.9.x to v0.10.1, then to v0.11.0, then onward to
 v0.12.0 and the later releases), with a backup before each step.
@@ -473,7 +473,7 @@ their own steps in [From v0.12 to v0.15.5](#from-v012-to-v0155).
 - **Helm.** Chart 0.32.0 and later add the job signer; the newest chart is 0.33.0
   (`appVersion` v0.12.0). See [Kubernetes](../install/kubernetes.md).
 
-Source: `api/CHANGELOG.md`, section v0.12.0 (Security and Removed entries).
+Source: `server/CHANGELOG.md`, section v0.12.0 (Security and Removed entries).
 
 ### From v0.10 to v0.11.0
 
@@ -690,13 +690,13 @@ every version between yours and the target. How versions are numbered:
 
 The reasoning, the CI guard on destructive migrations and dirty-migration
 recovery are in
-[safe-deploy-and-migrations.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/safe-deploy-and-migrations.md).
+[safe-deploy-and-migrations.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/safe-deploy-and-migrations.md).
 
 ## Before every upgrade
 
 1. **Back up** the database, the secrets and the volumes
    ([Backup and restore](backup-restore.md)), and check the dump is readable.
-   With Docker Compose: `./backup.sh && ./backup.sh verify` in `api/deploy`.
+   With Docker Compose: `./backup.sh && ./backup.sh verify` in `server/deploy`.
 2. **Check the migration state.** `dirty` must be `f` (from v0.16.0 `version` is a fence
    number; the applied migrations are listed in `schema_migrations_applied`):
 
@@ -715,7 +715,7 @@ recovery are in
 
 ## Docker Compose
 
-In `api/deploy` of your checkout:
+In `server/deploy` of your checkout:
 
 ```bash
 NEW_VERSION={{ site.data.versions.platform }}   # the release you upgrade to

@@ -42,7 +42,7 @@ need a real sensor or CI provider, is in `sql/`:
 ## Run it
 
 1. Start a scratch stack from the `openctem` repository (any way you like: the
-   Compose files in `api/deploy`, the all-in-one image, or the API and consoles from
+   Compose files in `server/deploy`, the all-in-one image, or the API and consoles from
    source), with an empty database, and run the migrations. The seed talks to three
    addresses: the API, the platform console's API listener (`ADMIN_LISTEN_ADDR`,
    which is not served on the main address) and, for the screenshots, the web

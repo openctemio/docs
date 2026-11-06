@@ -84,7 +84,7 @@ psql "postgres://postgres@db.example.com:5432/openctem?sslmode=require" \
   -v ON_ERROR_STOP=1 \
   -v app_password="$APP_DB_PASSWORD" \
   -v migrator_password="$MIGRATOR_DB_PASSWORD" \
-  -f openctem/api/deploy/postgres/least-privilege-roles.sql
+  -f openctem/server/deploy/postgres/least-privilege-roles.sql   # openctem/api/deploy/... up to v0.20.x
 ```
 
 The script is idempotent; re-run it after restoring a dump and after every

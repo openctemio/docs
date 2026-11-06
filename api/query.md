@@ -153,4 +153,4 @@ the key's permissions and never with full data access. Runs are not stored.
 | Rate | about one request per second per person (bursts of 30) on explain and run; 2 queries at a time per person and 4 per organization (429 beyond) |
 
 The grammar, the security model and the threat model are documented in
-[Custom query language](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/query-language.md).
+[Custom query language](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/query-language.md).

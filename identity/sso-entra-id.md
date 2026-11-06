@@ -218,4 +218,4 @@ and its own redirect URI. See [Social login with Microsoft](social-microsoft.md)
 | Protected actions say "sign in again" and then fail | Add the `auth_time` optional claim, or have the user enrol an authenticator. |
 
 The engineering reference is
-[sso-authentication.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/sso-authentication.md).
+[sso-authentication.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/sso-authentication.md).

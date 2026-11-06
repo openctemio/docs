@@ -10,7 +10,7 @@ nav_order: 3
 The main records OpenCTEM keeps and how they relate, with the PostgreSQL table
 names used in the code. This is an overview of the key entities, not the full
 schema: the schema is defined by the migrations in
-[`api/migrations`](https://github.com/openctemio/openctem/tree/develop/api/migrations).
+[`server/migrations`](https://github.com/openctemio/openctem/tree/develop/server/migrations).
 
 1. TOC
 {:toc}

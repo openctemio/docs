@@ -7,7 +7,7 @@ nav_order: 2
 # Conventions: pagination, errors, rate limits
 
 These rules hold across the tenant API (`/api/v1`). The style guide new routes follow is
-[api-conventions.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/api-conventions.md)
+[api-conventions.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/api-conventions.md)
 (RFC-041); some older routes still differ and converge over time, so check the
 [OpenAPI document](index.md#the-openapi-document) for the exact shape of an endpoint.
 

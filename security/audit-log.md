@@ -141,7 +141,7 @@ Read these before relying on the chain as evidence:
   Organization owners cannot rebaseline their own chain.
 
 The design reference is
-[audit-hash-chain.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/audit-hash-chain.md).
+[audit-hash-chain.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/audit-hash-chain.md).
 
 ## The administrators' audit log and its off-box copy
 

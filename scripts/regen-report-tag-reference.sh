@@ -4,7 +4,7 @@
 # pentest/report-templates.md from an openctem checkout.
 #
 # The reference is generated in openctem by report.TemplateReferenceMarkdown()
-# and kept current in api/docs/architecture/pentest-report-templates.md (a test
+# and kept current in server/docs/architecture/pentest-report-templates.md (a test
 # there fails when it is stale). This script copies that block, between the
 # GENERATED TAG REFERENCE markers, into the guide. Never edit the block by hand.
 #
@@ -15,7 +15,9 @@ set -euo pipefail
 
 src="${1:?usage: $0 <openctem checkout>}"
 docs="$(cd "$(dirname "$0")/.." && pwd)"
-from="$src/api/docs/architecture/pentest-report-templates.md"
+backend=server
+[ -d "$src/server" ] || backend=api   # api/ in releases up to v0.20.x
+from="$src/$backend/docs/architecture/pentest-report-templates.md"
 page="$docs/pentest/report-templates.md"
 
 [ -f "$from" ] || { echo "regen-report-tag-reference: $from not found" >&2; exit 2; }

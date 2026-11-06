@@ -9,7 +9,7 @@ nav_order: 1
 
 Every environment variable the OpenCTEM API reads, plus the variables of the web
 console, the gateway, the Compose stack and the all-in-one image. The tables are
-generated from the registry in the code (`api/internal/config/env_registry.yaml`,
+generated from the registry in the code (`server/internal/config/env_registry.yaml`,
 `make env-docs`), which a test keeps equal to what the code reads, so a variable
 that is not on this page is not read.
 
@@ -105,7 +105,7 @@ never prints a secret value. Run it before a deploy or as an init step:
 ```bash
 # API image (the entrypoint is the server binary)
 docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:{{ site.data.versions.platform }} -check-config
-# Docker Compose, in api/deploy
+# Docker Compose, in server/deploy
 docker compose run --rm --no-deps api -check-config
 # All-in-one image
 docker run --rm --env-file openctem.env --entrypoint /opt/openctem/api/server \
@@ -670,7 +670,7 @@ Read by the Next.js web console. `NEXT_PUBLIC_*` values are compiled into the br
 
 ## Gateway
 
-Read by the bundled Caddy gateway (`api/deploy/gateway`).
+Read by the bundled Caddy gateway (`server/deploy/gateway`).
 
 | Variable | Type | Default | Required | Secret | Description |
 |---|---|---|---|---|---|
@@ -700,7 +700,7 @@ Read by the bundled Caddy gateway (`api/deploy/gateway`).
 
 ## Docker Compose stack
 
-Read by `api/deploy/docker-compose.yml` from its `.env` file.
+Read by `server/deploy/docker-compose.yml` from its `.env` file.
 
 | Variable | Type | Default | Required | Secret | Description |
 |---|---|---|---|---|---|
@@ -799,7 +799,7 @@ The API refuses to start while one of these is set, and says what to do instead.
 | `SMTP_TLS` | unset it; the platform SMTP server is set in the admin console (Console > Settings > E-mail); headless installs pass BOOTSTRAP_SMTP_* to bootstrap-admin |
 | `SMTP_SKIP_VERIFY` | unset it; the platform SMTP server is set in the admin console (Console > Settings > E-mail); headless installs pass BOOTSTRAP_SMTP_* to bootstrap-admin |
 | `SMTP_TIMEOUT` | unset it; the platform SMTP server is set in the admin console (Console > Settings > E-mail); headless installs pass BOOTSTRAP_SMTP_* to bootstrap-admin |
-| `APP_ALLOW_PLAINTEXT_CREDENTIALS` | unset it; credentials are always encrypted (development uses the key in api/.env.example) |
+| `APP_ALLOW_PLAINTEXT_CREDENTIALS` | unset it; credentials are always encrypted (development uses the key in server/.env.example) |
 | `CTEM_ENFORCE_COVERAGE_SLO` | unset it; owners and admins set it per organization on the Cycles page (PUT /api/v1/organization/settings/cycles) |
 | `AUTH_ACCESS_TOKEN_COOKIE_NAME` | unset it; the session cookie is always auth_token |
 | `AUTH_REFRESH_TOKEN_COOKIE_NAME` | unset it; the refresh cookie is always refresh_token |

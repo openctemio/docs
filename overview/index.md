@@ -138,7 +138,7 @@ These pages describe what ships in the current release ({{ site.data.versions.pl
 | Automatic coverage: a coverage policy per asset type and a ledger of when each asset was last checked for each kind of test, with gap alerts | |
 
 The design documents (RFCs) and the roadmap live in the
-[openctem repository](https://github.com/openctemio/openctem/tree/develop/api/docs).
+[openctem repository](https://github.com/openctemio/openctem/tree/develop/server/docs).
 
 ## Read next
 

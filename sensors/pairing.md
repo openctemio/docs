@@ -46,7 +46,7 @@ steps changes: the code exists before the sensor, and the sensor sends it in
 its first request; the administrator then sees the fingerprint on the code
 and approves it the same way. The work loop that follows is described in [How work reaches a sensor](how-it-works.md#how-work-reaches-a-sensor).
 
-Design: [RFC-052](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-052-sensor-pairing-and-authorization.md).
+Design: [RFC-052](https://github.com/openctemio/openctem/blob/develop/server/docs/rfcs/RFC-052-sensor-pairing-and-authorization.md).
 
 ## Who can pair
 
@@ -218,7 +218,7 @@ a fake platform from answering the sensor's first contact.
 A platform behind a private certificate authority needs no extra step: the
 console's command pins the platform's root CA by SHA-256
 (`SENSOR_CA_SHA256`), and the sensor fetches that CA from the platform
-before it pairs. See [Sensors behind a private CA](https://github.com/openctemio/openctem/blob/develop/api/docs/how-to/sensors-behind-a-private-ca.md).
+before it pairs. See [Sensors behind a private CA](https://github.com/openctemio/openctem/blob/develop/server/docs/how-to/sensors-behind-a-private-ca.md).
 
 ## Where the identity lives
 

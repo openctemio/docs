@@ -66,8 +66,8 @@ anything else a patch).
 ## Code style
 
 - **Go:** [Effective Go](https://go.dev/doc/effective_go), `gofmt`, the pinned linters. Domain
-  types (`api/pkg/domain`) have no infrastructure dependencies; application services
-  (`api/internal/app`) are named `...Service` and built with `New...` constructors; handlers deal
+  types (`server/pkg/domain`) have no infrastructure dependencies; application services
+  (`server/internal/app`) are named `...Service` and built with `New...` constructors; handlers deal
   with HTTP only. Wrap errors with context (`fmt.Errorf("create asset: %w", err)`); return domain
   errors and let the handler map them to the [error envelope](../api/conventions.md#errors).
   Prefer table-driven tests.
@@ -79,8 +79,8 @@ anything else a patch).
 
 ## Changelog fragments
 
-A user-visible change adds **one new file** `api/changelog.d/<short-slug>.md` instead of editing
-`api/CHANGELOG.md`, so pull requests never conflict on the changelog:
+A user-visible change adds **one new file** `server/changelog.d/<short-slug>.md` instead of editing
+`server/CHANGELOG.md`, so pull requests never conflict on the changelog:
 
 ```markdown
 ### Fixed: deactivated access groups stop granting access at once
@@ -90,7 +90,7 @@ A user-visible change adds **one new file** `api/changelog.d/<short-slug>.md` in
 ```
 
 The category is one of `Security`, `Behaviour change`, `Removed`, `Deprecated`, `Added`, `Changed`,
-`Fixed`. API CI runs `python3 api/scripts/changelog.py check`, which rejects a fragment without a
+`Fixed`. API CI runs `python3 server/scripts/changelog.py check`, which rejects a fragment without a
 valid `### <Category>: <title>` heading, an entry written directly under `## Unreleased` in
 `CHANGELOG.md`, and committed merge-conflict markers. `changelog.py preview` shows the assembled
 section. At release the fragments are folded into `CHANGELOG.md`.
@@ -105,11 +105,11 @@ enforces:
   otherwise) and **has an authorization gate** or an allowlist entry with a reason.
 - **Route style** (`tools/lint/routestyle`): lowercase kebab-case paths, plural collections,
   `{snake_case}` parameters, the closed verb list for actions, no tenant in the path, no secrets in
-  the URL. See [api-conventions.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/api-conventions.md).
+  the URL. See [api-conventions.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/api-conventions.md).
 - **Migrations are safe**: unique, increasing versions and expand-contract only (see
   [Database migrations](migrations.md)).
 - **Lint on new code**: `go vet`, staticcheck and golangci-lint (v1.64.8, pinned) on the lines your
-  branch adds (`make -C api lint-ci` locally); ESLint, Prettier and `tsc` for the web.
+  branch adds (`make -C server lint-ci` locally); ESLint, Prettier and `tsc` for the web.
 - **Security gate**: a pull request that touches authentication or authorization, tenant
   isolation, cryptography, the sensor protocol, the scope gate, upload and download handlers,
   the SSRF guard, CI workflows or deployment defaults (the list is `.github/security-paths.yml`)
@@ -133,7 +133,7 @@ Reviewers also check that:
 - input from scans, imports and webhooks is treated as untrusted;
 - tests cover the change, including the authorization and isolation paths;
 - a feature is documented: user-facing behavior in these docs, design decisions in an RFC and an
-  architecture note in `api/docs`.
+  architecture note in `server/docs`.
 
 ## Licensing
 

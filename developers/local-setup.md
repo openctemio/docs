@@ -14,7 +14,7 @@ containers.
 
 | Tool | Version | Used for |
 |---|---|---|
-| Go | 1.27 (the toolchain pinned in `api/go.mod`) | the API |
+| Go | 1.27 (the toolchain pinned in `server/go.mod`) | the API |
 | Node.js | 26 (`web/.nvmrc`) | the web console |
 | Docker with Compose | recent | PostgreSQL 17, Redis 7, optional containerized API |
 | GNU Make, Git | any recent | the root `Makefile` |
@@ -37,11 +37,11 @@ directory is not picked up.
 ## 2. Configure the API
 
 ```bash
-cd api
+cd server
 cp .env.example .env
 ```
 
-Edit `api/.env`:
+Edit `server/.env`:
 
 - `APP_ENV=development` must stay: an unset `APP_ENV` means `production`, which refuses to start
   without TLS to PostgreSQL and Redis.
@@ -79,8 +79,8 @@ make dev-api             # runs the API (go run ./cmd/server) on http://localhos
 or from `api/`, with hot reload:
 
 ```bash
-make -C api install-tools   # once: golangci-lint, staticcheck, air, mockgen
-make -C api dev             # air
+make -C server install-tools   # once: golangci-lint, staticcheck, air, mockgen
+make -C server dev             # air
 ```
 
 Check it: `curl http://localhost:8080/health`.
@@ -88,7 +88,7 @@ Check it: `curl http://localhost:8080/health`.
 ### Alternative: the API in a container
 
 ```bash
-cd api
+cd server
 make docker-dev          # postgres, redis and the API with air hot reload
 ```
 
@@ -114,7 +114,7 @@ with `bootstrap-admin`: a platform administrator, and the first organization wit
 Owner.
 
 ```bash
-cd api
+cd server
 SMTP_BASE_URL=http://localhost:3000 GOWORK=off go run ./cmd/bootstrap-admin \
   -db "postgres://openctem:secret@localhost:5432/openctem?sslmode=disable" \
   -email admin@example.com -no-backup \
@@ -129,7 +129,7 @@ application: it signs in on the platform console, a separate Next.js app (step 8
 
 The platform console (organizations, sign-up policy, platform sensors, system e-mail) is its
 own application with its own site. To run it locally, start the API's console listener and the
-console app. In `api/.env` set `ADMIN_LISTEN_ADDR=127.0.0.1:8081` and restart the API; then:
+console app. In `server/.env` set `ADMIN_LISTEN_ADDR=127.0.0.1:8081` and restart the API; then:
 
 ```bash
 cd web
@@ -141,15 +141,15 @@ and enroll an authenticator.
 
 ## Seed data
 
-`api/migrations/seed/` holds optional data:
+`server/migrations/seed/` holds optional data:
 
 | File | What | How |
 |---|---|---|
-| `seed_required.sql` | data the system needs (currently none; everything is created at run time) | `make -C api seed-required` or `make -C api docker-seed-required` |
+| `seed_required.sql` | data the system needs (currently none; everything is created at run time) | `make -C server seed-required` or `make -C server docker-seed-required` |
 | `seed_test.sql` | a placeholder for development data | never in production |
 | `seed_components_demo.sql` | demo CVEs, assets, packages and findings; attaches to an existing organization whose name or slug matches `ORG` in the file | `go run ./cmd/seed -file migrations/seed/seed_components_demo.sql -db "$DATABASE_URL"` from `api/` |
 
-To start again from an empty database: `make -C api db-fresh` (drops the `public` schema in the
+To start again from an empty database: `make -C server db-fresh` (drops the `public` schema in the
 Docker PostgreSQL, applies the migrations and the required seed).
 
 ## Optional: a sensor
@@ -165,5 +165,5 @@ and pair it with your organization: see [Sensors](../sensors/index.md). Point it
 | `APP_ENCRYPTION_KEY has invalid length` | replace the placeholder in `.env` (step 2) |
 | "Generated contract files are missing", `api.types` not found | `make generate` (or `make generate-docker`) at the repository root |
 | The API refuses to start: schema behind | apply the migrations (step 4) |
-| `connection refused` to PostgreSQL | `docker compose -f api/docker-compose.yml ps`; check `DB_HOST`/`DB_PORT` |
-| golangci-lint reports issues you did not touch | lint only new code: `make -C api lint-new` |
+| `connection refused` to PostgreSQL | `docker compose -f server/docker-compose.yml ps`; check `DB_HOST`/`DB_PORT` |
+| golangci-lint reports issues you did not touch | lint only new code: `make -C server lint-new` |

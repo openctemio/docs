@@ -60,7 +60,7 @@ Each role page sorts its links into tutorials, how-to guides, reference and conc
 ## Releases and license
 
 Each release is described in the
-[changelog](https://github.com/openctemio/openctem/blob/develop/api/CHANGELOG.md); see
+[changelog](https://github.com/openctemio/openctem/blob/develop/server/CHANGELOG.md); see
 [Versioning and releases](operations/versioning.md) for the release policy. OpenCTEM is
 free software: the platform, sensor and CI integration are licensed under the GNU GPL v3.0,
 the Go SDK, the CTIS schema and the Helm charts under the Apache License 2.0 (see [Legal](legal/)).

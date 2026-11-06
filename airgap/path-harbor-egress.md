@@ -173,7 +173,7 @@ client cannot claim one name and connect to another.
 # mirror runner gets. HTTPS is not decrypted: the proxy allows CONNECT to the
 # listed host names only (checked against the TLS SNI with ssl_bump peek +
 # splice, so a client cannot claim one name and connect to another).
-# Guide: api/docs/deployment/air-gapped.md, "Security of the egress exception".
+# Guide: server/docs/deployment/air-gapped.md, "Security of the egress exception".
 #
 # Hosts:
 #   ghcr.io                                image manifests and tokens
@@ -226,7 +226,7 @@ addresses behind `ghcr.io` and the GitHub CDN change.
 # internet; HTTPS only to the egress proxy (squid-egress-allowlist.conf),
 # which enforces the host-name allowlist. Name-based rules belong in the
 # proxy: the IP addresses behind ghcr.io and the GitHub CDN change.
-# Guide: api/docs/deployment/air-gapped.md, "Security of the egress exception".
+# Guide: server/docs/deployment/air-gapped.md, "Security of the egress exception".
 define proxy = 10.20.30.1
 define proxy_port = 3128
 define internal = { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 }

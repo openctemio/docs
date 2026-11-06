@@ -10,7 +10,7 @@ nav_order: 5
 How to know the platform itself is healthy: health checks, Prometheus metrics,
 and the optional monitoring stack with alert rules and a runbook per alert. The
 full operator guide, with every alert's runbook, is
-[monitoring.md](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/monitoring.md)
+[monitoring.md](https://github.com/openctemio/openctem/blob/develop/server/docs/operations/monitoring.md)
 in the openctem repository.
 
 What organizations are told about their own data (new findings, SLA breaches)
@@ -138,14 +138,14 @@ dashboard. It publishes nothing on a public interface: the UIs bind to
 under 1 GB of memory.
 
 It joins the OpenCTEM Compose network to scrape the API. For the production
-stack in `api/deploy` (project `openctem`), add the overlay
+stack in `server/deploy` (project `openctem`), add the overlay
 `deploy/observability/docker-compose.openctem.yml`: it sets that stack's
 network (`openctem_openctem`), the `web` service, PostgreSQL with
 `sslmode=require`, and Redis over TLS (`rediss://`) verified against the stack's
 datastore CA, mounted read-only from the `openctem_datastore-tls` volume. Every
 value can still be overridden from the environment.
 
-Set in the `.env` you pass to it (the stack's own `api/deploy/.env` already holds
+Set in the `.env` you pass to it (the stack's own `server/deploy/.env` already holds
 `METRICS_TOKEN` and `REDIS_PASSWORD`):
 
 ```bash
@@ -156,7 +156,7 @@ OBS_PG_MONITOR_PASSWORD=...                    # openssl rand -hex 24
 
 plus the receivers (`ALERT_TELEGRAM_BOT_TOKEN` and `ALERT_TELEGRAM_CHAT_ID`, or
 `ALERT_SLACK_WEBHOOK_URL`). Create the exporter's PostgreSQL role as the
-superuser, from `api/deploy`. It gets `pg_monitor` and `CONNECT` on the
+superuser, from `server/deploy`. It gets `pg_monitor` and `CONNECT` on the
 database only, no table access (the least-privilege roles revoke `CONNECT` from
 `PUBLIC`):
 
@@ -173,7 +173,7 @@ from a release whose script did not grant `CONNECT` (the exporter then reports
 Start it from the repository root:
 
 ```bash
-docker compose -p openctem-obs --env-file api/deploy/.env \
+docker compose -p openctem-obs --env-file server/deploy/.env \
   -f deploy/observability/docker-compose.yml \
   -f deploy/observability/docker-compose.openctem.yml \
   --profile observability up -d
@@ -187,7 +187,7 @@ For the `BackupStale` and `BackupFailed` alerts, run
 The variables, the alert list and a runbook per alert (API down, error bursts,
 schema behind or dirty, sensors offline, stuck queues, audit chain breaks, disk,
 memory, backups and more) are in the
-[full guide](https://github.com/openctemio/openctem/blob/develop/api/docs/operations/monitoring.md).
+[full guide](https://github.com/openctemio/openctem/blob/develop/server/docs/operations/monitoring.md).
 On Kubernetes the chart ships the same rules for the API (see above).
 
 ## What to watch first

@@ -83,5 +83,5 @@ the downgrade. Check first why people were overriding the results.
 `GET /api/v1/organization/settings/ai/use-cases` and
 `PUT /api/v1/organization/settings/ai/use-cases/{use_case}` (`triage`, `remediation` or `summary`).
 A request for AI triage while **Triage** is off is refused with `AI_USE_CASE_OFF`.
-See `api/docs/architecture/ai-analysis.md` in the
+See `server/docs/architecture/ai-analysis.md` in the
 [openctem repository](https://github.com/openctemio/openctem).

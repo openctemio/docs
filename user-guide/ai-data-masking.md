@@ -97,5 +97,5 @@ Masking lowers the risk of sending data to a provider; it does not remove it.
 - [Settings > AI: AI agents](ai-agents.md)
 - [Settings > AI: knowledge sources](ai-knowledge-sources.md)
 - [AI suggestions and approval](ai-suggestions-and-approval.md)
-- Design: `api/docs/architecture/ai-context-masking.md` in the
+- Design: `server/docs/architecture/ai-context-masking.md` in the
   [openctem repository](https://github.com/openctemio/openctem)

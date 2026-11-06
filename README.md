@@ -28,7 +28,7 @@ The site is built with [Jekyll](https://jekyllrb.com/) and the
 
 Engineering documents that change with the code (architecture notes, RFCs, versioned
 upgrade guides) live next to the code in
-[openctemio/openctem `api/docs`](https://github.com/openctemio/openctem/tree/develop/api/docs);
+[openctemio/openctem `server/docs`](https://github.com/openctemio/openctem/tree/develop/server/docs);
 the site links to them.
 
 ## Preview locally

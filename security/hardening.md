@@ -10,7 +10,7 @@ See how it works: [Job signer service](../how-it-works/operations/job-signer.md)
 
 Work through this list before you expose an installation to users. Every item names the real
 setting; defaults are the values in the API code unless the row says otherwise. The bundled
-production compose file (`api/deploy/docker-compose.yml` with `api/deploy/.env.example`) already
+production compose file (`server/deploy/docker-compose.yml` with `server/deploy/.env.example`) already
 applies most of them; the checklist tells you what to confirm.
 
 ## Run in production mode
@@ -96,7 +96,7 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
 - Publish only the gateway: 443, 80 if you use the HTTP-to-HTTPS redirect overlay, and the platform
   console's port (see [Platform console](#platform-console)). In the bundled production compose file
   the web console, the platform console app, the API, PostgreSQL and Redis are not published.
-- Never use the development compose files (`api/docker-compose.yml`, `api/docker-compose.dev.yml`)
+- Never use the development compose files (`server/docker-compose.yml`, `server/docker-compose.dev.yml`)
   in production: they publish PostgreSQL, Redis and a debugger port on all interfaces with
   development credentials.
 - The gateway answers `404` for `/ready`, `/metrics` and `/debug/*`. `/health` is public and returns
@@ -109,7 +109,7 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
   integrate with: the list applies to every organization. `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` (every
   private range) stops the API outside `APP_ENV=development`.
 - Sensors using protocol v3 reach the API's mTLS listener (`:9443`) through the gateway: with the
-  sensor overlay (`api/deploy/docker-compose.sensor-passthrough.yml`) the gateway passes TLS
+  sensor overlay (`server/deploy/docker-compose.sensor-passthrough.yml`) the gateway passes TLS
   connections that offer the sensor ALPN id through on the main HTTPS port, and can route a
   dedicated sensor host name by SNI. Do not publish `:9443` of the API container directly.
 - Sensors only make outbound connections to the platform; they need no inbound access. See
@@ -131,7 +131,7 @@ path on the main site and no redirect from it.
 | `OPENCTEM_ADMIN_ALLOWED_CIDRS` | private networks | Client networks that may reach the console site; everyone else gets `403` (the API answers `403 ADMIN_NETWORK_NOT_ALLOWED`). The compose file passes the same list to the API as `ADMIN_ALLOWED_CIDRS`. Open it to the internet only if you must. A sign-in from an address other than the administrator's last one is audited and e-mailed to every administrator. |
 | `ADMIN_LISTEN_ADDR` | `<net>.12:8081` in the compose file | The console API's own internal listener (plain HTTP on the private stack network). |
 | `ADMIN_PUBLIC_URL` | origin of `APP_URL` | The console's own origin. Security keys and passkeys are bound to its host: set it to the console site, and note that changing it later makes registered keys unusable. |
-| `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` | unset | The console database role: a separate role that alone writes the console's identity tables (administrators, console sessions and credentials, the platform identity provider, the four-eyes approvals). After an upgrade that adds a console table, run `least-privilege-roles.sql` again with `admin_user` (the Compose `db-grants` job does it on every `up`), or the console role lacks the new table (v0.11.0 adds `admin_approvals`). See [database-roles.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/database-roles.md). |
+| `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` | unset | The console database role: a separate role that alone writes the console's identity tables (administrators, console sessions and credentials, the platform identity provider, the four-eyes approvals). After an upgrade that adds a console table, run `least-privilege-roles.sql` again with `admin_user` (the Compose `db-grants` job does it on every `up`), or the console role lacks the new table (v0.11.0 adds `admin_approvals`). See [database-roles.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/database-roles.md). |
 | `ADMIN_AUDIT_SINK` | unset | Streams the administrators' audit log off the host. **Required with `MANAGED_SERVICE=true` in production**: the API refuses to start without it. See [Audit log](audit-log.md#the-administrators-audit-log-and-its-off-box-copy). |
 | `MANAGED_SERVICE` | `false` | Set `true` only on a hosted, multi-tenant service you run for organizations you do not control. It changes defaults (for example platform sensors need a verified domain until an administrator stores a value) and requires the audit sink. Self-managed installations leave it unset. |
 
@@ -249,7 +249,7 @@ it is re-run (for example, console passkey and recovery-code sign-in fails, and 
 503 for the platform role tables). In production the API refuses to start while its app role can
 write the console's identity or factor tables. The guide with the migration path for existing
 installations is
-[database-roles.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/database-roles.md).
+[database-roles.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/database-roles.md).
 
 Also:
 
@@ -280,7 +280,7 @@ stored secrets (AES-256-GCM), and keys the hashes of API keys, SCIM tokens and s
   reconfigured, tokens re-issued).
 - Rotate it with the `rekey` tool and `APP_ENCRYPTION_KEY_PREVIOUS` (a grace list of old keys while
   tokens move to the new key). Follow
-  [encryption-key-rotation.md](https://github.com/openctemio/openctem/blob/develop/api/docs/deployment/encryption-key-rotation.md).
+  [encryption-key-rotation.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/encryption-key-rotation.md).
   Remove `APP_ENCRYPTION_KEY_PREVIOUS` when `rekey -status` reports zero. `rekey` also re-encrypts
   the console settings (CAPTCHA secret, alert webhook address and signing secret, social login
   secrets). Keep the previous key until the ingest queue has drained: queued sensor report segments
@@ -363,7 +363,7 @@ The platform does not back itself up: schedule a backup job. Back up:
 - the gateway's `gateway-data` volume (it holds the internal CA in `internal` TLS mode);
 - your `.env` or secret store, **separately** from the database backups.
 
-For the Compose deployment, `api/deploy/backup.sh` does all of this except the audit archive,
+For the Compose deployment, `server/deploy/backup.sh` does all of this except the audit archive,
 the encryption and the off-host copy, writes its files with mode `0600`, and has a `verify` command that restores the
 newest backup into a throwaway PostgreSQL. A backup it makes holds `.env`, so it is as sensitive as
 the database plus every stored credential: encrypt it before it leaves the host.

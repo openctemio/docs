@@ -6,7 +6,7 @@ nav_order: 5
 
 # Database migrations
 
-The schema is applied by `openctem-migrate` (`api/cmd/openctem-migrate`), which records every
+The schema is applied by `openctem-migrate` (`server/cmd/openctem-migrate`), which records every
 applied migration in `schema_migrations_applied` and applies every shipped migration a database
 lacks, lowest version first. It replaced golang-migrate in v0.16.0. This page is for people
 writing migrations. How operators apply them during an upgrade is in
@@ -15,7 +15,7 @@ writing migrations. How operators apply them during an upgrade is in
 ## Layout
 
 ```
-api/migrations/
+server/migrations/
 ├── 001146_baseline.up.sql      the whole schema up to 001146, plus built-in rows
 ├── 001146_baseline.down.sql    refuses: the baseline is never reverted
 ├── 001147_<name>.up.sql        legacy six-digit versions (no new ones; the last is 001148)
@@ -31,8 +31,8 @@ api/migrations/
   on the next run, not skipped: after the others on a running install, before them on a fresh one.
   CI proves both orders give the same schema; when they do not, the later migration depends on the
   others and needs a version above them.
-- **Nobody picks a version by hand.** `make -C api migration-new name=add_widget_table` creates
-  `migrations/<UTC now>_add_widget_table.{up,down}.sql`. `make -C api migration-renumber` gives
+- **Nobody picks a version by hand.** `make -C server migration-new name=add_widget_table` creates
+  `migrations/<UTC now>_add_widget_table.{up,down}.sql`. `make -C server migration-renumber` gives
   this branch's added migrations new timestamp versions when a version clashes with `develop` or
   an open pull request. Never write a version number into a test: find a migration by name with
   `testdb.MigrationVersion(t, dir, name)`.
@@ -57,10 +57,10 @@ built-in rows (permission catalogue, system roles, modules, tools), without owne
   do: back up, deploy the last release before the baseline (git tag `pre-baseline-001146`, which
   still has every old migration), run its migrations, then upgrade.
 - The old migration files remain readable at that tag:
-  `git show pre-baseline-001146:api/migrations/<file>`.
+  `git show pre-baseline-001146:server/migrations/<file>`.
 
 When the chain grows long again, it is squashed at a release boundary with
-`api/scripts/squash-migrations.sh`, which proves the result (schema byte-identical to the chain,
+`server/scripts/squash-migrations.sh`, which proves the result (schema byte-identical to the chain,
 as superuser and as the least-privilege migrator, and identical data once run-time values are
 masked) and fails on any difference.
 
@@ -110,7 +110,7 @@ Rules of thumb:
 
 ### The CI guard
 
-`api/scripts/check-migrations.sh` (the **Migration Safety** step, on pull requests) fails on
+`server/scripts/check-migrations.sh` (the **Migration Safety** step, on pull requests) fails on
 `DROP TABLE`, `DROP COLUMN`, `ALTER COLUMN ... TYPE`, `RENAME`, `SET NOT NULL`,
 `ADD COLUMN ... NOT NULL` without a default, and `TRUNCATE` in new or changed `.up.sql` files.
 For a genuine contract step, add a marker line with a reason to the file:
@@ -122,12 +122,12 @@ For a genuine contract step, add a marker line with a reason to the file:
 or label the pull request `allow-destructive-migration`. Run it locally:
 
 ```bash
-cd api
+cd server
 scripts/check-migrations.sh                              # against the base branch
 scripts/check-migrations.sh migrations/2026*_add_owner_email.up.sql   # specific files
 ```
 
-**SQL Schema Drift** (`api/scripts/check-sql-schema.sh`) also prepares every SQL statement in the
+**SQL Schema Drift** (`server/scripts/check-sql-schema.sh`) also prepares every SQL statement in the
 code against a database that only ran the migrations, so a query that names a missing column fails
 in CI instead of in production. **Tests (least-privilege DB role)** applies the migrations as the
 migrator role and runs the suite as the DML-only application role.

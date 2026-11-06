@@ -16,7 +16,7 @@ The contract is **tool contract v1**, implemented by
 [openctemio/sdk-go](https://github.com/openctemio/sdk-go) (v0.40.0 at the time of writing; pin the
 version you install). New to it? [Build your first tool](build-your-first-tool.md) walks through
 one tool end to end, from an empty directory to findings. The platform side is described in
-[tool-contract.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/tool-contract.md).
+[tool-contract.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/tool-contract.md).
 
 Once a sensor runs your tool, the tool joins your organization's tool catalog by itself (platform
 v0.9.6 and later): the

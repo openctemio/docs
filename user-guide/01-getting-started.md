@@ -646,7 +646,7 @@ The same data is available through the API for integrations:
 `GET /api/v1/me/dashboards/{id}/data`, `GET /api/v1/organization/dashboards/{id}/data`,
 `POST …/{id}/refresh`, `POST /api/v1/me/dashboards/widget-preview` and the
 metric catalog at `GET /api/v1/me/dashboards/widget-catalog`. Details are in
-[Dashboards](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/dashboards.md).
+[Dashboards](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/dashboards.md).
 
 ## My work
 

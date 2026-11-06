@@ -11,9 +11,9 @@ See how it works: [Release signing and verification](../how-it-works/operations/
 
 How OpenCTEM releases are numbered and published, and what that means when you
 plan upgrades. The design is
-[RFC-037](https://github.com/openctemio/openctem/blob/develop/api/docs/rfcs/RFC-037-versioning-and-release-train.md);
+[RFC-037](https://github.com/openctemio/openctem/blob/develop/server/docs/rfcs/RFC-037-versioning-and-release-train.md);
 the maintainers' working reference is
-[versioning-and-releases.md](https://github.com/openctemio/openctem/blob/develop/api/docs/architecture/versioning-and-releases.md).
+[versioning-and-releases.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/versioning-and-releases.md).
 
 1. TOC
 {:toc}
@@ -106,8 +106,8 @@ see [Vulnerability disclosure](../security/vulnerability-disclosure.md).
   [GitHub Release](https://github.com/openctemio/openctem/releases), generated
   from the changelog and grouped as security, behaviour changes, removals,
   deprecations, additions, changes and fixes.
-- **`api/CHANGELOG.md`** in the repository: the cumulative changelog. Unreleased
-  entries live as one file per change in `api/changelog.d/` until the release
+- **`server/CHANGELOG.md`** in the repository: the cumulative changelog. Unreleased
+  entries live as one file per change in `server/changelog.d/` until the release
   folds them in.
 - **Upgrade guides** for releases that need operator action, linked from
   [Upgrading](upgrade.md).
