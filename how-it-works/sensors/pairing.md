@@ -111,6 +111,7 @@ flowchart TD
 | Nobody approves within 10 minutes | The request expires, the code is never used again | The sensor falls back to its own code. Approve that one, or make a new command. |
 | The sensor stops after approval and does not confirm within 10 minutes | The pending key is revoked and the unconfirmed sensor removed, with an audit entry | Run the command again. |
 | Too many open requests on the platform | The sensor waits and retries | Nothing. It retries with growing waits up to 5 minutes. |
+| The platform's answer is not signed, or was changed on the way | The sensor stops with `pairing_answer_unsigned` and names the step (`approval answer` or `confirm answer`); nothing is saved | A platform older than the sensor: upgrade the platform, then pair again. Otherwise something between the sensor and the platform changes its answers (a TLS-inspecting proxy): remove it, or pin the CA with `SENSOR_CA_FINGERPRINT`. |
 
 ## Security
 
@@ -119,6 +120,13 @@ flowchart TD
   platform signs its answers with its pairing key, and the fingerprint you
   compare ties the two keys together. A machine in the middle would produce
   a different fingerprint.
+- **What the sensor keeps is signed.** The identity, the content keys, the
+  job signer's keys and, when the platform uses a private CA, its TLS roots
+  reach the sensor in one statement the platform signs with the same pairing
+  key, made for this sensor's key and this request only. A machine in the
+  middle that passes the first answer through untouched still cannot change
+  what the sensor keeps: the sensor refuses the changed answer and saves
+  nothing.
 - **No secret is copied.** A code or token only says which organization and
   which approval a key belongs to. It never authenticates anything alone.
   Codes are stored as keyed hashes, never in clear.
