@@ -2,7 +2,7 @@
 title: The machine
 parent: How it works
 nav_order: 0
-description: OpenCTEM drawn as one machine, with an organ map and seven flows, from the scan cycle to where work runs.
+description: OpenCTEM drawn as one machine, with an organ map, flows from the scan cycle to where work runs, and the split between fast rules and slow judgment.
 ---
 
 # How OpenCTEM works as one machine
@@ -251,6 +251,55 @@ flowchart LR
   REACH["Reach outcomes"] -.->|"planned"| PLC["Placement preference"]
   YLD["Closure outcomes per tool and template"] -.->|"planned"| SUG["Cadence and template suggestions, a person applies"]
   CAL["Priority against false positives and fix time"] -.->|"planned"| SCV["New scoring version, a person bumps it"]
+```
+
+## System 1 and System 2
+
+The two links between the modes, described below, are **planned**.
+
+The machine works in two modes. **System 1** is fast and deterministic: fixed rules and reflexes that handle the common case the same way every time. **System 2** is slow and deliberate: a planner with the full picture, an AI agent, or a person, for cases that are novel, ambiguous or high risk.
+
+### What runs as System 1 today
+
+- The scope gate and the active-probe gate: one answer to "may this be probed".
+- Fingerprinting and deduplication of findings when results come in.
+- Result binding and the sensor-result quarantine, including auto-release of held results under fixed rules.
+- SLA escalation and KEV escalation.
+- Automations on events, and closure modes that auto-close only where the coverage proof allows it.
+- Precomputed dashboard facts.
+- The sensor's own reflexes: local policy, the egress forwarder and the tool sandbox.
+
+### What runs as System 2
+
+- The coverage planner and the scan planner, which choose what to scan and when .
+- AI agents that suggest or apply triage under organization consent (available for some use cases).
+- People who approve scope, accept risk, mark false positives and change priority rules .
+
+### The invariant
+
+Everything System 2 proposes still passes the System 1 gates. A planner cannot start a scan outside scope, an AI agent cannot close a finding outside the closure mode, and a person's approval is recorded in the audit trail like any other decision. The brain proposes and the rules dispose. Nothing System 2 does skips the gates.
+
+### The two bridges (planned)
+
+- **Escalation, System 1 to System 2.** When a rule cannot decide, it hands the case up through one shared escalation record (reason, subject, target, state). Triggers: low confidence, conflicting sources, high impact (production or crown-jewel assets, lowering a security attribute, bulk close), novelty (a new CVE matching the inventory, an unknown asset, an anomalous sensor), and a rule lacking the authority to act (an intrusive scan needs approval). Today such cases are handled by separate mechanisms, not one shared record.
+- **Compile-down, System 2 to System 1.** Repeated human or AI decisions produce **rule suggestions**. A person approves each one, and the resulting rule is versioned, audited and can be switched off. Examples: the same false-positive template accepted five times suggests a suppression rule; an AI suggestion type accepted more than 95 percent of the time becomes a deterministic rule.
+
+Planned measures: the share of cases handled by System 1, the escalation rate, the suggestion acceptance rate and the number of rules compiled.
+
+```mermaid
+flowchart LR
+  classDef planned stroke-dasharray: 5 5
+  IN["Something happens: a new finding, asset or result"]
+  S1["System 1: rules and gates"]
+  DONE["Handled and recorded"]
+  ESC["Escalate to System 2 (planned)"]:::planned
+  S2["System 2: planner, AI agent, people"]
+  SUG["Suggested rule, a person approves (planned)"]:::planned
+  IN --> S1 --> DONE
+  S1 -.-> ESC -.-> S2
+  S2 -->|"decision goes back through the gates"| S1
+  S2 -.-> SUG
+  SUG -.->|"becomes a rule"| S1
 ```
 
 ## Where work runs
