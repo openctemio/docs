@@ -44,7 +44,11 @@ sequenceDiagram
 
 1. A retest needs the verify permission. The finding must be open or
    resolved, not a leaked secret or a finding from a person, on an active
-   asset whose target passes the scope gate.
+   asset whose target passes the scope gate. A scanner's report you imported
+   from a file (a Nessus export, for example) is not a person's finding: it is
+   re-checked by importing a newer report of the same scan (the
+   **Verification** panel offers **Import newer results**), or by a retest
+   check you attach.
 2. Limits keep retests from flooding a host: one per finding every 10
    minutes, 3 in flight per asset, and per organization 20 manual and 50
    automatic at a time.

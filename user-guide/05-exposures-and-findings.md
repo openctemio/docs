@@ -357,6 +357,11 @@ Click a row to open the **drawer**; click **Open full details** (or press
   properties (priority, SLA due, asset, found by, first and last seen,
   occurrences, tickets, tags, ID), the description, the approval history (for
   false positive or accepted findings) and the activity.
+- A configuration check (for example a CIS benchmark check from a Nessus
+  audit) shows its **Configuration check** band: see
+  [Configuration checks](#configuration-checks). Expected and actual values
+  stack in the drawer.
+- A long description shows its first lines with **Show more**.
 
 ### The full page
 
@@ -376,8 +381,10 @@ costs about three requests of your per-user read budget instead of about twenty,
 so stepping through findings does not run into "Too many requests", and a burst
 of refused reads shows one such notice rather than one per panel.
 
-**Header.** Source, type, CVE (links to NVD) and CWE (links to MITRE) badges and
-the title, with:
+**Header.** The finding's kind first (**Vulnerability**, **Configuration check**,
+**Misconfiguration**, **Leaked secret**, **License issue** or **Smart contract
+issue**), then who found it ("Found by Vulnerability scan (nessus)"), the CVE
+(links to NVD) and CWE (links to MITRE) badges and the title, with:
 
 - **Re-verify**: queues a safe re-check of the finding by a validation-capable
   sensor (not offered for pentest, bug bounty, red team or manual findings;
@@ -393,6 +400,46 @@ the title, with:
 
 ![The Evidence tab of a finding with the reproduction request and response captured by the scanner]({{ site.baseurl }}/assets/images/user-guide/finding-evidence.png)
 *Figure: The Evidence tab: the request and response that proved the finding.*
+
+**Scanner text.** Descriptions, remediation advice and fix steps that come from
+a scanner are shown as formatted text with the scripts and commands in them
+set apart:
+
+- A script (a `#!` line, a body in braces), a command (`$ ` or `# ` prompts,
+  shell commands, indented lines) or a fenced block becomes a code block with
+  shell highlighting and a **Copy** button. Copy leaves out the `$ ` prompts.
+- What a command prints, and the lines after "Output should be similar to:",
+  are shown apart as **Example output**, so they are not mistaken for commands.
+- A block longer than 12 lines shows its first lines with **Show more**.
+- Long values (a reference list, a path) wrap inside the page.
+- The text is treated as untrusted: HTML in it is shown as text, only `http`
+  and `https` links open (in a new tab), and images are never loaded (their alt
+  text is shown).
+
+The raw scanner output (plugin output) stays in **Scanner output** as plain
+text, with **Copy**.
+
+### Configuration checks
+
+A finding of type **Configuration check** (a benchmark or audit check, such as
+"5.3.2.2 Ensure pam_faillock module is enabled" from a Nessus compliance scan)
+has a **Configuration check** section on the Overview tab and in the drawer:
+
+- The **result** as the audit reported it: Passed, Failed, Warning, Error or
+  Skipped.
+- **Benchmark** and version, **Profile**, **Control** (the benchmark's control
+  number) and **Audit file**.
+- **Expected (policy) value** beside the **Actual value** (stacked on a phone
+  and in the drawer).
+- When the check has several conditions, the actual value is a list of
+  **sub-checks**, failed first. Open one to see the file it read, the
+  expression it had to match and what it found.
+- **Mapped controls**: the control's references grouped by framework (for
+  example NIST SP 800-53, CIS Controls v8), a few at a time with **+N more**.
+
+The description then leaves out the sections this panel already shows
+(reference, policy value, actual value), and **Other source fields** lists only
+the fields shown nowhere else.
 
 **Properties rail.** Status, Severity, Priority, Assignee, SLA due, Asset, Found
 by, First seen, Last seen, Occurrences, Resolved, Tickets, Tags and ID. For
