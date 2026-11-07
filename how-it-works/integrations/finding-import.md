@@ -82,8 +82,11 @@ flowchart TD
   C -->|yes| Y["open findings of that tool on those assets,<br/>not in the file, last seen by an upload: resolved<br/>(never critical or known exploited)"]
 ```
 
-- An import from the console is always partial: it never resolves other
-  findings.
+- An import from the console closes nothing by itself, except a Nessus file,
+  which proves on its own what it covered (see
+  [What a Nessus file closes](#what-a-nessus-file-closes)).
+- When a file carries its own coverage, `coverage=full` does not decide it:
+  the file's proof does.
 - Hosts in a recon directory that your scope does not cover become
   candidates: they wait for review, are never scanned, and their findings
   are tagged `candidate`.
@@ -133,6 +136,43 @@ password the scanner echoed are never imported.
    only a title.
 3. Upload the file on **Import results**. The import result lists every
    problem the importer met (a host without an address, a cut list).
+
+#### What a Nessus file closes
+
+Nessus results sometimes leave out findings that were fixed, mitigated or
+moved. The file says what it covered (each host's scan end, whether the scan
+finished and logged in, and the plugins the scan policy ran), so the import
+closes those findings without you naming any asset, and never closes one it
+has no proof for.
+
+An open Nessus finding on a host of the file that the file no longer reports
+is closed when:
+
+- the host's scan finished;
+- the check ran: its plugin, or its whole plugin family, is in the scan policy;
+- for a local check (patch and configuration checks), the scan logged in to
+  the host and authentication did not fail;
+- the finding was not seen after this scan;
+- you have the **Verify Findings** permission.
+
+It stays open when the finding is critical or known exploited, a leaked
+secret, last seen by a sensor of the platform, or reported by a person
+(pentest, bug bounty), when the organization's closing mode asks a person to
+confirm (it then waits in **Ready to close**), or when any file or row of the
+upload failed. A compliance check is never closed because it is missing: a
+**PASSED** result of the same check on the same host resolves the **FAILED**
+finding, while **WARNING** and **ERROR** do not.
+
+Files can be uploaded in any order. A finding's last seen time is the scan's
+time from the file and only moves forward; a file reopens a closed finding
+only when it saw it after the close; uploading the same file twice changes
+nothing.
+
+The import result shows what was closed and why the rest stayed open (host
+scan not finished, local checks not run, check not in the scan, seen later,
+file incomplete, permission, safety rule), for example "Authentication failed
+on 2 hosts: local findings there were not closed". Fix the scan credentials
+and scan again to close those.
 
 ### VEX documents
 
