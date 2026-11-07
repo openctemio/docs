@@ -479,6 +479,20 @@ and another reporting the CVE for the same package on the same asset give one
 finding. An advisory that leads to two CVEs fuses nothing. A network or package
 finding that names several CVEs is one finding per CVE.
 
+**Reported by N sources** (finding page). When several tools or channels report
+the same finding (the same CVE and port on a host from a sensor scan, a Nessus
+upload and a connector), each source keeps its own record: its title, text,
+severity and CVSS, its own check id, family, vendor severity and status, its
+fix type, scores, vulnerability IDs and the fields nothing maps to, with when it
+first and last reported the finding. A later source never overwrites an earlier
+one. The finding itself shows what the first reporting tool said (**Shown on the
+finding**); another tool only fills what that one left empty, so the finding no
+longer changes with whichever tool ran last. **Where the sources disagree**
+lists the fields with different values (for example vendor severity), one
+column per source, and each source's full record opens below it. The sensor is
+shown only to people who may read sensors. Findings stored before this existed
+get one record from an operator command; it is marked **From earlier records**.
+
 **Same issue in other tools** (finding page) lists findings that report one issue
 and are linked, not merged: two code scanners that flag overlapping lines of a
 file with the same weakness (CWE), one secret value found in several files or
