@@ -103,6 +103,37 @@ flowchart TD
 4. A mapped import is always partial coverage and records the source
    `mapped:<name>`.
 
+### Nessus files
+
+A `.nessus` file (Nessus v2 XML, from Nessus or Tenable.sc) gives one asset per
+scanned host and one finding per plugin or compliance result. A credentialed
+scan also describes the inside of each host, and the import keeps it:
+
+| In the file | In OpenCTEM |
+|---|---|
+| Plugin results | Findings on the host, with CVEs, scores and the plugin output as evidence |
+| Compliance results (audit files) | Compliance findings with the pass, fail or review result; the cross-framework reference list, the sub-checks of a multi-check result and a check error are kept in the finding's source data, and the description no longer repeats the reference, policy value and actual value |
+| `cpe-*` host properties | Technologies of the host; a CPE also makes the product software of the host, so vulnerability matching can find CVEs for it even when the file has none |
+| Software Enumeration (SSH) and Windows Installed Software Enumeration plugin output | Installed packages of that host (deb, rpm and apk packages with their distribution) |
+| `netstat-listen-*` host properties | Services of the host, marked **observed from: host** when only the host's own socket table shows them, or **network** when the scanner also reached the port. Sockets bound to the loopback address only are left out: nothing off the host can reach them |
+| `ssh-fingerprint` | The host's SSH host key fingerprints, in the asset properties |
+
+The scan policy (and the credentials in it), the login account names and any
+password the scanner echoed are never imported.
+
+**Export the file so it carries everything:**
+
+1. Scan with credentials and keep the local checks enabled (the patch and
+   software enumeration plugin families), so the file has the installed
+   packages, the listening ports and the local findings.
+2. Export the `.nessus` format with **all plugin details** (full plugin
+   attributes). An export without them has no CVEs, scores, descriptions or
+   solutions: the import result then shows "export lacks plugin details;
+   re-export with full plugin attributes" and the findings it creates have
+   only a title.
+3. Upload the file on **Import results**. The import result lists every
+   problem the importer met (a host without an address, a cut list).
+
 ### VEX documents
 
 A VEX statement (CycloneDX VEX, CSAF, OpenVEX) is matched to your findings by
