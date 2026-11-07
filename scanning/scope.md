@@ -204,11 +204,17 @@ under every scan approval setting.
 | Default tier of new entries | `t0`, `t1` | `t1` |
 | Longest intrusive (T2) entry (owners only) | 7, 30, 90, 365 days, permanent | 30 days |
 | Confirm long T2 entries every (owners only) | 30-180 days | 90 days |
+| Widest range one scan target may name | /8 to /24 | /16 |
 
 - **Add discovered names automatically**: a name discovery finds under a
   permanent scope entry is confirmed as yours. Off: such names stay
   *discovered* until a person confirms them (a scope entry still lets scans
   reach them).
+- **Widest range one scan target may name**: a /16 by default. Choose a
+  wider range (down to a /8) only to scan whole internal networks. Raising it
+  needs a recent sign-in, is recorded in the audit log at high severity and
+  every administrator is told; lowering it needs nothing more. Saved scans
+  with a range wider than the new limit are refused at their next run.
 - **Review discovered assets first**: off (the default), what discovery
   finds joins the inventory at once. On, names outside every permanent entry
   wait in **Attack surface > Discovery > Decisions** before they join the inventory.

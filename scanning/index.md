@@ -85,6 +85,17 @@ saved:
   the addresses the inventory already holds; the default for a new scan
   that can run it, and it needs a Host discovery step in a workflow),
   **Sweep the whole range**, or **Only the hosts already in the inventory**.
+- One range target holds at most a /16 (65,536 addresses; IPv6 /112) unless
+  your organization raised **Widest range one scan target may name** in
+  [Scope policy settings](scope.md#scope-policy-settings), up to a /8
+  (16,777,216 addresses; IPv6 /104). A range wider than a /16 is scanned only
+  by **Find live hosts first** in a workflow with a Host discovery step: each
+  run cuts it into /16 pieces covering only the addresses your scope entries
+  hold, minus exclusions, and only the live hosts go to the deeper steps.
+  New scan shows the address count, the number of /16 pieces and a rough
+  duration, and asks you to confirm. Through the API, send
+  `confirm_large_range: true` when you create or edit such a scan
+  (`?confirm_large_range=true` on import).
 
 **Quick scan** (the **Quick scan** button on the Scans page) runs one
 scanner against up to 1,000 targets now. Nothing is saved unless you choose
@@ -100,6 +111,8 @@ needs the `scans:write` and `scans:execute` permissions.
 | The scanner can scan at least one of the targets (names, addresses, ranges) | Refused (`NO_COMPATIBLE_TARGETS`) |
 | An address range can be cut into at most 4,096 pieces around its exclusions | Refused (`RANGE_TOO_FRAGMENTED`) |
 | **Find live hosts first** has a Host discovery step to run | Refused (`LIVENESS_NEEDS_HOST_DISCOVERY`) |
+| A range wider than a /16 is within the organization's widest range, runs **Find live hosts first** in a workflow with Host discovery, and was confirmed | Refused (the size reason, `LARGE_RANGE_NEEDS_LIVENESS`, `LIVENESS_NEEDS_HOST_DISCOVERY` or `LARGE_RANGE_UNCONFIRMED`) |
+| A range that holds any private address (for example `172.0.0.0/8`, which holds `172.16.0.0/12`) is scanned only inside a scan zone | Refused |
 | An active scope entry covers the target at the needed tier, or the target is an unclassified inventory asset that the scope policy lets get low-impact checks; no exclusion matches | Refused, or the target is skipped with a run warning ([Scope](scope.md)) |
 | The person (or the scan owner, for scheduled runs) may act on the asset | Refused or skipped |
 | A sensor that may run the tool is online | Refused (`NO_SENSOR_FOR_TOOL`) |
