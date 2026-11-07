@@ -235,7 +235,7 @@ kill_switch_file: /etc/openctem/STOP
 | `allow_custom_templates`, `allow_interactsh` | Platform-supplied custom templates (off unless `true`); out-of-band callbacks (from sensor v0.38.4 they follow the platform's job unless `allow_interactsh: false`; before, off unless `true`) |
 | `rate.max_rps`, `rate.max_job_seconds` | Request rate ceiling; longest job run |
 | `kill_switch`, `kill_switch_file` | Stop every job (while the file exists) |
-| `http.user_agent`, `http.allow_insecure_tls`, `http.headers` | A User-Agent for every tool; `false` refuses tools that skip TLS verification; up to 4 headers that mark this sensor's scan traffic (below) |
+| `http.user_agent`, `http.user_agents`, `http.allow_insecure_tls`, `http.headers` | A User-Agent for every tool, or a rotation list of up to 200 (one per target host and run; set one of the two); `false` refuses tools that skip TLS verification; up to 4 headers that mark this sensor's scan traffic (below) |
 | `managed.accept` | `false`: ignore any narrowing policy the platform manages for this sensor. Default `true` |
 
 `targets.allow: ["*"]` (sensor v0.35.0 or newer) allows every target the
