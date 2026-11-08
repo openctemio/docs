@@ -3,7 +3,7 @@
 # the latest GitHub releases (it opens a pull request when one changes); a
 # manual edit is overwritten by the next sync. scripts/check_versions.py
 # fails CI when a page hard-codes one of these releases instead.
-platform: v0.20.2     # openctemio/openctem
+platform: v0.20.3     # openctemio/openctem
 sensor: v0.37.2       # openctemio/sensor (v0.38+ needs a platform that serves sealed task secrets, after v0.20.2)
 sdk_go: v0.49.0       # openctemio/sdk-go
 ci: v0.4.0            # openctemio/ci
