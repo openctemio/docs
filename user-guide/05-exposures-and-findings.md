@@ -492,6 +492,8 @@ lists the fields with different values (for example vendor severity), one
 column per source, and each source's full record opens below it. The sensor is
 shown only to people who may read sensors. Findings stored before this existed
 get one record from an operator command; it is marked **From earlier records**.
+To stop trusting one of these sources, see
+[Stop using a source](stop-using-a-source.md).
 
 **Same issue in other tools** (finding page) lists findings that report one issue
 and are linked, not merged: two code scanners that flag overlapping lines of a
