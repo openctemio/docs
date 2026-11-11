@@ -104,8 +104,8 @@ An archived finding is resolved with the closure reason **Source retired**:
 - it is not counted as fixed (mean time to remediate and fixed counts ignore
   it);
 - it has no running SLA (its deadline is kept);
-- you can filter the findings list by the closure reason **Source retired**
-  to see them;
+- the finding shows the closure reason **Source retired**, so you can tell why
+  it was closed;
 - a person can reopen it, and it reopens on its own when a source you still use
   reports it again.
 
@@ -117,8 +117,26 @@ refusal is not silent. The receipt of each refused import or run counts every
 finding the report sent as **Refused, the source was stopped**, so the receipt
 still adds up. See **Import and run receipts** (`/findings/imports`).
 
-Scans that use a stopped sensor tool still run; their results are refused when
-they arrive.
+## Scans of a stopped sensor tool are not dispatched
+
+Stopping a sensor tool also stops the work, not only its results. When a sensor
+asks for work, it is not given a scan whose tool you stopped on that sensor,
+including scans queued before you stopped it.
+
+| The scan task | What happens |
+|---|---|
+| Not pinned to a sensor, and another sensor of your organization may run it | It waits for that other sensor. The task shows the placement reason `source_retired` |
+| Pinned to the stopped sensor, or no other sensor may run it | It fails at once with the code `SOURCE_RETIRED` |
+
+On a scan run, the step with that code is **skipped**, never failed: later
+steps that depend on it are skipped too, and the other steps still run. The run
+ends **partial**; if no step produced results it ends failed, with a message
+naming the step. The run page explains the code and links to **Sources you
+stopped using**. Use the source again, or run the step on another sensor that
+has the tool.
+
+A task the sensor had already taken before you stopped the source still runs;
+its results are refused when they arrive.
 
 ## Sources you stopped using
 
