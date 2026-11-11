@@ -42,10 +42,12 @@ Operations admin or above, with a confirmation:
    description.
 3. Click **Create organization**.
    - **A new person** (no account yet): an account is created and becomes the
-     owner. The owner receives a one-time link to set a password by email, or
-     shown to you when the platform [e-mail](settings.md#e-mail) is off.
+     owner. The owner receives a one-time link to set a password by email, or,
+     when the platform [e-mail](settings.md#e-mail) is off, the link is shown to
+     you once to hand over (see [Without e-mail](#without-e-mail)).
    - **Someone who already has an account**: the dialog says "This person already
-     has an account. They'll get an invitation to become the owner." The
+     has an account. They'll get an invitation to become the owner." (Without
+     e-mail it says "Not sent: this server cannot send email" instead.) The
      organization is created with no owner, and that person gets an
      [ownership invitation](#ownership-invitations). Use this to give one person
      several organizations.
@@ -61,8 +63,9 @@ an organization for an existing account (or change who is invited, below):
 - The organization waits with **no owner and no member**: nobody can open it
   until the invitation is accepted. Its limits and settings apply as for any new
   organization, and you manage it from the console as usual.
-- The person is emailed and sees **Organizations waiting for you** on **My
-  account** in the app (the email links to the same list). **Accept and become
+- The person is emailed (when e-mail is on). After signing in they see a
+  banner with **Review invitation** wherever they land, and **Organizations
+  waiting for you** on **My account**. **Accept and become
   owner** asks them to confirm their identity (password, and their authenticator
   code when they use two-factor authentication) and needs a verified email
   address; then they own the organization. **Decline** leaves it to you.
@@ -83,6 +86,26 @@ On the organization's **Members** tab, operations admins and above can:
 Each step needs a confirmation and is written to the admin activity log and to
 the organization's audit log. Once someone has accepted, or anyone is in the
 organization, the console can no longer invite an existing account into it.
+
+### Without e-mail
+
+When the platform cannot send e-mail, nothing is sent and the console says so.
+You hand things over yourself.
+
+- **An existing account**: the **Owners** card, the dialogs and the **Members**
+  tab show "Not sent: this server cannot send email" and the address where the
+  person accepts (`https://<your app>/ownership-invitations`) with a **Copy
+  address** button. That address is not a secret: only the invited account sees
+  the invitation there, after signing in. Ask the person to sign in and open it.
+  **Send again**, **Last sent** and **Sends left** are hidden. To give an
+  expired invitation seven more days, use **Change invitee** with the same
+  address.
+- **A new person**: the one-time set-password link is shown once when the owner
+  is created (24 hours, works once). If it is lost or expires, use **New setup
+  link** on the owner's row in the **Members** tab (operations admins and above,
+  with a reason and your authenticator code). It shows a new link once; the
+  earlier one stops working. It is offered only for an owner who has not set a
+  password and is in no other organization, and only while e-mail is off.
 
 ```mermaid
 flowchart LR

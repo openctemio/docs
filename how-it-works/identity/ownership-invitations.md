@@ -55,8 +55,10 @@ sequenceDiagram
    password when two-factor is off. A person who signs in only with single
    sign-on is asked to sign in again at their provider.
 4. A lock makes sure only one person can become the first owner.
-5. If the mail server is not configured, no email is sent. The invitation
-   still appears under **My account** after sign-in.
+5. If the mail server is not configured, no email is sent and the invitation
+   is recorded as not sent. After sign-in the person sees a banner with
+   **Review invitation**, and the invitation under **My account**. The
+   console shows the administrator the address to hand over.
 
 ### Transferring ownership
 
@@ -80,10 +82,10 @@ audited.
 
 | What happens | What you see | What to do |
 |---|---|---|
-| No mail server | No email arrives | Sign in. The invitation is under **My account**. |
+| No mail server | No email arrives | Sign in and follow **Review invitation** (or open **My account**). |
 | The email is not verified | "Verify your email address before accepting." | Verify the email, then accept. |
 | You sign in with single sign-on only | Step-up not available | Sign in again at your provider, then accept. |
-| The invitation expired | Expired | Ask the platform administrator to send it again. |
+| The invitation expired | Expired | Ask the platform administrator to send it again (without e-mail: to invite you again). |
 | Someone already became owner | Not found | Ask the owner for an invitation. |
 | The target of a transfer has no two-factor | Transfer refused | The target enrols first. |
 
