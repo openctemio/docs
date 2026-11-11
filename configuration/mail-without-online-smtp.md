@@ -151,7 +151,12 @@ the same policy: add your smarthost's address to `openctem_egress_allow`.
 Turn **Send e-mail** off in **Settings > E-mail**. OpenCTEM still works:
 
 - An administrator creating a user or an invitation gets the one-time
-  set-password link on screen once and passes it on.
+  set-password link on screen once and passes it on. In the platform console, a
+  new organization owner who lost that link gets a new one from **New setup
+  link** on the organization's **Members** tab.
+- An organization created for someone who already has an account is marked
+  "Not sent". The console shows the address where they accept, and the person
+  sees a **Review invitation** banner after signing in.
 - Password resets are done by an administrator, who issues a new one-time link.
 - Findings and alerts go to people through in-app notices, webhooks and the
   chat channels (Slack, Teams, Telegram) of **Notification channels**, none of
