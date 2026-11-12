@@ -64,7 +64,7 @@ never shares a process with the keys.
      -v connector-tenable-data:/var/lib/openctem \
      -v /etc/openctem/connectors:/etc/openctem/connectors:ro \
      -v /run/secrets/tenable-sc:/run/secrets/tenable-sc:ro \
-     ghcr.io/openctemio/connector-tenable:v0.2.0
+     ghcr.io/openctemio/connector-tenable:{{ site.data.versions.connector_tenable }}
    ```
 
 5. Approve the pairing in OpenCTEM (check the fingerprint in
@@ -95,7 +95,7 @@ and the licence guard are in the connector's
 ## Verify the image
 
 ```bash
-cosign verify ghcr.io/openctemio/connector-tenable:v0.2.0 \
+cosign verify ghcr.io/openctemio/connector-tenable:{{ site.data.versions.connector_tenable }} \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   --certificate-identity-regexp '^https://github\.com/openctemio/connector-tenable/\.github/workflows/images\.yml@refs/tags/v'
 ```

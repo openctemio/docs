@@ -17,6 +17,20 @@ with breaking changes has its own upgrade guide; read it first.
 
 ---
 
+## Every change of a release
+
+The pages below list every change of each recent platform release, upgrade notes first. They are
+generated from the release's changelog entries when this site is built, so they appear with the
+release.
+
+| Release | Changes since | Entries |
+|---|---|---|
+{% for r in site.data.releases %}| [{{ r.version }}]({{ r.page | relative_url }}) | {{ r.previous }} | {{ r.changes }} |
+{% endfor %}
+
+Which sensor, SDK, CI runner and chart releases go with the current platform release:
+[Versioning and releases](versioning.md#current-releases-and-compatibility).
+
 ## Release-specific guides
 
 | From | To | Guide |

@@ -209,6 +209,15 @@ organization only. Product names starting with `openctemio-` and products the pl
 are refused, so an organization cannot change a first-party release line. A custom product
 without a recorded line keeps only the SDK and protocol verdicts. Nothing is fetched.
 
+### Current releases and compatibility
+
+{% include compatibility.md %}
+
+This table is generated from the signed versions manifest each time the site is built
+(`https://get.openctem.io/releases/manifest.json`; until that address answers,
+`https://github.com/openctemio/openctem/releases/latest/download/openctem-versions.json`), so it
+follows every release without an edit here.
+
 ### Where to look up versions
 
 The current versions of each product are in

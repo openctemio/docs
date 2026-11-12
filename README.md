@@ -34,6 +34,8 @@ the site links to them.
 ## Preview locally
 
 ```bash
+python3 scripts/versions_manifest.py .        # current releases (add --offline without network)
+python3 scripts/release_pages.py --count 2 .  # optional: the release change pages
 docker run --rm -it -p 4000:4000 -v "$PWD":/site -w /site ruby:3.1 \
   bash -c "bundle install && bundle exec jekyll serve --host 0.0.0.0"
 ```
@@ -90,12 +92,33 @@ setting against the code, use `example.com` hosts and documentation IP ranges
 relative. The `docs-check` workflow runs a link check and rejects non-English text and
 private addresses.
 
-Never type a current release into a page: write `{{ site.data.versions.sensor }}`
-(or `platform`, `sdk_go`, `ci`, `chart`, `chart_app`). The values live in
-`_data/versions.yml`, which the `versions-sync` workflow updates from the latest
-GitHub releases; `scripts/check_versions.py` (in `docs-check`) fails on a
-hard-coded image tag, `SENSOR_VERSION=`, `git checkout vX.Y.Z` and the like, and on
-a key the data file does not have. History ("from v0.16.0") stays as written.
+### Releases are never written by hand
+
+A release needs no commit in this repository:
+
+- **Current versions.** Write `{{ site.data.versions.sensor }}` (or `platform`, `sdk_go`, `ci`,
+  `chart`, `chart_app`, `connector_tenable`, `min_sensor`, `min_sdk_go`, `min_ci`, and the
+  platform image digests `digest_openctem`, `digest_api`, `digest_web`, `digest_console`,
+  `digest_migrations`). The site build writes `_data/versions.yml` and `_data/manifest.json`
+  from the signed versions manifest the platform's release pipeline publishes
+  (`https://get.openctem.io/releases/manifest.json`; until that address answers, the same file as
+  a release asset, then a build from the public GitHub releases in the same schema). The build
+  verifies the signature with cosign and fails, leaving the published site as it was, when it
+  does not verify. These files are git-ignored; `scripts/versions-snapshot.json` serves only
+  `--offline` local builds and is refreshed with `--write-snapshot`, never edited.
+- **Compatibility.** `{% include compatibility.md %}` prints the current releases and which
+  platform each component needs, from the same manifest.
+- **What changed.** `scripts/release_pages.py` writes `operations/releases/<version>.md` for
+  the recent releases from the changelog entries of each release tag (upgrade notes first).
+  The hand-written per-release guides in `operations/upgrade.md` explain what needs judgement.
+- **When.** The site rebuilds on every push, every 6 hours, and when the platform's Release
+  Feed run sends `release-published`. `versions-monitor` fails and opens a `stale-versions`
+  issue when the published site lags the latest release for more than a day.
+
+`scripts/check_versions.py` (in `docs-check`) fails on a hard-coded image tag,
+`SENSOR_VERSION=`, `git checkout vX.Y.Z`, a Helm `--version`, an sdk-go, CI runner or connector
+release and the like, and on a key the data file does not have. History ("from v0.16.0")
+stays as written; a line that must pin on purpose carries `docs-check: pinned-version`.
 
 Report security vulnerabilities to security@openctem.io, not in issues. Other
 questions: info@openctem.io.

@@ -14,11 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      # The release data the pages print is generated at build time from the
+      # signed versions manifest (never committed).
+      - name: Current releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/versions_manifest.py --verify .
       - name: Check Markdown
         run: python3 scripts/docs_check.py .
 
-      # Install guides print releases from _data/versions.yml (kept current
-      # by the versions-sync workflow), never a hard-coded one.
+      # Install guides print releases from the generated _data/versions.yml,
+      # never a hard-coded one.
       - name: Releases from the data file
         run: python3 scripts/check_versions.py .
 
@@ -51,6 +58,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+      # The release data the pages print is generated at build time from the
+      # signed versions manifest (never committed).
+      - name: Current releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/versions_manifest.py --verify .
+      - name: Release change pages
+        run: python3 scripts/release_pages.py --count 2 .
       - name: Build with Jekyll (same action as the Pages deploy)
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13
         with:

@@ -1,0 +1,52 @@
+name: Versions monitor
+
+# Fails, and opens (or updates) an issue labelled "stale-versions", when the
+# PUBLISHED site (https://docs.openctem.io/versions.json, written by the site
+# build) names an older platform, sensor or chart release than the latest one
+# for more than a day. The site rebuilds every 6 hours and on every release,
+# so a lag of a day means the build is failing (a manifest that does not
+# verify, a broken page) and nobody noticed.
+
+on:
+  schedule:
+    - cron: "11 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: versions-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Compare the published site with the latest releases
+        id: compare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/versions_monitor.py https://docs.openctem.io/versions.json --max-lag-hours 24 --report report.md
+      - name: Open or update the stale-versions issue
+        if: failure() && steps.compare.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "docs.openctem.io lags the latest releases by more than a day (run: $RUN_URL)."
+            echo "Check the latest \"Deploy to GitHub Pages\" run."
+            echo
+            cat report.md
+          } > body.md
+          gh label create stale-versions --color B60205 --description "docs.openctem.io lags a release" 2>/dev/null || true
+          number=$(gh issue list --label stale-versions --state open --json number --jq '.[0].number')
+          if [ -n "$number" ]; then
+            gh issue comment "$number" --body-file body.md
+          else
+            gh issue create --title "docs.openctem.io lags the latest release" --label stale-versions --body-file body.md
+          fi
