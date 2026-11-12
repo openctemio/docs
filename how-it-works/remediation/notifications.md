@@ -40,7 +40,7 @@ sequenceDiagram
     W->>Q: take up to 50 due events (one worker per event)
   end
   W->>W: first pass: connected channels whose severity<br/>and event filters match, private program rule
-  W->>W: message: minimal unless the channel includes details,<br/>link back with the organization named
+  W->>W: message at the channel's detail level,<br/>link back with the organization named
   W->>C: send (30 s limit, no redirects, address checks)
   alt delivered
     C-->>W: 2xx
@@ -65,9 +65,11 @@ sequenceDiagram
    programs list goes only to the channels of those programs, and private
    program names are removed for every other channel. A channel added later
    does not get the event.
-4. **The message.** With **Include details in notifications** off (the
-   default), a channel gets only the event type, its severity and a link
-   back. On, it also gets the title and body. The channel's message
+4. **The message.** The channel's detail level decides what it gets:
+   **Minimal** only the headline, severity, organization and a link back;
+   **Standard** (the default) also the asset, what it is, why it matters
+   and the next step; **Full** also the description
+   ([Detail levels](../../configuration/notifications.md#detail-levels)). The channel's message
    template is applied after that, so it can only use what the channel may
    receive. Text from scanned systems is cleaned and each channel escapes
    its own markup.
@@ -150,8 +152,9 @@ flowchart LR
   saved and on every connection: loopback, private, link-local and cloud
   metadata addresses are refused, also after a DNS change. Redirects are
   never followed.
-- **Minimal by default.** A new channel sends no finding title, asset name
-  or body until a manager turns details on.
+- **Bounded by the detail level.** A channel sends no description below
+  **Full** and no asset or finding facts at **Minimal**; secrets, evidence
+  and internal IDs never leave at any level.
 - **Organization isolation.** An event is delivered only to its own
   organization's channels. The queue, the history and redelivery need the
   Manage integrations permission (`integrations:manage`), because the queue

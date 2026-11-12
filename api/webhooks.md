@@ -43,9 +43,11 @@ Delivery rules that apply to every channel:
 - **Outbound address checks.** Webhook and HEC URLs are checked when the channel is saved and again
   when connecting: loopback, link-local, private and cloud-metadata addresses are refused, even if
   DNS changes later.
-- **Minimal by default.** A channel whose **Include details in notifications** switch is off (the default for a new
-  channel) sends only the event type, severity and a link back to OpenCTEM: no finding title, asset
-  name or body. Turn it on per channel to send the full message.
+- **Detail level per channel.** `detail_level` (`minimal`, `standard`, the default, or `full`) decides the
+  content: minimal sends only the headline, severity, organization and a link back; standard adds the
+  asset, what it is, why it matters and the next step; full adds the description. The payload's
+  `notification` object (schema `openctem.notification/v1`) carries the same content
+  ([Detail levels](../configuration/notifications.md#detail-levels)).
 - **Untrusted text is cleaned.** Titles and bodies often contain text a scan target controls.
   Control, bidirectional-control and zero-width characters are removed, lengths are capped (title
   300 characters, field 2,000, body 20,000) and each channel escapes its own markup.

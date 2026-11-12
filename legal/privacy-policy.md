@@ -123,7 +123,7 @@ When an administrator configures integrations, data may be shared with:
 | Integration | Data Shared | Purpose |
 |-------------|-------------|---------|
 | Jira | Finding title, severity, description | Ticket creation |
-| Slack / Teams / Telegram | Event type, severity and a link by default; finding and asset details only for channels where an administrator turned on **Include details in notifications** | Notifications |
+| Slack / Teams / Telegram | Headline, severity and a link; asset and finding facts at the channel's standard or full detail level, the description only at full | Notifications |
 | GitHub / GitLab | Repository metadata, scan status | SCM sync |
 | Email (SMTP) | Alert content, invitation and password links | Notifications, invitations |
 | AI providers (Anthropic Claude, OpenAI, Google Gemini) | Finding details | AI-assisted triage, if enabled |

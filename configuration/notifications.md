@@ -26,7 +26,7 @@ Users also get in-app notifications in the console; those need no setup.
 
 1. In the console, open **Settings**, **Integrations**, **Notification channels**.
 2. Add a channel, pick the provider, and fill in its settings (below).
-3. Choose the **event types** and **severities** the channel receives, and decide whether to turn on **Include details in notifications** (see [Minimal messages by default](#minimal-messages-by-default)).
+3. Choose the **event types** and **severities** the channel receives, and its **detail level** (see [Detail levels](#detail-levels)).
 4. Use **Send test** to check delivery (tests are limited to one every 30
    seconds per channel).
 
@@ -51,17 +51,33 @@ mode: implicit TLS (usually port 465) or STARTTLS (usually port 587). A
 connected Email channel is also used for the organization's account email
 (invitations, password resets) instead of the [platform SMTP](email.md).
 
-### Minimal messages by default
+### Detail levels
 
-A new channel is created with **Include details in notifications** off. A
-message then carries only the event type, the severity and a link back to the
-object in the console, with no finding title or description and no asset name,
-so Slack, Teams, Telegram, the mail provider or a webhook receiver learns
-nothing about the finding. Turn the option on, per channel, to send finding
-titles and descriptions as well. The setting is applied before the channel's
-message template, so a template can only use what the channel may send. The
-API field is `include_details`. Channels created before this default keep
-the value they had; open the channel and check it.
+From v0.21.0 each channel has a **detail level** that decides what leaves the platform (API field
+`detail_level`, which replaces `include_details`):
+
+| Content | Minimal | Standard | Full |
+|---|---|---|---|
+| Headline, severity, organization, the action link | yes | yes | yes |
+| Asset name and type; what it is (title, CVE, exposure class), KEV, EPSS; why it matters; the next step | | yes | yes |
+| Description (at most 600 characters) | | | yes |
+| Secrets, evidence, requests and responses, credentials, owner e-mail, internal IDs | never | never | never |
+
+New channels are **Standard**. Channels created before v0.21.0 keep what they sent: those with
+details on became **Full**, those with details off became **Minimal**; switch a channel to
+**Standard** to add the asset, the reason and the next step. The level is applied before the
+channel's message template, so a template can only use what the channel may send.
+
+Every channel (Slack, Teams, Telegram, e-mail, webhook, Splunk HEC) builds its message from the
+same card: the headline once, the severity once, the asset, what it is, why it matters, the next
+step, the organization and one action button. Messages are written in the organization's default
+language (English or Vietnamese).
+
+**Message templates** use a closed set of variables: `title`, `severity`, `asset`, `asset_type`,
+`what`, `why`, `next_step`, `organization`, `count`, `description`. A template with any other
+variable is refused on save (400), and a stored template that no longer validates falls back to
+the default layout. The channel dialog previews a template live
+(`POST /api/v1/integrations/notifications/preview`).
 
 ### Webhook payload
 
