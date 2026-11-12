@@ -55,6 +55,14 @@ sensor reads them from a local mirror or directory. The settings are on
 [Network](../sensors/network.md#scanner-content-without-internet-access) and in
 [Content and intelligence feeds](feeds.md).
 
+The `asn` and `rdap` lookups download public data sets: the IPtoASN routing dataset and the IANA
+RDAP bootstrap files. From sensor v0.41.0 point them at an https mirror on the sensor host with
+[`SENSOR_ASN_DATASET_URL`](../sensors/settings.md#SENSOR_ASN_DATASET_URL) and
+[`SENSOR_RDAP_BOOTSTRAP_URL`](../sensors/settings.md#SENSOR_RDAP_BOOTSTRAP_URL), and set
+[`SENSOR_ASN_RDAP_FALLBACK=off`](../sensors/settings.md#SENSOR_ASN_RDAP_FALLBACK) so the `asn`
+lookup never asks the regional registries directly. The platform cannot set these. The sensor's
+config check `lookup.asn_dataset` reports the dataset's age and last refresh.
+
 ## Network needs
 
 - To the platform: the address the sensor was paired with. It reaches the

@@ -118,6 +118,9 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_CT_CERTSPOTTER_URL"></span>`SENSOR_CT_CERTSPOTTER_URL` | string |  |  |  | Base URL of the Cert Spotter API the CT lookups fall back to (https), or off for no fallback. Default: https://api.certspotter.com. |
 | <span id="SENSOR_CT_CERTSPOTTER_KEY"></span>`SENSOR_CT_CERTSPOTTER_KEY` | string |  |  | yes | Cert Spotter API key for the CT lookups' fallback, sent only to the Cert Spotter URL. Unset: the free unauthenticated quota. |
 | <span id="SENSOR_CT_CERTSPOTTER_KEY_FILE"></span>`SENSOR_CT_CERTSPOTTER_KEY_FILE` | path |  |  |  | File holding the Cert Spotter API key (instead of SENSOR_CT_CERTSPOTTER_KEY). |
+| <span id="SENSOR_ASN_DATASET_URL"></span>`SENSOR_ASN_DATASET_URL` | string |  | `https://iptoasn.com/data/ip2asn-combined.tsv.gz` |  | Mirror of the routing dataset the `asn` lookup downloads (https). Set it on a network that reaches the internet only through a mirror; the platform and jobs cannot set it. A download is kept only when it is a complete gzip file with at least 100,000 valid rows; a failed refresh keeps the cached copy. The config check `lookup.asn_dataset` reports its age and source. Since sensor v0.41.0. |
+| <span id="SENSOR_RDAP_BOOTSTRAP_URL"></span>`SENSOR_RDAP_BOOTSTRAP_URL` | string |  | `https://data.iana.org/rdap/` |  | Mirror directory of the IANA RDAP bootstrap files (`dns.json`, `ipv4.json`, `ipv6.json`) for the `rdap` lookup and the `asn` fallback (https; the file names are appended). Host only. Since sensor v0.41.0. |
+| <span id="SENSOR_ASN_RDAP_FALLBACK"></span>`SENSOR_ASN_RDAP_FALLBACK` | enum |  | on |  | `off` stops the `asn` lookup from asking the regional registries (RDAP, one request per address) when the routing dataset is unavailable and no cached copy exists; the task then ends with a retryable `source_unavailable` error. Host only. Since sensor v0.41.0. |
 | <span id="SENSOR_OUTBOX"></span>`SENSOR_OUTBOX` | enum |  |  |  | The durable results outbox (on for a daemon). |
 | <span id="SENSOR_OUTBOX_DIR"></span>`SENSOR_OUTBOX_DIR` | path |  |  |  | Outbox directory. Mount a persistent volume. |
 | <span id="SENSOR_OUTBOX_MAX_BYTES"></span>`SENSOR_OUTBOX_MAX_BYTES` | bytes |  | `1GiB` |  | Outbox size limit. |
@@ -155,6 +158,10 @@ removed name is set, and its error names the replacement:
 | <span id="SENSOR_NUCLEI_MAX_RATE_LIMIT"></span>`SENSOR_NUCLEI_MAX_RATE_LIMIT` | int |  |  |  | Cap on nuclei's requests per second. |
 | <span id="SENSOR_NUCLEI_MAX_CONCURRENCY"></span>`SENSOR_NUCLEI_MAX_CONCURRENCY` | int |  |  |  | Cap on nuclei's template concurrency. |
 | <span id="SENSOR_NUCLEI_MAX_BULK_SIZE"></span>`SENSOR_NUCLEI_MAX_BULK_SIZE` | int |  |  |  | Cap on nuclei's hosts per template. |
+| <span id="SENSOR_OOB_SERVER"></span>`SENSOR_OOB_SERVER` | string |  |  |  | This sensor's interaction server for nuclei's out-of-band callbacks: `https://<name>` or `<name>` (no port or path: the name is also the callback zone). Unset: no scan uses callbacks, whatever the job asks, and the result says why (`oob.state`); public interaction servers are never used. Since sensor v0.39.0. |
+| <span id="SENSOR_OOB_TOKEN"></span>`SENSOR_OOB_TOKEN` | string |  |  | yes | The interaction server's token. Only the task's forwarder sends it, so a sensor that does not confine its tools' network runs callback jobs without callbacks. |
+| <span id="SENSOR_OOB_ALLOW_PRIVATE"></span>`SENSOR_OOB_ALLOW_PRIVATE` | bool |  | `false` |  | `true` lets the interaction server resolve to private addresses (a server inside your network). |
+| <span id="SENSOR_OOB_CA_FILE"></span>`SENSOR_OOB_CA_FILE` | path |  |  |  | PEM roots that verify the interaction server's certificate (default: the system roots). |
 | <span id="TRIVY_CACHE_DIR"></span>`TRIVY_CACHE_DIR` | path |  |  |  | trivy cache directory (needs a writable path on a read-only root filesystem). |
 | <span id="TRIVY_USERNAME"></span>`TRIVY_USERNAME` | string |  |  |  | Private registry user for trivy image scans. |
 | <span id="TRIVY_PASSWORD"></span>`TRIVY_PASSWORD` | string |  |  | yes | Private registry password for trivy image scans. |

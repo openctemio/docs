@@ -47,6 +47,17 @@ code scanning on a daemon you can also use a per-tool image such as
 `ghcr.io/openctemio/sensor:{{ site.data.versions.sensor }}-opengrep` (or `-semgrep`). See
 [What runs inside](how-it-works.md#what-runs-inside).
 
+For web screenshots, `:{{ site.data.versions.sensor }}-browser` (from v0.40.0) adds the `webshot` tool
+(capability `capture.screenshot@1`, tier T1): headless Chromium loads each web origin of a job
+and the sensor reports the picture with status, title, server and final URL as the origin's
+web evidence. The browser runs only in the full task sandbox (the image sets
+`SENSOR_SANDBOX=required` and `SENSOR_SANDBOX_NETWORK=required`, so its host needs user
+namespaces and the sensor's seccomp profile): GET and HEAD only, the job's targets and web scope
+only, a request budget per page, no WebSocket, WebRTC, web workers or downloads, and page time,
+pixel and size caps. Its settings are `page_timeout`, `full_page`, `max_requests` (per scan) and
+`max_image_kb` (per sensor). The platform asks for screenshots only while the organization has
+web screenshots turned on. The default image carries no browser.
+
 Release images are signed with cosign (keyless). Verify before you run. The
 signatures use the Sigstore bundle format: use cosign v3 (cosign v2.4 and
 older report `no signatures found`):
