@@ -140,6 +140,22 @@ scanning switch, so an administrator can enroll a platform sensor for work the
 platform itself needs, such as relaying the platform's signed feeds, passive
 discovery or the AI worker.
 
+**Certificate Transparency lookups.** A platform sensor with a pinned
+job-signing key also answers the platform's Certificate Transparency lookups
+by default (`lookup.ct@1`, needs a sensor release with CT lookups): for one
+organization's root domain at a time, it asks crt.sh, then Cert Spotter,
+which certificates name it, and sends back the certificate records. The
+platform makes no CT request itself and turns CT monitoring on only while such
+a sensor is connected. Each lookup is signed for that organization and that
+sensor; an organization's sensor is never asked. The platform keeps only names
+under the domain it asked about. `SENSOR_CT_LOOKUP=0` turns it off;
+`SENSOR_CT_CRTSH_URL`, `SENSOR_CT_CERTSPOTTER_URL` and
+`SENSOR_CT_CERTSPOTTER_KEY` set the sources (see the
+[settings reference](settings.md#SENSOR_CT_LOOKUP)). crt.sh publishes no terms
+of use and Cert Spotter's unauthenticated tier is for personal use: the
+operator of the platform sensor answers for the sources' terms, and a
+commercial service gives its sensors a Cert Spotter key.
+
 **Feed relay.** A platform sensor with a pinned job-signing key relays the
 platform's signed feeds (the vulnerability feed with its KEV and EPSS data, and
 the release feed of the version check) by default, so a platform with no
