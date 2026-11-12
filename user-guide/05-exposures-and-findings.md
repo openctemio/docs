@@ -342,6 +342,35 @@ approval and skipped. With the AI triage module on, the latest AI triage of the
 finding shows as an advisory card, "AI suggestion, advisory"; **Apply
 suggestion** only fills the false-positive request form, and you send it.
 
+### Practices: vulnerabilities and compliance
+
+From v0.21.0 every finding has a **practice**, the program that triages it, derived when it is
+written from its type, source, tool and asset: `aspm` (code and dependencies), `infra`,
+`external`, `cloud`, `compliance`, `offensive`, `identity`, `runtime` or `other`. `compliance`
+means exactly a benchmark check result.
+
+- A switch above the list picks the practice: **Vulnerabilities** (the default: every practice
+  except compliance), **Compliance**, each other practice that holds findings, and **All**, with
+  your counts. The choice is part of the URL and of saved views. Filters, groups, export, the
+  query language and the AI assistant tool `list_findings` take `practice` (and `practice_not`)
+  too.
+- **Compliance results are control states.** Each benchmark check result is stored as the latest
+  state of its control on its asset, with its evidence and a history of every change. Only a
+  failed result (and a warning, which needs a person) is a finding; passed, not applicable and
+  error results are states only. The Compliance practice shows a **Benchmarks** section: the pass
+  rate per benchmark, the failing assets and when each was last checked; a control opens the
+  assets it was checked on.
+- **Priority of a compliance finding** comes from the benchmark level (level 1 or unknown:
+  medium; level 2 or 3: low; a warning: low), raised one band on a crown jewel, a critical asset
+  or in production, and is never P0 or P1 by itself; exploitation signals do not apply. Filter on
+  `compliance_level` and `compliance_result`.
+- **Their own SLA.** SLA policies apply either to vulnerabilities or to compliance (Settings >
+  SLA policies); compliance findings follow only compliance policies (platform defaults P1 30,
+  P2 90, P3 180 days) and leave vulnerability dashboard figures.
+- **Existing installations:** findings stored before v0.21.0 read as practice `other` and keep
+  their old compliance severity until an operator runs the commands in the upgrade guide
+  ([From v0.20 to v0.21](../operations/upgrade.md)).
+
 ## A single finding
 
 Click a row to open the **drawer**; click **Open full details** (or press

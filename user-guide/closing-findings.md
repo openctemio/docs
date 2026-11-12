@@ -208,6 +208,19 @@ scope". These closes never count as fixed, and lifting the exclusion reopens
 the findings. A **Do not scan** exclusion leaves findings open. See
 [Exclusions](../scanning/scope.md#exclusions).
 
+From v0.21.0:
+
+- **No SLA.** Such a finding leaves the SLA (`sla_status` `not_applicable`) instead of counting as
+  met or missed, and it is left out of MTTR, fix rate, program, CTEM cycle and risk snapshot
+  figures. Re-including the asset reopens it with the deadline it had.
+- **Critical findings need a confirmation.** An exclusion that would close open critical, P0 or
+  known exploited findings is refused (`409 EXCLUSION_CLOSES_CRITICAL_FINDINGS`, listing them)
+  until you confirm; both out-of-scope dialogs ask for it.
+- **Tickets.** A linked Jira issue gets a comment and is not moved to done; a linked GitHub issue
+  stays open.
+- **Audit.** Every such close and reopen is audited (`finding.status_changed`) with the exclusion
+  that caused it.
+
 ## Ready to close
 
 **Findings > Ready to close** lists the closes that wait for a person, with
