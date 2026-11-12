@@ -87,8 +87,9 @@ Transparency also watches your domain assets and verified domains.
 
 ## Certificate Transparency
 
-The platform queries crt.sh (with Cert Spotter as a fallback) for the names
-it watches and raises:
+A platform sensor queries crt.sh (with Cert Spotter as a fallback) for the
+names the platform watches; the platform makes no CT request itself, and
+monitoring runs only while such a sensor is connected. It raises:
 
 | Exposure | When |
 |---|---|
@@ -170,8 +171,9 @@ last ran, its switch and its cadence.
   `POST /api/v1/easm/sweeps`.
 
 Platform operators set the defaults: `CERT_MONITOR_ENABLED`,
-`CERT_MONITOR_INTERVAL`, `CERT_MONITOR_FEED_URL`,
-`CERT_MONITOR_CERTSPOTTER_URL` (`off` disables the fallback),
+`CERT_MONITOR_INTERVAL`, `CERT_MONITOR_MAX_DOMAINS_PER_RUN`; the CT sources
+are the platform sensor's settings (`SENSOR_CT_CRTSH_URL`,
+`SENSOR_CT_CERTSPOTTER_URL`, `SENSOR_CT_CERTSPOTTER_KEY`),
 `EASM_DNS_CHECKS_ENABLED`, `EASM_DNS_CHECK_INTERVAL`, `EASM_DNS_RESOLVER`,
 `EASM_DNS_MAX_NAMES_PER_RUN` (default 500 names per organization per run) and
 `EASM_DNS_QPS` (default 20 queries per second in all).
