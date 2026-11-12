@@ -174,6 +174,15 @@ sequenceDiagram
 - **No overlap.** A scheduled occurrence is skipped while the scan's
   previous run is still active. Occurrences missed while the platform was
   down are skipped, not replayed.
+- **Retries never double the work.** An automatic retry (Max retries) is
+  skipped while the scan has an active run, and a failed run is not retried
+  once a newer run of the scan has started: that run covers the same work.
+  A skipped retry is written to the audit log.
+- **Ended runs leave no work behind.** When a run ends (completed, failed,
+  timed out, canceled), its work no sensor has picked up yet is canceled, and
+  no sensor can pick it up later. A sensor that was offline or faulty while
+  occurrences came round gets only the work of the runs still open when it
+  comes back, never the same scan twice.
 - **Scan windows.** Policies under **Settings > Scanning > Scan windows**
   say when targets may be scanned (allow windows) or never (blackouts). A
   scheduled run none of whose targets may run now is moved to the next
