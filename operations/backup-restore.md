@@ -43,8 +43,8 @@ you can, keep the secrets separate from the database dumps: a dump together with
 
 ## Back up (Docker Compose)
 
-`server/deploy/backup.sh` backs up a running Compose stack. Run it in
-`server/deploy` of your checkout:
+`{{ site.data.versions.backend_dir }}/deploy/backup.sh` backs up a running Compose stack. Run it in
+`{{ site.data.versions.backend_dir }}/deploy` of your checkout:
 
 ```bash
 ./backup.sh            # back up now
@@ -94,7 +94,7 @@ daily run with cron or a systemd timer, for example:
 
 ```bash
 # /etc/cron.d/openctem-backup
-15 2 * * * root METRICS_TEXTFILE_DIR=/var/lib/node_exporter/textfile /opt/openctem/api/deploy/backup.sh >> /var/log/openctem-backup.log 2>&1
+15 2 * * * root METRICS_TEXTFILE_DIR=/var/lib/node_exporter/textfile /opt/openctem/{{ site.data.versions.backend_dir }}/deploy/backup.sh >> /var/log/openctem-backup.log 2>&1
 ```
 
 `./backup.sh verify [<dir>]` restores the newest backup (or the one given) into
@@ -167,7 +167,7 @@ off by default, covers the database only (keep running `backup.sh` for the volum
 and enabling archiving restarts PostgreSQL once.
 
 ```bash
-cd server/deploy
+cd {{ site.data.versions.backend_dir }}/deploy
 install -d -m 0700 backup-secrets
 openssl rand -base64 32 | tr -d '\n' > backup-secrets/cipher_pass   # then copy it off this host
 docker compose -f docker-compose.yml -f docker-compose.backup.yml up -d --build

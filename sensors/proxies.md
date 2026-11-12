@@ -121,11 +121,12 @@ that job, over its authenticated connection, and passes them to its own scan
 forwarder. The scan tools never see them.
 
 {: .warning }
-Sensor v0.38.0 and later fetch these credentials only through sealed task
-secrets, which no platform release up to v0.20.2 serves. Such a sensor refuses
-a job whose pool needs credentials; keep credentialed pools on sensor v0.37.2
-until your platform serves task secrets. Pools without credentials are not
-affected.
+From platform v0.21.0 these credentials reach a sensor only as a sealed task
+secret, for sensor v0.38.0 and later that are paired with a key and trusted;
+the earlier route is removed. A sensor older than v0.38.0, a bearer-key sensor or
+an untrusted one gets no pool logins and refuses a job whose pool needs them.
+Pools without credentials are not affected
+([Proxy credentials](../how-it-works/secrets/proxy-credentials.md)).
 
 ## More pools and the per-sensor Network path
 

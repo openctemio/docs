@@ -28,17 +28,17 @@ answers only your administrators' networks.
 
 ## 1. Get the deployment files
 
-The files live in `server/deploy/` of the
-[openctem repository](https://github.com/openctemio/openctem/tree/develop/server/deploy).
-Check out the release you deploy, so the files match the images. Releases up to
-v0.20.x keep them in `api/deploy/` (the backend directory was renamed to `server/`
-after v0.20.x; the files themselves did not change):
+The files live in `{{ site.data.versions.backend_dir }}/deploy/` of the
+[openctem repository](https://github.com/openctemio/openctem) at the release you deploy.
+Check out that release, so the files match the images. The backend directory is `api/` in
+releases up to v0.21.x and `server/` from v0.22.0 (the files themselves did not change); the
+commands on this page name the one of {{ site.data.versions.platform }}:
 
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem
 git checkout {{ site.data.versions.platform }}         # the release you deploy
-cd server/deploy                                         # api/deploy up to v0.20.x
+cd {{ site.data.versions.backend_dir }}/deploy
 ```
 
 | File | Purpose |
@@ -92,7 +92,7 @@ OPENCTEM_TLS_MODE=internal                  # internal | acme | files | http
 
 `OPENCTEM_VERSION` is the release every platform image runs. `./setup.sh`
 writes it into `.env`: from `--version vX.Y.Z`, else from the release you
-checked out (`server/deploy/VERSION` in a release tag's checkout, else the tag). From
+checked out (`{{ site.data.versions.backend_dir }}/deploy/VERSION` in a release tag's checkout, else the tag). From
 a branch checkout it stops and asks for `--version`. When you write `.env` by
 hand, set `OPENCTEM_VERSION={{ site.data.versions.platform }}` yourself: since v0.16.0 the compose file
 carries no default. The image names default to the current ones

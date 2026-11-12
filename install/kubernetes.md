@@ -37,16 +37,21 @@ The chart is released separately from the platform: a platform release is
 followed by a chart whose `appVersion` is that release, and
 `versions.yaml` in the openctem repository (`chart.version`) names the newest
 chart that targets the platform release ([Versioning](../operations/versioning.md#sensors-sdk-and-helm-chart)).
-The newest chart is **{{ site.data.versions.chart }}**, whose `appVersion` is **{{ site.data.versions.chart_app }}**: the chart
-release workflow did not publish a chart for the later platform releases, so the
-newest platform release ({{ site.data.versions.platform }}) has no chart of its own yet. Check
-`helm search repo openctem/openctem --versions` (and the
+The newest chart is **{{ site.data.versions.chart }}**, whose `appVersion` is **{{ site.data.versions.chart_app }}**.
+{% if site.data.versions.chart_app == site.data.versions.platform -%}
+It installs the newest platform release, so no image tag override is needed: drop
+any tag overrides an earlier install set. Check `helm search repo openctem/openctem --versions`
+(and the [chart releases](https://github.com/openctemio/helm-charts/releases)) before you install.
+{%- else -%}
+The newest platform release ({{ site.data.versions.platform }}) has no chart of its own yet.
+Check `helm search repo openctem/openctem --versions` (and the
 [chart releases](https://github.com/openctemio/helm-charts/releases)) before you
 install. To run {{ site.data.versions.platform }} with chart {{ site.data.versions.chart }}, set the image tags of every platform
-component to {{ site.data.versions.platform }} in your values file, as the example below does. That
+component to {{ site.data.versions.platform }} in your values file. That
 combination is what you choose to run: the chart's own tests cover its
 `appVersion`. Once a chart whose `appVersion` is the release you want is
-published, drop the tag overrides. Chart {{ site.data.versions.chart }} has the platform console as its
+published, drop the tag overrides.
+{%- endif %} Chart {{ site.data.versions.chart }} has the platform console as its
 own service, the console's database role (`database.console`), `api.signupMode`,
 `api.fingerprint` (the `FINGERPRINT_KEY`) and the job signer.
 
@@ -121,7 +126,7 @@ Back up `openctem-api-secrets` and `openctem-fingerprint` outside the cluster.
 api:
   appEnv: production
   image:
-    tag: {{ site.data.versions.platform }}          # until a chart for {{ site.data.versions.platform }} is published
+    tag: {{ site.data.versions.platform }}          # pins the release; must not differ from the chart appVersion ({{ site.data.versions.chart_app }}) unless you choose to
   fingerprint:
     existingSecret: openctem-fingerprint
     keyRef: FINGERPRINT_KEY

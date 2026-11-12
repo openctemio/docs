@@ -39,7 +39,7 @@ all.
 
 ## Quickstart: a working sensor in five minutes
 
-This quick start is written for platform v0.9.6 or later with sensor {{ site.data.versions.sensor }}. It
+This quick start is written for platform {{ site.data.versions.platform }} with sensor {{ site.data.versions.sensor }}{% if site.data.versions.sensor_requires_platform != "" %} (which needs platform {{ site.data.versions.sensor_requires_platform }} or later){% endif %}. It
 installs a hardened, confined sensor, pairs it, checks it and runs a first
 scan. The sensor needs no mode or tool flags: it runs as the daemon that takes
 the platform's commands and enables every tool in the image that works.

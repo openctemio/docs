@@ -47,6 +47,9 @@ jobs:
       - name: Release change pages
         run: python3 scripts/release_pages.py .
 
+      - name: Environment variable tables of the release
+        run: python3 scripts/env_reference.py .
+
       - name: Pages take every release from the generated data
         run: python3 scripts/check_versions.py .
 

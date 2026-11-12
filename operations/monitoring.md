@@ -138,14 +138,14 @@ dashboard. It publishes nothing on a public interface: the UIs bind to
 under 1 GB of memory.
 
 It joins the OpenCTEM Compose network to scrape the API. For the production
-stack in `server/deploy` (project `openctem`), add the overlay
+stack in `{{ site.data.versions.backend_dir }}/deploy` (project `openctem`), add the overlay
 `deploy/observability/docker-compose.openctem.yml`: it sets that stack's
 network (`openctem_openctem`), the `web` service, PostgreSQL with
 `sslmode=require`, and Redis over TLS (`rediss://`) verified against the stack's
 datastore CA, mounted read-only from the `openctem_datastore-tls` volume. Every
 value can still be overridden from the environment.
 
-Set in the `.env` you pass to it (the stack's own `server/deploy/.env` already holds
+Set in the `.env` you pass to it (the stack's own `{{ site.data.versions.backend_dir }}/deploy/.env` already holds
 `METRICS_TOKEN` and `REDIS_PASSWORD`):
 
 ```bash
@@ -156,7 +156,7 @@ OBS_PG_MONITOR_PASSWORD=...                    # openssl rand -hex 24
 
 plus the receivers (`ALERT_TELEGRAM_BOT_TOKEN` and `ALERT_TELEGRAM_CHAT_ID`, or
 `ALERT_SLACK_WEBHOOK_URL`). Create the exporter's PostgreSQL role as the
-superuser, from `server/deploy`. It gets `pg_monitor` and `CONNECT` on the
+superuser, from `{{ site.data.versions.backend_dir }}/deploy`. It gets `pg_monitor` and `CONNECT` on the
 database only, no table access (the least-privilege roles revoke `CONNECT` from
 `PUBLIC`):
 
@@ -173,7 +173,7 @@ from a release whose script did not grant `CONNECT` (the exporter then reports
 Start it from the repository root:
 
 ```bash
-docker compose -p openctem-obs --env-file server/deploy/.env \
+docker compose -p openctem-obs --env-file {{ site.data.versions.backend_dir }}/deploy/.env \
   -f deploy/observability/docker-compose.yml \
   -f deploy/observability/docker-compose.openctem.yml \
   --profile observability up -d

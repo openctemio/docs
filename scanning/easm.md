@@ -68,7 +68,7 @@ flowchart TD
 
 | Part | Runs on | Sends traffic to your hosts? |
 |---|---|---|
-| Certificate Transparency discovery | the platform | No: it queries public CT log aggregators |
+| Certificate Transparency discovery | a platform (shared) sensor of the installation, from v0.21.0 | No: it queries public CT log aggregators |
 | DNS checks | the platform | No: DNS questions about your names only |
 | Passive subdomain discovery (`discover.subdomains`) | your [sensors](../sensors/index.md) | No: it asks passive sources, not your hosts |
 | Active subdomain enumeration (`enumerate.subdomains`) | your sensors | DNS questions for candidate names under your domain; needs a scope entry |

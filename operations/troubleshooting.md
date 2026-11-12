@@ -8,7 +8,7 @@ nav_order: 7
 {: .no_toc }
 
 Start with the state of the services and the API log; most start-up problems
-name the setting at fault. Commands assume the Compose stack in `server/deploy`;
+name the setting at fault. Commands assume the Compose stack in `{{ site.data.versions.backend_dir }}/deploy`;
 see [Log reference](logs.md) for the other deployments.
 
 1. TOC

@@ -37,7 +37,7 @@ The tool connects to the database with the same settings as the API, creates
 both administrators with a temporary password printed once, and creates the
 organization through the normal, audited organization service.
 
-**Docker Compose** (in `server/deploy`):
+**Docker Compose** (in `{{ site.data.versions.backend_dir }}/deploy`):
 
 ```bash
 docker compose run --rm bootstrap-admin \

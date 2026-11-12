@@ -114,3 +114,4 @@ scripts/demo-seed/.state.json
 /_data/releases.json
 /versions.json
 /operations/releases/
+/_includes/generated/

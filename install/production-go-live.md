@@ -20,7 +20,7 @@ the details. Work through it top to bottom; do not skip the checks.
 
 | Deployment | Use it for | Page |
 |---|---|---|
-| Compose (`server/deploy/docker-compose.yml`) | One host, everything included (gateway, web, platform console, API, PostgreSQL, Redis) | [Docker Compose](docker-compose.md) |
+| Compose (`{{ site.data.versions.backend_dir }}/deploy/docker-compose.yml`) | One host, everything included (gateway, web, platform console, API, PostgreSQL, Redis) | [Docker Compose](docker-compose.md) |
 | All-in-one image (`ghcr.io/openctemio/openctem`) | One container, with your own PostgreSQL and Redis | [All-in-one](all-in-one.md) |
 | Helm chart | Kubernetes | [Kubernetes](kubernetes.md) |
 | Ansible kit (`openctem-ansible`) | One hardened Ubuntu VM, with or without Cloudflare | [Install with Ansible](ansible.md) |
@@ -58,7 +58,7 @@ Read the release notes and the upgrade notes of the release.
 
 ## 4. Configure
 
-1. Copy the example environment file of your deployment (`server/deploy/.env.example`
+1. Copy the example environment file of your deployment (`{{ site.data.versions.backend_dir }}/deploy/.env.example`
    for Compose) and set every value marked as required.
 2. Generate every secret; never reuse a value from an example file:
 
@@ -99,7 +99,7 @@ Read the release notes and the upgrade notes of the release.
 6. Check the configuration before starting anything:
 
    ```bash
-   cd server/deploy
+   cd {{ site.data.versions.backend_dir }}/deploy
    docker compose run --rm --no-deps api -check-config
    ```
 
@@ -118,7 +118,7 @@ gateway sends HSTS and the web console sends a Content-Security-Policy.
 ## 6. Start
 
 ```bash
-cd server/deploy
+cd {{ site.data.versions.backend_dir }}/deploy
 docker compose pull
 docker compose up -d
 docker compose ps -a     # every service healthy; the one-shot jobs exited 0
@@ -152,7 +152,7 @@ Then prove an alert arrives: stop the API for three minutes
 
 ## 10. Backups and a restore test
 
-Schedule `server/deploy/backup.sh` daily, copy its output off the host encrypted,
+Schedule `{{ site.data.versions.backend_dir }}/deploy/backup.sh` daily, copy its output off the host encrypted,
 and prove a restore before going live ([Backup and restore](../operations/backup-restore.md)):
 
 ```bash

@@ -14,8 +14,9 @@ written for the administrators who enter those credentials and the security
 teams who review where they travel.
 
 {: .note }
-> Secret delivery to sensors is being redesigned. These pages describe what the
-> current release does.
+> From platform v0.21.0, secrets reach a sensor sealed, per task, only for the
+> names a signed job lists, and only to a key-bound sensor that holds the job
+> (sensor v0.38.0 and later).
 
 {% assign flows = site.pages | where: "parent", page.title | sort: "nav_order" %}
 {% for f in flows %}

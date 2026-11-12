@@ -26,7 +26,7 @@ import os
 import re
 import sys
 
-SKIP_DIRS = {".git", "node_modules", "_site", "vendor", ".jekyll-cache", "changelog.d", "testdata"}
+SKIP_DIRS = {".git", "node_modules", "_site", "vendor", ".jekyll-cache", "changelog.d", "testdata", "generated", "releases"}
 SKIP_FILES = {"CHANGELOG.md"}
 
 VIETNAMESE = re.compile(r"[ăđơưĂĐƠƯẠ-ỹ]")
@@ -54,6 +54,33 @@ def slugify(heading):
     return text.replace(" ", "-")
 
 
+INCLUDE = re.compile(r"^\{%-?\s*include\s+(generated/[\w./-]+)\s*-?%\}\s*$")
+
+
+def expand_includes(path, lines):
+    """Inline `{% include generated/... %}` (files the site build writes) so their headings
+    count as anchors of the including page. A generated file that is missing (not built in
+    this checkout) adds nothing; the Jekyll build checks those anchors."""
+    root = os.path.dirname(os.path.abspath(__file__))
+    out = []
+    for line in lines:
+        m = INCLUDE.match(line)
+        if m:
+            inc = os.path.join(root, "..", "_includes", m.group(1))
+            if os.path.isfile(inc):
+                with open(inc, encoding="utf-8") as fh:
+                    out.extend(fh.read().splitlines(keepends=True))
+            else:
+                out.append("<!-- generated include missing: anchors unchecked -->\n")
+                MISSING_INCLUDES.add(path)
+            continue
+        out.append(line)
+    return out
+
+
+MISSING_INCLUDES = set()
+
+
 def anchors_of(path, cache={}):
     if path not in cache:
         found = set()
@@ -61,7 +88,7 @@ def anchors_of(path, cache={}):
         in_fence = False
         try:
             with open(path, encoding="utf-8") as fh:
-                for line in fh:
+                for line in expand_includes(path, fh.read().splitlines(keepends=True)):
                     if FENCE.match(line):
                         in_fence = not in_fence
                         continue
@@ -141,7 +168,7 @@ def check_file(path, errors):
             if dest is None:
                 errors.append(f"{path}:{lineno}: broken link {target}")
                 continue
-            if anchor and dest.endswith(".md") and anchor not in anchors_of(dest):
+            if anchor and dest.endswith(".md") and anchor not in anchors_of(dest) and dest not in MISSING_INCLUDES:
                 errors.append(f"{path}:{lineno}: missing anchor #{anchor} in {os.path.relpath(dest)}")
 
 
