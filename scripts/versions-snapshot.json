@@ -1,0 +1,145 @@
+{
+  "schema": "openctem.io/versions/v1",
+  "generated_at": "2026-11-12T17:22:25Z",
+  "platform": {
+    "version": "v0.21.0",
+    "published_at": "2026-11-12T12:55:50Z",
+    "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.21.0",
+    "upgrade_url": "https://docs.openctem.io/operations/upgrade/",
+    "images": [
+      {
+        "name": "migrations",
+        "ref": "ghcr.io/openctemio/migrations:v0.21.0",
+        "digest": "sha256:8bd995c477a83e1aabfa5aef74673fdfc4ed0a48236c9d90be8cf3f8cf410428"
+      },
+      {
+        "name": "openctem",
+        "ref": "ghcr.io/openctemio/openctem:v0.21.0",
+        "digest": "sha256:8d7b1533557a50e7a60cbeafbb7d1fedbb69aeb4f4c953dc558c1cd25130865c"
+      },
+      {
+        "name": "openctem-api",
+        "ref": "ghcr.io/openctemio/openctem-api:v0.21.0",
+        "digest": "sha256:040dfa1f1610556d8b57f267307b0c89dea761f5fd6c09a7661edf8ceb6bfad9"
+      },
+      {
+        "name": "openctem-console",
+        "ref": "ghcr.io/openctemio/openctem-console:v0.21.0",
+        "digest": "sha256:4cc1d1ad419140940f25592e1c6f2bacc03233dfc1cd562b157aa6a9c7fa75d8"
+      },
+      {
+        "name": "openctem-gateway",
+        "ref": "ghcr.io/openctemio/openctem-gateway:v0.21.0",
+        "digest": "sha256:158dbf276553d6f75e1fa1dc7f850dd9e80e96998d89064352ab836661c11597"
+      },
+      {
+        "name": "openctem-web",
+        "ref": "ghcr.io/openctemio/openctem-web:v0.21.0",
+        "digest": "sha256:37fa576b92b62773c40ba408420dafd118813ff78baf5bc833d20ef07e2d864c"
+      },
+      {
+        "name": "seed",
+        "ref": "ghcr.io/openctemio/seed:v0.21.0",
+        "digest": "sha256:fe2a0c58d3437883f7e4c7313ab1811811ab2ea3171f46b4d021614625e98fe5"
+      }
+    ],
+    "accepts": {
+      "sensor": "v0.36.0",
+      "connector-tenable": "v0.2.0",
+      "sdk": "v0.46.0",
+      "ci": "v0.4.0"
+    },
+    "previous": [
+      {
+        "version": "v0.20.3",
+        "published_at": "2026-11-07T20:58:06Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.20.3"
+      },
+      {
+        "version": "v0.20.2",
+        "published_at": "2026-11-05T11:15:51Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.20.2"
+      },
+      {
+        "version": "v0.20.1",
+        "published_at": "2026-11-05T10:21:58Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.20.1"
+      },
+      {
+        "version": "v0.20.0",
+        "published_at": "2026-11-05T04:11:00Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.20.0"
+      },
+      {
+        "version": "v0.19.1",
+        "published_at": "2026-11-04T12:11:57Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.19.1"
+      },
+      {
+        "version": "v0.19.0",
+        "published_at": "2026-11-04T10:01:44Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.19.0"
+      },
+      {
+        "version": "v0.18.1",
+        "published_at": "2026-11-03T02:13:10Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.18.1"
+      },
+      {
+        "version": "v0.18.0",
+        "published_at": "2026-11-02T17:56:43Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.18.0"
+      },
+      {
+        "version": "v0.17.0",
+        "published_at": "2026-10-31T00:09:42Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.17.0"
+      },
+      {
+        "version": "v0.16.1",
+        "published_at": "2026-10-29T23:00:16Z",
+        "notes_url": "https://github.com/openctemio/openctem/releases/tag/v0.16.1"
+      }
+    ]
+  },
+  "components": [
+    {
+      "component": "sensor",
+      "repository": "openctemio/sensor",
+      "version": "v0.41.0",
+      "published_at": "2026-11-12T07:12:38Z",
+      "notes_url": "https://github.com/openctemio/sensor/releases/tag/v0.41.0",
+      "image": "ghcr.io/openctemio/sensor"
+    },
+    {
+      "component": "connector-tenable",
+      "repository": "openctemio/connector-tenable",
+      "version": "v0.2.0",
+      "published_at": "2026-11-03T08:52:42Z",
+      "notes_url": "https://github.com/openctemio/connector-tenable/releases/tag/v0.2.0",
+      "image": "ghcr.io/openctemio/connector-tenable"
+    },
+    {
+      "component": "sdk",
+      "repository": "openctemio/sdk-go",
+      "version": "v0.50.0",
+      "published_at": "2026-11-07T17:08:40Z",
+      "notes_url": "https://github.com/openctemio/sdk-go/releases/tag/v0.50.0"
+    },
+    {
+      "component": "ci",
+      "repository": "openctemio/ci",
+      "version": "v0.4.0",
+      "published_at": "2026-11-05T01:37:33Z",
+      "notes_url": "https://github.com/openctemio/ci/releases/tag/v0.4.0",
+      "image": "ghcr.io/openctemio/ci"
+    }
+  ],
+  "chart": {
+    "name": "openctem",
+    "repository": "https://openctemio.github.io/helm-charts",
+    "version": "0.41.1",
+    "app_version": "v0.21.0"
+  },
+  "advisories": []
+}

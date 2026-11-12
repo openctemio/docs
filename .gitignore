@@ -105,3 +105,12 @@ scripts/demo-seed/.state.json
 *.p12
 *.pfx
 /data/
+
+# Generated at build time from the signed versions manifest and the release
+# changelog entries (scripts/versions_manifest.py, scripts/release_pages.py):
+# a release needs no commit here.
+/_data/versions.yml
+/_data/manifest.json
+/_data/releases.json
+/versions.json
+/operations/releases/

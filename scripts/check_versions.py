@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install guides take the current releases from _data/versions.yml.
+"""Install guides take the current releases from the generated _data/versions.yml.
 
 Usage: python3 scripts/check_versions.py [ROOT]
 
@@ -11,8 +11,11 @@ Fails when:
   - a page hard-codes a release where a guide installs or pins one: a sensor or
     platform image tag, a sensor file or cosign identity at a tag,
     SENSOR_VERSION=, OPENCTEM_VERSION=, NEW_VERSION=, openctem_version or
-    git checkout vX.Y.Z. Write {{ site.data.versions.sensor }} (or platform)
-    instead; the versions-sync workflow keeps the data file current.
+    git checkout vX.Y.Z, a Helm --version, an sdk-go, CI runner or connector
+    release, or a bare VERSION=X.Y.Z. Write {{ site.data.versions.sensor }}
+    (or platform, chart, sdk_go, ci, connector_tenable) instead. The site
+    build writes the data file from the signed versions manifest
+    (scripts/versions_manifest.py); it is never committed.
 
 History stays as written ("from v0.16.0", an upgrade step to one release).
 A line that must pin a release on purpose carries the marker
@@ -30,6 +33,10 @@ KEYS = {
     "ci": r"v\d+\.\d+\.\d+",
     "chart": r"\d+\.\d+\.\d+",
     "chart_app": r"v\d+\.\d+\.\d+",
+    "connector_tenable": r"v\d+\.\d+\.\d+",
+    "min_sensor": r"v\d+\.\d+\.\d+",
+    "min_sdk_go": r"v\d+\.\d+\.\d+",
+    "min_ci": r"v\d+\.\d+\.\d+",
 }
 SKIP_DIRS = {".git", "node_modules", "_site", "vendor", ".jekyll-cache", "changelog.d", "testdata", "scripts"}
 SKIP_FILES = {"CHANGELOG.md", "README.md", "CONTRIBUTING.md"}
@@ -47,6 +54,14 @@ PINS = [
     ("platform", re.compile(r"\b(?:OPENCTEM_VERSION|NEW_VERSION)=" + V)),
     ("platform", re.compile(r"\bopenctem_version[:=] ?" + V)),
     ("platform", re.compile(r"\bgit (?:-C \S+ )?checkout " + V)),
+    ("chart", re.compile(r"\bhelm (?:install|upgrade|pull|template|show)\b.*--version[ =]\d+\.\d+\.\d+")),
+    ("chart", re.compile(r"\bopenctem-\d+\.\d+\.\d+\.tgz")),
+    ("sdk_go", re.compile(r"openctemio/sdk-go[\w/.-]*@" + V)),
+    ("sdk_go", re.compile(r"(?<![\w-])V=\d+\.\d+\.\d+")),
+    ("ci", re.compile(r"openctemio/ci@" + V)),
+    ("ci", re.compile(r"ghcr\.io/openctemio/ci:" + V)),
+    ("connector_tenable", re.compile(r"openctemio/connector-tenable:" + V)),
+    ("sensor", re.compile(r"\bVERSION=\d+\.\d+\.\d+")),
 ]
 REF = re.compile(r"site\.data\.versions\.([A-Za-z0-9_]+)")
 RAW_OPEN = re.compile(r"{%-?\s*raw\s*-?%}")
@@ -62,7 +77,7 @@ def load_data(root):
                 line = line.split("#", 1)[0].strip()
                 if not line:
                     continue
-                m = re.fullmatch(r'([a-z_]+):\s*"?([^"\s]+)"?', line)
+                m = re.fullmatch(r'([a-z_]+):\s*"?([^"\s]*)"?', line)
                 if not m:
                     errors.append(f"_data/versions.yml:{n}: not 'key: value'")
                     continue
@@ -120,9 +135,9 @@ def main(argv):
     for e in errors:
         print(e)
     if errors:
-        print(f"check_versions: {len(errors)} problem(s)")
+        print(f"check_versions: {len(errors)} problem(s) (no _data/versions.yml? run python3 scripts/versions_manifest.py .)")
         return 1
-    print("check_versions: every guide takes its releases from _data/versions.yml")
+    print("check_versions: every guide takes its releases from the generated _data/versions.yml")
     return 0
 
 

@@ -23,7 +23,7 @@ You need Python 3 and either the `openctem` CLI binary or Go 1.27.
 
 ```bash
 # A release binary (Linux and macOS, amd64 and arm64), checked against the signed checksums:
-V=0.40.0   # the SDK release you pin
+V={% endraw %}{{ site.data.versions.sdk_go | remove_first: "v" }}{% raw %}   # the SDK release you pin
 curl -sSLO https://github.com/openctemio/sdk-go/releases/download/v$V/openctem_${V}_linux_amd64.tar.gz
 curl -sSLO https://github.com/openctemio/sdk-go/releases/download/v$V/SHA256SUMS
 sha256sum -c SHA256SUMS --ignore-missing && tar xzf openctem_${V}_linux_amd64.tar.gz
