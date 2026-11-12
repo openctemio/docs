@@ -395,8 +395,10 @@ asset**; the overview opens the inventory instead.
 **Continuous Certificate Transparency monitoring.** Besides scans, the platform
 watches public Certificate Transparency logs (crt.sh, with Cert Spotter as a
 fallback) for your domains: domain assets, verified domains and domain scope
-entries. It reads public data only, uses no credentials and is protected against
-requests to internal addresses. Each run it raises exposure events for new
+entries. From v0.21.0 the lookups run on a platform (shared) sensor of the
+installation, never on the platform itself; without such a sensor the monitoring
+is off and the settings say why. It reads public data only, uses no credentials and
+is protected against requests to internal addresses. Each run it raises exposure events for new
 subdomains (`subdomain_discovered`) and for certificates that are expiring
 within 30 days or recently expired (`certificate_expiring`,
 `certificate_expired`); see [Exposures](05-exposures-and-findings.md#exposures).
@@ -575,7 +577,8 @@ Transparency only, daily for registered lookalikes and weekly for the rest.
   **Taken down**; the states are **To review**, **Ours or benign**, **Not a
   threat** and **Taken down**. An open lookalike is an exposure
   ([Exposures](05-exposures-and-findings.md#exposures)).
-- Certificate lookups of lookalikes go to crt.sh; **Certificate checks of
+- Certificate lookups of lookalikes go to crt.sh through a platform sensor (from
+  v0.21.0; without one they stay off); **Certificate checks of
   lookalike domains** in the Monitoring settings turns them off, and lookalikes
   are then checked through DNS only.
 

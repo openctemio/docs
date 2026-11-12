@@ -36,6 +36,7 @@ Which sensor, SDK, CI runner and chart releases go with the current platform rel
 | From | To | Guide |
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
+| v0.20.x | v0.21.0 | [From v0.20 to v0.21](#from-v020-to-v021) below: 59 migrations (two data migrations), three removed `CERT_MONITOR_*` variables stop the API from starting, sensor task credentials arrive sealed per task (bearer-key sensors are paired again, scans with a credential in their settings are edited), new pairings are signed (sensor v0.40 and later need this release), Certificate Transparency moves to platform sensors, operator commands for existing findings. Every change: [v0.21.0](/operations/releases/v0-21-0/). |
 | v0.19.x | v0.20.0 to v0.20.3 | [From v0.19 to v0.20](#from-v019-to-v020) below: no migration up to v0.20.2 (v0.20.3 adds one that widens a column), leaked-secret fingerprints re-keyed per organization on start, a scan runs as far as your tools and sensors support, the sensor release line moves to v0.38. |
 | v0.18.x | v0.19.0 and v0.19.1 | [From v0.18 to v0.19](#from-v018-to-v019) below: CTIS 2.0 only (upgrade sensors, connectors and CI together), stored findings and asset names are re-keyed on start, the audit log is chained by the database, the release feed is signed keyless, the feed relay and feed proxy are optional. |
 | v0.17.x | v0.18.0 | [From v0.17 to v0.18.0](#from-v017-to-v0180) below: `PLATFORM_CA_CERT_FILE` replaces the API's `SENSOR_CA_CERT_FILE`, `DB_MAX_IDLE_CONNS` defaults to `DB_MAX_OPEN_CONNS`, stage streaming on by default, the CTEM-ID catalog table and download are removed, an organization maximum API key lifetime (90 days), sign-in sessions from another organization's identity provider are narrowed. |
@@ -84,6 +85,63 @@ together. Then check:
 
 See [Ingesting results](../api/ingest.md).
 
+### From v0.20 to v0.21
+
+v0.21.0 has 59 migrations. They add tables and columns; two rewrite stored data in place
+(decoded scope path exclusion prefixes, service kinds) and none drops a table. Take a backup
+first ([Backup and restore](backup-restore.md)) and upgrade the platform **before** the sensors.
+Every change of the release, upgrade notes first: [What changed in v0.21.0](/operations/releases/v0-21-0/).
+
+**Before you start the new release**
+
+- **Unset `CERT_MONITOR_FEED_URL`, `CERT_MONITOR_CERTSPOTTER_URL` and
+  `CERT_MONITOR_CERTSPOTTER_KEY`.** The API refuses to start while one is set. The platform makes
+  no Certificate Transparency request any more: a platform (shared) sensor with a pinned job
+  signer answers the lookups (`lookup.ct@1`), and its host settings `SENSOR_CT_CRTSH_URL`,
+  `SENSOR_CT_CERTSPOTTER_URL` and `SENSOR_CT_CERTSPOTTER_KEY` replace them. Without such a
+  sensor, Certificate Transparency monitoring stays off and says why
+  ([Certificates](../how-it-works/attack-surface/certificates.md)). Move any allow-list entry for
+  `crt.sh` and `api.certspotter.com` from the API host to that sensor's host.
+- **A control plane that sends `sso.connections` or `sso.enforcement` in `denied_features`** is
+  refused: the two named features are removed (SSO is never withheld) and the number of
+  connections is the limit `sso_connections`.
+
+**After the upgrade**
+
+- **Sensors.** Upgrade sensors after the platform, to {{ site.data.versions.sensor }}:
+  - Sensors v0.38 and later fetch each task's credentials (tool keys, proxy pool credentials)
+    from the sealed task-secrets route, which this release is the first to serve. The old
+    egress-credentials route is removed, so a v0.37 sensor gets no proxy pool credentials from
+    v0.21.0: move pools that need credentials to v0.38 or later.
+  - A sensor that authenticates with a bearer key gets no task secrets: pair it again to a
+    key-bound identity ([Pairing](../sensors/pairing.md)).
+  - New pairings of sensor v0.40 and later need this release (signed pairing answers); against
+    an older platform they stop with `pairing_answer_unsigned`. Sensors already paired keep working.
+  - Moving a sensor to v0.40 or later: write the seccomp profile again (re-run the install
+    snippet, or `openctemio-sensor seccomp-profile` from the new image); the browser tool needs
+    the new rule.
+  - Before you require scan identification, update sensors to a release that advertises
+    `http.identity.required@1` (v0.41); until then required jobs wait.
+- **Scans with a credential in their settings** are refused on save (`SCANNER_CONFIG_SECRET`) and
+  blocked at trigger. Edit them: keys belong in Settings > Scanning > Tool source keys, which
+  reach a sensor only as a sealed per-task secret.
+- **API clients** that send keys other than `reason` in a scan trigger's `context` get
+  `400 TRIGGER_CONTEXT_REFUSED`.
+- **Existing findings.** New operator commands bring stored findings to the new model. Each is a
+  dry run by default; review its report, then apply:
+  1. `finding-practice -apply` (practice of existing findings; until then they read as `other`);
+  2. `compliance-checks -apply -undo <file>` (compliance results become control check states);
+  3. `finding-practice -sla -apply -undo <file>` (compliance SLA re-baseline);
+  4. `vulnmatch-locations -apply` (one version-match finding per host; `-down` reverts from its journal);
+  5. `finding-source-backfill -apply` (each source's own record for existing findings).
+- **Closing findings of gone assets** (asset liveness) is off by default: run the asset lifecycle
+  dry run and review liveness before you turn it on.
+- **Helm.** Chart {{ site.data.versions.chart }} installs {{ site.data.versions.chart_app }}. Its
+  bundled sensor requires the tool sandbox and per-task network confinement by default
+  (`sensor.sandbox.mode` and `sensor.sandbox.network` are `required`): on nodes that cannot
+  confine tasks the sensor fails at start; set both to `auto` to keep the earlier behaviour
+  ([Kubernetes](../install/kubernetes.md)).
+
 ### From v0.19 to v0.20
 
 v0.20.0, v0.20.1 and v0.20.2 add no migration and no required setting. v0.20.3 adds one
@@ -107,13 +165,10 @@ needs no setting. Take a backup first
 - **Organizations choose whether leaked secret values are kept** (Settings > Leaked
   credentials; platform default under System in the console). Unset, a self-managed install
   keeps values as before.
-- **Sensors.** The platform release does not require a sensor upgrade. The newest sensor is
-  {{ site.data.versions.sensor }} (v0.38.3 has no images); read the sensor notes in
-  [Upgrade, back up and remove](../sensors/operate.md) first: sensor v0.38 and later expect a platform
-  that serves sealed task secrets, which no release up to v0.20.3 does, and then receive no
-  platform keys and refuse a job whose proxy pool needs credentials.
-- **Helm.** Chart {{ site.data.versions.chart }} has `appVersion`
-  {{ site.data.versions.chart_app }}; to run v0.20.x set the image tags
+- **Sensors.** v0.20.x does not require a sensor upgrade; stay on sensor v0.37.2 with it. Sensor
+  v0.38 and later expect the sealed task-secrets route, which v0.21.0 is the first release to
+  serve: upgrade the platform to v0.21 first ([From v0.20 to v0.21](#from-v020-to-v021)).
+- **Helm.** Charts up to 0.40.x have `appVersion` v0.19.1; to run v0.20.x set the image tags
   ([Kubernetes](../install/kubernetes.md)).
 
 ### From v0.18 to v0.19
@@ -713,7 +768,7 @@ recovery are in
 
 1. **Back up** the database, the secrets and the volumes
    ([Backup and restore](backup-restore.md)), and check the dump is readable.
-   With Docker Compose: `./backup.sh && ./backup.sh verify` in `server/deploy`.
+   With Docker Compose: `./backup.sh && ./backup.sh verify` in `{{ site.data.versions.backend_dir }}/deploy`.
 2. **Check the migration state.** `dirty` must be `f` (from v0.16.0 `version` is a fence
    number; the applied migrations are listed in `schema_migrations_applied`):
 
@@ -732,7 +787,7 @@ recovery are in
 
 ## Docker Compose
 
-In `server/deploy` of your checkout:
+In `{{ site.data.versions.backend_dir }}/deploy` of your checkout:
 
 ```bash
 NEW_VERSION={{ site.data.versions.platform }}   # the release you upgrade to

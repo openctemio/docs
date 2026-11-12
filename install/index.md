@@ -27,7 +27,7 @@ the order of work from an empty host to a monitored installation with a tested r
 
 | Deployment | Runs | Best for |
 |---|---|---|
-| [Docker Compose](docker-compose.md) | Gateway, web console, platform console, API, PostgreSQL and Redis on one host, from `server/deploy/docker-compose.yml`. | Most single-host installs. Everything included, TLS between all parts. |
+| [Docker Compose](docker-compose.md) | Gateway, web console, platform console, API, PostgreSQL and Redis on one host, from `{{ site.data.versions.backend_dir }}/deploy/docker-compose.yml`. | Most single-host installs. Everything included, TLS between all parts. |
 | [All-in-one image](all-in-one.md) | `ghcr.io/openctemio/openctem`: gateway, web console, platform console and API in one container. PostgreSQL and Redis are yours. | You already run PostgreSQL and Redis (managed or self-hosted). |
 | [Kubernetes (Helm)](kubernetes.md) | The `openctem` chart from `openctemio/helm-charts`. The newest chart ({{ site.data.versions.chart }}) has `appVersion` {{ site.data.versions.chart_app }}; for a newer release set the image tags (see the page). | Clusters, external managed datastores, GitOps. |
 | [One VM with Ansible](ansible.md) | The `openctem-ansible` kit: a hardened Ubuntu VM, signed images, encrypted backups and a monitor. Two guides: [with Cloudflare Tunnel and Access](ansible-cloudflare.md) (no inbound port) and [without Cloudflare](ansible-without-cloudflare.md) (your own TLS, public or private). | A production single host you want hardened and operated the same way every time. |
@@ -263,7 +263,6 @@ mutual-TLS listener on 9443 when the sensor passthrough is on; see
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme`. | Mode `acme` only. |
 | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog for prioritization. | Recommended. |
 | `github.com` (releases of `openctemio/vulnfeed-bundles`) | The signed vulnerability feed, which also carries KEV and EPSS. | Recommended. |
-| `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery. | Optional (`CERT_MONITOR_ENABLED=false` turns it off). |
 | Your SMTP server | Invitations, verification and password-reset email (set in the platform console, Settings, E-mail). | Recommended. |
 | `github.com` (the signed release feed) | Once a day the API downloads the feed of releases to show newer and security releases. Nothing about the instance is sent; GitHub sees the server's address. | Optional (`VERSION_CHECK_ENABLED=false` turns it off; import the file in the console, Monitoring, Software updates). |
 | Integration endpoints | Jira, GitHub or GitLab, Slack, Teams, Telegram, webhook channels, identity providers, AI providers. | Per integration. |

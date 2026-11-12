@@ -41,4 +41,6 @@ openctem tool build . --push registry.example.com/acme/hello-tool:0.1.0
 
 A tool declares the adapter protocol range it speaks and the oldest SDK it needs. The platform owns compatibility: it
 reads what each sensor reports and decides what can run where. Sensor, SDK and tool releases are independent, and a
-new sensor or SDK release never requires a platform change.
+new sensor or SDK release rarely requires a platform change: when one does (for example signed pairing answers, needed
+by sensor v0.40.0 and later and first sent by platform v0.21.0), the compatibility table in
+[Versioning and releases](../operations/versioning.md#current-releases-and-compatibility) says so.

@@ -140,11 +140,15 @@ Open an organization for its tabs:
   sensors, API keys, platform scans a day and storage (`storage_mb`, which
   overrides the default storage quota). No limit applies unless one is set. A
   lower limit never removes anything: additions over it are refused. Changing a
-  limit needs an operations admin and a confirmation, and is audited. Features
-  can also be denied to an organization: besides modules, the sign-in features
-  `sso.connections` (adding or changing SAML and OIDC connections),
-  `sso.enforcement` (requiring SSO), `scim` (the SCIM API) and
-  `sso.group_links` (SCIM group to role mappings). A denied feature refuses new
+  limit needs an operations admin and a confirmation, and is audited. From
+  v0.21.0 the number of SSO connections (SAML plus OIDC) is the limit
+  `sso_connections`: at the limit only adding another connection is refused;
+  changing or deleting one, signing in and requiring SSO keep working. Signing in
+  through SSO and requiring it are security controls and are never denied.
+  Features can also be denied to an organization: besides modules, the sign-in
+  features `scim` (the SCIM API) and `sso.group_links` (SCIM group to role
+  mappings); a control plane that still sends `sso.connections` or
+  `sso.enforcement` is refused as an unknown feature. A denied feature refuses new
   configuration with `403 FEATURE_NOT_INCLUDED`. Nothing is taken away at once:
   sign-in through configured connections keeps working, SCIM keeps working for
   the 30-day grace, and SSO enforcement is switched off after that grace (the

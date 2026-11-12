@@ -254,6 +254,10 @@ def flat(m, source):
         "digest_console": img.get("openctem-console", {}).get("digest", ""),
         "digest_migrations": img.get("migrations", {}).get("digest", ""),
         "digest_sensor": comp["sensor"].get("digest", ""),
+        # The backend directory of a release checkout: the Go backend moved
+        # from api/ to server/ after v0.21.x, so guides that cd into the
+        # checkout print the one of the release they install.
+        "backend_dir": "server" if vkey(m["platform"]["version"]) >= (0, 22, 0) else "api",
         "source": source,
     }
     for key in ("platform", "sensor", "sdk_go", "ci", "chart_app"):

@@ -51,7 +51,7 @@ test is your responsibility.
 git clone https://github.com/openctemio/openctem.git
 cd openctem
 git checkout {{ site.data.versions.platform }}         # the release you deploy
-cd server/deploy
+cd {{ site.data.versions.backend_dir }}/deploy
 ./setup.sh ctem.example.com  # writes .env: the host name and generated secrets
 ```
 

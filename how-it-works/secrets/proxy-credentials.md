@@ -11,16 +11,15 @@ description: How the user names and passwords of your scan proxies are stored an
 
 An administrator pastes the organization's scan proxies, with their logins,
 in **Settings > Scanning > Proxies**. The platform stores each login
-encrypted. When one of your sensors runs a job through a pool, it asks the
-platform for that pool's logins while it holds the job, keeps them in memory,
+encrypted. When one of your sensors runs a job through a pool, it receives
+that pool's logins as a sealed secret of that one task, keeps them in memory,
 and uses them only in its own forwarder.
 
 {: .note }
-> Secret delivery to sensors is being redesigned. This page describes what the
-> current platform release (v0.20.2) does. Sensor v0.38.0 and later fetch pool
-> credentials only through the redesigned delivery, which no platform release
-> serves yet: such a sensor refuses a job whose pool needs credentials. Use
-> sensor v0.37.2 with credentialed pools until your platform serves it.
+> This is the delivery of platform v0.21.0 and later with sensor v0.38.0 and later
+> (sealed task secrets). The earlier route that answered pool logins in clear
+> inside TLS (`egress-credentials`) is removed, so a sensor older than v0.38.0 gets
+> no pool logins from v0.21.0: upgrade it before you use a pool with logins.
 
 1. TOC
 {:toc}
@@ -73,16 +72,17 @@ sequenceDiagram
     participant T as Tool
     end
     S->>P: claim a scan job
-    P-->>S: signed job, names the pool and its proxies, no logins
+    P->>P: record the pool and the secret names the job may use
+    P-->>S: signed job, names the pool, its proxies and the secret egress_proxy, no logins
     S->>S: check the signature, check the host allows proxies
-    S->>P: ask for the pool's logins, signed, naming the job it holds
-    P->>P: sensor belongs to the organization, holds the job now, job running
-    P->>P: the pool is the one this sensor uses, open each login
+    S->>P: ask for the task's secrets, signed with the sensor key, with a single-use public key
+    P->>P: key-bound sensor, holds the job's lease, trusted, names recorded at claim
+    P->>P: open the logins of the pool recorded at claim
     alt any check fails
         P-->>S: job not found, the same answer for every reason
         S->>S: job refused as proxy unavailable, never run direct
     else checks pass
-        P-->>S: user names and passwords, not cached, inside TLS
+        P-->>S: logins sealed to the single-use key, inside TLS
         S->>F: logins kept in the forwarder's memory
         T->>F: connect to a target
         F->>F: scope check first
@@ -91,13 +91,18 @@ sequenceDiagram
     end
 ```
 
-1. The signed job names the pool and its proxies. It does not carry any
-   login.
-2. The sensor asks for the logins with a signed request that names the job.
-   The platform answers only to the sensor that holds that job right now,
-   only while the job runs, and only for the pool that sensor uses.
-3. The answer is sent over the sensor's TLS connection with "do not cache".
-   It is not encrypted a second time for the sensor.
+1. The signed job names the pool, its proxies and the secret it may use
+   (`egress_proxy`). It does not carry any login. The platform records, at
+   claim time, which pool and which secret names the job may use.
+2. The sensor asks for the task's secrets (`POST /api/v2/sensor/commands/{id}/secrets`)
+   with a request signed by its own key, carrying a single-use public key. The
+   platform answers only to a key-bound sensor that holds that job's lease now,
+   only to a trusted sensor, only for the names recorded at claim, and a bounded
+   number of times. The logins are those of the pool recorded at claim, not the
+   sensor's current pool.
+3. The answer is sealed (HPKE) to the single-use key, inside the TLS connection.
+   A sensor that authenticates with a bearer key, or an untrusted one, gets no
+   logins.
 4. The logins stay in the memory of the job's forwarder. Tools never see
    them: they connect to the forwarder, which checks the scope and then uses
    the proxy.
@@ -109,7 +114,7 @@ sequenceDiagram
 |---|---|---|
 | The installation has no encryption key | Saving a proxy with a login is refused | Set the encryption key in the platform configuration. |
 | A stored login cannot be opened, for example after a wrong key change | The proxy fails with an authentication error and is set aside | Paste the login again, or restore the right key. |
-| The sensor cannot get the logins | The job is refused as "proxy unavailable". It never runs without the proxy | Check the sensor is online and holds the job, and that the pool is still assigned. |
+| The sensor cannot get the logins | The job is refused as "proxy unavailable". It never runs without the proxy | Check the sensor runs v0.38.0 or later, is paired with a key (not a bearer key), is trusted and still holds the job. |
 | The proxy rejects the login | The proxy's health drops and it is set aside after repeated failures | Correct the login in **Proxies**. |
 | The host is set to run scans direct only | Jobs that carry a pool are refused on that sensor | Remove the setting on the host, or assign the sensor no pool. |
 
@@ -118,14 +123,16 @@ sequenceDiagram
 - **At rest.** Logins are encrypted with AES-256-GCM and the installation's
   encryption key. Each sealed value names its organization and proxy entry,
   so a value copied to another row or organization does not open.
-- **In transit.** The logins are not in the signed job. They travel inside
-  the sensor's TLS connection to the platform. A device that inspects TLS on
-  the sensor's path to the platform could read them.
+- **In transit.** The logins are not in the signed job. They travel sealed to
+  a single-use key of the sensor, inside its TLS connection, so a device that
+  inspects TLS on the sensor's path cannot read them.
 - **Organization isolation.** The sensor's organization comes from its own
   signed identity, never from the request. Shared sensors never receive an
   organization's proxy logins.
 - **Audit.** Creating a pool, changing logins, testing and setting a proxy
-  aside are audited. No login is ever written to the audit log or the job.
+  aside are audited, and so is every delivery and refusal of a task secret
+  (`secret.delivered`, `secret.refused`). No login is ever written to the audit
+  log or the job.
 
 ## Related
 

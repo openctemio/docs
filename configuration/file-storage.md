@@ -155,12 +155,12 @@ audit log.
 docker compose -f docker-compose.yml -f docker-compose.clamav.yml up -d
 ```
 
-**Kubernetes**: apply `server/deploy/kubernetes/clamav.yaml` from the
+**Kubernetes**: apply `{{ site.data.versions.backend_dir }}/deploy/kubernetes/clamav.yaml` from the
 OpenCTEM release you run (a ClamAV Deployment, Service and a NetworkPolicy
 that admits only the API pods) and set the address:
 
 ```sh
-kubectl -n openctem apply -f server/deploy/kubernetes/clamav.yaml
+kubectl -n openctem apply -f {{ site.data.versions.backend_dir }}/deploy/kubernetes/clamav.yaml
 ```
 
 ```yaml

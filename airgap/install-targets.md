@@ -156,7 +156,7 @@ Compose pins by tag. Make tags **immutable** in the registry (Harbor: a tag
 immutability rule on `v*`), so a tag cannot be re-pointed.
 
 `mirror-images.sh --env-out openctem-images.env` writes the fragment. Add it to
-`server/deploy/.env`:
+`{{ site.data.versions.backend_dir }}/deploy/.env`:
 
 ```bash
 # OpenCTEM images from registry.example.internal/openctem-trusted, release vX.Y.Z

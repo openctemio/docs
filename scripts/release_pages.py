@@ -8,7 +8,7 @@ platform is a changelog fragment (`<backend dir>/changelog.d/*.md`, one file
 per change, `### <Category>: <title>` sections) and a fragment stays in that
 directory until it is released and folded. So the changes of release vX.Y.Z
 are exactly the fragments present at tag vX.Y.Z and absent at the release
-before it. For the newest N stable releases (default 6, from
+before it. For the newest N stable releases (default 12, from
 _data/manifest.json, written by scripts/versions_manifest.py) this fetches
 those two sets (a blob-less, sparse, depth-1 clone per tag: no API calls) and
 writes operations/releases/<vX-Y-Z>.md: the upgrade notes first, then the
@@ -26,7 +26,7 @@ import tempfile
 REPO = "https://github.com/openctemio/openctem.git"
 ORDER = ["Security", "Behaviour change", "Removed", "Deprecated", "Added", "Changed", "Fixed"]
 HEADING = re.compile(r"^### (" + "|".join(ORDER) + r"): (.+)$")
-UPGRADE = re.compile(r"\*\*Upgrade notes?:?\*\*:?|^\s*-\s*Upgrade notes?:", re.I)
+UPGRADE = re.compile(r"\*\*Upgrade notes?:?\*\*:?|\bUpgrade notes?:", re.I)
 DIRS = ("server/changelog.d", "api/changelog.d")
 
 
@@ -79,8 +79,9 @@ def page(tag, prev, frags, order):
             title = title[:1].upper() + title[1:]
             by_cat[cat].append((title, body))
             for item in bullets(body):
-                if UPGRADE.search(item):
-                    upgrade.append((title, UPGRADE.sub("", item).strip(" -:")))
+                m = UPGRADE.search(item)
+                if m:
+                    upgrade.append((title, item[m.end():].strip(" -:*")))
     slug = tag.replace(".", "-")
     lines = [
         "---",
@@ -118,7 +119,7 @@ def page(tag, prev, frags, order):
 
 
 def main(argv):
-    count = 6
+    count = 12
     args = []
     it = iter(argv[1:])
     for a in it:

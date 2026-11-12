@@ -130,7 +130,7 @@ Other artifacts:
 | Sensor binaries | `openctemio/sensor` releases: archives and `checksums.txt` | `checksums.txt.sigstore.json`, identity `https://github.com/openctemio/sensor/.github/workflows/release.yml@refs/tags/vX.Y.Z` |
 | `bootstrap-admin` binaries | `openctemio/openctem` releases, with `checksums-sha256.txt` | Checksums only, not signed: prefer the signed `openctem-api` image, which contains it (`/app/bootstrap-admin`) |
 | Helm chart | `openctemio/helm-charts` releases (`openctem-<chart version>.tgz`) | Not signed: record its SHA-256 and review the rendered manifests ([Helm](#helm)) |
-| Compose files | `server/deploy/` of the repository at the release commit (`api/deploy/` up to v0.20.x) | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
+| Compose files | `{{ site.data.versions.backend_dir }}/deploy/` of the repository at the release commit | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
 | Ansible kit | `openctemio/openctem-ansible`; `versions.yml` pins every image by digest | Images verified by the kit; the kit itself is a repository you review |
 
 OpenCTEM has no license key, activation or edition check: a self-managed
@@ -151,7 +151,7 @@ the feeds ([Feed relay](../operations/feeds.md#feed-relay-no-outbound-access-fro
 |---|---|---|---|
 | `github.com`, `release-assets.githubusercontent.com` | The signed release feed (version check) | On | `VERSION_CHECK_ENABLED=false`; import the file by hand ([Release information](#release-information)) |
 | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog (KEV falls back to its GitHub mirror) | On | They also travel inside each signed vulnerability release: switch the direct fetch off in **System > Threat intelligence** ([Threat intelligence](#threat-intelligence-epss-and-kev)) |
-| `crt.sh`, `api.certspotter.com` | Certificate Transparency discovery | On | `CERT_MONITOR_ENABLED=false` |
+| `crt.sh`, `api.certspotter.com` (from a platform sensor, not the API) | Certificate Transparency discovery, answered by a platform sensor (`lookup.ct@1`) | On when such a sensor is connected | `CERT_MONITOR_ENABLED=false`, or `SENSOR_CT_LOOKUP=0` on the sensor |
 | `stat.ripe.net` | Lookups of network seeds an organization adds for attack-surface discovery | Only when an organization adds network seeds | Turn network lookups off in the organization's attack-surface settings, or add no network seeds |
 | `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`) | Vulnerability and program feeds | Vulnerability feed on with the official root key; program feed off until you pin a root key | A directory, a mirror or a relay ([Feeds](#vulnerability-and-program-feeds)) |
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme` | Only in mode `acme` | Use TLS mode `internal` or `files` ([TLS](tls-and-gateway.md)) |
@@ -341,7 +341,7 @@ cannot pin every digest. Use an override file instead: it names the full
 reference of every service, including the bundled PostgreSQL and Redis.
 
 ```yaml
-# server/deploy/docker-compose.digests.yml: v0.11.0 from the internal registry
+# {{ site.data.versions.backend_dir }}/deploy/docker-compose.digests.yml: v0.11.0 from the internal registry
 services:
   gateway-init:  { image: registry.example.com/openctem/openctem-gateway@sha256:e3ba3279b85f81894c15ccc3164588f435e37b39b8a578ee5c9408bb010c2873 }
   gateway:       { image: registry.example.com/openctem/openctem-gateway@sha256:e3ba3279b85f81894c15ccc3164588f435e37b39b8a578ee5c9408bb010c2873 }
@@ -362,7 +362,7 @@ The PostgreSQL and Redis digests above are `postgres:17.11` and
 overlay, add `sensor-enrollment` (the API digest) and `sensor`.
 
 ```bash
-cd server/deploy        # api/deploy up to v0.20.x
+cd {{ site.data.versions.backend_dir }}/deploy
 docker login registry.example.com          # pull-only credentials
 docker compose -f docker-compose.yml -f docker-compose.digests.yml config --images   # every line must be @sha256
 docker compose -f docker-compose.yml -f docker-compose.digests.yml pull
@@ -502,9 +502,9 @@ provenance names, so they match the images:
 ```bash
 COMMIT=$(cat "intake/$RELEASE/commit.txt")
 git clone --filter=blob:none https://github.com/openctemio/openctem.git src
-git -C src archive --format=tar.gz -o "intake/$RELEASE/deploy-$RELEASE.tar.gz" "$COMMIT" server/deploy
+git -C src archive --format=tar.gz -o "intake/$RELEASE/deploy-$RELEASE.tar.gz" "$COMMIT" {{ site.data.versions.backend_dir }}/deploy
 sha256sum "intake/$RELEASE/deploy-$RELEASE.tar.gz" > "intake/$RELEASE/deploy-$RELEASE.tar.gz.sha256"
-git -C src diff --stat "<previous release commit>" "$COMMIT" -- server/deploy   # what changed, for the review
+git -C src diff --stat "<previous release commit>" "$COMMIT" -- {{ site.data.versions.backend_dir }}/deploy   # what changed, for the review
 ```
 
 Release tags are not signed with a key; the commit recorded in the signed
@@ -1166,7 +1166,7 @@ content is too old reports `stale` instead of scanning silently with old data.
    settings, removed ones, migrations with special handling.
 2. **Take the release in** with approach 1, 2 or 3, including the deployment
    files from the signed commit. Diff them against the current release
-   (`server/deploy`, `.env.example`) and update your configuration.
+   (`{{ site.data.versions.backend_dir }}/deploy`, `.env.example`) and update your configuration.
 3. **Rehearse on staging with a restored production backup**, not an empty
    database: restore the latest backup ([Backup and restore](../operations/backup-restore.md)),
    deploy the new digests, and check that the `migrate` job (Compose), the
@@ -1240,7 +1240,8 @@ Allow them on the firewall by name, from the listed source only:
 | The API | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS and KEV (not needed when they arrive with the signed bundle) |
 | The API | `github.com`, `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Release information and the vulnerability feed |
 | The API | `ctem.org` | CTEM-ID catalog |
-| The API (optional) | `crt.sh`, `api.certspotter.com`, `stat.ripe.net` | Certificate Transparency, network lookups |
+| The API (optional) | `stat.ripe.net` | Network lookups |
+| A platform sensor (optional) | `crt.sh`, `api.certspotter.com` | Certificate Transparency (`SENSOR_CT_CRTSH_URL`, `SENSOR_CT_CERTSPOTTER_URL` point it at a mirror) |
 | Sensors (optional) | `github.com`, `api.github.com`, `release-assets.githubusercontent.com`, `mirror.gcr.io`, `ghcr.io` | Scanner content ([Network](../sensors/network.md)) |
 
 The API sends these requests directly; `HTTPS_PROXY` is not read. Only the platform's own feeds can use `OPENCTEM_HTTPSEC_FEED_PROXY`. Everything else

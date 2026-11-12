@@ -10,7 +10,7 @@ See how it works: [Job signer service](../how-it-works/operations/job-signer.md)
 
 Work through this list before you expose an installation to users. Every item names the real
 setting; defaults are the values in the API code unless the row says otherwise. The bundled
-production compose file (`server/deploy/docker-compose.yml` with `server/deploy/.env.example`) already
+production compose file (`{{ site.data.versions.backend_dir }}/deploy/docker-compose.yml` with `{{ site.data.versions.backend_dir }}/deploy/.env.example`) already
 applies most of them; the checklist tells you what to confirm.
 
 ## Run in production mode
@@ -109,7 +109,7 @@ See [TLS and the gateway](../install/tls-and-gateway.md) for the full setup.
   integrate with: the list applies to every organization. `OPENCTEM_HTTPSEC_ALLOW_PRIVATE=1` (every
   private range) stops the API outside `APP_ENV=development`.
 - Sensors using protocol v3 reach the API's mTLS listener (`:9443`) through the gateway: with the
-  sensor overlay (`server/deploy/docker-compose.sensor-passthrough.yml`) the gateway passes TLS
+  sensor overlay (`{{ site.data.versions.backend_dir }}/deploy/docker-compose.sensor-passthrough.yml`) the gateway passes TLS
   connections that offer the sensor ALPN id through on the main HTTPS port, and can route a
   dedicated sensor host name by SNI. Do not publish `:9443` of the API container directly.
 - Sensors only make outbound connections to the platform; they need no inbound access. See
@@ -363,7 +363,7 @@ The platform does not back itself up: schedule a backup job. Back up:
 - the gateway's `gateway-data` volume (it holds the internal CA in `internal` TLS mode);
 - your `.env` or secret store, **separately** from the database backups.
 
-For the Compose deployment, `server/deploy/backup.sh` does all of this except the audit archive,
+For the Compose deployment, `{{ site.data.versions.backend_dir }}/deploy/backup.sh` does all of this except the audit archive,
 the encryption and the off-host copy, writes its files with mode `0600`, and has a `verify` command that restores the
 newest backup into a throwaway PostgreSQL. A backup it makes holds `.env`, so it is as sensitive as
 the database plus every stored credential: encrypt it before it leaves the host.
