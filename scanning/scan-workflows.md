@@ -38,8 +38,10 @@ steps, so they run on whichever implementation your sensors have:
 *Figure: Scan workflows.*
 
 System workflows cannot be edited; clone one to change it. Steps whose
-capability has no tool yet (screenshots, service detection) are optional: a run skips them with "available when a tool that runs a
-capability is installed" and never fails because of them.
+capability no connected sensor runs are optional: a run skips them with "available when a tool that runs a
+capability is installed" and never fails because of them. Screenshots need a sensor of the `browser` image
+(the `webshot` tool, sensor v0.40.0 and later) and the organization's web screenshots switch; service
+detection needs sensor v0.39.0 or later (`svcdetect`).
 
 **Retired workflows.** The earlier starters **Discover**, **Discover + Vuln**
 and **Web app**, and the older presets, are retired. They are no longer
