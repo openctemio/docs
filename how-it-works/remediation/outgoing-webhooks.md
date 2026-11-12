@@ -48,9 +48,10 @@ sequenceDiagram
 ```
 
 1. **The event.** A webhook channel receives the events its filters match,
-   like any channel; see [Notification delivery](notifications.md). With
-   **Include details in notifications** off, the title is only the event
-   type and severity, and the body says to open the link.
+   like any channel; see [Notification delivery](notifications.md). The
+   channel's detail level decides the content; the payload also carries a
+   `notification` object (schema `openctem.notification/v1`) with the same
+   content as the chat message.
 2. **Headers.** Each delivery carries `webhook-id`, `webhook-timestamp` and,
    once the channel has a secret, `webhook-signature` in the Standard
    Webhooks format. `Idempotency-Key` and the payload's `idempotency_key`
