@@ -99,7 +99,8 @@ A release needs no commit in this repository:
 - **Current versions.** Write `{{ site.data.versions.sensor }}` (or `platform`, `sdk_go`, `ci`,
   `chart`, `chart_app`, `connector_tenable`, `min_sensor`, `min_sdk_go`, `min_ci`, and the
   platform image digests `digest_openctem`, `digest_api`, `digest_web`, `digest_console`,
-  `digest_migrations`). The site build writes `_data/versions.yml` and `_data/manifest.json`
+  `digest_migrations`; `server_image` is the server image's name for that release,
+  `openctem-server` from v0.23.0 and `openctem-api` before). The site build writes `_data/versions.yml` and `_data/manifest.json`
   from the signed versions manifest the platform's release pipeline publishes
   (`https://get.openctem.io/releases/manifest.json`; until that address answers, the same file as
   a release asset, then a build from the public GitHub releases in the same schema). The build
