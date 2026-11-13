@@ -249,7 +249,9 @@ def flat(m, source):
         "min_sdk_go": m["platform"]["accepts"].get("sdk", ""),
         "min_ci": m["platform"]["accepts"].get("ci", ""),
         "digest_openctem": img.get("openctem", {}).get("digest", ""),
-        "digest_api": img.get("openctem-api", {}).get("digest", ""),
+        # The server image is openctem-server from v0.23.0, openctem-api before.
+        "digest_api": img.get("openctem-server", img.get("openctem-api", {})).get("digest", ""),
+        "server_image": "openctem-server" if vkey(m["platform"]["version"]) >= (0, 23, 0) else "openctem-api",
         "digest_web": img.get("openctem-web", {}).get("digest", ""),
         "digest_console": img.get("openctem-console", {}).get("digest", ""),
         "digest_migrations": img.get("migrations", {}).get("digest", ""),
