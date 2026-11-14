@@ -741,6 +741,33 @@ Read the [release notes](https://github.com/openctemio/openctem/releases) of
 every version between yours and the target. How versions are numbered:
 [Versioning and releases](versioning.md).
 
+## Security advisories: database patch releases
+
+PostgreSQL publishes security fixes as minor releases of the same major version.
+Apply them when they appear, independently of OpenCTEM releases: install the new
+minor release and restart the database. A minor release needs no dump, restore or
+data migration, and OpenCTEM needs no change. Rebuild any third-party C extensions
+you added to the database server (OpenCTEM itself uses only the contrib extensions
+that ship with PostgreSQL).
+
+| Date | Release | Why |
+|---|---|---|
+| 2026-11-12 | PostgreSQL 17.12 | Upstream security release; fixes CVE-2026-6460 (authenticated arbitrary code execution, CVSS 8.8) among others. |
+
+- **Docker Compose** (`postgres:17` by default): `docker compose pull postgres` then
+  `docker compose up -d postgres`. The API reconnects by itself after the restart. If you
+  set `POSTGRES_VERSION` to a minor release in `.env`, set it to `17.12` (keep the
+  `-alpine` suffix if your data directory was created by the Alpine image).
+- **Ansible kit**: the kit pins `postgres:17.12` by digest in `versions.yml`; update the
+  kit and re-run the deploy playbook with your current `openctem_version`. Only the
+  database container is recreated. Air-gapped installs mirror the new digest first
+  ([air-gapped install](../install/air-gapped.md)).
+- **Kubernetes and the all-in-one image**: the database is yours (managed service or
+  your own server); upgrade it to 17.12 the way that service does. The Helm chart's
+  backup job pins 17.12 from chart 0.42.1.
+
+Check the running version with `SELECT version();`.
+
 ## How upgrades work
 
 - **One version for the platform.** The API, the web console, the migrations

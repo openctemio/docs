@@ -350,14 +350,14 @@ services:
   migrate:       { image: registry.example.com/openctem/migrations@sha256:5ebf7a763dfcdacc3677b0956b58eb97a7625ad1ee8e82068b9997b1efeb75ec }
   api:           { image: registry.example.com/openctem/openctem-api@sha256:71315cf69e763ad19bdc7417c495408809a1c26c69df50004cc416741906c344 }
   # Third-party images you mirrored and approved the same way
-  db-roles:      { image: registry.example.com/mirror/postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3 }
-  db-grants:     { image: registry.example.com/mirror/postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3 }
-  datastore-tls: { image: registry.example.com/mirror/postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3 }
-  postgres:      { image: registry.example.com/mirror/postgres@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3 }
+  db-roles:      { image: registry.example.com/mirror/postgres@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205 }
+  db-grants:     { image: registry.example.com/mirror/postgres@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205 }
+  datastore-tls: { image: registry.example.com/mirror/postgres@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205 }
+  postgres:      { image: registry.example.com/mirror/postgres@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205 }
   redis:         { image: registry.example.com/mirror/redis@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499 }
 ```
 
-The PostgreSQL and Redis digests above are `postgres:17.11` and
+The PostgreSQL and Redis digests above are `postgres:17.12` and
 `redis:7.4.11-alpine`, the versions the Ansible kit pins. With the sensor
 overlay, add `sensor-enrollment` (the API digest) and `sensor`.
 
@@ -467,7 +467,7 @@ openctem_releases:
     migrations: registry.example.com/openctem/migrations@sha256:febae591a18002730726d90a92e484b0314b023258a4d5138720c12e888abc56
     console: registry.example.com/openctem/openctem-console@sha256:7a64c8abf1f2d1acbcd1b27cc834a412abf3447084cedb04b1745b5d791b2ee0
 openctem_cosign_image: registry.example.com/mirror/cosign:v3.1.3@sha256:9e5c2f2edc34351160407ca3416c61855bdf9403c3c5936e0f0be7fc261611b8
-openctem_postgres_image: registry.example.com/mirror/postgres:17.11@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
+openctem_postgres_image: registry.example.com/mirror/postgres:17.12@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205
 openctem_redis_image: registry.example.com/mirror/redis:7.4.11-alpine@sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499
 openctem_rclone_image: registry.example.com/mirror/rclone:1.75.2@sha256:2687085f718d3c628f7fdfb77c52a1d344332aed543110bb88088f2c70d43eb5
 # Docker Engine from your apt mirror (the key's SHA-256 and fingerprint stay pinned in versions.yml)
