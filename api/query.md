@@ -65,7 +65,16 @@ The entity defaults to `findings`.
 - Dates are quoted (`"2026-01-31"` or a full timestamp). Relative times are bare:
   `-14d` is 14 days ago (`h`, `d`, `w`, `mo` = 30 days, `y` = 365 days).
 - `state` is the lens of the findings list: `open` (new, confirmed, in progress,
-  fix applied), `fixed`, `dispositioned` or `all`. `status` names one status.
+  fix applied), `fixed`, `dispositioned`, `closed` (fixed and dispositioned) or `all`. `status`
+  names one status. From v0.23.0 `state` can be negated: `state != open` and `not state = open` mean the same, and the
+  short search form writes `-state:closed`. A query then says what the State chip of the findings
+  list says. A
+  negation is the `not` of the same condition the list's state filter uses; it never widens
+  your scope.
+- `verification_state` is `unchecked`, `held`, `verified` or `not_reproduced`
+  (see [Held findings](../user-guide/05-exposures-and-findings.md#held-findings)).
+- `asset.ip` takes an address or a CIDR range and matches the asset's name or any address it has
+  recorded ([Filter by IP address or range](../user-guide/04-discovery.md#filter-by-ip-address-or-range)).
 - `me` stands for you, for example `assigned_to = me`.
 - Each field allows only the operators that make sense for it (for example
   `severity` takes `=`, `!=`, `in` and `not in`; scores and dates take the
@@ -117,6 +126,14 @@ findings where state = open and priority_class in (P0, P1) | count by asset.type
 
 # New findings per week over the last quarter
 findings where first_detected_at > -90d | bucket first_detected_at by week | count
+
+# Everything that is not closed, and the findings a scan held back
+findings where state != closed | count by status
+findings where not state = open | count by severity
+findings where verification_state = held and severity in (critical, high) | count by asset.type
+
+# Findings on hosts in a network range
+findings where state = open and asset.ip = "10.0.0.0/8" | count by severity
 
 # Crown jewels by environment, with their average risk score
 assets where crown_jewel = true | stats count(), avg(risk_score) by environment

@@ -22,6 +22,12 @@ the tag conditions of the rules below).
   tag is added, existing tags are kept) or **Remove tags** (tick the tags to
   remove from the selected assets).
 
+Saving an asset's tags changes only the tags you added or removed: a tag that a sensor, an
+import, a rule or another person set while the form was open is kept. A tag may contain a comma.
+In the API, `PUT /api/v1/assets/{id}` takes `tags_add` and `tags_remove` (additive; `tags` still
+replaces the whole list) and `POST /api/v1/assets/bulk/tags` (`assets:write`, up to 100 assets per
+request) adds or removes one tag on many assets.
+
 An asset holds at most 50 tags and a tag is at most 50 characters.
 
 ### System tags

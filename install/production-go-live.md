@@ -37,7 +37,7 @@ OIDC) and carries a signed SBOM attestation. Check the image you deploy:
 
 ```bash
 VERSION=vX.Y.Z
-for img in openctem-api openctem-web openctem-console openctem-gateway migrations; do
+for img in {{ site.data.versions.server_image }} openctem-web openctem-console openctem-gateway migrations; do
   cosign verify ghcr.io/openctemio/$img:$VERSION \
     --certificate-identity-regexp '^https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/v' \
     --certificate-oidc-issuer https://token.actions.githubusercontent.com >/dev/null && echo "$img: signature OK"

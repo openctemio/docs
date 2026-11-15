@@ -20,7 +20,7 @@ an SPDX SBOM attestation.
 
 | Image | Runs | Ports | User | Healthcheck | Main settings |
 |---|---|---|---|---|---|
-| `openctem-api` | The API. Also holds the job signer and the operator commands | 8080 (API), 9443 (sensor mTLS) | 1000 (`openctem`); the signer runs as 1001 (`openctem-signer`) | `/app/server -healthcheck` | Database (`DB_*`), Redis (`REDIS_*`), `APP_URL`, secrets (`APP_ENCRYPTION_KEY`, `FINGERPRINT_KEY`), `SIGNER_SOCKET` |
+| `{{ site.data.versions.server_image }}` | The API. Also holds the job signer and the operator commands | 8080 (API), 9443 (sensor mTLS) | 1000 (`openctem`); the signer runs as 1001 (`openctem-signer`) | `/app/server -healthcheck` | Database (`DB_*`), Redis (`REDIS_*`), `APP_URL`, secrets (`APP_ENCRYPTION_KEY`, `FINGERPRINT_KEY`), `SIGNER_SOCKET` |
 | `openctem-web` | The web console (Next.js) | 3000 | 1001 (`nextjs`) | HTTP `GET /api/health` on port 3000 | `BACKEND_API_URL`, `NEXT_PUBLIC_APP_URL`, `SECURE_COOKIES`, `TRUST_PROXY_HEADERS` |
 | `openctem-console` | The platform console (Next.js) | 3000 | 1001 | HTTP `GET /api/health` on port 3000 | `BACKEND_API_URL`, `ADMIN_API_URL`, `SECURE_COOKIES`, `TRUST_PROXY_HEADERS` |
 | `openctem-gateway` | Caddy with the layer4 module | 80, 443 (tcp and udp), 2019 (admin) | 1000 (`caddy`) | HTTP `GET /config/` on port 2019 | `OPENCTEM_TLS_MODE`, `OPENCTEM_HOSTNAME`, the `*_UPSTREAM` variables |
@@ -47,7 +47,7 @@ then one line per image, sorted:
 
 ```text
 # name source-reference index-digest archive archive-sha256
-openctem-api ghcr.io/openctemio/openctem-api:vX.Y.Z sha256:<index digest> openctem-image-openctem-api-vX.Y.Z.oci.tar <sha256 of the archive>
+{{ site.data.versions.server_image }} ghcr.io/openctemio/{{ site.data.versions.server_image }}:vX.Y.Z sha256:<index digest> openctem-image-{{ site.data.versions.server_image }}-vX.Y.Z.oci.tar <sha256 of the archive>
 ```
 
 The digest is that of the multi-arch **index**. The archive is an OCI layout
@@ -61,7 +61,7 @@ then:
 
 ```text
 # name reference digest (mirror-images.sh online, 2026-01-01T00:00:00Z)
-openctem-api registry.example.internal/openctem-trusted/openctem-api:vX.Y.Z sha256:<digest>
+{{ site.data.versions.server_image }} registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:vX.Y.Z sha256:<digest>
 ```
 
 The CI jobs write the same format as `staging.txt` and `trusted.txt`.
@@ -105,20 +105,20 @@ ISS=https://token.actions.githubusercontent.com
 cosign verify \
   --certificate-identity $ID/docker-publish.yml@refs/tags/$V \
   --certificate-oidc-issuer $ISS \
-  registry.example.internal/openctem-trusted/openctem-api:$V
+  registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:$V
 
 # Its attestations
 cosign verify-attestation --type slsaprovenance1 \
   --certificate-identity $ID/docker-publish.yml@refs/tags/$V \
   --certificate-oidc-issuer $ISS \
-  registry.example.internal/openctem-trusted/openctem-api:$V
+  registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:$V
 cosign verify-attestation --type spdxjson \
   --certificate-identity $ID/docker-publish.yml@refs/tags/$V \
   --certificate-oidc-issuer $ISS \
-  registry.example.internal/openctem-trusted/openctem-api:$V
+  registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:$V
 
 # The signatures are listed next to the image
-cosign tree registry.example.internal/openctem-trusted/openctem-api:$V
+cosign tree registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:$V
 
 # The signed checksum file of the release, then the files
 cosign verify-blob checksums-sha256.txt --bundle checksums-sha256.txt.sigstore.json \
@@ -134,7 +134,7 @@ gh attestation verify openctem-server-$V-linux-amd64.tar.gz --owner openctemio
 ```
 
 A digest check: the `mirror-images.sh` list names `name ref digest`.
-`oras resolve registry.example.internal/openctem-trusted/openctem-api:$V` must
+`oras resolve registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:$V` must
 print that digest.
 
 ## Kyverno policy

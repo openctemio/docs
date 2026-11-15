@@ -28,7 +28,7 @@ helm search repo openctem/openctem
 ```
 
 The chart's `appVersion` is the default tag of the API, web console, platform
-console and migrations images (`ghcr.io/openctemio/openctem-api`,
+console and migrations images (`ghcr.io/openctemio/{{ site.data.versions.server_image }}`,
 `openctem-web`, `openctem-console`, `migrations`) and of the gateway. `helm search repo openctem/openctem --versions` lists each chart
 version with the OpenCTEM release it targets. Pin the chart version you tested
 (`--version`).

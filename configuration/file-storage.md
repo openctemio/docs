@@ -81,7 +81,7 @@ Bucket checklist:
 ### Moving between a local volume and S3
 
 Switching `STORAGE_PROVIDER` does not move files: copy them first with
-`bootstrap-admin` from the `openctem-api` image (`/app/bootstrap-admin`; with
+`bootstrap-admin` from the `{{ site.data.versions.server_image }}` image (`/app/bootstrap-admin`; with
 Docker Compose, `docker compose run --rm bootstrap-admin ...`), using the
 `STORAGE_*` variables the API will use:
 

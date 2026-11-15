@@ -49,7 +49,7 @@ Each role page sorts its links into tutorials, how-to guides, reference and conc
 
 | Component | Repository | Image |
 |---|---|---|
-| API server, web console, platform console and gateway | [openctemio/openctem](https://github.com/openctemio/openctem) | `ghcr.io/openctemio/openctem-api`, `ghcr.io/openctemio/openctem-web`, `ghcr.io/openctemio/openctem-console`, `ghcr.io/openctemio/openctem-gateway`, `ghcr.io/openctemio/openctem` (all-in-one) |
+| API server, web console, platform console and gateway | [openctemio/openctem](https://github.com/openctemio/openctem) | `ghcr.io/openctemio/{{ site.data.versions.server_image }}`, `ghcr.io/openctemio/openctem-web`, `ghcr.io/openctemio/openctem-console`, `ghcr.io/openctemio/openctem-gateway`, `ghcr.io/openctemio/openctem` (all-in-one) |
 | Sensor | [openctemio/sensor](https://github.com/openctemio/sensor) | `ghcr.io/openctemio/sensor` |
 | CI integration | [openctemio/ci](https://github.com/openctemio/ci) | |
 | Go SDK and tool contract | [openctemio/sdk-go](https://github.com/openctemio/sdk-go) | |

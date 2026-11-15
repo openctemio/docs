@@ -15,7 +15,7 @@ their own consumers live in their own repositories under the
 
 | Repository | Language | License | What it is | Released as |
 |---|---|---|---|---|
-| [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web app (`web/`), platform console app (`web/console/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed` |
+| [openctem](https://github.com/openctemio/openctem) | Go, TypeScript | GPL-3.0 | The platform: API (`api/`), web app (`web/`), platform console app (`web/console/`), all-in-one image (`deploy/allinone/`) | `vX.Y.Z` tags; images `ghcr.io/openctemio/{{ site.data.versions.server_image }}`, `openctem-web`, `openctem` (all-in-one), `migrations`, `seed` |
 | [sensor](https://github.com/openctemio/sensor) | Go | GPL-3.0 | The sensor (`openctemio-sensor`) that runs scanners where the targets are and reports to the platform | its own tags; image `ghcr.io/openctemio/sensor` |
 | [sdk-go](https://github.com/openctemio/sdk-go) | Go | Apache-2.0 | The Go SDK: sensor runtime (`pkg/sensorkit`), tool contract (`pkg/tool`), protocol client, the `openctem` developer CLI | Go module with its own semver |
 | [ctis](https://github.com/openctemio/ctis) | Go, JSON Schema | Apache-2.0 | CTIS, the CTEM Interchange Schema 2.0: specification, JSON Schemas, Go types, report importers, the `ctis` validator and converter command, and the format adapters under `interop/` (SARIF, CycloneDX, SPDX, CSAF, OpenVEX, OCSF); spec CC BY 4.0, code Apache-2.0 | Go module `github.com/openctemio/ctis/v2`; adapters `github.com/openctemio/ctis/v2/interop/<format>` |

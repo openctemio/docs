@@ -80,6 +80,7 @@ Besides the Go runtime and process metrics, the API exposes among others:
 | `openctem_schema_version`, `openctem_schema_dirty` | Database migration state (applied and shipped). |
 | `openctem_build_info{version,commit}` | The running build. |
 | `openctem_sensors`, `openctem_sensors_unhardened`, `openctem_command_queue_depth`, `openctem_command_oldest_pending_seconds`, `openctem_scan_runs_open` | Active sensors, sensors with weak settings, and the sensor command and scan run queues (platform-wide counts). |
+| `openctem_feed_last_success_timestamp_seconds{source}`, `openctem_feed_failing{source}` | When each enabled intelligence feed (`epss`, `kev`, `vulnfeed`) last imported successfully, and whether its last run failed. The `FeedStale` rule alerts on them. |
 | `openctem_outbox_entries`, `openctem_outbox_oldest_pending_seconds` | The notification outbox. |
 | `openctem_security_audit_chain_breaks_total{reason}` | New breaks of the audit log hash chain. |
 | `openctem_signup_events_total{kind,source}` | Sign-up events recorded for the console's sign-up feed. |
@@ -178,6 +179,20 @@ docker compose -p openctem-obs --env-file {{ site.data.versions.backend_dir }}/d
   -f deploy/observability/docker-compose.openctem.yml \
   --profile observability up -d
 ```
+
+### Feed freshness
+
+From v0.23.0 a vulnerability or exploit feed that keeps failing is loud. The `FeedStale` alert
+fires when an enabled feed has had no successful import for longer than its window: 36 hours for the
+vulnerability bundle (published hourly), 12 hours for CISA KEV and 72 hours for EPSS. The alert
+reads `openctem_feed_last_success_timestamp_seconds{source}`, which moves only on a successful
+import (a run that found nothing newer counts), and `openctem_feed_failing{source}` is 1 while the
+last run failed. The API also logs "vulnerability corpus is stale" once there has been no successful
+import for six hours, or the newest bundle is over three days old, and counts the failure in
+`ControllerErrors`. In the platform console, **Threat intelligence > Sync status** shows **Last
+successful import** next to a failed feed. If you keep your own rules file, copy the `FeedStale` rule
+from `deploy/observability/prometheus/rules/openctem.yml` in the release. The runbook is in the
+[full guide](https://github.com/openctemio/openctem/blob/develop/server/docs/operations/monitoring.md).
 
 For the `BackupStale` and `BackupFailed` alerts, run
 [`backup.sh`](backup-restore.md#back-up-docker-compose) with

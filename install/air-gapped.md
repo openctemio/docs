@@ -71,13 +71,18 @@ the same commit, for `linux/amd64` and `linux/arm64`, to `ghcr.io/openctemio`
 
 | Image | Needed for |
 |---|---|
-| `openctem-api` | Compose, Helm, Ansible (also runs the sensor enrollment and the job signer) |
+| `{{ site.data.versions.server_image }}` | Compose, Helm, Ansible (also runs the sensor enrollment and the job signer) |
 | `openctem-web` | Compose, Helm, Ansible |
 | `openctem-console` | Compose, Helm, Ansible (the platform console) |
 | `openctem-gateway` | Compose, Helm (Caddy gateway mode), Ansible |
 | `migrations` | Compose, Helm, Ansible |
 | `openctem` | The all-in-one image only |
 | `seed` | Never in production (demo data) |
+
+The server image is named `openctem-api` up to v0.22.x and `openctem-server` from v0.23.0. Mirror a
+release with its own `mirror-images.sh`, which copies the name that release uses, and update registry
+allow-lists, replication rules and admission policies that name the old image
+([Upgrading to v0.23.0](../operations/upgrade.md#from-v022-to-v023)).
 
 Before an image is published, the release workflow builds it on each
 architecture, runs it, and fails the release on a size budget, a root user, a
@@ -128,7 +133,7 @@ Other artifacts:
 |---|---|---|
 | Sensor images `ghcr.io/openctemio/sensor:vX.Y.Z` and per-tool variants `vX.Y.Z-<tool>` (`opengrep`, `semgrep`, `trivy`, `nuclei`, `betterleaks`) | Released separately from `openctemio/sensor` | Keyless, identity `https://github.com/openctemio/sensor/.github/workflows/docker-publish.yml@refs/tags/vX.Y.Z`; SBOM and provenance are BuildKit attestations inside the image index (unsigned) |
 | Sensor binaries | `openctemio/sensor` releases: archives and `checksums.txt` | `checksums.txt.sigstore.json`, identity `https://github.com/openctemio/sensor/.github/workflows/release.yml@refs/tags/vX.Y.Z` |
-| `bootstrap-admin` binaries | `openctemio/openctem` releases, with `checksums-sha256.txt` | Checksums only, not signed: prefer the signed `openctem-api` image, which contains it (`/app/bootstrap-admin`) |
+| `bootstrap-admin` binaries | `openctemio/openctem` releases, with `checksums-sha256.txt` | Checksums only, not signed: prefer the signed `{{ site.data.versions.server_image }}` image, which contains it (`/app/bootstrap-admin`) |
 | Helm chart | `openctemio/helm-charts` releases (`openctem-<chart version>.tgz`) | Not signed: record its SHA-256 and review the rendered manifests ([Helm](#helm)) |
 | Compose files | `{{ site.data.versions.backend_dir }}/deploy/` of the repository at the release commit | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
 | Ansible kit | `openctemio/openctem-ansible`; `versions.yml` pins every image by digest | Images verified by the kit; the kit itself is a repository you review |
@@ -205,7 +210,7 @@ then on:
 RELEASE=v0.11.0
 SRC=ghcr.io/openctemio
 DST=registry.example.com/openctem
-IMAGES="openctem-api openctem-web openctem-console openctem-gateway migrations"
+IMAGES="{{ site.data.versions.server_image }} openctem-web openctem-console openctem-gateway migrations"
 # add openctem (all-in-one) when you deploy it
 
 mkdir -p "intake/$RELEASE"
@@ -291,7 +296,7 @@ done < "intake/$RELEASE/digests.txt" | sort -u > "intake/$RELEASE/commit.txt"
 wc -l < "intake/$RELEASE/commit.txt"   # must be 1: every image from the same commit
 ```
 
-With internet access, `gh attestation verify oci://$SRC/openctem-api@$digest --owner openctemio`
+With internet access, `gh attestation verify oci://$SRC/{{ site.data.versions.server_image }}@$digest --owner openctemio`
 is an independent second check of the provenance.
 
 ### Scan with your own data
@@ -348,7 +353,7 @@ services:
   web:           { image: registry.example.com/openctem/openctem-web@sha256:7c083015129f9606973905cdf96f2ccbf3cda8aa9eeedeb9b43b262ef14504e4 }
   console:       { image: registry.example.com/openctem/openctem-console@sha256:ea69de54b36900d9947482d37e86ef488c06e9f0c6802a4838ad7191e9ee12b3 }
   migrate:       { image: registry.example.com/openctem/migrations@sha256:5ebf7a763dfcdacc3677b0956b58eb97a7625ad1ee8e82068b9997b1efeb75ec }
-  api:           { image: registry.example.com/openctem/openctem-api@sha256:71315cf69e763ad19bdc7417c495408809a1c26c69df50004cc416741906c344 }
+  api:           { image: registry.example.com/openctem/{{ site.data.versions.server_image }}@sha256:71315cf69e763ad19bdc7417c495408809a1c26c69df50004cc416741906c344 }
   # Third-party images you mirrored and approved the same way
   db-roles:      { image: registry.example.com/mirror/postgres@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205 }
   db-grants:     { image: registry.example.com/mirror/postgres@sha256:dbb9623d5121b5d2c2c9e2fba56e40193cbb3510d4af7f035b1ab1823aff3205 }
@@ -394,7 +399,7 @@ imagePullSecrets:
   - name: internal-registry
 api:
   image:
-    repository: registry.example.com/openctem/openctem-api
+    repository: registry.example.com/openctem/{{ site.data.versions.server_image }}
     tag: "v0.10.1@sha256:547f5a5cef7057438f490ba88808e5502c61ea4a7674b2845a701897a06328d3"
   migrations:
     image:
@@ -452,7 +457,7 @@ openctem_releases:
     console_db_role: true
     console_service: true
     admin_audit_sink_required: true
-    api: registry.example.com/openctem/openctem-api@sha256:71315cf69e763ad19bdc7417c495408809a1c26c69df50004cc416741906c344
+    api: registry.example.com/openctem/{{ site.data.versions.server_image }}@sha256:71315cf69e763ad19bdc7417c495408809a1c26c69df50004cc416741906c344
     web: registry.example.com/openctem/openctem-web@sha256:7c083015129f9606973905cdf96f2ccbf3cda8aa9eeedeb9b43b262ef14504e4
     gateway: registry.example.com/openctem/openctem-gateway@sha256:e3ba3279b85f81894c15ccc3164588f435e37b39b8a578ee5c9408bb010c2873
     migrations: registry.example.com/openctem/migrations@sha256:5ebf7a763dfcdacc3677b0956b58eb97a7625ad1ee8e82068b9997b1efeb75ec
@@ -461,7 +466,7 @@ openctem_releases:
     admin_plane: true
     console_db_role: true
     console_service: true
-    api: registry.example.com/openctem/openctem-api@sha256:547f5a5cef7057438f490ba88808e5502c61ea4a7674b2845a701897a06328d3
+    api: registry.example.com/openctem/{{ site.data.versions.server_image }}@sha256:547f5a5cef7057438f490ba88808e5502c61ea4a7674b2845a701897a06328d3
     web: registry.example.com/openctem/openctem-web@sha256:0c0d9bd817232e41a8c557cfc5b97b434f6c404acb37c8f349485b047e87b71f
     gateway: registry.example.com/openctem/openctem-gateway@sha256:6e073b0480df602a71155f03b0e20954b45257ba0df404ff8b01d9a659f886eb
     migrations: registry.example.com/openctem/migrations@sha256:febae591a18002730726d90a92e484b0314b023258a4d5138720c12e888abc56
@@ -536,7 +541,7 @@ OUT="openctem-$RELEASE"
 mkdir -p "$OUT"
 
 # 1. Digests (as in approach 1)
-for img in openctem-api openctem-web openctem-console openctem-gateway migrations; do
+for img in {{ site.data.versions.server_image }} openctem-web openctem-console openctem-gateway migrations; do
   printf '%s %s\n' "$img" "$(crane digest "ghcr.io/openctemio/$img:$RELEASE")"
 done > "$OUT/digests.txt"
 
@@ -670,7 +675,7 @@ variables:
   RELEASE: ""
   SRC: ghcr.io/openctemio
   DST: $CI_REGISTRY/platform/openctem-mirror
-  IMAGES: "openctem-api openctem-web openctem-console openctem-gateway migrations"
+  IMAGES: "{{ site.data.versions.server_image }} openctem-web openctem-console openctem-gateway migrations"
   ISSUER: https://token.actions.githubusercontent.com
 
 workflow:
@@ -767,7 +772,7 @@ directory (signatures, SBOMs, provenance, scan reports) to the merge request or
 store it as a generic package next to the release.
 
 A scheduled pipeline can look for new releases (for example by listing tags
-with `crane ls ghcr.io/openctemio/openctem-api`) and start the intake; a person
+with `crane ls ghcr.io/openctemio/{{ site.data.versions.server_image }}`) and start the intake; a person
 still approves every merge request.
 
 ### Approvals and promotion
@@ -888,7 +893,7 @@ Check it:
 
 ```bash
 cosign verify --key release-approval.pub --insecure-ignore-tlog=true --new-bundle-format=false \
-  -a stage=production "registry.example.com/openctem/openctem-api@sha256:..."
+  -a stage=production "registry.example.com/openctem/{{ site.data.versions.server_image }}@sha256:..."
 ```
 
 ### Kubernetes: Kyverno

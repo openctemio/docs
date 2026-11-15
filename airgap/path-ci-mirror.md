@@ -94,7 +94,7 @@ discover -> mirror -> scan -> promote -> bump
 
 | Stage | What it does |
 |---|---|
-| `discover` | Finds the version (`OPENCTEM_VERSION`, or `tag_name` from `RELEASE_API_URL`). Skips it when `openctem-api:<version>` already resolves in `DEST_TRUSTED`, so a scheduled pipeline is idempotent. Fetches the release's image kit with `fetch-release.sh`, which verifies the signed `checksums-sha256.txt` first |
+| `discover` | Finds the version (`OPENCTEM_VERSION`, or `tag_name` from `RELEASE_API_URL`). Skips it when `{{ site.data.versions.server_image }}:<version>` already resolves in `DEST_TRUSTED`, so a scheduled pipeline is idempotent. Fetches the release's image kit with `fetch-release.sh`, which verifies the signed `checksums-sha256.txt` first |
 | `mirror` | `mirror-images.sh online` to staging. Signatures are checked at the source and again in staging. Output `staging.txt` |
 | `scan` | `scan-images.sh`: Trivy by digest. Fails on a finding at `TRIVY_SEVERITY` with a fix available. Reports `trivy-<name>.json` are kept |
 | `promote` | `mirror-images.sh online` from staging to trusted, verified again. Output `trusted.txt` and `openctem-images.env` |

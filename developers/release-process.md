@@ -68,7 +68,7 @@ only then pushes it and merges the architectures into one manifest list per tag.
 
 | Image | Built from | Contents |
 |---|---|---|
-| `ghcr.io/openctemio/openctem-api` | `server/Dockerfile` (target `production`) | API server, port 8080, non-root |
+| `ghcr.io/openctemio/{{ site.data.versions.server_image }}` | `server/Dockerfile` (target `production`) | API server, port 8080, non-root |
 | `ghcr.io/openctemio/openctem-web` | `web/Dockerfile` | the tenant web app, port 3000 |
 | `ghcr.io/openctemio/openctem-console` | `web/Dockerfile` (target `console`) | the platform console app (its own site), port 3000 |
 | `ghcr.io/openctemio/openctem-gateway` | `server/deploy/gateway/Dockerfile` | the Caddy gateway with the layer-4 module that routes sensor mTLS on port 443 |
@@ -79,7 +79,7 @@ only then pushes it and merges the architectures into one manifest list per tag.
 Tags: `vX.Y.Z` and `latest`. A `vX.Y.Z-staging` tag (or a manual run with
 `environment: staging`) publishes `vX.Y.Z-staging` and `staging-latest` instead. During a
 transition window the pre-monorepo names `ghcr.io/openctemio/api` and `ghcr.io/openctemio/ui`
-receive identical copies of `openctem-api` and `openctem-web`.
+receive identical copies of `{{ site.data.versions.server_image }}` and `openctem-web`.
 
 **Supply chain:**
 

@@ -29,7 +29,7 @@ gateway and sensor images, and `global.imageRegistry` (default empty). With
 both empty, a render is unchanged.
 
 - `global.imageRegistry` replaces the `ghcr.io/openctemio` prefix of every
-  OpenCTEM image. The repository basenames stay (`openctem-api`, `migrations`,
+  OpenCTEM image. The repository basenames stay (`{{ site.data.versions.server_image }}`, `migrations`,
   `openctem-web`, `openctem-console`, `openctem-gateway`, `sensor`). An image
   whose `repository` you overrode to another host is used as written.
 - `*.image.digest` is `sha256:<64 hex>`. The chart renders
@@ -53,7 +53,7 @@ both empty, a render is unchanged.
 
 global:
   # Replaces ghcr.io/openctemio/ of every OpenCTEM image; the image names
-  # (openctem-api, openctem-web, ...) stay. Third-party images below need
+  # ({{ site.data.versions.server_image }}, openctem-web, ...) stay. Third-party images below need
   # their own repositories.
   imageRegistry: registry.example.internal/openctem-trusted
 
@@ -161,7 +161,7 @@ immutability rule on `v*`), so a tag cannot be re-pointed.
 ```bash
 # OpenCTEM images from registry.example.internal/openctem-trusted, release vX.Y.Z
 OPENCTEM_VERSION=vX.Y.Z
-API_IMAGE=registry.example.internal/openctem-trusted/openctem-api
+API_IMAGE=registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}
 UI_IMAGE=registry.example.internal/openctem-trusted/openctem-web
 CONSOLE_IMAGE=registry.example.internal/openctem-trusted/openctem-console
 GATEWAY_IMAGE=registry.example.internal/openctem-trusted/openctem-gateway
@@ -180,7 +180,7 @@ Before `docker compose up`, check the digests you run against the list:
 ```bash
 docker compose config --images
 docker compose pull
-oras resolve registry.example.internal/openctem-trusted/openctem-api:vX.Y.Z
+oras resolve registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:vX.Y.Z
 ```
 
 `oras resolve` must print the digest in `openctem-mirrored-<version>.txt`.
