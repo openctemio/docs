@@ -26,7 +26,7 @@ steps are the same for every path; only the way the images arrive differs.
 3. Confirm the release is in the trusted registry and carries its signatures:
 
    ```bash
-   cosign tree registry.example.internal/openctem-trusted/openctem-api:vX.Y.Z
+   cosign tree registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:vX.Y.Z
    ```
 
 4. Write the digests into your deployment settings

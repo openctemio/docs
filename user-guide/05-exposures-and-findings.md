@@ -139,6 +139,11 @@ has no pin button.
     at most 3 wildcards and at least 3 other characters in a row.
   - At most two pattern or text-contains filters can be combined in one list;
     a third is refused with "narrow the filter".
+- **Asset IP range.** The asset address filter (`asset.ip` in a query) takes an address or a CIDR
+  range, for example `10.0.0.0/8`, and matches a finding when its asset's name or any address
+  the asset has recorded is inside it: a host named `web01.example.com` with `10.0.26.7` in its
+  addresses matches `10.0.26.0/24` (see
+  [Filtering by address](04-discovery.md#filter-by-ip-address-or-range)).
 - A link can carry a filter the console does not know (a typo such as
   `sevrity=high`). It is shown as **Unknown filter** with an x, and the list
   still loads without it. If the server refuses it, the list says "This link has
@@ -252,6 +257,42 @@ In the grouped view:
   related CVEs of the same component).
 - When grouped by owner, **Assign to asset owners** assigns the unassigned group
   to each asset's owner.
+
+### Held findings
+
+A scan can run into a target that is limiting it: an edge protection page, a rate limit, a
+site that answers every path alike. A finding matched on such an answer may be the limit page
+and not the application. From v0.23.0 the platform **holds** the findings a scan command first
+saw on a host its result names as throttled, blocked, edge protected, at the rate floor or
+answering every path alike. A held finding is kept with its evidence and listed, and a person can
+still open, triage, assign or ticket it by hand, but until it is checked it stays out of:
+
+- the asset's risk counts and risk score, and the counts of business units, asset groups and the
+  dashboard (open and overdue findings, KEV critical findings);
+- emerging-threat alerts;
+- SLA breach and at-risk escalation (the deadline is kept);
+- new-finding notifications and automation rules, and priority-escalation notices;
+- ticket creation: an automatic Jira ticket waits as a policy hold and is created once the finding
+  is checked, and an automation `create_ticket` step is skipped.
+
+At most one notice per scan command, `finding_held_critical` (on by default for new
+integrations), says how many critical findings that command held.
+
+A finding has a **verification state**: `unchecked` (the default, and every finding that existed
+before v0.23.0), `held`, `verified` or `not_reproduced`. A held finding has one or more
+**hold reasons**: `target_throttled` is set today; `edge_block_page`, `throttled_response`,
+`soft_404`, `timing_based` and `oob_weak` are reserved. A held sighting never downgrades a finding
+that was already there or was verified.
+
+**Release.** When a later completed run sights a held finding again on a host its result does not
+name as throttled, the finding is released: it sends its notifications, automation rules and
+automatic tickets once, counts in risk scores and SLA escalation again, and its asset is
+rescored.
+
+Filter the list with `verification_state=held` (a field in **Add filter**, or in a
+[query](../api/query.md)). The finding API returns `verification_state` and `hold_reasons`, and
+the CSV and NDJSON exports add the columns `verification_state` and `hold_reasons` (reasons
+joined with `;` in CSV).
 
 ### Verify fixes
 

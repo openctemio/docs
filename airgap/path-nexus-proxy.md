@@ -127,7 +127,7 @@ mirror run fails, and so do two images that share a signature tag.
 cosign verify \
   --certificate-identity "https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/$V" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  nexus.example.internal:8443/openctemio/openctem-api:$V
+  nexus.example.internal:8443/openctemio/{{ site.data.versions.server_image }}:$V
 ```
 
 Nexus answers 404 on the OCI referrers API. Clients fall back to the tag schema

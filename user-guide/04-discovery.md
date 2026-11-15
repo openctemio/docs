@@ -715,6 +715,16 @@ review and are never scanned; findings on them stay visible with the tag
   only)**, **Out of scope**, **Internal**) and **Found by**. **Views** offers
   saved filters, among them **Not in scope (passive only)**, **Discovered**,
   **Out of scope** and **New since last visit**.
+- <a id="filter-by-ip-address-or-range"></a>**Filter by IP address or range.** The **IP** filter (in the
+  search box: `ip=10.0.0.0/8`; also `GET /assets?in_cidr=`) takes an address or a CIDR range, IPv4 or
+  IPv6. An asset matches when its name or any address it has is inside the range: the name of an IP
+  address asset, and the recorded addresses (`ip_addresses`, `private_ip`, `public_ip`) of hosts and
+  network devices, so a host named `web01.example.com` is found by the address it reports. The
+  addresses a domain, subdomain or service resolves to or listens on do not count; use the **Domain**
+  filter for everything that belongs to a name. The findings address filter and the `in_cidr` rule of a
+  [group that updates itself](groups-that-update-themselves.md) use the same condition, so a group
+  holds what the list shows. After an upgrade to v0.23.0 the addresses of existing assets are copied in
+  the background ([upgrade note](../operations/upgrade.md#from-v022-to-v023)).
 - The list includes what discovery found. Names awaiting a decision and
   names marked not yours are hidden; the chip **Hiding names awaiting review
   and not ours** says so, and its **Show** lists every name.
@@ -910,8 +920,9 @@ full page `/assets/{id}`):
   from**): an address shows the name that resolves to it and the domain that
   contains that name. The root is at the top, the asset in the middle, and
   what it exposes below. More than 8 related assets of one kind are grouped
-  into one node ("10 assets"); select it and choose **Show all** (or **Show
-  50**) to draw them. Select any asset (click it, or use the arrow keys and
+  into one node ("10 assets"); select it to see its first five members by
+  name and type (each opens the asset, "and N more" for the rest, only assets in your
+  access) and choose **Show all** (or **Show 50**) to draw them. Select any asset (click it, or use the arrow keys and
   Enter) to **Open asset** or **Show related assets** from it. Related assets
   you cannot access are counted on the asset they hang off ("2 outside your
   access"), never drawn or walked through. **Full screen** on the graph (or

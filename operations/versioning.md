@@ -25,11 +25,11 @@ the maintainers' working reference is
 - A release is a `vX.Y.Z` tag on the `main` branch of
   [openctemio/openctem](https://github.com/openctemio/openctem). The API and the
   web console share it.
-- One tag publishes every image from the same commit: `openctem-api`,
+- One tag publishes every image from the same commit: `{{ site.data.versions.server_image }}`,
   `openctem-web`, `openctem-console` (the platform admin console app),
   `openctem-gateway`, the all-in-one `openctem`, `migrations` and `seed`, all
   under `ghcr.io/openctemio/` (the `admin-cli` image ended with v0.15.6;
-  `bootstrap-admin` is in the `openctem-api` image), for amd64 and arm64, signed with
+  `bootstrap-admin` is in the `{{ site.data.versions.server_image }}` image), for amd64 and arm64, signed with
   cosign and with SBOMs on the GitHub Release.
 - Run all platform images at the same version.
 
@@ -47,11 +47,11 @@ IDENTITY='^https://github.com/openctemio/openctem/.github/workflows/docker-publi
 ISSUER=https://token.actions.githubusercontent.com
 
 # The signature of the image
-cosign verify "ghcr.io/openctemio/openctem-api:$TAG" \
+cosign verify "ghcr.io/openctemio/{{ site.data.versions.server_image }}:$TAG" \
   --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER"
 
 # The signed SBOM attestation
-cosign verify-attestation --type spdxjson "ghcr.io/openctemio/openctem-api:$TAG" \
+cosign verify-attestation --type spdxjson "ghcr.io/openctemio/{{ site.data.versions.server_image }}:$TAG" \
   --certificate-identity-regexp "$IDENTITY" --certificate-oidc-issuer "$ISSUER"
 ```
 
@@ -61,7 +61,7 @@ release after v0.8.0. Each image also carries a signed SLSA build provenance (th
 repository, workflow, tag and commit it was built from):
 
 ```bash
-cosign verify-attestation --type slsaprovenance1 "ghcr.io/openctemio/openctem-api:$TAG" \
+cosign verify-attestation --type slsaprovenance1 "ghcr.io/openctemio/{{ site.data.versions.server_image }}:$TAG" \
   --certificate-identity "https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/$TAG" \
   --certificate-oidc-issuer "$ISSUER"
 ```

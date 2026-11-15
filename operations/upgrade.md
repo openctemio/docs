@@ -36,6 +36,7 @@ Which sensor, SDK, CI runner and chart releases go with the current platform rel
 | From | To | Guide |
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
+| v0.22.x | v0.23.0 | [From v0.22 to v0.23](#from-v022-to-v023) below: the server image is renamed `openctem-server` (change a custom `API_IMAGE`, Helm `api.image.repository`, mirror, replication rule or admission policy that names `openctem-api`), PostgreSQL 17.12, findings can be held, IP range filters read recorded addresses (a backfill runs after the migration), a one-command Compose install. Every change: [v0.23.0](/operations/releases/v0-23-0/). |
 | v0.20.x | v0.21.0 | [From v0.20 to v0.21](#from-v020-to-v021) below: 59 migrations (two data migrations), three removed `CERT_MONITOR_*` variables stop the API from starting, sensor task credentials arrive sealed per task (bearer-key sensors are paired again, scans with a credential in their settings are edited), new pairings are signed (sensor v0.40 and later need this release), Certificate Transparency moves to platform sensors, operator commands for existing findings. Every change: [v0.21.0](/operations/releases/v0-21-0/). |
 | v0.19.x | v0.20.0 to v0.20.3 | [From v0.19 to v0.20](#from-v019-to-v020) below: no migration up to v0.20.2 (v0.20.3 adds one that widens a column), leaked-secret fingerprints re-keyed per organization on start, a scan runs as far as your tools and sensors support, the sensor release line moves to v0.38. |
 | v0.18.x | v0.19.0 and v0.19.1 | [From v0.18 to v0.19](#from-v018-to-v019) below: CTIS 2.0 only (upgrade sensors, connectors and CI together), stored findings and asset names are re-keyed on start, the audit log is chained by the database, the release feed is signed keyless, the feed relay and feed proxy are optional. |
@@ -84,6 +85,70 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.22 to v0.23
+
+v0.23.0 has 9 migrations. They add columns, tables and indexes; none rewrites stored data, and one
+background copy of asset addresses runs after the upgrade (below). Take a backup first
+([Backup and restore](backup-restore.md)) and upgrade the platform **before** the sensors.
+Every change of the release, upgrade notes first: [What changed in v0.23.0](/operations/releases/v0-23-0/).
+
+**Before you start the new release**
+
+- **The server image is `ghcr.io/openctemio/openctem-server`.** The server (API) image was
+  published as `ghcr.io/openctemio/openctem-api` up to v0.22.x; that repository keeps every tag up
+  to v0.22.x and receives no new ones, and nothing is copied under the old name. The image is signed
+  by the same release workflow as before and nothing else about it changes. What to change:
+  - *Docker Compose:* take the Compose files of the new release as usual; they default to the new
+    name. If your `.env` sets `API_IMAGE=ghcr.io/openctemio/openctem-api` (or a mirror path ending in
+    `/openctem-api`), change that line to `.../openctem-server` **before** you set `OPENCTEM_VERSION`
+    to v0.23.0, or the pull fails with "not found".
+  - *Helm:* chart 0.43.0 changes the default `api.image.repository` to
+    `ghcr.io/openctemio/openctem-server`. If your values set `api.image.repository` to the old name,
+    change it. With `global.imageRegistry` the image is looked up as `<registry>/openctem-server`.
+  - *Ansible kit:* nothing to do; the kit's release entry pins the new image by digest.
+  - *All-in-one image:* no change (`ghcr.io/openctemio/openctem`).
+  - *Private registries and air-gapped sites:* mirror the new release with its own
+    `mirror-images.sh`, which copies `openctem-server` (`mirror-images.sh server-image <version>`
+    prints the image name for any release, so mirroring an older release still copies
+    `openctem-api`). A Harbor replication rule made from `replication-rule-openctem.json` must add
+    `openctem-server` to its name filter (the template lists both names). The offline bundle lists the
+    image as `openctem-server` (`openctem-image-openctem-server-<version>.oci.tar`). Admission policies,
+    registry allow-lists and signature policies that name `openctem-api` need the new name too.
+    See [Air-gapped install](../install/air-gapped.md).
+  - The Prometheus job label `openctem-api` and the Kubernetes resource names are not images and do
+    not change.
+- **PostgreSQL 17.12.** Upgrade your PostgreSQL 17 server to 17.12 and restart it, as described in
+  [Security advisories: database patch releases](#security-advisories-database-patch-releases).
+
+**After the upgrade**
+
+- **Asset address backfill.** Range filters now read a table of each asset's recorded addresses. The
+  first migration creates it; the second copies the addresses of existing assets in batches of 2000
+  assets, each its own transaction, so asset writes keep going (it took about 2 minutes on 1.35
+  million assets). Until it ends, a range filter can miss an asset that existed before the upgrade and
+  was not written since.
+- **Review smart asset groups that use an IP range rule (`in_cidr`).** They now match a host by the
+  addresses it has recorded, not only by its name, so a group can gain members at its next evaluation
+  (the change is in the group's member history). A team whose data scope comes from such a group sees
+  those hosts and their findings too.
+- **Findings have a verification state** (`unchecked`, `held`, `verified`, `not_reproduced`). Every
+  existing finding is `unchecked`. Held findings stay out of scores, SLA escalation, notifications and
+  tickets until they are checked: see
+  [Held findings](../user-guide/05-exposures-and-findings.md#held-findings).
+- **Feed alert.** A new `FeedStale` Prometheus alert and two feed metrics report an intelligence feed
+  that keeps failing. If you keep your own rules file, copy the `FeedStale` rule from
+  `deploy/observability/prometheus/rules/openctem.yml` ([Monitoring](monitoring.md#feed-freshness)).
+- **Analysis jobs reach only a dedicated grant.** A job of the new `analyze` type is handed only to a
+  sensor on the `ai-worker` grant profile. A sensor on the `legacy-broad` grant that advertised an
+  `analyze.<kind>` capability no longer receives one. No action unless you ran such a sensor on purpose.
+- **Database roles.** The role script (`least-privilege-roles.sql`) now also takes write access to the
+  migration tracking tables away from the application role in every application schema, and its check
+  fails if the role can still write one. The Compose `db-roles` job applies it on every `up`; with a
+  database you manage, run it as in [Upgrading to a new release](../install/docker-compose.md#upgrading-to-a-new-release).
+
+New in the same release: a [one-command Compose install](../install/docker-compose.md#one-command-install)
+from a signed bundle, `openctem-compose-<version>.tar.gz`, attached to the release.
 
 ### From v0.20 to v0.21
 
@@ -293,7 +358,7 @@ client has to act on, by the release that introduced it.
   checkout). An `.env` written before v0.16.0 may have no `OPENCTEM_VERSION` line: add one
   before `docker compose pull` (the [Docker Compose](#docker-compose) steps below set it).
 - **No `admin-cli` image.** Run `bootstrap-admin` from the API image:
-  `docker compose run --rm bootstrap-admin ...` with Compose, or a Job with the `openctem-api`
+  `docker compose run --rm bootstrap-admin ...` with Compose, or a Job with the `{{ site.data.versions.server_image }}`
   image and command `/app/bootstrap-admin` on Kubernetes. Air-gapped mirror lists, the Harbor
   replication rule and the signature policy template no longer name `admin-cli`.
 - **Vulnerability feed location.** The default `VULNFEED_BASE_URL` is now

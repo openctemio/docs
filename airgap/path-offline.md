@@ -26,7 +26,7 @@ Each production release attaches these files:
 
 | File | Content |
 |---|---|
-| `openctem-image-<name>-<version>.oci.tar` | The multi-arch image index with its signature, provenance and SBOM attestation, as an OCI layout. One per image: `openctem-api`, `openctem-web`, `openctem-console`, `openctem`, `openctem-gateway`, `migrations`, `seed` |
+| `openctem-image-<name>-<version>.oci.tar` | The multi-arch image index with its signature, provenance and SBOM attestation, as an OCI layout. One per image: `{{ site.data.versions.server_image }}`, `openctem-web`, `openctem-console`, `openctem`, `openctem-gateway`, `migrations`, `seed` |
 | `openctem-images-<version>.txt` | One line per image: `name source-ref index-digest archive archive-sha256` |
 | `openctem-images-<version>.txt.sigstore.json` | The keyless signature of that list, by `docker-publish.yml` at the tag |
 | `openctem-image-kit-<version>.tar.gz` | `mirror-images.sh` and the templates |
@@ -160,7 +160,7 @@ Keyless verification needs the Sigstore trusted root. With it, add
 cosign verify --offline --trusted-root trusted_root.json \
   --certificate-identity https://github.com/openctemio/openctem/.github/workflows/docker-publish.yml@refs/tags/$V \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  registry.example.internal/openctem-trusted/openctem-api:$V
+  registry.example.internal/openctem-trusted/{{ site.data.versions.server_image }}:$V
 ```
 
 The signature bundles carry their transparency-log inclusion proofs, so nothing

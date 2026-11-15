@@ -75,7 +75,7 @@ digest. The label `org.opencontainers.image.title` says "rebuilt from release
 
 | Image | Base | User | Ports | Entrypoint and notes |
 |---|---|---|---|---|
-| `openctem-api` | distroless static (Debian 13), nonroot | 1000:1000 (signer 1001 exists in `/etc/passwd`) | 8080, 9443 | `/app/server`; healthcheck `/app/server -healthcheck`; copies the server binaries, links, OpenAPI file, `migrations/` and `configs/`; creates the writable paths `/app/data/attachments`, `/var/lib/openctem-signer/{keys,state}` (0700), `/run/openctem-signer` (0770) and `/var/lib/openctem-signer-pub` |
+| `{{ site.data.versions.server_image }}` | distroless static (Debian 13), nonroot | 1000:1000 (signer 1001 exists in `/etc/passwd`) | 8080, 9443 | `/app/server`; healthcheck `/app/server -healthcheck`; copies the server binaries, links, OpenAPI file, `migrations/` and `configs/`; creates the writable paths `/app/data/attachments`, `/var/lib/openctem-signer/{keys,state}` (0700), `/run/openctem-signer` (0770) and `/var/lib/openctem-signer-pub` |
 | `migrations` | alpine 3.24 | 65532 | none | `/usr/local/bin/openctem-migrate`; copies `openctem-migrate` and `migrations/` |
 | `seed` | postgres 18 alpine | 65532 | none | the seed SQL files at `/seed`; empty entrypoint; default command lists the files |
 | `openctem-gateway` | alpine 3.24 | 1000:1000 | 80, 443, 443/udp, 2019 | Caddy with the layer4 module at `/usr/bin/caddy`; Compose mounts the gateway configuration at `/etc/caddy`; healthcheck on the admin endpoint `http://127.0.0.1:2019/config/` |

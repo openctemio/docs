@@ -47,6 +47,10 @@ test is your responsibility.
 
 ## 1. Install the platform
 
+From v0.23.0 one command does this whole step on a Linux host: download the signed Compose bundle
+of the release and run `./install.sh` ([One-command install](install/docker-compose.md#one-command-install)).
+The commands below are the same steps by hand.
+
 ```bash
 git clone https://github.com/openctemio/openctem.git
 cd openctem

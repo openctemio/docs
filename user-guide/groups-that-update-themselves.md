@@ -60,6 +60,11 @@ yet, at most 1,000 at a time. Names your scope covers join the inventory. Names
 outside your scope are held for review as candidates: they are not scanned until
 someone decides.
 
+A rule on an IP range (`in_cidr`) matches a host by its name or any address it has recorded, as the
+Assets list does ([Filter by IP address or range](04-discovery.md#filter-by-ip-address-or-range)). A
+team whose data scope comes from such a group (an access rule of type asset group match) sees the
+hosts that join it and their findings, so review these groups before you rely on them for access.
+
 ## Take assets out
 
 Remove an asset from a group that has a rule and it stays out, even while the

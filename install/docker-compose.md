@@ -26,6 +26,50 @@ answers only your administrators' networks.
 - Port 443 free on the host, and the DNS name or IP address clients will use.
 - `git` and `openssl`.
 
+## One-command install
+
+From v0.23.0 the release ships a signed Compose bundle and an installer that takes a Linux host from
+nothing to a running, healthy stack. It checks Docker Engine (24 or later) and the Compose plugin, the
+host's memory, disk, ports, network, DNS and clock, asks at most five questions with defaults (the host
+name, Let's Encrypt or the built-in certificate authority, the first administrator, a break-glass
+administrator, the bundled sensor), writes `.env` through `setup.sh`, verifies the keyless signature of
+every release image, runs the configuration check, starts the stack, waits until it is healthy,
+creates the first administrators and prints the addresses and the first sign-in. Download the bundle,
+verify it, then run it; nothing runs before the checksum signature and the checksum pass:
+
+```bash
+v={{ site.data.versions.platform }} u=https://github.com/openctemio/openctem/releases/download/$v
+curl -fsSLO "$u/openctem-compose-$v.tar.gz" -fsSLO "$u/checksums-sha256.txt" -fsSLO "$u/checksums-sha256.txt.sigstore.json" &&
+cosign verify-blob checksums-sha256.txt --bundle checksums-sha256.txt.sigstore.json \
+  --certificate-identity "https://github.com/openctemio/openctem/.github/workflows/release.yml@refs/tags/$v" \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com &&
+sha256sum --ignore-missing -c checksums-sha256.txt &&
+tar -xzf "openctem-compose-$v.tar.gz" && cd "openctem-compose-$v" && ./install.sh
+```
+
+From a git checkout of a release tag, `cd {{ site.data.versions.backend_dir }}/deploy && ./install.sh` does
+the same; a checkout that is not at a release tag needs `--version vX.Y.Z`. Never pipe a downloaded
+script into a shell.
+
+Without a person at a terminal, give every answer as an option or an `OPENCTEM_INSTALL_*` variable
+(`./install.sh --help`); a missing required answer is an error and `--yes` never asks. The one-time
+credentials then go only to a new file given with `--credentials-file` (mode 0600; read it, then
+delete it):
+
+```bash
+./install.sh --yes --host ctem.example.com \
+  --admin-email admin@example.com --backup-admin-email breakglass@example.com \
+  --credentials-file /root/openctem-first-admin.txt
+```
+
+The installer is idempotent: an existing `.env` is reused and never overwritten, a rerun against a
+healthy stack recreates nothing, and an answer that differs from the existing `.env` is an error
+naming the line to change. It records the compose file set in `.env` (`COMPOSE_FILE`), so later
+`docker compose` commands and upgrades use the same files. `setup.sh --set NAME=VALUE` (and
+`install.sh --set`) writes any other setting into a new `.env`; a typed secret is checked for characters
+that would break a connection URL or Compose, and for its length. Back up `.env` after it
+finishes. The steps below are what the installer runs, for operators who prefer to run them by hand.
+
 ## 1. Get the deployment files
 
 The files live in `{{ site.data.versions.backend_dir }}/deploy/` of the
@@ -96,7 +140,7 @@ checked out (`{{ site.data.versions.backend_dir }}/deploy/VERSION` in a release 
 a branch checkout it stops and asks for `--version`. When you write `.env` by
 hand, set `OPENCTEM_VERSION={{ site.data.versions.platform }}` yourself: since v0.16.0 the compose file
 carries no default. The image names default to the current ones
-(`ghcr.io/openctemio/openctem-api`, `openctem-web`, `openctem-console`,
+(`ghcr.io/openctemio/{{ site.data.versions.server_image }}`, `openctem-web`, `openctem-console`,
 `openctem-gateway`, `migrations`). Run the release of the files you checked
 out.
 
@@ -104,7 +148,7 @@ out.
 Only the **v0.9.0** files defaulted to `v0.8.0` and to the old image names
 (`ghcr.io/openctemio/api`, `ghcr.io/openctemio/ui`). If you deploy v0.9.0
 itself, set `OPENCTEM_VERSION={{ site.data.versions.platform }}`,
-`API_IMAGE=ghcr.io/openctemio/openctem-api` and
+`API_IMAGE=ghcr.io/openctemio/{{ site.data.versions.server_image }}` and
 `UI_IMAGE=ghcr.io/openctemio/openctem-web` in `.env`.
 
 {: .warning }
@@ -184,10 +228,10 @@ Next: [create the first administrator and organization](first-admin.md).
 | `gateway` | `openctem-gateway` | The only published service: TLS and routing on port 443. Caddy with the layer-4 module, non-root. |
 | `web` | `openctem-web` | Web console (Next.js), internal port 3000. |
 | `console` | `openctem-console` | Platform console (Next.js), internal port 3000: its own app, served by the gateway on its own site. It reaches the API's console listener (internal port 8081). |
-| `api` | `openctem-api` | API (Go), internal port 8080. Runs the background jobs too. |
-| `signer` | `openctem-api` | Job signer: signs every job before a sensor gets it, no network, internal socket to the API. |
+| `api` | `{{ site.data.versions.server_image }}` | API (Go), internal port 8080. Runs the background jobs too. |
+| `signer` | `{{ site.data.versions.server_image }}` | Job signer: signs every job before a sensor gets it, no network, internal socket to the API. |
 | `migrate` | `migrations` | Applies database migrations, then exits. |
-| `bootstrap-admin` | `openctem-api` | One-off (profile `tools`): creates the first administrator and organization; not started by `up`. |
+| `bootstrap-admin` | `{{ site.data.versions.server_image }}` | One-off (profile `tools`): creates the first administrator and organization; not started by `up`. |
 | `db-roles` | `postgres:17` | Creates or repairs the least-privilege roles before the migrations, then exits. |
 | `db-grants` | `postgres:17` | The same script again after the migrations, so tables a migration just created get their grants before the API starts, then exits. |
 | `datastore-tls` | `postgres:17` | Issues a private CA and server certificates for PostgreSQL and Redis, renews them when they are within 30 days of expiry, then exits. |

@@ -186,7 +186,7 @@ with a signed SBOM and a signed build provenance attached to each image digest
 
 | Image | Contents |
 |---|---|
-| `ghcr.io/openctemio/openctem-api` | API server, `bootstrap-admin`, migrations and configuration files. |
+| `ghcr.io/openctemio/{{ site.data.versions.server_image }}` | API server, `bootstrap-admin`, migrations and configuration files. |
 | `ghcr.io/openctemio/openctem-web` | Web console. |
 | `ghcr.io/openctemio/openctem-console` | Platform console (its own app and site). |
 | `ghcr.io/openctemio/openctem-gateway` | Gateway: Caddy with the layer-4 module, for the Compose stack and the chart. |
@@ -194,9 +194,10 @@ with a signed SBOM and a signed build provenance attached to each image digest
 | `ghcr.io/openctemio/migrations` | Database migration runner. |
 | `ghcr.io/openctemio/seed` | Demo and test data. Not for production. |
 
-The `openctem-api`, `openctem-web` and `openctem` names start with
-v0.9.0. From v0.16.0 there is no separate `admin-cli` image: `bootstrap-admin`
-runs from the `openctem-api` image (`/app/bootstrap-admin`). Releases up to v0.8.0 exist as `ghcr.io/openctemio/api` and
+The `openctem-web` and `openctem` names start with
+v0.9.0. The server image is `openctem-api` up to v0.22.x and `openctem-server` from
+v0.23.0 (see [Upgrading to v0.23.0](../operations/upgrade.md#from-v022-to-v023)). From v0.16.0 there is no separate `admin-cli` image: `bootstrap-admin`
+runs from the `{{ site.data.versions.server_image }}` image (`/app/bootstrap-admin`). Releases up to v0.8.0 exist as `ghcr.io/openctemio/api` and
 `ghcr.io/openctemio/ui`, which keep receiving identical copies for a transition
 period. Pin an exact tag in production, never `latest`.
 

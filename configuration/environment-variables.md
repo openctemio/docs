@@ -106,7 +106,7 @@ never prints a secret value. Run it before a deploy or as an init step:
 
 ```bash
 # API image (the entrypoint is the server binary)
-docker run --rm --env-file api.env ghcr.io/openctemio/openctem-api:{{ site.data.versions.platform }} -check-config
+docker run --rm --env-file api.env ghcr.io/openctemio/{{ site.data.versions.server_image }}:{{ site.data.versions.platform }} -check-config
 # Docker Compose, in {{ site.data.versions.backend_dir }}/deploy
 docker compose run --rm --no-deps api -check-config
 # All-in-one image
