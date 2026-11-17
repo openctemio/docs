@@ -159,9 +159,9 @@ Related: [Tools and capabilities](../scanning/tools.md),
 
 ## How hard a scan works one host
 
-The tools that send requests to a scan's targets run under a **per-host budget**: 20 requests per second
+Every tool that connects to a scan's targets runs under a **per-host budget**: 20 requests per second
 and 8 requests in flight toward one host by default (the Standard level). The budget is counted per host,
-whatever the scheme, port, path or spelling of the scan's targets.
+whatever the scheme, port, path or spelling of the scan's targets. This ships with the next sensor release.
 
 | Level | Requests per second per host | In flight per host |
 |---|---|---|
@@ -175,7 +175,9 @@ A job's budget is, for each of the two numbers, the **lowest** of:
 
 1. the sensor's level, which the sensor's operator picks with
    [`SENSOR_PACING_LEVEL`](settings.md#SENSOR_PACING_LEVEL);
-2. the budget the platform signs into the job, when it sends one;
+2. the budget the platform signs into the job, when it sends one. A sensor reads it only when it verifies
+   job signatures (a job-signing key is pinned); a sensor that does not runs every job at its own level, and
+   the platform sends it no budget;
 3. the operator's ceiling, `rate.max_host_rps` and `rate.max_host_inflight` in the
    [local policy](network.md);
 4. the built-in ceiling of 200 requests per second and 50 in flight.
@@ -192,17 +194,25 @@ asked and what applies. A lower setting stays.
 
 | Tools | Paced by |
 |---|---|
-| nuclei (scans, re-verification and retests), httpx, katana, path discovery, screenshots, service detection | The per-host budget |
+| nuclei (scans, re-verification and retests), httpx, katana, path discovery, screenshots, service detection, and any tool you install in an adapter directory that connects to its targets | The per-host budget. Re-verifications and retests run under their own job's budget |
 | Port scan (naabu) | Packets per second of the budget's level (100, 300 or 1000), not the request budget |
-| DNS (dnsx), passive discovery (subfinder), lookups (asn, rdap), code scans (trivy, semgrep, opengrep, codeql, betterleaks) | They send nothing to the target hosts |
+| Lookups (asn, rdap), code scans that fetch their own data (trivy, semgrep, codeql), and any tool whose network class is `egress-proxy` | The per-host budget. Such a tool may reach any public host, so every host it reaches is held to the budget, including its own services (advisory databases, image registries, rule and pack hosts, RDAP and ASN servers). On Gentle that is two connections per host, so long parallel downloads can make the run report `slots_full` (below) |
+| DNS (dnsx), passive discovery (subfinder), code scans (opengrep, betterleaks) | They send nothing to the target hosts |
 
 ### What enforces it
 
 **With the tool sandbox on (the default)**, every tool connection passes through the sensor, which holds
-each host to the budget outside the tools. Names that resolve to one address share that address's budget.
+each host to the budget outside the tools. Names that resolve to one address share that address's rate and
+connections, and only that: a block page, a 429 or a `Retry-After` on one of them slows the address for a
+while and never pauses or refuses the other names there.
 The sensor holds:
 
-- every new connection, and the number of connections open to a host;
+- every new connection, and the number of connections open to a host. Open connections to a host never
+  exceed its slots (its in-flight number). When a connection needs a slot, an idle kept-alive connection to
+  that host is closed for it. That happens at once when the sensor knows the connection's answer was
+  complete, and after 30 seconds of quiet when it cannot be sure (the connection's first request, or a
+  client that offered HTTP/2); the new connection waits meanwhile. The tool sees an ordinary closed
+  keep-alive connection and opens a new one;
 - every request over plain HTTP;
 - every request over HTTPS, including on connections the tool keeps open, for the scan tools the sensor
   runs (HTTP/1.1, and HTTP/2 from a tool that sends each request on its own). The sensor counts them from
@@ -217,6 +227,14 @@ the sensor derives from the same budget, are what holds the budget.
 run gets one host's budget in all whatever its target list, and nothing reacts to what the hosts answer.
 The run's result says that its pacing is limited.
 
+### When a connection finds no slot: `slots_full`
+
+A connection that finds no free slot for 15 seconds is refused, and the run reports its host as a coverage
+gap `slots_full`. So does a host whose first answer on a connection may have been cut when the connection
+was closed for another. `slots_full` is the sensor's own limit, not something the target did: the host is
+not covered and the run is partial, but the scan of that host is not repeated at once and its findings are
+not held for it.
+
 ### When a target pushes back
 
 A host that answers the tool's requests with 429 or 503 is slowed down (its rate is halved, its
@@ -228,9 +246,10 @@ identification to get past a limit.
 The sensor cannot see such answers on ordinary HTTPS. With the sandbox on, it therefore sends its own
 small request (`GET /`) to each target origin every 10 seconds, the same way out as the tool. The request
 is always the same and carries only the sensor's own `User-Agent`: nothing from the scan's settings is on
-it. A 429, a 503 or a block page there halves the host's rate. On its own it does nothing more: it never
-pauses a host and never stops a scan, so a target cannot end its own scan by answering that one request
-differently. A host is paused when the tool's own connections fail as well.
+it. A 429, a 503 or a block page there halves the host's rate. On its own it never pauses a host and never stops a
+scan, so a target cannot end its own scan by answering that one request differently. When it is answered
+with a rate limit twice in a row, the run reports the host as a coverage gap `throttled` (marked as
+observed) and carries on at the lower rate. A host is paused when the tool's own connections fail as well.
 
 This request verifies the origin's certificate. An origin with a certificate that does not verify, or a
 target given without `http://` or `https://`, is paced but not watched this way.
