@@ -160,8 +160,10 @@ cannot be written the request is refused with `503 AUDIT_UNAVAILABLE`. Address f
 `*url`, `*webhook*`) keep only their scheme and host. Deleting an organization at once writes its
 critical `organization.purge_requested` row first and deletes nothing when it cannot.
 
-Someone who controls the database could still rewrite the chain. `ADMIN_AUDIT_SINK` closes that
-gap by sending every row, as written, to a place the database administrator does not control:
+Someone who controls the database could still rewrite the chain. In the Enterprise edition (since
+v0.22.0), `ADMIN_AUDIT_SINK` closes that gap by sending every row, as written, to a place the
+database administrator does not control. A Community server has no `ADMIN_AUDIT_SINK` and refuses to start while it is set; it keeps the
+hash chain, its verification and the audit views and exports.
 
 | `ADMIN_AUDIT_SINK` | Delivery |
 |---|---|
@@ -178,8 +180,8 @@ cursor that moves only after the destination accepted the batch, with backoff; i
 console. A batch that does not continue the last delivered row is still sent, flagged with a `gap`
 field. Metrics: `openctem_admin_audit_forward_*` and `openctem_admin_audit_chain_ok`.
 
-The sink is off by default. **With `MANAGED_SERVICE=true` in production the API refuses to
-start without it.** The Ansible kit sets it with `openctem_admin_audit_sink` (`file` or an
+The sink is off by default. **With `MANAGED_SERVICE=true` in production the Enterprise API refuses to
+start without it**; the Community build no longer requires it. The Ansible kit sets it with `openctem_admin_audit_sink` (`file` or an
 `https://` URL; `syslog+tls://` is not supported by the kit). Back up a `file` sink with the
 database ([Backup and restore](../operations/backup-restore.md)).
 

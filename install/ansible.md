@@ -185,7 +185,7 @@ there.
 | `openctem_sensor_feed_relay_origins` | `[]` | Extra https origins (a mirror) the feed relay sensor may fetch, added to the job signer's allowlist; set the same list on the sensor as `SENSOR_FEED_RELAY_ORIGINS`. The kit installs no sensor. |
 | `openctem_job_signer` | `false` | Sign sensor jobs; the key is created on the VM. |
 | `openctem_captcha_turnstile_site_key` | empty | Public Turnstile site key for `openctem_signup_mode: open`; the secret goes in `/opt/openctem/secrets/captcha_turnstile_secret` on the VM. |
-| `openctem_admin_audit_sink` | empty | Off-database copy of the platform administrators' audit log: empty (off), `file` or an `https://` URL. Sets the API's `ADMIN_AUDIT_SINK`. Required for a hosted service ([below](#hosted-service-the-administrators-audit-sink)). |
+| `openctem_admin_audit_sink` | empty | Off-database copy of the platform administrators' audit log: empty (off), `file` or an `https://` URL. Sets the API's `ADMIN_AUDIT_SINK`. Enterprise edition only (v0.22.0 and later): a Community server refuses to start while it is set. Required for a hosted service on the Enterprise edition ([below](#hosted-service-the-administrators-audit-sink)). |
 | `openctem_admin_audit_sink_head_interval` | empty (API default, 15 minutes) | How often the signed chain head is sent, for example `5m`. Only with a sink. |
 | `openctem_admin_audit_sink_dir` | `/opt/openctem/admin-audit` | `file` mode: the host directory that holds `admin-audit.jsonl`. |
 | `openctem_wal_archive`, `backup_wal_bucket`, `backup_wal_prefix`, `backup_wal_remote_conf`, `backup_wal_retention_days` | `false`, empty, project name, `/opt/openctem/secrets/backup_remote.conf`, `14` | Continuous archiving to an S3-compatible bucket and point-in-time restore ([below](#continuous-archiving-and-point-in-time-restore)). |
@@ -354,6 +354,10 @@ owns it), so administrators cannot register security keys on the console's port 
 host mode for production.
 
 ## Hosted service: the administrators' audit sink
+
+The audit sink is an Enterprise edition feature since v0.22.0. A Community server has no sink,
+no longer requires one with `MANAGED_SERVICE=true`, and refuses to start while
+`ADMIN_AUDIT_SINK` is set; the rest of this section applies to the Enterprise edition.
 
 The platform console keeps a hash-chained audit log of what platform administrators do. The
 sink writes a copy outside the database, so a database-level rewrite shows up as a

@@ -52,7 +52,7 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | Sensor mTLS listener (protocol v3) | `SENSOR_MTLS_LISTEN_ADDR`; the gateway routes it on port 443 | `:9443` |
 | Free-space, backup and certificate checks on the console Health page (Monitoring > Health) | `SYSTEM_STORAGE_PATHS`, `SYSTEM_BACKUP_STATUS_FILE`, `SYSTEM_TLS_CERT_FILES` | local attachments and sensor CA only |
 | Platform console address and who may reach it | `OPENCTEM_ADMIN_SITE` (`port`, `host`, `off`), `OPENCTEM_ADMIN_HOST` or `OPENCTEM_ADMIN_PORT`, `OPENCTEM_ADMIN_BIND`, `OPENCTEM_ADMIN_ALLOWED_CIDRS` | `port` on `8443`, private networks only (Compose) |
-| Off-box copy of the administrators' audit log (required with `MANAGED_SERVICE=true`) | `ADMIN_AUDIT_SINK` | off |
+| Off-box copy of the administrators' audit log (Enterprise edition since v0.22.0; a Community server refuses to start while it is set) | `ADMIN_AUDIT_SINK` | off |
 | Where the vulnerability, KEV, EPSS and release feeds come from ([Feeds](../operations/feeds.md)) | Platform console, feed delivery (direct, relay through a sensor, or bundle directory `VULNFEED_BUNDLE_DIR`); `OPENCTEM_HTTPSEC_FEED_PROXY` for an HTTPS proxy | direct |
 | Metrics | `METRICS_TOKEN` | off |
 | Audit log retention | `AUDIT_RETENTION_ENABLED`, `AUDIT_RETENTION_DAYS`, `ADMIN_AUDIT_RETENTION_*` | 365 days, then archived through the storage provider; admin audit pruning in dry run |

@@ -355,8 +355,9 @@ api:
 ## Hosted service
 
 For a hosted multi-tenant service add `MANAGED_SERVICE: "true"` to `api.extraEnv`.
-With `api.appEnv: production` the API then refuses to start unless
-`ADMIN_AUDIT_SINK` is set as well: an `https://…` receiver (with
+With `api.appEnv: production` the Enterprise API (v0.22.0 and later) then refuses to
+start unless `ADMIN_AUDIT_SINK` is set as well (the Community build does not
+require it and refuses to start while it is set): an `https://…` receiver (with
 `ADMIN_AUDIT_SINK_SECRET` from a Secret through `api.extraEnvFrom`, at least 32
 bytes), `syslog+tls://` or a `file:///` path on a writable volume. The chart has
 no value of its own for them. See

@@ -329,11 +329,13 @@ Then apply with `docker compose up -d`.
 multi-tenant service for organizations it does not control; leave it unset on a
 self-managed install. It changes defaults only (for example, platform sensors
 need a verified domain before they scan a target). In production
-(`APP_ENV=production`) the API **refuses to start** with `MANAGED_SERVICE=true`
-unless `ADMIN_AUDIT_SINK` is set: an off-box copy of the platform
+(`APP_ENV=production`) the Enterprise API (v0.22.0 and later) **refuses to start**
+with `MANAGED_SERVICE=true` unless `ADMIN_AUDIT_SINK` is set: an off-box copy of the platform
 administrators' hash-chained audit log, so someone who controls the database
 cannot rewrite its history unnoticed. The stack does not pass either variable
-by default; add them in `docker-compose.override.yml`:
+by default; add them in `docker-compose.override.yml`. Audit streaming is an
+Enterprise feature: a Community server does not require `ADMIN_AUDIT_SINK` and
+refuses to start while it is set.
 
 ```yaml
 services:

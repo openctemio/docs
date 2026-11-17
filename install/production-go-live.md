@@ -82,10 +82,10 @@ Read the release notes and the upgrade notes of the release.
    self-hosted install), `domain` or `open`. See
    [Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations).
    If you run a hosted multi-tenant service, set `MANAGED_SERVICE=true`: in
-   production the API then refuses to start unless `ADMIN_AUDIT_SINK` (an off-box
-   copy of the platform administrators' audit log) is set too
-   ([Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)).
-   The Ansible kit's preflight stops a managed inventory without one.
+   production the Enterprise API (v0.22.0 and later) refuses to start unless
+   `ADMIN_AUDIT_SINK` (an off-box copy of the platform administrators' audit log)
+   is set too ([Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)).
+   The Community build no longer requires it and refuses to start while it is set.
    Decide where the platform console lives (`OPENCTEM_ADMIN_SITE`: `port`,
    `host` or `off`) and which networks may reach it
    (`OPENCTEM_ADMIN_ALLOWED_CIDRS`); a host name of its own is recommended.

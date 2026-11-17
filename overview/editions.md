@@ -20,7 +20,7 @@ Community never shows locked items, greyed-out features or upgrade prompts.
 
 | Feature | What it does | Status |
 |---|---|---|
-| Audit streaming | Copy of the administrators' audit log streamed off the box (syslog over TLS, HTTPS) with a resumable cursor | in Community in every release so far (v0.20.x); planned to move to Enterprise |
+| Audit streaming | Copy of the administrators' audit log streamed off the box (syslog over TLS, HTTPS) with a resumable cursor | Enterprise since v0.22.0; Community keeps the audit hash chain, its verification, the audit views and exports |
 | Trusted organizations | Members of a trusted organization sign in with their home identity under a role ceiling and key policy you set | in Community in every release so far (v0.20.x); planned to move to Enterprise |
 | SCIM provisioning and IdP group links | Create and reactivate members from your identity provider and map its groups to roles | in Community in every release so far (v0.20.x); planned to move to Enterprise |
 | White-label branding | Your product name, logo and colours on the installation, reports and e-mails | in Community in every release so far (v0.20.x); planned to move to Enterprise |
@@ -37,10 +37,14 @@ Community never shows locked items, greyed-out features or upgrade prompts.
 | Risk in money | Expected loss per business service, with the assumptions shown | planned |
 | Policy gates, risk-model governance | Organization-wide required checks; approval and back-testing of scoring models | planned |
 
-Running SCIM provisioning or an audit sink? The features marked "planned to move
+Running SCIM provisioning or trusted organizations? The features marked "planned to move
 to Enterprise" are in Community today. No release and no date is committed: the
 release notes of the release that moves them will say so, and an upgrade guide
 will say what to do. Deprovisioning through SCIM keeps working in Community.
+
+Audit streaming has already moved: before you start v0.22.0 or later on a
+Community build, unset every `ADMIN_AUDIT_SINK*` setting, because the server
+refuses to start while one is set.
 
 Two components with their own runtime are licensed separately: the **asset
 collector** (on-premises estate, directory and MDM sources) and the **AI

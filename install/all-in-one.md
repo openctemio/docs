@@ -298,8 +298,9 @@ changing it later makes registered keys unusable.
 ## Hosted service
 
 For a hosted, multi-tenant service set `MANAGED_SERVICE=true` in
-`openctem.env`. In production the API then refuses to start unless
-`ADMIN_AUDIT_SINK` is set too: an `https://` receiver (with
+`openctem.env`. In the Enterprise edition (v0.22.0 and later) the API in production
+then refuses to start unless `ADMIN_AUDIT_SINK` is set too (the Community build
+no longer requires it and refuses to start while it is set): an `https://` receiver (with
 `ADMIN_AUDIT_SINK_SECRET`, at least 32 bytes), `syslog+tls://` or a
 `file:///` path in a directory of the `/data` volume that the image's user can
 write (the file sink only protects against rewrites inside the database; the
