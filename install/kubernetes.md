@@ -355,13 +355,11 @@ api:
 ## Hosted service
 
 For a hosted multi-tenant service add `MANAGED_SERVICE: "true"` to `api.extraEnv`.
-With `api.appEnv: production` the API then refuses to start unless
-`ADMIN_AUDIT_SINK` is set as well: an `https://…` receiver (with
-`ADMIN_AUDIT_SINK_SECRET` from a Secret through `api.extraEnvFrom`, at least 32
-bytes), `syslog+tls://` or a `file:///` path on a writable volume. The chart has
-no value of its own for them. See
-[Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)
-for what each destination does.
+It changes defaults only (for example, platform sensors need a verified domain
+before they scan a target) and needs no other setting. Keep every
+`ADMIN_AUDIT_SINK*` variable out of `api.extraEnv` and `api.extraEnvFrom`: this
+build does not support them, and from v0.22.0 the server refuses to start while
+one is set ([upgrade step](../operations/upgrade.md#from-v021-to-v022)).
 
 ## Feeds
 

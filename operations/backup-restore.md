@@ -25,7 +25,7 @@ See how it works: [Backup and restore flow](../how-it-works/operations/backup-re
 | Job signer volumes | `signer-keys` and `signer-state` (Compose, with the job-signer overlay) | The key that signs sensor jobs and its sequence state. Losing `signer-state` lets sequence numbers repeat. |
 | Bundled sensor identity | `sensor-data` volume (Compose, with `docker-compose.sensor.yml`) | The enrolled identity of the bundled sensor. `backup.sh` does not copy it: back it up like a credential, or enrol the sensor again after a loss. |
 | Audit archives | The file storage provider, namespace `audit-archive` | Archived audit-log entries, which are deleted from the database after archiving. They are the only copy: back up the file storage like the database. |
-| Administrators' audit copy | The destination of `ADMIN_AUDIT_SINK`, when it is a `file:///` path | The copy of the platform administrators' audit log kept outside the database. A copy sent to an `https` or `syslog+tls` receiver is the receiver's to back up. See [Audit logs](../security/audit-log.md). |
+| Administrators' audit copy | A `file:///` copy of the platform administrators' audit log that a release before v0.22.0 wrote, if you configured one | Releases from v0.22.0 write no such copy and delete none. Keep the existing file with your backups for as long as you need it as evidence. See [Audit logs](../security/audit-log.md#the-administrators-audit-log). |
 
 The platform console keeps no state of its own: its sessions, administrators and
 settings are in the database, so the database backup covers it.
@@ -241,11 +241,12 @@ so in your privacy policy.
 
 #### Administrators' audit copy
 
-With `openctem_admin_audit_sink: file` the kit writes the administrators' audit copy to
-`openctem_admin_audit_sink_dir` (default `/opt/openctem/admin-audit`), and `openctem-backup`
-archives that directory as `admin-audit.tar.gz`, so the copy leaves the host with the encrypted
-backups. Restore it with `tar -xzf` into the directory. With an `https` sink, the HMAC key in
-`/opt/openctem/secrets/admin_audit_sink_secret` is part of `secrets.tar.gz`.
+A release before v0.22.0 that ran with `openctem_admin_audit_sink: file` wrote a copy of the
+administrators' audit log to `openctem_admin_audit_sink_dir` (default
+`/opt/openctem/admin-audit`). Releases from v0.22.0 write no such copy, and nothing deletes the
+existing one: while the directory exists, `openctem-backup` archives it as
+`admin-audit.tar.gz`, so it leaves the host with the encrypted backups. Restore it with
+`tar -xzf` into the directory.
 
 ## Rotating the encryption key
 

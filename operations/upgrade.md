@@ -37,6 +37,7 @@ Which sensor, SDK, CI runner and chart releases go with the current platform rel
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
 | v0.22.x | v0.23.0 | [From v0.22 to v0.23](#from-v022-to-v023) below: the server image is renamed `openctem-server` (change a custom `API_IMAGE`, Helm `api.image.repository`, mirror, replication rule or admission policy that names `openctem-api`), PostgreSQL 17.12, findings can be held, IP range filters read recorded addresses (a backfill runs after the migration), a one-command Compose install. Every change: [v0.23.0](/operations/releases/v0-23-0/). |
+| v0.21.x | v0.22.0 | [From v0.21 to v0.22](#from-v021-to-v022) below: unset every `ADMIN_AUDIT_SINK*` setting before you start the new release (the server refuses to start while one is set); sensor v0.41.1 and later need platform v0.22.0, so upgrade the platform first. |
 | v0.20.x | v0.21.0 | [From v0.20 to v0.21](#from-v020-to-v021) below: 59 migrations (two data migrations), three removed `CERT_MONITOR_*` variables stop the API from starting, sensor task credentials arrive sealed per task (bearer-key sensors are paired again, scans with a credential in their settings are edited), new pairings are signed (sensor v0.40 and later need this release), Certificate Transparency moves to platform sensors, operator commands for existing findings. Every change: [v0.21.0](/operations/releases/v0-21-0/). |
 | v0.19.x | v0.20.0 to v0.20.3 | [From v0.19 to v0.20](#from-v019-to-v020) below: no migration up to v0.20.2 (v0.20.3 adds one that widens a column), leaked-secret fingerprints re-keyed per organization on start, a scan runs as far as your tools and sensors support, the sensor release line moves to v0.38. |
 | v0.18.x | v0.19.0 and v0.19.1 | [From v0.18 to v0.19](#from-v018-to-v019) below: CTIS 2.0 only (upgrade sensors, connectors and CI together), stored findings and asset names are re-keyed on start, the audit log is chained by the database, the release feed is signed keyless, the feed relay and feed proxy are optional. |
@@ -44,7 +45,7 @@ Which sensor, SDK, CI runner and chart releases go with the current platform rel
 | v0.15.x | v0.15.6, v0.16.x and v0.17.0 | [From v0.15 to v0.17](#from-v015-to-v017) below: a new migration runner (takes over on its first run; roll back the API, never the migration job), the platform version comes from the release tag, no `admin-cli` image, the vulnerability feed moves to `openctemio/vulnfeed-bundles`, a database role script re-run with `DB_ADMIN_USER`, queued sensor segments sealed at rest. |
 | v0.12.x | v0.13.0 to v0.15.5 | [From v0.12 to v0.15.5](#from-v012-to-v0155) below: audit archives move to the storage provider, API contract changes (ingest answers 202, strict findings filters, task versions), SAML and OIDC provider requirements, retired scan and rule source features, per-integration webhook URLs. |
 | v0.11.x | v0.12.0 and later | [From v0.11 to v0.12.0](#from-v011-to-v0120) below: signed jobs on by default (a job signer is required in production), `AI_TRIAGE_ENABLED` removed, campaigns hold tasks. |
-| v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, `ADMIN_AUDIT_SINK` for managed services, re-run of the database role script, console pages moved, second super admin approvals. |
+| v0.10.x | v0.11.0 | [From v0.10 to v0.11.0](#from-v010-to-v0110) below: additive migrations, an audit sink rule for managed services (v0.11 to v0.21 only), re-run of the database role script, console pages moved, second super admin approvals. |
 | v0.9.x | v0.10.x | [From v0.9 to v0.10](#from-v09-to-v010) below: the platform console becomes its own service on its own site, new required settings, removed variables, migrations that need the API stopped. Plan a maintenance window. |
 | v0.8.0 | v0.9.0 | [Upgrading from v0.8.0 to v0.9.0](https://github.com/openctemio/openctem/blob/develop/server/docs/operations/upgrade-v0.8-to-v0.9.md): two migration hops, new image names, sensor protocol v1 removed, access and permission changes. Plan a maintenance window. |
 
@@ -149,6 +150,46 @@ Every change of the release, upgrade notes first: [What changed in v0.23.0](/ope
 
 New in the same release: a [one-command Compose install](../install/docker-compose.md#one-command-install)
 from a signed bundle, `openctem-compose-<version>.tar.gz`, attached to the release.
+
+### From v0.21 to v0.22
+
+**Before upgrading to v0.22.0 or later: unset every `ADMIN_AUDIT_SINK*` setting.** This applies
+to every upgrade that starts below v0.22.0, whatever the target release.
+
+From v0.22.0 this build does not support the settings that streamed the platform administrators'
+audit log to an external destination: `ADMIN_AUDIT_SINK`, `ADMIN_AUDIT_SINK_SECRET`,
+`ADMIN_AUDIT_SINK_SYSLOG_CA_FILE`, `ADMIN_AUDIT_SINK_SYSLOG_CLIENT_CERT`,
+`ADMIN_AUDIT_SINK_SYSLOG_CLIENT_KEY` and `ADMIN_AUDIT_SINK_HEAD_INTERVAL`. A server refuses to
+start while one of them has a value, so that a copy you rely on never stops unnoticed. The log
+line `refusing to start` names the first setting it found, never its value:
+
+```text
+ADMIN_AUDIT_SINK is set, but its feature is provided by an extension in this release and this build has none that declares it: unset it, or run a build that includes it
+```
+
+Remove the settings before you start the new release:
+
+| Installation | Where to remove them |
+|---|---|
+| Docker Compose | `.env` and `docker-compose.override.yml` (or any other override file) |
+| All-in-one image | `openctem.env` |
+| Kubernetes (Helm) | `api.extraEnv`, and the Secret or ConfigMap that `api.extraEnvFrom` names |
+| Ansible kit | Unset `openctem_admin_audit_sink` in the same run that upgrades. The kit's checks stop the run, before anything changes, while it is set or while a compose override or extra env file on the server still sets an `ADMIN_AUDIT_SINK*` variable ([Ansible](../install/ansible.md#hosted-service)) |
+
+What else changes with it:
+
+- `MANAGED_SERVICE=true` no longer requires a sink. Keep `MANAGED_SERVICE` as it is.
+- Copies already written are not touched: a file copy (`admin-audit.jsonl`) stays on disk and
+  a receiver keeps its records. Keep them for as long as you need them as evidence
+  ([Backup and restore](backup-restore.md)).
+- The administrators' audit log itself is unchanged: the tamper-evident hash chain, its
+  verification (`bootstrap-admin verify-audit`), the **Admin activity** views and the export stay.
+  [Audit log](../security/audit-log.md#the-administrators-audit-log) describes how to keep
+  evidence outside the database with them.
+- There is no migration for this change; the schema keeps the table
+  `admin_audit_forward_cursor`.
+
+Source: `server/CHANGELOG.md`, section v0.22.0 (upgrade notes).
 
 ### From v0.20 to v0.21
 
@@ -617,13 +658,13 @@ Source: `server/CHANGELOG.md`, section v0.12.0 (Security and Removed entries).
 Migrations `002908` to `002915` are all additive; the API can keep running while
 they apply. Then check:
 
-- **Managed services need the administrators' audit sink.** With
-  `MANAGED_SERVICE=true` and `APP_ENV=production` the API refuses to start unless
+- **Managed services need the administrators' audit sink (v0.11 to v0.21 only).** With
+  `MANAGED_SERVICE=true` and `APP_ENV=production` these releases refuse to start unless
   `ADMIN_AUDIT_SINK` is set (`https://...` with `ADMIN_AUDIT_SINK_SECRET`,
-  `syslog+tls://...`, or `file://...`). Set it before upgrading. The Ansible kit sets
-  it from `openctem_admin_audit_sink` (`file` or `https`). Self-managed
-  installations (`MANAGED_SERVICE` unset) are not affected. See
-  [Audit log](../security/audit-log.md).
+  `syslog+tls://...`, or `file://...`). Self-managed installations (`MANAGED_SERVICE`
+  unset) are not affected. If you upgrade on to v0.22.0 or later, do not set it: those
+  releases refuse to start while it is set
+  ([From v0.21 to v0.22](#from-v021-to-v022)).
 - **Re-run the database role script when the console has its own role.**
   Installations with `DB_ADMIN_USER` re-run `deploy/postgres/least-privilege-roles.sql`
   with `admin_user` after the migrations, so the console role gets the new
@@ -693,7 +734,8 @@ while the migrations run** (Compose: `docker compose stop api web` before
   upgrade.
 - **Reconfigure the admin audit sink** if it used `ADMIN_AUDIT_SINK_TOKEN`,
   `syslog+tcp://` or `syslog+udp://` (now `https://` with `ADMIN_AUDIT_SINK_SECRET`,
-  `syslog+tls://` or `file://`).
+  `syslog+tls://` or `file://`). This applies up to v0.21 only; unset the sink settings
+  before v0.22.0 ([From v0.21 to v0.22](#from-v021-to-v022)).
 
 The platform console:
 

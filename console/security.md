@@ -201,10 +201,10 @@ hold a full webhook address: rotate the alert webhook after upgrading. The netwo
 address, user agent and request body of an entry are shown only to administrators
 whose roles read the administrators or the Users directory (platform owner,
 platform admin, support, security auditor); a read-only administrator sees the
-action, the actor, the time and the result. To keep a copy off the machine, set
-`ADMIN_AUDIT_SINK` (an `https://` collector, `syslog+tls://` or a `file://` path);
-a managed service (`MANAGED_SERVICE=true` in production) must set it, or the API
-does not start. See [Audit log](../security/audit-log.md).
+action, the actor, the time and the result. To keep a copy off the machine,
+**Export** the filtered list and record the chain head that
+`bootstrap-admin verify-audit -json` prints. See
+[Audit log](../security/audit-log.md#the-administrators-audit-log).
 
 ## My security keys
 

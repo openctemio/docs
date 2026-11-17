@@ -323,8 +323,8 @@ platform identity are what stop a compromised platform from directing it. The en
 
 Security-relevant actions are written to a per-organization audit log, linked into a SHA-256 hash
 chain that is verified hourly, and owners and administrators can export it (CSV or JSON lines, up to
-50,000 rows, itself audited). Platform administrator actions have their own append-only log, which
-can be copied off the box. See [Audit log](audit-log.md).
+50,000 rows, itself audited). Platform administrator actions have their own append-only log, with
+its own chain, verification and export. See [Audit log](audit-log.md).
 
 ## Platform administration
 
@@ -377,7 +377,7 @@ answers `404` for the console API. The controls:
   purged.
 
 See [Production hardening](hardening.md#platform-console) for the settings and the
-[Audit log](audit-log.md#the-administrators-audit-log-and-its-off-box-copy) page for the log.
+[Audit log](audit-log.md#the-administrators-audit-log) page for the log.
 
 ## Secure development
 
