@@ -304,7 +304,7 @@ flowchart LR
 
 ## Where work runs
 
-Sensors belong to scan zones, such as an internal site or the internet. Shared sensors can serve several organizations. Traffic leaves through the forwarder, directly or through a proxy pool. Connectors run near the system they read, never inside the platform. Intelligence feeds come through a platform-owned relay sensor. Multiple cells for large SaaS installs, zone egress settings and the sensor relay are planned.
+Sensors belong to scan zones, such as an internal site or the internet. Shared sensors can serve several organizations. Traffic leaves through the forwarder, directly or through a proxy pool. Connectors run near the system they read, never inside the platform. Intelligence feeds come through a platform-owned relay sensor. Multiple cells for a large managed service, zone egress settings and the sensor relay are planned.
 
 ```mermaid
 flowchart TB
