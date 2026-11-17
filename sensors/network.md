@@ -234,6 +234,7 @@ kill_switch_file: /etc/openctem/STOP
 | `checks.allow` | Job types: `scan`, `validate`, `retest`, `collect`, `refresh_content` |
 | `allow_custom_templates`, `allow_interactsh` | Platform-supplied custom templates (off unless `true`); out-of-band callbacks (from sensor v0.38.4 they follow the platform's job unless `allow_interactsh: false`; before, off unless `true`) |
 | `rate.max_rps`, `rate.max_job_seconds` | Request rate ceiling; longest job run |
+| `rate.max_host_rps`, `rate.max_host_inflight` | The most requests per second (1 to 200) and requests in flight (1 to 50) toward **one target host**: the ceiling no job passes. See [How hard a scan works one host](tool-settings.md#how-hard-a-scan-works-one-host) |
 | `kill_switch`, `kill_switch_file` | Stop every job (while the file exists) |
 | `http.user_agent`, `http.user_agents`, `http.allow_insecure_tls`, `http.headers` | A User-Agent for every tool, or a rotation list of up to 200 (one per target host and run; set one of the two); `false` refuses tools that skip TLS verification; up to 4 headers that mark this sensor's scan traffic (below) |
 | `managed.accept` | `false`: ignore any narrowing policy the platform manages for this sensor. Default `true` |

@@ -156,3 +156,34 @@ These options are the ones the current sensor release ({{ site.data.versions.sen
 Related: [Tools and capabilities](../scanning/tools.md),
 [Sensor-local policy](network.md#sensor-local-policy),
 [Settings reference](settings.md).
+
+## How hard a scan works one host
+
+A scan never sends one target host more than its **per-host budget**: 20 requests per second and 8
+requests in flight by default (the Standard level). The budget is counted per host, whatever the scheme,
+port or path of the scan's targets, and whatever tool runs.
+
+| Level | Requests per second per host | In flight per host |
+|---|---|---|
+| Gentle | 5 | 2 |
+| Standard (default) | 20 | 8 |
+| Fast | 100 | 25 |
+
+- The sensor's operator picks the level with [`SENSOR_PACING_LEVEL`](settings.md#SENSOR_PACING_LEVEL) and
+  sets a ceiling no job passes with `rate.max_host_rps` and `rate.max_host_inflight` in the
+  [local policy](network.md).
+- A rate or concurrency setting above the budget is lowered to it. A lower setting stays.
+- With the tool sandbox on (the default), the sensor enforces the budget outside the tools, for nuclei,
+  httpx, katana and path discovery. With `SENSOR_SANDBOX=off` the tools' own flags enforce it, and a run
+  over several hosts gets one host's budget in all.
+
+**When a target pushes back.** A host that answers 429 or 503 is slowed down (its rate is halved, its
+`Retry-After` is waited out) and sped up again gradually when it answers normally. A host that answers
+nothing but push-back is paused, and the run reports it as a coverage gap `throttled` with counts; the run
+completes as partial and keeps everything it found. The scanner never changes its address or its
+identification to get past a limit.
+
+To see such answers on HTTPS without reading the tools' traffic, the sensor sends its own small request
+(`GET /`) to each target origin every 10 seconds. It verifies the origin's certificate; an origin with a
+certificate that does not verify, or a target given without `http://` or `https://`, is paced but not
+watched this way.
