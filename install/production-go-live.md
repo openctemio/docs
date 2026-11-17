@@ -81,11 +81,10 @@ Read the release notes and the upgrade notes of the release.
 4. Decide the sign-up ceiling (`SIGNUP_MODE`): `disabled` (default, for a
    self-hosted install), `domain` or `open`. See
    [Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations).
-   If you run a hosted multi-tenant service, set `MANAGED_SERVICE=true`: in
-   production the API then refuses to start unless `ADMIN_AUDIT_SINK` (an off-box
-   copy of the platform administrators' audit log) is set too
-   ([Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink)).
-   The Ansible kit's preflight stops a managed inventory without one.
+   If you run a hosted multi-tenant service, set `MANAGED_SERVICE=true`
+   ([Docker Compose](docker-compose.md#hosted-service)); it needs no other
+   setting. Make sure no `ADMIN_AUDIT_SINK*` variable is set anywhere: this
+   build does not support them and the server refuses to start while one is set.
    Decide where the platform console lives (`OPENCTEM_ADMIN_SITE`: `port`,
    `host` or `off`) and which networks may reach it
    (`OPENCTEM_ADMIN_ALLOWED_CIDRS`); a host name of its own is recommended.

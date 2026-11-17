@@ -143,7 +143,7 @@ Read these before relying on the chain as evidence:
 The design reference is
 [audit-hash-chain.md](https://github.com/openctemio/openctem/blob/develop/server/docs/architecture/audit-hash-chain.md).
 
-## The administrators' audit log and its off-box copy
+## The administrators' audit log
 
 The administrators' log is append-only: database triggers refuse updates, deletes and truncation
 of `admin_audit_logs`, the application role has no grant to change it, and every row is linked
@@ -151,7 +151,7 @@ into a SHA-256 hash chain computed by the database. **Security > Admin activity*
 every entry verifies. The chain report (`GET /api/v1/admin/audit-logs/chain`, and
 `bootstrap-admin verify-audit [-json]`, which exits 1 on a break) also carries the chain head: the
 position and hash of the newest row, or of the newest anchor when no row is online. A copy of the log
-can be verified offline and compared with an earlier copy even without a forwarding sink. Run the
+can be verified offline and compared with an earlier copy. Run the
 command from the API image, which ships `/app/bootstrap-admin`:
 `docker compose run --rm bootstrap-admin verify-audit`. Before any
 state-changing console request runs, whatever the administrator's role, and before an elevation is
@@ -160,28 +160,20 @@ cannot be written the request is refused with `503 AUDIT_UNAVAILABLE`. Address f
 `*url`, `*webhook*`) keep only their scheme and host. Deleting an organization at once writes its
 critical `organization.purge_requested` row first and deletes nothing when it cannot.
 
-Someone who controls the database could still rewrite the chain. `ADMIN_AUDIT_SINK` closes that
-gap by sending every row, as written, to a place the database administrator does not control:
+Someone who controls the database could still rewrite the chain and re-sign it. To detect that,
+keep evidence where the database administrator cannot write:
 
-| `ADMIN_AUDIT_SINK` | Delivery |
-|---|---|
-| `https://collector.example.com/path` | JSON batch per POST, signed with `ADMIN_AUDIT_SINK_SECRET` (at least 32 bytes, HMAC-SHA256 in `X-OpenCTEM-Signature` over the timestamp and body, with `X-OpenCTEM-Timestamp` and `X-OpenCTEM-Batch-Id`). No redirects. The URL must not carry credentials. |
-| `syslog+tls://collector.example.com:6514` | RFC 5424 over TLS. Optional `ADMIN_AUDIT_SINK_SYSLOG_CA_FILE`, and for mutual TLS `ADMIN_AUDIT_SINK_SYSLOG_CLIENT_CERT` with `ADMIN_AUDIT_SINK_SYSLOG_CLIENT_KEY`. |
-| `file:///var/lib/openctem-admin-audit/admin-audit.jsonl` | One JSON batch per line, file mode `0600`. Same host as the database: it protects against rewrites inside the database, and it leaves the host only with your backups. |
+- **Record the chain head on a schedule.** Run `bootstrap-admin verify-audit -json` from a
+  scheduled job and store its output (the chain state and the head's position and hash) in
+  another system. A chain that is re-signed later cannot match a head you already recorded.
+  The command exits 1 on a break: alert on that.
+- **Export the entries.** **Export** on **Security > Admin activity** downloads the filtered
+  list; keep the file with the recorded head.
 
-Plaintext `syslog+tcp://` and `syslog+udp://` are not supported, and the API refuses to start with
-them, with a sink it cannot use, or with a secret that does not match the destination. A row is sent
-with its chain position and hash (not the request body or user agent), together with the chain head
-every `ADMIN_AUDIT_SINK_HEAD_INTERVAL` (default `15m`) and the chain verification state, so a later
-re-signing of the chain cannot match a head already sent. Delivery is at least once from a durable
-cursor that moves only after the destination accepted the batch, with backoff; it never slows the
-console. A batch that does not continue the last delivered row is still sent, flagged with a `gap`
-field. Metrics: `openctem_admin_audit_forward_*` and `openctem_admin_audit_chain_ok`.
-
-The sink is off by default. **With `MANAGED_SERVICE=true` in production the API refuses to
-start without it.** The Ansible kit sets it with `openctem_admin_audit_sink` (`file` or an
-`https://` URL; `syslog+tls://` is not supported by the kit). Back up a `file` sink with the
-database ([Backup and restore](../operations/backup-restore.md)).
+This build has no continuous stream of the log to an external destination. The
+`ADMIN_AUDIT_SINK*` settings are not supported: from v0.22.0 the server refuses to start while
+one is set, and `MANAGED_SERVICE=true` requires none. See the
+[upgrade step](../operations/upgrade.md#from-v021-to-v022).
 
 ## Retention
 

@@ -484,6 +484,13 @@ docker_apt_key_url: https://apt.example.com/docker/linux/ubuntu/gpg
 ansible-playbook site.yml -e @airgap-vars.yml -e openctem_version=v0.11.0
 ```
 
+Copy each release's flags (`admin_plane`, `admin_audit_sink_required` and the others) from the
+kit's `versions.yml` unchanged: they describe the release, and the kit's checks refuse an entry
+whose flags do not match it. Only the image references change. The entries above are those of
+v0.11.0 and v0.10.1; a release from v0.22.0 carries `admin_audit_sink_removed` instead of
+`admin_audit_sink_required`, and its server refuses to start while an `ADMIN_AUDIT_SINK*`
+variable is set ([upgrade step](../operations/upgrade.md#from-v021-to-v022)).
+
 Things to know:
 
 - The VM pulls from your registry with the Docker credentials of its root

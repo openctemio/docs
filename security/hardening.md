@@ -47,7 +47,8 @@ In production mode the API refuses to start when:
   CAPTCHA does not stop the start-up any more: open sign-up stays closed at run time until a CAPTCHA
   is configured (Console > Settings > CAPTCHA, or the Turnstile keys in the environment) or
   `SIGNUP_CAPTCHA=off-i-understand` is set;
-- `MANAGED_SERVICE=true` without `ADMIN_AUDIT_SINK` (see [Platform console](#platform-console)).
+- any `ADMIN_AUDIT_SINK*` variable is set (in every mode, from v0.22.0): this build does not support
+  them (see [Platform console](#platform-console)).
 
 A failed start prints the reason; fix the setting rather than working around the check.
 
@@ -132,8 +133,8 @@ path on the main site and no redirect from it.
 | `ADMIN_LISTEN_ADDR` | `<net>.12:8081` in the compose file | The console API's own internal listener (plain HTTP on the private stack network). |
 | `ADMIN_PUBLIC_URL` | origin of `APP_URL` | The console's own origin. Security keys and passkeys are bound to its host: set it to the console site, and note that changing it later makes registered keys unusable. |
 | `DB_ADMIN_USER`, `DB_ADMIN_PASSWORD` | unset | The console database role: a separate role that alone writes the console's identity tables (administrators, console sessions and credentials, the platform identity provider, the four-eyes approvals). After an upgrade that adds a console table, run `least-privilege-roles.sql` again with `admin_user` (the Compose `db-grants` job does it on every `up`), or the console role lacks the new table (v0.11.0 adds `admin_approvals`). See [database-roles.md](https://github.com/openctemio/openctem/blob/develop/server/docs/deployment/database-roles.md). |
-| `ADMIN_AUDIT_SINK` | unset | Streams the administrators' audit log off the host. **Required with `MANAGED_SERVICE=true` in production**: the API refuses to start without it. See [Audit log](audit-log.md#the-administrators-audit-log-and-its-off-box-copy). |
-| `MANAGED_SERVICE` | `false` | Set `true` only on a hosted, multi-tenant service you run for organizations you do not control. It changes defaults (for example platform sensors need a verified domain until an administrator stores a value) and requires the audit sink. Self-managed installations leave it unset. |
+| `ADMIN_AUDIT_SINK`, `ADMIN_AUDIT_SINK_*` | unset | Leave them unset. This build does not support them, and from v0.22.0 the server refuses to start while one is set. The administrators' audit log keeps its tamper-evident chain, verification, views and export. See [Audit log](audit-log.md#the-administrators-audit-log). |
+| `MANAGED_SERVICE` | `false` | Set `true` only on a hosted, multi-tenant service you run for organizations you do not control. It changes defaults (for example platform sensors need a verified domain until an administrator stores a value) and needs no other setting. Self-managed installations leave it unset. |
 
 What the console does for you, with no setting to change:
 

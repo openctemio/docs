@@ -298,12 +298,8 @@ changing it later makes registered keys unusable.
 ## Hosted service
 
 For a hosted, multi-tenant service set `MANAGED_SERVICE=true` in
-`openctem.env`. In production the API then refuses to start unless
-`ADMIN_AUDIT_SINK` is set too: an `https://` receiver (with
-`ADMIN_AUDIT_SINK_SECRET`, at least 32 bytes), `syslog+tls://` or a
-`file:///` path in a directory of the `/data` volume that the image's user can
-write (the file sink only protects against rewrites inside the database; the
-copy on the same volume is not off-box). See
-[Docker Compose](docker-compose.md#hosted-service-and-the-audit-sink).
+`openctem.env`. It changes defaults only (for example, platform sensors need a
+verified domain before they scan a target) and needs no other setting. See
+[Docker Compose](docker-compose.md#hosted-service).
 
 All environment variables: [Environment variables reference](../configuration/environment-variables.md#all-in-one-image).

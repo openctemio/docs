@@ -53,8 +53,8 @@ sequenceDiagram
    written, so the rest of the chain still checks. Entries are kept at least
    365 days.
 4. The platform administrators' own audit log has a separate chain. Its head
-   can be checked with `bootstrap-admin verify-audit` and shipped to an
-   outside sink.
+   can be checked with `bootstrap-admin verify-audit` and recorded in
+   another system.
 5. An organization administrator can run the same check at any time with
    `GET /api/v1/audit-logs/verify`. A break answers 409 with the breaks
    found.

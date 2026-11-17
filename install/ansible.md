@@ -185,9 +185,8 @@ there.
 | `openctem_sensor_feed_relay_origins` | `[]` | Extra https origins (a mirror) the feed relay sensor may fetch, added to the job signer's allowlist; set the same list on the sensor as `SENSOR_FEED_RELAY_ORIGINS`. The kit installs no sensor. |
 | `openctem_job_signer` | `false` | Sign sensor jobs; the key is created on the VM. |
 | `openctem_captcha_turnstile_site_key` | empty | Public Turnstile site key for `openctem_signup_mode: open`; the secret goes in `/opt/openctem/secrets/captcha_turnstile_secret` on the VM. |
-| `openctem_admin_audit_sink` | empty | Off-database copy of the platform administrators' audit log: empty (off), `file` or an `https://` URL. Sets the API's `ADMIN_AUDIT_SINK`. Required for a hosted service ([below](#hosted-service-the-administrators-audit-sink)). |
-| `openctem_admin_audit_sink_head_interval` | empty (API default, 15 minutes) | How often the signed chain head is sent, for example `5m`. Only with a sink. |
-| `openctem_admin_audit_sink_dir` | `/opt/openctem/admin-audit` | `file` mode: the host directory that holds `admin-audit.jsonl`. |
+| `openctem_admin_audit_sink` | empty | Leave it empty. It renders the API's `ADMIN_AUDIT_SINK`, which the release's own images do not support from v0.22.0: the kit's checks stop the run, before the host is touched, while it is set ([below](#hosted-service)). |
+| `openctem_admin_audit_sink_dir` | `/opt/openctem/admin-audit` | The host directory of a file copy written by a release before v0.22.0. Nothing deletes it, and `openctem-backup` archives it while it exists. |
 | `openctem_wal_archive`, `backup_wal_bucket`, `backup_wal_prefix`, `backup_wal_remote_conf`, `backup_wal_retention_days` | `false`, empty, project name, `/opt/openctem/secrets/backup_remote.conf`, `14` | Continuous archiving to an S3-compatible bucket and point-in-time restore ([below](#continuous-archiving-and-point-in-time-restore)). |
 | `openctem_egress_policy`, `openctem_egress_allow` | `restricted` with `open` sign-up, else `open`; empty | Outbound policy of the API container ([below](#outbound-firewall-of-the-stacks-containers)). |
 | `backup_age_recipient` | empty | Your age public key. Empty is local mode: plaintext, on the VM only. |
@@ -353,43 +352,35 @@ or `off` mode it does not set it, and `openctem_api_env` refuses `ADMIN_PUBLIC_U
 owns it), so administrators cannot register security keys on the console's port origin. Use
 host mode for production.
 
-## Hosted service: the administrators' audit sink
+## Hosted service
 
-The platform console keeps a hash-chained audit log of what platform administrators do. The
-sink writes a copy outside the database, so a database-level rewrite shows up as a
-disagreement. A **hosted multi-tenant service** (`MANAGED_SERVICE: "true"` in
-`openctem_api_env`) must have one: from v0.11.0 the API refuses to start in production with
-`MANAGED_SERVICE=true` and no `ADMIN_AUDIT_SINK`. The kit's preflight stops first: a release
-flagged `admin_audit_sink_required` in `versions.yml` fails `50-openctem.yml` before the host
-is touched when the inventory sets `MANAGED_SERVICE` without `openctem_admin_audit_sink`.
-(The flag is set on the kit's release entries after v0.10.1.) A self-managed install needs
-none of this.
+A **hosted multi-tenant service** sets `MANAGED_SERVICE: "true"` in `openctem_api_env`; it
+changes defaults only and needs no other setting. A self-managed install leaves it unset.
 
 ```yaml
 openctem_api_env:
   MANAGED_SERVICE: "true"
-openctem_admin_audit_sink: https://audit.example.com/ingest   # or: file
 ```
 
-- **`https://host/path`**: the API posts each batch, signed with an HMAC key, to a receiver
-  you run. Create the key on the VM first, at least 32 bytes and mode 0600 or 0400, and give
-  the same key to the receiver; the kit never puts it in the inventory:
+The platform console keeps a tamper-evident, hash-chained audit log of what platform
+administrators do, in every installation: see
+[Audit log](../security/audit-log.md#the-administrators-audit-log) for its verification, views
+and export.
 
-  ```bash
-  sudo sh -c 'umask 077; openssl rand -hex 32 > /opt/openctem/secrets/admin_audit_sink_secret'
-  ```
+From v0.22.0 the release's own images do not support the `ADMIN_AUDIT_SINK*` settings, and the
+server refuses to start while one is set. The kit stops earlier, in the checks of
+`50-openctem.yml` and before the host is touched:
 
-  This is the real off-box copy when a different party or host runs the receiver. With
-  `openctem_egress_policy: restricted`, a receiver on a private address needs an
-  `openctem_egress_allow` entry.
-- **`file`**: the kit creates `openctem_admin_audit_sink_dir`, mounts it into the API and
-  appends `admin-audit.jsonl` there. It protects against rewrites inside the database and
-  travels with the nightly backup (`admin-audit.tar.gz`), but anyone with root on the VM can
-  edit both, so it is not an off-box copy while the backups stay on the VM.
-- `syslog+tls://` is supported by the API but not by this kit yet; the checks refuse it.
+- when the inventory sets `openctem_admin_audit_sink` for such a release: unset it in the same
+  run that upgrades. The kit then renders no `ADMIN_AUDIT_SINK*` variable and no mount;
+- when a compose override file or an extra env file on the server still sets an
+  `ADMIN_AUDIT_SINK*` variable: the run fails with the file names (never their content).
+  Remove those lines first;
+- when `openctem_api_env` carries an `ADMIN_AUDIT_SINK*` variable (refused for every release).
 
-Do not set `ADMIN_AUDIT_SINK*` through `openctem_api_env`; the kit refuses it.
-`openctem_admin_audit_sink_head_interval` changes how often the signed chain head is sent.
+A file copy that an earlier release wrote under `openctem_admin_audit_sink_dir` and the backups
+of it stay on disk; nothing is deleted. See the
+[upgrade step](../operations/upgrade.md#from-v021-to-v022).
 
 ## Outbound firewall of the stack's containers
 
@@ -433,10 +424,11 @@ release:
    then reinstall the collections if `requirements.yml` changed. Read the kit's README
    section for the release and the platform's release notes.
 2. **Check the settings** the release adds or removes. Upgrading to v0.10.x needs one
-   decision from you, covered next. Upgrading to v0.11.0 adds the audit sink rule for a
-   hosted service ([above](#hosted-service-the-administrators-audit-sink)); its migrations
+   decision from you, covered next. The migrations of v0.11.0
    only add objects, and the kit's `db-roles` and `db-grants` jobs give the console's new
    `admin_approvals` table its grants on the same run, so there is no separate role script.
+   Upgrading to v0.22.0 or later: unset `openctem_admin_audit_sink`
+   ([above](#hosted-service)).
 3. **Rehearse** (`--check --diff`, see [The apply cycle](#the-apply-cycle)) and apply:
 
    ```bash

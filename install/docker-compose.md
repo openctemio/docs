@@ -323,38 +323,28 @@ services:
 
 Then apply with `docker compose up -d`.
 
-### Hosted service and the audit sink
+### Hosted service
 
 `MANAGED_SERVICE=true` is for an operator who runs OpenCTEM as a hosted,
 multi-tenant service for organizations it does not control; leave it unset on a
 self-managed install. It changes defaults only (for example, platform sensors
-need a verified domain before they scan a target). In production
-(`APP_ENV=production`) the API **refuses to start** with `MANAGED_SERVICE=true`
-unless `ADMIN_AUDIT_SINK` is set: an off-box copy of the platform
-administrators' hash-chained audit log, so someone who controls the database
-cannot rewrite its history unnoticed. The stack does not pass either variable
-by default; add them in `docker-compose.override.yml`:
+need a verified domain before they scan a target) and needs no other setting.
+The stack does not pass the variable by default; add it in
+`docker-compose.override.yml`:
 
 ```yaml
 services:
   api:
     environment:
       MANAGED_SERVICE: "true"
-      ADMIN_AUDIT_SINK: https://audit.example.com/ingest
-      ADMIN_AUDIT_SINK_SECRET: ${ADMIN_AUDIT_SINK_SECRET:?set it in .env}
 ```
 
-`ADMIN_AUDIT_SINK` accepts `https://…` (a signed POST per batch; the receiver
-verifies `X-OpenCTEM-Signature` with `ADMIN_AUDIT_SINK_SECRET`, at least 32
-bytes, required for https), `syslog+tls://host:6514` (optionally mutual TLS, with
-`ADMIN_AUDIT_SINK_SYSLOG_CA_FILE`, `_CLIENT_CERT` and `_CLIENT_KEY` mounted into
-the container) or `file:///path` (one JSON batch per line; the directory must be
-a writable bind mount owned by the API's user, because the root filesystem is
-read-only). A file on the same host only protects against rewrites inside the
-database; an https receiver run by someone else is the real off-box copy.
-Plaintext `syslog+tcp://` and `syslog+udp://` are not supported, and a
-destination that cannot be used stops the start-up. The chain head is also sent
-every `ADMIN_AUDIT_SINK_HEAD_INTERVAL` (15 minutes by default).
+The platform administrators' actions are recorded in a tamper-evident,
+hash-chained audit log in every installation; see
+[Audit log](../security/audit-log.md#the-administrators-audit-log) for its
+verification, views and export. Do not set any `ADMIN_AUDIT_SINK*` variable:
+this build does not support them, and from v0.22.0 the server refuses to start
+while one is set ([upgrade step](../operations/upgrade.md#from-v021-to-v022)).
 
 Memory limits default to 2 GB for the API, 1 GB for the web console, 512 MB
 for the platform console and 512 MB for the gateway; change them with

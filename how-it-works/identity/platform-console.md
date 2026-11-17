@@ -95,7 +95,7 @@ flowchart TD
 - **Least privilege in time.** Read-only by default, elevation is short and
   audited.
 - **Audit.** The admin audit log is hash-chained, and its head can be checked
-  with `bootstrap-admin verify-audit` or shipped to an outside sink.
+  with `bootstrap-admin verify-audit` and recorded in another system.
 
 ## Related
 

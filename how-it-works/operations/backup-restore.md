@@ -44,7 +44,7 @@ flowchart LR
 | Path | What it covers |
 |---|---|
 | Docker Compose `backup.sh` | database, files, certificate authority, signer key and state, `.env` |
-| Ansible kit timer | the same, plus the deployment files and the admin audit copy, with a manifest signed by the host key |
+| Ansible kit timer | the same, plus the deployment files (and an admin audit file copy left by a release before v0.22.0), with a manifest signed by the host key |
 | Off-host point-in-time recovery | database only, continuous, encrypted with its own passphrase |
 | Helm backup job | database only |
 
