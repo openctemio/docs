@@ -320,7 +320,7 @@ flowchart TB
   subgraph ZD["Default zone (internet)"]
     SD1["Sensor"]
   end
-  subgraph SH["Shared sensors (SaaS)"]
+  subgraph SH["Shared sensors (managed service)"]
     SS1["Shared sensor"]
   end
   FR["Feed relay sensor (platform-owned)"]

@@ -102,7 +102,7 @@ sequenceDiagram
 
 | Deployment | Reasoning | Model | Tools |
 |---|---|---|---|
-| Cloud | platform | platform or your own key | your sensors or platform sensors |
+| Managed service | platform | platform or your own key | your sensors or platform sensors |
 | Self-hosted with a cloud model | platform | your provider key | your sensors |
 | Self-hosted with a local model | platform (an AI worker is planned) | local | your sensors |
 | Air-gapped | platform (an AI worker is planned) | local | your sensors |

@@ -138,7 +138,7 @@ flowchart LR
 | The channel's endpoint is down or refuses | **View events** shows the failure and the attempts; the event is retried for about 45 hours | Fix the endpoint; send the event again from the API if it was given up |
 | The endpoint answers with a redirect | A failure, never followed | Use the final URL in the channel |
 | The channel's address is private or internal | Refused when saved and on every send | Use a public address, or ask the operator to allow it |
-| An e-mail channel breaks the hosted service mail rules | The channel stops with `INTEGRATION_EMAIL_RELAY_POLICY`; owners are told | Edit the channel to an allowed relay and test it |
+| An e-mail channel breaks the mail rules of a managed service | The channel stops with `INTEGRATION_EMAIL_RELAY_POLICY`; owners are told | Edit the channel to an allowed relay and test it |
 | Stored credentials cannot be decrypted | Each attempt fails | Enter the credentials again |
 | The platform cannot read the channels or the private program rule | The event waits and is retried a few times | Check the database; then retry it from **Queue** |
 | No channel matches | The event is archived as skipped | Check the channel filters |

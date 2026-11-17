@@ -17,7 +17,8 @@ OpenCTEM is free software. Each repository carries its own `LICENSE` file:
 | sast-rules | MIT License |
 
 The Go SDK (`sdk-go`) is licensed under the Apache License 2.0 so that
-third-party and commercial sensors, tools and adapters can import and link it.
+third-party sensors, tools and adapters can import and link it, whatever
+their own licence.
 SDK releases published before that change stay available under the GNU General
 Public License v3.0 they carried.
 

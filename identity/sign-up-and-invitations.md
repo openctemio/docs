@@ -95,7 +95,7 @@ No API or console session can open sign-up beyond it:
 |---|---|
 | `disabled` (default) | No public account creation. People get accounts from a platform administrator, an invitation or their organization's SSO. Only platform administrators create organizations: in the admin console, or with `bootstrap-admin -org-name ... -org-owner-email ...` at installation. |
 | `domain` | Public sign-up only for addresses on an organization's verified domain; those people join that organization and never create one. |
-| `open` | Anyone may sign up and create an organization (the hosted service). |
+| `open` | Anyone may sign up and create an organization (a managed service). |
 
 `domain` and `open` need the platform e-mail (**Settings › E-mail** in the platform console, or
 `BOOTSTRAP_SMTP_*` for `bootstrap-admin`) and local accounts, or the server refuses to start, and

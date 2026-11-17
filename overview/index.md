@@ -3,6 +3,8 @@ title: Overview
 nav_order: 3
 has_children: true
 permalink: /overview/
+redirect_from:
+  - /overview/editions/
 ---
 
 # What is OpenCTEM
