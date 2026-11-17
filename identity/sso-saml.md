@@ -26,6 +26,21 @@ public origin of the installation (`APP_URL`; with the bundled gateway it is set
 | Sign-in start (SP-initiated) | `<APP_URL>/api/v1/auth/saml/{slug}/login` |
 | NameID format | `emailAddress` (or `persistent`, see below) |
 
+The origin of these addresses, and so the audience an assertion must carry, comes from `APP_URL`
+only. From v0.24.0 nothing of a request takes part (not the `Host` header, not `X-Forwarded-Host`),
+so the addresses are the same whatever name a request arrived under:
+
+- **`APP_URL` must be set to use SAML.** Without it, SAML sign-in ends on the sign-in page with a
+  SAML error and the SP metadata address answers 409 `SAML_PUBLIC_URL_UNSET`.
+- **A production server does not start** when SAML is enabled for an organization and `APP_URL` is
+  not set. The error in the API log names `APP_URL` and the number of organizations. Set `APP_URL`
+  and start again.
+- Outside production (`APP_ENV=development`) an unset `APP_URL` falls back to
+  `http://localhost:<SERVER_PORT>` with a warning in the log.
+
+The Compose bundle, the Helm chart and the Ansible kit set `APP_URL` from the public URL you give
+them, so this concerns installations that start the API with their own environment.
+
 Requirements:
 
 - **HTTPS.** The request-tracking cookie must survive the cross-site POST back from the IdP, which
@@ -154,5 +169,6 @@ states a multi-factor authentication context). For
 | Redirect to `/login?error=saml` | Check the API log. Common causes: wrong or expired certificate, the IdP signs only the response and not the assertion, SHA-1 signing, a response posted twice, clock skew, the response was not for a request OpenCTEM sent (IdP-initiated), audience mismatch with the entity ID, email domain not verified, the person is not a member and auto-provision is off. |
 | Sign-in works but lands on `localhost:3000` | `APP_URL` is not set. Set it (or `OAUTH_FRONTEND_CALLBACK_URL`) to the web app origin. |
 | Sign-in fails over plain HTTP | SAML needs HTTPS (secure cookie). |
+| The API does not start and the log says `APP_URL is required: SAML sign-in is enabled for N organization(s)` | A production server with SAML enabled needs `APP_URL` (from v0.24.0). Set it to the public origin of the installation, the one in the SP metadata your IdP has, and start again. |
 | The admin console says the public address is not set | `APP_URL` is not set on the API. The SP URLs and the metadata file are built on it. |
 | Import from metadata says the address is not allowed | The URL points to a private or internal address, redirects there, or uses plain http. Upload the metadata file instead. |
