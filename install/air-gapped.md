@@ -138,8 +138,8 @@ Other artifacts:
 | Compose files | `{{ site.data.versions.backend_dir }}/deploy/` of the repository at the release commit | Take them from the commit named in the signed provenance ([Deployment files](#deployment-files-from-the-signed-commit)) |
 | Ansible kit | `openctemio/openctem-ansible`; `versions.yml` pins every image by digest | Images verified by the kit; the kit itself is a repository you review |
 
-OpenCTEM has no license key, activation or edition check: a self-managed
-installation needs no connection to OpenCTEM to run.
+OpenCTEM needs no activation: a self-managed installation needs no connection
+to OpenCTEM to run.
 
 ## What the platform contacts
 

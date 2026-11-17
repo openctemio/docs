@@ -16,7 +16,7 @@ no organization ever sees it as a sensor of its own. An **organization
 sensor**, paired under **Discovery > Sensors**, takes only that organization's
 work (see [Pairing and enrollment](pairing.md)).
 
-Shared sensors are in every edition. They are off until a super administrator
+Shared sensors are part of every installation. They are off until a super administrator
 turns them on, and an organization can always opt out.
 
 {: .warning }
@@ -154,7 +154,7 @@ under the domain it asked about. `SENSOR_CT_LOOKUP=0` turns it off;
 [settings reference](settings.md#SENSOR_CT_LOOKUP)). crt.sh publishes no terms
 of use and Cert Spotter's unauthenticated tier is for personal use: the
 operator of the platform sensor answers for the sources' terms, and a
-commercial service gives its sensors a Cert Spotter key.
+service run for other organizations gives its sensors a Cert Spotter key.
 
 **Feed relay.** A platform sensor with a pinned job-signing key relays the
 platform's signed feeds (the vulnerability feed with its KEV and EPSS data, and

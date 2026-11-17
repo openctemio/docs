@@ -154,7 +154,7 @@ hold **additional roles**, given on [Roles](security.md#roles):
 | **Operator** | additional | Run the shared sensor fleet and the feeds; suspend an organization for abuse |
 | **Support** | additional | Help people sign in (Users), read member lists, open support sessions inside a grant |
 | **Security auditor** | additional | Read the admin activity log, the administrators and the approvals; change nothing |
-| **Billing** | additional | Set organizations' limits and plans |
+| **Billing** | additional | Set organizations' limits |
 
 The full list of permissions per role and per console page is the
 [platform permission reference](security.md#roles). The console shows only what

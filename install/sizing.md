@@ -411,10 +411,10 @@ others are estimates and are re-measured as the work below ships.
 
 | Scale point | Organizations | Assets | Findings | Sensors | Hot database (findings + assets) | Database disk | Status in the current release |
 |---|---|---|---|---|---|---|---|
-| **S**: typical Community install | 1 | ~10,000 | 100,000–1M | ~10 | 0.4–4 GB | 10 GB | Runs comfortably |
-| **M**: enterprise self-managed | 1–10 | 100,000–1M | 1–10M | 100–1,000 | 4–40 GB | 100 GB | Dashboards and statistics slow down once one organization holds about 500,000 findings; very large imports take long |
-| **L**: large enterprise or one Cloud cell | 100–1,000 | 1–10M | 10–100M | 1,000–10,000 | 40–400 GB | 1 TB | Needs the growth steps below (connection pooling, sensor heartbeat path, incremental platform jobs) |
-| **XL**: Cloud with many cells | 1,000–10,000 | 10–100M | 100M–1B | 10,000–100,000 | 0.4–4 TB | 4–10 TB | Not a single-database target: split into cells of about 1–2 TB each |
+| **S**: typical single-organization install | 1 | ~10,000 | 100,000–1M | ~10 | 0.4–4 GB | 10 GB | Runs comfortably |
+| **M**: large self-managed organization | 1–10 | 100,000–1M | 1–10M | 100–1,000 | 4–40 GB | 100 GB | Dashboards and statistics slow down once one organization holds about 500,000 findings; very large imports take long |
+| **L**: very large installation, or one cell of a managed service | 100–1,000 | 1–10M | 10–100M | 1,000–10,000 | 40–400 GB | 1 TB | Needs the growth steps below (connection pooling, sensor heartbeat path, incremental platform jobs) |
+| **XL**: a managed service with many cells | 1,000–10,000 | 10–100M | 100M–1B | 10,000–100,000 | 0.4–4 TB | 4–10 TB | Not a single-database target: split into cells of about 1–2 TB each |
 
 ### Current limits
 
@@ -438,8 +438,8 @@ others are estimates and are re-measured as the work below ships.
 
 Optional components are added only when measurements show the need: a
 columnar analytics store for very large statistics and long trends, and a
-dedicated search cluster for ranked full-text and global search. Community and
-small self-managed installs never require them.
+dedicated search cluster for ranked full-text and global search. Small
+self-managed installs never require them.
 
 ## Service level objectives
 
