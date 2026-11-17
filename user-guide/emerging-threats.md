@@ -72,8 +72,17 @@ recommended action, the facts about the vulnerability (CVSS, EPSS, KEV with the
 date it was added, use by ransomware, published date), **What changed** (the
 public events with their dates) and the affected assets in three groups:
 **Confirmed affected**, **Likely affected** and **Possibly affected (version
-unknown)**. Each asset shows its product, the version seen, its criticality,
-whether it is internet-facing and its finding and remediation task.
+unknown)**. A group appears only when it has a row, and its count is the
+number of rows.
+
+A row is a host. A host that serves several ports has one service asset per
+port, each named by its URL (`http://host`, `https://host`); these share the
+host's row, and each service is a link to its own asset (`http`, `https`, or
+`https:8443` for a port that is not the default). The row shows the products
+and the versions seen, the highest criticality of its services, whether any of
+them is internet-facing, and the finding and remediation task of each service.
+An asset that is not named by a URL is a row of its own. The counts in the list
+and in messages count assets, so a host with two services counts twice there.
 
 Assets outside your data scope are never listed.
 
