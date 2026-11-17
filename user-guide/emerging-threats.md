@@ -14,7 +14,9 @@ It lists the vulnerabilities that were just published or just became exploited
 and that match software your assets run, ranked by how likely they are to hurt
 you now.
 
-There is one alert per vulnerability, never one message per asset. The page
+There is one alert per vulnerability, never one message per asset. Every
+number of an alert counts hosts (see [How an alert counts](#how-an-alert-counts)).
+The page
 needs the permission `findings:vulnerabilities:read` and the **Threat intel**
 module, and shows only alerts that have at least one asset in your data scope.
 
@@ -38,9 +40,15 @@ resolves its alert too.
 - Filters: **Level**, **State** (**Open (not closed)** or a state), **Match**
   (**Confirmed** or **Possible**), **Internet-facing only**, and a search by
   vulnerability id. The filters are in the address, so you can share a view.
-- Columns: **Threat**, **Score**, **Level**, **Affected assets** (confirmed,
-  possible and internet-facing), **Exploit status** (KEV, ransomware use, EPSS),
-  **State**, **Match** and **Last change**.
+- Columns: **Threat**, **Score**, **Level**, **Affected** (the hosts in words,
+  for example "3 hosts confirmed", "+1 likely", "+2 possibly affected", then
+  the internet-facing hosts and the crown jewels; zeros are left out),
+  **Exploit status** (KEV, ransomware use, EPSS), **State**, **Match** and
+  **Last change**.
+- A row opens a drawer with the same numbers (**Hosts confirmed**, with likely
+  and possibly affected beside it, **Internet-facing**, **Crown jewels**), the
+  affected products with the hosts per version, and the most important
+  affected hosts, one row per host with its services.
 
 The **Emerging threats affecting you** widget on the dashboard shows the open
 alerts by level; each level opens this list filtered to it.
@@ -81,10 +89,36 @@ host's row, and each service is a link to its own asset (`http`, `https`, or
 `https:8443` for a port that is not the default). The row shows the products
 and the versions seen, the highest criticality of its services, whether any of
 them is internet-facing, and the finding and remediation task of each service.
-An asset that is not named by a URL is a row of its own. The counts in the list
-and in messages count assets, so a host with two services counts twice there.
+An asset that is not named by a URL is a row of its own.
 
 Assets outside your data scope are never listed.
+
+## How an alert counts
+
+Every number of an alert counts hosts, the rows of the alert page, everywhere:
+the list, the drawer, immediate messages, the daily digest and the digest
+e-mail.
+
+- A host that serves several ports is one host. A server with ports 80 and 443
+  has two service assets (`http://host`, `https://host`) and counts once.
+- **Confirmed** means confirmed only: an open finding with a version match of
+  80% confidence or more. **Likely** (a version match below that) and
+  **Possibly affected** (the product is known, the version is not) are their
+  own numbers and are never added to confirmed.
+- **Internet-facing** and **Crown jewels** count the hosts with a service that
+  is internet-facing, or of criticality critical, each host once.
+- You count only hosts in your data scope, so two members can see different
+  numbers for the same alert.
+- A message says the numbers in the same words as the console, for example
+  "3 hosts confirmed, 1 likely, 2 possibly affected, 2 internet-facing". Parts
+  that are zero are left out.
+- An alert you were already told about comes back in the digest only when it
+  reaches a new host, or when a host moves to a stronger group (possibly
+  affected to likely or confirmed, likely to confirmed). One more port found
+  on a host you already know about does not.
+
+The score does not depend on these counts. Its **Exposure** part is the most
+exposed single affected asset (internet-facing, crown jewel), not a sum.
 
 ## Act on an alert
 
@@ -117,11 +151,11 @@ State changes are audited.
 | **Digest hour** | Hour the digest goes out, in the organization time zone | 8 |
 | **Include possible matches in immediate alerts** | Off: an immediate alert needs a confirmed affected asset | Off |
 | **Use quiet hours** | Hold messages between a start and an end hour. A threat at or above the override score still alerts | Off; override score 90, from 70 to 100 |
-| **Name assets in messages** | Off by default. When on, a message sent outside the console names at most 5 assets | Off |
+| **Name hosts in messages** | Off by default. When on, a message sent outside the console names at most 5 affected hosts, each once | Off |
 
 Messages are limited: at most five immediate messages an hour, then one "N
-more" message. Members who receive the daily e-mail digest see counts within
-their own data scope.
+more" message. Members who receive the daily e-mail digest see host counts
+within their own data scope.
 
 ## Related
 
