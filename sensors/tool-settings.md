@@ -159,9 +159,9 @@ Related: [Tools and capabilities](../scanning/tools.md),
 
 ## How hard a scan works one host
 
-A scan never sends one target host more than its **per-host budget**: 20 requests per second and 8
-requests in flight by default (the Standard level). The budget is counted per host, whatever the scheme,
-port or path of the scan's targets, and whatever tool runs.
+The tools that send requests to a scan's targets run under a **per-host budget**: 20 requests per second
+and 8 requests in flight toward one host by default (the Standard level). The budget is counted per host,
+whatever the scheme, port, path or spelling of the scan's targets.
 
 | Level | Requests per second per host | In flight per host |
 |---|---|---|
@@ -169,21 +169,68 @@ port or path of the scan's targets, and whatever tool runs.
 | Standard (default) | 20 | 8 |
 | Fast | 100 | 25 |
 
-- The sensor's operator picks the level with [`SENSOR_PACING_LEVEL`](settings.md#SENSOR_PACING_LEVEL) and
-  sets a ceiling no job passes with `rate.max_host_rps` and `rate.max_host_inflight` in the
-  [local policy](network.md).
-- A rate or concurrency setting above the budget is lowered to it. A lower setting stays.
-- With the tool sandbox on (the default), the sensor enforces the budget outside the tools, for nuclei,
-  httpx, katana and path discovery. With `SENSOR_SANDBOX=off` the tools' own flags enforce it, and a run
-  over several hosts gets one host's budget in all.
+### The lowest limit wins
 
-**When a target pushes back.** A host that answers 429 or 503 is slowed down (its rate is halved, its
+A job's budget is, for each of the two numbers, the **lowest** of:
+
+1. the sensor's level, which the sensor's operator picks with
+   [`SENSOR_PACING_LEVEL`](settings.md#SENSOR_PACING_LEVEL);
+2. the budget the platform signs into the job, when it sends one;
+3. the operator's ceiling, `rate.max_host_rps` and `rate.max_host_inflight` in the
+   [local policy](network.md);
+4. the built-in ceiling of 200 requests per second and 50 in flight.
+
+A job can only lower what a host gets. A job signed for Fast on a Standard sensor runs at Standard; a job
+signed for Gentle on a Fast sensor runs at Gentle. To scan your own hosts faster, raise the level on the
+sensor. A job that asks for more is not refused: it runs at the lower limit, and its result says which
+limit set each number and what was asked for.
+
+A rate or concurrency setting above the budget is lowered to it, and the run's result and log say what was
+asked and what applies. A lower setting stays.
+
+### Which tools
+
+| Tools | Paced by |
+|---|---|
+| nuclei (scans, re-verification and retests), httpx, katana, path discovery, screenshots, service detection | The per-host budget |
+| Port scan (naabu) | Packets per second of the budget's level (100, 300 or 1000), not the request budget |
+| DNS (dnsx), passive discovery (subfinder), lookups (asn, rdap), code scans (trivy, semgrep, opengrep, codeql, betterleaks) | They send nothing to the target hosts |
+
+### What enforces it
+
+**With the tool sandbox on (the default)**, every tool connection passes through the sensor, which holds
+each host to the budget outside the tools. Names that resolve to one address share that address's budget.
+The sensor holds:
+
+- every new connection, and the number of connections open to a host;
+- every request over plain HTTP;
+- every request over HTTPS, including on connections the tool keeps open, for the scan tools the sensor
+  runs (HTTP/1.1, and HTTP/2 from a tool that sends each request on its own). The sensor counts them from
+  the outside and does not read the traffic.
+
+It does **not** count requests that a client packs together on one HTTPS connection (a browser that loads
+a page over HTTP/2, as the screenshot tool does), nor how many are in flight on such a connection: it
+cannot tell them apart without reading them. For those, the tools' own rate and concurrency flags, which
+the sensor derives from the same budget, are what holds the budget.
+
+**With `SENSOR_SANDBOX=off`**, nothing is in the path. The tools' own flags are the only enforcement, a
+run gets one host's budget in all whatever its target list, and nothing reacts to what the hosts answer.
+The run's result says that its pacing is limited.
+
+### When a target pushes back
+
+A host that answers the tool's requests with 429 or 503 is slowed down (its rate is halved, its
 `Retry-After` is waited out) and sped up again gradually when it answers normally. A host that answers
 nothing but push-back is paused, and the run reports it as a coverage gap `throttled` with counts; the run
 completes as partial and keeps everything it found. The scanner never changes its address or its
 identification to get past a limit.
 
-To see such answers on HTTPS without reading the tools' traffic, the sensor sends its own small request
-(`GET /`) to each target origin every 10 seconds. It verifies the origin's certificate; an origin with a
-certificate that does not verify, or a target given without `http://` or `https://`, is paced but not
-watched this way.
+The sensor cannot see such answers on ordinary HTTPS. With the sandbox on, it therefore sends its own
+small request (`GET /`) to each target origin every 10 seconds, the same way out as the tool. The request
+is always the same and carries only the sensor's own `User-Agent`: nothing from the scan's settings is on
+it. A 429, a 503 or a block page there halves the host's rate. On its own it does nothing more: it never
+pauses a host and never stops a scan, so a target cannot end its own scan by answering that one request
+differently. A host is paused when the tool's own connections fail as well.
+
+This request verifies the origin's certificate. An origin with a certificate that does not verify, or a
+target given without `http://` or `https://`, is paced but not watched this way.
