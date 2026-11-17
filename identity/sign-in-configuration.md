@@ -53,7 +53,7 @@ environment variables. These variables support them:
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `APP_URL` | empty | The public origin. SAML service-provider URLs and the default of the three variables below are built from it. Set it in every deployment. |
+| `APP_URL` | empty | The public origin. The default of the three variables below is built from it, and SAML needs it: the service-provider URLs and the audience of an assertion are built on it only, never on a request header. From v0.24.0 a production server with SAML enabled for an organization does not start without it. Set it in every deployment. |
 | `SSO_ALLOWED_REDIRECT_URIS` | derived | Exact-match allow-list of the redirect URIs of the SSO flow: origins, or origin plus a path prefix ending in `/`. Unset: derived from `CORS_ALLOWED_ORIGINS`, `OAUTH_FRONTEND_CALLBACK_URL` and `SMTP_BASE_URL`. |
 | `CORS_ALLOWED_ORIGINS` | `APP_URL` origin | Browser origins allowed to call the API. |
 | `SMTP_BASE_URL` | `APP_URL` | Base of the links in e-mails. |

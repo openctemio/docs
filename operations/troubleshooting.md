@@ -179,12 +179,24 @@ every request that writes. Free space first (old container logs, images with
 
 ## Collecting information for a report
 
+From the release after v0.23.0, one command checks the installation and one
+writes an archive made to be shared: no database row, no finding, no asset,
+user or organization name, no key, and masked logs. See
+[Diagnose and get support](support.md).
+
+```bash
+./support.sh doctor    # what is wrong and how to fix it
+./support.sh bundle    # openctem-support-<time>.tar.gz
+```
+
+On an earlier release, collect the raw files:
+
 ```bash
 docker compose ps -a > report-ps.txt
 docker compose images > report-images.txt
 docker compose logs --since 1h api web gateway migrate > report-logs.txt
 ```
 
-Review the files before sharing them: logs contain email addresses, host names
+Review the raw files before sharing them: raw logs contain email addresses, host names
 and IP addresses. Never share `.env`. Report security issues privately, as
 described in [Vulnerability disclosure](../security/vulnerability-disclosure.md).
