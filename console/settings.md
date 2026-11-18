@@ -72,6 +72,10 @@ to an existing organization through its single sign-on is not affected.
   by email).
 - **Who can create an organization?**: **Only platform administrators** or
   **Anyone who signs up** (needs **Anyone** above).
+- **Create a personal organization on sign-up**: someone who signs up with no
+  invitation and no organization on their e-mail domain gets their own
+  organization, with them as owner, once their address is verified (needs
+  **Anyone who signs up**; [details](../identity/sign-up-and-invitations.md#personal-organization-on-sign-up)).
 - **Let people request access**: when only administrators create organizations,
   people who cannot sign in may ask for one ([Access requests](organizations-and-users.md#access-requests)).
 
