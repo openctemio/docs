@@ -117,7 +117,7 @@ The platform sets the lowest two-factor requirement every organization is held t
 | Floor | Who must use two-factor |
 |---|---|
 | `none` | Nobody by platform rule; each organization decides. |
-| `admins` | Owners, administrators and members who hold a privileged role, directly or through a team. |
+| `admins` | Owners, administrators and members whose roles give more than the built-in member role, directly or through a team (see [Who counts as an administrator](#who-counts-as-an-administrator)). |
 | `everyone` | Every member of every organization. |
 
 - **Default.** `admins` on a hosted service (`MANAGED_SERVICE=true`) and on a new self-managed
@@ -187,6 +187,21 @@ Rules for the reset:
 - resetting an owner or admin needs an owner;
 - because the factor belongs to the account and not to one organization, the caller needs the same
   authority in **every** organization the person belongs to.
+
+## Who counts as an administrator
+
+"Two-factor authentication for owners and administrators" and the platform floor `admins` cover a
+member who, through any role (directly or through a team), has:
+
+- the owner or admin role;
+- access to all of the organization's data, or its organization dashboards;
+- a privileged permission the built-in **Member** role does not have: inviting or managing people,
+  teams, roles or API keys, the secret store beyond reading it, integrations, or the organization
+  settings.
+
+A plain **Member**, or a custom role with only what the Member role has, is not an administrator for
+these rules, so "2FA for owners and administrators" never asks every member for it. Use **Require
+two-factor authentication** to cover everyone.
 
 ## Platform administrators
 
