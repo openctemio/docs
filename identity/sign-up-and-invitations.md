@@ -117,6 +117,7 @@ shows the server setting and what is in force.
 |---|---|
 | **Who can create an account?** | Nobody by public sign-up; People on an organization's verified domain; Anyone |
 | **Who can create an organization?** | Only platform administrators; Anyone who signs up (needs "Anyone" above) |
+| **Create a personal organization on sign-up** | Off by default; needs "Anyone who signs up". See [Personal organization on sign-up](#personal-organization-on-sign-up). |
 | **Let people request access** | When only administrators create organizations, people who cannot sign in may ask for one. |
 
 ![The Sign-up page of the admin console with the server setting and the two choices]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
@@ -126,6 +127,31 @@ A choice the ceiling does not allow is shown as locked (**Locked by the server c
 saving it answers 409 `SIGNUP_LOCKED_BY_DEPLOYMENT`. Changing the policy never affects existing
 organizations, members, invitations or sessions. If the stored value cannot be read, the policy is
 the safe default (only platform administrators).
+
+### Personal organization on sign-up
+
+With **Create a personal organization on sign-up** on, a person who signs up by themselves (email
+and password, or a first Google, Microsoft or GitHub sign-in) and has no other way in gets their own
+organization, with them as its owner, so they skip the "create your organization" step. It is made
+at their first sign-in after their address is verified (Google and Microsoft addresses count as
+verified; a GitHub address only when GitHub marks it verified), and they then set up two-factor
+authentication like every new organization's owner.
+
+Nobody else gets one: not a person with a pending invitation or ownership invitation, not an
+address whose domain an organization verified (whether it lets people join, requires its single
+sign-on or is closed), not someone admitted by an organization's single sign-on, not a disposable
+address, and not an account created by an administrator. An invited person goes to the
+organization that invited them, with no extra empty organization.
+
+The organization is named "*Display name*'s organization" (the same
+wording in the person's console language) and gets a random address; rename it under **Settings › Organization**. It starts
+with the [limits](../console/settings.md#limits) of a self-service organization. It is made at most
+once per account, and at most 5 an hour from one network and 50 an hour per e-mail domain; when a
+bound is reached the person keeps the normal "create your organization" step. Each one appears in
+**Customers › Sign-ups** as "Created at sign-up" and in the new organization's audit log.
+
+`SIGNUP_PERSONAL_ORGANIZATION=true` turns the switch on in the policy stored at the first start
+(only with `SIGNUP_MODE=open`); after that, change it in the console.
 
 ### Requesting access
 
