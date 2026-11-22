@@ -143,8 +143,8 @@ sign-on or is closed), not someone admitted by an organization's single sign-on,
 address, and not an account created by an administrator. An invited person goes to the
 organization that invited them, with no extra empty organization.
 
-The organization is named "*Display name*'s organization" ("Tổ chức của *tên*" when the person
-uses Vietnamese) and gets a random address; rename it under **Settings › Organization**. It starts
+The organization is named "*Display name*'s organization" (the same
+wording in the person's console language) and gets a random address; rename it under **Settings › Organization**. It starts
 with the [limits](../console/settings.md#limits) of a self-service organization. It is made at most
 once per account, and at most 5 an hour from one network and 50 an hour per e-mail domain; when a
 bound is reached the person keeps the normal "create your organization" step. Each one appears in
