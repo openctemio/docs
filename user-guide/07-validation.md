@@ -348,7 +348,8 @@ The other tabs (Findings, Retests and Report are described below):
 - **Scope**: **Link Assets**, **Link Asset Groups** and **Manual Scope Items**
   (for targets not in the inventory, with **Bulk import**), in scope or out of
   scope.
-- **Team**: add members, change their role or remove them (the lead).
+- **Team**: add people or user groups, change their role or remove them (the
+  lead). See [Groups on a campaign team](#groups-on-a-campaign-team).
 - **Checklist**: the campaign's [methodology checklists](../pentest/checklists.md)
   (OWASP and your organization's own), with a result per item.
 - **Rules**: the **Testing Schedule**, **Allowed** and **Restricted** testing
@@ -382,6 +383,30 @@ skips a campaign rule asks them for a reason and is audited.
 "Own" means findings the tester created or is assigned. The client role is for
 the tested organization's people: they see published findings, request retests
 when a fix is in place, and sign off when the policy asks them to.
+
+### Groups on a campaign team
+
+In **Team**, **Add** opens **Add team member**, with two choices: **People** or
+**Group**. Pick a user group of your organization and a role, then **Add group**.
+
+- Everyone currently in the group gets the role. The team follows the group:
+  someone who joins the group gets the campaign at once, and someone who leaves
+  it, or whose group membership reaches its end date, loses it at once. An
+  inactive group gives no access.
+- A group can be a tester, reviewer, observer or client, never the lead: the
+  lead is a named person.
+- Someone on the team more than once (by name and through groups) gets the
+  highest of those roles, in the order lead, tester, reviewer, observer, client.
+  Their own role stays theirs to change or remove.
+- The team list shows each group with its role and member count; open a group
+  to see its members. People who are on the team through a group are marked
+  **Via** and the group's name; change their access on the group row.
+- **Remove group** asks for confirmation. Its members keep the campaign only if
+  they were also added by name or through another group.
+
+Adding, changing and removing a group is recorded in the audit log. When a
+group is added, its members who were not on the team yet get one notification;
+later changes to the group send none.
 
 ### Test credentials
 
