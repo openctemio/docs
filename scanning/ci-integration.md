@@ -63,7 +63,7 @@ flowchart LR
   what blocked it. **Details** opens the run in the console. A developer sees
   the runs, pipelines and coverage of the repositories in their data scope.
   The usual way to give a team its runs: assign the repository asset to the
-  team, which makes the team an owner of it (**Settings › Access & security › Teams › team ›
+  team, which makes the team an owner of it (**Organization settings › People and access › Teams › team ›
   Assets**, see [data scope](../identity/roles-and-permissions.md#groups-and-data-scope)).
   Leaving the team takes the runs away. Anyone else sees "This run is not available to you", and an
   administrator can grant access to the repository.
@@ -166,7 +166,7 @@ branch when it was recorded:
 
 ## Gate settings per repository
 
-**Discovery › CI/CD › Settings** holds the organization's gate policy. Each pipeline's
+The **Gate** tab of **Discovery › CI/CD** holds the organization's gate policy. Each pipeline's
 **Settings** tab shows the policy that applies to its repository, setting by
 setting: the effective value, where it comes from (default, organization,
 business unit or this repository), and any lock.
@@ -194,7 +194,7 @@ business unit or this repository), and any lock.
 
 ## Require OIDC for CI
 
-**Discovery › CI/CD › Settings** (Trusted pipelines) has a **Require OIDC for CI** switch
+**Discovery › CI/CD › Connections** has a **Require OIDC for CI results** switch under **Organization rules**
 (`GET` and `PUT /api/v1/ci/settings`; changing it needs `scans:ci:write` and a
 recent sign-in). When on, a one-shot CI sensor key is refused on every sensor
 route (`403`, problem `ci-oidc-required`), so a stored key that leaks cannot
@@ -236,9 +236,6 @@ Trust and the gate work without a code host connection. The connection lets
 the platform post the **OpenCTEM gate** check and the comment on the pull or
 merge request. Open **Discovery › CI/CD › Settings › Pull request
 feedback**.
-
-![The Pull request feedback tab: the GitHub App with the example-org installation and a GitLab group connection]({{ site.baseurl }}/assets/images/scanning/ci/ci-pr-feedback.png)
-*Figure: Pull request feedback, with the GitHub App installed on example-org and one GitLab group.*
 
 ```mermaid
 flowchart TD
@@ -285,8 +282,6 @@ refused, so the status is never posted as a person and does not depend on
 anyone's membership. A connection made earlier with a personal token keeps
 working until it is removed; reconnect it with a group access token.
 
-![The Connect GitLab group dialog: host, group path and group access token]({{ site.baseurl }}/assets/images/scanning/ci/ci-gitlab-connect.png)
-
 ## Where pipelines show up
 
 **Discovery › CI/CD › Pipelines** lists each workflow file of each repository
@@ -295,11 +290,8 @@ inactive (Archived, Revoked, Never). It is never "offline". **Runs** lists
 every run with its verdict. **Coverage** shows, per repository, which
 capabilities ran recently.
 
-![The Pipelines view: five pipelines of example-org and the platform group with status, last run, default-branch gate and runner version]({{ site.baseurl }}/assets/images/scanning/ci/ci-pipelines.png)
+![The CI/CD integration page on the Pipelines tab]({{ site.baseurl }}/assets/images/scanning/ci/ci-pipelines.png)
 *Figure: Pipelines.*
-
-![The Coverage view: repositories by SAST, SCA, secrets and IaC freshness, with Expect buttons]({{ site.baseurl }}/assets/images/scanning/ci/ci-coverage.png)
-*Figure: Coverage. **Expect** marks the capabilities a repository must report.*
 
 A container scan whose report carries the image's content digest also
 suggests relationships from the repository to the assets running that image

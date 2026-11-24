@@ -82,9 +82,6 @@ how to run a workflow scan on targets that would otherwise need splitting.
 
 ## Preview and coverage
 
-![The Scan zones tab with one zone, its ranges, sensors and the coverage summary]({{ site.baseurl }}/assets/images/sensors/scan-zones.png)
-*Figure: Scan zones and coverage.*
-
 - **Routing preview** (`POST /api/v1/scan-zones/preview`) runs the trigger's
   target resolution, scope exclusions, routing and batching for a scan about
   to be created, without creating anything. The new-scan screen shows it.
@@ -95,7 +92,7 @@ how to run a workflow scan on targets that would otherwise need splitting.
 ## Scan windows
 
 Times when scans may or may not touch targets are set organization-wide in
-**Settings > Scanning > Scan windows**, not on the zone: an **Allow** policy
+**Organization settings > Scanning > Scan windows**, not on the zone: an **Allow** policy
 lets its targets be scanned only inside its windows, a **Blackout** policy
 never inside them. A policy can select its targets by zone (and by tags,
 groups, asset types, criticality, business units, scope entries or bug-bounty

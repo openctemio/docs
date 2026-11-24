@@ -229,7 +229,7 @@ Every change of the release, upgrade notes first: [What changed in v0.21.0](/ope
   - Before you require scan identification, update sensors to a release that advertises
     `http.identity.required@1` (v0.41); until then required jobs wait.
 - **Scans with a credential in their settings** are refused on save (`SCANNER_CONFIG_SECRET`) and
-  blocked at trigger. Edit them: keys belong in Settings > Scanning > Tool source keys, which
+  blocked at trigger. Edit them: keys belong in Organization settings > Tools and sensors > Tool source keys, which
   reach a sensor only as a sealed per-task secret.
 - **API clients** that send keys other than `reason` in a scan trigger's `context` get
   `400 TRIGGER_CONTEXT_REFUSED`.
@@ -346,7 +346,7 @@ and indexes, and need no maintenance window. What an operator or an API client h
   data, and the exposure field `ctem_id` becomes an object. Remove `CTEM_ID_FEED_URL` if set (it is
   ignored).
 - **API key lifetime.** Each organization has a maximum API key lifetime, 90 days by default
-  (**Settings > API keys**). Existing keys keep their expiry; one minted for longer is flagged
+  (**Organization settings > People and access > API keys**). Existing keys keep their expiry; one minted for longer is flagged
   **Over the maximum**. Automation that creates keys with a longer `expires_in_days` gets `400`.
 - **Sign-in across organizations.** A session from organization A's single sign-on opens another
   organization only when that organization trusts A as the member's home organization, or when the
@@ -565,7 +565,7 @@ runs on those steps (see [How upgrades work](#how-upgrades-work)).
   clock-skew problem and the sensor prints the offset.
 - **OIDC.** An identity provider that signs id_tokens with RS384 or RS512 must switch to
   RS256, PS256 or ES256. If `OAUTH_GOOGLE_SCOPES` was overridden, it must include `openid`.
-- **SCIM tokens** expire 90 days after the migration; rotate them in **Settings > Access & security > Directory
+- **SCIM tokens** expire 90 days after the migration; rotate them in **Organization settings > People and access > Directory
   sync (SCIM)** and paste the new token into the identity provider. A client that creates
   tokens through the API sends `expires_in_days` (1 to 365).
 - **Organization email channels** must use port 25, 465, 587 or 2525; the platform relay is
@@ -638,7 +638,7 @@ their own steps in [From v0.12 to v0.15.5](#from-v012-to-v0155).
   environment as well: the legacy sensor health checker is gone and start-up refuses them.
 - **Remove `AI_TRIAGE_ENABLED`** from the environment: start-up refuses it. A provider
   key makes platform AI available, and each organization turns AI triage on itself in
-  **Settings > AI**; organizations that already used it stay on.
+  **Organization settings > Organization > AI**; organizations that already used it stay on.
 - **All-in-one image.** Each process runs under its own user with only its own
   settings, and the gateway's storage moves from `/data/caddy` to
   `/data/gateway/caddy` on the first start (automatic). In TLS mode `files`, the key

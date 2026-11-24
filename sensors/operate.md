@@ -76,7 +76,7 @@ names the oldest platform each current component release works with.
 | Check | Comes from | What you see |
 |---|---|---|
 | Product version, first-party sensors (`openctemio-*`: the scanning sensor, the Tenable.sc connector) | The newest release comes from the platform's signed release feed, checked daily; the minimum comes with the platform release | **latest**, **update available** or **unsupported** (older than the minimum: upgrade it) |
-| Product version, a sensor your organization builds | The latest and minimum release you record under [Settings › Scanning › Sensor products](../user-guide/10-settings-and-integrations.md#sensor-products) | The same verdicts, for your organization only; nothing recorded means no version verdict |
+| Product version, a sensor your organization builds | The latest and minimum release you record under [Organization settings › Tools and sensors › Sensor products](../user-guide/10-settings-and-integrations.md#sensor-products) | The same verdicts, for your organization only; nothing recorded means no version verdict |
 | SDK (sensors built with sdk-go) | The newest SDK release from the feed, a minimum and security advisories from the platform | An older SDK shows as outdated; one below the minimum, or with a published advisory, marks the sensor degraded (rebuild it with a newer SDK) |
 | Protocol | The API versions the platform serves | A protocol the platform no longer serves cannot connect at all |
 

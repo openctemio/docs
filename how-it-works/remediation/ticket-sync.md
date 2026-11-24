@@ -52,7 +52,7 @@ sequenceDiagram
 1. **One URL per connection.** Each Jira or GitHub connection has its own
    webhook URL and secret. The URL names the connection and therefore the
    organization; a sender cannot choose another organization. For Jira,
-   open **Settings > Integrations > Ticketing**, the connection's menu and
+   open **Organization settings > Integrations > Ticketing**, the connection's menu and
    **Inbound webhook** to copy the URL and generate or enter the secret. For
    GitHub the URL and secret are set through the API today.
 2. **Checks before anything is read.** A missing or wrong signature, an

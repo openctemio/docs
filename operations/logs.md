@@ -113,7 +113,7 @@ Problems:
 | `failed to load configuration` | ERROR | A setting is invalid or missing; `error` names it. The API exits. See [Production checks](../configuration/environment-variables.md#production-checks). |
 | `database schema check failed — refusing to start` | ERROR | The schema is behind, dirty or older than the migration baseline. Run the migrations; see [Upgrading](upgrade.md). |
 | `failed to connect to database` / `failed to connect to redis` | ERROR | Host, credentials or TLS settings. |
-| `jira webhook preflight: connected Jira integrations have no webhook secret` | WARN | Their inbound webhook deliveries are refused (401) until the organization sets a secret in **Settings > Integrations > Ticketing > Inbound webhook**. |
+| `jira webhook preflight: connected Jira integrations have no webhook secret` | WARN | Their inbound webhook deliveries are refused (401) until the organization sets a secret in **Organization settings > Integrations > Ticketing > Inbound webhook**. |
 | `email service not configured, skipping ... email` | WARN | No platform SMTP server is set (platform console, **Settings > E-mail**); verification and password-reset email is not sent. See [Email (SMTP)](../configuration/email.md). |
 | `email task handlers NOT registered - SMTP is not configured; other job handlers still run` | WARN | Same cause. |
 | `panic recovered` | ERROR | A handler or background task panicked; the request got 500. Counted by `openctem_panics_recovered_total`. |

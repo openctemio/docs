@@ -54,7 +54,7 @@ sequenceDiagram
    (`findings:write`). The finding must be in your data scope. An
    organization may send about 10 triage requests a minute to each server.
 2. Nothing is sent until an organization owner or administrator turns AI on
-   in **Settings > AI** (**Provider** tab). The source is **Platform AI**
+   in **Organization settings > Organization > AI** (**Provider** tab). The source is **Platform AI**
    (the provider the platform administrator set up) or **Own provider** (your
    organization's key and model). The **Use cases** tab can turn triage off.
 3. The AI data policy keeps a pentest finding on the platform when its
@@ -79,7 +79,7 @@ sequenceDiagram
 
 | What happens | What you see | What to do |
 |---|---|---|
-| AI is off for your organization | The button explains it; 403 `AI_DISABLED` | An owner or administrator turns AI on in Settings > AI |
+| AI is off for your organization | The button explains it; 403 `AI_DISABLED` | An owner or administrator turns AI on in Organization settings > Organization > AI |
 | No platform provider is set up | 503 `AI_PLATFORM_NOT_CONFIGURED` | The platform administrator sets up a provider in the console |
 | Your own provider is not allowed by the platform | 403 `AI_OWN_PROVIDER_NOT_ALLOWED` | Switch to Platform AI, or ask the platform administrator |
 | Triage is off in the Use cases tab | 403 `AI_USE_CASE_OFF` | An owner or administrator turns the triage use case on |
@@ -108,8 +108,8 @@ sequenceDiagram
 ## Related
 
 - [AI suggestions and approval](../../user-guide/ai-suggestions-and-approval.md)
-- [Settings > AI: use cases](../../user-guide/ai-use-cases.md)
-- [Settings > AI: data masking](../../user-guide/ai-data-masking.md)
+- [Organization settings > Organization > AI: use cases](../../user-guide/ai-use-cases.md)
+- [Organization settings > Organization > AI: data masking](../../user-guide/ai-data-masking.md)
 - [Settings and integrations: AI](../../user-guide/10-settings-and-integrations.md#ai)
 - [AI triage API](../../api/ai-triage.md)
 - [AI agents and approvals](ai-agents.md)

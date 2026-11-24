@@ -25,7 +25,7 @@ installation, with their role, how they sign in (**Password**, **Temporary
 password**, **Identity provider**), when a break-glass account was last tested,
 their status and last activity.
 
-![The Administrators page listing two super admins, an operations admin, a read-only admin and a break-glass account]({{ site.baseurl }}/assets/images/console/administrators.png)
+![The Administrators page: New administrator, search and the list of administrators with their role, sign-in method and status]({{ site.baseurl }}/assets/images/console/administrators.png)
 *Figure: Platform console, Administrators.*
 
 - **New administrator**: name, email and base role. The account is created with
@@ -140,8 +140,8 @@ administrator's confirmation alone, recorded as critical (`approval.single_admin
 and announced to every administrator. The page says so and explains how to add a
 second super admin. Plan for at least two named super admins in production.
 
-![The Approvals page seen by a second super admin: a waiting request to delete Example Retail now with Approve and Reject buttons, and an approved request]({{ site.baseurl }}/assets/images/console/approvals-approver.png)
-*Figure: Security, Approvals, seen by the approving super admin.*
+![The Approvals page: what needs a second platform owner, and the list of requests]({{ site.baseurl }}/assets/images/console/approvals-approver.png)
+*Figure: Security, Approvals.*
 
 ## Admin sign-in
 

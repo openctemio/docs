@@ -51,7 +51,7 @@ sequenceDiagram
 2. The consent page shows who asks, what each scope allows, and which scopes
    the organization or the person's role does not allow.
 3. The grant is the intersection of the organization's policy under
-   **Settings > AI assistants (MCP)** and the person's own permissions.
+   **Organization settings > People and access > AI assistants (MCP)** and the person's own permissions.
 4. Access tokens last 10 minutes. Refresh tokens rotate on every use; a
    reused refresh token revokes the grant. A grant lasts at most 90 days.
 5. Each tool call checks the token, that it was issued for this server, the

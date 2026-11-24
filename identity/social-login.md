@@ -143,7 +143,7 @@ proof typed in the dialog at that moment:
 - otherwise your **password**.
 
 Having signed in a moment ago does not count. An account that signs in only through a provider and
-has no two-factor authentication must turn it on (**My account > Security**) before it can link or
+has no two-factor authentication must turn it on (**Account settings > Security**) before it can link or
 unlink a provider. Wrong codes or passwords count towards the account lockout.
 
 There are two ways to link:
@@ -152,7 +152,7 @@ There are two ways to link:
   account. Sign in to that account the usual way; the app asks **Link Google to your account?** with
   the code (or password) field. **Link** links it and signs out your other sessions; **Not now**
   forgets it. The offer lasts 10 minutes and works once, in the same browser.
-- **From your settings.** Open **My account > Security > Connected sign-in methods**, click **Link**
+- **From your settings.** Open **Account settings > Security > Connected sign-in methods**, click **Link**
   next to Google, GitHub or Microsoft, enter the code (or password), sign in at the provider, and come
   back with the provider linked. The provider account does not need the same email address. The link
   starts on the web server: its one-time browser binding stays in an HttpOnly cookie and never
@@ -190,9 +190,9 @@ treat the session as before.
 | `provider_error` | The person cancelled at the provider, or the provider returned an error (for example an app in testing mode). |
 | "Your organization isn't set up yet" | The sign-up policy is closed and the person has no invitation. Invite them, or change the policy. |
 | "This provider cannot prove that you own this email address" (`EMAIL_NOT_AUTHORITATIVE`) | A personal Google account on a company address, or a GitHub account, tried to claim an account, an invitation or a domain join. Sign in with the password (or ask an administrator), then link the provider. See [Who may sign in](#who-may-sign-in). |
-| "An account with this email already exists" (`OAUTH_ACCOUNT_EXISTS`) | The address has a password account (or an account of another provider). Sign in with it, then confirm the link the app offers, or link the provider in **My account > Security**. See [Existing accounts](#existing-accounts). Earlier releases showed an internal error instead. |
+| "An account with this email already exists" (`OAUTH_ACCOUNT_EXISTS`) | The address has a password account (or an account of another provider). Sign in with it, then confirm the link the app offers, or link the provider in **Account settings > Security**. See [Existing accounts](#existing-accounts). Earlier releases showed an internal error instead. |
 | "The code or password is not correct" when linking (`LINK_PROOF_FAILED`) | A wrong password, a wrong code, a recovery code, or the code already used to sign in. Wait for the next code and try again; repeated failures lock the account like failed sign-ins. |
-| "Turn on two-factor authentication before you change sign-in methods" (`LINK_PROOF_UNAVAILABLE`) | The account has no password and no authenticator app. Turn on two-factor authentication in **My account > Security**, then link or unlink. |
+| "Turn on two-factor authentication before you change sign-in methods" (`LINK_PROOF_UNAVAILABLE`) | The account has no password and no authenticator app. Turn on two-factor authentication in **Account settings > Security**, then link or unlink. |
 | The person signs in but sees no organization | Expected without a membership or invitation. See [What happens after sign-in](#what-happens-after-sign-in). |
 
 Every error that returns to the login page carries a fixed code, never the provider's own text.

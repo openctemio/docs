@@ -72,7 +72,7 @@ organization token on admin routes, and so on.
   refresh token that was already used revokes the whole token family. A session ends after
   `AUTH_SESSION_DURATION` (default 30 days) regardless of activity.
 - A user can have at most `AUTH_MAX_ACTIVE_SESSIONS` (default 10) sessions; the oldest is revoked
-  beyond that. Users see and revoke their sessions under **My account > Security**.
+  beyond that. Users see and revoke their sessions under **Account settings > Security**.
 - Routes that name an organization in the URL apply that organization's requirements (two-factor,
   personal-account policy, SSO exceptions) to the caller's session on every request, and refuse a
   token bound to no organization (`ACCOUNT_TOKEN_NOT_ALLOWED`). The check fails closed.

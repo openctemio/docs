@@ -54,7 +54,7 @@ the API list `GET /api/v1/findings/remediation-groups` and the MCP tool
 
 ### The fix plan
 
-![The Remediation page on the Fix plan tab: open tasks, suggestions to review and the tasks ordered by risk, each with its state and deadline]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
+![The Remediation page on the Fix plan tab: open tasks, overdue and your tasks, then the tasks ordered by risk removed, each with its state and deadline]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
 *Figure: Remediation, Fix plan.*
 
 **Mobilization › Remediation › Fix plan** (`/remediation`) lists the fixes that
@@ -220,7 +220,7 @@ toward one goal and deadline. A campaign's status is one of **Draft**,
 (`/remediation/campaigns/{id}`) to see its progress, dates, owner, validator and
 findings, and to **Create Jira Epic**.
 
-![A campaign page: progress, owner, due date and the tasks it holds]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
+![A campaign page: its state, priority, owner and due date, Add tasks and Start, its progress and its tasks]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
 *Figure: A campaign.*
 
 ### Jira issue types for findings, tasks and campaigns
@@ -229,7 +229,7 @@ Each kind of issue the platform creates in Jira can use its own issue type, cust
 types included: for example findings as **Security Finding**, remediation tasks as
 **Remediation Task** and campaigns as **Initiative**.
 
-1. Open **Settings → Integrations → Ticketing**, choose the Jira connection and
+1. Open **Organization settings → Integrations → Ticketing**, choose the Jira connection and
    **Configure** (needs `integrations:manage`).
 2. Choose the **Default project**. Under **Issue types**, pick a type for
    **Findings**, **Remediation tasks** and **Campaigns (epic)** from the project's
@@ -251,7 +251,7 @@ the refused fields until the next ticket succeeds.
 Automations can open a Jira issue for every finding they see. To keep Jira for the
 work that matters, each Jira connection has a create policy.
 
-1. Open **Settings → Integrations → Ticketing**, open the connection's menu and
+1. Open **Organization settings → Integrations → Ticketing**, open the connection's menu and
    choose **When to create issues**.
 2. Set what is enough for an issue. Any one of these is enough:
    - **Severity at least** (default Medium). Info lets everything through.
@@ -299,7 +299,7 @@ guidance, never a secret from the finding.
 
 ## SLA policies
 
-**Settings › Findings & assets › SLA policies** (`/settings/sla-policies`) is where you
+**Organization settings › Findings and assets › SLA policies** (`/settings/sla-policies`) is where you
 **define** remediation deadlines.
 
 - The **default policy** applies to every finding:
@@ -393,8 +393,8 @@ a pending accepted-risk rule for that repository, expiring in 90 days, and the
 rule names the CI identity as its requester. See
 [Known false positives](known-false-positives.md#claims-in-the-repository).
 
-The tabs show **All rules**, **Pending approval**, **Approved**, **Rejected** and
-**Expired**. When a rule expires or is deleted, the findings it closed reopen
+The list can show all rules or only those **Pending approval**, **Approved**,
+**Rejected** or **Expired**. When a rule expires or is deleted, the findings it closed reopen
 as New (unless another active rule covers them). A finding someone changed
 since is left alone.
 

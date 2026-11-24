@@ -36,7 +36,7 @@ No connector that pulls from your network runs in the platform.
 ```mermaid
 flowchart TD
   pair["Pair the connector image as a sensor<br/>(keys and Tenable.sc address in its own config)"] --> grant["Approve it with the grant profile<br/>scan-connector or collector:tenable_sc"]
-  grant --> connect["Settings > Integrations > Vulnerability scanners:<br/>connect, pick the sensor, type the instance name"]
+  grant --> connect["Organization settings > Integrations > Vulnerability scanners:<br/>connect, pick the sensor, type the instance name"]
   connect --> check{"Sensor is one of this<br/>organization's own sensors?"}
   check -->|"no, or a shared platform sensor"| refused["Refused"]
   check -->|yes| saved["Integration saved<br/>(no Tenable.sc key or address on the platform)"]

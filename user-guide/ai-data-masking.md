@@ -1,10 +1,10 @@
 ---
-title: "Settings > AI: data masking"
+title: "Organization settings > Organization > AI: data masking"
 parent: User guide
 nav_order: 10.6
 ---
 
-# Settings > AI: data masking
+# Organization settings > Organization > AI: data masking
 
 Before OpenCTEM sends a finding to an AI model, it replaces your real hosts, addresses, people and
 other identifiers with typed placeholders. The model reasons on `HOST_4K2QA` and
@@ -13,7 +13,7 @@ mapping never leaves the platform.
 
 An AI agent's analysis and the preview below are masked this way. AI triage is not masked today:
 it sends the finding fields its use case's data ceiling allows, with a leaked secret's value
-redacted, but host names and addresses in those fields reach the model as they are. The **Settings > Organization > AI** page (**Limits and data** tab, **Data masking**) has been in the console since v0.16.0. The policy is
+redacted, but host names and addresses in those fields reach the model as they are. The **Organization settings > Organization > AI** page (**Limits and data** tab, **Data masking**) has been in the console since v0.16.0. The policy is
 also read and changed through the API (`GET` and `PUT /api/v1/organization/settings/ai/masking`,
 and `POST .../masking/preview`). The AI worker, which will use the same
 masking at its tool boundary, is planned.
@@ -44,7 +44,7 @@ back, even if the model repeats the placeholder. The model only learns its type 
 
 ## Your settings
 
-**Settings > Organization > AI > Limits and data > Data masking** (owners and administrators; changing it needs a recent sign-in):
+**Organization settings > Organization > AI > Limits and data > Data masking** (owners and administrators; changing it needs a recent sign-in):
 
 - **Per-class switches** for **Host names and domains**, **IP addresses and networks**,
   **E-mail addresses**, **User names**, URL ids and parameters, **Organization names** and
@@ -93,9 +93,9 @@ Masking lowers the risk of sending data to a provider; it does not remove it.
 
 ## Related
 
-- [Settings > AI: use cases](ai-use-cases.md)
-- [Settings > AI: AI agents](ai-agents.md)
-- [Settings > AI: knowledge sources](ai-knowledge-sources.md)
+- [Organization settings > Organization > AI: use cases](ai-use-cases.md)
+- [Organization settings > Organization > AI: AI agents](ai-agents.md)
+- [Organization settings > Organization > AI: knowledge sources](ai-knowledge-sources.md)
 - [AI suggestions and approval](ai-suggestions-and-approval.md)
 - Design: `server/docs/architecture/ai-context-masking.md` in the
   [openctem repository](https://github.com/openctemio/openctem)

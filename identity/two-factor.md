@@ -17,7 +17,7 @@ identity provider's. The platform admin console has its own second step, which i
 
 ## Turning on 2FA
 
-In **Settings > My account > Security**:
+In **Account settings > Security**:
 
 1. Next to **Two-factor authentication**, select **Set up**. Scan the QR code (or enter the secret)
    in your authenticator app. The entry is labeled with the host of your installation, for example
@@ -26,12 +26,9 @@ In **Settings > My account > Security**:
 2. Enter your current password and a code from the app.
 3. Save the **10 recovery codes** shown. Each works once. They are shown only now.
 
-![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
-*Figure: Setting up an authenticator app (QR code and key blurred).*
-
 Turning 2FA on signs out every other session of your account.
 
-**Turning 2FA off** (My account > Security) is refused with `409 MFA_REQUIRED_BY_POLICY` while an
+**Turning 2FA off** (Account settings > Security) is refused with `409 MFA_REQUIRED_BY_POLICY` while an
 organization you belong to, or the platform's two-factor floor (also during its grace period),
 requires it; the page names who requires it. The refusal is audited and never spends a recovery
 code. When it is allowed, turning off signs out every other session of your account.
@@ -57,7 +54,7 @@ uses the same field:
   than retyping the same one (a code works once).
 - A recovery code is typed in one field, with or without its dash (`abcde-fghjk`).
 
-| Action (Settings > My account > Security) | Needs |
+| Action (Account settings > Security) | Needs |
 |---|---|
 | Turn 2FA on | password and a code |
 | Turn 2FA off | password and a code, or **Use a recovery code instead**; you are emailed |
@@ -81,7 +78,7 @@ stored as bcrypt hashes.
 
 ## Requiring 2FA in an organization
 
-An owner turns on **Require two-factor authentication** under **Settings > Access & security > Authentication**. **Require two-factor authentication for owners and admins** is a narrower switch
+An owner turns on **Require two-factor authentication** under **Organization settings > Sign-in and oversight > Sign-in**. **Require two-factor authentication for owners and admins** is a narrower switch
 (it also covers members who hold a privileged role, directly or through a team) that is on for every
 organization created from now on (organizations created before keep it off until
 an owner turns it on; it is on and locked while the first switch is on). The creator of a new
@@ -106,8 +103,8 @@ switch on:
 - Owners and admins see each member's 2FA status in the members list (`enabled`, `disabled`, or
   `idp` for SSO users).
 
-![The Authentication settings with the switches that require two-factor authentication]({{ site.baseurl }}/assets/images/identity/authentication.png)
-*Figure: Settings, Security, Authentication.*
+![The Sign-in tab of the Sign-in settings: two-factor authentication, re-verification, new accounts and network restriction]({{ site.baseurl }}/assets/images/identity/authentication.png)
+*Figure: Organization settings, Sign-in.*
 
 ### The platform two-factor floor
 
@@ -132,9 +129,9 @@ The platform sets the lowest two-factor requirement every organization is held t
 - **Grace.** People the floor newly covers keep signing in without two-factor for a while: 14 days
   from the floor taking effect for existing members, 7 days from account creation for new accounts,
   whichever ends later (both settable, 0 to 90 days; raising the floor starts a new grace period).
-  **My account > Security** shows the date (`grace_due_at` in the account's two-factor status). An
+  **Account settings > Security** shows the date (`grace_due_at` in the account's two-factor status). An
   organization's own requirement has no grace.
-- **In the organization settings.** **Settings > Access & security > Authentication** shows the floor in force
+- **In the organization settings.** **Organization settings > Sign-in and oversight > Sign-in** shows the floor in force
   and locks the switches it raises ("The platform requires two-factor authentication for owners,
   administrators and members with a privileged role. You can require it for everyone, not less.").
   Saving settings below the floor is refused (`422 MFA_BELOW_PLATFORM_FLOOR`).
@@ -153,7 +150,7 @@ request is refused with `403 MFA_ENROLLMENT_REQUIRED` and the web console opens 
 
 By default, a sign-in through the organization's own identity provider counts as two-factor: the
 provider is trusted to have asked for a second factor. An owner can turn on **SSO must prove
-two-factor** under **Settings > Access & security > Authentication > Two-factor authentication** (with step-up). With it
+two-factor** under **Organization settings > Sign-in and oversight > Sign-in > Two-factor authentication** (with step-up). With it
 on, a member who must use 2FA and signs in through the organization's SSO gets access only if the
 provider says, in its signed response, that a second factor was used:
 
@@ -172,7 +169,7 @@ switch off is recorded as a High audit event and the owners and admins are told.
 - **Lost device, recovery codes available:** sign in with a recovery code, then turn 2FA off and on
   again with the new device (or generate new codes).
 - **Lost device and codes:** an owner or admin of the organization resets it under
-  **Settings > Access & security > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
+  **Organization settings > People and access > Members**, row menu **Reset 2FA** (step-up required). The reset removes the factor and
   recovery codes, signs the person out everywhere, is audited and emailed to them. If the organization
   requires 2FA, they enrol again at the next sign-in.
 - **Nobody in the organization can reset it** (for example the person is the only owner): a platform
@@ -238,7 +235,7 @@ organization's [re-verification policy](#re-verification-policy). The default is
   applying a preset);
 - deleting the organization; offboarding or erasing a member; removing a member's 2FA;
 - making someone an admin; transferring ownership; renaming the organization's slug;
-- changing who may join with a verified domain (**Settings > Access & security > Domains**); inviting someone outside the
+- changing who may join with a verified domain (**Organization settings > Sign-in and oversight > Sign-in > Joining > Verified domains**); inviting someone outside the
   organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;
   allowing bearer-key sensors again;
@@ -253,7 +250,7 @@ organization's [re-verification policy](#re-verification-policy). The default is
 ### Re-verification policy
 
 Owners choose how often people confirm their identity again. The setting is under
-**Settings > Access & security > Authentication**, card **Re-verification**. Each tier has its own
+**Organization settings > Sign-in and oversight > Sign-in**, card **Re-verification**. Each tier has its own
 rule:
 
 | Tier | Actions | Choices | Default for a new organization |

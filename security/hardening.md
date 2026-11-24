@@ -349,7 +349,7 @@ proxy, do not strip these headers.
   with an address on an organization's verified domain join that organization; `open` lets anyone
   create an organization. No console setting can exceed it. See
   [Sign-up and invitations](../identity/sign-up-and-invitations.md).
-- Require 2FA in each organization (**Settings > Access & security > Authentication > Require two-factor authentication**), or SSO
+- Require 2FA in each organization (**Organization settings > Sign-in and oversight > Sign-in > Require two-factor authentication**), or SSO
   through the organization's identity provider.
 - Set an IP allowlist for organizations whose users work from known networks.
 - Review API keys, SCIM tokens and sensor keys periodically; revoke what is unused.

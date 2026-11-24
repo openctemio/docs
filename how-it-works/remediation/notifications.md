@@ -119,7 +119,7 @@ flowchart LR
 ```
 
 - Each person sets **In-app notifications**, the **Minimum severity** and
-  the **Notification types** under **My account > Notifications**. With no
+  the **Notification types** under **Organization settings > Your membership > Notifications**. With no
   settings saved, everything is shown.
 - The same rule decides the list, the unread count and the live push, so
   they never disagree. A notice about a finding or an asset reaches only

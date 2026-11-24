@@ -24,7 +24,7 @@ Users also get in-app notifications in the console; those need no setup.
 
 ## Add a channel
 
-1. In the console, open **Settings**, **Integrations**, **Notification channels**.
+1. In the console, open **Organization settings**, **Integrations**, **Notification channels**.
 2. Add a channel, pick the provider, and fill in its settings (below).
 3. Choose the **event types** and **severities** the channel receives, and its **detail level** (see [Detail levels](#detail-levels)).
 4. Use **Send test** to check delivery (tests are limited to one every 30
@@ -140,7 +140,7 @@ that caused them, then delivered by a background worker every few seconds. Each
 channel is retried on its own (after 1 min, 5 min, 30 min, 2 h, 6 h, 12 h and
 24 h), so one failing channel does not affect the others, and a channel that got
 the event is not sent it again. A delivery can be sent again from its history
-(`POST /api/v1/integrations/{id}/deliveries/{delivery_id}/redeliver`). **Settings**, **Integrations**, **Notification channels** shows the
+(`POST /api/v1/integrations/{id}/deliveries/{delivery_id}/redeliver`). **Organization settings**, **Integrations**, **Notification channels** shows the
 queue (**Queue**) and each channel's delivery history (**View events**), with the
 result per channel.
 

@@ -8,41 +8,52 @@ nav_order: 10
 
 See how it works: [Creating tickets](../how-it-works/remediation/tickets.md), [Ticket two-way sync](../how-it-works/remediation/ticket-sync.md), [Notification delivery](../how-it-works/remediation/notifications.md), [Outgoing webhooks](../how-it-works/remediation/outgoing-webhooks.md), [SIEM ingest](../how-it-works/integrations/siem-ingest.md).
 
-**Settings** (in the sidebar footer) is where you shape the platform to your
-organization: its details, how it is protected, who may sign in, the policies it
-applies, how scanning is set up, and how it connects to your other tools. Inside
-the settings area the sidebar is replaced by the settings rail.
+**Organization settings** (in the sidebar footer, and in the menu under your
+avatar) is where you shape the platform to your organization: its details, how it
+is protected, who may sign in, the policies it applies, how scanning is set up, and
+how it connects to your other tools. Inside the settings area the sidebar is
+replaced by the settings rail, with a link back to the app at its top. Your own
+account (profile, password, two-factor, theme and language) is not here: it is
+under **Account settings** in the same menu, see
+[Your account](01-getting-started.md#your-account).
 
 | Group | Pages |
 |---|---|
-| My account | Profile, Security, Preferences, Notifications, Activity, Connected applications: see [Your account](01-getting-started.md#your-account) |
-| Organization | General, Modules, Usage & limits, AI |
-| Access & security | People and roles: Members, Teams, Roles. **API access**: Service accounts, API keys, AI assistants (MCP). **Sign-in**: Authentication, Domains, Directory sync (SCIM), Trusted organizations, SSO approvals. **Oversight**: Security overview, Audit log, Support access. See [Team and access](02-team-and-access.md) |
-| Findings & assets | Finding lifecycle, Finding approvals, SLA policies, Pentest methodology. **Risk and threats**: Risk scoring, Vulnerability matching, Emerging threats, License policy. **Assets**: Asset sources, Asset lifecycle |
-| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety. **Tools**: Scan profiles, Tools, Tool defaults, Capabilities. **Sensors**: Sensor products, Proxies. **Scanner content**: Content catalog, Scanner templates, Detection rules, Wordlists, Content freshness, Source credentials |
-| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Import mappings, Notification channels, SIEM |
+| Your membership | Membership, Notifications, Activity, Connected applications: your place in this organization, see [Your account](01-getting-started.md#your-account) |
+| Organization | General, Modules, Usage and limits, AI |
+| People and access | Members, Teams, Roles, Service accounts, API keys, AI assistants (MCP), Directory sync (SCIM). See [Team and access](02-team-and-access.md) |
+| Sign-in and oversight | Sign-in (with the **Sign-in** and **Joining** tabs), Security overview, Audit log, Support access |
+| Approvals | Approvals: who decides false positives and accepted risks |
+| Findings and assets | Finding lifecycle, Leaked credentials, SLA policies, Pentest methodology. **Risk and threats**: Risk scoring, Vulnerability matching, Emerging threats, License policy. **Assets**: Asset sources, Asset lifecycle |
+| Scanning | Scope policy, Scan approval, Scan windows, Sensor job safety, Scan identification, Scan profiles |
+| Tools and sensors | Tools, Tool defaults, Capabilities, Sensor products, Proxies. **Detection content**: Content catalog, Scanner templates, Detection rules, Wordlists. **Scanner content**: Content freshness, Source credentials, Tool source keys |
+| Integrations | All integrations, Source control, Vulnerability scanners, Ticketing, Ticket field mapping, Import mappings, Notification channels, Event forwarding |
 
 The rail is grouped by the task a page serves, so a page sits next to the others
-you use for that task. Only the rail, the **Settings** overview and the command
-palette follow this grouping: every page keeps its address, permission and module
-gate, so older links keep working. **Wordlists** (`/settings/scanning/wordlists`)
-is described in [EASM](../scanning/easm.md), and **Emerging threats**
-(`/settings/emerging-threats`) is on the same rail.
+you use for that task. Only the rail, the settings overview and the command
+palette follow this grouping: almost every page keeps its address, permission and
+module gate. The pages that were merged keep working from their old addresses:
+`/settings/authentication`, `/settings/domains`, `/settings/trusted-organizations`
+and `/settings/sso-approvals` open **Sign-in**, and `/settings/finding-approvals`
+opens **Approvals**. **Wordlists** (`/settings/scanning/wordlists`) is described in
+[EASM](../scanning/easm.md), and **Emerging threats** (`/settings/emerging-threats`)
+is on the same rail.
 
 Pages that depend on a module or a limit appear only when it applies: for
-example **Usage & limits** is listed only while a limit applies to your
+example **Usage and limits** is listed only while a limit applies to your
 organization, and a page whose module is off is hidden.
 
 ### Find a setting
 
-**Settings** (`/settings`) lists the page names of each group (a page's
-one-line description shows on hover and is searched) and has a search box, and so
-has the settings rail. Both find pages and the settings inside them: typing `ip allowlist`, `2fa` or
-`interactsh` lists the page and the setting (for example **Authentication ›
+The settings overview (`/settings`) starts with a search box and **Needs
+attention** (the security overview in brief), then lists the page names of each
+group (a page's one-line description shows on hover and is searched); the settings
+rail has the same search. Both find pages and the settings inside them: typing `ip allowlist`, `2fa` or
+`interactsh` lists the page and the setting (for example **Sign-in ›
 IP allowlist**). Opening a setting goes to its page, scrolls to it and outlines
 it for a moment. The command palette (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd>)
 finds the same pages and settings. A setting's address (for example
-`/settings/authentication#ip-allowlist`) can be shared.
+`/settings/sign-in#ip-allowlist`) can be shared.
 
 ### Save changes
 
@@ -72,7 +83,7 @@ to your permissions. Administrative changes usually need the **Owner** or
 
 ### General
 
-**Settings › Organization › General** (`/settings/general`) has two tabs:
+**Organization settings › Organization › General** (`/settings/general`) has two tabs:
 
 - **General**: the **Organization information**: the logo (hover to upload; it
   stays unsaved until you save), the **Organization name**, **URL slug** and
@@ -83,8 +94,8 @@ to your permissions. Administrative changes usually need the **Owner** or
   `https://minio.example.com:9000`), access key and secret key. Only
   administrators can change it.
 
-![The General settings of the organization: name, URL slug and website]({{ site.baseurl }}/assets/images/user-guide/settings-general.png)
-*Figure: Settings, General.*
+![The General settings of the organization: organization information, file storage, dashboard data and the danger zone]({{ site.baseurl }}/assets/images/user-guide/settings-general.png)
+*Figure: Organization settings, General.*
 
 The page saves with the bar at the bottom (see [Save changes](#save-changes)).
 Without permission the fields are locked and say why. Only the owner can change
@@ -105,7 +116,7 @@ The owner's **Danger zone** at the bottom of the General tab has two actions:
   and everything works again as before. User accounts survive and keep their
   other organizations. You confirm by typing the organization's name.
 
-Leaving an organization is in **My account › Profile**, for every member.
+Leaving an organization is in **Account settings › Profile**, for every member.
 
 Each user chooses their own time zone, date format and theme under
 [Preferences](01-getting-started.md#preferences). Organization sign-in rules are
@@ -113,7 +124,7 @@ under [Authentication](02-team-and-access.md#sign-in-policy).
 
 ### Modules
 
-**Settings › Organization › Modules** (`/settings/modules`) turns features on
+**Organization settings › Organization › Modules** (`/settings/modules`) turns features on
 or off for your organization. A module that is off disappears from the sidebar,
 its pages stop opening, its scheduled jobs stop, and its permissions are left
 out of the role editor.
@@ -146,9 +157,9 @@ out of the role editor.
 If a page in this guide is missing for your organization, its module is probably
 off here.
 
-### Usage & limits
+### Usage and limits
 
-**Settings › Organization › Usage & limits** (`/settings/limits`, owners and
+**Organization settings › Organization › Usage and limits** (`/settings/limits`, owners and
 administrators) shows the limits that apply to the organization, such as seats,
 assets, findings, sensors and API keys, and what it uses. The page is listed
 only while a limit applies. Limits are set by a platform administrator; see
@@ -157,7 +168,7 @@ never removes anything: new additions over it are refused.
 
 ### AI
 
-**Settings › Organization › AI** (`/settings/ai`, shown while the AI triage module is
+**Organization settings › Organization › AI** (`/settings/ai`, shown while the AI triage module is
 on) decides whether this organization's findings may be sent to an AI provider
 for triage, and which provider reads them. Everyone with settings access can read
 the page; only owners and administrators can change it, and a change needs a
@@ -186,7 +197,7 @@ opens the right tab.
   description, severity and score, source and tool, file path and code snippet,
   CVE, CWE and OWASP ids, and whether the asset is internet-facing. Detected
   secrets are masked first. A pentest finding follows your AI data policy
-  (**Settings › Access & security › AI assistants (MCP)**, Policy): a campaign above your TLP limit
+  (**Organization settings › People and access › AI assistants (MCP)**, Policy): a campaign above your TLP limit
   for AI, or with AI turned off by its lead, is never sent.
 - **AI source** chooses who runs the analysis:
 
@@ -220,7 +231,7 @@ opens the right tab.
   The policy is also read and written with `GET` and `PUT
   /api/v1/organization/settings/ai/auto-triage`.
 - **Knowledge sources** (**Knowledge** tab): see
-  [Settings > AI: knowledge sources](ai-knowledge-sources.md).
+  [Organization settings > Organization > AI: knowledge sources](ai-knowledge-sources.md).
 - If the platform administrator turns off own providers for the installation
   (Console › **AI provider**), a saved own provider stops at its next call and
   the page says so; switch to **Platform AI** or **Off**. It never falls back to
@@ -229,20 +240,25 @@ opens the right tab.
   reload and apply yours again.
 
 **AI agents** and **Data masking** are described in
-[Settings > AI: AI agents](ai-agents.md) and
-[Settings > AI: data masking](ai-data-masking.md), and
+[Organization settings > Organization > AI: AI agents](ai-agents.md) and
+[Organization settings > Organization > AI: data masking](ai-data-masking.md), and
 [AI suggestions and approval](ai-suggestions-and-approval.md) says what AI triage
 shows and how a person decides what an AI agent proposes. See [AI triage](../api/ai-triage.md) for what the analysis returns.
 
-## Access & security
+## People and access
 
-Members, teams, roles, directory sync, API keys and AI assistants are described
-in [Team and access](02-team-and-access.md). The pages below are the rest of
-this group.
+Members, teams, roles, service accounts, API keys, AI assistants and directory
+sync are described in [Team and access](02-team-and-access.md); service accounts
+are also below.
+
+## Sign-in and oversight
+
+How people sign in and who may join, the security overview, the audit log and
+support access.
 
 ### Security overview
 
-**Settings › Access & security › Security overview** (`/settings/security`, owners and
+**Organization settings › Sign-in and oversight › Security overview** (`/settings/security`, owners and
 administrators) checks how well the organization is protected and lists what to
 fix first: two-factor for owners and administrators, members without a second
 factor, email verification, the IP allowlist, members who have not signed in for
@@ -251,25 +267,31 @@ directory sync tokens, sensor job opt-ins, a verified domain and active support
 access. Each check says **Passed**, **Warning**, **Risk** or **Information**,
 with a link to the page that fixes it, and the page shows a score out of 100
 (the two two-factor checks weigh three times as much as the others; information checks do not count). The same
-score and the first three things to fix are shown at the top of **Settings**.
+score and the first three things to fix are shown under **Needs attention** at the
+top of the settings overview.
 
 ![The security overview: a score out of 100 and the checks grouped by area]({{ site.baseurl }}/assets/images/user-guide/settings-security-overview.png)
-*Figure: Settings, Security overview.*
+*Figure: Organization settings, Security overview.*
 
-### Authentication
+### Sign-in
 
-**Settings › Access & security › Authentication** (`/settings/authentication`) sets how
-people sign in and who may join: see
+**Organization settings › Sign-in and oversight › Sign-in** (`/settings/sign-in`) is
+one page with two tabs. **Sign-in** holds two-factor authentication,
+re-verification, email verification for new accounts and the IP allowlist.
+**Joining** holds who may join and be invited, approval of new SSO members,
+personal accounts, verified domains, trusted organizations and the SSO changes
+waiting for an owner. Earlier these were four pages (Authentication, Domains,
+Trusted organizations and SSO approvals); their old addresses open this page. See
 [Team and access › Sign-in policy](02-team-and-access.md#sign-in-policy). The
-**Re-verification** card sets how often people confirm their identity again before critical,
+**Re-verification** section sets how often people confirm their identity again before critical,
 sensitive and routine actions: see
 [Re-verification policy](../identity/two-factor.md#re-verification-policy). What
 scan jobs may do on your sensors is on
 [Sensor job safety](#sensor-job-safety).
 
-### Domains
+### Verified domains
 
-**Settings › Access & security › Domains** (`/settings/domains`; owners change it,
+**Organization settings › Sign-in and oversight › Sign-in**, **Joining** tab, **Verified domains** (owners change it,
 administrators read it) decides what the organization's verified single sign-on
 domains do to accounts on them. A platform administrator verifies the domains;
 everything here is off until an owner turns it on. For each verified domain
@@ -282,15 +304,14 @@ that is not verified, or that another organization also claims, has no effect.
 
 ### Trusted organizations
 
-**Settings › Access & security › Trusted organizations**
-(`/settings/trusted-organizations`; owners change trusts, administrators read
-them) lists partner organizations whose people sign in here with their own
+**Organization settings › Sign-in and oversight › Sign-in**, **Joining** tab,
+**Trusted organizations** (owners change trusts, administrators read them) lists partner organizations whose people sign in here with their own
 company's single sign-on, and organizations that trust this one. A trust
 applies only once both owners agree.
 
 ### Audit log
 
-**Settings › Access & security › Audit log**: see [Audit log](02-team-and-access.md#audit-log).
+**Organization settings › Sign-in and oversight › Audit log**: see [Audit log](02-team-and-access.md#audit-log).
 
 ### Service accounts
 
@@ -306,7 +327,7 @@ access and never signs in.
   deleting its keys needs the `service_accounts:manage` permission, which owners
   and administrators hold and a custom role can carry. If a custom role created
   service accounts through member management before, add `service_accounts:manage`
-  to it. The **Keys** of an account (prefixes, scopes, creators) are visible to
+  to it. The API keys of an account (prefixes, scopes, creators) are visible to
   owners and administrators only, and the last-used address of a key is shown to
   administrators only.
 - **Read-only keys.** API keys are read-only, so the key dialog offers read scopes
@@ -319,13 +340,20 @@ access and never signs in.
   report lists them and the offboarding result counts them; recreate those keys
   under a person who stays.
 
-## Findings & assets
+## Approvals
+
+**Organization settings › Approvals** (`/settings/approvals`, earlier **Finding
+approvals** under Findings and assets) decides who approves false positives and
+accepted risks, and who is told. It is one page with one save bar; its rules are
+below with the other finding settings.
+
+## Findings and assets
 
 - **Finding lifecycle** (`/settings/finding-lifecycle`): your own
   sub-statuses, the moves between statuses and the requirements each move
   needs. See [Exposures and findings](05-exposures-and-findings.md).
-- **Finding approvals** (`/settings/finding-approvals`): who decides false
-  positives and accepted risks, and who is told. The **Approval policy** card
+- **Approvals** (`/settings/approvals`): who decides false
+  positives and accepted risks, and who is told. The **Approval policy** section
   sets, separately, whether a second person approves a **False positive** and a
   **Risk acceptance**: **Always** (the default), **Only for serious findings** or
   **Never** (see [Known false positives](known-false-positives.md)). Whoever
@@ -361,7 +389,7 @@ access and never signs in.
 
 ### License policy
 
-**Settings › Findings & assets › License policy** (`/settings/license-policy`) sets
+**Organization settings › Findings and assets › License policy** (`/settings/license-policy`) sets
 which open-source licenses your packages may use. Turn on **Evaluate licenses**,
 then add ordered rules, each matching one SPDX license id or a category
 (permissive, weak copyleft, copyleft, proprietary, public domain, unknown) with
@@ -373,7 +401,7 @@ many packages were flagged. Changing it needs `settings:write`.
 
 ### Asset lifecycle
 
-**Settings › Findings & assets › Asset lifecycle** (`/settings/asset-lifecycle`) moves
+**Organization settings › Findings and assets › Asset lifecycle** (`/settings/asset-lifecycle`) moves
 stale assets out of the active inventory automatically, so that you focus on
 fresh exposure. It needs the `team:update` permission; without it the page says
 **Insufficient permissions**.
@@ -382,7 +410,7 @@ fresh exposure. It needs the `team:update` permission; without it the page says
 - **Discovery grace (days)**: 0 to 90, default 3.
 - **Excluded source types**: integration, collector, scanner, manual, import
   (manual and import are excluded by default).
-- **Pause lifecycle when ingest is silent** (on by default), so a broken feed
+- **Pause the lifecycle when no new asset data arrives** (on by default), so a broken feed
   does not retire your whole inventory. Loosening the lifecycle needs a recent
   sign-in (see [Save changes](#save-changes)).
 - **Enabled** turns the worker on. It stays locked until you have run a dry run:
@@ -393,7 +421,7 @@ Click **Save changes**.
 
 ### Asset sources
 
-**Settings › Findings & assets › Asset sources** (`/settings/asset-sources`, owners and
+**Organization settings › Findings and assets › Asset sources** (`/settings/asset-sources`, owners and
 administrators) chooses which source decides each kind of asset value
 (criticality, owner, exposure) when scans, imports, connectors, feeds and people
 disagree.
@@ -407,7 +435,7 @@ These pages define what runs where and how.
 
 ### Scan approval
 
-**Settings › Scanning › Scan approval** (`/settings/scanning/scan-approval`)
+**Organization settings › Scanning › Scan approval** (`/settings/scanning/scan-approval`)
 sets which scans need a person's approval before they run. The mode is **Off**
 (the default: nobody approves, scope entries take effect at once), **On** (the
 approval rules decide which scans are held) or **Strict** (as On, with two
@@ -423,7 +451,7 @@ the page then shows it as in force.
 
 ### Scan windows
 
-**Settings › Scanning › Scan windows** (`/settings/scanning/scan-windows`) sets
+**Organization settings › Scanning › Scan windows** (`/settings/scanning/scan-windows`) sets
 when scans may touch which targets. Each policy is one of two kinds:
 
 - **Allow: scan only inside the windows** (testing windows, such as business
@@ -458,7 +486,7 @@ upgrade.
 
 ### Sensor job safety
 
-**Settings › Scanning › Sensor job safety** (`/settings/scanning/sensor-safety`,
+**Organization settings › Scanning › Sensor job safety** (`/settings/scanning/sensor-safety`,
 read by administrators, changed by the owner) sets what scan jobs may do on your
 sensors. A sensor's own local policy always decides first: these settings only
 narrow what is sent.
@@ -468,7 +496,7 @@ narrow what is sent.
 - **Allow out-of-band callbacks (interactsh)** and **Allow custom templates**:
   off by default; turning one on is audited at critical severity.
 - **Refuse tools that skip TLS certificate verification**. The User-Agent and
-  headers your scans send moved to **Settings > Scanning > Scan
+  headers your scans send moved to **Organization settings > Scanning > Scan
   identification** ([Scan identification](../scanning/scan-identification.md)).
 - **Sensor keys and shared sensors**: the key-bound sensor identity and key
   binding requirements and the shared sensors opt-out. Each of these switches
@@ -510,8 +538,8 @@ scan and its workflow ([Scan workflows](04-discovery.md#scan-workflows)).
 **Tools** (`/settings/scanning/tools`) lists the tools your sensors report, and
 whether a scan with each can run now.
 
-![The Tools settings page listing the tools the sensors report, their status and versions]({{ site.baseurl }}/assets/images/scanning/tools.png)
-*Figure: Settings, Scanning, Tools.*
+![The Tools settings page listing the tools the sensors report, their status, sensors and versions]({{ site.baseurl }}/assets/images/scanning/tools.png)
+*Figure: Organization settings, Tools and sensors, Tools.*
 
 - Filter by readiness (**Ready**, **Offline only**, **No sensor**, **Outdated**,
   **Disabled**, **Updates available**), category and type (built-in or custom);
@@ -545,8 +573,8 @@ release and **unsupported** below the minimum. Without a recorded release, such
 a sensor shows only whether its SDK is current. Products your sensors report
 but that are not recorded yet are suggested above the list.
 
-![Settings, Scanning, Sensor products, with one product and its latest and minimum release]({{ site.baseurl }}/assets/images/sensors/sensor-products.png)
-*Figure: Settings, Scanning, Sensor products.*
+![The Sensor products page with Add product and the sensor products your sensors report]({{ site.baseurl }}/assets/images/sensors/sensor-products.png)
+*Figure: Organization settings, Tools and sensors, Sensor products.*
 
 Every member who can read sensors sees the list; adding, changing or removing a
 product needs the sensors write permission and is audited. A recorded release
@@ -568,41 +596,46 @@ sensors that use it and asks you to confirm.
 ### CI/CD integration
 
 CI trust, the gate policy and break-glass are not settings pages: they are on
-the **Settings** tab of **Discovery › CI/CD** (`/ci-cd`), which shows every section on one page, in the order a pipeline is set up: Trusted pipelines, Gate policy, Pull request feedback and Break-glass. The page lets CI
-jobs (GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket Pipelines, CircleCI,
-Jenkins) send results with their own identity instead of a stored API key, and
-decides what fails a pipeline. Trust, the CI settings and pull request
-feedback need an owner or admin (`scans:ci:write`). Gate policies and
-expected scans need `scans:ci:policy`, and break-glass `scans:ci:override`:
-both can be given to an AppSec team through a custom role from the **AppSec
-engineer** template. Creating or changing a trust, changing the CI settings,
-loosening a gate policy, connecting a code host and creating a break-glass
-ask for a recent sign-in. See
+**Discovery › CI/CD** (`/ci-cd`). Its tabs are **Pipelines**, **Runs** and
+**Coverage** (what CI sent), then **Connections**, **Gate** and **Pull request
+feedback** (how CI is set up). The page lets CI jobs (GitHub Actions, GitLab CI,
+Azure Pipelines, Bitbucket Pipelines, CircleCI, Jenkins) send results with their
+own identity instead of a stored API key, and decides what fails a pipeline.
+Trust, the CI settings and pull request feedback need an owner or admin
+(`scans:ci:write`). Gate policies and expected scans need `scans:ci:policy`, and
+break-glass `scans:ci:override`: both can be given to an AppSec team through a
+custom role from the **AppSec engineer** template. Creating or changing a trust,
+changing the CI settings, loosening a gate policy, connecting a code host and
+creating a break-glass ask for a recent sign-in. See
 [CI/CD quickstart](../scanning/ci-quickstart.md) and
 [CI integration](../scanning/ci-integration.md).
 
-![The CI/CD integration page with a GitHub Actions trust configuration]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
-*Figure: Discovery, CI/CD, Settings.*
+![The CI/CD integration page with its Pipelines, Runs, Coverage, Connections, Gate and Pull request feedback tabs]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
+*Figure: Discovery, CI/CD.*
 
-- **Connect a pipeline** (button in the page header on every tab, for owners and administrators): a four-step wizard (CI system, organization and
-  default branch, pipeline snippet, first run) that creates the trust, or
-  reuses one that already admits the organization, and waits for the
-  pipeline's first run.
-- **Require OIDC for CI**: CI jobs must use their OIDC identity; when off, CI
-  sensor API keys are still accepted.
-- **Trust**: **Add trust** for a CI provider, limited to owners, repositories,
-  branches and tags, environments, events and **Pipeline definitions** (only
-  jobs that run your central workflow), optionally to protected branches and
-  tags only. Admitting fork pull requests shows a warning, because fork code
-  would act with the repository's identity. The audience must contain the
-  organization id (default `openctem:tenant:<id>`). A GitHub trust can name a
-  **GitHub Enterprise issuer** (GitHub Enterprise Server or an enterprise's
-  own issuer). Each trust gives a **Pipeline snippet** to copy.
-- **Recent refused pipelines**: pipelines whose identity no trust admitted, with
-  the rule that refused each one and how to fix it. The latest three show; the
-  rest open on request. The **Pipelines** tab also says when pipelines were
-  refused in the last 7 days and links here.
-- **Gate policy**: what fails a pipeline, for the organization, per business unit
+- **Connect a CI provider** (button in the page header on every tab, for owners
+  and administrators): a four-step wizard (**Provider**, **Projects**,
+  **Pipeline**, **First job**) that creates the trust, or reuses one that
+  already admits the same pipelines, and waits for the pipeline's first job.
+  Its first step offers **Fill in every rule yourself** for the full form.
+- **Connections**: a status line (how many connections work, the last accepted
+  job, how many jobs were refused), then one line per trust configuration. A
+  line opens a sheet with its health, rules, scope and **Pipeline snippet**. Each
+  configuration shows its last accepted job and its refused jobs of the last 7
+  days, with the rule that refused each one and, where there is one, a one-click
+  fix (**Allow branch**, **Allow project**, **Add this pipeline file**) that opens
+  the configuration with the change filled in; it is saved only by **Save**.
+  A configuration is limited to owners, repositories, branches and tags, and,
+  under **More rules**, pipeline files (only jobs that run your central
+  workflow), events, environments, the audience, fork pull requests and scope.
+  Admitting fork pull requests shows a warning, because fork code would act
+  with the repository's identity. The audience must contain the organization
+  id (default `openctem:tenant:<id>`). A GitHub trust can name a **GitHub
+  Enterprise issuer** (GitHub Enterprise Server or an enterprise's own issuer).
+  **Check a sample token** names the cause of a failed check.
+  **Require OIDC for CI results** (under **Organization rules**): CI jobs must
+  use their OIDC identity; when off, CI sensor API keys are still accepted.
+- **Gate**: what fails a pipeline, for the organization, per business unit
   or per repository: **Enforce** or **Warn**, the severity that fails, an
   optional EPSS threshold, **New findings only**, **Known exploited (KEV)
   fails** and **Dependency and image vulnerabilities block only when a fix
@@ -610,9 +643,10 @@ ask for a recent sign-in. See
   run, and a missing expected scan always fail the pipeline. False positives
   and approved suppressions are always honored, and accepted risks until
   their end date.
-- **Break-glass**: override the gate for one repository and one full commit id
-  for a limited time (1 to 168 hours) with a reason. Every override is audited
-  and can be revoked.
+- **Break-glass** (on the **Runs** tab, next to the run it unblocks): override
+  the gate for one repository and one full commit id for a limited time (1 to
+  168 hours) with a reason. Every override is audited and can be revoked; past
+  overrides are folded.
 - **Pull request feedback**: install the OpenCTEM GitHub App or connect a
   GitLab group with a group access token, so the gate shows as a check or
   commit status with comments on the pull request.
@@ -624,7 +658,7 @@ come from.
 
 ### Content catalog
 
-**Settings › Scanning › Content catalog** (`/settings/content`) is the
+**Organization settings › Tools and sensors › Content catalog** (`/settings/content`) is the
 catalog of signed packages of rules, templates and other content. Installing one
 makes it available to the whole organization. The tabs are **Catalog** (browse
 and install), **Installed** (update, roll back, uninstall), **Requests** (members
@@ -657,7 +691,7 @@ source control and ticketing store their own credentials on their own pages.
 
 ### Leaked credentials
 
-**Leaked credentials** (**Settings > Leaked credentials**, API `/api/v1/organization/settings/credentials`; owners and
+**Leaked credentials** (**Organization settings > Findings and assets > Leaked credentials**, API `/api/v1/organization/settings/credentials`; owners and
 administrators; from v0.20.0) decides whether the values of leaked secrets found
 for your organization are kept. When it is off, an import keeps only the masked
 form, the credential type and the fingerprint, and nothing can be revealed; values
@@ -686,9 +720,9 @@ runs on its own sensors never use them.
 
 ## Integrations
 
-**Settings › Integrations › All integrations** (`/settings/integrations`) is the
+**Organization settings › Integrations › All integrations** (`/settings/integrations`) is the
 hub: one card per category (**Source control**, **Vulnerability scanners**,
-**Ticketing**, **Notification channels**, **SIEM**) and a table of every
+**Ticketing**, **Notification channels**, **Event forwarding**) and a table of every
 connection with its category, status (Connected, Disconnected, Error, Pending,
 Expired, Disabled), last sync and **Manage**. Start from a category card to
 connect your first tool. Integrations are configured per organization, with the
@@ -803,10 +837,10 @@ Done claims the fix.
 security alerts to **Slack**, **Microsoft Teams**, **Telegram**, **custom
 webhooks** and **email (SMTP)** for the whole organization. Your personal in-app
 notifications are set under
-[My account › Notifications](01-getting-started.md#notifications-1).
+[Organization settings › Your membership › Notifications](01-getting-started.md#notifications-1).
 
 ![The Notification channels page with a connected Slack channel]({{ site.baseurl }}/assets/images/user-guide/notification-channels.png)
-*Figure: Settings, Integrations, Notification channels.*
+*Figure: Organization settings, Integrations, Notification channels.*
 
 1. Click **Add channel** and pick the provider: a webhook URL for Slack, Teams
    and custom webhooks; a bot token and chat ID for Telegram; SMTP server
@@ -826,9 +860,9 @@ notifications are set under
 entries can be retried. Both need the integrations manage permission. See
 [Notification channels](../configuration/notifications.md).
 
-### SIEM
+### Event forwarding
 
-**SIEM** (`/settings/integrations/siem`) forwards findings, exposures, scans and
+**Event forwarding** (`/settings/integrations/siem`, called SIEM before) forwards findings, exposures, scans and
 SLA breaches to **Splunk** through the HTTP Event Collector (HEC).
 
 1. Click **Add Splunk HEC**.

@@ -11,7 +11,7 @@ description: Where the keys a scanning tool needs come from today, and what happ
 
 Some tools use keys of their own, for example a key for a passive subdomain
 data source. From platform v0.21.0 an organization stores them in
-**Settings > Scanning > Tool source keys**, and a key reaches a sensor only as a
+**Organization settings > Tools and sensors > Tool source keys**, and a key reaches a sensor only as a
 sealed secret of one of that organization's tasks. A credential typed into a
 scan's tool settings is refused.
 
@@ -57,7 +57,7 @@ flowchart TD
    does not receive another tool's keys.
 2. **Keys of the organization.** An administrator stores the keys of the data
    sources tools query (subfinder's passive sources and others) in
-   **Settings > Scanning > Tool source keys**. They are encrypted with the
+   **Organization settings > Tools and sensors > Tool source keys**. They are encrypted with the
    installation's encryption key and bound to their organization and source,
    shown only by their last four characters, and every change needs a fresh
    step-up and is audited. A job lists the keys it may use by name; the sensor

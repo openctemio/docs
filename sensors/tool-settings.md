@@ -22,7 +22,7 @@ each signed scan job, and the sensor maps each one to the tool's native flag.
 
 ## Where to set them
 
-**Organization defaults:** **Settings > Scanning > Tool defaults** lists every
+**Organization defaults:** **Organization settings > Tools and sensors > Tool defaults** lists every
 tool that at least one of your sensors reports with a settings schema, with the
 options every sensor of the organization runs it with. Save and reset are per
 tool; owners and administrators (`sensors:write`) change them, everyone with
@@ -67,7 +67,7 @@ An option's value is resolved in layers, in this order:
 | Layer | Set by | May |
 |---|---|---|
 | Tool default | The tool's manifest | The starting value |
-| Organization | **Settings > Scanning > Tool defaults** | Raise or lower |
+| Organization | **Organization settings > Tools and sensors > Tool defaults** | Raise or lower |
 | Sensor | **Tool settings** on the sensor | Raise or lower, within the allowed range |
 | Scan or workflow step | The scan's options | Only lower |
 | Job decision | The platform, per job (for example the per-target time budget) | Only lower |

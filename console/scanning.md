@@ -41,7 +41,7 @@ notifies every administrator. See
 **Platform scanning** holds the rules for scans that run on the platform's own
 sensors and, once a release enables them, the shared sensor fleet.
 
-![The Platform scanning page: the notice that shared sensors are not available in this release, and the Verified domain before platform sensors scan card with its switch off]({{ site.baseurl }}/assets/images/console/platform-scanning.png)
+![The Platform scanning page: the notice that shared sensors are not available in this release, and the Verified domain before platform sensors scan section]({{ site.baseurl }}/assets/images/console/platform-scanning.png)
 *Figure: Scanning, Platform scanning.*
 
 - **Verified domain before platform sensors scan**: whether an organization must
@@ -66,7 +66,7 @@ shared scanning switch: while shared scanning is off it says that
 sensors connected now serve platform roles (passive discovery, the AI worker) and
 start scanning for organizations only when shared scanning is turned on.
 
-![The Platform sensors page: the notice that organizations cannot use shared scanning yet, the Enroll a shared sensor card with name and lifetime, and the empty Fleet list]({{ site.baseurl }}/assets/images/console/platform-sensors.png)
+![The Platform sensors page: the empty fleet with Enroll a sensor, and the Instance scan zones section]({{ site.baseurl }}/assets/images/console/platform-sensors.png)
 *Figure: Platform sensors.*
 
 The page holds:
@@ -121,8 +121,8 @@ admin, a fresh code and a reason.
 **Content catalog** is the instance's signed catalog of rules, templates, sensors
 and other packages that organizations install from (under **Settings › Scanning** in the organization app).
 
-![The Content catalog page: the notice that the catalog is not set up, the Trust card with Publish a package and Import a bundle, and the empty package list]({{ site.baseurl }}/assets/images/console/content-catalog.png)
-*Figure: Scanning, Content catalog without trust roots.*
+![The Content catalog page: Publish a package and Import a bundle, the empty package list and the Trust section]({{ site.baseurl }}/assets/images/console/content-catalog.png)
+*Figure: Scanning, Content catalog.*
 
 - **Trust**: the trust roots, key set version, signed index, revocation list and
   last import. Trust roots are set on the server (`CONTENT_TRUST_ROOT_KEY_IDS`,

@@ -140,7 +140,7 @@ State changes are audited.
 
 ## Settings
 
-**Settings > Findings & assets > Risk and threats > Emerging threats**
+**Organization settings > Findings and assets > Risk and threats > Emerging threats**
 (`/settings/emerging-threats`) is for owners and administrators.
 
 | Setting | Meaning | Default and range |

@@ -349,5 +349,5 @@ activity.
   update (for example `dnsx-enum`) is used on sensors that reported it before,
   without a sensor restart.
 
-![The Organization sensors page: fleet health, needs attention, update available and zone coverage, and two online sensors with their status, version, jobs and tools]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
+![The Organization sensors page with its Sensors, Scan zones and Enrollment tokens tabs, fleet health, and the sensor list]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
 *Figure: The Sensors page.*

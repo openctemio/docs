@@ -10,7 +10,7 @@ description: How the user names and passwords of your scan proxies are stored an
 {: .no_toc }
 
 An administrator pastes the organization's scan proxies, with their logins,
-in **Settings > Scanning > Proxies**. The platform stores each login
+in **Organization settings > Tools and sensors > Proxies**. The platform stores each login
 encrypted. When one of your sensors runs a job through a pool, it receives
 that pool's logins as a sealed secret of that one task, keeps them in memory,
 and uses them only in its own forwarder.

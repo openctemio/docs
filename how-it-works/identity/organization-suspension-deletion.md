@@ -37,7 +37,7 @@ stateDiagram-v2
   are all refused, and scheduled work is skipped.
 - A suspension needs a reason of 10 to 500 characters and is audited as
   critical, with WebSocket connections closed at once.
-- The owner deletes from **Settings > Organization > Danger zone**. During
+- The owner deletes from **Organization settings > Organization > Danger zone**. During
   the 14 days, the owner sees **Organization scheduled for deletion** at
   sign-in and can cancel.
 - The purge job deletes files first, then the organization's data. People's

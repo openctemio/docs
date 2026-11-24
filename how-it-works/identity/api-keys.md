@@ -9,7 +9,7 @@ description: How a read-only API key is created, checked on every request, and r
 # API key flow
 {: .no_toc }
 
-A member creates an API key in **Settings > API keys** to read data from a
+A member creates an API key in **Organization settings > People and access > API keys** to read data from a
 script. The key is shown once, belongs to that person in one organization,
 and can only read. Every request is checked against what the person may
 still do.

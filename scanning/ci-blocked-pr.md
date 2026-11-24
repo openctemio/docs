@@ -34,9 +34,6 @@ The run sheet shows the verdict, the policy that applied, how many findings
 were judged (new, already on the target branch, accepted) and each blocking
 reason.
 
-![A failed run of example-org/payments-api on feature/refund-flow: two blocking findings, a committed AWS key and an SQL query built from user input]({{ site.baseurl }}/assets/images/scanning/ci/ci-run-blocked.png)
-*Figure: A failed run. Two of five findings are new and block. Three were already on `main`.*
-
 If the sheet says **This run is not available to you**, the run's repository
 is not in your access. The pull request comment still lists what blocked it.
 You see the runs of the repositories your team owns: ask an administrator to

@@ -17,7 +17,7 @@ It is multi-tenant: one installation serves several organizations, each isolated
 from the others. The platform code is under the GPL-3.0 licence (the Go SDK under the Apache License 2.0) at
 [github.com/openctemio](https://github.com/openctemio).
 
-![The CTEM dashboard of the Example Corp demo organization: what would cut exposure most (past SLA, known exploited, blind spots) and the exposure flow from sources to outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: key figures, the five CTEM stages, Fix next, new versus fixed findings and what would cut exposure most]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 *Figure: The dashboard: what is exploitable now, how the priority classes trend, and where each CTEM stage stands.*
 
 ## The problem
@@ -136,7 +136,7 @@ These pages describe what ships in the current release ({{ site.data.versions.pl
 | Known false positives that hold across scanner engines, decisions approved by a second person, and data-flow traces on SAST findings | |
 | Static analysis with opengrep and the signed OpenCTEM rules pack, on sensors and in CI | |
 | Content packs delivered to sensors by digest, with file-level deltas | Scans that run the packs the platform delivers (sensors up to v0.23.0 fetch their own content) |
-| Content catalog: signed content packages installed, pinned and rolled back from offline bundles (**Settings > Scanning > Content catalog**) | Delivering installed catalog packages to sensors |
+| Content catalog: signed content packages installed, pinned and rolled back from offline bundles (**Organization settings > Tools and sensors > Content catalog**) | Delivering installed catalog packages to sensors |
 | Automatic coverage: a coverage policy per asset type and a ledger of when each asset was last checked for each kind of test, with gap alerts | |
 
 The design documents (RFCs) and the roadmap live in the

@@ -30,7 +30,7 @@ exposure falling), rather than how much activity there is.
 
 From v0.18.0 the page answers one question first and points at what to act on:
 
-![Program health: P0 fixed within target with the open findings curve, Where to act with three off-track or watched figures, and a strip of five headline tiles]({{ site.baseurl }}/assets/images/user-guide/program-health.png)
+![Program health: P0 fixed within target, Where to act, and a strip of headline figures]({{ site.baseurl }}/assets/images/user-guide/program-health.png)
 *Figure: Insights, Program health.*
 
 
@@ -85,8 +85,8 @@ Use it to tell whether the attack surface is scanned often enough.
 **Insights › Executive summary** (`/insights/executive`) is the leadership view
 of risk posture, remediation performance and process health.
 
-![The Executive summary with risk score, findings resolved, the share of open findings within SLA, the time to fix and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
-*Figure: The Executive summary. The time-to-fix cards show a dash because no critical or high finding was fixed in the period.*
+![The Executive summary: risk score, open within SLA, open P0 and P1, crown jewels with open findings, and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
+*Figure: The Executive summary.*
 
 1. Choose the **Period**: Last 30 days, Last 90 days or Last year.
 2. The headline cards: **Risk score** (with the change from the previous period),
@@ -137,7 +137,7 @@ maturity data yet": activate a cycle, work it and close it.
 
 **Insights › Reports** (`/reports`) has two tabs.
 
-![The Reports page with the executive summary export and two scheduled reports]({{ site.baseurl }}/assets/images/user-guide/reports.png)
+![The Reports page with its Program and Pentest tabs, the executive summary export and scheduled reports]({{ site.baseurl }}/assets/images/user-guide/reports.png)
 *Figure: Reports.*
 
 ### Program

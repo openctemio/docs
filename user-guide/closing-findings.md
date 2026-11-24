@@ -35,7 +35,7 @@ Two kinds of finding are never closed by absence at all:
 ## Closing mode
 
 Owners and administrators choose how the platform handles a close in
-**Settings > Findings & assets > Finding lifecycle > Closing findings**.
+**Organization settings > Findings and assets > Finding lifecycle > Closing findings**.
 
 | Mode | What happens |
 |---|---|
@@ -232,7 +232,7 @@ critical findings first. Each row shows why the finding can close:
   is a safety guard against a scanner that is broken or blinded, so a person
   looks before anything closes.
 
-![The Ready to close list: three findings a covered nuclei scan no longer finds, one of them held for review, each with Confirm close and Keep open]({{ site.baseurl }}/assets/images/user-guide/ready-to-close.png)
+![The Ready to close list: findings a covered scan no longer finds, each with Confirm close and Keep open]({{ site.baseurl }}/assets/images/user-guide/ready-to-close.png)
 *Figure: Findings, Ready to close.*
 
 For each finding you choose one of two actions:

@@ -44,7 +44,7 @@ workflows a scan can run) and **Approvals** (scan approval requests, see
 [Scan approvals](#scan-approvals)). The header has **Quick scan** and **New scan** (both
 need the scan write permission). See also [Scans and scan runs](../scanning/scans-and-runs.md).
 
-![The Scans page listing three scheduled and manual scans with their last run and success rate]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
+![The Scans page with its Scans, Runs, Workflows and Approvals tabs, Quick scan and New scan, and the list of scan configurations]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
 *Figure: Discovery, Scans.*
 
 ### Quick scan
@@ -63,7 +63,7 @@ needs the scan write and execute permissions.
    scanner cannot scan, or archived). With no known names it offers **Run
    discovery on {domain} first**. The preview is a help: if it is unavailable
    you can still start the scan.
-4. Click **Start Scan**. Follow the run under **Runs**, where it shows as a
+4. Click **Start scan**. Follow the run under **Runs**, where it shows as a
    **Quick scan**. If you want to run it again later, **Save as scan** keeps
    the targets and scanner as a saved scan.
 
@@ -80,9 +80,6 @@ an approval, how many targets there are, the schedule with its next runs and an
 estimate of the jobs per run. An organization that may only scan passively is
 offered the Passive intensity only, with one line saying why, and so only
 passive tools and workflows.
-
-![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
-*Figure: The New scan wizard.*
 
 1. **What**
    - **Scan Name** (required), for example "Production Security Scan".
@@ -224,9 +221,6 @@ platform** badge. While they are hidden, one line says how many runs
 continuous coverage started, with **Show system runs** and **Coverage
 settings** (`/scans/runs?origin=system`).
 
-![A running scan run: stages, tasks and the timeline]({{ site.baseurl }}/assets/images/scanning/scan-run.png)
-*Figure: A scan run in progress.*
-
 - Filter by status (Running, Pending, Completed, Partial, Failed, Timed out,
   Canceled, Blocked) and by kind, and **Export CSV**.
 - Open a run to see its key numbers (findings, tasks, duration), its **Stages**
@@ -247,7 +241,7 @@ settings** (`/scans/runs?origin=system`).
 
 How much human approval a scan needs is the organization's **scan approval**
 mode (**Off** by default, **On**, or **Strict**; an administrator of the platform
-can force a mode), set with its approval rules under **Settings › Scanning ›
+can force a mode), set with its approval rules under **Organization settings › Scanning ›
 Scan approval**. When a rule catches a scan, its page shows **Needs approval
 before it runs**, with who can approve it and **Submit for approval**; when the
 scan changes after an approval, it says **Changed since the last approval** and
@@ -268,7 +262,7 @@ then HTTP probing, then vulnerability scanning) into one repeatable graph with
 dependencies between steps. Scans run either one scanner or one workflow. See
 [Scan workflows](../scanning/scan-workflows.md).
 
-![The scan workflow builder showing five chained steps]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
+![The workflow builder: the chained steps on the canvas and the scanner tools palette]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
 *Figure: The scan workflow builder.*
 
 **Discovery › Scans › Workflows** (`/scans/workflows`):
@@ -311,7 +305,7 @@ panel), create **Enrollment tokens** for unattended installs of many sensors,
 group sensors into **Scan zones**, and edit, disable, rotate the key of, revoke
 or delete a sensor.
 
-![The Sensors page with two online sensors, their version, jobs and tools]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
+![The Organization sensors page with its Sensors, Scan zones and Enrollment tokens tabs, fleet health, and the sensor list]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
 *Figure: Discovery, Sensors.*
 
 Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
@@ -321,16 +315,17 @@ Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
 **Discovery › CI/CD** (`/ci-cd`) shows the CI/CD pipelines that scan your
 repositories from GitHub Actions, GitLab CI and other CI systems, their runs and
 repository coverage, with guides for GitHub Actions and GitLab CI. The
-**Pipelines** tab lists the pipelines and their CI runs, each judged by the CI
-gate; the **Settings** tab decides, on one page, which pipelines may send
-results (trusted pipelines), what fails them (gate policy), pull request
-feedback and break-glass. **Connect a pipeline** sits in the page header on
-every tab (owners and administrators). A repository that a CI trust names also appears as a scope entry
+**Pipelines**, **Runs** and **Coverage** tabs list the pipelines and their CI
+runs, each judged by the CI gate; **Connections** decides which pipelines may
+send results, **Gate** what fails them, and **Pull request feedback** how the
+verdict reaches a pull request. Break-glass is on the **Runs** tab, next to the
+run it unblocks. **Connect a CI provider** sits in the page header on every tab
+(owners and administrators). A repository that a CI trust names also appears as a scope entry
 ([Scoping](03-scoping.md#scope)). See
 [CI integration](../scanning/ci-integration.md).
 
-![The CI/CD page listing two GitHub Actions pipelines with their gate status]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
-*Figure: Discovery, CI/CD: one row per CI pipeline.*
+![The CI/CD integration page with its Pipelines, Runs, Coverage, Connections, Gate and Pull request feedback tabs]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
+*Figure: Discovery, CI/CD.*
 
 ## Attack surface
 
@@ -689,7 +684,7 @@ review and are never scanned; findings on them stay visible with the tag
 
 **Inventory** (`/assets`) opens on the full, filterable list of assets.
 
-![The asset inventory with repositories, subdomains and IP addresses, their criticality, exposure and owner]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
+![The asset inventory with its Inventory, Needs attention, Groups and Activity tabs, the Basic and Query switch, and an asset with its risk, scope and open findings]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
 *Figure: The asset inventory.*
 
 - While the inventory is open, the sidebar lists its **views** under
@@ -813,7 +808,7 @@ crown-jewel flag drops the priority class of the findings on the asset, so when
 that would move an open P0 or P1 finding to a lower class the edit dialog shows
 the impact (how many open findings move, and how many from P0 or P1), asks for a
 **reason** and then follows the organization's approval policy and level, the same
-one as a false positive (**Settings › Findings › Finding approvals**):
+one as a false positive (**Organization settings › Approvals**):
 
 - A person the policy lets decide alone is applied at once and audited at high
   severity.
@@ -832,9 +827,6 @@ one as a false positive (**Settings › Findings › Finding approvals**):
 Clicking an asset in a list opens its detail panel (a drawer; the expand icon in
 its header, or **Open full page** in the row menu, opens the same details as the
 full page `/assets/{id}`):
-
-![The detail drawer of the subdomain www.example.com: state and scope badges, Key facts, risk, scope and scanning, ownership and exposure]({{ site.baseurl }}/assets/images/user-guide/asset-drawer.png)
-*Figure: The asset drawer.*
 
 - The header shows the asset's state with the scan-scope answer next to it
   (**In scope**, **Not in scope** (passive only), **Excluded**, **Not ours**,
@@ -892,7 +884,7 @@ full page `/assets/{id}`):
   - **Related assets** lists one line per kind of relationship, with its
     count and the first related assets; **View all** opens **Relations**
    .
-- **Owners**: **Add Owner** with a role (Primary, Secondary, Stakeholder,
+- **Owners**: **Add owner** with a role (Primary, Secondary, Stakeholder,
   Informed, Regulatory), and the direct access grants.
 - **Timeline**: what changed on the asset, and when (a value or the source that
   decides it).
@@ -951,7 +943,7 @@ full page `/assets/{id}`):
   [Automatic coverage](../scanning/asset-coverage.md#the-coverage-section-of-an-asset)), timeline, technical details and **Identity history** (the merges that
   formed this asset).
 
-![The full page of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
+![The page of an asset: its type, criticality and exposure chips, the tabs, its risk and the next steps]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
 *Figure: Asset details.*
 
 **How this asset was found** (on **Details**, in the drawer and on the asset
@@ -975,7 +967,7 @@ findings, with its properties and identity.
 environment and criticality, to track risk and findings per group and to use as
 scan targets and team scopes.
 
-![The Asset groups page with six groups, their environment, criticality and risk score]({{ site.baseurl }}/assets/images/user-guide/asset-groups.png)
+![The Asset groups page with New group and a group with its environment, criticality, assets and risk score]({{ site.baseurl }}/assets/images/user-guide/asset-groups.png)
 *Figure: Asset groups.*
 
 1. The cards: **Groups**, **Critical groups**, **Assets in groups** and
@@ -1038,7 +1030,7 @@ may open.
 Each reason page has a back link, the reason as a heading that opens a menu to
 switch reason (with counts), the why line and **Open in the inventory**.
 
-![The Needs attention page: reasons in two groups, Fix on the asset and Review, each with a count]({{ site.baseurl }}/assets/images/user-guide/assets-needs-attention.png)
+![The Needs attention page: queues grouped as Scoping decisions, Fix on the asset and Review, each with a count]({{ site.baseurl }}/assets/images/user-guide/assets-needs-attention.png)
 *Figure: Assets > Needs attention.*
 
 #### Relationships
@@ -1109,7 +1101,7 @@ security. Packages come from sensors that run an SCA tool, from CI jobs that
 upload a report and from SBOM imports; there is no manual add or delete. See also
 [Exposures and findings](05-exposures-and-findings.md).
 
-![The Components page with totals, vulnerable components, ecosystems and licenses]({{ site.baseurl }}/assets/images/user-guide/components.png)
+![The Components page with Import SBOM, the totals and a package with its versions, assets, vulnerabilities and license]({{ site.baseurl }}/assets/images/user-guide/components.png)
 *Figure: Software components.*
 
 - The header has **Export SBOM**, **Import VEX** (needs the approve permission
@@ -1138,8 +1130,8 @@ upload a report and from SBOM imports; there is no manual add or delete. See als
   **VEX**.
 - With no packages yet the page says **No components yet** and offers **Import
   SBOM** or **Set up a sensor**.
-- License verdicts follow the organization's license policy under **Settings ›
-  Findings & assets › License policy**.
+- License verdicts follow the organization's license policy under **Organization settings ›
+  Findings and assets › License policy**.
 
 ### VEX statements
 

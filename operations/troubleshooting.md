@@ -45,7 +45,7 @@ docker compose exec api wget -qO- localhost:8080/ready
 | `database schema check failed — refusing to start` | Migrations did not run, failed (dirty), or the database predates the migration baseline. | See [Migrations](#migrations). |
 | `failed to connect to database` | Host, credentials, or TLS (`DB_SSLMODE`). | Check `DB_*`; production refuses `DB_SSLMODE=disable`. |
 | `failed to connect to redis` | Host, password, or TLS. | Check `REDIS_*`; production requires TLS and a 32+ character password. |
-| `jira webhook preflight: connected Jira integrations have no webhook secret` (warning) | A connected Jira integration without a webhook secret; its inbound webhooks are refused. | The organization sets the secret in **Settings > Integrations > Ticketing > Inbound webhook**. |
+| `jira webhook preflight: connected Jira integrations have no webhook secret` (warning) | A connected Jira integration without a webhook secret; its inbound webhooks are refused. | The organization sets the secret in **Organization settings > Integrations > Ticketing > Inbound webhook**. |
 
 ## Migrations
 

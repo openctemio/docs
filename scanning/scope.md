@@ -27,7 +27,7 @@ Manage scope under **Scoping > Scope**, with the tabs **In scope** (entries),
 **Out of scope** (exclusions), **Domain proof** and **Networks** (the last two
 with the Attack surface module). An **Approvals** tab appears only while the
 organization's scan approval is **Strict** or a change still waits for a
-decision. The organization's rules are in **Settings > Scanning > Scope
+decision. The organization's rules are in **Organization settings > Scanning > Scope policy
 policy**.
 
 Design: [RFC-054](https://github.com/openctemio/openctem/blob/develop/server/docs/rfcs/RFC-054-scope-model.md).
@@ -141,7 +141,7 @@ Each entry has a status and a tier ceiling:
 | T1 | Non-intrusive active checks | port scans, HTTP probes, crawling, nuclei templates (intrusive, DoS, fuzzing and brute-force templates are always excluded) |
 | T2 | Intrusive | DAST. Derived targets are never fed to it. Needs a verified domain when the platform requires proof, and a T2 entry under Strict |
 
-![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+![The Scope page with its Scope, Domain proof, Networks, Programs and Letters tabs and the list of scope entries]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope entries in effect.*
 
 ## Widening scope
@@ -154,7 +154,7 @@ and notifies every owner and administrator. Narrowing (deactivating, deleting,
 an earlier expiry, a lower tier) is always one step.
 
 Whether a second person must agree follows the organization's **scan
-approval** setting (**Settings > Scanning > Scan approval**, owner only), or
+approval** setting (**Organization settings > Scanning > Scan approval**, owner only), or
 the platform administrator's policy when the platform forces one:
 
 | Scan approval | Scope changes |
@@ -172,9 +172,6 @@ organization with a single owner), the owner who asked may approve the
 entry themselves with a reason and a code from their authenticator app.
 This is recorded in the audit log and every administrator is told; nothing
 is ever approved automatically.
-
-![Scope changes waiting for a second administrator's approval]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
-*Figure: Under Strict scan approval: a cloud account and an exclusion waiting for approval.*
 
 When an organization leaves Strict, entries and exclusions still pending are
 put into effect by an hourly job, audited as a system decision, and the
@@ -251,7 +248,7 @@ Decisions on the rest, and on the addresses your names resolve to, are on
 An inventory asset is **unclassified** when no scope entry covers it and
 nobody excluded it, marked it "Not ours" or held it for review. (The scan
 target filter uses the same word for an asset without a type; that is
-unrelated.) **Settings > Scanning > Scope policy > Scan unclassified
+unrelated.) **Organization settings > Scanning > Scope policy > Scan unclassified
 assets** decides what it gets:
 
 | Value | Unclassified assets get |
@@ -313,7 +310,7 @@ Platform scanning**; off by default). Then:
 The **In effect now** section of the scope policy shows whether the platform
 requires proof.
 
-![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
+![The Domain proof tab with the field to prove a domain]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
 *Figure: Domain proof.*
 
 To verify a domain, open **Scoping > Scope > Domain proof** (needs the Attack

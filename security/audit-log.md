@@ -12,7 +12,7 @@ OpenCTEM keeps two audit trails:
 
 | Trail | What it records | Who reads it |
 |---|---|---|
-| Organization audit log (`audit_logs`) | Actions inside an organization, and sign-in events | Organization owners and admins (`audit:read`) whose data access is full, because entries name assets and findings; every user sees their own actions under **My account > Activity** |
+| Organization audit log (`audit_logs`) | Actions inside an organization, and sign-in events | Organization owners and admins (`audit:read`) whose data access is full, because entries name assets and findings; every user sees their own actions under **Organization settings > Your membership > Activity** |
 | Administrators' audit log, also called the platform audit log (`admin_audit_logs`) | Actions taken in the platform console, and sign-in events of the console | Platform administrators (any console role), in the platform console under **Security > Admin activity**. The network address, user agent and request body are returned only to roles that read the administrators or the Users directory (platform owner, platform admin, support, security auditor) |
 
 The two are separate on purpose. The organization log belongs to the organization and is read by its
@@ -57,10 +57,10 @@ Secrets are never written to audit entries: tokens, keys and codes appear only a
 
 ## Reading and exporting
 
-In the web console: **Settings > Access & security > Audit log** (owners and admins), and **My account > Activity** for
+In the web console: **Organization settings > Sign-in and oversight > Audit log** (owners and admins), and **Organization settings > Your membership > Activity** for
 your own actions.
 
-![The Audit log page listing recent actions with actor, resource, result and severity]({{ site.baseurl }}/assets/images/security/audit-log.png)
+![The Audit log page listing recent actions with their actor, resource and result]({{ site.baseurl }}/assets/images/security/audit-log.png)
 *Figure: The audit log in the console.*
 
 Over the API (tenant from the access token):

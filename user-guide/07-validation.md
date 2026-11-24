@@ -58,9 +58,9 @@ it:
 
 When nothing is waiting, the block says so and links to the validation areas that are on. A module the
 organization switched off leaves the page; owners and admins see one line naming it, with a link to
-**Settings › Organization › Modules**.
+**Organization settings › Organization › Modules**.
 
-![The Validation overview with coverage by priority and recent validation activity]({{ site.baseurl }}/assets/images/user-guide/validation.png)
+![The Validation overview: P0 and P1 validation coverage, recent validation figures and what waits for you]({{ site.baseurl }}/assets/images/user-guide/validation.png)
 *Figure: The Validation overview.*
 
 ## Re-verify a finding
@@ -231,7 +231,7 @@ penetration-testing engagements.
    campaign lead and to organization owners and administrators who are members
    of the campaign.
 
-![The pentest campaign list with targets, status, TLP and progress per campaign]({{ site.baseurl }}/assets/images/user-guide/pentest-campaigns.png)
+![The Pentest campaigns list with New campaign and a campaign with its status, TLP, progress and due date]({{ site.baseurl }}/assets/images/user-guide/pentest-campaigns.png)
 *Figure: The campaign list.*
 
 ### Create a campaign
@@ -257,7 +257,7 @@ campaign** works from any step; everything else can be filled in later.
    client contacts, and set the optional
    [completion sign-off](#deliver-the-report).
 
-![Step 1 of the New campaign wizard: engagement details, targets, approach, environment and TLP]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign-wizard.png)
+![Step 1 of the New campaign wizard: engagement details, what is tested, approach, environment, TLP and dates]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign-wizard.png)
 *Figure: The creation wizard, step 1.*
 
 **Duplicate** (on a campaign's row menu) starts the wizard from that campaign's
@@ -296,8 +296,8 @@ holds the profile, which the lead can edit:
   to the campaign; it has no upload button for campaign files yet, so upload the
   letter with `POST /api/v1/attachments` (`context_type=campaign`,
   `context_id` the campaign id) first. When an owner or administrator turns on
-  **Campaigns cannot start without a signed authorization letter** (**Settings ›
-  Findings & assets › Pentest methodology**, **Authorization letter**; off by default), a
+  **Campaigns cannot start without a signed authorization letter** (**Organization settings ›
+  Findings and assets › Pentest methodology**, **Authorization letter**; off by default), a
   campaign cannot move from planning to testing until a letter is linked.
 
 ### The campaign page
@@ -337,7 +337,7 @@ administrator who is a member of the campaign. Every change is audited and the
 campaign's members are notified. Starting, resuming and unarchiving run at
 once; the other changes ask first.
 
-![A campaign page with its status stepper, header badges and the Findings view]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign.png)
+![A campaign page with its status stepper, actions and tabs]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign.png)
 *Figure: A campaign in testing, with its status stepper.*
 
 The other tabs (Findings, Retests and Report are described below):
@@ -648,7 +648,7 @@ Every campaign's reports are also listed under **Insights › Reports › Pentes
 fixed and need re-verification, across campaigns. It is the "prove it again"
 step: after the developers report a fix, a tester checks that the issue is gone.
 
-![The Retest queue listing pentest findings waiting for re-verification]({{ site.baseurl }}/assets/images/user-guide/retest-queue.png)
+![The Retest queue with its Pending and History tabs]({{ site.baseurl }}/assets/images/user-guide/retest-queue.png)
 *Figure: The Retest queue.*
 
 1. The cards: **Pending**, **Retested**, **Passed**, **Failed** and **Success
@@ -731,7 +731,7 @@ security controls pass their tests, framework by framework.
 
 ## Pentest methodology and the finding library
 
-**Settings › Findings & assets › Pentest methodology** (`/settings/pentest`) has four
+**Organization settings › Findings and assets › Pentest methodology** (`/settings/pentest`) has four
 tabs.
 
 - **Methodology**: the **Target types** a campaign's **What is tested** offers

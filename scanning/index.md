@@ -34,8 +34,8 @@ flowchart LR
 | [Automatic coverage](asset-coverage.md) | The checks the platform runs on every in-scope asset by itself, and the asset's Coverage section | Asset details, **Coverage** |
 | [Why a task waits](why-waiting.md) | Why a queued task has not started, and what to do | Run page, **Why waiting?** |
 | [Stage streaming](stage-streaming.md) | How a step starts on the first results of the step before it, and when it does not | Run page, step lanes |
-| [Scan identification](scan-identification.md) | The User-Agent and headers your scans send so scanned systems recognize them | **Settings > Scanning > Scan identification** |
-| [Tools](tools.md) | The scanners sensors run, and their availability | Settings > Scanning > Tools |
+| [Scan identification](scan-identification.md) | The User-Agent and headers your scans send so scanned systems recognize them | **Organization settings > Scanning > Scan identification** |
+| [Tools](tools.md) | The scanners sensors run, and their availability | Organization settings > Tools and sensors > Tools |
 | [Data-flow traces](data-flow-traces.md) | The source-to-sink path of a SAST finding | Finding detail, **Data flow** tab |
 | [Known false positives](../user-guide/known-false-positives.md) | How a decision on a finding is requested, approved and kept | Exposures > Findings, Exceptions |
 | [CI/CD quickstart](ci-quickstart.md) | Connect a first pipeline in minutes | Discovery > CI/CD |
@@ -43,9 +43,6 @@ flowchart LR
 | [Attack surface monitoring](easm.md) | Passive discovery and checks of your internet-facing names | Attack surface |
 
 ## Your first scan
-
-![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
-*Figure: The New scan wizard.*
 
 1. **Install and pair a sensor** where it can reach your targets
    ([Docker](../sensors/deploy-docker.md), [Pairing](../sensors/pairing.md)).

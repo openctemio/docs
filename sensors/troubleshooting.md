@@ -63,7 +63,7 @@ loop until it is fixed.
 | `x509: certificate signed by unknown authority` | sensor | The platform uses a private CA | [Trust it](deploy-docker.md#trust-a-private-certificate-authority) |
 | `platform certificate does not match the pin stored at pairing` | sensor | The platform's CA changed since pairing, or a TLS-inspecting proxy | Re-pair, or set `SENSOR_CA_FINGERPRINT` after a deliberate change |
 | `another sensor process uses this outbox directory; give each sensor its own volume` | sensor | Two processes on one volume (often an `-outbox-status` run next to the daemon) | One volume per sensor; stop the daemon first |
-| `BEARER_KEYS_DISABLED`: `This organization requires key-bound identity: pair the sensor instead of creating a key` | console / API | **Install a sensor** (API key) in an organization that requires paired sensors | Pair the sensor, or turn off **Require key-bound sensor identity** (Settings > Organization > General) |
+| `BEARER_KEYS_DISABLED`: `This organization requires key-bound identity: pair the sensor instead of creating a key` | console / API | **Install a sensor** (API key) in an organization that requires paired sensors | Pair the sensor, or turn off **Require key-bound sensor identity** (Organization settings > Organization > General) |
 | `PUSH_INGEST_NOT_GRANTED` / `push_ingest_not_granted` | collector / audit `sensor.push_refused_grant` | A collector's reports without a job: its grant lacks push ingest, or it is not trusted | Change the grant profile to `collector` and promote it to Trusted ([Grants and trust](pairing.md#grants-and-trust)) |
 | `tool-not-permitted: The report's tool is not declared by this sensor` (HTTP 422) | sensor / collector | A report for a tool the sensor's manifest does not list (often a report sent before the first manifest) | Run in daemon mode so the manifest registers; requeue the dead letter |
 | `You may not scan these targets: ... no scope entry covers it` | console / API | The target is out of scope | Add a scope entry ([Scope](../scanning/scope.md)) |
@@ -185,7 +185,7 @@ Check, in this order:
    (T0) work only: no port scans, HTTP probes or templates. Promote it to
    Trusted ([Pairing](pairing.md#grants-and-trust)).
 3. **Tools.** The scan's tool must be reported installed by the sensor. Check
-   the sensor's tool list, or **Settings > Scanning > Tools**, where a tool
+   the sensor's tool list, or **Organization settings > Tools and sensors > Tools**, where a tool
    with no runnable sensor says why (`no_sensor`, `offline_only`,
    `outdated`, excluded by the grant or the local policy). A trigger with no
    sensor for a tool is refused with `NO_SENSOR_FOR_TOOL`.
@@ -231,7 +231,7 @@ the sensor and revoke the old key.
 rules). Content older than its limit makes the sensor `degraded` with
 `content_stale`; a failed refresh keeps the previous version and raises
 `content_refresh_failed`. **Refresh content** on the sensor, or
-**Settings > Scanning > Content freshness**, asks for a refresh now.
+**Organization settings > Tools and sensors > Content freshness**, asks for a refresh now.
 
 ## Setup check reference
 

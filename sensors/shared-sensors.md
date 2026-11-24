@@ -252,7 +252,7 @@ refuses anything outside them.
 - A scan's **Sensor** setting offers **Auto** (organization sensors first, then
   shared sensors), **Organization sensors** and **Shared sensors**.
 - The organization owner can switch on **Never use shared sensors** in
-  **Settings > Organization > General**: the organization's scans then run only
+  **Organization settings > Organization > General**: the organization's scans then run only
   on its own sensors.
 - Per-organization limits (`platform_scans_per_day`,
   `platform_scans_concurrent`) cap the shared scans an organization starts per

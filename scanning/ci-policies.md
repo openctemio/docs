@@ -20,9 +20,6 @@ an AppSec team can run the gate without being administrators.
 1. TOC
 {:toc}
 
-![The Gate policy tab: the always-on rules, the organization policy and a repository policy in warn mode]({{ site.baseurl }}/assets/images/scanning/ci/ci-gate-policy.png)
-*Figure: Gate policies of example-org.*
-
 ## Always on
 
 Whatever the policy says:
@@ -88,8 +85,6 @@ flowchart TD
   mode, or disabling or deleting a policy so that a looser one applies.
 - A repository policy can be created, changed or deleted only for a
   repository in your access.
-
-![The Edit gate policy dialog: mode, severity, EPSS, new findings only, KEV, fixable only, the baseline settings and the locks for business units and repositories]({{ site.baseurl }}/assets/images/scanning/ci/ci-gate-policy-edit.png)
 
 ## Expected scans
 

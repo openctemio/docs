@@ -45,7 +45,7 @@ You need an OpenCTEM account in the organization. You do not need to be an admin
 
 ### Find the server URL
 
-Open **Settings > Access & security > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
+Open **Organization settings > People and access > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
 server URL of your installation and one setup tab per client, each with copy buttons: **Claude Code**,
 **Codex CLI**, **Gemini CLI**, **VS Code**, **Cursor**, **Claude Desktop** and **Remote or VPS**. The
 snippets never contain a key or a token. The URL always has this form:
@@ -57,8 +57,8 @@ https://openctem.example.com/api/v1/mcp
 Use the host name you use to open the OpenCTEM console, followed by `/api/v1/mcp`. No key is needed:
 the assistant opens OpenCTEM in your browser and you sign in.
 
-![The AI assistants (MCP) settings page on the Connect tab: client configuration with the server URL and the organization's status badges]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
-*Figure: Settings, Access, AI assistants (MCP), Connect tab.*
+![The AI assistants (MCP) settings page on the Connect tab: the status chips, the client tabs and the commands to copy]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
+*Figure: Organization settings, People and access, AI assistants (MCP), Connect tab.*
 
 ### Claude on the web and in the Claude apps
 
@@ -149,9 +149,6 @@ The **Connect** tab prints the setup for each of them with your server URL:
 When the assistant runs where your browser is not (an SSH session on a server, a container, a remote
 desktop), the browser sign-in cannot return to it. The **Remote or VPS** tab offers three ways:
 
-![The Connect tab of AI assistants (MCP) on the Remote or VPS client tab: sign in with a code through the mcp-remote bridge, as a command and as an MCP server entry]({{ site.baseurl }}/assets/images/api/mcp-remote.png)
-*Figure: Settings, AI assistants (MCP), Connect, Remote or VPS.*
-
 
 1. **Sign in with a code (any client).** Run the assistant through the `mcp-remote` bridge with the
    platform's terminal client:
@@ -203,9 +200,6 @@ again.
 ### What each line of the consent screen means
 
 The consent screen is the one place where you decide. Read it before you choose **Allow**.
-
-![The consent screen for an application registered by the organization: the organization, the two read permissions granted, the return address 127.0.0.1 and the warning to continue only if you started this]({{ site.baseurl }}/assets/images/user-guide/mcp-consent.png)
-*Figure: The consent screen of an application your organization registered, running on your own computer.*
 
 | On the screen | What it tells you |
 |---|---|
@@ -277,7 +271,7 @@ connection ends when:
 
 ## Manage and disconnect your connections
 
-Open **Settings > My account > Connected applications** (`/account/connected-apps`), titled
+Open **Organization settings > Your membership > Connected applications** (`/settings/me/connected-apps`), titled
 **Your AI applications**. The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
 **Unverified** badge), the access it holds (**Findings**, **Assets**, **Compliance**, **Pentest**),
 when it was connected, when it was last used and from which address, and when it ends.
@@ -292,7 +286,7 @@ disconnect it and tell your administrator.
 
 ## Approve applications and set the policy
 
-Administrators manage MCP under **Settings > Access & security > AI assistants (MCP)**. The page has four tabs:
+Administrators manage MCP under **Organization settings > People and access > AI assistants (MCP)**. The page has four tabs:
 
 | Tab | Who sees it | What is on it |
 |---|---|---|
@@ -324,7 +318,7 @@ this application**. This is the secure default. Claude on the web is an applicat
 This is the recommended way. A member who is blocked sends a request from the consent screen, and
 you decide it:
 
-1. Open **Settings > Access & security > AI assistants (MCP) > Applications**. **Access requests** lists each
+1. Open **Organization settings > People and access > AI assistants (MCP) > Applications**. **Access requests** lists each
    waiting request: the application, the publisher, who asked first, how many requests there are,
    when, and **Asks for:** the access it wants.
 2. Check that you recognize the publisher and want that service in the organization.
@@ -414,7 +408,7 @@ who, which application, access, last use and expiry. Choose **Disconnect** to en
 
 ## Audit log
 
-OpenCTEM writes these events to **Settings > Access & security > Audit log** (resource type `mcp_grant`
+OpenCTEM writes these events to **Organization settings > Sign-in and oversight > Audit log** (resource type `mcp_grant`
 unless noted):
 
 | Event | When |

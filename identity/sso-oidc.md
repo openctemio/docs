@@ -64,7 +64,7 @@ A platform administrator (super admin) opens **Console > Customers > Organizatio
    (`POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`) if your provider rejects the
    Microsoft-only `User.Read`.
 
-3. An organization owner approves the change under **Settings > Access & security > SSO approvals** (unless the
+3. An organization owner approves the change under **Organization settings > Sign-in and oversight > Sign-in > Joining > SSO changes** (unless the
    organization has no owner yet).
 
 Users sign in at `https://<app>/login?org=<organization-slug>`. The email comes from Okta's

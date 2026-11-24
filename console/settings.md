@@ -51,7 +51,7 @@ Audit, Alerts, Software updates). For each one it shows:
 Secrets show only **Set** or **Not set**. Filter with **All**, **In this console**,
 **On the server**, **Needs a restart** and **Moving to the console**.
 
-![The Configuration page: the Deployment region card above the setting list, with each setting's source and whether a restart is needed]({{ site.baseurl }}/assets/images/console/configuration.png)
+![The Configuration page: the Deployment region section above the setting list, with each setting's source and whether a restart is needed]({{ site.baseurl }}/assets/images/console/configuration.png)
 *Figure: Settings, Configuration.*
 
 **Deployment region** (top of the page) is the data region every new organization
@@ -79,7 +79,7 @@ to an existing organization through its single sign-on is not affected.
 - **Let people request access**: when only administrators create organizations,
   people who cannot sign in may ask for one ([Access requests](organizations-and-users.md#access-requests)).
 
-![The Sign-up page with the server setting SIGNUP_MODE disabled, the account and organization choices locked above it, and the request-access switch]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
+![The Sign-up page of the platform console with the server setting and the account and organization choices]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
 *Figure: Settings, Sign-up, on a server with `SIGNUP_MODE=disabled`.*
 
 The server's `SIGNUP_MODE` (`disabled` by default, `domain` or `open`) is a ceiling:
@@ -124,7 +124,7 @@ in the console are not changed; one organization's limits are set on its
 [Limits tab](organizations-and-users.md#one-organization). Saving needs a fresh
 code.
 
-![The Limits page with the starting limits for self-service organizations and the default storage quota]({{ site.baseurl }}/assets/images/console/limits.png)
+![The Limits page with the starting limits for self-service organizations]({{ site.baseurl }}/assets/images/console/limits.png)
 *Figure: Settings, Limits.*
 
 **Default storage quota** is how much uploaded evidence and attachments one
@@ -246,7 +246,7 @@ confirmation and a reason.
 too: low disk space, stale backups, expiring certificates and changes to these
 settings.
 
-![The Alerts page with the Alert webhook card: the switch, the webhook address and the optional signing secret]({{ site.baseurl }}/assets/images/console/alerts.png)
+![The Alerts page with the Alert webhook section: the switch, the webhook address and the optional signing secret]({{ site.baseurl }}/assets/images/console/alerts.png)
 *Figure: Settings, Alerts.*
 
 - **Send alerts to the webhook** and **Webhook address (https)**: the address is

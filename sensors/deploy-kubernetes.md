@@ -54,7 +54,7 @@ kubectl -n openctem logs deploy/openctem-openctem-sensor   # the code and finger
   ([Sensor-local policy](network.md#sensor-local-policy)).
 
 To use an API key instead (an organization that turned off **Require key-bound
-sensor identity** in **Settings > Organization > General**; new organizations
+sensor identity** in **Organization settings > Organization > General**; new organizations
 have it on), create the sensor with **Discovery > Sensors > Install a sensor**,
 copy its key (shown once) and:
 

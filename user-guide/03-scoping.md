@@ -39,7 +39,7 @@ ready** and links to the page that fixes it:
 - Attacker profiles chosen for the cycle
 - Threat model for each crown jewel
 
-![The Scoping overview with the readiness checklist for a CTEM cycle]({{ site.baseurl }}/assets/images/user-guide/scoping-overview.png)
+![The Scoping overview with the current cycle and the readiness checklist]({{ site.baseurl }}/assets/images/user-guide/scoping-overview.png)
 *Figure: Scoping overview: what a cycle needs before it starts.*
 
 A row is hidden when its module is turned off.
@@ -240,7 +240,7 @@ becomes critical too.
 is out of scope, and an exclusion always wins. See also
 [Scope and authorization to scan](../scanning/scope.md).
 
-![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+![The Scope page with its Scope, Domain proof, Networks, Programs and Letters tabs and the list of scope entries]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope: the entries in effect.*
 
 The page has three sections, shown as tabs under the title: **Scope**,
@@ -450,7 +450,7 @@ passive when it sits on a shared, CDN or cloud network, nothing is known
 about its network, names of three or more domains point at its address
 (shared hosting), or it is a name outside your domains. A name that resolves
 only through a wildcard DNS record stays passive until a person confirms it.
-**Settings › Scanning › Scope policy** > **Scan unclassified assets** sets
+**Organization settings › Scanning › Scope policy** > **Scan unclassified assets** sets
 this to **Off (passive only)**, **Low-impact (default)** or **Full** (the
 scan's own intensity, still behind the guardrails); Strict scan approval
 always means Off. A port scan of a name reaches only the web ports while an
@@ -466,9 +466,6 @@ exclusions ("Puts out of scope"). Click **Approve** or **Reject**, or select
 several and **Approve selected**. You can never approve your own request, and
 approving widening entries can require a fresh identity check.
 
-![The Approvals tab of the Scope page with a cloud account and an exclusion waiting for a second administrator]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
-*Figure: Scope changes waiting for another administrator's approval.*
-
 ### Domain proof
 
 The **Domain proof** tab proves that you control a domain with a DNS TXT record:
@@ -477,8 +474,8 @@ enter the **Domain**, click **Prove a domain**, publish the record and click
 platform administrator requires it (off by default), scans on shared sensors
 and intrusive (T2) probes need a proved domain.
 
-![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
-*Figure: Domain proof: two domains verified, one waiting for its DNS TXT record.*
+![The Domain proof tab with the field to prove a domain]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
+*Figure: Domain proof.*
 
 ### Networks
 
@@ -496,7 +493,7 @@ Monitoring**, in which case seeds are kept but not looked up.
 
 ### Scope policy
 
-**Settings › Scanning › Scope policy** (`/settings/scope`) sets how scope may
+**Organization settings › Scanning › Scope policy** (`/settings/scope`) sets how scope may
 change. Only scope approvers can edit it; saving asks you to confirm your
 identity, is audited and notifies every administrator.
 

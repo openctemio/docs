@@ -32,40 +32,47 @@ flowchart LR
   the trust asks for a recent sign-in (step-up).
 - A repository on github.com, or on GitLab (gitlab.com or self-managed), where
   you can add a workflow file. For GitHub Enterprise Server, or an enterprise
-  with its own token issuer, use **Trust › Add trust** instead of the wizard
+  with its own token issuer, choose **Fill in every rule yourself** on the
+  first step of the wizard
   ([Organization rollout](ci-rollout.md#github-enterprise)).
 - The platform URL as the CI runners reach it, for example
   `https://openctem.example.com`. The runners need outbound HTTPS to it.
 
 ## 1. Open the wizard
 
-Open **Discovery › CI/CD**. On a new organization, the **Pipelines** tab is
-empty and shows **Connect a pipeline**. Otherwise the button is in the page header, on every tab.
+Open **Discovery › CI/CD**. **Connect a CI provider** is in the page header, on
+every tab, and on the empty **Connections** tab of a new organization. The
+wizard has four steps: **Provider**, **Projects**, **Pipeline** and **First
+job**. On **Provider**, choose the **CI system**.
 
-![Step 1 of Connect a pipeline: choose GitHub Actions, GitLab CI, Azure Pipelines, Bitbucket Pipelines, CircleCI or Jenkins]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-1-provider.png)
+![Step 1 of Connect a CI provider: choose GitLab CI, GitHub Actions, Azure Pipelines, Bitbucket Pipelines, CircleCI or Jenkins]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-1-provider.png)
 
-## 2. Name the organization
+## 2. Say which projects may send results
 
-Enter the **Organizations or owners** whose pipelines may report, comma
-separated. For GitLab, enter the top-level group, and its URL if it is
-self-managed. If the GitHub App is installed, its organizations are offered.
+For GitHub, enter the **Organizations or owners** whose pipelines may report,
+comma separated; if the GitHub App is installed, its organizations are offered.
 Set the **Default branch**: pushes to it are scanned in full and become the
 baseline that pull requests are compared with.
 
-![Step 2: the organization example-org and the default branch main]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-2-organization.png)
+For GitLab, leave **Your GitLab address** empty for gitlab.com, or enter the
+address of a self-managed GitLab exactly as its tokens carry it (https, no
+trailing slash). Then choose **Which projects may send results** (**Every project
+in these groups, subgroups included**, **Projects directly in these groups** or
+**Only these projects**) and **Which branches** (**Only protected branches and
+tags (safest)** by default, **Only the default branch**, or **Every branch, merge
+requests included**).
 
-**Create trust** saves the trust configuration and asks for your second
+**Connect** saves the trust configuration and asks for your second
 factor. If a trust configuration already admits these organizations, the
 wizard reuses it and shows its snippet: running the wizard again never creates
 a duplicate.
 
-## 3. Add the snippet to the repository
+## 3. Add the pipeline snippet to the repository
 
 The snippet has your platform URL and organization id filled in. Its jobs ask
 for a token whose audience is `openctem:tenant:<organization id>`, so a token
 made for your organization is useless to any other.
 
-![Step 3: the GitHub Actions workflow to save as .github/workflows/openctem.yml]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-3-snippet.png)
 
 ### GitHub Actions
 
@@ -114,23 +121,23 @@ platform refuses a release older than v0.3.0 with `RUNNER_OUTDATED`. See [Refere
 
 ## 4. Push and watch the first run
 
-Push a commit to the default branch, or open a pull request. The wizard waits
-and then shows **First run received from** your repository. **Open the run**
-shows the findings and the verdict.
-
-![Step 4: waiting for the first run]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-4-waiting.png)
+After adding the snippet, click **I added it**. Push a commit to the default
+branch, or open a pull request. The wizard shows **Waiting for the first job…**
+and then **First run received from** your repository. **Open the run** shows the
+findings and the verdict.
 
 Run the pipeline once on the default branch first. Until that branch has been
 scanned, every finding on a pull request counts as new.
 
 If the wizard says **A pipeline was refused**, it shows the rule that refused
-the pipeline and how to fix it. **CI/CD › Settings › Recent refused pipelines**
-keeps the latest ones. Every code is listed in
+the pipeline and how to fix it. **CI/CD › Connections** shows, for each
+configuration, its refused jobs of the last 7 days, with a one-click fix where
+there is one (for example **Allow branch** or **Add this pipeline file**). Every code is listed in
 [Troubleshooting](ci-troubleshooting.md).
 
 ## 5. Make the check required
 
-1. Under **CI/CD › Settings › Pull request feedback**, install the GitHub App, or
+1. Under **CI/CD › Pull request feedback**, install the GitHub App, or
    connect the GitLab group with a group access token
    ([details](ci-integration.md#connect-github-and-gitlab)).
 2. In the repository's branch protection (or ruleset), require the

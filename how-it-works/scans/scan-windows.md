@@ -53,7 +53,7 @@ flowchart TD
    period, then the platform takes it back. It waits for the next opening,
    without counting an attempt. The sensor stops it on its next heartbeat,
    and any late results are refused.
-4. An override (**Settings > Scanning > Scan windows**) needs a code from
+4. An override (**Organization settings > Scanning > Scan windows**) needs a code from
    your authenticator app, and releases waiting tasks at once.
 
 {: .note }

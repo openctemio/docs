@@ -1,12 +1,12 @@
 ---
-title: "Settings > AI: knowledge sources"
+title: "Organization settings > Organization > AI: knowledge sources"
 parent: User guide
 nav_order: 10.45
 ---
 
-# Settings > AI: knowledge sources
+# Organization settings > Organization > AI: knowledge sources
 
-**Settings > Organization > AI > Knowledge** (`/settings/ai?tab=knowledge`) is where an organization gives its
+**Organization settings > Organization > AI > Knowledge** (`/settings/ai?tab=knowledge`) is where an organization gives its
 [AI agents](ai-agents.md) the notes that make their work fit the organization: runbooks, naming
 conventions and architecture notes. Built-in triage, remediation and summary runs retrieve the
 matching excerpts, and the AI agent cites them in its result. The tab is shown to people who hold

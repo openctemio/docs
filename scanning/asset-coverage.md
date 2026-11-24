@@ -19,7 +19,7 @@ is visible instead of silently skipped.
 
 ## Turning it on or off
 
-**Settings > Scanning > Scope policy > Automatic coverage**. It is on by
+**Organization settings > Scanning > Scope policy > Automatic coverage**. It is on by
 default, except while the organization's scan approval is **Strict**, where
 it stays off until you turn it on. Scope, exclusions, scan windows and the
 platform guardrails still decide what may be scanned, and intrusive (T2)
@@ -112,7 +112,7 @@ first reason that applies, and nothing is started:
 
 | Reason | Fix |
 |---|---|
-| The check's tool is switched off, or an organization policy refuses the run | **Settings > Scanning > Tools**, or the policy named |
+| The check's tool is switched off, or an organization policy refuses the run | **Organization settings > Tools and sensors > Tools**, or the policy named |
 | No active scope entry | Add scope entries |
 | No sensor reports the tool, or the sensors' grant or local policy does not allow it | Install the tool, or widen the grant or policy |
 | Sensors with the tool are offline, or too old | Start or upgrade them |
