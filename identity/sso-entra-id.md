@@ -89,6 +89,9 @@ authenticator code for every change) in the admin console, not by the organizati
    sees the change and is notified in the app and by email. Pending changes expire after 7 days. An
    organization with no owner yet gets the change applied directly.
 
+![The Single sign-on tab of an organization in the admin console with a change waiting for the owner's approval]({{ site.baseurl }}/assets/images/identity/admin-organization-sso.png)
+*Figure: Admin console, organization, Single sign-on.*
+
 ![The Joining tab of the Sign-in settings, ending with the SSO changes section]({{ site.baseurl }}/assets/images/identity/sso-approvals.png)
 *Figure: The owner approves the change under Organization settings, Sign-in, Joining, SSO changes.*
 

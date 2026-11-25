@@ -37,7 +37,7 @@ sign-in to another organization counts.
 Operations admin or above, with a confirmation:
 
 1. Click **New organization**.
-2. Enter the **Name**, the **Slug** (used in URLs, including the SAML sign-in
+2. Enter the **Name**, the **Short name** (used in URLs, including the SAML sign-in
    addresses), the **Owner email** and, optionally, the owner name and a
    description.
 3. Click **Create organization**.
@@ -214,19 +214,25 @@ accounts are kept (people may belong to other organizations).
   written the request answers 503, nothing is deleted and the approval is handed
   back. `organization.purged` follows the deletion.
 
+![The Another platform owner must approve dialog over the Delete Example Corp now dialog, with the reason for the request]({{ site.baseurl }}/assets/images/console/second-approval.png)
+*Figure: Delete now asks for a second super admin's approval.*
+
 Data handling and erasure: [Data handling](../security/data-handling.md).
 
 ## Users
 
 **Users** (roles that hold `platform.users.read`: platform owner, platform admin
 and support) lists every account of the installation,
-newest first, with state tabs and their counts: **All**, **Active**, **Not
-verified**, **Locked**, **Blocked**, **No MFA** and **Platform admins**. Search by
+newest first. The **State** filter narrows it to **All**, **Active**, **Not
+verified**, **Locked**, **Blocked**, **Two-factor off** or **Console administrators**. Search by
 email, name or user ID (at least three characters). The list shows account facts
 only, never what an organization holds, and every list view is recorded in the
 admin activity log. Reads are limited to 120 a minute per administrator. Accounts
 linked to a platform administrator are listed (and readable) only for a platform
 owner; for other roles they are left out of the rows and the counts.
+
+![The Users page: search, the State filter and every account with its state, sign-in method, organizations and last sign-in]({{ site.baseurl }}/assets/images/console/users.png)
+*Figure: Platform console, Users.*
 
 Open an account for its organizations, linked identities, active sessions and the
 administrator actions on it. The actions, each with a reason that goes to the

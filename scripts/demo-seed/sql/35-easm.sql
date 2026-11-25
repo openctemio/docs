@@ -53,13 +53,13 @@ BEGIN
     SELECT (SELECT id FROM assets WHERE tenant_id = t_id AND name = v.name AND asset_type IN ('domain','subdomain') LIMIT 1) AS asset_id, v.*
     FROM (VALUES
       ('legacy.example.net', 'dangling_cname', 'high', 'Dangling CNAME: legacy.example.net',
-       'legacy.example.net is a CNAME to old-shop.example-hosting.net, which does not exist.', '{"target":"old-shop.example-hosting.net","rcode":"NXDOMAIN"}', 'easm-dns', interval '6 days'),
+       'legacy.example.net is a CNAME to old-shop.hosting.example.net, which does not exist.', '{"target":"old-shop.hosting.example.net","rcode":"NXDOMAIN"}', 'easm-dns', interval '6 days'),
       ('shop.example.org', 'certificate_expiring', 'medium', 'Certificate expires in 9 days: shop.example.org',
        'The newest certificate logged for shop.example.org expires in 9 days.', '{"days_left":9,"issuer":"E6"}', 'cert-monitor', interval '2 days'),
       ('example.org', 'email_security_weak', 'medium', 'Weak email posture: example.org',
        'DMARC policy is none and MTA-STS is not published.', '{"dmarc":"p=none","mta_sts":false,"spf":"~all"}', 'easm-dns', interval '12 days'),
       ('status.example.org', 'dangling_ns', 'medium', 'Delegation without answer: status.example.org',
-       'The name servers of status.example.org do not answer for the zone.', '{"ns":["ns1.example-dns.net","ns2.example-dns.net"]}', 'easm-dns', interval '4 days'),
+       'The name servers of status.example.org do not answer for the zone.', '{"ns":["ns1.dns.example.net","ns2.dns.example.net"]}', 'easm-dns', interval '4 days'),
       ('auth.example.com', 'subdomain_discovered', 'info', 'New subdomain: auth.example.com',
        'auth.example.com appeared in a logged certificate.', '{"source":"crt.sh"}', 'cert-monitor', interval '1 day'),
       ('staging.example.com', 'subdomain_discovered', 'info', 'New subdomain: staging.example.com',

@@ -51,6 +51,8 @@ What the job is told depends on how far the token got:
 - When the provider's signing keys cannot be fetched right now, the answer is
   `503 CI_ISSUER_UNAVAILABLE` with `Retry-After: 30`; retry the same token.
 
+![Recent refused pipelines: a project outside the trust, a pipeline event the trust does not allow and a branch it does not accept, each with its fix]({{ site.baseurl }}/assets/images/scanning/ci/ci-refusals.png)
+
 | Code | Console says | Fix |
 |---|---|---|
 | `no_matching_configuration` | No trust configuration exists for this CI provider or issuer. | Create a trust configuration for this provider (**Connect a CI provider**). |

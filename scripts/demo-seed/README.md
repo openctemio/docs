@@ -18,7 +18,7 @@ so the threat-intelligence enrichment has something to show.
 
 | Area | Data |
 |---|---|
-| People | Alex Morgan (owner), Jordan Patel (administrator), Sam Lee and Casey Kim (members), Riley Chen (viewer), a pending invitation, the platform administrator `admin@example.com` |
+| People | Alex Example (owner), Jordan Sample (administrator), Sam Sample and Casey Placeholder (members), Riley Demo (viewer), a pending invitation, the platform administrator `admin@example.com` |
 | Scope | Domains, address ranges, the repositories and the cloud account, one exclusion, domain proof requests |
 | Inventory | Domains, subdomains, IP addresses, hosts, services, websites, an API, repositories, cloud resources, groups, relationships, owners, crown jewels |
 | Findings | Imported from synthetic Nessus, nuclei, SARIF and Trivy exports (`fixtures.ts`): every severity, request/response evidence, components; triage, assignment, comments, approvals, resolved findings |
@@ -34,9 +34,11 @@ need a real sensor or CI provider, is in `sql/`:
 | `sql/10-sensors.sql` | The sensors are paired with the real sensor image's `pair` command, which exits once approved. This sets what a running sensor would report (tools, heartbeat). |
 | `sql/20-scan-runs.sql` | The seed triggers each scan through the API, which plans the run. No sensor runs, so nothing is scanned; `demo.finish_run()` writes the results a sensor would have sent. |
 | `sql/30-history.sql` | Spreads detection dates over the last weeks and writes 90 days of risk snapshots for the trend charts. |
+| `sql/32-threat-intel.sql` | The public CISA KEV and EPSS entries of the demo CVEs, for a stack that has not downloaded the catalogs (no internet access, or before the first sync). |
 | `sql/35-easm.sql` | Certificate Transparency and the DNS checks read real public sources and stay off on a scratch stack. This writes what they would have found: watched domains, certificate assets and their exposures. |
 | `sql/36-ready-to-close.sql` | Closes a covered scan would propose (needs a sensor run). |
 | `sql/40-ci.sql` | CI runs need an OIDC token from the CI provider. |
+| `sql/45-docs-extra.sql` | A blocked pull request run, refused pipelines, a break-glass override and the pull request feedback connections (they need a CI or Git provider), more platform administrators and accounts in other states for the console's Users page. |
 | `sql/90-refresh.sql` | Run before capturing: sensors back online, the notification channel back to connected. |
 
 ## Run it
@@ -55,7 +57,7 @@ need a real sensor or CI provider, is in `sql/`:
    ```bash
    bootstrap-admin -email=admin@example.com -name="Platform Admin" \
      -backup-email=breakglass@example.com -org-name="Example Corp" \
-     -org-slug=example-corp -org-owner-email=alex@example.com -org-owner-name="Alex Morgan"
+     -org-slug=example-corp -org-owner-email=alex@example.com -org-owner-name="Alex Example"
    ```
 
 3. Seed, passing the owner's set-password token and the administrator's temporary

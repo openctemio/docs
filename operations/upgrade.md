@@ -312,7 +312,7 @@ v0.19.0 has 8 migrations and v0.19.1 none. None drops a customer table. Take a b
   ([feeds](feeds.md)). An existing installation keeps direct delivery until an administrator
   selects relay mode. Backups may skip the `feed_relay_files` table.
 - **E-mail.** The platform mail server accepts an internal CA certificate
-  (**Settings > E-mail**, `BOOTSTRAP_SMTP_CA_FILE` for `bootstrap-admin`), a failed test e-mail
+  (**Settings > Email**, `BOOTSTRAP_SMTP_CA_FILE` for `bootstrap-admin`), a failed test e-mail
   names its cause, and the test is limited to 5 per minute per administrator. Transactional
   e-mails are sent in English or Vietnamese by the recipient's language.
 - **Active scanning.** A new named feature `active_scanning` lets a hosted control plane deny

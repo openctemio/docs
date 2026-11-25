@@ -39,7 +39,7 @@ for you. Every number opens the findings list it counts.
 
 The strip at the top:
 
-- **P0/P1 validation coverage**: the share of closed P0 and P1 findings with validation evidence (pentest,
+- **Validated top-priority fixes**: the share of closed P0 and P1 findings with validation evidence (pentest,
   scripted or sensor), the same figure the CTEM cycle uses before a cycle can close. P0 and P1 are shown
   under it. With no closed P0 or P1 finding yet it shows a dash.
 - **Validated, last 30 days**: findings closed in the last 30 days after a re-check stopped reproducing
@@ -60,7 +60,7 @@ When nothing is waiting, the block says so and links to the validation areas tha
 organization switched off leaves the page; owners and admins see one line naming it, with a link to
 **Organization settings › Organization › Modules**.
 
-![The Validation overview: P0 and P1 validation coverage, recent validation figures and what waits for you]({{ site.baseurl }}/assets/images/user-guide/validation.png)
+![The Validation overview: validated top-priority fixes, recent validation figures and what waits for you]({{ site.baseurl }}/assets/images/user-guide/validation.png)
 *Figure: The Validation overview.*
 
 ## Re-verify a finding
@@ -113,7 +113,7 @@ for that finding, which ways of verifying a fix apply, and the panel lists them:
 | Method | When it is available | Counts as proof |
 |---|---|---|
 | **Retest** | The finding's tool and rule can be re-run on its target by a sensor of your organization | Yes |
-| **Covered scan** | A full scan with the same tool covers the asset and no longer finds it: always for a repository's default branch, and for other assets when automatic closing by scan is on. Never for secrets or for findings a person reported | Yes, the finding closes on its own |
+| **Scan checked the asset** | A full scan with the same tool covers the asset and no longer finds it: always for a repository's default branch, and for other assets when automatic closing by scan is on. Never for secrets or for findings a person reported | Yes, the finding closes on its own |
 | **Reachability check** | An active asset with a network address (not a secret) | No, it only says whether the target answers |
 | **Rotation proof** | Leaked secrets: the credential was revoked at the provider and replaced, recorded in the checklist | Yes |
 | **Evidence review** | Any open finding: the verification checklist | Yes |
@@ -669,7 +669,7 @@ What happens next:
 - **Passed** by a lead or reviewer: the finding becomes **Resolved**, with the
   resolution method `retest_verified`. Passed by a tester: it stays in **Fix
   Applied** until a reviewer confirms.
-- **Failed**: the finding goes back to **In Progress** for the developers.
+- **Failed**: the finding goes back to **In progress** for the developers.
 - **Partial**: the partial fix is recorded and the status stays unchanged; the
   lead or a reviewer decides what happens next.
 - **Unable to verify**: the fix could not be checked (for example the

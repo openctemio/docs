@@ -22,7 +22,7 @@ pages are in the sidebar group.
 
 **Scan approval** sets whether organizations choose their own scan approval
 (**The organization decides**, the default: each owner turns scan approval off, on or strict, and it is off until they do) or the platform sets it for all
-(**Off**, **At least on**, **Strict**). One organization can also be set on its
+(**Off**, **On**, **Strict**). One organization can also be set on its
 **Scope** tab. In every mode, widening scope still needs re-authentication and
 passes the platform deny list. Changes need a super admin, a fresh code and a
 reason; the organization's administrators are told. See
@@ -66,12 +66,12 @@ shared scanning switch: while shared scanning is off it says that
 sensors connected now serve platform roles (passive discovery, the AI worker) and
 start scanning for organizations only when shared scanning is turned on.
 
-![The Platform sensors page: the empty fleet with Enroll a sensor, and the Instance scan zones section]({{ site.baseurl }}/assets/images/console/platform-sensors.png)
+![The Platform sensors page: Enroll a sensor, the empty sensor list and the Platform scan zones section]({{ site.baseurl }}/assets/images/console/platform-sensors.png)
 *Figure: Platform sensors.*
 
 The page holds:
 
-- **Enroll a shared sensor**, which issues a single-use enrollment token (an optional
+- **Enroll a platform sensor**, which issues a single-use enrollment token (an optional
   name and a lifetime of 5 to 60 minutes); start the sensor with
   [`SENSOR_INSTANCE_ENROLLMENT_TOKEN`](../sensors/settings.md#SENSOR_INSTANCE_ENROLLMENT_TOKEN) set to it and it pairs with its own key as a
   sensor of this instance, with no organization and the least-privilege grant;

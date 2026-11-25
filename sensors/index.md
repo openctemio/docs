@@ -165,7 +165,7 @@ A code is valid for 10 minutes; the sensor starts a new one when it expires.
    default, *Internal network scanner*, fits most sensors),
    re-authenticate and **Approve**.
 
-![The Add sensor dialog: what the sensor will scan, where it will run, and the command to run on the host]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+![The Approve a sensor page: the organization the sensor joins, the three fingerprints to choose from and what the sensor reported about its host]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 *Figure: Adding a sensor.*
 
 Details, and starting from a code made first, are in

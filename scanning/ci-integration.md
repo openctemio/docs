@@ -237,6 +237,9 @@ the platform post the **OpenCTEM gate** check and the comment on the pull or
 merge request. Open **Discovery › CI/CD › Settings › Pull request
 feedback**.
 
+![The Pull request feedback tab: the GitHub App with the example-corp installation and the GitLab group connection]({{ site.baseurl }}/assets/images/scanning/ci/ci-pr-feedback.png)
+*Figure: Pull request feedback, with the GitHub App installed on example-org and one GitLab group.*
+
 ```mermaid
 flowchart TD
   start([AppSec admin opens Pull request feedback])
@@ -282,6 +285,8 @@ refused, so the status is never posted as a person and does not depend on
 anyone's membership. A connection made earlier with a personal token keeps
 working until it is removed; reconnect it with a group access token.
 
+![The Connect GitLab group dialog: host, group path and group access token]({{ site.baseurl }}/assets/images/scanning/ci/ci-gitlab-connect.png)
+
 ## Where pipelines show up
 
 **Discovery › CI/CD › Pipelines** lists each workflow file of each repository
@@ -292,6 +297,9 @@ capabilities ran recently.
 
 ![The CI/CD integration page on the Pipelines tab]({{ site.baseurl }}/assets/images/scanning/ci/ci-pipelines.png)
 *Figure: Pipelines.*
+
+![The Coverage tab: repositories by SAST, SCA, secrets and IaC freshness, and which scans are expected]({{ site.baseurl }}/assets/images/scanning/ci/ci-coverage.png)
+*Figure: Coverage. **Expect** marks the capabilities a repository must report.*
 
 A container scan whose report carries the image's content digest also
 suggests relationships from the repository to the assets running that image

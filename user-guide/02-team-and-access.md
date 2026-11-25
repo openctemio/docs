@@ -355,7 +355,7 @@ identity provider create and remove accounts automatically.
 
 1. Click **Generate SCIM token**, give it a **Name** (for example the identity
    provider's name) and copy the token. It is shown once.
-2. Configure your identity provider with the **SCIM endpoint** shown on the page
+2. Configure your identity provider with the **Directory sync address** shown on the page
    and the token.
 3. Revoke a token from its row when you no longer need it.
 

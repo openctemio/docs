@@ -71,8 +71,12 @@ each pipeline's latest verdict, the check turns green.
 3. Enter the reason and the hours, then **Override the gate**, and confirm
    with your second factor.
 
+![The Break-glass dialog opened from a blocked run: the repository, the full commit id and the reason]({{ site.baseurl }}/assets/images/scanning/ci/ci-break-glass-dialog.png)
+
 ## Review and revoke
 
 **Break-glass** on the **CI/CD › Runs** tab lists the overrides with who created them,
 the reason and the expiry. **Revoke** ends one early; the next
 run of that commit is judged normally.
+
+![The Runs tab of CI/CD with the Break-glass section under the runs: one active override with its reason and expiry]({{ site.baseurl }}/assets/images/scanning/ci/ci-break-glass-list.png)

@@ -135,7 +135,7 @@ access see everything. Add the user to a group that holds the assets: see
 
 ## Email is not delivered
 
-When no platform SMTP server is set (**Settings > E-mail** in the platform console, or `BOOTSTRAP_SMTP_*` on a headless install), the API logs `email service not configured, skipping ... email`
+When no platform SMTP server is set (**Settings > Email** in the platform console, or `BOOTSTRAP_SMTP_*` on a headless install), the API logs `email service not configured, skipping ... email`
 each time it would have sent one (verification, password reset, ...).
 See [Email (SMTP)](../configuration/email.md#troubleshooting).
 

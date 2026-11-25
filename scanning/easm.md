@@ -17,14 +17,14 @@ and what is wrong with them:
 4. **What changed?** Continuous monitoring and alerts.
 
 It needs the **Attack surface** module. The pages are under
-**Discovery › Attack surface** (`/attack-surface`), five views: **Overview** (**Summary**, **Posture**),
-**Inventory** (**Technologies**, **Certificates**, **Web surface**),
-**Exposures** (**Exposure items**, **Lookalikes**), **Changes** and
-**Discovery** (**Stages**, **Decisions**). The
+**Discovery › Attack surface** (`/attack-surface`), one row of tabs: **Overview**,
+**Technologies**, **Certificates**, **Web surface**, **Exposures**, **Lookalikes**,
+**Changes**, **Page changes**, **Discovery** and **Review** (**Posture** opens from
+the Overview). The
 [user guide](../user-guide/04-discovery.md#attack-surface) describes each page.
 Only your own attack surface is covered, under your own scope.
 
-![The Attack surface overview: the posture grade, counts, what to fix first, discovery, the asset breakdown and recent changes]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
+![The Overview tab of Attack surface: the figure strip, the posture grade, what to fix first and discovery]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
 *Figure: Discovery, Attack surface, Overview.*
 
 The overview opens with five tiles (**Surface assets**, **Internet-facing
@@ -354,7 +354,7 @@ infrastructure), `monitor_only` or `rejected`.
   default) do names outside every permanent entry wait for a person before
   they join the inventory.
 
-**Discovery > Decisions** (`/attack-surface/review`) collects the decisions that
+**Attack surface > Review** (`/attack-surface/review`) collects the decisions that
 still need a person. Its **Waiting for your decision** section has:
 
 - **Addresses your in-scope names resolve to.** Adding them scans every port
@@ -551,7 +551,7 @@ API: `/api/v1/content-rules`.
 your own web services and tells you when they change, for example when a sign-in page starts loading
 a script from a new host.
 
-![The Page changes page under Attack surface, Changes: the change list, the watched pages and the suggested URLs]({{ site.baseurl }}/assets/images/scanning/page-changes.png)
+![The Page changes tab of Attack surface: the change list, empty until a page is checked a second time, and the watched pages]({{ site.baseurl }}/assets/images/scanning/page-changes.png)
 *Figure: Attack surface, Changes, Page changes.*
 
 - **Watched pages.** **Watch** a URL of one of your web services and choose **What to follow**:

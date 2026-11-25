@@ -43,7 +43,7 @@ their status and last activity.
 - The new administrator's first console sign-in is announced by e-mail to every
   other administrator.
 - A row's menu (never on your own account): **Make {role}**, **Mark as
-  break-glass** / **Unmark break-glass**, **Confirm last sign-in was a test**,
+  emergency access** / **Unmark emergency access**, **Confirm last sign-in was a test**,
   **Remove identity provider binding**, **Reset two-step verification**, and
   **Deactivate** / **Reactivate**. Each action asks for confirmation; making or
   removing a super admin, and resetting another administrator's two-step
@@ -53,7 +53,7 @@ Every change to the roster (an administrator added, changed or removed, a sign-i
 reset, the identity provider or the security-key policy changed) is emailed to
 every other active administrator and logged with `alert=admin_roster_change`.
 
-**Break-glass** accounts are local super admins that may still use a password
+**Emergency access** accounts are local super admins that may still use a password
 when the identity provider is required. Every break-glass sign-in alerts all
 administrators and shows a banner in that session; record planned test sign-ins
 so that real ones stand out. The Overview warns when a break-glass account has
@@ -151,14 +151,14 @@ console, separately from organization sign-in.
 - **Identity provider (OIDC)**: **Offer on the console sign-in page**, with the
   **Button label**, **Issuer URL**, **Client ID**, **Client secret**, the
   **Redirect URI** to register with the provider (`<console origin>/login/callback`)
-  and **Scopes** (must include `openid`; the email claim must be verified for the
+  and **Permissions requested** (must include `openid`; the email claim must be verified for the
   first sign-in). Only existing administrators can sign in this way.
 - **Second factor**: by default the console asks for its own code after the
   identity provider. **Trusted acr values** and **Trusted amr values** let a token
   that carries one of them skip the console code.
 - **Require the identity provider**: password sign-in is refused for everyone
   except break-glass accounts. It needs an active break-glass super admin first.
-- **Require security keys**: administrators who hold a security key or passkey
+- **Security keys for administrators**: administrators who hold a security key or passkey
   must use it; the authenticator app is refused at sign-in and for sensitive
   actions. To turn it on you must hold at least two keys and unused recovery codes
   yourself. Other administrators are asked to register keys before the rest of the

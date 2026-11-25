@@ -41,7 +41,7 @@ flowchart TD
 2. A shared front end is labeled (**Behind** *provider* on a name,
    *provider* **edge**, **hosting** or **shared** on the address). Its ports
    show as **Provider ports**.
-3. Such an address is never offered for scope on the **Decisions** page,
+3. Such an address is never offered for scope on the **Review** tab,
    even when nothing else is known about its network.
 4. A port scan of a name served through a shared front end may reach only
    the web ports, whatever your scope entries say: the provider's other

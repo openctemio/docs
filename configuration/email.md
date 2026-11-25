@@ -20,7 +20,7 @@ set-password links are not delivered.
 
 | Level | Configured by | Used for |
 |---|---|---|
-| Platform SMTP | A platform administrator, in the platform console: **Settings > E-mail** | All account security email (account setup and set-password links, first owner and owner recovery links, email verification, password reset, two-factor and sign-in notices), the set-password link `bootstrap-admin` sends, and every organization's business mail unless its own relay carries it. |
+| Platform SMTP | A platform administrator, in the platform console: **Settings > Email** | All account security email (account setup and set-password links, first owner and owner recovery links, email verification, password reset, two-factor and sign-in notices), the set-password link `bootstrap-admin` sends, and every organization's business mail unless its own relay carries it. |
 | Organization SMTP | An organization administrator, as an **Email** notification channel (see [Notification channels](notifications.md#email)) | That organization's email notifications, and its business mail (invitation notices, member notices, scheduled reports) when **Also send my organization's business mail through this server** is ticked and the platform allows it. |
 
 Account security email always goes through the platform SMTP, never through an
@@ -30,7 +30,7 @@ logged.
 ### Organization relays: platform setting
 
 Whether an organization's relay may carry its business mail is the platform
-setting `email.tenant_relay` (console **Settings > E-mail > Organization mail
+setting `email.tenant_relay` (console **Settings > Email > Organization mail
 servers**, API `/api/v1/admin/settings/email-relay`; changing it needs a platform
 owner, a fresh step-up and a reason, is audited as critical and every
 administrator is told). The console offers **Never**, **Only from a verified
@@ -75,13 +75,13 @@ Line breaks in any header value are removed, so a value cannot inject a header.
 ## Configure platform SMTP
 
 Open the platform console (its own address, not a path of the main application) as a platform administrator, go to
-**Settings > E-mail**, enter the relay (host, port, user, password, sender
+**Settings > Email**, enter the relay (host, port, user, password, sender
 address and name, STARTTLS) and save. Saving needs a platform owner and a
 fresh authenticator code. Pointing platform email at another relay (a different
 host, port, connection security or SMTP username) also needs a second platform
 owner's approval, because the relay receives every set-password and
 password-reset link; rotating the password of the same login, changing the sender,
-sending a test and turning email off do not. **Send a test e-mail** sends a message to your own address (5 a minute per administrator).
+sending a test and turning email off do not. **Send a test email** sends a message to your own address (5 a minute per administrator).
 The setting applies to the next message, without a restart. The password is
 stored encrypted with `APP_ENCRYPTION_KEY`.
 
@@ -89,7 +89,7 @@ The connection uses TLS 1.2 or later and always verifies the relay's
 certificate. A relay whose certificate comes from your own certificate authority
 is trusted by pasting that CA certificate in **Internal CA certificate** (write-only,
 used only for this server, changing it needs the same second approval as a new
-relay). **Send a test e-mail** names the cause of a failure. No mail provider
+relay). **Send a test email** names the cause of a failure. No mail provider
 online? See [Send mail without an online provider](mail-without-online-smtp.md).
 
 {: .warning }
@@ -135,7 +135,7 @@ an address other than `127.0.0.1`.
 
 ## Check that it works
 
-Use **Send a test e-mail** on **Settings > E-mail**. To check account email end to end,
+Use **Send a test email** on **Settings > Email**. To check account email end to end,
 invite a user to an organization (or use **Forgot password** on the sign-in
 page) and watch the API log:
 
@@ -147,7 +147,7 @@ docker compose logs -f api | grep -i -E "email|smtp"
 
 | The API log contains | Cause |
 |---|---|
-| `email service not configured, skipping ...` | No platform SMTP is saved in **Settings > E-mail** and the organization has no Email channel. |
+| `email service not configured, skipping ...` | No platform SMTP is saved in **Settings > Email** and the organization has no Email channel. |
 | `smtp host rejected: ...` | The host resolves to a private, loopback or link-local address. See [Relays on a private network](#relays-on-a-private-network). |
 | `failed to connect: ...` | Wrong host or port, or outbound SMTP blocked by a firewall. |
 | `failed to start TLS: ... certificate signed by unknown authority` | The relay's certificate is from your own authority: paste its CA certificate in **Internal CA certificate**. |

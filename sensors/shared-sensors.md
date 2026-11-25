@@ -208,7 +208,7 @@ sensors are turned on and the organization is allowed.
 
 **Scanning > Platform scanning > Shared sensors** lists the shared fleet, the queue and who uses it:
 
-- **Fleet**: status (*Active*, *Paused*, *Retired*), health, version, tools and
+- **Sensors**: status (*Active*, *Paused*, *Retired*), health, version, tools and
   current jobs per sensor. **Pause** stops a sensor taking new jobs (the jobs
   it holds run to the end) and **Resume** undoes it. **Retire** revokes the
   sensor's key at once; it cannot be resumed, enroll a new sensor instead.

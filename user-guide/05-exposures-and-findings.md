@@ -484,8 +484,11 @@ issue**), then who found it ("Found by Vulnerability scan (nessus)"), the CVE
   (search a finding on the same asset; comments, retests, evidence and tickets
   move to the original).
 
-![The page of a critical finding: its header with Re-verify and Add to task, the tabs, why it matters, proof of fix and its properties]({{ site.baseurl }}/assets/images/user-guide/finding-detail-kev.png)
+![The page of a critical finding: its header with Re-verify and Mark fix applied, the tabs, the SLA notice, why it matters, the fix and its details]({{ site.baseurl }}/assets/images/user-guide/finding-detail-kev.png)
 *Figure: A finding on its own page.*
+
+![The Evidence tab of a finding with the reproduction request and response captured by the scanner]({{ site.baseurl }}/assets/images/user-guide/finding-evidence.png)
+*Figure: The Evidence tab: the request and response that proved the finding.*
 
 **Scanner text.** Descriptions, remediation advice and fix steps that come from
 a scanner are shown as formatted text with the scripts and commands in them
@@ -554,6 +557,9 @@ merged, same key after re-keying). It shows field names only, never a value, key
 or fingerprint, and lists only duplicates on assets you may read. A finding keyed
 by an earlier recipe says so and moves to the current one the next time a scanner
 reports it.
+
+![The Why this is one finding card: the rule that keyed the finding, the fields it was built from, the tool that reported it and the merged duplicates]({{ site.baseurl }}/assets/images/user-guide/finding-identity.png)
+*Figure: Why this is one finding.*
 
 **One finding per vulnerability across tools.** A finding that names only an
 advisory ID (a GitHub advisory, or an OSV ID such as PYSEC or GO) is keyed on the
@@ -725,7 +731,7 @@ scored** for the transparent priority score (see
   scanner output and targets.
 - **Evidence**: tool evidence, affected code and context, stack traces,
   attachments and uploaded evidence, validation evidence, compliance mapping, and
-  **Notes** with **Add Evidence** (description, type, URL). Masked secrets in
+  **Notes** with **Add evidence** (description, type, URL). Masked secrets in
   tool evidence can be revealed for 60 seconds by people with the reveal
   permission; every reveal is audited. People with write access to findings give
   each evidence item a role (**Baseline**: normal behaviour, for comparison;
@@ -737,7 +743,7 @@ scored** for the transparent priority score (see
   version, which a pentest write-up uses to say when it is out of date (see
   [Pentest findings](07-validation.md#write-a-finding)).
 - **Remediation**: progress, recommendation, auto-fix code, remediation steps
-  (**Add Step**), references, and the **Definition of Done & Acceptable Fixes**
+  (**Add step**), references, and the **Definition of done & acceptable fixes**
   card (see [Mobilization](08-mobilization.md#the-engineering-ticket-brief)).
 - **Attack path** (when the scanner reported a data flow): the taint trace
   from the source to the sink, with each step's code, file and line, and a
@@ -897,9 +903,9 @@ an SLA or an export counts: they keep reading the status.
 ### Approval rules
 
 - **False Positive** and **Risk Accepted** need approval by default. Choosing
-  them opens **Request Status Approval**: pick a reason, enter a justification
+  them opens **Request status approval**: pick a reason, enter a justification
   (up to 2,000 characters) and, for Risk Accepted, the date the acceptance ends,
-  then **Submit for Approval**. When your organization's approval policy lets
+  then **Submit for approval**. When your organization's approval policy lets
   you decide this finding alone (see below), the dialog says so and the change
   applies at once (**Mark as false positive** or **Accept the risk**); the
   decision is still recorded with your name and reason.
@@ -939,7 +945,7 @@ an SLA or an export counts: they keep reading the status.
 **Approval Requests** (`/findings/approvals`, from the **Approvals** button) is
 the queue of requests to move findings to false positive or accepted risk.
 
-![The Approval requests page with requests waiting for a decision, each with Approve and Reject]({{ site.baseurl }}/assets/images/user-guide/finding-approvals.png)
+![The Approval requests page on its Finding requests tab: requests waiting with the status asked for, the requester and the justification]({{ site.baseurl }}/assets/images/user-guide/finding-approvals.png)
 *Figure: Approval requests.*
 
 - Cards and tabs: **Pending**, **Approved**, **Rejected**, **Canceled** and
@@ -999,7 +1005,7 @@ resolve, accept or dismiss them.
 
 The exposures of your external attack surface also have their own list, with
 display categories, a group-by-asset view and a severity override: see
-[Exposure items](04-discovery.md#exposure-items).
+[Attack surface exposures](04-discovery.md#exposures).
 
 The metrics and the charts count only the exposures you may see, the same set
 as the list. A member limited to some assets sees numbers for those assets,

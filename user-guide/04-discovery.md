@@ -81,8 +81,11 @@ estimate of the jobs per run. An organization that may only scan passively is
 offered the Passive intensity only, with one line saying why, and so only
 passive tools and workflows.
 
+![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
+*Figure: The New scan wizard.*
+
 1. **What**
-   - **Scan Name** (required), for example "Production Security Scan".
+   - **Scan name** (required), for example "Production Security Scan".
    - **What to run**: a **Single check** (one scanner on the targets), a
      scan workflow (one of your organization's workflows or a system
      workflow, with a preview of its steps), or **Continuous discovery**
@@ -139,7 +142,7 @@ passive tools and workflows.
 5. **Review**: everything chosen, and the scan zone each target goes to
    (which can be pinned there). Click **Start scan**, **Schedule scan** or
    **Save scan**. If the scan is saved but cannot start, it stays saved and
-   you can trigger it later from **View Scan**.
+   you can trigger it later from **View scan**.
 
 {: .note }
 From v0.20.0, a scan runs as far as your tools and sensors support. Creating or
@@ -221,6 +224,9 @@ platform** badge. While they are hidden, one line says how many runs
 continuous coverage started, with **Show system runs** and **Coverage
 settings** (`/scans/runs?origin=system`).
 
+![A running scan run in its side sheet: the tasks with their tool, sensor and duration, and the run map of its steps]({{ site.baseurl }}/assets/images/scanning/scan-run.png)
+*Figure: A scan run in progress.*
+
 - Filter by status (Running, Pending, Completed, Partial, Failed, Timed out,
   Canceled, Blocked) and by kind, and **Export CSV**.
 - Open a run to see its key numbers (findings, tasks, duration), its **Stages**
@@ -273,7 +279,7 @@ dependencies between steps. Scans run either one scanner or one workflow. See
   **Add to my workflows**) creates your own editable copy.
 - **New workflow** opens a three-step form:
   - **Basics**: **Workflow Name**, **Description** and **Tags**.
-  - **Steps**: **Add Step**; for each step choose **What it does** (a
+  - **Steps**: **Add step**; for each step choose **What it does** (a
     capability), or start from a specific tool, and optionally set the step key
     and timeout. The platform picks a tool for the capability unless you prefer
     or pin one.
@@ -329,21 +335,22 @@ run it unblocks. **Connect a CI provider** sits in the page header on every tab
 
 ## Attack surface
 
-**Discovery › Attack surface** (`/attack-surface`) is one strip of five views:
-**Overview**, **Inventory**, **Exposures**, **Changes** and **Discovery**. A view
-that has more than one page shows a segmented control under the strip to switch
-between its pages; a page you have no permission for is left out, and a view
-with no page left is hidden.
+**Discovery › Attack surface** (`/attack-surface`) has one row of tabs:
+**Overview**, **Technologies**, **Certificates**, **Web surface**, **Exposures**,
+**Lookalikes**, **Changes**, **Page changes**, **Discovery** and **Review**. On a
+narrow screen the row swipes sideways. A tab you have no permission for is left
+out. **Posture** (`/attack-surface/posture`) is not a tab: **View posture
+details** on the Overview opens it.
 
-| View | Pages | Permission to open |
+| Tab | Address | Permission to open |
 |---|---|---|
-| **Overview** | **Summary** (`/attack-surface`), **Posture** (`/attack-surface/posture`) | `assets:read` |
-| **Inventory** | **Technologies**, **Certificates**, **Web surface** | `assets:read` |
-| **Exposures** | **Exposure items**, **Lookalikes** | `findings:exposures:read` (and `findings:read`); `scope:read` |
-| **Changes** | **Surface** (`/attack-surface/changes`), **Page changes** (`/attack-surface/pages`, see [Page changes](../scanning/easm.md#page-changes)) | `assets:read` |
-| **Discovery** | **Stages**, **Decisions** | `scans:read`; `assets:read` |
+| **Overview** | `/attack-surface` (and **Posture**, `/attack-surface/posture`) | `assets:read` |
+| **Technologies**, **Certificates**, **Web surface** | `/attack-surface/technologies`, `/attack-surface/certificates`, `/attack-surface/web` | `assets:read` |
+| **Exposures**, **Lookalikes** | `/attack-surface/exposures`, `/attack-surface/lookalikes` | `findings:exposures:read` (and `findings:read`); `scope:read` |
+| **Changes**, **Page changes** | `/attack-surface/changes`, `/attack-surface/pages` (see [Page changes](../scanning/easm.md#page-changes)) | `assets:read` |
+| **Discovery**, **Review** | `/attack-surface/discovery`, `/attack-surface/review` | `scans:read`; `assets:read` |
 
-The number of decisions waiting shows on **Discovery**. Clicking an asset on
+The number of decisions waiting shows on **Review**. Clicking an asset on
 any of these pages opens its drawer over the list; a modified click (Ctrl or
 Cmd) opens the asset page. See also [Attack surface monitoring](../scanning/easm.md).
 
@@ -357,14 +364,14 @@ fix first and whether discovery keeps up.
   trust), **Internet-facing assets** (with how many are newly exposed in the
   last 7 days), **New in the last 7 days** (domains, subdomains, addresses and
   certificates first seen; opens **Changes**), **Open exposures** and **Waiting
-  for a decision** (opens **Decisions**).
+  for a decision** (opens **Review**).
 - **Fix first**: the most severe open external exposures, each with its
   severity, type and asset (the asset opens in its drawer). **All N open**
   opens the exposures list.
 - **Discovery**: **Found, not yet decided** (with how long the oldest has
   waited), **Discovered, passive only until in scope**, **Dependency or monitor
   only**, **Domains watched in CT logs** (with how many fail) and **Oldest CT
-  check**. **Decide N** opens **Decisions**.
+  check**. **Decide N** opens **Review**.
 - **Monitoring settings** (button on the Discovery card) opens the settings in a
   drawer; administrators can change them there:
   - Turn **Certificate Transparency discovery** and **DNS checks** on or off,
@@ -374,7 +381,7 @@ fix first and whether discovery keeps up.
   - The same card switches **Automatic enrichment** (every new asset in your
     scope gets DNS records, domain registration and the network owner of its
     addresses, from public lookups only), **Certificate checks of lookalike
-    domains**, **Network seed lookups**, **Screenshots of web assets** (off by
+    domains**, **Network lookups**, **Screenshots of web assets** (off by
     default; kept for 30 days) and the **Weekly digest** (see
     [Changes](#changes)).
 - **Posture**: a card with the grade of your external attack surface from A to
@@ -407,7 +414,7 @@ default interval (24 hours) for the whole installation.
 
 ### Posture
 
-**Overview › Posture** (`/attack-surface/posture`) grades your external attack
+**Posture** (`/attack-surface/posture`) grades your external attack
 surface from **A** to **F**, for the organization and for each root domain. It
 needs `assets:read` and the **Attack surface** module.
 
@@ -420,7 +427,7 @@ needs `assets:read` and the **Attack surface** module.
   activity (10). Next to each is the score you would have once its issues are
   fixed. A category never takes all of its maximum, so fixing any issue raises
   the score.
-- **How the score is computed**: every open issue on a surface asset has points
+- **How the score works**: every open issue on a surface asset has points
   by severity (critical 10, high 5, medium 2, low 0.5; a known exploited CVE
   counts double), multiplied by the asset's criticality (critical or crown jewel
   2, high 1.5, medium 1, low 0.5). A large estate is not graded F for its size.
@@ -443,7 +450,7 @@ dashboards.
 
 ### Technologies
 
-**Inventory › Technologies** (`/attack-surface/technologies`) lists what your
+**Technologies** (`/attack-surface/technologies`) lists what your
 external assets run, one row per technology and version. It needs `assets:read`
 and follows your data scope.
 
@@ -466,7 +473,7 @@ a scan already fetched. A probe's CPE name fills the vendor.
 
 ### Certificates
 
-**Inventory › Certificates** (`/attack-surface/certificates`) lists the TLS
+**Certificates** (`/attack-surface/certificates`) lists the TLS
 certificates found on your external assets, with who they were issued to, who
 issued them and when they expire.
 
@@ -487,7 +494,7 @@ subdomains when they sit below one of your domains; see
 
 ### Web surface
 
-**Inventory › Web surface** (`/attack-surface/web`) shows what your web origins
+**Web surface** (`/attack-surface/web`) shows what your web origins
 serve: endpoints, their parameters (names only), the same path across origins,
 and what changed.
 
@@ -514,9 +521,9 @@ origins come from the HTTP probe: each probed origin is its own asset, named
 by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
 the subdomain or address it runs on.
 
-### Exposure items
+### Exposures
 
-**Exposures › Exposure items** (`/attack-surface/exposures`) lists every exposure
+**Exposures** (`/attack-surface/exposures`) lists every exposure
 of the external surface with the asset it is on. It needs `findings:read` and
 `findings:exposures:read` and the **Attack surface** module, and follows your
 data scope; an exposure that belongs to no asset is visible to callers with
@@ -556,7 +563,7 @@ API: `GET /api/v1/attack-surface/exposures`, `/stats` and `/assets`. See also
 
 ### Lookalikes
 
-**Exposures › Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
+**Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
 registered to imitate yours, without contacting them: DNS lookups and Certificate
 Transparency only, daily for registered lookalikes and weekly for the rest.
 
@@ -579,7 +586,7 @@ Transparency only, daily for registered lookalikes and weekly for the rest.
 
 ### Changes
 
-**Changes** (`/attack-surface/changes`, page **Surface**) lists what changed on
+**Changes** (`/attack-surface/changes`) lists what changed on
 your external attack surface: new and removed hosts, opened and closed ports,
 new or expiring certificates, DNS changes (including dangling DNS), technology
 changes and new exposures, newest first, for the assets you can see. Filter by
@@ -588,9 +595,9 @@ week the administrators and the notification channels that receive attack
 surface events get a **Weekly digest** of these changes (the day and hour are
 set in the Monitoring settings; a week without changes sends nothing).
 
-### Discovery stages
+### Discovery
 
-**Discovery › Stages** (`/attack-surface/discovery`) shows the coverage work of
+**Discovery** (`/attack-surface/discovery`) shows the coverage work of
 your organization in four stages: **Asset discovery**, **Exposure scan**,
 **Validation & scoping** and **Technology discovery**. It needs `scans:read` and
 access to all of the organization's assets (without it the page answers 403
@@ -619,9 +626,9 @@ access to all of the organization's assets (without it the page answers 403
 
 See [Automatic coverage](../scanning/asset-coverage.md).
 
-### Decisions
+### Review
 
-**Discovery › Decisions** (`/attack-surface/review`) collects the decisions that
+**Attack surface › Review** (`/attack-surface/review`) collects the decisions that
 still need a person. Confirming a name or address as yours adds its exact scope
 entry; addresses are never added because a name points at them.
 
@@ -797,9 +804,9 @@ page:
   **Edit** and **Delete**.
 
 The add and edit form sets the type's fields, the **Criticality**, **Zone**,
-**Exposure**, the **Business Impact (CIA)** ratings (see
+**Exposure**, the **Business impact (CIA)** ratings (see
 [Scoping](03-scoping.md#how-business-context-raises-criticality)), an **Owner
-Reference** and, for some types, the group.
+reference** and, for some types, the group.
 
 **Lowering an asset's risk needs a reason, and sometimes approval.** Raising the
 **Criticality** or **Exposure**, or setting the crown-jewel flag, applies at once.
@@ -827,6 +834,9 @@ one as a false positive (**Organization settings › Approvals**):
 Clicking an asset in a list opens its detail panel (a drawer; the expand icon in
 its header, or **Open full page** in the row menu, opens the same details as the
 full page `/assets/{id}`):
+
+![The detail drawer of the subdomain www.example.com: state and scope badges, Key facts, risk, scope and scanning, ownership and exposure]({{ site.baseurl }}/assets/images/user-guide/asset-drawer.png)
+*Figure: The asset drawer.*
 
 - The header shows the asset's state with the scan-scope answer next to it
   (**In scope**, **Not in scope** (passive only), **Excluded**, **Not ours**,
@@ -922,8 +932,8 @@ full page `/assets/{id}`):
   selection, over the whole screen, for the relationships graph and for the
   attack-path graph; **Escape** returns to the side panel. The API is
   `GET /api/v1/assets/{id}/neighborhood`, limited to 300 nodes.
-  **Add relationship** picks the **Relationship Type** and one or more
-  **Target Asset** entries, with an optional description, **Confidence**,
+  **Add relationship** picks the **Relationship type** and one or more
+  **Target asset** entries, with an optional description, **Confidence**,
   **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.
   Relationships can be edited or removed from a related asset's menu.
 - **Technologies** (when probes fingerprinted any): each technology with its
@@ -973,7 +983,7 @@ scan targets and team scopes.
 1. The cards: **Groups**, **Critical groups**, **Assets in groups** and
    **Average risk score**.
 2. **New group** (needs the asset-groups write permission) opens a wizard:
-   **Basic Info** (name, description, **Environment**: Production, Staging,
+   **Basic info** (name, description, **Environment**: Production, Staging,
    Development or Testing; **Criticality**; optional business unit, owner and
    tags) → **Members** (a rule, a pick or a pasted list; see
    [Groups that update themselves](groups-that-update-themselves.md)) →

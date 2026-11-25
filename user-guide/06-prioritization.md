@@ -32,7 +32,7 @@ OpenCTEM combines several risk signals into one **priority class**, `P0` to
 
 The pages are under **Prioritization** in the sidebar: **Exposure Chains**,
 **Attack Paths**, **Threat Intel**, **Indicators (IOCs)**, **Detections**,
-**Business Impact**, **Compensating Controls** and **Priority Rules**. The asset
+**Business impact**, **Compensating Controls** and **Priority Rules**. The asset
 risk score is tuned under **Organization settings › Findings and assets › Risk scoring**.
 
 ## Priority classes
@@ -210,7 +210,7 @@ Both need the threat-intel read permission and the IOCs module.
 
 ## Business impact
 
-**Business Impact** (`/business-impact`) shows where vulnerabilities hit the
+**Business impact** (`/business-impact`) shows where vulnerabilities hit the
 business hardest: by asset criticality, crown jewel and business unit. It is a
 read-only summary.
 
@@ -288,17 +288,17 @@ To create a rule:
 1. Click **Create rule** (needs the priority-rules write permission).
 2. Enter the **Name** (for example "KEV on crown jewel → P0") and a
    **Description**.
-3. Pick the **Target priority class** (P0 to P3), the **Evaluation order**
+3. Pick the **Set priority to** (P0 to P3), the **Rule order**
    (default 50; higher runs first) and whether it is **Active**.
 4. **Add condition** for each condition. The operator list and the value input
    follow the field's type.
-5. Click **Dry run** to preview, then save.
+5. Click **Test run** to preview, then save.
 
 The table lists the rules in evaluation order with their target class,
-conditions, order and an **Active** switch. Each row's menu has **Edit**, **Dry
+conditions, order and an **Active** switch. Each row's menu has **Edit**, **Test
 run** and **Delete** (permanent).
 
-**Dry run** previews which findings the rule would re-classify, without changing
+**Test run** previews which findings the rule would re-classify, without changing
 anything. The server evaluates the full rule (severity, EPSS, KEV, asset context,
 compensating controls) exactly as a live classification would, and shows the
 would-be priority distribution and a sample of findings with their current and
@@ -356,8 +356,8 @@ They follow the same rule: an asset without an open finding scores 0.
    for Critical, High, Medium and Low). Thresholds must be ordered Critical >
    High > Medium > Low > 0; otherwise saving is blocked.
 5. **Finding and CTEM impact**:
-   - **Finding impact** **Mode**: **Count-based** (fixed **Per-finding
-     points**) or **Severity-weighted** (points per severity), with a **Finding
+   - **Finding impact** **Mode**: **Same points per finding** (fixed **Per-finding
+     points**) or **Points by severity** (points per severity), with a **Finding
      cap** so that a heavily scanned asset is not scored unfairly high.
    - **CTEM bonus points**: when **Enabled**, adds points for Internet
      Accessible, PII Exposed, PHI Exposed, High Risk Compliance and Restricted

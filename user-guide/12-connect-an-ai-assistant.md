@@ -149,6 +149,9 @@ The **Connect** tab prints the setup for each of them with your server URL:
 When the assistant runs where your browser is not (an SSH session on a server, a container, a remote
 desktop), the browser sign-in cannot return to it. The **Remote or VPS** tab offers three ways:
 
+![The Connect tab of AI assistants (MCP) on the Remote or VPS client tab: sign in with a code through the mcp-remote bridge, as a command and as an MCP server entry]({{ site.baseurl }}/assets/images/api/mcp-remote.png)
+*Figure: Settings, AI assistants (MCP), Connect, Remote or VPS.*
+
 
 1. **Sign in with a code (any client).** Run the assistant through the `mcp-remote` bridge with the
    platform's terminal client:
@@ -201,6 +204,9 @@ again.
 
 The consent screen is the one place where you decide. Read it before you choose **Allow**.
 
+![The consent screen for an application registered by the organization: the organization, the two read permissions granted, the return address 127.0.0.1 and the warning to continue only if you started this]({{ site.baseurl }}/assets/images/user-guide/mcp-consent.png)
+*Figure: The consent screen of an application your organization registered, running on your own computer.*
+
 | On the screen | What it tells you |
 |---|---|
 | **Connect {application} to OpenCTEM?** | The name the application gave itself. A name is not proof of who it is: look at the next line. |
@@ -220,7 +226,7 @@ The consent screen is the one place where you decide. Read it before you choose 
 The page also says: it sees only what you can see in this organization, and loses access when you
 do. You can disconnect it at any time.
 
-A connection with the all-data option shows an **All organization data** badge in **Your AI applications** and in
+A connection with the all-data option shows an **All organization data** badge in **Connected applications** (your own list) and in
 the organization's list of connected applications. Choose **Limit to own data** there to set it back to the
 scoped view without disconnecting it (you, or an organization administrator); **Disconnect** ends it.
 
@@ -271,8 +277,7 @@ connection ends when:
 
 ## Manage and disconnect your connections
 
-Open **Organization settings > Your membership > Connected applications** (`/settings/me/connected-apps`), titled
-**Your AI applications**. The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
+Open **Organization settings > Your membership > Connected applications** (`/settings/me/connected-apps`). The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
 **Unverified** badge), the access it holds (**Findings**, **Assets**, **Compliance**, **Pentest**),
 when it was connected, when it was last used and from which address, and when it ends.
 
@@ -485,7 +490,7 @@ persuaded, so use the assistant in a way that limits the damage.
 | **Choose an organization first: sign in again or pick one from the organization list, then open the link again.** | The consent link opened without a current organization. | Sign in, choose the organization, then connect again from the assistant. |
 | **This link is not a valid connection request.** / **This request is no longer available.** | The request expired (it lasts 10 minutes) or was already answered. | Start the connection again from the assistant. |
 | **Cannot connect the application** | A generic failure of the consent page; its text gives the reason. | Retry from the assistant; if it persists, send the text to your administrator. |
-| The assistant says it cannot sign in, or an authentication error after it worked before | The connection ended: disconnected, expired, your access changed, or DPoP became required. | Check **Your AI applications**; connect again. |
+| The assistant says it cannot sign in, or an authentication error after it worked before | The connection ended: disconnected, expired, your access changed, or DPoP became required. | Check **Connected applications**; connect again. |
 | `401 Invalid credentials` from the MCP endpoint | The token is wrong, expired, revoked, the membership ended, or a required DPoP proof is missing or invalid. | Reconnect. A `WWW-Authenticate: DPoP` header names the accepted algorithms. |
 | `403 Your organization does not allow API keys on the MCP server` | **API keys on the MCP server** is off. | Use OAuth, or ask an administrator. |
 | `403 IP_NOT_ALLOWED` | The organization's IP allowlist applies to MCP like the REST API. | Connect from an allowed network. |

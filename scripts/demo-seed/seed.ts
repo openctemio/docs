@@ -81,10 +81,10 @@ sqlText(`INSERT INTO verified_domains (id, tenant_id, domain, verification_token
   VALUES (gen_random_uuid(), '${alex.tenantId}', 'example.com', 'demo', 'verified', now(), 'sso')
   ON CONFLICT (tenant_id, domain) DO UPDATE SET status = 'verified', verified_at = now()`)
 const people = [
-  { email: 'sam@example.com', name: 'Sam Lee', role: ROLE.member },
-  { email: 'riley@example.com', name: 'Riley Chen', role: ROLE.viewer },
-  { email: 'jordan@example.com', name: 'Jordan Patel', role: ROLE.admin },
-  { email: 'casey@example.com', name: 'Casey Kim', role: ROLE.member },
+  { email: 'sam@example.com', name: 'Sam Sample', role: ROLE.member },
+  { email: 'riley@example.com', name: 'Riley Demo', role: ROLE.viewer },
+  { email: 'jordan@example.com', name: 'Jordan Sample', role: ROLE.admin },
+  { email: 'casey@example.com', name: 'Casey Placeholder', role: ROLE.member },
 ]
 for (const p of people) {
   const r: any = await step(`member ${p.email}`, () =>
@@ -162,6 +162,10 @@ const assets: { name: string; type: string; criticality: string; exposure?: stri
   { name: 'i-0abc123def4567890', type: 'compute', criticality: 'medium', exposure: 'private', description: 'Bastion host', properties: { provider: 'aws', region: 'eu-west-1', instance_type: 't3.small' } },
   { name: 'payments-db', type: 'database', criticality: 'critical', exposure: 'private', properties: { provider: 'aws', engine: 'postgres', version: '15.4' } },
   { name: 'registry.example.com/web-app:2.14.0', type: 'container', criticality: 'high', exposure: 'private' },
+  // The public addresses the names resolve to (documentation ranges).
+  ...['203.0.113.10', '203.0.113.11', '203.0.113.20', '203.0.113.30', '198.51.100.15', '198.51.100.30', '198.51.100.44'].map((ip) => ({
+    name: ip, type: 'ip_address', criticality: ip === '198.51.100.44' ? 'medium' : 'high', exposure: 'public',
+  })),
 ]
 for (const a of assets) await step(`asset ${a.name}`, () => api('POST', '/api/v1/assets', a))
 
@@ -225,7 +229,7 @@ const groups = [
   { name: 'Legacy systems', environment: 'production', criticality: 'medium', description: 'End-of-life services scheduled for decommissioning', existing_asset_ids: ids('legacy.example.net', '198.51.100.44', 'build.example.com') },
 ]
 for (const g of groups) {
-  const r: any = await step(`group ${g.name}`, () => api('POST', '/api/v1/asset-groups', { ...g, owner: 'Alex Morgan', owner_email: 'alex@example.com' }))
+  const r: any = await step(`group ${g.name}`, () => api('POST', '/api/v1/asset-groups', { ...g, owner: 'Alex Example', owner_email: 'alex@example.com' }))
   if (r?.id) st.ids[`group:${g.name}`] = r.id
 }
 
@@ -507,9 +511,28 @@ await step('ci trust config', () =>
     rules: { owners: ['example-corp'], repositories: ['example-corp/web-app', 'example-corp/payments-api'], refs: ['refs/heads/main', 'refs/pull/*'], events: ['push', 'pull_request'], allow_fork_pull_requests: false, require_protected_ref: false },
   })
 )
+await step('ci trust config (GitLab)', () =>
+  api('POST', '/api/v1/ci/trust-configs', {
+    name: 'GitLab CI (example-platform)',
+    provider: 'gitlab',
+    issuer: 'https://gitlab.com',
+    default_branch: 'main',
+    enabled: true,
+    rules: { owners: ['example-platform'], refs: ['refs/heads/main'], events: ['push', 'merge_request_event'] },
+  })
+)
 await step('ci gate policy', () =>
   api('POST', '/api/v1/ci/gate-policies', { enabled: true, mode: 'enforce', fail_on_severity: 'high', fail_on_kev: true, new_findings_only: true, scope_type: 'tenant' })
 )
+// The infrastructure repository only warns while its baseline is cleaned up.
+if (A('github.com/example-corp/infra-terraform'))
+  await step('ci gate policy (repository, warn)', () =>
+    api('POST', '/api/v1/ci/gate-policies', {
+      enabled: true, mode: 'warn', fail_on_severity: 'critical', fail_on_kev: true, new_findings_only: true,
+      scope_type: 'repository', scope_id: A('github.com/example-corp/infra-terraform'),
+      reason: 'Warn only while the baseline of the infrastructure repository is cleaned up',
+    })
+  )
 // Dashboards from the console's templates (demo-seed/dashboard-templates.json is a copy of
 // web/src/features/dashboards/templates.json): two for the organization (the first is the
 // default) and one personal.
@@ -529,13 +552,13 @@ await step('dashboard', () => api('POST', '/api/v1/me/dashboards', fromTemplate(
 await step('report schedule', () =>
   api('POST', '/api/v1/reports/schedules', {
     name: 'Weekly executive summary', report_type: 'executive_summary', format: 'pdf', cron_expression: '0 8 * * 1', timezone: 'Europe/London',
-    recipients: [{ email: 'alex@example.com', name: 'Alex Morgan' }, { email: 'jordan@example.com', name: 'Jordan Patel' }],
+    recipients: [{ email: 'alex@example.com', name: 'Alex Example' }, { email: 'jordan@example.com', name: 'Jordan Sample' }],
   })
 )
 await step('report schedule 2', () =>
   api('POST', '/api/v1/reports/schedules', {
     name: 'Monthly findings export', report_type: 'findings', format: 'csv', cron_expression: '0 7 1 * *', timezone: 'Europe/London',
-    recipients: [{ email: 'sam@example.com', name: 'Sam Lee' }],
+    recipients: [{ email: 'sam@example.com', name: 'Sam Sample' }],
   })
 )
 await step('api key', () => api('POST', '/api/v1/api-keys', { name: 'SIEM export', description: 'Read-only export of findings to the SIEM', scopes: ['findings:read', 'assets:read'], expires_in_days: 90 }))
@@ -595,7 +618,7 @@ await step('pentest campaign', async () => {
       { type: 'url', value: 'https://api.example.com/v2', in_scope: true },
       { type: 'domain', value: 'admin.example.com', in_scope: false },
     ],
-    rules_of_engagement: { testing_hours: 'Mon-Fri 09:00-18:00 UTC', emergency_contact: 'Jordan Patel, security on-call' },
+    rules_of_engagement: { testing_hours: 'Mon-Fri 09:00-18:00 UTC', emergency_contact: 'Jordan Sample, security on-call' },
     completion_required_signoffs: 1, completion_signoff_roles: ['client'],
     start_date: new Date(Date.now() - 20 * 86400e3).toISOString().slice(0, 10), end_date: new Date(Date.now() + 10 * 86400e3).toISOString().slice(0, 10),
     objectives: ['Test authentication and authorization of the customer portal', 'Test the public API for broken object level authorization'],
@@ -719,10 +742,12 @@ await step('notification slack', () =>
 
 // History for the trend charts, CI runs, and a fresh heartbeat for the sensors.
 await step('domain proof', async () => sql('15-domain-proof.sql'))
+await step('threat intel', async () => sql('32-threat-intel.sql'))
 await step('history', async () => sql('30-history.sql'))
 await step('attack surface', async () => sql('35-easm.sql'))
 await step('ready to close', async () => sql('36-ready-to-close.sql'))
 await step('ci runs', async () => sql('40-ci.sql'))
+await step('docs extras', async () => sql('45-docs-extra.sql'))
 await step('refresh', async () => sql('90-refresh.sql'))
 
 saveState(st)

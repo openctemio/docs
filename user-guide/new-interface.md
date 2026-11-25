@@ -10,7 +10,7 @@ The web console has a new look. Your data, your permissions and the CTEM
 stages in the sidebar are the same, and old links keep working. This page lists
 what moved and what now works differently, so you can find your way at once.
 
-![The CTEM dashboard: key figures, the five CTEM stages, Fix next, new versus fixed findings and what would cut exposure most]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: what would cut exposure most, then the exposure flow from the sources to the outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 *Figure: The dashboard in the new interface.*
 
 ## In short
@@ -95,8 +95,8 @@ remediation tasks, approvals and the other lists now share one pattern:
   **Add filter › Show the filter panel**.
 - **Filters are chips** under the toolbar. Click a chip's text to change that
   filter where it is; its x removes it.
-- **One line per row.** What a cell cuts short is in its tooltip and in the
-  quick view.
+- **Short rows.** A row's name stays on one line; other values wrap to at most
+  two lines, and what is still cut short is in the tooltip and in the quick view.
 - **A click on a row opens a quick view** over the list, with previous and next
   to move through the rows (<kbd>J</kbd> and <kbd>K</kbd> on findings). The name
   is a real link: <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+click opens the full page in a
@@ -127,7 +127,7 @@ opens with the same layout:
 - **Tabs** right under the header. A finding has **Overview**, **Evidence**,
   **Validation**, **Remediation**, **Data flow**, **Pentest details**,
   **Related** and **Details**, as they apply. An asset has **Overview**,
-  **Relationships**, **How we found this**, **Ports and services**, **Web**,
+  **Findings**, **Relationships**, **How we found this**, **Ports and services**, **Web**,
   **Owners and access** and **Activity**, as they apply.
 - **The details** (owner, dates, scores) are a list beside the tabs on a wide
   screen and under the header on a narrow one.
@@ -150,11 +150,26 @@ old **Settings** tab is split across the last three, and break-glass moved to
 the **Runs** tab, next to the run it unblocks. **Connect a CI provider** is the
 one way to add a CI trust. See [CI/CD quickstart](../scanning/ci-quickstart.md).
 
+## Attack surface and scope
+
+**Discovery › Attack surface** has one row of tabs instead of five views with a
+second switch under them: **Overview**, **Technologies**, **Certificates**,
+**Web surface**, **Exposures**, **Lookalikes**, **Changes**, **Page changes**,
+**Discovery** and **Review** (the decisions that used to be under
+**Discovery › Decisions**). **Posture** opens from the Overview. See
+[Attack surface](04-discovery.md#attack-surface).
+
+**Scoping › Scope** keeps its tabs (**Scope**, **Domain proof**, **Networks**,
+**Programs**, **Letters**). Entries, exclusions and the changes waiting for
+approval are one list on **Scope**: **Show** in its toolbar picks which. See
+[Scope](03-scoping.md#scope).
+
 ## Forms and dialogs
 
 Every form, wizard and create or edit dialog uses one frame: each field has its
 label above it and its help or error under it, and the buttons are in one row at
-the bottom. A wizard shows its steps at the top. Leaving a form with unsaved
+the bottom. The main button stays available: when something is missing, it says
+what under the field instead of staying greyed out. A wizard shows its steps at the top. Leaving a form with unsaved
 changes asks first.
 
 ## On a phone

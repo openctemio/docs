@@ -26,6 +26,9 @@ In **Account settings > Security**:
 2. Enter your current password and a code from the app.
 3. Save the **10 recovery codes** shown. Each works once. They are shown only now.
 
+![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
+*Figure: Setting up an authenticator app (QR code and key blurred).*
+
 Turning 2FA on signs out every other session of your account.
 
 **Turning 2FA off** (Account settings > Security) is refused with `409 MFA_REQUIRED_BY_POLICY` while an
@@ -63,7 +66,7 @@ uses the same field:
 | See and sign out sessions | signed in; one session or all except the current one |
 | Link or unlink Google, GitHub or Microsoft | a code from the app typed for that change (never a recovery code or the code used to sign in), or your password if 2FA is off; see [Linking a provider](social-login.md#linking-a-provider-to-your-account) |
 
-A password change, a password reset and **Sign out all others** also end your MCP connected
+A password change, a password reset and **Sign out others** also end your MCP connected
 applications in every organization (their tokens and any unredeemed authorization code). Tick **Also
 revoke API keys (N)** (on by default) to revoke the API keys you own as well.
 
@@ -214,7 +217,7 @@ There is no way to turn it off.
   (one as a spare).
 - **Recovery codes.** Ten one-time codes per administrator, shown once, used at sign-in when no key
   is at hand. They never confirm a sensitive action.
-- **Require security keys** (**Security › Admin sign-in** in the platform console, super admin): administrators who hold a key
+- **Security keys for administrators** (**Security › Admin sign-in** in the platform console, super admin): administrators who hold a key
   must use it and the authenticator app is refused for them, after a 7-day grace period for those
   who have none. It turns on only when the administrator enabling it has two keys and recovery codes.
   Break-glass administrators keep the authenticator app.

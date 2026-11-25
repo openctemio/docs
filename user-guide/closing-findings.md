@@ -226,13 +226,13 @@ From v0.21.0:
 **Findings > Ready to close** lists the closes that wait for a person, with
 critical findings first. Each row shows why the finding can close:
 
-- the method, **Covered scan**;
+- the method, **Scan checked the asset**;
 - the tool, the scan and when it ran;
 - **Held for review**, shown when many findings disappeared in one scan. This
   is a safety guard against a scanner that is broken or blinded, so a person
   looks before anything closes.
 
-![The Ready to close list: findings a covered scan no longer finds, each with Confirm close and Keep open]({{ site.baseurl }}/assets/images/user-guide/ready-to-close.png)
+![The Ready to close list: findings that a scan which checked the asset no longer finds, each with Confirm close and Keep open]({{ site.baseurl }}/assets/images/user-guide/ready-to-close.png)
 *Figure: Findings, Ready to close.*
 
 For each finding you choose one of two actions:

@@ -51,7 +51,7 @@ BEGIN
         substr(md5(repo.full_name || i), 1, 40),
         CASE WHEN is_pr THEN (100 + i)::text ELSE '' END,
         'main', NOT is_pr, CASE WHEN is_pr THEN 'pull_request' ELSE 'push' END,
-        (ARRAY['sam-lee', 'casey-kim', 'jordan-patel'])[1 + i % 3],
+        (ARRAY['sam-sample', 'casey-placeholder', 'jordan-sample'])[1 + i % 3],
         (9100000000 + i * 37)::text, '1', 'OpenCTEM code scan',
         'https://github.com/' || replace(repo.full_name, 'github.com/', '') || '/actions/runs/' || (9100000000 + i * 37),
         'evaluated', CASE WHEN ok THEN 'pass' ELSE 'fail' END,

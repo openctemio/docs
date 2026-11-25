@@ -71,7 +71,7 @@ adds the API, database and code names and the Vietnamese console wording.
 | **Task** | One unit of sensor work within a step, for a chunk of targets. Also the word for a unit of remediation work (a **remediation task**); the console always shows which. Not called a job. |
 | **Team** | A group of members within an organization that is assigned assets (**Organization settings > People and access > Teams**; `/api/v1/groups` in the API). A member sees the assets (and their findings) of their teams, plus individual grants. Never the organization itself. |
 | **Tenant** | Not used in these docs: an organization. The word remains in a few API paths, settings and CI inputs (for example `tenant-id`). |
-| **Two-factor floor** | The lowest two-factor requirement the platform sets for every organization (`none`, `admins` or `everyone`), with a grace period; an organization can require more, never less. See [The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor). |
+| **Minimum two-factor rule** | The lowest two-factor requirement the platform sets for every organization (`none`, `admins` or `everyone`), with a grace period; an organization can require more, never less. See [The platform two-factor floor](../identity/two-factor.md#the-platform-two-factor-floor). |
 | **Unfinished targets** | The targets of a task that stopped part-way. Only these run again, as a new task; finished targets are kept. |
 | **Validation** | Confirming whether a finding is really exploitable, or really fixed, with a safe check run by a sensor, and recording the evidence. |
 | **Verified domain** | A domain whose control the organization proved with a DNS record. Active scanning can be limited to verified domains. |

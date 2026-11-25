@@ -51,8 +51,11 @@ job**. On **Provider**, choose the **CI system**.
 
 For GitHub, enter the **Organizations or owners** whose pipelines may report,
 comma separated; if the GitHub App is installed, its organizations are offered.
-Set the **Default branch**: pushes to it are scanned in full and become the
+Choose **Which branches** may report (**Every branch, merge requests included** or
+**Only the default branch**) and set the **Default branch**: pushes to it are scanned in full and become the
 baseline that pull requests are compared with.
+
+![Step 2, Projects: the organization example-labs, the GitHub App installation and which branches may report]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-2-organization.png)
 
 For GitLab, leave **Your GitLab address** empty for gitlab.com, or enter the
 address of a self-managed GitLab exactly as its tokens carry it (https, no
@@ -72,6 +75,8 @@ a duplicate.
 The snippet has your platform URL and organization id filled in. Its jobs ask
 for a token whose audience is `openctem:tenant:<organization id>`, so a token
 made for your organization is useless to any other.
+
+![Step 3, Pipeline: the GitHub Actions workflow to save as .github/workflows/openctem.yml]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-3-snippet.png)
 
 
 ### GitHub Actions
@@ -125,6 +130,8 @@ After adding the snippet, click **I added it**. Push a commit to the default
 branch, or open a pull request. The wizard shows **Waiting for the first job…**
 and then **First run received from** your repository. **Open the run** shows the
 findings and the verdict.
+
+![Step 4, First job: waiting for the first job]({{ site.baseurl }}/assets/images/scanning/ci/ci-wizard-4-waiting.png)
 
 Run the pipeline once on the default branch first. Until that branch has been
 scanned, every finding on a pull request counts as new.

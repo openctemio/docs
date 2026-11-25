@@ -58,7 +58,7 @@ Nothing is imported by the editor: the preview never writes data.
 ![The Import mappings list with one mapping, its format and version]({{ site.baseurl }}/assets/images/user-guide/import-mappings.png)
 *Figure: Organization settings > Integrations > Import mappings.*
 
-![The New import mapping page: start from the generic findings CSV or a blank mapping]({{ site.baseurl }}/assets/images/user-guide/import-mapping-editor.png)
+![The vendor-pentest-csv mapping: the sample file and input settings beside the field rules, each with its column and transforms]({{ site.baseurl }}/assets/images/user-guide/import-mapping-editor.png)
 *Figure: A mapping built from the generic CSV starter.*
 
 ### Starter templates

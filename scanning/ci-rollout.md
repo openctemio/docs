@@ -49,6 +49,9 @@ configuration per repository. Narrow it only when you need to:
 | Protected branches and tags only | Deploy-grade trust: GitLab reads `ref_protected`. On GitHub, list environments whose deployment branch rules admit only protected refs |
 | Admit fork pull requests | Leave it off. `pull_request_target` and `workflow_run` run fork code with your repository's identity |
 
+![The Connections tab: the GitHub Actions trust for example-corp and the GitLab CI trust for example-platform]({{ site.baseurl }}/assets/images/scanning/ci/ci-trust.png)
+*Figure: Trust for GitHub example-org and the GitLab platform group.*
+
 ### GitHub Enterprise
 
 For GitHub Enterprise Server, or an enterprise on github.com with its own

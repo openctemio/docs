@@ -123,7 +123,7 @@ console site instead). With TLS mode `internal`, the browser warns
 until you import `ca/openctem-root-ca.crt`. You land on the dashboard of
 **Example Corp**; lists are empty until the first scan.
 
-![The CTEM dashboard: key figures, the five CTEM stages, Fix next, new versus fixed findings and what would cut exposure most]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: what would cut exposure most, then the exposure flow from the sources to the outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 
 *Figure: the dashboard, here for an organization that already has scan results. A new organization shows empty lists until its first scan.*
 
@@ -208,7 +208,7 @@ The log shows a pairing **code** and a **fingerprint**. In the console:
 4. Open the sensor and choose **Promote to Trusted**. A new sensor receives only
    passive work (subdomain discovery, DNS resolution) until it is trusted.
 
-![The Add sensor dialog: what the sensor will scan, where it will run, and the command to run on the host]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+![The Approve a sensor page: the organization the sensor joins, the three fingerprints to choose from and what the sensor reported about its host]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 
 *Figure: approving a pairing request. Compare the fingerprint with the one the sensor printed.*
 
@@ -229,6 +229,7 @@ The sensor shows as `online` within a few seconds. Details:
 5. On the **Schedule** step keep **Run immediately** and choose **Start scan**
    (or **Save without running** and start it later from the scan's page).
 
+![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
 *Figure: the New scan wizard.*
 
 Follow the run under **Discovery > Scans > Runs**: each step, its tasks, the

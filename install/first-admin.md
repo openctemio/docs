@@ -102,6 +102,9 @@ address in [Sign in](#sign-in), not on the organization sign-in page.
 ![The sign-in page with email and password fields]({{ site.baseurl }}/assets/images/install/sign-in.png)
 *Figure: The sign-in page at `/login`.*
 
+![The set-password page a new account owner reaches from the one-time link]({{ site.baseurl }}/assets/images/install/set-password.png)
+*Figure: The page the one-time set-password link opens.*
+
 1. Each administrator signs in to the **platform console**, not to the
    organization sign-in page: it is its own site, with its own sign-in page.
    Where it is depends on how you installed

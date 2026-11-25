@@ -54,7 +54,7 @@ the API list `GET /api/v1/findings/remediation-groups` and the MCP tool
 
 ### The fix plan
 
-![The Remediation page on the Fix plan tab: open tasks, overdue and your tasks, then the tasks ordered by risk removed, each with its state and deadline]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
+![The Remediation page on the Fix plan tab: open tasks, overdue and your tasks, then the tasks ordered by risk removed, each with its state and due date]({{ site.baseurl }}/assets/images/user-guide/remediation.png)
 *Figure: Remediation, Fix plan.*
 
 **Mobilization › Remediation › Fix plan** (`/remediation`) lists the fixes that
@@ -220,7 +220,7 @@ toward one goal and deadline. A campaign's status is one of **Draft**,
 (`/remediation/campaigns/{id}`) to see its progress, dates, owner, validator and
 findings, and to **Create Jira Epic**.
 
-![A campaign page: its state, priority, owner and due date, Add tasks and Start, its progress and its tasks]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
+![A campaign page: its state, priority, owner and due date, Add tasks and Complete, its progress and its tasks]({{ site.baseurl }}/assets/images/user-guide/remediation-campaign.png)
 *Figure: A campaign.*
 
 ### Jira issue types for findings, tasks and campaigns
@@ -267,7 +267,7 @@ work that matters, each Jira connection has a create policy.
 5. **Save.** The change applies to the next automatic issue and is recorded in the
    audit log.
 
-A finding an automation held back shows **Not sent to Jira — below the create
+A finding an automation held back shows **Not sent to Jira: below the create
 policy** (or **today's limit is reached**) next to its tickets. It is created later
 by itself when it rises above the policy (its severity or priority goes up, or it
 is added to KEV) or when you loosen the policy, within the daily limit. People who
@@ -281,8 +281,8 @@ remediation task issues are always created when someone asks for them.
 ### The engineering ticket brief
 
 A ticket is only useful if an engineer can fix the issue without coming back with
-questions. On a finding's **Remediation** tab, the **Definition of Done &
-Acceptable Fixes** card records:
+questions. On a finding's **Remediation** tab, the **Definition of done &
+acceptable fixes** card records:
 
 - **Definition of done (success criteria)**;
 - **How we verify the fix**;

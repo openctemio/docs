@@ -113,7 +113,7 @@ list.
 ### Where administrator alerts go
 
 Alerts reach the active platform administrators by e-mail (which needs the platform e-mail in
-**Settings > E-mail**) and, when you turn it on, an HTTPS webhook set in **Settings > Alerts**:
+**Settings > Email**) and, when you turn it on, an HTTPS webhook set in **Settings > Alerts**:
 
 - The webhook address is a credential: it is stored encrypted, shown only as its host, and never
   read back. An optional signing secret adds `X-OpenCTEM-Timestamp` and `X-OpenCTEM-Signature:

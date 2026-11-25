@@ -86,7 +86,7 @@ to your permissions. Administrative changes usually need the **Owner** or
 **Organization settings › Organization › General** (`/settings/general`) has two tabs:
 
 - **General**: the **Organization information**: the logo (hover to upload; it
-  stays unsaved until you save), the **Organization name**, **URL slug** and
+  stays unsaved until you save), the **Organization name**, **Name in the web address** and
   **Website**.
 - **File storage**: where uploaded files such as pentest evidence are stored:
   **Local filesystem**, **Amazon S3** or **MinIO (S3-compatible)**, with the
@@ -99,7 +99,7 @@ to your permissions. Administrative changes usually need the **Owner** or
 
 The page saves with the bar at the bottom (see [Save changes](#save-changes)).
 Without permission the fields are locked and say why. Only the owner can change
-the **URL slug**, and not while single sign-on is configured (the sign-in
+the **Name in the web address**, and not while single sign-on is configured (the sign-in
 addresses registered at your identity provider use it).
 
 The owner's **Danger zone** at the bottom of the General tab has two actions:
@@ -395,7 +395,7 @@ then add ordered rules, each matching one SPDX license id or a category
 (permissive, weak copyleft, copyleft, proprietary, public domain, unknown) with
 the action **Allow**, **Review** or **Deny**, and choose the verdict for a known
 license no rule matches. Denied licenses open findings; review verdicts open
-medium findings only if **Open findings for review verdicts** is on, otherwise
+medium findings only if **Open findings for review decisions** is on, otherwise
 they show only in the inventory. Saving evaluates the inventory and reports how
 many packages were flagged. Changing it needs `settings:write`.
 
@@ -414,7 +414,7 @@ fresh exposure. It needs the `team:update` permission; without it the page says
   does not retire your whole inventory. Loosening the lifecycle needs a recent
   sign-in (see [Save changes](#save-changes)).
 - **Enabled** turns the worker on. It stays locked until you have run a dry run:
-  click **Run dry run**, then **Run now**, and check how many assets **Would be
+  click **Run preview**, then **Run now**, and check how many assets **Would be
   flagged stale**.
 
 Click **Save changes**.
@@ -573,7 +573,7 @@ release and **unsupported** below the minimum. Without a recorded release, such
 a sensor shows only whether its SDK is current. Products your sensors report
 but that are not recorded yet are suggested above the list.
 
-![The Sensor products page with Add product and the sensor products your sensors report]({{ site.baseurl }}/assets/images/sensors/sensor-products.png)
+![The Sensor products page with Add product, before any product is recorded]({{ site.baseurl }}/assets/images/sensors/sensor-products.png)
 *Figure: Organization settings, Tools and sensors, Sensor products.*
 
 Every member who can read sensors sees the list; adding, changing or removing a
@@ -610,7 +610,7 @@ creating a break-glass ask for a recent sign-in. See
 [CI/CD quickstart](../scanning/ci-quickstart.md) and
 [CI integration](../scanning/ci-integration.md).
 
-![The CI/CD integration page with its Pipelines, Runs, Coverage, Connections, Gate and Pull request feedback tabs]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
+![The Connections tab of CI/CD: the GitHub Actions and GitLab CI trusts with their last accepted job, and the organization rules]({{ site.baseurl }}/assets/images/scanning/ci-trust.png)
 *Figure: Discovery, CI/CD.*
 
 - **Connect a CI provider** (button in the page header on every tab, for owners
@@ -865,9 +865,9 @@ entries can be retried. Both need the integrations manage permission. See
 **Event forwarding** (`/settings/integrations/siem`, called SIEM before) forwards findings, exposures, scans and
 SLA breaches to **Splunk** through the HTTP Event Collector (HEC).
 
-1. Click **Add Splunk HEC**.
-2. Enter a **Name**, the **HEC endpoint URL** (for example
-   `https://splunk.example.com:8088`), the **HEC token** (stored encrypted) and,
+1. Click **Add Splunk event collector**.
+2. Enter a **Name**, the **Collector endpoint URL** (for example
+   `https://splunk.example.com:8088`), the **Collector token** (stored encrypted) and,
    optionally, the **Index** and **Sourcetype**.
 3. Click **Create integration**, then **Send test event** from the row menu.
 

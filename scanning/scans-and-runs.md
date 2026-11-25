@@ -366,6 +366,9 @@ it saw (expired, name mismatch, not yet valid, self-signed). A reset from a
 host that has already answered only slows the scan; the sensor stops sending
 only after 20 resets in a row with no answer between them (sensor v0.37.0).
 
+![A completed scan run in its side sheet: the tasks with their tool, sensor and duration, and the run map of its steps]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
+*Figure: A completed run: each stage with its tool, inputs and planned targets, and the timeline of its tasks.*
+
 When a sensor claims a task, the platform runs the scope gate again on the
 task's targets, with the same inputs the run was dispatched with (tier, act
 scope of the person who triggered it, scan zone). A task can wait in the queue

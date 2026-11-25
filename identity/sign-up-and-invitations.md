@@ -97,7 +97,7 @@ No API or console session can open sign-up beyond it:
 | `domain` | Public sign-up only for addresses on an organization's verified domain; those people join that organization and never create one. |
 | `open` | Anyone may sign up and create an organization (a managed service). |
 
-`domain` and `open` need the platform e-mail (**Settings › E-mail** in the platform console, or
+`domain` and `open` need the platform e-mail (**Settings › Email** in the platform console, or
 `BOOTSTRAP_SMTP_*` for `bootstrap-admin`) and local accounts, or the server refuses to start, and
 public sign-up closes while the platform e-mail does not work. Open sign-up also stays closed until a
 CAPTCHA is set up: the Cloudflare Turnstile keys in the console (**Settings › CAPTCHA**) or on the
@@ -180,7 +180,7 @@ it (**Organization settings > Sign-in and oversight > Sign-in > Joining > Verifi
 | **Block new organizations for accounts on the domain** | People on the domain cannot create their own organizations |
 | **Include subdomains** | The settings also cover subdomains |
 
-![The Joining tab of the Sign-in settings: who may join, allowed email domains, personal accounts, verified domains and trusted organizations]({{ site.baseurl }}/assets/images/identity/settings-domains.png)
+![The Joining tab of the Sign-in settings at Verified domains: who can join with an example.com address, the domain options, and the trusted organizations]({{ site.baseurl }}/assets/images/identity/settings-domains.png)
 *Figure: Organization settings, Sign-in, Joining tab, Verified domains.*
 
 Everything is off until an owner turns it on, and stops at once when the domain claim lapses. Join

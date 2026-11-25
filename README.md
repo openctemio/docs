@@ -81,8 +81,8 @@ release:
    - The `website` section of the script writes `assets/images/website/`. Copy those
      images to `src/assets/shots/` in the website repository (and run `node scripts/og.mjs`
      there); do not commit them here.
-   - The inventory at 1440 pixels wide gives the Name column almost no room, so the
-     asset shots use a 1680 pixel viewport that is scaled down to 1440 on save.
+   - `TEXT_DIR=<dir>` also writes the visible text of every capture there; search it for
+     anything that is not demo data (other domains, private addresses) before committing.
 
 ## Contributing
 

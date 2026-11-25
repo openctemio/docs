@@ -176,7 +176,7 @@ the migrations so a table a release adds gets its grants before the API starts
 (see [Upgrading to a new release](#upgrading-to-a-new-release)).
 
 Platform e-mail (SMTP), the legal texts and the CAPTCHA keys are not part of
-`.env`: set them in the platform console (**Settings**, **E-mail**, **Legal**,
+`.env`: set them in the platform console (**Settings**, **Email**, **Legal**,
 **CAPTCHA**; see [Console settings](../user-guide/11-platform-administration.md)). The old `SMTP_*` and
 `LEGAL_*` variables are gone and the API refuses to start while an `SMTP_*`
 server variable is set. The CAPTCHA keys can be pinned from the environment
@@ -305,7 +305,7 @@ the session secret (and the platform console's CSRF key) is derived from
 `APP_ENCRYPTION_KEY`. The API in production refuses to start without one of
 the two; with `AUTH_PROVIDER=oidc` set `AUTH_JWT_SECRET` yourself. Platform
 email (SMTP) is not an environment variable: set it in the platform console,
-**Settings > E-mail** (see [Email](../configuration/email.md)). It passes the public origin to the API as `APP_URL`
+**Settings > Email** (see [Email](../configuration/email.md)). It passes the public origin to the API as `APP_URL`
 (`OPENCTEM_PUBLIC_URL`, else `https://<OPENCTEM_HOSTNAME>`), and the API derives
 `CORS_ALLOWED_ORIGINS`, `SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
 (`<APP_URL>/auth/callback`, where SSO sign-ins land) from it.

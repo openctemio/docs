@@ -117,6 +117,9 @@ Choose a password, confirm it and click **Set password**, then sign in. Setup
 links work once and expire; if yours no longer works, ask your administrator for
 a new one.
 
+![The Set your password page with the password and confirmation fields]({{ site.baseurl }}/assets/images/install/set-password.png)
+*Figure: Choosing a password from the one-time link.*
+
 ## Create an account
 
 By default, accounts are created by administrators and through invitations,
@@ -261,6 +264,9 @@ link). Then, from left to right:
   (English or Vietnamese), **Theme** and **Sign out**. On a phone the menu opens
   as a sheet from the bottom of the screen.
 
+![The CTEM dashboard in the dark theme]({{ site.baseurl }}/assets/images/overview/dashboard-dark.png)
+*Figure: The dark theme, chosen with the theme switch in the header.*
+
 ### Permissions in the console
 
 Many buttons are hidden or disabled depending on your permissions. A disabled
@@ -300,7 +306,8 @@ Every list follows the same pattern:
   shows as a chip under the toolbar. The **Filters** button shows how many
   filters apply. **Display** (at the far end) sets the row density and the
   columns.
-- **Rows** are one line each. A click on a row opens its quick view over the
+- **Rows** stay short: the name keeps to one line and other values wrap to at
+  most two (hover for the full text). A click on a row opens its quick view over the
   list (on findings, with **previous** and **next** to move through the rows);
   the name is a real link, so <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+click opens the full
   page in a new tab. The row menu (**⋯**) has the same actions on a desktop and a
@@ -321,7 +328,7 @@ whether it is getting better, and what to fix next. Every widget is drawn from
 the dashboard's stored figures, and each one has its own error state, so one
 widget that fails never blanks the page.
 
-![The CTEM dashboard: key figures, the five CTEM stages, Fix next, new versus fixed findings and what would cut exposure most]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: what would cut exposure most, then the exposure flow from the sources to the outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 *Figure: The CTEM dashboard.*
 
 ### Which dashboard opens
@@ -741,12 +748,15 @@ connected applications) is under **Organization settings › Your membership**.
 **Save changes** (enabled only when something changed). **Email** is read-only and
 shows **Verified** or **Unverified**; for SSO accounts it says it is managed by
 your identity provider. Your avatar comes from your identity provider, or shows
-your initials. **Account information** shows the user ID, the sign-in method
+your initials. **Account details** shows the user ID, the sign-in method
 and the creation and update dates.
 
 ### Security
 
 **Security** (`/account/security`) has five sections.
+
+![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
+*Figure: Setting up two-factor authentication (the QR code and key are blurred here).*
 
 - **Password** (password accounts): **Change password** opens a dialog for the
   **Current password**, the **New password** and its confirmation. Changing your
@@ -785,7 +795,7 @@ and the creation and update dates.
   your organization. You receive an email for every change.
 - **Sessions** lists the devices signed in to your account (browser and system,
   IP address, sign-in time, last activity); your current one is marked **This
-  device**. Sign out a single session, or click **Sign out all others**. Both ask
+  device**. Sign out a single session, or click **Sign out others**. Both ask
   for confirmation.
 - **Delete account**: **Delete my account** (you confirm by typing your email
   address) signs you out everywhere, revokes your API keys and schedules the
@@ -806,7 +816,7 @@ See also [Two-factor authentication](../identity/two-factor.md).
 - **Findings**: whether your findings work views show **Informational
   findings**.
 - **Reset to defaults** restores UTC, DD/MM/YYYY, 24-hour and System; click
-  **Save preferences** to keep your changes.
+  **Save** in the bar at the bottom to keep your changes.
 
 The interface language (English or Vietnamese) is chosen from the avatar menu,
 under **Language**.
@@ -848,6 +858,5 @@ your signed-in devices are listed under **Security**.
 
 **Connected applications** (**Organization settings › Your membership ›
 Connected applications**, `/settings/me/connected-apps`) lists the AI applications
-you allowed to work with the organization's data as you, under **Your AI
-applications**. Disconnect one to end its access at once. See
+you allowed to work with the organization's data as you. Disconnect one to end its access at once. See
 [Connect an AI assistant](12-connect-an-ai-assistant.md).

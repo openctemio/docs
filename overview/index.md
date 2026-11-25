@@ -17,7 +17,7 @@ It is multi-tenant: one installation serves several organizations, each isolated
 from the others. The platform code is under the GPL-3.0 licence (the Go SDK under the Apache License 2.0) at
 [github.com/openctemio](https://github.com/openctemio).
 
-![The CTEM dashboard: key figures, the five CTEM stages, Fix next, new versus fixed findings and what would cut exposure most]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: what would cut exposure most, then the exposure flow from the sources to the outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 *Figure: The dashboard: what is exploitable now, how the priority classes trend, and where each CTEM stage stands.*
 
 ## The problem

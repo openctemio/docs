@@ -327,6 +327,10 @@ The console's **Organization settings > People and access > AI assistants (MCP)*
 **Connections**, **Policy**) uses these endpoints. They need a signed-in session; API keys and MCP
 tokens are refused. Changes that loosen the policy also need a recent sign-in.
 
+![The Policy tab of AI assistants (MCP): the switch for AI assistants, what they may read or change, and the connection and TLP limits]({{ site.baseurl }}/assets/images/api/mcp-policy.png)
+
+![The Applications tab of AI assistants (MCP): an access request from a member waiting for a decision, and the approved publishers]({{ site.baseurl }}/assets/images/api/mcp-applications.png)
+
 | Endpoint | Who | Purpose |
 |---|---|---|
 | `GET`, `PUT /api/v1/mcp-access/settings` | `settings:read`; `settings:write` | The organization policy: on or off, approved publishers (at most 50), unverified applications, allowed scopes, API keys on MCP, DPoP, connection days, TLP limit |
