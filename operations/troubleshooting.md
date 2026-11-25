@@ -169,6 +169,16 @@ in [Sensors: troubleshooting](../sensors/troubleshooting.md).
 | `413` | Body larger than the route's limit or the gateway's `GATEWAY_MAX_BODY_SIZE`. |
 | `404` on `/metrics` | No `METRICS_TOKEN` set or the wrong token, or the request went through the gateway (which never serves it). |
 
+## Vulnerability data banner
+
+Every user sees "Vulnerability data has not been loaded yet", "Vulnerability data is
+out of date" or "The platform has not been able to check its vulnerability data
+recently": the platform does not receive the signed vulnerability feed (the CVE
+catalog, CISA KEV and EPSS). Open the platform console, **System > Threat
+intelligence**, and follow
+[Set up the vulnerability feed: Troubleshooting](vulnerability-feed-setup.md#troubleshooting),
+which maps each banner, state and error code to its cause and fix.
+
 ## Disk full
 
 PostgreSQL stops accepting writes when its disk fills, and the API then fails

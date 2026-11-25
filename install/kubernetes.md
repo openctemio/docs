@@ -378,6 +378,9 @@ choose one of these ([Feeds](../operations/feeds.md) explains the modes):
   `api.extraEnvFrom`, because the URL may hold a password). Only the feed fetchers use it.
 - **A bundle directory** (`VULNFEED_BUNDLE_DIR`) that you fill yourself.
 
+Step by step for every mode, how to check it and what each error means:
+[Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
+
 ## Backups
 
 The platform's data is in your PostgreSQL, so use the managed service's snapshots and
