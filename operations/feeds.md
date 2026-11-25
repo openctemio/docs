@@ -205,9 +205,10 @@ Each condition alerts once and sends one "resolved" notice when it clears;
 restarting the API does not repeat it. Open alerts are listed on the card. How old
 the data itself is gets watched in every mode, relay or direct, by the freshness
 check (catalog 12 hours, KEV 6 hours, EPSS 36 hours; after v0.24.1 KEV takes the
-catalog's limit, EPSS that limit plus a day, and a super administrator can raise the
-catalog limit from 6 to 168 hours in **System > Threat intelligence > How old the data
-may be**), which also shows the banner
+catalog's limit, so its default moves from 6 to 12 hours, EPSS that limit plus a day, and
+a super administrator can raise the catalog limit from 6 to 168 hours, with a reason, in
+**System > Threat intelligence > How old the data may be**; a higher limit also accepts
+older KEV and EPSS copies of a release as current), which also shows the banner
 to every user; it replaced the relay's own 48-hour "feed out of date" alert from
 v0.24.0 ([Troubleshooting](vulnerability-feed-setup.md#troubleshooting)).
 
