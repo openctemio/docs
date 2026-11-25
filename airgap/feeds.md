@@ -12,7 +12,8 @@ See how it works: [Feed delivery](../how-it-works/vulnerability-intel/feed-deliv
 Besides images, the platform fetches data: vulnerability catalogs, program
 lists, content packs, release information and more. This page lists what each
 feed needs, how to feed it without internet access today, how often it runs and
-what stops working without it.
+what stops working without it. Step-by-step setup of the vulnerability feed for each
+network layout: [Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
 
 1. TOC
 {:toc}
@@ -41,14 +42,14 @@ access can relay the signed vulnerability feed and the release feed: see
 
 | Feed | What it needs | Offline path today | Cadence | What degrades without it |
 |---|---|---|---|---|
-| Vulnerability catalog (vulnfeed) | `VULNFEED_ROOT_KEY_ID`, source enabled | Signed bundles from `VULNFEED_BASE_URL` or `VULNFEED_MIRRORS` (a Nexus raw proxy of `github.com/openctemio/vulnfeed-bundles/releases`), or files in `VULNFEED_BUNDLE_DIR` | Import every 20 minutes; stale warning after 3 days | CVE catalog and inventory matching go stale |
+| Vulnerability catalog (vulnfeed) | Nothing to configure: the root key is built in (`VULNFEED_ROOT_KEY_ID` only for a feed you sign yourself) | Signed bundles from `VULNFEED_BASE_URL` or `VULNFEED_MIRRORS` (a Nexus raw proxy of `github.com/openctemio/vulnfeed-bundles/releases`), files in `VULNFEED_BUNDLE_DIR`, or the relay | Import every 20 minutes; out of date after 12 hours (every user sees a banner) | CVE catalog and inventory matching go stale |
 | Public program feed (programfeed) | `PROGRAMFEED_ROOT_KEY_ID` for signed sources | `PROGRAMFEED_URL` or `PROGRAMFEED_MIRRORS`, or a signed bundle in `PROGRAMFEED_DIR`, or an **unsigned** bundle in `PROGRAMFEED_LOCAL_BUNDLE_DIR` | not stated | No public program catalog |
 | Content catalog | `CONTENT_TRUST_ROOT_KEY_IDS` (optional `CONTENT_SIGSTORE_TRUSTED_ROOT`) | Admin import: `POST /api/v1/admin/content-catalog/import` | On import | The catalog is not updated |
 | Platform content packs | Platform admin | Admin upload | On upload | Packs not updated |
 | Scanner templates | Tenant sources | Internal git or S3 source (the private-range allowlist is needed) | not stated | Templates not updated |
 | Sensor scanner content (nuclei, Trivy, opengrep) | A local mirror reachable by the sensor | Sensor-side local mirror or directory | not stated | Sensor health shows stale content |
 | Release feed and version check | `VERSION_CHECK_URL`, `VERSION_CHECK_ENABLED` | Admin import: `POST /api/v1/admin/version-check/import`, or the feed relay | On import | Newer versions are not learned |
-| CISA KEV and EPSS | Fixed internet URLs | Carried as a signed side file of each vulnerability release: with the bundle source on (Console > System > Threat intelligence) and the direct fetch off, they arrive with the bundles from `VULNFEED_BUNDLE_DIR`, a mirror or the relay | With each vulnerability release | No KEV flags and no EPSS scores |
+| CISA KEV and EPSS | The vulnerability feed (the platform never calls CISA or FIRST from v0.24.0) | Carried as signed side files of each vulnerability release: they arrive with the bundles from `VULNFEED_BUNDLE_DIR`, a mirror or the relay | With each vulnerability release; out of date after 6 hours (KEV) and 36 hours (EPSS) | No KEV flags and no EPSS scores |
 | AI triage | Provider URLs are fixed | **None** | | AI triage unavailable |
 | Certificate transparency and RIPEstat (EASM) | Internet | **None**: internet-facing by nature | | Those EASM checks stop |
 | SMTP, Jira, chat, webhooks | Internal targets | Internal targets work (private-range allowlist) | | |
@@ -66,7 +67,8 @@ GitHub release path is the lowest-effort route:
 3. Set the base URL of the feed to the proxy path, for example
    `VULNFEED_BASE_URL` (or add it to `VULNFEED_MIRRORS`), and
    `PROGRAMFEED_URL` (or `PROGRAMFEED_MIRRORS`).
-4. Set `VULNFEED_ROOT_KEY_ID` and enable the source.
+4. Nothing else: the root key is built in. Set `VULNFEED_ROOT_KEY_ID` only for a feed
+   you sign yourself.
 
 The proxy is not trusted. The feed bundles are signed (DSSE with Ed25519) and
 the platform verifies them against the key you pin, so a proxy cannot alter
@@ -97,15 +99,20 @@ the proxy, or replace them with a mirror, a relay or a local directory:
 | Host | Used for | Replaced by |
 |---|---|---|
 | `github.com`, `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Vulnerability bundles (the download redirects to the asset hosts), release feed | `VULNFEED_BASE_URL`, `VULNFEED_MIRRORS`, `VULNFEED_BUNDLE_DIR`, `VERSION_CHECK_URL`, the relay |
-| `www.cisa.gov`, then `raw.githubusercontent.com` | CISA KEV | The signed bundle |
-| `epss.empiricalsecurity.com` | EPSS | The signed bundle |
 | `ctem.org` | CTEM-ID catalog | None yet; the catalog stays at the shipped version |
 | Your `PROGRAMFEED_URL` host | Public program feed | `PROGRAMFEED_DIR` |
 
+CISA KEV and EPSS are not on this list: from v0.24.0 they arrive only inside the signed
+vulnerability release. Rules for `www.cisa.gov`, `raw.githubusercontent.com` and
+`epss.empiricalsecurity.com` can be removed once the vulnerability feed works.
+
 ## Keep the data fresh
 
-- The vulnfeed status turns stale after 3 days without an import. Treat that
-  warning as a task: copy the newest bundle or check the mirror.
+- Data older than its limit (catalog 12 hours, KEV 6 hours, EPSS 36 hours) shows
+  as out of date and every user sees a banner; a release older than 7 days is
+  refused as expired. With `VULNFEED_BUNDLE_DIR`, copy a newer release every few
+  hours ([how](../operations/vulnerability-feed-setup.md#offline-no-network-path));
+  with a mirror, check that it keeps updating.
 - Refresh the Trivy database mirror daily for the CI scan stage and for sensors.
 - A transfer by media (Path A3) should carry the feeds with each release.
 
@@ -116,7 +123,6 @@ These are follow-ups, not built:
 - A configurable base URL for an AI provider (an on-premises model).
 - Serving the API reference page's script locally.
 - Content-root keys pinned in the release.
-- Platform alerts when KEV, EPSS or vulnfeed data goes stale.
 - An upload endpoint for the programfeed.
 
 ## Related

@@ -457,6 +457,15 @@ comments describe: creating the key by hand (`run --rm signer keygen -out
 the scope ledger bootstrap on an install that already has scopes (or
 `SIGNER_LEDGER=audit` in `.env` until it is done).
 
+## Vulnerability feed
+
+The platform needs the signed vulnerability feed (the CVE catalog, with CISA KEV and
+EPSS inside it). Until it arrives every user sees "Vulnerability data has not been
+loaded yet". With the bundled sensor, a new install receives the feed through that
+sensor (relay mode): the sensor host needs HTTPS to `github.com` and its download hosts.
+Without the bundled sensor, the API downloads the feed itself and needs that access.
+Proxies, mirrors and offline sites: [Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
+
 ## Upgrading to a new release
 
 Check out the new release, read its upgrade notes, and run

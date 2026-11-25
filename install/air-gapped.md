@@ -155,10 +155,9 @@ the feeds ([Feed relay](../operations/feeds.md#feed-relay-no-outbound-access-fro
 | Destination | Purpose | Default | Air-gapped setting |
 |---|---|---|---|
 | `github.com`, `release-assets.githubusercontent.com` | The signed release feed (version check) | On | `VERSION_CHECK_ENABLED=false`; import the file by hand ([Release information](#release-information)) |
-| `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS scores and the CISA KEV catalog (KEV falls back to its GitHub mirror) | On | They also travel inside each signed vulnerability release: switch the direct fetch off in **System > Threat intelligence** ([Threat intelligence](#threat-intelligence-epss-and-kev)) |
 | `crt.sh`, `api.certspotter.com` (from a platform sensor, not the API) | Certificate Transparency discovery, answered by a platform sensor (`lookup.ct@1`) | On when such a sensor is connected | `CERT_MONITOR_ENABLED=false`, or `SENSOR_CT_LOOKUP=0` on the sensor |
 | `stat.ripe.net` | Lookups of network seeds an organization adds for attack-surface discovery | Only when an organization adds network seeds | Turn network lookups off in the organization's attack-surface settings, or add no network seeds |
-| `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`) | Vulnerability and program feeds | Vulnerability feed on with the official root key; program feed off until you pin a root key | A directory, a mirror or a relay ([Feeds](#vulnerability-and-program-feeds)) |
+| `github.com` (`openctemio/vulnfeed-bundles`, `openctemio/programfeed`), `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Vulnerability feed (with CISA KEV and EPSS inside it; the platform never calls CISA or FIRST from v0.24.0) and program feed | Vulnerability feed on with the official root key; program feed off until you pin a root key | A directory, a mirror or a relay ([Set up the vulnerability feed](../operations/vulnerability-feed-setup.md)) |
 | `acme-v02.api.letsencrypt.org` | Certificates in TLS mode `acme` | Only in mode `acme` | Use TLS mode `internal` or `files` ([TLS](tls-and-gateway.md)) |
 | Integrations, SSO, SMTP, AI providers | Only what you configure | Off | Point them at internal services |
 
@@ -1076,22 +1075,16 @@ process. See [Versioning](../operations/versioning.md#the-release-feed).
 ### Threat intelligence: EPSS and KEV
 
 Each signed vulnerability release carries the CISA KEV catalog and the EPSS
-scores as signed side files. For an isolated installation, load the vulnerability
-bundle from `VULNFEED_BUNDLE_DIR` (or a mirror), then in **System > Threat
-intelligence > Where KEV and EPSS come from** switch on "Use the signed release
-as the source" and switch off "Allow the platform to call CISA and FIRST" (super
-administrator, confirmed and audited). KEV and EPSS then arrive with the
-bundles and a stale copy is shown as stale. See
-[Vulnerability and program feeds](../operations/feeds.md#kev-and-epss).
-
-With limited egress you can instead allow `epss.empiricalsecurity.com`,
-`www.cisa.gov` and `raw.githubusercontent.com` from the API (through
-`OPENCTEM_HTTPSEC_FEED_PROXY` if a proxy is the only way out).
+scores as signed side files, and from v0.24.0 that is their only source: the
+platform never calls CISA or FIRST. Load the vulnerability feed from
+`VULNFEED_BUNDLE_DIR`, a mirror or a relay sensor and KEV and EPSS arrive with
+it; nothing else to set. See
+[Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
 
 ### Vulnerability and program feeds
 
 The vulnerability feed (CVEs and affected version ranges for matching your
-software inventory) is published hourly in `openctemio/vulnfeed-bundles` and the
+software inventory) is published several times a day in `openctemio/vulnfeed-bundles` and the
 platform pins its official root key, so nothing needs configuring when it can
 reach the release host. The program feed has no signed release yet, and is
 imported only when you pin its root key id. For an isolated installation, verify
@@ -1099,8 +1092,10 @@ a release in the transfer zone with the feed's own tool, copy the directory in,
 and point `VULNFEED_BUNDLE_DIR` (or `PROGRAMFEED_DIR`) at it, or have a platform
 sensor with internet access relay the files. The platform verifies the same
 signatures and hashes as online, refuses older sequences and bundles older than
-7 days, and keeps the previous data when a check fails. Plan a transfer at least
-weekly. Details: [Vulnerability and program feeds](../operations/feeds.md).
+7 days, and keeps the previous data when a check fails. Data older than 12 hours
+(KEV 6 hours, EPSS 36 hours) shows as out of date with a banner for every user, so
+refresh the directory every few hours if you can, and at least weekly. Step by step:
+[Set up the vulnerability feed](../operations/vulnerability-feed-setup.md#offline-no-network-path).
 
 ### Content packs and the content catalog
 
@@ -1165,7 +1160,7 @@ the cadence and monitor it:
 | trivy database (sensors and your intake scanner) | Daily | Sensor **Setup & health**; content maximum ages under **Organization settings > Tools and sensors > Scanner content** |
 | nuclei templates | Weekly | Same |
 | SAST rules pack | Per release | Same |
-| Vulnerability feed with KEV and EPSS | Weekly or faster (bundles expire after 7 days) | Platform console, **System > Threat intelligence** |
+| Vulnerability feed with KEV and EPSS | Every few hours for no banner (out of date after 12 hours, KEV 6 hours); at least weekly (bundles expire after 7 days) | Platform console, **System > Threat intelligence**, and the banner every user sees |
 | Release information | With each intake (the feed expires after 45 days) | **Monitoring > Software updates** |
 
 Set maximum content ages in the scanner content policy, so a sensor whose
@@ -1249,8 +1244,7 @@ Allow them on the firewall by name, from the listed source only:
 |---|---|---|
 | Hosts that pull images (or only the intake host) | `ghcr.io` (and `pkg-containers.githubusercontent.com`, which GHCR may redirect downloads to) | Images, signatures and attestations |
 | The host running cosign | `tuf-repo-cdn.sigstore.dev` | The Sigstore trusted root for keyless verification (not needed with `--trusted-root`) |
-| The API | `epss.empiricalsecurity.com`, `www.cisa.gov`, `raw.githubusercontent.com` | EPSS and KEV (not needed when they arrive with the signed bundle) |
-| The API | `github.com`, `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Release information and the vulnerability feed |
+| The API (or the relay sensor) | `github.com`, `release-assets.githubusercontent.com`, `objects.githubusercontent.com` | Release information and the vulnerability feed, which carries KEV and EPSS |
 | The API | `ctem.org` | CTEM-ID catalog |
 | The API (optional) | `stat.ripe.net` | Network lookups |
 | A platform sensor (optional) | `crt.sh`, `api.certspotter.com` | Certificate Transparency (`SENSOR_CT_CRTSH_URL`, `SENSOR_CT_CERTSPOTTER_URL` point it at a mirror) |

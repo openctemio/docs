@@ -159,13 +159,12 @@ a feed that is off or not configured is not started, and a second request within
 seconds is refused. Turning a feed on or off needs an operations admin and a
 confirmation.
 
-**Where KEV and EPSS come from** (super admin, step-up, audited): **Use the signed
-release as the source** makes the signed vulnerability release the supplier, and the
-platform fetches from CISA and FIRST itself only when the release's copy is stale
-(KEV older than 6 hours, EPSS older than 48 hours). **Allow the platform to call CISA
-and FIRST** (on by default) can be turned off on installs with strict egress rules:
-the release is then the only source and a stale copy shows as stale. Each feed shows
-which path supplied the data it holds. See [Feeds](../operations/feeds.md).
+KEV and EPSS arrive only inside the signed vulnerability release: from v0.24.0 the
+platform never calls CISA or FIRST, and the former "Where KEV and EPSS come from"
+setting is gone. **Sync now** on the KEV or EPSS card imports the newest release. While
+any of the three feeds is out of date or was never loaded, every user sees a banner and
+the administrators are alerted; setup and every error code:
+[Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
 
 ### Feed delivery
 

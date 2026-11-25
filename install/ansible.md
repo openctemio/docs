@@ -404,6 +404,15 @@ after changing a resolver or the list. It needs Docker's iptables backend. The k
 has the networks, the acceptance matrix and the caveat that a port a container publishes
 bypasses ufw (the stack publishes nothing beyond loopback).
 
+## Vulnerability feed
+
+The API downloads the signed vulnerability feed itself (direct mode): allow
+`github.com`, `release-assets.githubusercontent.com` and `objects.githubusercontent.com`
+on 443, or set `openctem_feed_proxy` when a proxy is the only way out. Other settings go
+in `openctem_api_env` (for example `VULNFEED_MIRRORS`). For a platform with no outbound
+access, pair a platform sensor and designate it as a relay. Every mode, step by step:
+[Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
+
 ## Monitoring
 
 `playbooks/60-monitoring.yml` installs `openctem-monitor`, run by a systemd timer every

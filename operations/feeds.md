@@ -9,6 +9,10 @@ nav_order: 4.5
 
 See how it works: [Feed build and signing](../how-it-works/vulnerability-intel/feed-build.md), [Feed delivery](../how-it-works/vulnerability-intel/feed-delivery.md), [KEV and EPSS updates](../how-it-works/vulnerability-intel/kev-epss.md).
 
+Setting the feed up for the first time, or every user sees "Vulnerability data has not
+been loaded yet"? Follow [Set up the vulnerability feed](vulnerability-feed-setup.md).
+This page is the reference.
+
 Two public feeds give the platform data it never collects itself. Nothing is
 installed on your hosts: the platform downloads a signed bundle (or reads
 one you copied to it), verifies it against a key you pin, and imports it.
@@ -20,8 +24,8 @@ one you copied to it), verifies it against a key you pin, and imports it.
 
 The platform never calls the vulnerability sources or the bug-bounty
 platforms. CISA KEV and EPSS travel with each vulnerability release too (see
-[KEV and EPSS](#kev-and-epss)); the platform can also fetch them from CISA and
-FIRST itself.
+[KEV and EPSS](#kev-and-epss)); from v0.24.0 that is their only source, and the
+platform never calls CISA or FIRST itself.
 
 1. TOC
 {:toc}
@@ -30,7 +34,7 @@ FIRST itself.
 
 ## Status
 
-The vulnerability feed publishes a signed release every hour in
+The vulnerability feed publishes a signed release several times a day in
 [`openctemio/vulnfeed-bundles`](https://github.com/openctemio/vulnfeed-bundles)
 (tags `v1-N`); the platform release that makes this repository its default
 pins the official root key id, so nothing needs configuring. The program feed
@@ -49,7 +53,7 @@ that copy; to switch an older platform now, set `VULNFEED_BASE_URL` to
 
 ## How it works
 
-Each feed publishes GitHub releases (the vulnerability feed hourly): a signed pointer
+Each feed publishes GitHub releases (the vulnerability feed several times a day): a signed pointer
 (`latest.dsse.json`), signed manifests and the record files, in whole
 bundles (v1) and in chunks (v2, only the changed chunks are fetched). The
 platform checks, before it imports anything:
@@ -92,23 +96,16 @@ Each vulnerability release carries two more signed files: the CISA Known
 Exploited Vulnerabilities catalog and the EPSS scores, with their data dates
 and attribution. The platform verifies them with the same pinned root key and
 applies each one only when its data date is newer than the data it already
-holds, so an older or replayed release never rolls them back. A release from
-before this feature carries no such files and is imported as before.
+holds, so an older or replayed release never rolls them back.
 
-The platform also fetches both itself (KEV hourly, EPSS daily). Where they come
-from is a setting in the console, **System > Threat intelligence > Where KEV
-and EPSS come from** (super administrator, asks for the step-up, audited):
-
-| Setting | Default | Meaning |
-|---|---|---|
-| Use the signed release as the source | off | Off: the platform's own fetch supplies the data and the release copy is applied when newer. On: the release supplies the data, and the platform fetches from CISA and FIRST only when the release's copy was last read more than 6 hours ago (KEV) or 48 hours ago (EPSS). Switch it on once the release has been fresh for a week. |
-| Allow the platform to call CISA and FIRST | on | Off for installs with strict egress rules: the platform never calls CISA or FIRST (the scheduled and the manual sync both refuse), the release is the only source, and a stale copy is shown as stale. |
-
-The page lists, per feed, when the release's copy was last read and whether it
-is fresh, and which path supplied the data held. **Strict egress**: allow only
-the release host (or set `VULNFEED_MIRRORS` to an internal mirror, or use
-`VULNFEED_BUNDLE_DIR` when air-gapped), then turn off "Allow the platform to
-call CISA and FIRST".
+From v0.24.0 the release is the **only** source of KEV and EPSS: the platform no
+longer calls `www.cisa.gov`, `raw.githubusercontent.com` or
+`epss.empiricalsecurity.com`, and the console setting "Where KEV and EPSS come
+from" is gone (a stored value is ignored). Each release that carries KEV or EPSS
+counts as a check of that feed; when the release carries a copy older than the
+feed's stale limit, the feed fails with `source_stale`. **Sync now** on the KEV or
+EPSS card imports the newest release. An installation that does not receive the
+vulnerability feed has no KEV flags and no EPSS scores.
 
 ## Feed relay: no outbound access from the platform
 
@@ -122,8 +119,8 @@ feed, never change it, and it is never a way out for the platform's data: it onl
 downloads named files from fixed origins.
 
 What is relayed: the vulnerability feed with its KEV and EPSS data, and the release
-feed of the version check. In relay mode the platform also stops its own KEV/EPSS
-fetch, the online version check and the program feed's URLs (not relayed yet; the
+feed of the version check. In relay mode the platform also stops the online
+version check and the program feed's URLs (not relayed yet; the
 status lists it), so it makes no outbound feed request. The platform never falls
 back to fetching directly on its own: only an administrator changes the mode.
 
@@ -201,12 +198,15 @@ the alert webhook (Console > Settings > Alerts) when:
 | Alert | When | Level |
 |---|---|---|
 | No relay sensor online | no designated relay was seen for 1 hour (also when none is designated, or the bundled sensor never enrolled) | critical |
-| Feed out of date | the vulnerability feed's applied release is 48 hours old | warning |
 | Round failed | a relayed release failed verification (`verify_failed`, `pin_mismatch`, `rollback_refused`: possible tampering, nothing applied) | critical |
 | Round refused by the signer | `signer_refused`, with the signer's reason | warning |
 
 Each condition alerts once and sends one "resolved" notice when it clears;
-restarting the API does not repeat it. Open alerts are listed on the card.
+restarting the API does not repeat it. Open alerts are listed on the card. How old
+the data itself is gets watched in every mode, relay or direct, by the freshness
+check (catalog 12 hours, KEV 6 hours, EPSS 36 hours), which also shows the banner
+to every user; it replaced the relay's own 48-hour "feed out of date" alert from
+v0.24.0 ([Troubleshooting](vulnerability-feed-setup.md#troubleshooting)).
 
 **When no relay can reach the feeds.** The platform never falls back by itself.
 A super administrator either chooses **Switch to direct now** on the card

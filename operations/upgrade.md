@@ -36,6 +36,7 @@ Which sensor, SDK, CI runner and chart releases go with the current platform rel
 | From | To | Guide |
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
+| v0.23.x | v0.24.0 and v0.24.1 | [From v0.23 to v0.24](#from-v023-to-v024) below, for the vulnerability feed: the platform no longer fetches CISA KEV or EPSS itself (they arrive only inside the signed vulnerability feed), and every user sees a banner while vulnerability data is missing or out of date. |
 | v0.22.x | v0.23.0 | [From v0.22 to v0.23](#from-v022-to-v023) below: the server image is renamed `openctem-server` (change a custom `API_IMAGE`, Helm `api.image.repository`, mirror, replication rule or admission policy that names `openctem-api`), PostgreSQL 17.12, findings can be held, IP range filters read recorded addresses (a backfill runs after the migration), a one-command Compose install. Every change: [v0.23.0](/operations/releases/v0-23-0/). |
 | v0.21.x | v0.22.0 | [From v0.21 to v0.22](#from-v021-to-v022) below: unset every `ADMIN_AUDIT_SINK*` setting before you start the new release (the server refuses to start while one is set); sensor v0.41.1 and later need platform v0.22.0, so upgrade the platform first. |
 | v0.20.x | v0.21.0 | [From v0.20 to v0.21](#from-v020-to-v021) below: 59 migrations (two data migrations), three removed `CERT_MONITOR_*` variables stop the API from starting, sensor task credentials arrive sealed per task (bearer-key sensors are paired again, scans with a credential in their settings are edited), new pairings are signed (sensor v0.40 and later need this release), Certificate Transparency moves to platform sensors, operator commands for existing findings. Every change: [v0.21.0](/operations/releases/v0-21-0/). |
@@ -86,6 +87,31 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.23 to v0.24
+
+This section covers the vulnerability feed only; for every change of the release see the
+release pages in the table above.
+
+- **KEV and EPSS come only from the signed vulnerability feed.** The platform no longer calls
+  `www.cisa.gov`, `raw.githubusercontent.com` or `epss.empiricalsecurity.com`, and the console
+  setting "Where KEV and EPSS come from" is gone. An installation that does not receive the
+  vulnerability feed **no longer gets KEV or EPSS**. Before you upgrade, check
+  **System > Threat intelligence**: the vulnerability bundle card must show **Up to date**. If it
+  does not, set the feed up first ([Set up the vulnerability feed](vulnerability-feed-setup.md)).
+- **A banner for every user.** While any of the three feeds (catalog, KEV, EPSS) was never loaded
+  or is older than its limit (12 hours, 6 hours, 36 hours), every signed-in user sees a banner
+  that cannot be dismissed, and the platform administrators are alerted by e-mail and the alert
+  webhook. The catalog counts as stale after 12 hours (was 72) and EPSS after 36 hours (was 48).
+- **Firewall.** Once the feed works, remove the rules for `www.cisa.gov`,
+  `raw.githubusercontent.com` and `epss.empiricalsecurity.com`. Keep `github.com`,
+  `release-assets.githubusercontent.com` and `objects.githubusercontent.com` on 443 for the API
+  (direct mode) or for the relay sensor's host.
+- **Relay mode.** The relay's own 48-hour "feed out of date" alert is replaced by the freshness
+  check, which covers every mode. "No relay sensor online" and failed rounds still alert.
+- **Monitoring.** New metric `openctem_feed_freshness_alerts{code}` and Prometheus rule
+  `FeedFreshness`; with your own rules file, copy the rule from
+  `deploy/observability/prometheus/rules/openctem.yml`.
 
 ### From v0.22 to v0.23
 
