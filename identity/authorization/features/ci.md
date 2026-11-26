@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 21
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # CI pipelines: permissions
 
@@ -42,9 +42,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/ci/coverage/expectations/{id}` | `scans:ci:policy` | scoped: CI coverage: repositories listed and marked only within the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, AppSec engineer |
 | DELETE | `/api/v1/ci/gate-baselines/{id}` | `scans:ci:policy` | scoped: a repository's CI gate baseline: read, recorded and removed only for a repository in the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, AppSec engineer |
 | GET | `/api/v1/ci/gate-baselines/{id}` | `scans:ci:read` | scoped: a repository's CI gate baseline: read, recorded and removed only for a repository in the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, Member, Viewer, Remediation lead, AppSec engineer, CI integrator |
-| PUT | `/api/v1/ci/gate-baselines/{id}` | `scans:ci:policy` | scoped: a repository's CI gate baseline: read, recorded and removed only for a repository in the caller's data scope, 404 otherwise (RFC-051) | yes | Owner, Administrator, AppSec engineer |
+| PUT | `/api/v1/ci/gate-baselines/{id}` | `scans:ci:policy` | scoped: a repository's CI gate baseline: read, recorded and removed only for a repository in the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, AppSec engineer |
 | GET | `/api/v1/ci/gate-overrides` | `scans:ci:read` | scoped: break-glass overrides: listed and created only on repositories in the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, Member, Viewer, Remediation lead, AppSec engineer, CI integrator |
-| POST | `/api/v1/ci/gate-overrides` | `scans:ci:override` | scoped: break-glass overrides: listed and created only on repositories in the caller's data scope, 404 otherwise (RFC-051) | yes | Owner, Administrator, AppSec engineer |
+| POST | `/api/v1/ci/gate-overrides` | `scans:ci:override` | scoped: break-glass overrides: listed and created only on repositories in the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, AppSec engineer |
 | POST | `/api/v1/ci/gate-overrides/{id}/revoke` | `scans:ci:override` | scoped: break-glass overrides: listed and created only on repositories in the caller's data scope, 404 otherwise (RFC-051) |  | Owner, Administrator, AppSec engineer |
 | GET | `/api/v1/ci/gate-policies` | `scans:ci:read` | scoped: CI gate policies: a repository policy is listed and managed only for a repository in the caller's data scope (404 otherwise); organization and business unit policies are changed only with an unrestricted scope (RFC-051) |  | Owner, Administrator, Member, Viewer, Remediation lead, AppSec engineer, CI integrator |
 | POST | `/api/v1/ci/gate-policies` | `scans:ci:policy` | scoped: CI gate policies: a repository policy is listed and managed only for a repository in the caller's data scope (404 otherwise); organization and business unit policies are changed only with an unrestricted scope (RFC-051) |  | Owner, Administrator, AppSec engineer |
@@ -75,5 +75,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | DELETE | `/api/v1/ci/trust-configs/{id}` | `scans:ci:write` | config: CI trust configurations: tenant configuration (RFC-051) |  | Owner, Administrator |
 | GET | `/api/v1/ci/trust-configs/{id}` | `scans:ci:read` | config: CI trust configurations: tenant configuration (RFC-051) |  | Owner, Administrator, Member, Viewer, Remediation lead, AppSec engineer, CI integrator |
 | PUT | `/api/v1/ci/trust-configs/{id}` | `scans:ci:write` | config: CI trust configurations: tenant configuration (RFC-051) | yes | Owner, Administrator |
+| POST | `/api/v1/ci/trust-configs/{id}/allow` | `scans:ci:write` | config: CI trust configurations: tenant configuration (RFC-051) | yes | Owner, Administrator |
+| GET | `/api/v1/ci/trust-configs/{id}/new-repositories` | `scans:ci:write` | config: CI trust configurations: tenant configuration (RFC-051) |  | Owner, Administrator |
+| POST | `/api/v1/ci/trust-configs/{id}/new-repositories/decisions` | `scans:ci:write` | config: CI trust configurations: tenant configuration (RFC-051) | yes | Owner, Administrator |
 | GET | `/api/v1/ci/trust-refusals` | `scans:ci:write` | config: refused CI token exchanges from the audit log: CI trust administration (scans:ci:write), RFC-051 |  | Owner, Administrator |
+| GET | `/api/v1/ci/trust-refusals/unverified` | `scans:ci:write` | config: CI tokens refused before verification, per issuer: CI trust administration (scans:ci:write) |  | Owner, Administrator |
 | POST | `/api/v1/hooks/github-app` | no permission: public: the GitHub App webhook secret (HMAC-SHA256 over the raw body) is the credential, verified before anything is read; per-IP limit; only installation status events change anything (RFC-077) | system: GitHub App webhook: HMAC-verified installation status events (RFC-077) |  | see Requires |

@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 31
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Sign-in and own account: permissions
 
@@ -48,9 +48,9 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/auth/register` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/resend-verification` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/reset-password` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
-| POST | `/api/v1/auth/saml/{org}/acs` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
-| GET | `/api/v1/auth/saml/{org}/login` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
-| GET | `/api/v1/auth/saml/{org}/metadata` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| POST | `/api/v1/auth/saml/{connection}/acs` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| GET | `/api/v1/auth/saml/{connection}/login` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
+| GET | `/api/v1/auth/saml/{connection}/metadata` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/sso/providers` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | GET | `/api/v1/auth/sso/{provider}/authorize` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
 | POST | `/api/v1/auth/sso/{provider}/callback` | no permission: public auth flow / self-scoped (login, register, oauth, sso, saml, logout) | system: authentication flows |  | see Requires |
@@ -64,6 +64,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/me/account/deletion` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | GET | `/api/v1/me/bootstrap` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | GET | `/api/v1/me/event-types` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
+| POST | `/api/v1/me/memberships/{id}/leave` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets | yes | see Requires |
 | GET | `/api/v1/me/modules` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | GET | `/api/v1/me/ownership-invitations` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets |  | see Requires |
 | POST | `/api/v1/me/ownership-invitations/{id}/accept` | no permission: self-scoped: /me/* reads the caller's own perms/modules/roles | system: the caller's own permissions, groups and assets | yes | see Requires |
