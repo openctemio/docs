@@ -924,17 +924,16 @@ an SLA or an export counts: they keep reading the status.
 - Resolving a finding by hand needs the verify permission.
 - Who approves, and how many people, is set under **Organization settings ›
   Approvals** (see [Settings](10-settings-and-integrations.md#approvals)).
-  The **Approval policy** section has two separate settings, **False positive** and
-  **Risk acceptance**, each **Always** (a second person, the default), **Only
+  The **False positives** and **Accepted risks** rows have two separate settings, each **Always** (a second person, the default), **Only
   for serious findings** (a second person for critical or high findings, known
   exploited vulnerabilities, P0 or P1, a validated exploit, or a crown-jewel or
   internet-exposed asset) or **Never** (anyone with approval permission decides
   alone). Bulk changes, suppression rules, task exceptions, imports and
   automation always need a second person. A decision made by one person is
   audited, listed in the next daily approvals digest of the other approvers and
-  flagged for review when the finding later becomes more serious. Below it,
-  approvals are tiered by the risk of the finding, with a security pool and an
-  expiry for the decision.
+  flagged for review when the finding later becomes more serious. Their editors
+  also tier approvals by the risk of the finding; the **Approvers** and **Deadline
+  and high risk** rows set a security pool and an expiry for the decision.
   A request made by a ticket, a VEX statement or AI triage, with no person behind
   it, needs one more sign-off. When VEX `not_affected` statements in a scan report
   request false positives (`INGEST_VEX=enforce`), the approvers in scope are

@@ -344,8 +344,22 @@ access and never signs in.
 
 **Organization settings › Approvals** (`/settings/approvals`, earlier **Finding
 approvals** under Findings and assets) decides who approves false positives and
-accepted risks, and who is told. It is one page with one save bar; its rules are
+accepted risks, and who is told. The page is a short list of rows. Each row
+says in plain words what is set now and has a **Change** button; its rules are
 below with the other finding settings.
+
+- **Who approves** has one row per approval type: **False positives**,
+  **Accepted risks**, **Suppression rules** and **Scans**. The **Scans** row
+  shows the scan approval mode in force and links to its own page.
+  **What the tiers mean** is folded; open it to read it.
+- **For every request** has three more rows: **Approvers**, **Deadline and high
+  risk** and **Backup contact**.
+- **Change** opens that row's editor, a bottom sheet on a phone, with one
+  **Save**. Without `settings:write` the button reads **View** and opens the
+  same editor read-only, with no **Save**.
+- Changes that are waiting to take effect (see below) are listed together above
+  the rows, each with its time, with one **Cancel the waiting changes** button.
+  The row they affect says when the lower setting takes effect.
 
 ## Findings and assets
 
@@ -353,25 +367,27 @@ below with the other finding settings.
   sub-statuses, the moves between statuses and the requirements each move
   needs. See [Exposures and findings](05-exposures-and-findings.md).
 - **Approvals** (`/settings/approvals`): who decides false
-  positives and accepted risks, and who is told. The **Approval policy** section
-  sets, separately, whether a second person approves a **False positive** and a
-  **Risk acceptance**: **Always** (the default), **Only for serious findings** or
-  **Never** (see [Known false positives](known-false-positives.md)). Whoever
+  positives and accepted risks, and who is told. The **False positives** and
+  **Accepted risks** rows set, separately, whether a second person approves:
+  **Always** (the default), **Only for serious findings** or **Never** (see
+  [Known false positives](known-false-positives.md)). Whoever
   decides, a reason is required, the decision is audited, and an accepted risk
-  ends on its date. Below it, **Approval tiers and approvers** sets how many
-  people approve each kind of request by how risky the finding is, a security
-  pool and how long a decision lasts; and a **Backup contact** is an advisor or
-  auditor outside the organization who is emailed when the only member approves
-  their own request. An organization with one member can accept a risk alone
-  only when **Risk acceptance** is **Only for serious findings** or **Never**;
-  such an acceptance ends sooner (7 days for P0 or known exploited, 45 for P1,
-  90 otherwise). A lower level (two people to one), a lower second-look share or other relaxing
-  change takes effect 24 hours after you save it, while it shows as waiting with
-  a **Cancel the change** button; it is audited as critical, and every owner,
-  administrator and approver is told (the notice says **Finding approvals
-  lowered** and names a lowered second-look share); a stricter one
-  applies at once. Changing it needs an owner or administrator with
-  `settings:write` and a recent sign-in.
+  ends on its date. Their editors also set how many people approve each kind of
+  request by how risky the finding is. The **Approvers** row sets a security
+  pool and who may approve; **Deadline and high risk** sets how long a decision
+  lasts; and a **Backup contact** is an advisor or auditor outside the
+  organization who is emailed when the only member approves their own request.
+  An organization with one member can accept a risk alone only when the
+  accepted-risk level is **Only for serious findings** or **Never**; such an
+  acceptance ends sooner (7 days for P0 or known exploited, 45 for P1, 90
+  otherwise). Lowering a protection stays owner only: a lower level (two people
+  to one), a lower second-look share or other relaxing change takes effect 24
+  hours after you save it, while it shows as waiting above the rows; one
+  **Cancel the waiting changes** button cancels every waiting change. It is
+  audited as critical, and every owner, administrator and approver is told (the
+  notice says **Finding approvals lowered** and names a lowered second-look
+  share); a stricter change applies at once. Changing it needs `settings:write`
+  and a recent sign-in.
 - **Vulnerability matching** (`/settings/vulnerability-matching`): opens
   findings when a published CVE affects a product version your assets run.
   Changing it needs an owner or administrator (`team:update`). See

@@ -77,7 +77,8 @@ merged pages, whose old addresses open the new page.
 
 Settings pages share one layout: one column of sections, one save bar at the
 bottom that appears when you change something, and a danger zone at the end
-where there is one. The settings overview (`/settings`) starts with a search box
+where there is one. Approvals is the exception: it is a list of rows, each
+with its own editor and **Save**. The settings overview (`/settings`) starts with a search box
 and **Needs attention**. See [Settings and integrations](10-settings-and-integrations.md).
 
 ## Lists
