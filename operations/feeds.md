@@ -204,9 +204,12 @@ the alert webhook (Console > Settings > Alerts) when:
 Each condition alerts once and sends one "resolved" notice when it clears;
 restarting the API does not repeat it. Open alerts are listed on the card. How old
 the data itself is gets watched in every mode, relay or direct, by the freshness
-check (catalog 12 hours, KEV 6 hours, EPSS 36 hours), which also shows the banner
+check (catalog and KEV 12 hours, EPSS 36 hours; KEV 6 hours before v0.24.2), which also shows the banner
 to every user; it replaced the relay's own 48-hour "feed out of date" alert from
-v0.24.0 ([Troubleshooting](vulnerability-feed-setup.md#troubleshooting)).
+v0.24.0 ([Troubleshooting](vulnerability-feed-setup.md#troubleshooting)). From v0.24.2 the
+bundle limit is a console setting, **System > Threat intelligence > How old the data may
+be** (6 to 168 hours, 12 by default); KEV follows it and EPSS gets that limit plus a day, at
+least 36 hours.
 
 **When no relay can reach the feeds.** The platform never falls back by itself.
 A super administrator either chooses **Switch to direct now** on the card

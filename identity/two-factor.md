@@ -238,6 +238,10 @@ organization's [re-verification policy](#re-verification-policy). The default is
   applying a preset);
 - deleting the organization; offboarding or erasing a member; removing a member's 2FA;
 - making someone an admin; transferring ownership; renaming the organization's slug;
+- from v0.24.2, creating, editing or deleting a role, applying a role template update, and
+  every way of granting a role: directly to a user (one or many), binding a role to a team,
+  changing a team's access or preset, sending an invitation, creating a user, and changing a
+  member's team role. Taking a role away is not gated;
 - changing who may join with a verified domain (**Settings > Access & security > Domains**); inviting someone outside the
   organization to a role above member; binding a role with administrative permissions to a team;
 - creating a sensor or regenerating its key; approving a sensor pairing; widening a sensor's grant;

@@ -80,7 +80,9 @@ provider's service); the token is the boundary.
 | `DELETE /Users/{id}` | Offboards the member (access, keys, groups and grants removed). If the person still owns work that must be reassigned, the membership is suspended instead and the organization's admins are notified to finish offboarding. |
 
 The account itself (global to the installation) is kept; other organizations are not affected.
-Provisioned people sign in through the organization's SSO, or set a password with **Forgot password**.
+Provisioned people sign in through the organization's SSO. Before v0.24.2 they could also set a
+password with **Forgot password**; from v0.24.2 an account the organization's SSO signed in and
+that has no password gets none by email (see [Sign-up and invitations](sign-up-and-invitations.md)).
 
 ## Roles from groups
 

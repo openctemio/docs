@@ -1093,7 +1093,7 @@ and point `VULNFEED_BUNDLE_DIR` (or `PROGRAMFEED_DIR`) at it, or have a platform
 sensor with internet access relay the files. The platform verifies the same
 signatures and hashes as online, refuses older sequences and bundles older than
 7 days, and keeps the previous data when a check fails. Data older than 12 hours
-(KEV 6 hours, EPSS 36 hours) shows as out of date with a banner for every user, so
+(EPSS 36 hours; KEV 6 hours before v0.24.2) shows as out of date with a banner for every user, so
 refresh the directory every few hours if you can, and at least weekly. Step by step:
 [Set up the vulnerability feed](../operations/vulnerability-feed-setup.md#offline-no-network-path).
 
@@ -1160,7 +1160,7 @@ the cadence and monitor it:
 | trivy database (sensors and your intake scanner) | Daily | Sensor **Setup & health**; content maximum ages under **Settings > Scanning > Scanner content** |
 | nuclei templates | Weekly | Same |
 | SAST rules pack | Per release | Same |
-| Vulnerability feed with KEV and EPSS | Every few hours for no banner (out of date after 12 hours, KEV 6 hours); at least weekly (bundles expire after 7 days) | Platform console, **System > Threat intelligence**, and the banner every user sees |
+| Vulnerability feed with KEV and EPSS | Every few hours for no banner (out of date after 12 hours; KEV 6 hours before v0.24.2); at least weekly (bundles expire after 7 days) | Platform console, **System > Threat intelligence**, and the banner every user sees |
 | Release information | With each intake (the feed expires after 45 days) | **Monitoring > Software updates** |
 
 Set maximum content ages in the scanner content policy, so a sensor whose

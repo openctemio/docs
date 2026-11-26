@@ -98,7 +98,10 @@ that".
 
 Both pages read the relationships between assets, so they fill in as discovery
 and relationship suggestions build the asset graph. With no relationships yet,
-they say so and link to the assets.
+they say so and link to the assets. From v0.24.2 both pages need the permission
+`attack_surface:paths:read` (the owner, admin and member roles have it; the viewer role does
+not). Right after the upgrade a member may see a 403 for a few minutes, until their
+permissions refresh or they sign in again.
 
 ![The Exposure chains page ranking chains from internet-facing entry points to assets with KEV findings]({{ site.baseurl }}/assets/images/user-guide/exposure-chains.png)
 *Figure: Exposure chains.*
