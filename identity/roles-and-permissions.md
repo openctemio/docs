@@ -53,8 +53,23 @@ display and sort order. Beyond these four, the
 - Making someone an admin needs an owner and a recent re-authentication
   ([step-up](two-factor.md#step-up-re-authentication)). Only an owner can change the role of
   another admin. An organization always keeps exactly one owner.
+- From v0.24.2, creating, editing or deleting a role, applying a template update and granting a
+  role in any way (directly, through a team binding, team access or preset, an invitation, a new
+  user or a member's team role) also need step-up. Outside the window the API answers
+  `403 STEP_UP_REQUIRED` and the web console asks for the code, then retries. Taking a role away
+  from a user is not gated.
 - Permission changes take effect on the next request: permissions are re-read per request (cached
   in Redis and invalidated on change).
+
+## Attack paths
+
+From v0.24.2, reading attack paths needs its own permission, `attack_surface:paths:read`, and
+`assets:read` is no longer enough. It covers attack-path scores and detail, exposure chains,
+threat models (generating one also needs `assets:write`), the "attack paths to crown jewels"
+dashboard widget and the MCP exposure-chain tool. Asset lists and relationships still need
+only `assets:read`. The upgrade gives the permission to the owner, admin and member roles and
+to every custom role that holds `assets:read`; the viewer role does not get it. An API key that
+should read attack paths needs the new scope, and an MCP application asks for `mcp:paths.read`.
 
 ## Custom roles
 
@@ -136,7 +151,7 @@ Permissions are named `module[:resource]:action`, for example `findings:triage` 
 | Team | `team:read/update/delete`; `team:members:read/invite/write`; `team:groups:read/write/delete/members/assets`; `team:roles:read/write/delete/assign`; `team:assignment_rules:*` |
 | Integrations | `integrations:read/manage`; `integrations:scm:*`; `integrations:notifications:*`; `integrations:api_keys:read/write/delete` |
 | Settings | `settings:sla:*` |
-| Attack surface | `attack_surface:scope:read/write/delete/approve`; `attack_surface:scope:exclusions:approve`; `attack_surface:programs:read/write` |
+| Attack surface | `attack_surface:scope:read/write/delete/approve`; `attack_surface:scope:exclusions:approve`; `attack_surface:programs:read/write`; `attack_surface:paths:read` |
 | Validation and pentest | `validation:read/write`; `pentest:campaigns:*`, `pentest:findings:*`, `pentest:retests:read/write`, `pentest:templates:read/write`, `pentest:checklists:manage`, `pentest:reports:write` |
 | Compliance | `compliance:frameworks:read`; `compliance:assessments:read/write`; `compliance:mappings:read/write` |
 | Reports, threat intel | `reports:read/write`; `threat_intel:read/write` |

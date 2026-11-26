@@ -80,7 +80,9 @@ them to the API):
   refresh token lasts 14 days, and a connection ends at the policy's **Connections last (days)**
   limit (1 to 90, default 90).
 - **Scopes.** Read: `mcp:findings.read`, `mcp:assets.read`, `mcp:compliance.read`,
-  `mcp:pentest.read` and `mcp:scope.read` (permission `attack_surface:scope:read`, for `check_scope`),
+  `mcp:pentest.read`, `mcp:scope.read` (permission `attack_surface:scope:read`, for `check_scope`)
+  and, from v0.24.2, `mcp:paths.read` (permission `attack_surface:paths:read`, for
+  `get_exposure_chains`, which `mcp:assets.read` no longer covers),
   offered up front and shown on the consent page. Write: `mcp:findings.comment`
   (`findings:comment`), `mcp:findings.propose` (`findings:write`) and `mcp:pentest.draft`
   (`pentest:findings:write`), never offered up front: granted only through an `insufficient_scope`

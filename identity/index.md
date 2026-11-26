@@ -45,7 +45,7 @@ never less.
 The identity provider is chosen by the organization in the sign-in link
 (`/login?org=<organization-slug>`), never by the email address. The diagram
 shows OpenID Connect; SAML 2.0 follows the same checks with the assertion posted
-to `/api/v1/auth/saml/{org}/acs`.
+to `/api/v1/auth/saml/<connection key>/acs` (before v0.24.2, `{org}`, the slug).
 
 ```mermaid
 sequenceDiagram
