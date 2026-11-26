@@ -74,6 +74,12 @@ jobs:
         if: steps.has.outputs.ok == 'true'
         run: bash scripts/regen-authz-reference.sh openctem
 
+      # The openctem checkout is source, not docs pages: drop it so the check
+      # scans only this repository (its server/docs would fail the language rule).
+      - name: Drop the openctem checkout
+        if: steps.has.outputs.ok == 'true'
+        run: rm -rf -- openctem
+
       - name: Check the pages
         if: steps.has.outputs.ok == 'true'
         run: python3 scripts/docs_check.py .
