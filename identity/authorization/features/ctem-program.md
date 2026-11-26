@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 16
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # CTEM program: permissions
 
@@ -13,7 +13,7 @@ The program layer: CTEM cycles, business services and units, attacker profiles, 
 
 - **CTEM stages:** scoping, prioritization
 - **Modules:** `attacker_profiles`, `business_services`, `business_units`, `compensating_controls`, `ctem_cycles`, `threat_model` (the routes answer `403 MODULE_NOT_ENABLED` when the module is off)
-- **Permissions:** `assets:read`, `assets:write`, `ctem:attacker_profiles:read`, `ctem:attacker_profiles:write`, `ctem:business_services:read`, `ctem:business_services:write`, `ctem:compensating_controls:read`, `ctem:compensating_controls:write`, `ctem:cycles:read`, `ctem:cycles:write`
+- **Permissions:** `assets:read`, `assets:write`, `attack_surface:paths:read`, `ctem:attacker_profiles:read`, `ctem:attacker_profiles:write`, `ctem:business_services:read`, `ctem:business_services:write`, `ctem:compensating_controls:read`, `ctem:compensating_controls:write`, `ctem:cycles:read`, `ctem:cycles:write`
 
 ## Who can do it
 
@@ -23,6 +23,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 |---|---|
 | `assets:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Validation engineer, Validation lead, Detection engineer, External tester, Researcher, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
 | `assets:write` | Owner, Administrator, Member, AppSec engineer |
+| `attack_surface:paths:read` | Owner, Administrator, Member, CTEM program lead, Security analyst, Vulnerability manager, Validation engineer, Validation lead, Detection engineer, Threat intelligence analyst |
 | `ctem:attacker_profiles:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Validation engineer, Validation lead, Detection engineer, Threat intelligence analyst |
 | `ctem:attacker_profiles:write` | Owner, Administrator, CTEM program lead, Validation lead, Threat intelligence analyst |
 | `ctem:business_services:read` | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Risk approver, Auditor, Executive viewer |
@@ -78,7 +79,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/ctem-cycles/{id}/scope` | `ctem:cycles:read` | partial: scope snapshot scoped (L-10); cycle metrics are tenant-wide counts |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Validation lead, Detection engineer, Risk approver, Auditor, Executive viewer |
 | POST | `/api/v1/ctem-cycles/{id}/scope-refinement` | `ctem:cycles:write` | partial: scope snapshot scoped (L-10); cycle metrics are tenant-wide counts |  | Owner, Administrator, Member, CTEM program lead |
 | POST | `/api/v1/ctem-cycles/{id}/start-review` | `ctem:cycles:write` | partial: scope snapshot scoped (L-10); cycle metrics are tenant-wide counts |  | Owner, Administrator, Member, CTEM program lead |
-| GET | `/api/v1/threat-models` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Validation engineer, Validation lead, Detection engineer, External tester, Researcher, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| POST | `/api/v1/threat-models/generate` | `assets:write` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, AppSec engineer |
-| GET | `/api/v1/threat-models/{id}` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Validation engineer, Validation lead, Detection engineer, External tester, Researcher, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
-| GET | `/api/v1/threat-models/{id}/coverage` | `assets:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, CI integrator, Scan operator, Validation engineer, Validation lead, Detection engineer, External tester, Researcher, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor, Executive viewer |
+| GET | `/api/v1/threat-models` | `attack_surface:paths:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, CTEM program lead, Security analyst, Vulnerability manager, Validation engineer, Validation lead, Detection engineer, Threat intelligence analyst |
+| POST | `/api/v1/threat-models/generate` | `assets:write`, `attack_surface:paths:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member |
+| GET | `/api/v1/threat-models/{id}` | `attack_surface:paths:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, CTEM program lead, Security analyst, Vulnerability manager, Validation engineer, Validation lead, Detection engineer, Threat intelligence analyst |
+| GET | `/api/v1/threat-models/{id}/coverage` | `attack_surface:paths:read` | scoped: threat model scope (L-10) |  | Owner, Administrator, Member, CTEM program lead, Security analyst, Vulnerability manager, Validation engineer, Validation lead, Detection engineer, Threat intelligence analyst |

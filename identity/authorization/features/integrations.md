@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 27
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Integrations and API keys: permissions
 
@@ -49,24 +49,25 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/integrations/jira/projects` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | GET | `/api/v1/integrations/notifications` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | POST | `/api/v1/integrations/notifications` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
+| POST | `/api/v1/integrations/notifications/preview` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/scm` | `integrations:read`, `integrations:scm:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | POST | `/api/v1/integrations/test-credentials` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/ticket-mappings` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | POST | `/api/v1/integrations/ticket-mappings` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/ticket-mappings/catalog` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
-| DELETE | `/api/v1/integrations/ticket-mappings/{mapping_id}` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
+| DELETE | `/api/v1/integrations/ticket-mappings/{mapping_id}` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/ticket-mappings/{mapping_id}` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/copy` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/ticket-mappings/{mapping_id}/diff` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | DELETE | `/api/v1/integrations/ticket-mappings/{mapping_id}/draft` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | PUT | `/api/v1/integrations/ticket-mappings/{mapping_id}/draft` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/drift` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
-| POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/dry-run` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
+| POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/dry-run` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | GET | `/api/v1/integrations/ticket-mappings/{mapping_id}/export` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/import` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/inbound-preview` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/preview` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
-| POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/publish` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) | yes | Owner, Administrator |
+| POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/publish` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/rollback` | `integrations:manage` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/simulate` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |
 | POST | `/api/v1/integrations/ticket-mappings/{mapping_id}/suggest` | `integrations:read` | config: integrations; delivery history is channel-manager only (L-03) |  | Owner, Administrator, Member, Viewer, AppSec engineer, CI integrator |

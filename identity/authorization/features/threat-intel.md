@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 24
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Threat intelligence: permissions
 
@@ -47,6 +47,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/threat-intel/enrich/{cveId}` | `findings:vulnerabilities:read` | system: global EPSS/KEV feeds |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | GET | `/api/v1/threat-intel/epss/stats` | `findings:vulnerabilities:read` | system: global EPSS/KEV feeds |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | GET | `/api/v1/threat-intel/epss/{cveId}` | `findings:vulnerabilities:read` | system: global EPSS/KEV feeds |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
+| GET | `/api/v1/threat-intel/freshness` | no permission: auth-only, platform-wide state: whether the platform's vulnerability data is current and since when (the stale-data banner every signed-in user sees); no organization data, answered from one cached platform setting | system: global EPSS/KEV feeds |  | see Requires |
 | GET | `/api/v1/threat-intel/kev/stats` | `findings:vulnerabilities:read` | system: global EPSS/KEV feeds |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | GET | `/api/v1/threat-intel/kev/{cveId}` | `findings:vulnerabilities:read` | system: global EPSS/KEV feeds |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
 | GET | `/api/v1/threat-intel/stats` | `findings:vulnerabilities:read` | system: global EPSS/KEV feeds |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |

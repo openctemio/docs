@@ -5,7 +5,7 @@ nav_order: 3
 has_children: true
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Authorization reference
 
@@ -26,29 +26,29 @@ A refused permission answers 403 with `details.missing_permissions` (or `details
 
 | Feature | Modules | Routes |
 |---|---|---|
-| [Findings](features/findings.md) | `ai_triage` | 193 |
+| [Findings](features/findings.md) | `ai_triage` | 217 |
 | [Exposures and leaked credentials](features/exposures.md) | `attack_surface`, `credentials`, `exposures` | 33 |
-| [Assets and inventory](features/assets.md) | `attack_surface`, `branches`, `components`, `relationships` | 150 |
-| [Attack surface and EASM](features/attack-surface.md) | `attack_surface` | 43 |
-| [Scope](features/scope.md) | `scope_config` | 37 |
+| [Assets and inventory](features/assets.md) | `attack_surface`, `branches`, `components`, `relationships` | 156 |
+| [Attack surface and EASM](features/attack-surface.md) | `attack_surface` | 56 |
+| [Scope](features/scope.md) | `scope_config` | 42 |
 | [Bug-bounty programs](features/programs.md) | `scope_config` | 20 |
 | [CTEM program](features/ctem-program.md) | `attacker_profiles`, `business_services`, `business_units`, `compensating_controls`, `ctem_cycles`, `threat_model` | 46 |
-| [Prioritization and SLAs](features/prioritization.md) | `priority_rules` | 13 |
+| [Prioritization and SLAs](features/prioritization.md) | `priority_rules` | 14 |
 | [Remediation and automation](features/remediation.md) | `remediation`, `workflows` | 95 |
-| [Scans and workflows](features/scans.md) | `scan_workflows`, `scanner_templates`, `scans`, `template_sources` | 194 |
-| [Sensors and scan zones](features/sensors.md) |  | 115 |
-| [CI pipelines](features/ci.md) | `scans` | 47 |
-| [Penetration testing](features/pentest.md) | `pentest` | 75 |
+| [Scans and workflows](features/scans.md) | `scan_workflows`, `scanner_templates`, `scans`, `template_sources` | 200 |
+| [Sensors and scan zones](features/sensors.md) |  | 119 |
+| [CI pipelines](features/ci.md) | `scans` | 51 |
+| [Penetration testing](features/pentest.md) | `pentest` | 80 |
 | [Validation and simulation](features/validation.md) | `attack_simulation`, `control_testing` | 18 |
-| [Threat intelligence](features/threat-intel.md) | `iocs`, `threat_intel` | 22 |
+| [Threat intelligence](features/threat-intel.md) | `iocs`, `threat_intel` | 23 |
 | [Compliance](features/compliance.md) | `compliance` | 12 |
 | [Dashboards and reports](features/dashboards-reports.md) | `reports` | 48 |
-| [Integrations and API keys](features/integrations.md) | `integrations`, `scans` | 69 |
+| [Integrations and API keys](features/integrations.md) | `integrations`, `scans` | 70 |
 | [Members, roles and teams](features/access.md) |  | 99 |
-| [Organization settings and audit](features/organization.md) |  | 102 |
+| [Organization settings and audit](features/organization.md) |  | 104 |
 | [MCP and AI clients](features/mcp.md) |  | 32 |
-| [Sign-in and own account](features/account.md) |  | 79 |
-| [Platform admin console](features/admin-console.md) |  | 226 |
+| [Sign-in and own account](features/account.md) |  | 80 |
+| [Platform admin console](features/admin-console.md) |  | 240 |
 | [System endpoints](features/system.md) |  | 15 |
 
 ## Data scope classes
