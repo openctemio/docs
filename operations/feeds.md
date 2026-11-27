@@ -71,10 +71,17 @@ A bundle that fails a check is not imported; the previous data stays.
 | Variable | Default | Meaning |
 |---|---|---|
 | `VULNFEED_ROOT_KEY_ID` | the official root | The pinned root key id (`SHA256:...`, `keys/root-keyid.txt` of the vulnfeed-bundles repository). Set it only to trust a feed you sign yourself. Platforms older than the release that built the official root in need it set. |
-| `VULNFEED_BASE_URL` | `https://github.com/openctemio/vulnfeed-bundles/releases` | Where the releases are |
-| `VULNFEED_MIRRORS` | empty | Comma-separated https mirrors, tried after the release |
-| `VULNFEED_BUNDLE_DIR` | empty | Air-gapped: a directory holding the files of one release |
+| `VULNFEED_BASE_URL` | `https://github.com/openctemio/vulnfeed-bundles/releases` | Where the releases are. Setting it pins the address; unset, a platform owner changes it in the console |
+| `VULNFEED_MIRRORS` | empty | Comma-separated https mirrors, tried after the release (direct mode only). Setting it pins the address too |
+| `VULNFEED_BUNDLE_DIR` | empty | Air-gapped: a directory holding the files of one release (server only; the console shows whether it is set) |
 | `FEED_CACHE_DIR` | `<system temp dir>/openctem-feeds` | Cache of verified chunks between imports |
+
+The release address and the mirrors are also managed in **Console > System > Threat
+intelligence > Vulnerability feed address** (platform owner, fresh authenticator code,
+reason; audited), with a **Test fetch** that checks each address against the signing root
+without importing ([console](../console/scanning.md#vulnerability-feed-address)). The
+environment variables are the default; when either is set the console shows the address
+locked. The root key id stays a server setting: it is what every file is checked against.
 
 The `vuln-feed-import` worker runs every 20 minutes. On a platform older than
 the built-in root, with `VULNFEED_ROOT_KEY_ID` unset it imports nothing; the `vulnfeed` row of the
@@ -145,8 +152,8 @@ Set it up on an existing installation:
    [`SENSOR_FEED_RELAY=0`](../sensors/settings.md#SENSOR_FEED_RELAY) on a host
    that must not. An organization's sensor never relays.
 2. The platform needs its **job signer** (it signs every relay round). A relay
-   downloads only from the official origins (`VULNFEED_BASE_URL`; the direct-mode
-   mirrors in `VULNFEED_MIRRORS` are not used). To relay from your own mirror, add
+   downloads only from the release address in force (the console's Vulnerability feed
+   address, else `VULNFEED_BASE_URL`; the direct-mode mirrors are not used). To relay from your own mirror, add
    it to `SIGNER_FEED_ORIGINS` on the signer **and**
    [`SENSOR_FEED_RELAY_ORIGINS`](../sensors/settings.md#SENSOR_FEED_RELAY_ORIGINS)
    on the sensor.
