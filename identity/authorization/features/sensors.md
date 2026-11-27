@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 20
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Sensors and scan zones: permissions
 
@@ -76,6 +76,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/sensors/content-policy` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | PUT | `/api/v1/sensors/content-policy` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | POST | `/api/v1/sensors/content/refresh` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
+| GET | `/api/v1/sensors/core-addresses` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | GET | `/api/v1/sensors/custom-products` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | DELETE | `/api/v1/sensors/custom-products/{product}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | PUT | `/api/v1/sensors/custom-products/{product}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
@@ -97,7 +98,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v1/sensors/tool-defaults` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | DELETE | `/api/v1/sensors/tool-defaults/{tool}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | PUT | `/api/v1/sensors/tool-defaults/{tool}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
-| DELETE | `/api/v1/sensors/{id}` | `sensors:delete` | config: sensor management; host details, quarantined results and config reports are owner/admin only | yes | Owner, Administrator |
+| DELETE | `/api/v1/sensors/{id}` | `sensors:delete` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | GET | `/api/v1/sensors/{id}` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | PUT | `/api/v1/sensors/{id}` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | POST | `/api/v1/sensors/{id}/activate` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
@@ -115,6 +116,7 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/sensors/{id}/keys/{key_id}/revoke` | one of `sensors:revoke`, `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | GET | `/api/v1/sensors/{id}/manifest` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | GET | `/api/v1/sensors/{id}/manifests` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
+| GET | `/api/v1/sensors/{id}/readiness` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
 | POST | `/api/v1/sensors/{id}/regenerate-key` | `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only | yes | Owner, Administrator |
 | POST | `/api/v1/sensors/{id}/revoke` | one of `sensors:revoke`, `sensors:write` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator |
 | GET | `/api/v1/sensors/{id}/tool-settings` | `sensors:read` | config: sensor management; host details, quarantined results and config reports are owner/admin only |  | Owner, Administrator, Member, Viewer, Scan operator, Sensor operator |
@@ -142,6 +144,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | GET | `/api/v2/sensor/hello` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
 | POST | `/api/v2/sensor/identity/bind` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
 | POST | `/api/v2/sensor/keys` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
+| GET | `/api/v2/sensor/lookups/next` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
+| POST | `/api/v2/sensor/lookups/{job_id}/done` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
 | GET | `/api/v2/sensor/manifest` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
 | PUT | `/api/v2/sensor/manifest` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |
 | POST | `/api/v2/sensor/pairings` | no permission: sensor protocol v2 (RFC-026): only the sensor authenticator (SensorResultsV2Handler.Authenticate); tenant from the key, user JWT/cookie/oct_ refused | system: sensor protocol v2 (write-only, tenant from the key) |  | see Requires |

@@ -14,17 +14,33 @@ one SAML configuration, and it is disabled until enabled.
 
 ## Service Provider values
 
-Give these to your identity provider. `{slug}` is the organization's slug and `<APP_URL>` is the
-public origin of the installation (`APP_URL`; with the bundled gateway it is set from
-`OPENCTEM_PUBLIC_URL`).
+Give these to your identity provider. `<key>` is the organization's SAML connection key and
+`<APP_URL>` is the public origin of the installation (`APP_URL`; with the bundled gateway it is
+set from `OPENCTEM_PUBLIC_URL`). Copy the exact addresses from the SAML page of the
+organization in the admin console; do not build them by hand.
 
 | Item | Value |
 |---|---|
-| SP metadata | `<APP_URL>/api/v1/auth/saml/{slug}/metadata` (public; import it if your IdP supports it) |
-| Entity ID (audience) | `<APP_URL>/api/v1/auth/saml/{slug}/metadata` |
-| Assertion Consumer Service (HTTP-POST) | `<APP_URL>/api/v1/auth/saml/{slug}/acs` |
-| Sign-in start (SP-initiated) | `<APP_URL>/api/v1/auth/saml/{slug}/login` |
+| SP metadata | `<APP_URL>/api/v1/auth/saml/<key>/metadata` (public; import it if your IdP supports it) |
+| Entity ID (audience) | `<APP_URL>/api/v1/auth/saml/<key>/metadata` |
+| Assertion Consumer Service (HTTP-POST) | `<APP_URL>/api/v1/auth/saml/<key>/acs` |
+| Sign-in start (SP-initiated) | `<APP_URL>/api/v1/auth/saml/<key>/login` |
 | NameID format | `emailAddress` (or `persistent`, see below) |
+
+From v0.24.2 the key is a random id of the SAML connection, not the organization's name.
+Renaming the organization or changing its slug does not change the addresses, and an
+organization's current slug never addresses another organization's connection. A super admin
+creates the address in the console with **Create the SAML address** (an audited action that
+asks for a fresh authenticator code); saving or validating a configuration does not create
+one. Deleting the configuration removes its address.
+
+**Configurations from before v0.24.2** keep their old address, built on the slug the
+organization had when it was upgraded, so nothing changes at the identity provider. That
+address is frozen to that configuration, survives a rename, is deprecated, and each sign-in
+through it logs a warning. To move to a permanent address, delete and recreate the
+configuration, then register the new address at the identity provider. Before upgrading,
+check whether an organization that uses SAML gave up its slug and another organization took
+it; see [Upgrade](../operations/upgrade.md#from-v0240-or-v0241-to-v0242).
 
 The origin of these addresses, and so the audience an assertion must carry, comes from `APP_URL`
 only. From v0.24.0 nothing of a request takes part (not the `Host` header, not `X-Forwarded-Host`),

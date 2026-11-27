@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 1
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Role and permission matrix
 
@@ -69,6 +69,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `assets:import` | Import Assets: Import assets from external sources | ✓ | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `assets:read` | View Assets: View asset details and list | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |  | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | `assets:write` | Manage Assets: Create and update assets | ✓ | ✓ | ✓ |  |  |  |  |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| `attack_surface:paths:read` | View Attack Paths: View computed attack routes: attack-path scores and detail, exposure chains and threat models | ✓ | ✓ | ✓ |  | ✓ | ✓ | ✓ |  |  |  |  |  |  | ✓ | ✓ | ✓ |  |  |  | ✓ |  |  |  |
 | `attack_surface:programs:read` | View Programs: View bug-bounty programs, their scope, rules and snapshots (RFC-065) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |
 | `attack_surface:programs:write` | Manage Programs: Import, re-import, pause, resume and end bug-bounty programs and attest to their terms (RFC-065) | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |  |  |  |  |
 | `attack_surface:scope:approve` | Approve Scope Changes: Create effective scope entries and approve or reject scope requests and widenings (RFC-054) | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
@@ -124,6 +125,7 @@ Columns: built-in roles, then templates. Owner and administrator pass every chec
 | `findings:remediation:write` | Manage Remediation: Create and update tasks | ✓ | ✓ | ✓ |  |  |  | ✓ |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `findings:retest_checks:write` | Manage Finding Retest Checks: Attach, change and remove the custom check a finding's retest runs | ✓ | ✓ |  |  |  | ✓ | ✓ |  |  | ✓ |  |  |  | ✓ | ✓ |  |  |  |  |  |  |  |  |
 | `findings:severity` | Change Finding Severity: Change the severity and classification of findings | ✓ | ✓ | ✓ |  |  | ✓ | ✓ |  |  | ✓ |  |  |  | ✓ | ✓ |  |  |  | ✓ | ✓ |  |  |  |
+| `findings:sources:retire` | Retire Import Sources: Stop using an import source: block its data and archive the findings only it reported, and restore it | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | `findings:status` | Change Status: Update finding status | ✓ | ✓ | ✓ |  |  | ✓ | ✓ | ✓ | ✓ | ✓ |  |  |  |  |  |  |  | ✓ | ✓ |  |  |  |  |
 | `findings:suppressions:approve` | Approve Suppressions: Approve suppression requests | ✓ | ✓ |  |  | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ✓ |  |  |
 | `findings:suppressions:delete` | Delete Suppression Rules: Remove suppression rules | ✓ | ✓ |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

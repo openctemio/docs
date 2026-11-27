@@ -6,7 +6,7 @@ nav_order: 0.5
 
 # What changed in the new interface
 
-The web console has a new look. Your data, your permissions and the CTEM
+The web console has a new look from v0.25.0. Earlier releases (v0.24.2 and before) keep the previous interface. Your data, your permissions and the CTEM
 stages in the sidebar are the same, and old links keep working. This page lists
 what moved and what now works differently, so you can find your way at once.
 

@@ -36,7 +36,8 @@ Which sensor, SDK, CI runner and chart releases go with the current platform rel
 | From | To | Guide |
 |---|---|---|
 | CTIS 1.x | CTIS 2.0 | [Migrating to CTIS 2.0](ctis-2-migration.md): platform, sensors, `openctem-ci`, the Tenable connector and the asset collector are upgraded together; data migrates on start; rollback restores the pre-upgrade backup. |
-| v0.23.x | v0.24.0 and v0.24.1 | [From v0.23 to v0.24](#from-v023-to-v024) below, for the vulnerability feed: the platform no longer fetches CISA KEV or EPSS itself (they arrive only inside the signed vulnerability feed), and every user sees a banner while vulnerability data is missing or out of date. |
+| v0.24.0 or v0.24.1 | v0.24.2 | [From v0.24.0 or v0.24.1 to v0.24.2](#from-v0240-or-v0241-to-v0242) below: a security hotfix with three additive migrations; check your SAML organizations before upgrading. Every change: [v0.24.2](/operations/releases/v0-24-2/). |
+| v0.23.x | v0.24.0 to v0.24.2 | [From v0.23 to v0.24](#from-v023-to-v024) below, for the vulnerability feed: the platform no longer fetches CISA KEV or EPSS itself (they arrive only inside the signed vulnerability feed), and every user sees a banner while vulnerability data is missing or out of date. |
 | v0.22.x | v0.23.0 | [From v0.22 to v0.23](#from-v022-to-v023) below: the server image is renamed `openctem-server` (change a custom `API_IMAGE`, Helm `api.image.repository`, mirror, replication rule or admission policy that names `openctem-api`), PostgreSQL 17.12, findings can be held, IP range filters read recorded addresses (a backfill runs after the migration), a one-command Compose install. Every change: [v0.23.0](/operations/releases/v0-23-0/). |
 | v0.21.x | v0.22.0 | [From v0.21 to v0.22](#from-v021-to-v022) below: unset every `ADMIN_AUDIT_SINK*` setting before you start the new release (the server refuses to start while one is set); sensor v0.41.1 and later need platform v0.22.0, so upgrade the platform first. |
 | v0.20.x | v0.21.0 | [From v0.20 to v0.21](#from-v020-to-v021) below: 59 migrations (two data migrations), three removed `CERT_MONITOR_*` variables stop the API from starting, sensor task credentials arrive sealed per task (bearer-key sensors are paired again, scans with a credential in their settings are edited), new pairings are signed (sensor v0.40 and later need this release), Certificate Transparency moves to platform sensors, operator commands for existing findings. Every change: [v0.21.0](/operations/releases/v0-21-0/). |
@@ -87,6 +88,39 @@ together. Then check:
 - **Retention.** A new hourly job deletes applied uploads and finished jobs (after 30 days).
 
 See [Ingesting results](../api/ingest.md).
+
+### From v0.24.0 or v0.24.1 to v0.24.2
+
+v0.24.2 is a security hotfix. It has three migrations. All three only add data (no table,
+column or row is removed or rewritten), so you can still roll back to v0.24.1.
+
+| Migration | What it does |
+|---|---|
+| `20261126022931_attack_paths_read_permission` | Adds the `attack_surface:paths:read` permission and gives it to the owner, admin and member roles and to every custom role that has `assets:read`. The viewer role does not get it. |
+| `20261126024604_saml_connection_addresses` | Freezes each existing SAML configuration's current address and adds the table for the new connection addresses. |
+| `20261126054521_users_organization_sso_sign_in` | Records, per account, the first organization single sign-on that signed it in, filled from existing SSO identities. |
+
+- **Before upgrading, check your SAML organizations.** An organization that uses SAML may have
+  given up its slug (by renaming) and another organization may have taken that slug since the
+  identity provider was configured. The identity provider still posts to the old slug address,
+  and the upgrade freezes that address to the organization that holds the slug when the
+  migration runs. Fix such a case by recreating the affected SAML configuration after the
+  upgrade and registering its new address at the identity provider.
+- **Existing SAML connections keep working.** Their current address is frozen, survives a
+  rename, is deprecated and logs a warning at each sign-in. To move one to a permanent address,
+  recreate the configuration and upload its new metadata to the identity provider
+  ([SAML 2.0](../identity/sso-saml.md#service-provider-values)).
+- **Attack paths.** For a few minutes after the upgrade a signed-in member may get 403 on the
+  attack-path pages, until their cached permissions refresh or they sign in again. An API key
+  that should read attack paths needs the new scope, and an MCP application asks for
+  `mcp:paths.read`.
+- **Role changes and invitations need a recent sign-in.** A script that creates users, sends
+  invitations or grants roles through a user session must handle `403 STEP_UP_REQUIRED`.
+- **Vulnerability feed.** The default stale limit for KEV is now 12 hours (it was 6). Feed
+  variables you set in `.env` (`VULNFEED_BASE_URL`, `VULNFEED_MIRRORS`, `VULNFEED_BUNDLE_DIR`,
+  `VULNFEED_ROOT_KEY_ID` and the feed proxy settings) now reach the API with Docker Compose, so
+  check them on **System > Threat intelligence** after the upgrade
+  ([Set up the vulnerability feed](vulnerability-feed-setup.md)).
 
 ### From v0.23 to v0.24
 

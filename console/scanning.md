@@ -181,3 +181,27 @@ to administrators. **Switch to direct now** (confirmed, audited) is the escape h
 platform never falls back on its own. A new Compose install with the bundled sensor starts in
 relay mode; an existing installation stays direct until you choose. Setup, reasons and alerts:
 [Feeds](../operations/feeds.md#feed-relay-no-outbound-access-from-the-platform).
+
+### Vulnerability feed address
+
+The **Vulnerability feed address** card, next to Feed delivery, sets where the signed
+vulnerability feed is downloaded from: the **release address** and up to five **mirrors**
+tried after it. The card shows the delivery mode; in relay mode the relay sensors download
+from the release address and the mirrors are marked as used in direct mode only. Addresses
+must be https, without a user name, password, query or fragment, and must not point to an
+internal network. Saving needs a platform owner, a fresh authenticator code and a reason; the
+change applies at the next sync without a restart, is recorded in the admin activity with the
+old and new addresses, and every administrator is told. While the server sets
+`VULNFEED_BASE_URL` or `VULNFEED_MIRRORS`, the card is locked: change it on the server, or
+remove the variables to manage the address here.
+
+**Test fetch** downloads the newest signed release index from each address and checks it
+against the signing root, without importing anything: each address shows **Verified** with
+the release number, or why it failed (not found, an error status, an internal address, or
+files not signed by the trusted root). It is off in relay mode and when the server reads the
+feed from a local folder, because the platform then makes no outbound request.
+
+Two values are only shown, never changed here: the **signing root** (**Official root** or
+**Custom root (set on the server)**, with its key fingerprint) and whether a **local feed
+folder** is set on the server (never its path). Every downloaded file is checked against the
+signing root, so a wrong address can stop the feed but never change what is imported.

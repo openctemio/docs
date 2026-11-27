@@ -37,8 +37,8 @@ sign-in to another organization counts.
 Operations admin or above, with a confirmation:
 
 1. Click **New organization**.
-2. Enter the **Name**, the **Short name** (used in URLs, including the SAML sign-in
-   addresses), the **Owner email** and, optionally, the owner name and a
+2. Enter the **Name**, the **Short name** (used in URLs; from v0.24.2 the SAML sign-in
+   addresses no longer contain it), the **Owner email** and, optionally, the owner name and a
    description.
 3. Click **Create organization**.
    - **A new person** (no account yet): an account is created and becomes the
