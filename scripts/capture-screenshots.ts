@@ -23,7 +23,8 @@ const ROOT = join(HERE, '..', '..')
 const OUT = process.env.SHOTS_DIR ?? join(ROOT, 'assets', 'images')
 const TEXT_DIR = process.env.TEXT_DIR
 const MAX_BYTES = 300 * 1024
-const FILTER = process.argv[2] ? new RegExp(process.argv[2]) : null
+// The argument is a plain text to look for in "section/name", never a pattern.
+const FILTER = process.argv[2] ? new RegExp(process.argv[2].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) : null
 const st = loadState()
 const log = (...a: unknown[]) => console.log('[capture]', ...a)
 
