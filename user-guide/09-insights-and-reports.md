@@ -30,18 +30,18 @@ exposure falling), rather than how much activity there is.
 
 From v0.18.0 the page answers one question first and points at what to act on:
 
-![Program health: P0 fixed within target with the open findings curve, Where to act with three off-track or watched figures, and a strip of five headline tiles]({{ site.baseurl }}/assets/images/user-guide/program-health.png)
+![Program health: highest priority (P0) fixed within target, Where to act, and a strip of headline figures]({{ site.baseurl }}/assets/images/user-guide/program-health.png)
 *Figure: Insights, Program health.*
 
 
 - Choose the **Period**: Last 30 days, Last 90 days or Last year.
-- **P0 fixed within target**: one sentence, for example "4 of 5 P0 findings were fixed in the last
+- **Highest priority (P0) fixed within target**: one sentence, for example "4 of 5 P0 findings were fixed in the last
   90 days. The target is more than 90%." With no P0 open or fixed in the period it says there is
   nothing to divide instead of showing a number.
 - **Where to act**: links to the filtered lists behind the figures that are off track, such as **P0
   findings still open**, **P0 fixes take too long** (mean days to fix), **Findings past their SLA**,
-  **Assets without an owner**, **Open findings are not falling** and **Validation downgrades are out
-  of range**. When nothing is off track it says **Nothing is off track in this period.**
+  **Assets without an owner**, **Open findings are not falling** and **Too many findings ranked
+  lower after validation**. When nothing is off track it says **Nothing is off track in this period.**
 - One strip of up to five linked tiles with the headline figures (total open findings and its
   change, the remediation re-open rate, the validation downgrade %, and the like). A figure that
   opens no list is a plain row, never a tile. **Not measured** still means there is not enough data,
@@ -85,23 +85,23 @@ Use it to tell whether the attack surface is scanned often enough.
 **Insights › Executive summary** (`/insights/executive`) is the leadership view
 of risk posture, remediation performance and process health.
 
-![The Executive summary with risk score, findings resolved, the share of open findings within SLA, the time to fix and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
-*Figure: The Executive summary. The time-to-fix cards show a dash because no critical or high finding was fixed in the period.*
+![The Executive summary: risk score, open within SLA, open P0 and P1, crown jewels with open findings, and the top risks]({{ site.baseurl }}/assets/images/user-guide/insights-executive.png)
+*Figure: The Executive summary.*
 
 1. Choose the **Period**: Last 30 days, Last 90 days or Last year.
 2. The headline cards: **Risk score** (with the change from the previous period),
    **Findings resolved**, **Open within SLA** (the share of open findings that
-   have an SLA and are not past it, with the number breached), **P0 open**,
-   **P1 open**, **Crown jewels with open findings**, **Time to fix · critical
+   have an SLA and are not past it, with the number breached), **Highest priority open (P0)**,
+   **High priority open (P1)**, **Crown jewels with open findings**, **Time to fix · critical
    (median)** and **Time to fix · high (median)**. A time-to-fix card shows the
    median hours from detection to fix, and below it the mean, the 90th
    percentile and how many findings were fixed.
 3. **Top risks**: the highest-priority open findings that need executive
    attention, with severity, priority class, asset, EPSS and KEV.
-4. **MTTR by severity** and **MTTR by priority class** (P0 to P3). A severity or
+4. **Average time to fix by severity** and **Average time to fix by priority** (P0 to P3). A severity or
    priority class with no fixed finding is left out.
-5. **Process health**: **Approval avg time**, **Stale assets**, **Findings
-   without owner** and **Avg time to assign** (from finding creation to owner
+5. **Process health**: **Average approval time**, **Stale assets**, **Findings
+   without owner** and **Average time to assign** (from finding creation to owner
    assignment).
 
 A figure with nothing to measure shows a dash (**—**), never 0 or 100 %: **Open
@@ -124,8 +124,8 @@ as a transparent, weighted composite across your **closed** CTEM cycles:
 `score = Σ (component score × weight)`. Every component and its weight is shown,
 so you can check the number by hand.
 
-- The components: **Validation coverage**, **Resolution throughput**, **MTTR
-  trend**, **Priority stability** and **Scope stability**.
+- The components: **Validation coverage**, **Resolution throughput**, **Time
+  to fix trend**, **Priority stability** and **Scope stability**.
 - **Metric trends** across cycles.
 - **CTEM stage coverage** (Scoping, Discovery, Prioritization, Validation,
   Mobilization), reported next to the score but not part of it.
@@ -137,7 +137,7 @@ maturity data yet": activate a cycle, work it and close it.
 
 **Insights › Reports** (`/reports`) has two tabs.
 
-![The Reports page with the executive summary export and two scheduled reports]({{ site.baseurl }}/assets/images/user-guide/reports.png)
+![The Reports page with its Program and Pentest tabs, the executive summary export and scheduled reports]({{ site.baseurl }}/assets/images/user-guide/reports.png)
 *Figure: Reports.*
 
 ### Program

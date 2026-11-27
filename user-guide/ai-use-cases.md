@@ -1,14 +1,14 @@
 ---
-title: "Settings > AI: use cases"
+title: "Organization settings > Organization > AI: use cases"
 parent: User guide
 nav_order: 10.5
 ---
 
-# Settings > AI: use cases
+# Organization settings > Organization > AI: use cases
 
-**Settings > AI > Use cases** decides, for each kind of AI result, whether it waits for a person or
+**Organization settings > Organization > AI > Use cases** decides, for each kind of AI result, whether it waits for a person or
 applies on its own, and how much data the AI may see. Owners and administrators open it under
-Settings > AI and change it there; anyone with the `settings:read` permission can read the same
+Organization settings > Organization > AI and change it there; anyone with the `settings:read` permission can read the same
 settings through the API.
 
 Nothing runs until AI is turned on for the organization (see

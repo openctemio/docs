@@ -31,7 +31,7 @@ never shares a process with the keys.
 ## Install
 
 1. In OpenCTEM, **Discovery > Sensors > Add sensor**, pick where it will run: the command the console shows carries a single-use pairing code. The Tenable.sc connector uses that code (`SENSOR_PAIRING_CODE`), so copy the code from it. (The
-   connector settings dialog under **Settings > Integrations > Vulnerability
+   connector settings dialog under **Organization settings > Integrations > Vulnerability
    scanners > Connect Tenable.sc** also shows the install command, under
    **No connector yet? Run it next to Tenable.sc**.)
 2. Create a least-privilege Tenable.sc user for OpenCTEM (view on the
@@ -71,7 +71,7 @@ never shares a process with the keys.
    `docker logs connector-tenable`) and choose the **Scanner connector**
    profile under **What it may do** (tool `tenable_sc`). A new sensor is at trust level **New**:
    it receives syncs only. Trust it before you launch scans.
-6. **Settings > Integrations > Vulnerability scanners > Connect Tenable.sc**:
+6. **Organization settings > Integrations > Vulnerability scanners > Connect Tenable.sc**:
    pick the connector's sensor and type the instance name (`sc-prod`).
 
 The image is distroless and runs as a non-root user under the default seccomp

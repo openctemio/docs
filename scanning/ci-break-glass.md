@@ -65,18 +65,18 @@ each pipeline's latest verdict, the check turns green.
 
 ## Create one
 
-1. Open the failed run (**Pipelines › Runs**, or **Details** on the pull
+1. Open the failed run (**CI/CD › Runs**, or **Details** on the pull
    request check).
 2. **Break-glass this commit** fills in the repository and the full commit.
 3. Enter the reason and the hours, then **Override the gate**, and confirm
    with your second factor.
 
-![The Break-glass dialog prefilled with the repository and the full commit id, with a reason]({{ site.baseurl }}/assets/images/scanning/ci/ci-break-glass-dialog.png)
+![The Break-glass dialog opened from a blocked run: the repository, the full commit id and the reason]({{ site.baseurl }}/assets/images/scanning/ci/ci-break-glass-dialog.png)
 
 ## Review and revoke
 
-**CI/CD › Settings › Break-glass** lists the overrides with who created them,
+**Break-glass** on the **CI/CD › Runs** tab lists the overrides with who created them,
 the reason and the expiry. **Revoke** ends one early; the next
 run of that commit is judged normally.
 
-![The Break-glass tab listing one active override with its reason and expiry]({{ site.baseurl }}/assets/images/scanning/ci/ci-break-glass-list.png)
+![The Runs tab of CI/CD with the Break-glass section under the runs: one active override with its reason and expiry]({{ site.baseurl }}/assets/images/scanning/ci/ci-break-glass-list.png)

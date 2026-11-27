@@ -23,11 +23,11 @@ There is no switch that turns the scope checks off. How each decision is
 enforced on the way to a sensor is in
 [How scope and exclusions reach sensors](scope-to-sensors.md).
 
-Manage scope under **Scoping > Scope**, with the tabs **In scope** (entries),
-**Out of scope** (exclusions), **Domain proof** and **Networks** (the last two
-with the Attack surface module). An **Approvals** tab appears only while the
-organization's scan approval is **Strict** or a change still waits for a
-decision. The organization's rules are in **Settings > Scanning > Scope
+Manage scope under **Scoping > Scope**, with the tabs **Scope**, **Domain proof**
+and **Networks** (the last two with the Attack surface module), **Programs** and
+**Letters**. On **Scope**, **Show** in the list toolbar switches between
+**Entries**, **Exclusions** and, only while the organization's scan approval is
+**Strict** or a change still waits for a decision, **Approvals**. The organization's rules are in **Organization settings > Scanning > Scope policy
 policy**.
 
 Design: [RFC-054](https://github.com/openctemio/openctem/blob/develop/server/docs/rfcs/RFC-054-scope-model.md).
@@ -103,7 +103,7 @@ decide with one click (**Add to out of scope** on the label). See
 {: .note }
 From v0.20.0, the built-in list of published edge ranges also covers more
 CDN and edge providers, so their addresses are labeled as edge and are no
-longer offered for scope. On the **Decisions** card, the one-click add takes
+longer offered for scope. On the **Review** tab, the one-click add takes
 only addresses with strong ownership evidence; every other address is added
 from its own row after you read it.
 
@@ -122,7 +122,7 @@ Each entry has a status and a tier ceiling:
 - **Permanent or one-off.** A one-off entry has an expiry (default 7 days, at
   most the organization's maximum, never more than 30) and a reason. It stops
   authorizing the moment it expires.
-- **Intrusive (T2) entries** follow their own limit, set by an owner: 7, 30
+- **Intrusive entries** follow their own limit, set by an owner: 7, 30
   (default), 90 or 365 days, or permanent. Long and permanent T2 entries are
   confirmed periodically (see below).
 - **Highest tier** (`max_tier`): `t0` passive only, `t1` non-intrusive active
@@ -141,7 +141,7 @@ Each entry has a status and a tier ceiling:
 | T1 | Non-intrusive active checks | port scans, HTTP probes, crawling, nuclei templates (intrusive, DoS, fuzzing and brute-force templates are always excluded) |
 | T2 | Intrusive | DAST. Derived targets are never fed to it. Needs a verified domain when the platform requires proof, and a T2 entry under Strict |
 
-![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+![The Scope page with its Scope, Domain proof, Networks, Programs and Letters tabs and the list of scope entries]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope entries in effect.*
 
 ## Widening scope
@@ -154,7 +154,7 @@ and notifies every owner and administrator. Narrowing (deactivating, deleting,
 an earlier expiry, a lower tier) is always one step.
 
 Whether a second person must agree follows the organization's **scan
-approval** setting (**Settings > Scanning > Scan approval**, owner only), or
+approval** setting (**Organization settings > Scanning > Scan approval**, owner only), or
 the platform administrator's policy when the platform forces one:
 
 | Scan approval | Scope changes |
@@ -173,7 +173,7 @@ entry themselves with a reason and a code from their authenticator app.
 This is recorded in the audit log and every administrator is told; nothing
 is ever approved automatically.
 
-![Scope changes waiting for a second administrator's approval]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
+![The Scope page showing approvals: a cloud account, an out-of-scope rule and repositories waiting for a second administrator]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
 *Figure: Under Strict scan approval: a cloud account and an exclusion waiting for approval.*
 
 When an organization leaves Strict, entries and exclusions still pending are
@@ -185,7 +185,7 @@ administrators are told once.
 A T2 entry that lasts longer than the confirmation period (every 90 days by
 default; an owner sets 30 to 180) is confirmed by an approver: "Keep T2 for
 `<pattern>`?" arrives in-app, by email and on the channels, and the
-**Approvals** tab offers **Keep T2**. Without a confirmation within 14 days
+**Approvals** list (**Show › Approvals**) offers **Keep T2**. Without a confirmation within 14 days
 the entry falls back to non-intrusive (T1) probes. It is not removed;
 raising it to T2 again is a widening. These limits apply to entries marked T2
 under every scan approval setting.
@@ -217,7 +217,7 @@ under every scan approval setting.
   with a range wider than the new limit are refused at their next run.
 - **Review discovered assets first**: off (the default), what discovery
   finds joins the inventory at once. On, names outside every permanent entry
-  wait in **Attack surface > Discovery > Decisions** before they join the inventory.
+  wait in **Attack surface > Review** before they join the inventory.
   It never changes what may be scanned.
 - **Confirming an asset adds it to scope**: a person who confirms a domain,
   subdomain or public address as yours also adds the scope entry for exactly
@@ -243,7 +243,7 @@ actively scanned. Besides scope, an asset must not be refused by its
 
 Names covered by a permanent scope entry are confirmed automatically.
 Decisions on the rest, and on the addresses your names resolve to, are on
-**Attack surface > Discovery > Decisions**. See
+**Attack surface > Review**. See
 [Attack surface monitoring](easm.md#review).
 
 ## Unclassified assets
@@ -251,7 +251,7 @@ Decisions on the rest, and on the addresses your names resolve to, are on
 An inventory asset is **unclassified** when no scope entry covers it and
 nobody excluded it, marked it "Not ours" or held it for review. (The scan
 target filter uses the same word for an asset without a type; that is
-unrelated.) **Settings > Scanning > Scope policy > Scan unclassified
+unrelated.) **Organization settings > Scanning > Scope policy > Scan unclassified
 assets** decides what it gets:
 
 | Value | Unclassified assets get |
@@ -285,7 +285,7 @@ probed on its own, or nothing is known about its addresses (refusal
 `web_ports_only`). This applies to names in scope too. A name served
 through a CDN or edge provider's shared front end gets only the web ports
 even when a scope entry covers the edge address. Add the address, or
-your own prefix offered on **Attack surface > Discovery > Decisions**, to scope for a
+your own prefix offered on **Attack surface > Review**, to scope for a
 full port scan.
 
 ## Web paths
@@ -313,7 +313,7 @@ Platform scanning**; off by default). Then:
 The **In effect now** section of the scope policy shows whether the platform
 requires proof.
 
-![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
+![The Domain proof tab with the field to prove a domain]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
 *Figure: Domain proof.*
 
 To verify a domain, open **Scoping > Scope > Domain proof** (needs the Attack

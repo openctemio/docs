@@ -39,7 +39,7 @@ for you. Every number opens the findings list it counts.
 
 The strip at the top:
 
-- **P0/P1 validation coverage**: the share of closed P0 and P1 findings with validation evidence (pentest,
+- **Validated top-priority fixes**: the share of closed P0 and P1 findings with validation evidence (pentest,
   scripted or sensor), the same figure the CTEM cycle uses before a cycle can close. P0 and P1 are shown
   under it. With no closed P0 or P1 finding yet it shows a dash.
 - **Validated, last 30 days**: findings closed in the last 30 days after a re-check stopped reproducing
@@ -58,9 +58,9 @@ it:
 
 When nothing is waiting, the block says so and links to the validation areas that are on. A module the
 organization switched off leaves the page; owners and admins see one line naming it, with a link to
-**Settings › Organization › Modules**.
+**Organization settings › Organization › Modules**.
 
-![The Validation overview with coverage by priority and recent validation activity]({{ site.baseurl }}/assets/images/user-guide/validation.png)
+![The Validation overview: validated top-priority fixes, recent validation figures and what waits for you]({{ site.baseurl }}/assets/images/user-guide/validation.png)
 *Figure: The Validation overview.*
 
 ## Re-verify a finding
@@ -113,7 +113,7 @@ for that finding, which ways of verifying a fix apply, and the panel lists them:
 | Method | When it is available | Counts as proof |
 |---|---|---|
 | **Retest** | The finding's tool and rule can be re-run on its target by a sensor of your organization | Yes |
-| **Covered scan** | A full scan with the same tool covers the asset and no longer finds it: always for a repository's default branch, and for other assets when automatic closing by scan is on. Never for secrets or for findings a person reported | Yes, the finding closes on its own |
+| **Scan checked the asset** | A full scan with the same tool covers the asset and no longer finds it: always for a repository's default branch, and for other assets when automatic closing by scan is on. Never for secrets or for findings a person reported | Yes, the finding closes on its own |
 | **Reachability check** | An active asset with a network address (not a secret) | No, it only says whether the target answers |
 | **Rotation proof** | Leaked secrets: the credential was revoked at the provider and replaced, recorded in the checklist | Yes |
 | **Evidence review** | Any open finding: the verification checklist | Yes |
@@ -231,7 +231,7 @@ penetration-testing engagements.
    campaign lead and to organization owners and administrators who are members
    of the campaign.
 
-![The pentest campaign list with targets, status, TLP and progress per campaign]({{ site.baseurl }}/assets/images/user-guide/pentest-campaigns.png)
+![The Pentest campaigns list with New campaign and a campaign with its status, TLP, progress and due date]({{ site.baseurl }}/assets/images/user-guide/pentest-campaigns.png)
 *Figure: The campaign list.*
 
 ### Create a campaign
@@ -257,7 +257,7 @@ campaign** works from any step; everything else can be filled in later.
    client contacts, and set the optional
    [completion sign-off](#deliver-the-report).
 
-![Step 1 of the New campaign wizard: engagement details, targets, approach, environment and TLP]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign-wizard.png)
+![Step 1 of the New campaign wizard: engagement details, what is tested, approach, environment, TLP and dates]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign-wizard.png)
 *Figure: The creation wizard, step 1.*
 
 **Duplicate** (on a campaign's row menu) starts the wizard from that campaign's
@@ -296,8 +296,8 @@ holds the profile, which the lead can edit:
   to the campaign; it has no upload button for campaign files yet, so upload the
   letter with `POST /api/v1/attachments` (`context_type=campaign`,
   `context_id` the campaign id) first. When an owner or administrator turns on
-  **Campaigns cannot start without a signed authorization letter** (**Settings ›
-  Findings & assets › Pentest methodology**, **Authorization letter**; off by default), a
+  **Campaigns cannot start without a signed authorization letter** (**Organization settings ›
+  Findings and assets › Pentest methodology**, **Authorization letter**; off by default), a
   campaign cannot move from planning to testing until a letter is linked.
 
 ### The campaign page
@@ -337,7 +337,7 @@ administrator who is a member of the campaign. Every change is audited and the
 campaign's members are notified. Starting, resuming and unarchiving run at
 once; the other changes ask first.
 
-![A campaign page with its status stepper, header badges and the Findings view]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign.png)
+![A campaign page with its status stepper, actions and tabs]({{ site.baseurl }}/assets/images/user-guide/pentest-campaign.png)
 *Figure: A campaign in testing, with its status stepper.*
 
 The other tabs (Findings, Retests and Report are described below):
@@ -648,7 +648,7 @@ Every campaign's reports are also listed under **Insights › Reports › Pentes
 fixed and need re-verification, across campaigns. It is the "prove it again"
 step: after the developers report a fix, a tester checks that the issue is gone.
 
-![The Retest queue listing pentest findings waiting for re-verification]({{ site.baseurl }}/assets/images/user-guide/retest-queue.png)
+![The Retest queue with its Pending and History tabs]({{ site.baseurl }}/assets/images/user-guide/retest-queue.png)
 *Figure: The Retest queue.*
 
 1. The cards: **Pending**, **Retested**, **Passed**, **Failed** and **Success
@@ -669,7 +669,7 @@ What happens next:
 - **Passed** by a lead or reviewer: the finding becomes **Resolved**, with the
   resolution method `retest_verified`. Passed by a tester: it stays in **Fix
   Applied** until a reviewer confirms.
-- **Failed**: the finding goes back to **In Progress** for the developers.
+- **Failed**: the finding goes back to **In progress** for the developers.
 - **Partial**: the partial fix is recorded and the status stays unchanged; the
   lead or a reviewer decides what happens next.
 - **Unable to verify**: the fix could not be checked (for example the
@@ -731,7 +731,7 @@ security controls pass their tests, framework by framework.
 
 ## Pentest methodology and the finding library
 
-**Settings › Findings & assets › Pentest methodology** (`/settings/pentest`) has four
+**Organization settings › Findings and assets › Pentest methodology** (`/settings/pentest`) has four
 tabs.
 
 - **Methodology**: the **Target types** a campaign's **What is tested** offers

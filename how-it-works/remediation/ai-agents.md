@@ -15,7 +15,7 @@ finding, it calls the model and turns each part of the answer into an action
 under its own name: a comment, a change its preset allows, or an approval
 request that a person decides. Today an analysis starts through the API
 (`POST /api/v1/findings/{id}/ai/analyze`); the console lists and manages AI
-agents in **Settings > AI**.
+agents in **Organization settings > Organization > AI**.
 
 1. TOC
 {:toc}
@@ -86,11 +86,11 @@ flowchart TD
 
 | What happens | What you see | What to do |
 |---|---|---|
-| No active AI agent may read the finding | 409: no active AI agent | Create one in Settings > AI, or widen its owners' scope |
+| No active AI agent may read the finding | 409: no active AI agent | Create one in Organization settings > Organization > AI, or widen its owners' scope |
 | The agent's owners left or its attestation expired | The agent shows Paused | An accountable owner attests, or an administrator resumes it |
 | The agent already ran 60 times this hour | Refused: the AI agent reached its limit | Wait an hour |
 | An analysis of the finding is running | 409 | Wait for it to finish |
-| AI is off, the use case is off, or the data policy keeps the finding back | The run is refused with its code | Settings > AI, or the campaign's TLP |
+| AI is off, the use case is off, or the data policy keeps the finding back | The run is refused with its code | Organization settings > Organization > AI, or the campaign's TLP |
 | The provider fails | The run failed: provider error | Try again later |
 | The answer has no valid shape | The run failed: invalid output | Try again; nothing was changed |
 
@@ -108,9 +108,9 @@ flowchart TD
 
 ## Related
 
-- [Settings > AI: AI agents](../../user-guide/ai-agents.md)
+- [Organization settings > Organization > AI: AI agents](../../user-guide/ai-agents.md)
 - [AI suggestions and approval](../../user-guide/ai-suggestions-and-approval.md)
-- [Settings > AI: use cases](../../user-guide/ai-use-cases.md)
-- [Settings > AI: data masking](../../user-guide/ai-data-masking.md)
+- [Organization settings > Organization > AI: use cases](../../user-guide/ai-use-cases.md)
+- [Organization settings > Organization > AI: data masking](../../user-guide/ai-data-masking.md)
 - [AI analyze contract](../../api/ai-analyze-contract.md)
 - [AI triage of findings](ai-triage.md)

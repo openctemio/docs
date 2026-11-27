@@ -166,10 +166,10 @@ with its own assets, findings, members and settings.
     administrator approves; **Waiting for approval** until then, and you get an
     email when they decide).
   - **Or start fresh**, when the installation lets you create an organization:
-    **Set up your first organization** with a **Team name** (the **Team URL** is filled
-    in for you; it may contain lowercase letters, numbers and hyphens), an
-    optional **Description** and optionally **Products** (leave it empty to get
-    every module), then **Create team**. The data region is shown and fixed once
+    **Set up your first organization** with an **Organization name** (the
+    **Organization URL** is filled in for you; it may contain lowercase letters,
+    numbers and hyphens), an optional **Description** and optionally **Products**
+    (leave it empty to get every module), then **Create organization**. The data region is shown and fixed once
     the organization exists.
   - On installations where only the platform administrator creates
     organizations (the default) and nothing else applies, you see **You are not a
@@ -179,17 +179,17 @@ with its own assets, findings, members and settings.
 When you may create another organization, **Create a new organization** is also offered
 on **Select an organization** and **Create organization** in the organization switcher.
 
-To leave an organization yourself, use **Leave organization** under
-**Organization membership** in **Settings > My account > Profile**: every member
-can, whatever their role. The only owner cannot leave and the button says why;
+To leave an organization yourself, use **Leave organization** on
+**Organization settings > Your membership > Membership**: every member can,
+whatever their role. The only owner cannot leave and the button says why;
 transfer ownership first (see
 [Team and access](02-team-and-access.md#transfer-ownership)).
 
 ## Accept an invitation
 
 An invitation link opens **Invitation**: "{name} invited you to join
-{organization}". It shows the organization, **Invited by**, **Invitation for**
-(the invited email) and, when three days or fewer remain, when it expires.
+{organization}". It shows the organization, who invited you, the invited email
+("For ...") and, when three days or fewer remain, when it expires.
 **What you get** lists your **Role** (or **Roles**) and the **Teams** you join
 (with no team you see data only once a team includes you, unless your role sees
 all of the organization's data). It also says when the invitation changes how you
@@ -219,11 +219,12 @@ Nobody becomes an owner without accepting. The invitation lasts seven days.
 
 ### The sidebar
 
-- The top group holds **Dashboard**, **My Work**, **Findings** and **Approvals**
-  (the false-positive and accepted-risk requests waiting for decisions).
+- The top group holds **Dashboard**, **My work**, **Findings**,
+  **Vulnerabilities**, **Approvals** (the false-positive and accepted-risk
+  requests waiting for decisions) and **Ready to close**.
 - Below it are the CTEM stage groups (**Scoping**, **Discovery**,
   **Prioritization**, **Validation**, **Mobilization**) and **Insights**.
-- The footer holds **Settings** and **Help** (**Documentation**, **Keyboard
+- The footer holds **Organization settings** and **Help** (**Documentation**, **Keyboard
   shortcuts**, **Report a bug**, **Send feedback or request a feature**,
   **Report a security vulnerability** and **About**; a vulnerability report
   never opens a public issue). **About** shows the release and, under
@@ -245,17 +246,23 @@ button), and to **Switch organization**.
 
 ### The header
 
-From left to right:
+The header starts with where you are (the page and the pages above it, each a
+link). Then, from left to right:
 
-- **Search** (or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd>) opens the command
-  palette: every page and settings page, the theme, and help.
+- **Search or run a command** (or <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd>)
+  opens the command palette: every page and settings page, the theme, and help.
+- **Create** (+): **New scan**, **Add asset**, **New finding**, **Import
+  results**, **Remediation task** and **Invite people**, as your permissions
+  allow.
 - **Full screen** toggle.
+- **Pending approvals**, with the number of requests waiting for you.
 - The **notification bell** with your unread count. The panel has **Mark all as
   read** and **View all notifications**.
 - The **theme** switch: Light, Dark or System.
-- Your **avatar menu**: the **My account** pages (Profile, Security,
-  Preferences, Notifications, Activity, Connected applications), **All
-  settings**, **Language** (English or Vietnamese) and **Sign out**.
+- Your **avatar menu**: **Account settings** (your profile, security,
+  preferences and organizations), **Organization settings**, **Language**
+  (English or Vietnamese), **Theme** and **Sign out**. On a phone the menu opens
+  as a sheet from the bottom of the screen.
 
 ![The CTEM dashboard in the dark theme]({{ site.baseurl }}/assets/images/overview/dashboard-dark.png)
 *Figure: The dark theme, chosen with the theme switch in the header.*
@@ -284,14 +291,35 @@ this guide, you most likely do not have the permission, or the module is off.
 
 ### List toolbars
 
-Every list has the same toolbar. The search box comes first and names what it
-searches (for example "Search name, host, IP, version or tool…"); the × in the
-box or <kbd>Esc</kbd> clears it. Where the list has a filter panel, the filter
-button is joined to the start of the search box and shows how many filters are
-applied; while the panel is open the button looks pressed. Status and kind
-selects follow the search box. Group, export, refresh and the **View** menu
-(row density and columns) sit at the far end. Active filters show as chips in
-a row under the toolbar; past six, the rest are behind a **+N** button.
+Every list follows the same pattern:
+
+- **A title row** names what the list shows (the list, or the saved view you
+  chose) with one count, then **Refresh** and, where the list has them,
+  **Export** and other list actions; on a phone the extra actions are under one
+  **More** menu.
+- **The toolbar.** On **Findings**, **Assets** and **Scans** a **Basic** |
+  **Query** switch comes first: **Basic** is a plain search, **Query** takes the
+  [query language](05-exposures-and-findings.md#search-filter-group-and-save-views). Then the search
+  box, which names what it searches (for example "Search name, host, IP, version
+  or tool…"); the × in the box or <kbd>Esc</kbd> clears it. **Add filter** opens
+  the list's filters in one panel (a sheet on a phone), and each filter you set
+  shows as a chip under the toolbar. The **Filters** button shows how many
+  filters apply. **Display** (at the far end) sets the row density and the
+  columns.
+- **Rows** stay short: the name keeps to one line and other values wrap to at
+  most two (hover for the full text). A click on a row opens its quick view over the
+  list (on findings, with **previous** and **next** to move through the rows);
+  the name is a real link, so <kbd>Ctrl</kbd>/<kbd>⌘</kbd>+click opens the full
+  page in a new tab. The row menu (**⋯**) has the same actions on a desktop and a
+  phone; an action that does not apply stays in place, disabled, with the
+  reason.
+- **Selection.** Ticking rows opens a bar of bulk actions at the bottom. On a
+  phone, choose **Select** in the toolbar's **More** menu first.
+- **On a phone** a list shows cards instead of a table, and **Show 25 more**
+  under the last card instead of page numbers.
+- **Empty and error states** say why the list is empty (nothing yet, nothing
+  matches the filters, no permission, or the list could not be loaded) and offer
+  one next step, such as **Clear filters** or **Retry**.
 
 ## The dashboard
 
@@ -300,8 +328,8 @@ whether it is getting better, and what to fix next. Every widget is drawn from
 the dashboard's stored figures, and each one has its own error state, so one
 widget that fails never blanks the page.
 
-![The CTEM dashboard: what would cut exposure most (past SLA, known exploited, blind spots) and the exposure flow from sources to outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
-*Figure: The CTEM dashboard of the demo organization.*
+![The CTEM dashboard: what would cut exposure most, then the exposure flow from the sources to the outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+*Figure: The CTEM dashboard.*
 
 ### Which dashboard opens
 
@@ -485,7 +513,8 @@ links to **Crown jewels** to designate them.
 
 ### The header
 
-- **The dashboard switcher** lists **Organization** dashboards (only when your
+- **The dashboard switcher** is the arrow right after the dashboard's name. It
+  lists **Organization** dashboards (only when your
   role holds `dashboards:org:view` or `dashboards:org:manage`) and **Mine**,
   with a search box once there are more than eight, plus **New dashboard** and
   **Manage dashboards**.
@@ -512,8 +541,10 @@ only on request).
 
 ### Reading a widget
 
-- Each widget has a title, **How this is counted** (the definition), when its
-  figures were computed, and, where it makes sense, the change against the
+- Each widget has a title and one menu: **Open list** (the list the figure
+  counts, with the same filter), **Show table** or **Show chart**, and **How
+  this is counted** (the definition). It also shows when its figures were
+  computed, and, where it makes sense, the change against the
   previous period (green when it is better, red when it is worse, whichever
   direction that is) and a target.
 - Clicking a figure, a bar or a row opens the findings list with the same
@@ -573,7 +604,7 @@ A scope with no finding yet shows every findings widget in one compact **No
 data yet** state with the next step (import results or set up a scan), never
 zeros or an empty chart, and the widget takes one row.
 
-![The Dashboards page: five templates and the list of your own dashboards]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
+![The Dashboards page: your dashboards and the templates to start from]({{ site.baseurl }}/assets/images/user-guide/dashboards.png)
 *Figure: Dashboards.*
 
 ### Fix next and the findings table
@@ -654,8 +685,8 @@ metric catalog at `GET /api/v1/me/dashboards/widget-catalog`. Details are in
 team, and your requests. Each tab is one queue with its count, and the count is
 always the total of the list it opens.
 
-![The My work page with the Assigned to me queue open]({{ site.baseurl }}/assets/images/user-guide/my-work.png)
-*Figure: My work: your open findings, the nearest deadline first.*
+![The My work page with the Assigned to me tab open]({{ site.baseurl }}/assets/images/user-guide/my-work.png)
+*Figure: My work.*
 
 - **Assigned to me**: open findings assigned to you or your groups, or on
   assets you own, the nearest SLA deadline first. **SLA due in 72 hours**
@@ -676,7 +707,7 @@ always the total of the list it opens.
 - **My tasks** (when you can read remediation): your open remediation tasks,
   earliest deadline first ([Mobilization](08-mobilization.md)).
 - The SLA column shows the time left or past due (in hours under two days) and
-  **KEV cap** when the known-exploited rule set the deadline.
+  a shield when the known-exploited rule set the deadline.
 - **View all** opens the same list on **Findings**; **Triage these** and the
   header's **Triage** button open triage mode.
 - An empty queue suggests the next step, such as **Next: triage 4 new
@@ -689,7 +720,7 @@ lists the in-app notifications sent to you.
 
 1. Three cards at the top: **Unread**, **Read** and **Total**.
 2. **Mark all as read** appears when something is unread. **Settings** opens your
-   notification preferences (`/account/notifications`).
+   notification preferences (`/settings/me/notifications`).
 3. Filter by severity (**All severities**, Critical, High, Medium, Low, Info) and
    by read state (**All**, **Unread**, **Read**). Changing a filter returns to the
    first page.
@@ -703,21 +734,26 @@ matching notifications".
 
 ## Your account
 
-Your own settings are in the settings area under **My account**. Open them from
-the avatar menu or from **Settings** in the sidebar footer.
+Your own account has its own area, **Your account**, outside the organization:
+open **Account settings** from the avatar menu. It has four pages, **Profile**,
+**Security**, **Preferences** and **Organizations** (the organizations you
+belong to, your invitations and new organizations), and **Back to your
+organization** at the top returns to the app. What concerns you inside one
+organization (your role, leaving it, your notifications, your activity and
+connected applications) is under **Organization settings › Your membership**.
 
 ### Profile
 
-**Profile** (`/account`) holds your **Full Name** and **Phone Number**; click
-**Save Changes** (enabled only when something changed). **Email** is read-only and
+**Profile** (`/account`) holds your **Full name** and **Phone number**; click
+**Save changes** (enabled only when something changed). **Email** is read-only and
 shows **Verified** or **Unverified**; for SSO accounts it says it is managed by
 your identity provider. Your avatar comes from your identity provider, or shows
-your initials. **Account Information** shows the account ID, the authentication
-provider and the creation and update dates.
+your initials. **Account details** shows the user ID, the sign-in method
+and the creation and update dates.
 
 ### Security
 
-**Security** (`/account/security`) has five cards.
+**Security** (`/account/security`) has five sections.
 
 ![The Set up two-factor authentication dialog with the QR code blurred]({{ site.baseurl }}/assets/images/identity/two-factor-setup.png)
 *Figure: Setting up two-factor authentication (the QR code and key are blurred here).*
@@ -759,7 +795,7 @@ provider and the creation and update dates.
   your organization. You receive an email for every change.
 - **Sessions** lists the devices signed in to your account (browser and system,
   IP address, sign-in time, last activity); your current one is marked **This
-  device**. Sign out a single session, or click **Sign out all others**. Both ask
+  device**. Sign out a single session, or click **Sign out others**. Both ask
   for confirmation.
 - **Delete account**: **Delete my account** (you confirm by typing your email
   address) signs you out everywhere, revokes your API keys and schedules the
@@ -774,18 +810,21 @@ See also [Two-factor authentication](../identity/two-factor.md).
 
 **Preferences** (`/account/preferences`):
 
-- **Appearance**: Light, Dark or System.
-- **Localization**: **Timezone**, **Date Format** (DD/MM/YYYY, MM/DD/YYYY,
-  YYYY-MM-DD) and **Time Format** (24-hour or 12-hour).
-- **Reset to Defaults** restores UTC, DD/MM/YYYY, 24-hour and System; click
-  **Save Preferences** to keep your changes.
+- **Appearance**: **Theme**, Light, Dark or System.
+- **Localization**: **Timezone**, **Date format** (DD/MM/YYYY, MM/DD/YYYY,
+  YYYY-MM-DD) and **Time format** (24-hour or 12-hour).
+- **Findings**: whether your findings work views show **Informational
+  findings**.
+- **Reset to defaults** restores UTC, DD/MM/YYYY, 24-hour and System; click
+  **Save** in the bar at the bottom to keep your changes.
 
 The interface language (English or Vietnamese) is chosen from the avatar menu,
 under **Language**.
 
 ### Notifications
 
-**Notifications** (`/account/notifications`) decides which notifications you
+**Notifications** (**Organization settings › Your membership › Notifications**,
+`/settings/me/notifications`) decides which notifications you
 receive:
 
 - **In-app notifications**: **Show in-app notifications** on or off.
@@ -810,13 +849,14 @@ up by an administrator under
 
 ### Activity
 
-**Activity** (`/account/activity`) is a read-only log of your recent account
-actions, ten per page. A **Security Tip** reminds you to review it regularly;
+**Activity** (**Organization settings › Your membership › Activity**,
+`/settings/me/activity`) is a read-only log of your recent account
+actions, ten per page;
 your signed-in devices are listed under **Security**.
 
 ### Connected applications
 
-**Connected applications** (`/account/connected-apps`) lists the AI applications
-you allowed to work with the organization's data as you, under **Your AI
-applications**. Disconnect one to end its access at once. See
+**Connected applications** (**Organization settings › Your membership ›
+Connected applications**, `/settings/me/connected-apps`) lists the AI applications
+you allowed to work with the organization's data as you. Disconnect one to end its access at once. See
 [Connect an AI assistant](12-connect-an-ai-assistant.md).

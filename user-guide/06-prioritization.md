@@ -32,8 +32,8 @@ OpenCTEM combines several risk signals into one **priority class**, `P0` to
 
 The pages are under **Prioritization** in the sidebar: **Exposure Chains**,
 **Attack Paths**, **Threat Intel**, **Indicators (IOCs)**, **Detections**,
-**Business Impact**, **Compensating Controls** and **Priority Rules**. The asset
-risk score is tuned under **Settings › Findings & assets › Risk scoring**.
+**Business impact**, **Compensating Controls** and **Priority Rules**. The asset
+risk score is tuned under **Organization settings › Findings and assets › Risk scoring**.
 
 ## Priority classes
 
@@ -103,10 +103,10 @@ they say so and link to the assets. From v0.24.2 both pages need the permission
 not). Right after the upgrade a member may see a 403 for a few minutes, until their
 permissions refresh or they sign in again.
 
-![The Exposure chains page ranking chains from internet-facing entry points to assets with KEV findings]({{ site.baseurl }}/assets/images/user-guide/exposure-chains.png)
+![The Exposure chains page, marked possible path, not proven]({{ site.baseurl }}/assets/images/user-guide/exposure-chains.png)
 *Figure: Exposure chains.*
 
-![The Attack paths page drawing the routes from the internet through an entry point and hops to a crown jewel, with choke points and the path score]({{ site.baseurl }}/assets/images/user-guide/attack-paths.png)
+![The Attack paths page, marked possible path, not proven]({{ site.baseurl }}/assets/images/user-guide/attack-paths.png)
 *Figure: Attack paths.*
 
 - **Exposure Chains** (`/exposure-chains`): attack paths from internet-facing
@@ -162,7 +162,7 @@ the step is never a choke point.
 (EPSS), known-exploited CVEs (CISA KEV) and tracked threat actors. It feeds the
 KEV and EPSS badges you see across the console. **Refresh** reloads the data.
 
-![The Threat intelligence page with EPSS and CISA KEV statistics]({{ site.baseurl }}/assets/images/user-guide/threat-intel.png)
+![The Threat intelligence page with its Threat landscape, Threat actors, CVE lookup and Sync status tabs and the EPSS and CISA KEV figures]({{ site.baseurl }}/assets/images/user-guide/threat-intel.png)
 *Figure: Threat intelligence.*
 
 Tabs:
@@ -213,7 +213,7 @@ Both need the threat-intel read permission and the IOCs module.
 
 ## Business impact
 
-**Business Impact** (`/business-impact`) shows where vulnerabilities hit the
+**Business impact** (`/business-impact`) shows where vulnerabilities hit the
 business hardest: by asset criticality, crown jewel and business unit. It is a
 read-only summary.
 
@@ -260,7 +260,7 @@ percentage is shown in the reason ("Compensating controls present (reduction:
 your organization's policy, for example "anything in KEV on a crown jewel is
 P0".
 
-![The Priority rules page with three rules, their conditions, target class and evaluation order]({{ site.baseurl }}/assets/images/user-guide/priority-rules.png)
+![The Priority rules page with Tune risk scoring and Create rule]({{ site.baseurl }}/assets/images/user-guide/priority-rules.png)
 *Figure: Priority rules.*
 
 How evaluation works:
@@ -291,17 +291,17 @@ To create a rule:
 1. Click **Create rule** (needs the priority-rules write permission).
 2. Enter the **Name** (for example "KEV on crown jewel → P0") and a
    **Description**.
-3. Pick the **Target priority class** (P0 to P3), the **Evaluation order**
+3. Pick the **Set priority to** (P0 to P3), the **Rule order**
    (default 50; higher runs first) and whether it is **Active**.
 4. **Add condition** for each condition. The operator list and the value input
    follow the field's type.
-5. Click **Dry run** to preview, then save.
+5. Click **Test run** to preview, then save.
 
 The table lists the rules in evaluation order with their target class,
-conditions, order and an **Active** switch. Each row's menu has **Edit**, **Dry
+conditions, order and an **Active** switch. Each row's menu has **Edit**, **Test
 run** and **Delete** (permanent).
 
-**Dry run** previews which findings the rule would re-classify, without changing
+**Test run** previews which findings the rule would re-classify, without changing
 anything. The server evaluates the full rule (severity, EPSS, KEV, asset context,
 compensating controls) exactly as a live classification would, and shows the
 would-be priority distribution and a sample of findings with their current and
@@ -312,7 +312,7 @@ automatically in the background.
 
 ## Risk scoring
 
-**Settings › Findings & assets › Risk scoring** (`/settings/risk-scoring`) sets how each
+**Organization settings › Findings and assets › Risk scoring** (`/settings/risk-scoring`) sets how each
 **asset's risk score** (0 to 100) is computed. The score answers "how urgently
 does this asset need work". It is shown across the console and drives pages
 such as Business Impact.
@@ -359,8 +359,8 @@ They follow the same rule: an asset without an open finding scores 0.
    for Critical, High, Medium and Low). Thresholds must be ordered Critical >
    High > Medium > Low > 0; otherwise saving is blocked.
 5. **Finding and CTEM impact**:
-   - **Finding impact** **Mode**: **Count-based** (fixed **Per-finding
-     points**) or **Severity-weighted** (points per severity), with a **Finding
+   - **Finding impact** **Mode**: **Same points per finding** (fixed **Per-finding
+     points**) or **Points by severity** (points per severity), with a **Finding
      cap** so that a heavily scanned asset is not scored unfairly high.
    - **CTEM bonus points**: when **Enabled**, adds points for Internet
      Accessible, PII Exposed, PHI Exposed, High Risk Compliance and Restricted

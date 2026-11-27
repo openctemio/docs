@@ -30,7 +30,7 @@ downloads it from its upstream, verifies it, and switches to it atomically:
 
 Mirrors, local paths and the refresh interval are sensor settings:
 [Scanner content without internet access](network.md#scanner-content-without-internet-access).
-The organization's content policy (**Settings > Scanning > Content freshness**)
+The organization's content policy (**Organization settings > Tools and sensors > Content freshness**)
 sets refresh intervals, maximum ages and pinned versions. Check what a
 sensor holds with `openctemio-sensor -content-status`, or in the sensor's
 sheet under **Discovery > Sensors**.
@@ -154,7 +154,7 @@ Two kinds of platform pack are not sent to sensors at all:
 `web-fingerprints` and `secret-rules` are run by the platform on the web
 content each report already carries (see
 [Detection rules](../scanning/easm.md#detection-rules)). Wordlists are managed
-under **Settings > Scanning > Wordlists** ([EASM](../scanning/easm.md)).
+under **Organization settings > Tools and sensors > Wordlists** ([EASM](../scanning/easm.md)).
 
 ## Content catalog
 
@@ -180,7 +180,7 @@ writes a high-severity admin audit entry at start-up. A separate secret,
 `APP_CONTENT_SIGNING_KEY`, is the master of each organization's content pack
 signing key; see [Environment variables](../configuration/environment-variables.md).
 
-**Use it.** **Settings > Content catalog** (needs `content:read`, held by every
+**Use it.** **Organization settings > Tools and sensors > Content catalog** (needs `content:read`, held by every
 default role):
 
 | Tab | What it does |

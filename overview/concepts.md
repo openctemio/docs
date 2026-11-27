@@ -136,7 +136,7 @@ A decision such as false positive or accepted risk stays with the finding
 when it is reported again, also by another scanner engine. On a finding,
 such a decision is a request that a second person approves (a false positive
 and an accepted risk by default, each at the level the organization sets under
-**Settings > Findings & assets > Finding approvals**; on an exposure event, when it is high or
+**Organization settings > Approvals**; on an exposure event, when it is high or
 critical), and repository ignore comments become requests for the security
 team. See
 [Known false positives](../user-guide/known-false-positives.md). A SAST
@@ -247,5 +247,5 @@ the platform, which can fail the pipeline on a policy gate.
 - **API keys** (`oct_...`) let scripts read an organization's data through the
   REST API and the MCP server. **AI assistants** (MCP clients) normally connect
   with a sign-in flow instead, as the person who approves them, within an
-  organization policy (**Settings > Access & security > AI assistants (MCP)**). See
+  organization policy (**Organization settings > People and access > AI assistants (MCP)**). See
   [API](../api/index.md) and [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md).

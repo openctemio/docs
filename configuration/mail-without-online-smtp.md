@@ -24,7 +24,7 @@ flowchart TD
     A -->|Yes| B{Do you run a mail server?}
     B -->|Yes: Exchange, Zimbra, Postfix, a gateway| R[Option A: relay through your mail server]
     B -->|No| S[Option B: run the kit's relay]
-    R --> T[Console > Settings > E-mail]
+    R --> T[Console > Settings > Email]
     S --> T
     N --> L[Set-password links shown to the administrator, in-app notices, webhooks]
 ```
@@ -59,13 +59,13 @@ delivers the message.
    unless its range is listed in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` (see
    [Email](email.md#relays-on-a-private-network)).
 5. Enter the server, port 587, user, password and sender in the console and use
-   **Send a test e-mail**.
+   **Send a test email**.
 
 ### Internal CA certificate
 
 If your mail server's certificate comes from your own certificate authority,
 paste the CA certificate (PEM, the `-----BEGIN CERTIFICATE-----` text) into
-**Settings > E-mail > Internal CA certificate** and save. Rules:
+**Settings > Email > Internal CA certificate** and save. Rules:
 
 - Certificates only. A private key is refused and never stored.
 - The certificate is used only to check this mail server. It replaces the public
@@ -148,7 +148,7 @@ the same policy: add your smarthost's address to `openctem_egress_allow`.
 
 ## Option C: no e-mail
 
-Turn **Send e-mail** off in **Settings > E-mail**. OpenCTEM still works:
+Turn **Send email** off in **Settings > Email**. OpenCTEM still works:
 
 - An administrator creating a user or an invitation gets the one-time
   set-password link on screen once and passes it on. In the platform console, a
@@ -167,8 +167,8 @@ on `disabled` (the default).
 
 ## Send a test e-mail, and read the result
 
-In the console: **Settings > E-mail**, save the settings, then **Send a test
-e-mail**. It goes to the signed-in administrator's own address, never to another.
+In the console: **Settings > Email**, save the settings, then **Send a test
+email**. It goes to the signed-in administrator's own address, never to another.
 A failure says what to fix:
 
 | The console says | Cause | Fix |

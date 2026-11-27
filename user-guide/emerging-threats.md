@@ -37,7 +37,7 @@ resolves its alert too.
 - **Summary cards** count **Open**, **Immediate**, **Digest**, **Listed**,
   **Known exploited** and **Internet-facing** alerts. Each opens the list
   filtered to it.
-- Filters: **Level**, **State** (**Open (not closed)** or a state), **Match**
+- Filters: **Level**, **State** (**Open** or a state), **Match**
   (**Confirmed** or **Possible**), **Internet-facing only**, and a search by
   vulnerability id. The filters are in the address, so you can share a view.
 - Columns: **Threat**, **Score**, **Level**, **Affected** (the hosts in words,
@@ -140,7 +140,7 @@ State changes are audited.
 
 ## Settings
 
-**Settings > Findings & assets > Risk and threats > Emerging threats**
+**Organization settings > Findings and assets > Risk and threats > Emerging threats**
 (`/settings/emerging-threats`) is for owners and administrators.
 
 | Setting | Meaning | Default and range |

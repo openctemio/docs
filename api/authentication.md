@@ -119,14 +119,14 @@ and acts as the user who created it.
 
 ### Create a key
 
-In the console: **Settings > Access & security > API keys > Generate API Key**. Choose a name, an expiry (within the
+In the console: **Organization settings > People and access > API keys > Generate API Key**. Choose a name, an expiry (within the
 organization's maximum, see below) and the scopes. The secret (`oct_...`) is shown **once**; store it in your
 secret manager.
 
-![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
-*Figure: Settings, API keys.*
+![The API keys page: Generate API key, the keys list and the maximum key lifetime]({{ site.baseurl }}/assets/images/api/api-keys.png)
+*Figure: Organization settings, API keys.*
 
-**Settings > Access & security > AI assistants (MCP)** creates a key with the scopes the MCP tools need; see
+**Organization settings > People and access > AI assistants (MCP)** creates a key with the scopes the MCP tools need; see
 [MCP server](mcp.md). Most assistants connect with OAuth and need no key.
 
 You need `integrations:api_keys:write` to create keys and `integrations:api_keys:read` to list
@@ -250,7 +250,7 @@ A service account is an organization-owned identity for an integration. It has n
 never signs in, starts with no role, takes custom roles and teams like a member, and can never be an
 Owner or Administrator or hold full data access. It acts only through API keys minted for it; such
 a key carries at most what the account holds and, like every key, is read-only on the REST API.
-Create one in **Settings > Access & security > Service accounts**.
+Create one in **Organization settings > People and access > Service accounts**.
 
 | Route | Needs |
 |---|---|

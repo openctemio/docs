@@ -45,7 +45,7 @@ You need an OpenCTEM account in the organization. You do not need to be an admin
 
 ### Find the server URL
 
-Open **Settings > Access & security > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
+Open **Organization settings > People and access > AI assistants (MCP)**. The **Connect** tab, card **Connect an AI assistant**, shows the
 server URL of your installation and one setup tab per client, each with copy buttons: **Claude Code**,
 **Codex CLI**, **Gemini CLI**, **VS Code**, **Cursor**, **Claude Desktop** and **Remote or VPS**. The
 snippets never contain a key or a token. The URL always has this form:
@@ -57,8 +57,8 @@ https://openctem.example.com/api/v1/mcp
 Use the host name you use to open the OpenCTEM console, followed by `/api/v1/mcp`. No key is needed:
 the assistant opens OpenCTEM in your browser and you sign in.
 
-![The AI assistants (MCP) settings page on the Connect tab: client configuration with the server URL and the organization's status badges]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
-*Figure: Settings, Access, AI assistants (MCP), Connect tab.*
+![The AI assistants (MCP) settings page on the Connect tab: the status chips, the client tabs and the commands to copy]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
+*Figure: Organization settings, People and access, AI assistants (MCP), Connect tab.*
 
 ### Claude on the web and in the Claude apps
 
@@ -226,7 +226,7 @@ The consent screen is the one place where you decide. Read it before you choose 
 The page also says: it sees only what you can see in this organization, and loses access when you
 do. You can disconnect it at any time.
 
-A connection with the all-data option shows an **All organization data** badge in **Your AI applications** and in
+A connection with the all-data option shows an **All organization data** badge in **Connected applications** (your own list) and in
 the organization's list of connected applications. Choose **Limit to own data** there to set it back to the
 scoped view without disconnecting it (you, or an organization administrator); **Disconnect** ends it.
 
@@ -277,8 +277,7 @@ connection ends when:
 
 ## Manage and disconnect your connections
 
-Open **Settings > My account > Connected applications** (`/account/connected-apps`), titled
-**Your AI applications**. The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
+Open **Organization settings > Your membership > Connected applications** (`/settings/me/connected-apps`). The **Connect** tab of **AI assistants (MCP)** links to it. Each row shows the application name and where it is published (or the
 **Unverified** badge), the access it holds (**Findings**, **Assets**, **Compliance**, **Pentest**),
 when it was connected, when it was last used and from which address, and when it ends.
 
@@ -292,7 +291,7 @@ disconnect it and tell your administrator.
 
 ## Approve applications and set the policy
 
-Administrators manage MCP under **Settings > Access & security > AI assistants (MCP)**. The page has four tabs:
+Administrators manage MCP under **Organization settings > People and access > AI assistants (MCP)**. The page has four tabs:
 
 | Tab | Who sees it | What is on it |
 |---|---|---|
@@ -324,7 +323,7 @@ this application**. This is the secure default. Claude on the web is an applicat
 This is the recommended way. A member who is blocked sends a request from the consent screen, and
 you decide it:
 
-1. Open **Settings > Access & security > AI assistants (MCP) > Applications**. **Access requests** lists each
+1. Open **Organization settings > People and access > AI assistants (MCP) > Applications**. **Access requests** lists each
    waiting request: the application, the publisher, who asked first, how many requests there are,
    when, and **Asks for:** the access it wants.
 2. Check that you recognize the publisher and want that service in the organization.
@@ -414,7 +413,7 @@ who, which application, access, last use and expiry. Choose **Disconnect** to en
 
 ## Audit log
 
-OpenCTEM writes these events to **Settings > Access & security > Audit log** (resource type `mcp_grant`
+OpenCTEM writes these events to **Organization settings > Sign-in and oversight > Audit log** (resource type `mcp_grant`
 unless noted):
 
 | Event | When |
@@ -491,7 +490,7 @@ persuaded, so use the assistant in a way that limits the damage.
 | **Choose an organization first: sign in again or pick one from the organization list, then open the link again.** | The consent link opened without a current organization. | Sign in, choose the organization, then connect again from the assistant. |
 | **This link is not a valid connection request.** / **This request is no longer available.** | The request expired (it lasts 10 minutes) or was already answered. | Start the connection again from the assistant. |
 | **Cannot connect the application** | A generic failure of the consent page; its text gives the reason. | Retry from the assistant; if it persists, send the text to your administrator. |
-| The assistant says it cannot sign in, or an authentication error after it worked before | The connection ended: disconnected, expired, your access changed, or DPoP became required. | Check **Your AI applications**; connect again. |
+| The assistant says it cannot sign in, or an authentication error after it worked before | The connection ended: disconnected, expired, your access changed, or DPoP became required. | Check **Connected applications**; connect again. |
 | `401 Invalid credentials` from the MCP endpoint | The token is wrong, expired, revoked, the membership ended, or a required DPoP proof is missing or invalid. | Reconnect. A `WWW-Authenticate: DPoP` header names the accepted algorithms. |
 | `403 Your organization does not allow API keys on the MCP server` | **API keys on the MCP server** is off. | Use OAuth, or ask an administrator. |
 | `403 IP_NOT_ALLOWED` | The organization's IP allowlist applies to MCP like the REST API. | Connect from an allowed network. |

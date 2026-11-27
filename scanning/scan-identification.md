@@ -25,7 +25,7 @@ header name is kept.
 | Layer | Where | Who | At most |
 |---|---|---|---|
 | Platform | Console **System > Scan identification** | platform administrators | a User-Agent or a rotation list, 4 headers, a query parameter; each optionally **Enforced** |
-| Organization | **Settings > Scanning > Scan identification** | the organization owner | a User-Agent or a rotation list, 6 headers, a query parameter |
+| Organization | **Organization settings > Scanning > Scan identification** | the organization owner | a User-Agent or a rotation list, 6 headers, a query parameter |
 | Bug-bounty program | the program's rules | the program | a User-Agent or a rotation list, 10 headers |
 | Sensor host | the sensor's local policy (`http.user_agent` or `http.user_agents`, `http.headers`) | whoever runs the sensor | a User-Agent or a rotation list, 4 headers |
 
@@ -47,7 +47,7 @@ organization.
 
 ## Organization settings
 
-**Settings > Scanning > Scan identification** (owner only, with a recent
+**Organization settings > Scanning > Scan identification** (owner only, with a recent
 sign-in; the change is audited with the security settings):
 
 - **User-Agent of scan tools**: sent by your scan tools instead of their own.

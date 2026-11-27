@@ -137,7 +137,7 @@ least two platform administrators.
 ## 8. Sign-in and identity
 
 - Local accounts: the platform e-mail must work (verification and
-  password-reset e-mails): set it in the platform console, **Settings > E-mail**,
+  password-reset e-mails): set it in the platform console, **Settings > Email**,
   and send a test e-mail.
 - Single sign-on: configure the identity provider ([OIDC](../identity/sso-oidc.md),
   [SAML](../identity/sso-saml.md)) and sign in once with a test account.

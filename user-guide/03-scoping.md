@@ -39,7 +39,7 @@ ready** and links to the page that fixes it:
 - Attacker profiles chosen for the cycle
 - Threat model for each crown jewel
 
-![The Scoping overview with the readiness checklist for a CTEM cycle]({{ site.baseurl }}/assets/images/user-guide/scoping-overview.png)
+![The Scoping overview before the first cycle, with the readiness checklist]({{ site.baseurl }}/assets/images/user-guide/scoping-overview.png)
 *Figure: Scoping overview: what a cycle needs before it starts.*
 
 A row is hidden when its module is turned off.
@@ -71,7 +71,7 @@ outcome it is judged by, so each round is measurable and comparable to the last.
 
 Status flows **planning → active → review → closed**, one step at a time, and
 each step asks for confirmation. Owners and administrators can switch on
-**Require the validation coverage SLO to close a cycle** (on the Cycles page,
+**Require the validation coverage target to close a cycle** (on the Cycles page,
 off by default): a cycle whose resolved findings lack validation evidence below
 the coverage targets then cannot be closed; with it off the cycle closes and the
 shortfall stays visible.
@@ -171,13 +171,13 @@ deliver, so you can reason about risk to a service rather than to raw hosts.
    **Description** and the **Criticality** (critical, high, medium or low).
 3. Under **Compliance scope**, select the frameworks that apply: PCI-DSS, HIPAA,
    SOC2, GDPR, ISO27001, NIST.
-4. Under **Data handling**, tick **Handles PII**, **Handles PHI** and/or
+4. Under **Data handling**, tick **Handles personal data**, **Handles health data** and/or
    **Handles Financial Data**.
-5. Enter **Availability (%)**, **RPO (min)**, **RTO (min)**, **Owner name** and
+5. Enter **Availability (%)**, **Most data you can lose (min)**, **Longest downtime allowed (min)**, **Owner name** and
    **Owner email**, and save.
 6. Link the service's assets and say how the service uses them.
 
-The cards show **Services**, **Critical**, **Handle PII** and **Handle financial
+The cards show **Services**, **Critical**, **Handle personal data** and **Handle financial
 data**. Use the row menu to **Edit** or **Delete** (deleting cannot be undone).
 Creating and editing needs the business-services write permission.
 
@@ -187,8 +187,8 @@ Creating and editing needs the business-services write permission.
 priorities follow the business.
 
 1. Click **New business unit**.
-2. Enter the **Name**, a **Description**, the **Criticality** and the **Risk
-   tolerance** (low, medium or high).
+2. Enter the **Name**, a **Description**, the **Criticality** and the **Acceptable
+   risk** (low, medium or high).
 3. Optionally pick a **Parent unit** to build your hierarchy. The picker leaves
    out the unit itself and its own sub-units, so loops are impossible.
 4. Enter the **Owner** and **Owner email**, and optional **Tags**.
@@ -218,8 +218,8 @@ the asset's risk score and the priority class of its findings. Your own
 criticality value is never overwritten.
 
 **Confidentiality, integrity and availability impact.** In an asset's add or edit
-form, **Business Impact (CIA)** has **Confidentiality Impact**, **Integrity
-Impact** and **Availability Impact**, each **Low**, **Moderate**, **High** or
+form, **Business impact (CIA)** has **Confidentiality impact**, **Integrity
+impact** and **Availability impact**, each **Low**, **Moderate**, **High** or
 **Not rated**. A high CIA rating raises the **priority of findings** on that
 asset (it can lift a finding near a threshold up one class, with a reason such as
 "impact raised by CIA rating"). It does not change the asset's risk score and is
@@ -240,16 +240,17 @@ becomes critical too.
 is out of scope, and an exclusion always wins. See also
 [Scope and authorization to scan](../scanning/scope.md).
 
-![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+![The Scope page with its Scope, Domain proof, Networks, Programs and Letters tabs and the list of scope entries]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 *Figure: Scope: the entries in effect.*
 
-The page has three sections, shown as tabs under the title: **Scope**,
-**Programs** and **Letters** (see [Programs and letters](#programs-and-letters)).
-On **Scope**, the cards **In scope** and **Out of scope** also switch tabs. The
-tabs are **In scope**, **Out of scope**, **Domain proof** and **Networks** (the
-last two need the attack surface module). Under **Strict** scan approval (or
-while a change still waits), a **Waiting for approval** card and an
-**Approvals** tab appear as well. **Policy** opens the scope policy.
+The page has one row of tabs under the title: **Scope**, **Domain proof** and
+**Networks** (these two need the attack surface module), **Programs** and
+**Letters** (see [Programs and letters](#programs-and-letters)). On **Scope**, a
+strip of figures (**In scope**, **Excluded**, **Pending proof** and **Found but
+unknown**) sits above the list, and **Show** in the list toolbar picks
+**Entries** or **Exclusions**. Under **Strict** scan approval (or while a change
+still waits), **Show** also offers **Approvals**. **Policy** opens the scope
+policy and **Check target** tells whether a target is in scope.
 
 ### Add to scope
 
@@ -272,7 +273,7 @@ approver.
    names, though names found still join the inventory. The dialog shows the date
    it would expire.
 4. Under **Strict** scan approval only, choose the **Deepest probe allowed**:
-   **T0 passive**, **T1 safe active** or **T2 intrusive** (T2 needs an expiry
+   **Passive**, **Safe active** or **Intrusive** (T2 needs an expiry
    and an approval). Outside Strict the scan decides how hard it probes.
 5. Under **Authorized by**, keep **Our organization owns it** or choose a
    **Letter** of authorization (see [Programs and letters](#programs-and-letters)):
@@ -357,7 +358,7 @@ manages scan zones. (API: `POST /api/v1/scope/targets/{id}/replace` with
 
 ### Put out of scope
 
-On the **Out of scope** tab, click **Put out of scope**:
+On **Scope**, choose **Show › Exclusions**, then click **Put out of scope**:
 
 1. Enter **What** (a domain, IP address or range, URL or repository).
 2. Optionally block only part of a host: tick the path option, enter a **Path
@@ -450,7 +451,7 @@ passive when it sits on a shared, CDN or cloud network, nothing is known
 about its network, names of three or more domains point at its address
 (shared hosting), or it is a name outside your domains. A name that resolves
 only through a wildcard DNS record stays passive until a person confirms it.
-**Settings › Scanning › Scope policy** > **Scan unclassified assets** sets
+**Organization settings › Scanning › Scope policy** > **Scan unclassified assets** sets
 this to **Off (passive only)**, **Low-impact (default)** or **Full** (the
 scan's own intensity, still behind the guardrails); Strict scan approval
 always means Off. A port scan of a name reaches only the web ports while an
@@ -461,12 +462,12 @@ win. See [Unclassified assets](../scanning/scope.md#unclassified-assets).
 ### Approvals
 
 Shown under **Strict** scan approval, or while something still waits. The
-**Approvals** tab is one queue for both entries ("Adds to scope") and
+**Approvals** list (**Show › Approvals**) is one queue for both entries ("Adds to scope") and
 exclusions ("Puts out of scope"). Click **Approve** or **Reject**, or select
 several and **Approve selected**. You can never approve your own request, and
 approving widening entries can require a fresh identity check.
 
-![The Approvals tab of the Scope page with a cloud account and an exclusion waiting for a second administrator]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
+![The Scope page showing approvals: a cloud account, an out-of-scope rule and repositories waiting for a second administrator]({{ site.baseurl }}/assets/images/scanning/scope-approvals.png)
 *Figure: Scope changes waiting for another administrator's approval.*
 
 ### Domain proof
@@ -477,16 +478,16 @@ enter the **Domain**, click **Prove a domain**, publish the record and click
 platform administrator requires it (off by default), scans on shared sensors
 and intrusive (T2) probes need a proved domain.
 
-![The Domain proof tab with two verified domains and one waiting for its TXT record]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
-*Figure: Domain proof: two domains verified, one waiting for its DNS TXT record.*
+![The Domain proof tab with the field to prove a domain]({{ site.baseurl }}/assets/images/scanning/scope-domain-proof.png)
+*Figure: Domain proof.*
 
 ### Networks
 
-The **Networks** tab holds your **network seeds**: AS numbers (`AS64500`) and
+The **Networks** tab holds your **network starting points**: AS numbers (`AS64500`) and
 organization names that are yours. Each is looked up in public routing data
 (RIPEstat; the value is sent there): an AS number lists the address ranges it
 announces, which you can add as scope entries, and an organization name lists
-the AS numbers registered to it (**Add as AS seed**). **Add seed** takes the
+the AS numbers registered to it (**Add as AS number**). **Add starting point** takes the
 **Kind** (**AS number** or **Organization**) and the **Value**; **Look up
 again** refreshes one. Prefixes of a cloud or CDN provider that serves many
 organizations are not offered as scope entries, and ranges larger than the
@@ -496,7 +497,7 @@ Monitoring**, in which case seeds are kept but not looked up.
 
 ### Scope policy
 
-**Settings › Scanning › Scope policy** (`/settings/scope`) sets how scope may
+**Organization settings › Scanning › Scope policy** (`/settings/scope`) sets how scope may
 change. Only scope approvers can edit it; saving asks you to confirm your
 identity, is audited and notifies every administrator.
 
@@ -521,7 +522,7 @@ approval mode and that scope checks are always on.
   permanent entry stay *discovered*, in the inventory, until a person
   confirms them (a scope entry still lets scans reach them).
 - **Review discovered assets first** makes names outside every permanent
-  entry wait in **Attack surface › Discovery › Decisions** before they join the
+  entry wait in **Attack surface › Review** before they join the
   inventory. It never changes what may be scanned.
 - **Confirming an asset adds it to scope** adds the exact entry when a
   person confirms a domain, subdomain or public address as yours. Under

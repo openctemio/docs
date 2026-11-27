@@ -16,7 +16,7 @@ findings where state = open and severity = critical and is_in_kev = true
 ```
 
 The query language is available over the REST API (`/api/v1/query/*`). The web console has no
-general query editor; it uses the language in one place, **New task from query** in the remediation
+general query editor; it uses the language in one place, **New task from a filter** in the remediation
 hub, which selects the findings of a remediation task with a query and shows a live check and a preview.
 
 1. TOC

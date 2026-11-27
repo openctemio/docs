@@ -11,7 +11,7 @@ description: How a discovered name or address is confirmed as yours, added to sc
 
 Discovery finds names and addresses that may or may not be yours. A name a
 permanent scope entry covers is confirmed by itself. Everything else waits
-for a person in **Discovery > Decisions**. A decision changes what the
+for a person in **Attack surface > Review**. A decision changes what the
 platform may scan, which findings stay open and what your inventory counts.
 
 1. TOC
@@ -181,7 +181,7 @@ and sends nothing to the address.
 ## Related
 
 - [Attack surface monitoring: Review](../../scanning/easm.md#review)
-- [Discovery: Decisions](../../user-guide/04-discovery.md#decisions)
+- [Attack surface: Review](../../user-guide/04-discovery.md#review)
 - [Scope and authorization to scan](../../scanning/scope.md)
 - [CDN and shared hosting](cdn-edge.md)
 - [Finding status lifecycle](../results/finding-lifecycle.md)

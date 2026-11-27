@@ -52,7 +52,7 @@ flowchart LR
 3. **Detections.** **Threat intel > Detections** lists matches that were
    stored before the route was removed. No new match is made, so no finding
    is reopened by a runtime detection.
-4. **Outbound (works).** **Settings > Integrations > SIEM** forwards
+4. **Outbound (works).** **Organization settings > Integrations > Event forwarding** forwards
    findings, exposures, scans and SLA breaches to Splunk through the HTTP
    Event Collector. Events go through the same delivery queue, filters and
    retries as other notifications: see
@@ -78,6 +78,6 @@ flowchart LR
 ## Related
 
 - [Indicators and detections](../../user-guide/06-prioritization.md#indicators-and-detections)
-- [Settings and integrations: SIEM](../../user-guide/10-settings-and-integrations.md#siem)
+- [Settings and integrations: Event forwarding](../../user-guide/10-settings-and-integrations.md#event-forwarding)
 - [Notification channels](../../configuration/notifications.md)
 - [Notification delivery](../remediation/notifications.md)

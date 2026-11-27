@@ -44,7 +44,7 @@ flowchart TD
 ```
 
 1. The policy is the asset's own active policy, else your organization's
-   default policy (**Settings › Findings & assets › SLA policies**). Without any policy the
+   default policy (**Organization settings › Findings and assets › SLA policies**). Without any policy the
    platform defaults apply: P0 2 days, P1 5, P2 15, P3 30, and by severity
    critical 2, high 15, medium 30, low 60. Informational findings get no
    deadline unless the policy sets info days.

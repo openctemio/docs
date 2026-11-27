@@ -122,9 +122,9 @@ and approve it in OpenCTEM. The steps, the consent screen and the organization p
 [Connect an AI assistant](../user-guide/12-connect-an-ai-assistant.md). The rest of this section
 is the API-key method for scripts and clients without OAuth support.
 
-![The AI assistants (MCP) settings page on the Connect tab: client configuration with the endpoint URL and the organization's status badges]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
+![The AI assistants (MCP) settings page on the Connect tab: the status chips, the client tabs and the commands to copy]({{ site.baseurl }}/assets/images/api/mcp-connect.png)
 
-1. In the console open **Settings > Access & security > AI assistants (MCP)**, open the **Connect** tab and choose **Generate key**.
+1. In the console open **Organization settings > People and access > AI assistants (MCP)**, open the **Connect** tab and choose **Generate key**.
 2. Pick the key's purpose:
    - **General read access**: scopes `findings:read`, `assets:read`,
      `compliance:frameworks:read`.
@@ -260,7 +260,7 @@ too. Each connection may ask 30 times a minute (burst 10; a limited call answers
   findings with `get_pentest_finding`; the campaign-wide tools and prompts answer `not_found` to
   them.
 - **TLP limit.** An organization administrator sets the highest TLP sent to AI applications in
-  **Settings > Access & security > AI assistants (MCP) > Policy** (default TLP:AMBER). A campaign above it
+  **Organization settings > People and access > AI assistants (MCP) > Policy** (default TLP:AMBER). A campaign above it
   is refused by every pentest tool and prompt with the error `campaign_restricted`, and left out of
   `list_campaigns`, `my_work` and `list_findings` (the lists say how many they left out, with no
   names). A campaign lead can also tick **Keep this campaign away from AI assistants** on the
@@ -325,13 +325,13 @@ provider. Decide which scopes to grant with that in mind.
 
 ## Managing AI access (API)
 
-The console's **Settings > Access & security > AI assistants (MCP)** page (tabs **Connect**, **Applications**,
+The console's **Organization settings > People and access > AI assistants (MCP)** page (tabs **Connect**, **Applications**,
 **Connections**, **Policy**) uses these endpoints. They need a signed-in session; API keys and MCP
 tokens are refused. Changes that loosen the policy also need a recent sign-in.
 
 ![The Policy tab of AI assistants (MCP): the switch for AI assistants, what they may read or change, and the connection and TLP limits]({{ site.baseurl }}/assets/images/api/mcp-policy.png)
 
-![The Applications tab listing approved AI applications]({{ site.baseurl }}/assets/images/api/mcp-applications.png)
+![The Applications tab of AI assistants (MCP): an access request from a member waiting for a decision, and the approved publishers]({{ site.baseurl }}/assets/images/api/mcp-applications.png)
 
 | Endpoint | Who | Purpose |
 |---|---|---|

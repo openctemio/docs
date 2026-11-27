@@ -178,7 +178,7 @@ refused (`503 AUDIT_UNAVAILABLE`) and the session stays read-only. With
 A super admin acting read-only still sees every page; a page that needs a higher
 acting role offers the elevation in place.
 
-![The Elevate for a while dialog over the console overview, with Role, For and Reason fields]({{ site.baseurl }}/assets/images/console/elevate.png)
+![The Elevate for a while dialog over the console overview, with Role, For, Reason and the code from the authenticator app]({{ site.baseurl }}/assets/images/console/elevate.png)
 *Figure: Elevating the console session.*
 
 ### Confirming protected actions
@@ -204,7 +204,7 @@ the change is refused with `503 AUDIT_UNAVAILABLE` and nothing changes.
 
 ## Find your way
 
-![The console Overview: the Needs attention list with a service that does not answer, refused actions, an overdue break-glass test, low disk space and backups not reported, above the counts of organizations, sensors, refused actions and the schema version]({{ site.baseurl }}/assets/images/console/overview.png)
+![The console Overview: the installation summary, the Needs attention list, customers and administrators, and recent administrator activity]({{ site.baseurl }}/assets/images/console/overview.png)
 *Figure: Platform console, Overview.*
 
 The sidebar has four groups and one **Settings** entry, grouped by what you are doing. A
@@ -227,17 +227,17 @@ On a settings page the sidebar shows the **settings rail** with a way back to th
 | **Sign-in and sign-up** | **Sign-up**, **Social login**, **CAPTCHA**, **Admin sign-in** |
 | **Organizations** | **Limits**, **Two-factor** |
 | **Scanning** | **Scan approval**, **Scan identification**, **Platform scanning** |
-| **Notifications** | **E-mail**, **Alerts** |
+| **Notifications** | **Email**, **Alerts** |
 | **AI** | **AI provider** |
 
 Page addresses did not change with the rails, and the command palette finds every page.
 **About > Open-source licenses** (Help) lists the open-source components of the build.
 
-The sidebar footer holds **Help**, the signed-in administrator, **My security
-keys**, **Language** and **Sign out**. **Search the console** (Ctrl+K or ⌘K)
+The sidebar footer holds **Help** and your account menu (your name), with **My
+security keys**, **Language** and **Sign out**. **Search the console** (Ctrl+K or ⌘K)
 finds any page; the sun icon switches between light and dark.
 
-![The Language menu in the sidebar footer offering English and Tiếng Việt]({{ site.baseurl }}/assets/images/console/language.png)
+![The account menu at the foot of the sidebar with its Language submenu: English and Tiếng Việt]({{ site.baseurl }}/assets/images/console/language.png)
 *Figure: The console's language menu.*
 
 **Language** switches the console between English and Vietnamese (Tiếng Việt).

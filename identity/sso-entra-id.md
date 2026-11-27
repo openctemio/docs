@@ -85,15 +85,15 @@ authenticator code for every change) in the admin console, not by the organizati
    is sent with the admin API (`scopes` on `POST /api/v1/admin/tenants/{tenantId}/sso/identity-providers`).
 
 4. If the organization already has an owner, the change is **pending** until an owner approves it in
-   the organization under **Settings > Access & security > SSO approvals** (with step-up re-authentication). The owner
+   the organization under **Organization settings > Sign-in and oversight > Sign-in > Joining > SSO changes** (with step-up re-authentication). The owner
    sees the change and is notified in the app and by email. Pending changes expire after 7 days. An
    organization with no owner yet gets the change applied directly.
 
 ![The Single sign-on tab of an organization in the admin console with a change waiting for the owner's approval]({{ site.baseurl }}/assets/images/identity/admin-organization-sso.png)
 *Figure: Admin console, organization, Single sign-on.*
 
-![The SSO approvals page where the organization owner approves or rejects the proposed identity provider]({{ site.baseurl }}/assets/images/identity/sso-approvals.png)
-*Figure: The owner approves the change under Settings, Security, SSO approvals.*
+![The Joining tab of the Sign-in settings, ending with the SSO changes section]({{ site.baseurl }}/assets/images/identity/sso-approvals.png)
+*Figure: The owner approves the change under Organization settings, Sign-in, Joining, SSO changes.*
 
 Users then sign in at `https://<app>/login?org=<organization-slug>` and choose the provider.
 
@@ -148,7 +148,7 @@ required; an invitation to someone outside the organization says so when SSO is 
 
 An owner can also turn on **Approve new SSO members** (`jit_requires_approval`, owner with step-up): people the
 organization's SSO admits for the first time wait with no access until an administrator approves them
-under **Settings > Access & security > Members**; rejecting offboards them.
+under **Organization settings > People and access > Members**; rejecting offboards them.
 
 The platform administrator can also choose, per verified domain, whether new people from that domain
 are admitted at all and in which role (**New people** action on the domain: **Admit new people**,
@@ -182,7 +182,7 @@ To remove access as soon as someone is removed in Entra:
 
 - turn on [SCIM provisioning](scim.md): removing or unassigning the user in Entra offboards their
   membership in the organization, which takes effect on their next request;
-- or remove the member in OpenCTEM (**Settings > Members**), or revoke their sessions.
+- or remove the member in OpenCTEM (**Organization settings > People and access > Members**), or revoke their sessions.
 
 Otherwise a session ends when it expires (`AUTH_SESSION_DURATION`, 30 days by default) or its refresh
 token is not used for `AUTH_REFRESH_TOKEN_DURATION` (7 days by default).

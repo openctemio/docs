@@ -20,7 +20,7 @@ organization, keep it unbeatable, and keep track of coverage.
 flowchart TD
   a[1. Connect the code host:<br/>GitHub App or GitLab group token] --> b[2. One trust per organization<br/>or top-level group]
   b --> c[3. A central workflow or template,<br/>pinned to a release]
-  c --> d[4. Pin trust to that workflow:<br/>Pipeline definitions]
+  c --> d[4. Pin trust to that workflow:<br/>pipeline files]
   d --> e[5. Policy in Warn mode]
   e --> f[6. Mark expected scans on<br/>critical repositories]
   f --> g[7. Require the OpenCTEM gate check<br/>source: the OpenCTEM app]
@@ -45,20 +45,21 @@ configuration per repository. Narrow it only when you need to:
 | Repositories | Admit only some repositories: `acme/api`, `acme/*` (one level), `acme/**` (any depth) |
 | Branches and tags | Admit only some refs: `main`, `release/*`. For a pull request, its source branch |
 | Events, Environments | Admit only some triggers or deployment environments |
-| Pipeline definitions | Admit only jobs that run your central workflow (see below) |
+| Pipeline files (**More rules**) | Admit only jobs that run your central workflow (see below) |
 | Protected branches and tags only | Deploy-grade trust: GitLab reads `ref_protected`. On GitHub, list environments whose deployment branch rules admit only protected refs |
 | Admit fork pull requests | Leave it off. `pull_request_target` and `workflow_run` run fork code with your repository's identity |
 
-![The Trust tab: trust configurations for GitHub example-org and the GitLab platform group]({{ site.baseurl }}/assets/images/scanning/ci/ci-trust.png)
+![The Connections tab: the GitHub Actions trust for example-corp and the GitLab CI trust for example-platform]({{ site.baseurl }}/assets/images/scanning/ci/ci-trust.png)
 *Figure: Trust for GitHub example-org and the GitLab platform group.*
 
 ### GitHub Enterprise
 
 For GitHub Enterprise Server, or an enterprise on github.com with its own
-token issuer, use **Trust › Add trust** with **GitHub Actions** and fill in
+token issuer, open **Connect a CI provider**, choose **GitHub Actions** and
+**Fill in every rule yourself**, and fill in
 **GitHub Enterprise issuer**: `https://<host>/_services/token` for a server,
 or `https://token.actions.githubusercontent.com/<enterprise slug>`. The
-**Connect a pipeline** wizard covers github.com only. In OpenCTEM, the
+short form of the wizard covers github.com only. In OpenCTEM, the
 repositories and pipeline links of a server are named on its host
 (`github.example.com/acme/api`). A server on a private
 network needs its range in `OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS` on the API.
@@ -79,7 +80,8 @@ a release ([Reference](ci-reference.md#versions-to-pin)).
 
 ## 4. Pin trust to it
 
-In the trust's **Pipeline definitions**, list that workflow:
+In the trust configuration (**CI/CD › Connections**, then **Edit**), under
+**More rules**, list that workflow as a pipeline file:
 
 - GitHub: `example-org/security/.github/workflows/openctem.yml@refs/heads/main`
   (the token's `job_workflow_ref`; `*` allowed in the ref);

@@ -186,7 +186,7 @@ API from starting while it is set. See
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#creating-organizations)
 for both layers, the limits and the CAPTCHA rules.
 
-![The Organizations list of the admin console with Example Corp and its owner]({{ site.baseurl }}/assets/images/user-guide/admin-organizations.png)
+![The Organizations list of the platform console]({{ site.baseurl }}/assets/images/user-guide/admin-organizations.png)
 *Figure: Platform console, Organizations: every organization of the installation.*
 
 Users never sign up on their own by default: accounts come from an organization

@@ -12,6 +12,9 @@ security analysts, engineers, team leads and organization owners. It explains
 what each part of the console does and how to do the tasks you will actually
 do, step by step.
 
+Coming from the earlier look of the console? Start with
+[What changed in the new interface](new-interface.md).
+
 Installing, configuring or operating the platform is covered in
 [Install](../install/index.md), [Configuration](../configuration/index.md) and
 [Operations](../operations/index.md). Scanning infrastructure (sensors, scan
@@ -28,7 +31,7 @@ bottom, and so does this guide.
 flowchart LR
     S["<b>Scoping</b><br/>what is in scope,<br/>what matters<br/><br/>Overview, Cycles,<br/>Business context,<br/>Scope, Threat model"]
     D["<b>Discovery</b><br/>assets, exposures,<br/>findings<br/><br/>Scans, Sensors, CI/CD,<br/>Attack surface, Assets,<br/>Exposures, Credential leaks,<br/>Components"]
-    P["<b>Prioritization</b><br/>rank by real risk<br/><br/>Exposure chains,<br/>Attack paths, Threat intel,<br/>Indicators, Detections,<br/>Business impact,<br/>Compensating controls,<br/>Priority rules"]
+    P["<b>Prioritization</b><br/>rank by real risk<br/><br/>Exposure chains,<br/>Attack paths, Threat intel,<br/>Emerging threats, Indicators, Detections,<br/>Business impact,<br/>Compensating controls,<br/>Priority rules"]
     V["<b>Validation</b><br/>is it really<br/>exploitable?<br/><br/>Overview, Pentest campaigns,<br/>Attack simulation,<br/>Control testing,<br/>Retest queue, ATT&CK coverage"]
     M["<b>Mobilization</b><br/>fix it, track it,<br/>enforce SLAs<br/><br/>Remediation,<br/>SLA compliance,<br/>Exceptions, Automations"]
     S --> D --> P --> V --> M
@@ -37,9 +40,9 @@ flowchart LR
     M ~~~ I
 ```
 
-Each box lists the sidebar entries of that stage. **Findings** and **Approvals**
-sit at the top of the sidebar, next to the dashboard and **My work**, because
-every stage uses them.
+Each box lists the sidebar entries of that stage. **Findings**,
+**Vulnerabilities**, **Approvals** and **Ready to close** sit at the top of the
+sidebar, next to the dashboard and **My work**, because every stage uses them.
 
 | Stage | Goal | Chapter |
 |---|---|---|
@@ -55,6 +58,9 @@ That is the most important workflow in the product; it is covered first in
 [Scoping](03-scoping.md#ctem-cycles-start-here).
 
 ## Chapters
+
+- [What changed in the new interface](new-interface.md): what moved and what
+  works differently in the console's new look.
 
 1. [Getting started and the dashboard](01-getting-started.md): sign in
    (password, two-factor, SSO), choose an organization, accept an invitation, the
@@ -125,12 +131,12 @@ That is the most important workflow in the product; it is covered first in
   [Team and access](02-team-and-access.md#teams-and-assignment-rules).
 - **What appears in the sidebar depends on modules.** If a whole area is missing,
   its module is turned off under
-  [Settings › Organization › Modules](10-settings-and-integrations.md#modules).
+  [Organization settings › Organization › Modules](10-settings-and-integrations.md#modules).
 - **Most assets come from scans and integrations.** You enrich them with
   context: criticality, owner, business unit, crown-jewel status.
 - **Sensitive actions need a second person.** Accepting a risk always goes
   through an approval request, and so does marking a finding a false positive
-  (at the level your organization sets under **Settings > Findings & assets > Finding approvals**).
+  (at the level your organization sets under **Organization settings > Approvals**).
   Verifying a fix is a separate permission from triaging it.
 - **Lists start empty.** Until the first scan or import, most data pages show an
   honest empty state with a suggested next step, not sample numbers.

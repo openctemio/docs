@@ -458,7 +458,7 @@ flowchart LR
    marked. Anything the platform ignored is listed with the reason, for example "not a valid tool
    contract".
 3. **It joins the catalog.** A tool that an active sensor of your organization reports with a
-   valid contract becomes a tool of your organization's catalog (**Settings > Scanning > Tools**),
+   valid contract becomes a tool of your organization's catalog (**Organization settings > Tools and sensors > Tools**),
    enabled, with the display name, description, capabilities, target types, settings schema and
    version from its descriptor. A newer version refreshes the entry; an older one reported by a
    sensor that is not yet upgraded is ignored.
@@ -496,7 +496,7 @@ Nothing is needed to add the tool to the catalog. To run scans with it:
   (`sensors:grant:widen`) on the sensor ([Grants and trust](../sensors/pairing.md#grants-and-trust)).
 - **Scope.** Targets need scope that allows T2 probes ([Scope](../scanning/scope.md)).
 - **Settings.** Review the tool's options on the sensor's **Tool settings** tab.
-- **Switch off.** To stop using the tool, switch it off under **Settings > Scanning > Tools**.
+- **Switch off.** To stop using the tool, switch it off under **Organization settings > Tools and sensors > Tools**.
 
 ## What the runtime guarantees
 

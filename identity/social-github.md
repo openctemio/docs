@@ -37,7 +37,7 @@ OpenCTEM requests the scopes `read:user` and `user:email` (`OAUTH_GITHUB_SCOPES`
 the account's numeric id, name, avatar and the list of emails, and signs the person in with the
 **primary, verified** address. GitHub never proves that the person owns a domain mailbox: a GitHub sign-in cannot claim
 an invitation, join an organization by its domain or take over an account an administrator created
-(`EMAIL_NOT_AUTHORITATIVE`). Link GitHub to an existing account from **My account > Security**
+(`EMAIL_NOT_AUTHORITATIVE`). Link GitHub to an existing account from **Account settings > Security**
 instead. See [Who may sign in](social-login.md#who-may-sign-in).
 
 ## Step 2: Configure OpenCTEM

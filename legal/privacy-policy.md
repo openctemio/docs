@@ -153,7 +153,7 @@ We do not share your data with any other third parties unless:
 
 ### 6.1 Deletion
 
-- A person can delete their own account (**My account > Security > Delete account**). Their sessions end at once; signing in again within 14 days cancels it; after that the account leaves every organization and its personal data is erased.
+- A person can delete their own account (**Account settings > Security > Delete account**). Their sessions end at once; signing in again within 14 days cancels it; after that the account leaves every organization and its personal data is erased.
 - Organization owners can offboard members and erase a former member's personal data; erasure anonymises the account. Existing audit log entries keep the details recorded at the time.
 - Tenant owners can delete the entire tenant. Its database records and its uploaded files are deleted immediately; backups are managed by the platform operator.
 - Backup retention is managed by the platform operator.
@@ -166,7 +166,7 @@ Depending on your jurisdiction, you may have the following rights:
 |-------|-----------------|
 | **Access** | Export your data via the Service's export features, or ask your tenant administrator |
 | **Correction** | Update your profile and data through the Service |
-| **Deletion** | Delete your own account under My account > Security, or ask your tenant administrator to offboard and erase it |
+| **Deletion** | Delete your own account under Account settings > Security, or ask your tenant administrator to offboard and erase it |
 | **Portability** | Export data in CSV/JSON format via API |
 | **Objection** | Contact your tenant administrator |
 | **Restriction** | Contact your tenant administrator |

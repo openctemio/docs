@@ -154,7 +154,7 @@ What the console does for you, with no setting to change:
   of the administrator's account ends their console sessions.
 - **Second factor at every sign-in**, and step-up (a fresh code or a security key) for protected
   actions. Administrators can register **security keys and passkeys** (WebAuthn, user verification
-  required) and ten one-time recovery codes. A super admin can turn on **Require security keys**
+  required) and ten one-time recovery codes. A super admin can turn on **Security keys for administrators**
   (Security > Admin sign-in): it turns on only when the administrator has at least two keys and
   recovery codes; other administrators then reach only the enrolment page until they comply (they
   keep the authenticator code for 7 days), the last two keys cannot be removed, and an administrator
@@ -349,7 +349,7 @@ proxy, do not strip these headers.
   with an address on an organization's verified domain join that organization; `open` lets anyone
   create an organization. No console setting can exceed it. See
   [Sign-up and invitations](../identity/sign-up-and-invitations.md).
-- Require 2FA in each organization (**Settings > Access & security > Authentication > Require two-factor authentication**), or SSO
+- Require 2FA in each organization (**Organization settings > Sign-in and oversight > Sign-in > Require two-factor authentication**), or SSO
   through the organization's identity provider.
 - Set an IP allowlist for organizations whose users work from known networks.
 - Review API keys, SCIM tokens and sensor keys periodically; revoke what is unused.

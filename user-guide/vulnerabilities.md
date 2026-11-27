@@ -45,7 +45,7 @@ shown nor counted, so two people can see different numbers for the same CVE.
 - **Search** matches a CVE id, an advisory id or the title.
 - **Filters panel:** severity, priority, exploitation, EPSS threshold, fix,
   source and asset group. The **Findings** select switches between open, fixed,
-  dispositioned or all findings.
+  dismissed or all findings.
 - **The URL holds every filter.** Copy it to share a view, and Back from a
   vulnerability page returns to the same list.
 

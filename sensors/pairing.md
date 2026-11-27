@@ -64,8 +64,8 @@ Add sensor offers one path. The command carries a single-use code, so the
 console finds the sensor by itself, and the sensor prints the same code, a
 link to approve it on and its fingerprint.
 
-![The Approve a sensor page a printed link opens: the organization the sensor joins, three fingerprints to pick the one the host shows, the host facts, the name and the authenticator code]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
-*Figure: Approving a pairing request.*
+![The Approve a sensor page: the organization the sensor joins, the three fingerprints to choose from and what the sensor reported about its host]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+*Figure: Adding a sensor.*
 
 1. In the console open **Discovery > Sensors > Add sensor**. It first asks
    **What will this sensor scan?**
@@ -418,7 +418,7 @@ notify every administrator. Narrowing is always one step.
 Older sensors authenticate with an API key (`octs_…`, older `rda_…`). New
 organizations cannot create key-based sensors: pairing is the only way in.
 An organization may allow them again by turning off **Require key-bound
-sensor identity** in **Settings > Organization > General**; the Sensors page
+sensor identity** in **Organization settings > Organization > General**; the Sensors page
 then also offers **Install sensor**, which creates a sensor and shows its key
 once, with ready-made install snippets.
 

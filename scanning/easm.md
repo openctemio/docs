@@ -17,14 +17,14 @@ and what is wrong with them:
 4. **What changed?** Continuous monitoring and alerts.
 
 It needs the **Attack surface** module. The pages are under
-**Discovery › Attack surface** (`/attack-surface`), five views: **Overview** (**Summary**, **Posture**),
-**Inventory** (**Technologies**, **Certificates**, **Web surface**),
-**Exposures** (**Exposure items**, **Lookalikes**), **Changes** and
-**Discovery** (**Stages**, **Decisions**). The
+**Discovery › Attack surface** (`/attack-surface`), one row of tabs: **Overview**,
+**Technologies**, **Certificates**, **Web surface**, **Exposures**, **Lookalikes**,
+**Changes**, **Page changes**, **Discovery** and **Review** (**Posture** opens from
+the Overview). The
 [user guide](../user-guide/04-discovery.md#attack-surface) describes each page.
 Only your own attack surface is covered, under your own scope.
 
-![The Attack surface overview: total and exposed assets, critical exposures, the external surface by attribution and freshness, and the top external risks]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
+![The Overview tab of Attack surface: the figure strip, the posture grade, what to fix first and discovery]({{ site.baseurl }}/assets/images/scanning/easm-overview.png)
 *Figure: Discovery, Attack surface, Overview.*
 
 The overview opens with five tiles (**Surface assets**, **Internet-facing
@@ -302,7 +302,7 @@ its task list and the asset's coverage section say why:
   target, not a failure of the platform, so it does not raise the platform-side
   coverage alert. This applies to scans planned after the upgrade.
 
-The fixes the page links to: allow the scanner addresses (**Settings > Scanning >
+The fixes the page links to: allow the scanner addresses (**Organization settings > Tools and sensors >
 Proxies** lists them) and scan again, use another proxy pool, or lower the scan
 rate. Scans never try to get past an edge.
 
@@ -354,7 +354,7 @@ infrastructure), `monitor_only` or `rejected`.
   default) do names outside every permanent entry wait for a person before
   they join the inventory.
 
-**Discovery > Decisions** (`/attack-surface/review`) collects the decisions that
+**Attack surface > Review** (`/attack-surface/review`) collects the decisions that
 still need a person. Its **Waiting for your decision** section has:
 
 - **Addresses your in-scope names resolve to.** Adding them scans every port
@@ -419,7 +419,7 @@ soon** (within 30 days), **Valid** or **Unknown**. The **Expired** and
 or fingerprint, and **Export CSV**. Certificates appear once a scan of your
 external assets reads them.
 
-![The Certificates page: eight certificates of the example domains with issuer, issue date and expiry; one expired self-signed certificate and two expiring within 30 days]({{ site.baseurl }}/assets/images/scanning/easm-certificates.png)
+![The Certificates page with the certificates of the example domains, their issuer and expiry]({{ site.baseurl }}/assets/images/scanning/easm-certificates.png)
 *Figure: Discovery, Attack surface, Certificates.*
 
 It needs `assets:read`, and each certificate follows your data scope. API:
@@ -484,7 +484,7 @@ enumeration job reads, in this order:
 Learned labels and your lists are carried inside the signed job and never stored
 on a sensor beyond the task.
 
-**Settings > Scanning > Wordlists** (`/settings/scanning/wordlists`) manages
+**Organization settings > Tools and sensors > Wordlists** (`/settings/scanning/wordlists`) manages
 your lists. Seeing the page needs `scans:content:read`; changing needs
 `scans:content:write`.
 
@@ -530,8 +530,8 @@ anything is stored. There are two kinds:
   found; the value is never stored or logged.
 
 The platform ships the packs `web-fingerprints-core` and `secret-rules-core`,
-installed on first start when no stable pack of that name exists. **Settings >
-Scanning > Detection rules** (`/settings/scanning/detection-rules`) shows
+installed on first start when no stable pack of that name exists. **Organization settings >
+Tools and sensors > Detection rules** (`/settings/scanning/detection-rules`) shows
 **Platform rules** and manages **Your rules**: a **Name**, a **Kind**
 (**Technology** or **Sensitive data**), a **Category**, a **Severity** (sensitive
 data) or **CPE** (technology), a **Confidence**, and one or more **Matchers**
@@ -551,7 +551,7 @@ API: `/api/v1/content-rules`.
 your own web services and tells you when they change, for example when a sign-in page starts loading
 a script from a new host.
 
-![The Page changes page under Attack surface, Changes: the change list with its severity filter, empty until a watched page changes, and the Watched pages card with a URL field, What to follow and Watch]({{ site.baseurl }}/assets/images/scanning/page-changes.png)
+![The Page changes tab of Attack surface: the change list, empty until a page is checked a second time, and the watched pages]({{ site.baseurl }}/assets/images/scanning/page-changes.png)
 *Figure: Attack surface, Changes, Page changes.*
 
 - **Watched pages.** **Watch** a URL of one of your web services and choose **What to follow**:

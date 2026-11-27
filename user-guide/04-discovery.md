@@ -44,7 +44,7 @@ workflows a scan can run) and **Approvals** (scan approval requests, see
 [Scan approvals](#scan-approvals)). The header has **Quick scan** and **New scan** (both
 need the scan write permission). See also [Scans and scan runs](../scanning/scans-and-runs.md).
 
-![The Scans page listing three scheduled and manual scans with their last run and success rate]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
+![The Scans page with its Scans, Runs, Workflows and Approvals tabs, Quick scan and New scan, and the list of scan configurations]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
 *Figure: Discovery, Scans.*
 
 ### Quick scan
@@ -63,7 +63,7 @@ needs the scan write and execute permissions.
    scanner cannot scan, or archived). With no known names it offers **Run
    discovery on {domain} first**. The preview is a help: if it is unavailable
    you can still start the scan.
-4. Click **Start Scan**. Follow the run under **Runs**, where it shows as a
+4. Click **Start scan**. Follow the run under **Runs**, where it shows as a
    **Quick scan**. If you want to run it again later, **Save as scan** keeps
    the targets and scanner as a saved scan.
 
@@ -85,7 +85,7 @@ passive tools and workflows.
 *Figure: The New scan wizard.*
 
 1. **What**
-   - **Scan Name** (required), for example "Production Security Scan".
+   - **Scan name** (required), for example "Production Security Scan".
    - **What to run**: a **Single check** (one scanner on the targets), a
      scan workflow (one of your organization's workflows or a system
      workflow, with a preview of its steps), or **Continuous discovery**
@@ -142,7 +142,7 @@ passive tools and workflows.
 5. **Review**: everything chosen, and the scan zone each target goes to
    (which can be pinned there). Click **Start scan**, **Schedule scan** or
    **Save scan**. If the scan is saved but cannot start, it stays saved and
-   you can trigger it later from **View Scan**.
+   you can trigger it later from **View scan**.
 
 {: .note }
 From v0.20.0, a scan runs as far as your tools and sensors support. Creating or
@@ -224,7 +224,7 @@ platform** badge. While they are hidden, one line says how many runs
 continuous coverage started, with **Show system runs** and **Coverage
 settings** (`/scans/runs?origin=system`).
 
-![A running scan run: stages, tasks and the timeline]({{ site.baseurl }}/assets/images/scanning/scan-run.png)
+![A running scan run in its side sheet: the tasks with their tool, sensor and duration, and the run map of its steps]({{ site.baseurl }}/assets/images/scanning/scan-run.png)
 *Figure: A scan run in progress.*
 
 - Filter by status (Running, Pending, Completed, Partial, Failed, Timed out,
@@ -247,7 +247,7 @@ settings** (`/scans/runs?origin=system`).
 
 How much human approval a scan needs is the organization's **scan approval**
 mode (**Off** by default, **On**, or **Strict**; an administrator of the platform
-can force a mode), set with its approval rules under **Settings › Scanning ›
+can force a mode), set with its approval rules under **Organization settings › Scanning ›
 Scan approval**. When a rule catches a scan, its page shows **Needs approval
 before it runs**, with who can approve it and **Submit for approval**; when the
 scan changes after an approval, it says **Changed since the last approval** and
@@ -268,7 +268,7 @@ then HTTP probing, then vulnerability scanning) into one repeatable graph with
 dependencies between steps. Scans run either one scanner or one workflow. See
 [Scan workflows](../scanning/scan-workflows.md).
 
-![The scan workflow builder showing five chained steps]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
+![The workflow builder: the chained steps on the canvas and the scanner tools palette]({{ site.baseurl }}/assets/images/scanning/workflow-builder.png)
 *Figure: The scan workflow builder.*
 
 **Discovery › Scans › Workflows** (`/scans/workflows`):
@@ -279,7 +279,7 @@ dependencies between steps. Scans run either one scanner or one workflow. See
   **Add to my workflows**) creates your own editable copy.
 - **New workflow** opens a three-step form:
   - **Basics**: **Workflow Name**, **Description** and **Tags**.
-  - **Steps**: **Add Step**; for each step choose **What it does** (a
+  - **Steps**: **Add step**; for each step choose **What it does** (a
     capability), or start from a specific tool, and optionally set the step key
     and timeout. The platform picks a tool for the capability unless you prefer
     or pin one.
@@ -311,7 +311,7 @@ panel), create **Enrollment tokens** for unattended installs of many sensors,
 group sensors into **Scan zones**, and edit, disable, rotate the key of, revoke
 or delete a sensor.
 
-![The Sensors page with two online sensors, their version, jobs and tools]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
+![The Organization sensors page with its Sensors, Scan zones and Enrollment tokens tabs, fleet health, and the sensor list]({{ site.baseurl }}/assets/images/sensors/sensors-list.png)
 *Figure: Discovery, Sensors.*
 
 Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
@@ -321,34 +321,36 @@ Deploying and operating sensors is covered in [Sensors](../sensors/index.md).
 **Discovery › CI/CD** (`/ci-cd`) shows the CI/CD pipelines that scan your
 repositories from GitHub Actions, GitLab CI and other CI systems, their runs and
 repository coverage, with guides for GitHub Actions and GitLab CI. The
-**Pipelines** tab lists the pipelines and their CI runs, each judged by the CI
-gate; the **Settings** tab decides, on one page, which pipelines may send
-results (trusted pipelines), what fails them (gate policy), pull request
-feedback and break-glass. **Connect a pipeline** sits in the page header on
-every tab (owners and administrators). A repository that a CI trust names also appears as a scope entry
+**Pipelines**, **Runs** and **Coverage** tabs list the pipelines and their CI
+runs, each judged by the CI gate; **Connections** decides which pipelines may
+send results, **Gate** what fails them, and **Pull request feedback** how the
+verdict reaches a pull request. Break-glass is on the **Runs** tab, next to the
+run it unblocks. **Connect a CI provider** sits in the page header on every tab
+(owners and administrators). A repository that a CI trust names also appears as a scope entry
 ([Scoping](03-scoping.md#scope)). See
 [CI integration](../scanning/ci-integration.md).
 
-![The CI/CD page listing two GitHub Actions pipelines with their gate status]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
-*Figure: Discovery, CI/CD: one row per CI pipeline.*
+![The CI/CD integration page with its Pipelines, Runs, Coverage, Connections, Gate and Pull request feedback tabs]({{ site.baseurl }}/assets/images/scanning/ci-pipelines.png)
+*Figure: Discovery, CI/CD.*
 
 ## Attack surface
 
-**Discovery › Attack surface** (`/attack-surface`) is one strip of five views:
-**Overview**, **Inventory**, **Exposures**, **Changes** and **Discovery**. A view
-that has more than one page shows a segmented control under the strip to switch
-between its pages; a page you have no permission for is left out, and a view
-with no page left is hidden.
+**Discovery › Attack surface** (`/attack-surface`) has one row of tabs:
+**Overview**, **Technologies**, **Certificates**, **Web surface**, **Exposures**,
+**Lookalikes**, **Changes**, **Page changes**, **Discovery** and **Review**. On a
+narrow screen the row swipes sideways. A tab you have no permission for is left
+out. **Posture** (`/attack-surface/posture`) is not a tab: **View posture
+details** on the Overview opens it.
 
-| View | Pages | Permission to open |
+| Tab | Address | Permission to open |
 |---|---|---|
-| **Overview** | **Summary** (`/attack-surface`), **Posture** (`/attack-surface/posture`) | `assets:read` |
-| **Inventory** | **Technologies**, **Certificates**, **Web surface** | `assets:read` |
-| **Exposures** | **Exposure items**, **Lookalikes** | `findings:exposures:read` (and `findings:read`); `scope:read` |
-| **Changes** | **Surface** (`/attack-surface/changes`), **Page changes** (`/attack-surface/pages`, see [Page changes](../scanning/easm.md#page-changes)) | `assets:read` |
-| **Discovery** | **Stages**, **Decisions** | `scans:read`; `assets:read` |
+| **Overview** | `/attack-surface` (and **Posture**, `/attack-surface/posture`) | `assets:read` |
+| **Technologies**, **Certificates**, **Web surface** | `/attack-surface/technologies`, `/attack-surface/certificates`, `/attack-surface/web` | `assets:read` |
+| **Exposures**, **Lookalikes** | `/attack-surface/exposures`, `/attack-surface/lookalikes` | `findings:exposures:read` (and `findings:read`); `scope:read` |
+| **Changes**, **Page changes** | `/attack-surface/changes`, `/attack-surface/pages` (see [Page changes](../scanning/easm.md#page-changes)) | `assets:read` |
+| **Discovery**, **Review** | `/attack-surface/discovery`, `/attack-surface/review` | `scans:read`; `assets:read` |
 
-The number of decisions waiting shows on **Discovery**. Clicking an asset on
+The number of decisions waiting shows on **Review**. Clicking an asset on
 any of these pages opens its drawer over the list; a modified click (Ctrl or
 Cmd) opens the asset page. See also [Attack surface monitoring](../scanning/easm.md).
 
@@ -362,14 +364,14 @@ fix first and whether discovery keeps up.
   trust), **Internet-facing assets** (with how many are newly exposed in the
   last 7 days), **New in the last 7 days** (domains, subdomains, addresses and
   certificates first seen; opens **Changes**), **Open exposures** and **Waiting
-  for a decision** (opens **Decisions**).
+  for a decision** (opens **Review**).
 - **Fix first**: the most severe open external exposures, each with its
   severity, type and asset (the asset opens in its drawer). **All N open**
   opens the exposures list.
 - **Discovery**: **Found, not yet decided** (with how long the oldest has
   waited), **Discovered, passive only until in scope**, **Dependency or monitor
   only**, **Domains watched in CT logs** (with how many fail) and **Oldest CT
-  check**. **Decide N** opens **Decisions**.
+  check**. **Decide N** opens **Review**.
 - **Monitoring settings** (button on the Discovery card) opens the settings in a
   drawer; administrators can change them there:
   - Turn **Certificate Transparency discovery** and **DNS checks** on or off,
@@ -379,7 +381,7 @@ fix first and whether discovery keeps up.
   - The same card switches **Automatic enrichment** (every new asset in your
     scope gets DNS records, domain registration and the network owner of its
     addresses, from public lookups only), **Certificate checks of lookalike
-    domains**, **Network seed lookups**, **Screenshots of web assets** (off by
+    domains**, **Network lookups**, **Screenshots of web assets** (off by
     default; kept for 30 days) and the **Weekly digest** (see
     [Changes](#changes)).
 - **Posture**: a card with the grade of your external attack surface from A to
@@ -412,7 +414,7 @@ default interval (24 hours) for the whole installation.
 
 ### Posture
 
-**Overview › Posture** (`/attack-surface/posture`) grades your external attack
+**Posture** (`/attack-surface/posture`) grades your external attack
 surface from **A** to **F**, for the organization and for each root domain. It
 needs `assets:read` and the **Attack surface** module.
 
@@ -425,7 +427,7 @@ needs `assets:read` and the **Attack surface** module.
   activity (10). Next to each is the score you would have once its issues are
   fixed. A category never takes all of its maximum, so fixing any issue raises
   the score.
-- **How the score is computed**: every open issue on a surface asset has points
+- **How the score works**: every open issue on a surface asset has points
   by severity (critical 10, high 5, medium 2, low 0.5; a known exploited CVE
   counts double), multiplied by the asset's criticality (critical or crown jewel
   2, high 1.5, medium 1, low 0.5). A large estate is not graded F for its size.
@@ -448,7 +450,7 @@ dashboards.
 
 ### Technologies
 
-**Inventory › Technologies** (`/attack-surface/technologies`) lists what your
+**Technologies** (`/attack-surface/technologies`) lists what your
 external assets run, one row per technology and version. It needs `assets:read`
 and follows your data scope.
 
@@ -471,7 +473,7 @@ a scan already fetched. A probe's CPE name fills the vendor.
 
 ### Certificates
 
-**Inventory › Certificates** (`/attack-surface/certificates`) lists the TLS
+**Certificates** (`/attack-surface/certificates`) lists the TLS
 certificates found on your external assets, with who they were issued to, who
 issued them and when they expire.
 
@@ -492,7 +494,7 @@ subdomains when they sit below one of your domains; see
 
 ### Web surface
 
-**Inventory › Web surface** (`/attack-surface/web`) shows what your web origins
+**Web surface** (`/attack-surface/web`) shows what your web origins
 serve: endpoints, their parameters (names only), the same path across origins,
 and what changed.
 
@@ -519,9 +521,9 @@ origins come from the HTTP probe: each probed origin is its own asset, named
 by its URL (`https://app.example.com`, `http://203.0.113.7:8080`), next to
 the subdomain or address it runs on.
 
-### Exposure items
+### Exposures
 
-**Exposures › Exposure items** (`/attack-surface/exposures`) lists every exposure
+**Exposures** (`/attack-surface/exposures`) lists every exposure
 of the external surface with the asset it is on. It needs `findings:read` and
 `findings:exposures:read` and the **Attack surface** module, and follows your
 data scope; an exposure that belongs to no asset is visible to callers with
@@ -561,7 +563,7 @@ API: `GET /api/v1/attack-surface/exposures`, `/stats` and `/assets`. See also
 
 ### Lookalikes
 
-**Exposures › Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
+**Lookalikes** (`/attack-surface/lookalikes`) finds domains that others
 registered to imitate yours, without contacting them: DNS lookups and Certificate
 Transparency only, daily for registered lookalikes and weekly for the rest.
 
@@ -584,7 +586,7 @@ Transparency only, daily for registered lookalikes and weekly for the rest.
 
 ### Changes
 
-**Changes** (`/attack-surface/changes`, page **Surface**) lists what changed on
+**Changes** (`/attack-surface/changes`) lists what changed on
 your external attack surface: new and removed hosts, opened and closed ports,
 new or expiring certificates, DNS changes (including dangling DNS), technology
 changes and new exposures, newest first, for the assets you can see. Filter by
@@ -593,9 +595,9 @@ week the administrators and the notification channels that receive attack
 surface events get a **Weekly digest** of these changes (the day and hour are
 set in the Monitoring settings; a week without changes sends nothing).
 
-### Discovery stages
+### Discovery
 
-**Discovery › Stages** (`/attack-surface/discovery`) shows the coverage work of
+**Discovery** (`/attack-surface/discovery`) shows the coverage work of
 your organization in four stages: **Asset discovery**, **Exposure scan**,
 **Validation & scoping** and **Technology discovery**. It needs `scans:read` and
 access to all of the organization's assets (without it the page answers 403
@@ -624,9 +626,9 @@ access to all of the organization's assets (without it the page answers 403
 
 See [Automatic coverage](../scanning/asset-coverage.md).
 
-### Decisions
+### Review
 
-**Discovery › Decisions** (`/attack-surface/review`) collects the decisions that
+**Attack surface › Review** (`/attack-surface/review`) collects the decisions that
 still need a person. Confirming a name or address as yours adds its exact scope
 entry; addresses are never added because a name points at them.
 
@@ -689,7 +691,7 @@ review and are never scanned; findings on them stay visible with the tag
 
 **Inventory** (`/assets`) opens on the full, filterable list of assets.
 
-![The asset inventory with repositories, subdomains and IP addresses, their criticality, exposure and owner]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
+![The asset inventory with its Inventory, Needs attention, Groups and Activity tabs, the Basic and Query switch, and an asset with its risk, scope and open findings]({{ site.baseurl }}/assets/images/user-guide/assets-inventory.png)
 *Figure: The asset inventory.*
 
 - While the inventory is open, the sidebar lists its **views** under
@@ -802,9 +804,9 @@ page:
   **Edit** and **Delete**.
 
 The add and edit form sets the type's fields, the **Criticality**, **Zone**,
-**Exposure**, the **Business Impact (CIA)** ratings (see
+**Exposure**, the **Business impact (CIA)** ratings (see
 [Scoping](03-scoping.md#how-business-context-raises-criticality)), an **Owner
-Reference** and, for some types, the group.
+reference** and, for some types, the group.
 
 **Lowering an asset's risk needs a reason, and sometimes approval.** Raising the
 **Criticality** or **Exposure**, or setting the crown-jewel flag, applies at once.
@@ -813,7 +815,7 @@ crown-jewel flag drops the priority class of the findings on the asset, so when
 that would move an open P0 or P1 finding to a lower class the edit dialog shows
 the impact (how many open findings move, and how many from P0 or P1), asks for a
 **reason** and then follows the organization's approval policy and level, the same
-one as a false positive (**Settings › Findings › Finding approvals**):
+one as a false positive (**Organization settings › Approvals**):
 
 - A person the policy lets decide alone is applied at once and audited at high
   severity.
@@ -892,7 +894,7 @@ full page `/assets/{id}`):
   - **Related assets** lists one line per kind of relationship, with its
     count and the first related assets; **View all** opens **Relations**
    .
-- **Owners**: **Add Owner** with a role (Primary, Secondary, Stakeholder,
+- **Owners**: **Add owner** with a role (Primary, Secondary, Stakeholder,
   Informed, Regulatory), and the direct access grants.
 - **Timeline**: what changed on the asset, and when (a value or the source that
   decides it).
@@ -930,8 +932,8 @@ full page `/assets/{id}`):
   selection, over the whole screen, for the relationships graph and for the
   attack-path graph; **Escape** returns to the side panel. The API is
   `GET /api/v1/assets/{id}/neighborhood`, limited to 300 nodes.
-  **Add relationship** picks the **Relationship Type** and one or more
-  **Target Asset** entries, with an optional description, **Confidence**,
+  **Add relationship** picks the **Relationship type** and one or more
+  **Target asset** entries, with an optional description, **Confidence**,
   **Impact Weight** (1 to 10) and the **Control-plane dependency** flag.
   Relationships can be edited or removed from a related asset's menu.
 - **Technologies** (when probes fingerprinted any): each technology with its
@@ -951,7 +953,7 @@ full page `/assets/{id}`):
   [Automatic coverage](../scanning/asset-coverage.md#the-coverage-section-of-an-asset)), timeline, technical details and **Identity history** (the merges that
   formed this asset).
 
-![The full page of the subdomain app.example.com: criticality, risk score, exposure and properties]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
+![The page of an asset: its type, criticality and exposure chips, the tabs, its risk and the next steps]({{ site.baseurl }}/assets/images/user-guide/asset-detail.png)
 *Figure: Asset details.*
 
 **How this asset was found** (on **Details**, in the drawer and on the asset
@@ -975,13 +977,13 @@ findings, with its properties and identity.
 environment and criticality, to track risk and findings per group and to use as
 scan targets and team scopes.
 
-![The Asset groups page with six groups, their environment, criticality and risk score]({{ site.baseurl }}/assets/images/user-guide/asset-groups.png)
+![The Asset groups page with New group and a group with its environment, criticality, assets and risk score]({{ site.baseurl }}/assets/images/user-guide/asset-groups.png)
 *Figure: Asset groups.*
 
 1. The cards: **Groups**, **Critical groups**, **Assets in groups** and
    **Average risk score**.
 2. **New group** (needs the asset-groups write permission) opens a wizard:
-   **Basic Info** (name, description, **Environment**: Production, Staging,
+   **Basic info** (name, description, **Environment**: Production, Staging,
    Development or Testing; **Criticality**; optional business unit, owner and
    tags) → **Members** (a rule, a pick or a pasted list; see
    [Groups that update themselves](groups-that-update-themselves.md)) →
@@ -1038,7 +1040,7 @@ may open.
 Each reason page has a back link, the reason as a heading that opens a menu to
 switch reason (with counts), the why line and **Open in the inventory**.
 
-![The Needs attention page: reasons in two groups, Fix on the asset and Review, each with a count]({{ site.baseurl }}/assets/images/user-guide/assets-needs-attention.png)
+![The Needs attention page: queues grouped as Scoping decisions, Fix on the asset and Review, each with a count]({{ site.baseurl }}/assets/images/user-guide/assets-needs-attention.png)
 *Figure: Assets > Needs attention.*
 
 #### Relationships
@@ -1109,7 +1111,7 @@ security. Packages come from sensors that run an SCA tool, from CI jobs that
 upload a report and from SBOM imports; there is no manual add or delete. See also
 [Exposures and findings](05-exposures-and-findings.md).
 
-![The Components page with totals, vulnerable components, ecosystems and licenses]({{ site.baseurl }}/assets/images/user-guide/components.png)
+![The Components page with Import SBOM, the totals and a package with its versions, assets, vulnerabilities and license]({{ site.baseurl }}/assets/images/user-guide/components.png)
 *Figure: Software components.*
 
 - The header has **Export SBOM**, **Import VEX** (needs the approve permission
@@ -1138,8 +1140,8 @@ upload a report and from SBOM imports; there is no manual add or delete. See als
   **VEX**.
 - With no packages yet the page says **No components yet** and offers **Import
   SBOM** or **Set up a sensor**.
-- License verdicts follow the organization's license policy under **Settings ›
-  Findings & assets › License policy**.
+- License verdicts follow the organization's license policy under **Organization settings ›
+  Findings and assets › License policy**.
 
 ### VEX statements
 

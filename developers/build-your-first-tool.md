@@ -214,7 +214,7 @@ SENSOR_ADAPTER_DIRS=/etc/openctem/tools openctemio-sensor tools manifests
 
 1. **It joins your catalog.** Once the sensor reports the tool, open the sensor (**Discovery >
    Sensors**), tab **Manifest**: the tool is listed with its contract, its descriptor digest and
-   its options. It also appears under **Settings > Scanning > Tools**, enabled. Nothing in the
+   its options. It also appears under **Organization settings > Tools and sensors > Tools**, enabled. Nothing in the
    platform has to change.
 2. **Allow it to run.** A tool your operator installed is **unverified** and runs as **T2**
    (intrusive), whatever tier it asks for. The sensor must be **Trusted** and its grant must

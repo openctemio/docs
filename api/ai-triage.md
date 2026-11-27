@@ -18,11 +18,11 @@ Every AI result is a governed **suggestion** with provenance: what it would chan
 cites, and the model, prompt and data that produced it. Each organization chooses per use case
 whether suggestions wait for a person or apply on their own, and risk-lowering changes always need
 approval. See [AI suggestions and approval](../user-guide/ai-suggestions-and-approval.md),
-[Settings > AI: use cases](../user-guide/ai-use-cases.md) and
-[Settings > AI: data masking](../user-guide/ai-data-masking.md). Third-party AI agents follow the
+[Organization settings > Organization > AI: use cases](../user-guide/ai-use-cases.md) and
+[Organization settings > Organization > AI: data masking](../user-guide/ai-data-masking.md). Third-party AI agents follow the
 [AI analyze contract](ai-analyze-contract.md).
 
-An organization chooses the **AI source** in **Settings > Organization > AI** (see
+An organization chooses the **AI source** in **Organization settings > Organization > AI** (see
 [AI](../user-guide/10-settings-and-integrations.md#ai)): the platform's provider, its own provider
 (Claude, OpenAI, Gemini or an OpenAI-compatible server at a public https base URL, with a write-only
 key) or off. `GET` and `PUT /api/v1/organization/settings/ai` read and change it (the `PUT` is a

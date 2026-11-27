@@ -208,7 +208,7 @@ sensors are turned on and the organization is allowed.
 
 **Scanning > Platform scanning > Shared sensors** lists the shared fleet, the queue and who uses it:
 
-- **Fleet**: status (*Active*, *Paused*, *Retired*), health, version, tools and
+- **Sensors**: status (*Active*, *Paused*, *Retired*), health, version, tools and
   current jobs per sensor. **Pause** stops a sensor taking new jobs (the jobs
   it holds run to the end) and **Resume** undoes it. **Retire** revokes the
   sensor's key at once; it cannot be resumed, enroll a new sensor instead.
@@ -252,7 +252,7 @@ refuses anything outside them.
 - A scan's **Sensor** setting offers **Auto** (organization sensors first, then
   shared sensors), **Organization sensors** and **Shared sensors**.
 - The organization owner can switch on **Never use shared sensors** in
-  **Settings > Organization > General**: the organization's scans then run only
+  **Organization settings > Organization > General**: the organization's scans then run only
   on its own sensors.
 - Per-organization limits (`platform_scans_per_day`,
   `platform_scans_concurrent`) cap the shared scans an organization starts per

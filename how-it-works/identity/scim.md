@@ -9,7 +9,7 @@ description: How a directory creates, suspends and removes members of an organiz
 # SCIM provisioning flow
 {: .no_toc }
 
-An organization owner creates a SCIM token in **Settings > Directory sync
+An organization owner creates a SCIM token in **Organization settings > People and access > Directory sync
 (SCIM)** and gives it to the identity provider. The provider then creates
 members, suspends them and removes them. Every call works only inside the
 token's organization.

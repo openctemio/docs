@@ -1157,7 +1157,7 @@ the cadence and monitor it:
 
 | Data | Suggested cadence | Where staleness shows |
 |---|---|---|
-| trivy database (sensors and your intake scanner) | Daily | Sensor **Setup & health**; content maximum ages under **Settings > Scanning > Scanner content** |
+| trivy database (sensors and your intake scanner) | Daily | Sensor **Setup & health**; content maximum ages under **Organization settings > Tools and sensors > Scanner content** |
 | nuclei templates | Weekly | Same |
 | SAST rules pack | Per release | Same |
 | Vulnerability feed with KEV and EPSS | Every few hours for no banner (out of date after 12 hours; KEV 6 hours before v0.24.2); at least weekly (bundles expire after 7 days) | Platform console, **System > Threat intelligence**, and the banner every user sees |

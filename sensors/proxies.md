@@ -51,7 +51,7 @@ is visible. The default pool and every other pool use the same card (health
 summary, routing strategy, assigned sensors, **Test**, **Edit**) and the same
 edit dialog, so the default pool can set its strategy and description too.
 
-1. Open **Settings > Scanning > Proxies**.
+1. Open **Organization settings > Tools and sensors > Proxies**.
 2. On the **Default pool** card choose **Add proxies**, paste your proxies,
    one per line (syntax below), and **Save**.
 3. Turn on **Use proxies for scans**.
@@ -247,7 +247,7 @@ never connects to your proxies, so a proxy on a private network can be tested
 by a sensor inside that network. You can test a pool before you turn it on or
 assign it.
 
-1. Open **Settings > Scanning > Proxies** and choose **Test** on the pool.
+1. Open **Organization settings > Tools and sensors > Proxies** and choose **Test** on the pool.
 2. Pick the sensors under **Run the test from (up to 3 sensors)** and choose
    **Run test**.
 3. Each proxy shows a **Result**, the **Exit address** seen by the platform's

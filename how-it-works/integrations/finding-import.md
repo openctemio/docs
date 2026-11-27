@@ -94,7 +94,7 @@ flowchart TD
 ### Import mappings
 
 1. A person with the **Manage Integrations** permission
-   (`integrations:manage`) builds a mapping in **Settings > Integrations >
+   (`integrations:manage`) builds a mapping in **Organization settings > Integrations >
    Import mappings**, previewing a sample of up to 5 MiB. A preview stores
    nothing; up to 20 previews a minute per organization.
 2. Saving stores a new numbered version. A version that changes how findings

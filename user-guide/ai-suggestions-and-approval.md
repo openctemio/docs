@@ -17,7 +17,7 @@ Anything that would lower risk always needs a person.
 
 **AI triage** (button on the finding, with **Re-analyze** once a result exists) asks the AI for
 an assessment of the finding. It needs the `ai_triage:trigger` permission and a turned-on AI
-([Settings > AI](10-settings-and-integrations.md#ai)). The tooltip says it: a suggestion only,
+([Organization settings > Organization > AI](10-settings-and-integrations.md#ai)). The tooltip says it: a suggestion only,
 nothing on the finding changes.
 
 The result appears on the **Overview** tab as **AI Triage Analysis**, with the **AI** badge, the
@@ -53,7 +53,7 @@ An [AI agent](ai-agents.md) runs the same analysis as its own identity. Its resu
 
 Severity and priority never change without a person, in either direction. These rules are fixed;
 no setting loosens them. Which results apply by themselves is set per use case in
-[Settings > AI: use cases](ai-use-cases.md).
+[Organization settings > Organization > AI: use cases](ai-use-cases.md).
 
 ## Why risk-lowering always needs approval
 
@@ -79,7 +79,7 @@ request form, and you send it.
 ## What is sent
 
 For an AI agent's analysis, what the AI sees is masked first: hosts, addresses, people and secrets
-are replaced (see [Settings > AI: data masking](ai-data-masking.md)). AI triage is not masked
+are replaced (see [Organization settings > Organization > AI: data masking](ai-data-masking.md)). AI triage is not masked
 today; only leaked secrets are redacted. In both, fields above the use case's data ceiling
 are withheld ([use cases](ai-use-cases.md#settings-per-use-case)). Every run keeps its
 provenance (provider, model, prompt template, what was sent and withheld, tokens), which the API

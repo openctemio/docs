@@ -45,7 +45,7 @@ access to all organization data**, appears on the consent screen only for such p
 | Your identity is confirmed | The consent asks for a fresh sign-in confirmation. |
 | Tied to your role | Checked on every request: when you lose the role, the connection returns to scoped data at once. |
 | Shorter life | 7 days in total, with a refresh token that expires after 24 hours unused and an access token that lasts 5 minutes (scoped connections last longer). |
-| Visible | The connection shows an **All organization data** badge in **Your AI applications** and in the organization's list. |
+| Visible | The connection shows an **All organization data** badge in **Connected applications** (your own list) and in the organization's list. |
 | Reversible | You, or an organization administrator, can choose **Limit to own data** to return it to scoped data without disconnecting it, or **Disconnect** it. |
 | Audited | The audit log records when it was allowed and when it was removed. |
 | Still bounded | Private bug-bounty program assets and pentest campaigns you are not a member of stay hidden, as for you in the console. |

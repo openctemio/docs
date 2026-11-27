@@ -98,7 +98,7 @@ reason, and is not scanned.
 
 | What happens | What you see | What to do |
 |---|---|---|
-| A found name is not in any scope entry | It joins the inventory and gets passive checks only | Add a scope entry for it, or confirm it in **Decisions** |
+| A found name is not in any scope entry | It joins the inventory and gets passive checks only | Add a scope entry for it, or confirm it in **Review** |
 | A name stops resolving | Coverage settles it as checked with no answer and rechecks DNS after 1, 3 and 7 days, then weekly | Nothing, or remove the record if it is gone for good |
 | The host does not answer the scanner | The run and the asset show a coverage gap with the reason | Allow the scanner addresses, or lower the rate |
 | No sensor can run a step | **Discovery stages** shows the stage paused with the reason | Install the tool or a recent sensor |

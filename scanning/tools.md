@@ -78,7 +78,7 @@ version refreshes them. Nothing in the platform has to change.
 
 ## Availability
 
-**Settings > Scanning > Tools** lists each tool with its status on your
+**Organization settings > Tools and sensors > Tools** lists each tool with its status on your
 sensors:
 
 | Status | Meaning |
@@ -89,7 +89,7 @@ sensors:
 | `no_sensor` | Enabled, but no sensor that may run it reports it |
 | `disabled` | Switched off for your organization |
 
-![The Tools page with each tool's status, sensors, version and last report]({{ site.baseurl }}/assets/images/scanning/tools.png)
+![The Tools settings page listing the tools the sensors report, their status, sensors and versions]({{ site.baseurl }}/assets/images/scanning/tools.png)
 *Figure: Tool availability.*
 
 The **Sensors** column shows how many sensors may run the tool and how many
@@ -126,7 +126,7 @@ The same data is available as `GET /api/v1/tools?include=availability`
   only on a sensor that reports it. Tools your sensors declare are added
   without this step ([above](#tools-your-sensors-declare)).
 
-**Settings > Scanning > Capabilities** lists the capabilities and which of
+**Organization settings > Tools and sensors > Capabilities** lists the capabilities and which of
 your tools and sensors provide each.
 
 ## Tool options
@@ -134,7 +134,7 @@ your tools and sensors provide each.
 Rate, concurrency, timeouts, retries and tool-specific options are set in two
 layers, and a scan may only lower them:
 
-1. **Organization defaults**: **Settings > Scanning > Tool defaults**
+1. **Organization defaults**: **Organization settings > Tools and sensors > Tool defaults**
    (`GET /api/v1/tool-defaults`, `PUT` and `DELETE /api/v1/tool-defaults/{tool}`)
    holds the options every sensor of your organization runs each tool with.
    Anyone with `sensors:read` sees them; owners and administrators
@@ -169,7 +169,7 @@ local policy can always narrow further. See
   v0.38.2 or later). They report no weakness: their result is the e-mail
   addresses, phone numbers, registrant details or card numbers of the target.
 - Out-of-band callbacks (interactsh) are off unless the organization allows
-  them (**Settings > Organization > General**, "Allow out-of-band callbacks
+  them (**Organization settings > Organization > General**, "Allow out-of-band callbacks
   (interactsh) in sensor jobs"), the sensor's local policy allows them, and
   the scan asks for them. A sensor policy without `allow_interactsh` allows
   them from sensor v0.38.4 (before, it did not); only `allow_interactsh: false`
@@ -180,7 +180,7 @@ local policy can always narrow further. See
 
 ## Custom templates
 
-**Settings > Scanning > Scanner templates** (`/api/v1/scanner-templates`)
+**Organization settings > Tools and sensors > Scanner templates** (`/api/v1/scanner-templates`)
 holds your own detection rules:
 
 | Type | Format | Max size | Max rules |
@@ -204,7 +204,7 @@ removed in platform v0.15.0.
 
 Custom nuclei templates reach a sensor only when all of these hold:
 
-1. The organization allows them: **Settings > Organization > General**,
+1. The organization allows them: **Organization settings > Organization > General**,
    "Allow custom templates in sensor jobs". Off by default.
 2. The template passed upload checks: the `code`, `javascript`, `headless` and
    `file` protocols and self-contained templates are refused.
@@ -232,7 +232,7 @@ and javascript types excluded.
 
 The sensor keeps each tool's content (nuclei templates, and on per-tool
 images the trivy database and the SAST rules) current itself and reports the
-versions. **Settings > Scanning > Content freshness** sets the organization's
+versions. **Organization settings > Tools and sensors > Content freshness** sets the organization's
 policy: refresh interval, maximum age per content, a pinned version, and the
 semgrep rule sets. The policy never chooses where content comes from; that is
 the sensor host's setting ([Network](../sensors/network.md#scanner-content-without-internet-access)).

@@ -29,7 +29,7 @@ shows **Active**, **Suspended** or **Deletion scheduled**. **Last member sign-in
 latest sign-in of any active member; sign-in times are kept per account, so a member's
 sign-in to another organization counts.
 
-![The Organizations page listing Example Corp with its owner, limits, members and single sign-on providers]({{ site.baseurl }}/assets/images/console/organizations.png)
+![The Organizations page: New organization, search, Status and Owner filters and the list of organizations]({{ site.baseurl }}/assets/images/console/organizations.png)
 *Figure: Platform console, Organizations.*
 
 ### Create an organization
@@ -37,7 +37,7 @@ sign-in to another organization counts.
 Operations admin or above, with a confirmation:
 
 1. Click **New organization**.
-2. Enter the **Name**, the **Slug** (used in URLs; from v0.24.2 the SAML sign-in
+2. Enter the **Name**, the **Short name** (used in URLs; from v0.24.2 the SAML sign-in
    addresses no longer contain it), the **Owner email** and, optionally, the owner name and a
    description.
 3. Click **Create organization**.
@@ -214,7 +214,7 @@ accounts are kept (people may belong to other organizations).
   written the request answers 503, nothing is deleted and the approval is handed
   back. `organization.purged` follows the deletion.
 
-![The Waiting for approval dialog over the Delete now dialog: another super admin must approve deleting Example Retail before it runs]({{ site.baseurl }}/assets/images/console/second-approval.png)
+![The Another platform owner must approve dialog over the Delete Example Corp now dialog, with the reason for the request]({{ site.baseurl }}/assets/images/console/second-approval.png)
 *Figure: Delete now asks for a second super admin's approval.*
 
 Data handling and erasure: [Data handling](../security/data-handling.md).
@@ -223,15 +223,15 @@ Data handling and erasure: [Data handling](../security/data-handling.md).
 
 **Users** (roles that hold `platform.users.read`: platform owner, platform admin
 and support) lists every account of the installation,
-newest first, with state tabs and their counts: **All**, **Active**, **Not
-verified**, **Locked**, **Blocked**, **No MFA** and **Platform admins**. Search by
+newest first. The **State** filter narrows it to **All**, **Active**, **Not
+verified**, **Locked**, **Blocked**, **Two-factor off** or **Console administrators**. Search by
 email, name or user ID (at least three characters). The list shows account facts
 only, never what an organization holds, and every list view is recorded in the
 admin activity log. Reads are limited to 120 a minute per administrator. Accounts
 linked to a platform administrator are listed (and readable) only for a platform
 owner; for other roles they are left out of the rows and the counts.
 
-![The Users page with the state tabs All, Active, Not verified, Locked, Blocked, No MFA and Platform admins, and a list of accounts with their state, sign-in method and organizations]({{ site.baseurl }}/assets/images/console/users.png)
+![The Users page: search, the State filter and every account with its state, sign-in method, organizations and last sign-in]({{ site.baseurl }}/assets/images/console/users.png)
 *Figure: Platform console, Users.*
 
 Open an account for its organizations, linked identities, active sessions and the
@@ -279,7 +279,7 @@ submitted as they arrive, with the counts for today, the last 7 days and the las
 domain and the client network (`/24` for IPv4, `/48` for IPv6), never the address,
 a name or a browser; events are kept 90 days. Any console role can read the feed.
 
-![The Sign-ups page with counts of accounts created, organizations created and access requests, and a list of events with their path, email domain and network]({{ site.baseurl }}/assets/images/console/signups.png)
+![The Sign-ups page: a list of events with their path, email domain and network, the counts of accounts, organizations and access requests, and the burst alert settings]({{ site.baseurl }}/assets/images/console/signups.png)
 *Figure: Platform console, Sign-ups.*
 
 **Sign-up burst alerts**: when sign-ups of one kind from one network or one email

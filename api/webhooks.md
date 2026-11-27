@@ -252,7 +252,7 @@ The Splunk channel posts to `<endpoint>/services/collector/event` with
 ## Outbound: ticketing
 
 Jira and GitHub Issues integrations create tickets from findings and remediation campaigns with the
-organization's own credentials (console: **Settings > Integrations > Ticketing**). Status changes
+organization's own credentials (console: **Organization settings > Integrations > Ticketing**). Status changes
 come back through the inbound webhooks below.
 
 An organization with several Jira integrations names one with `integration_id` in the body of
@@ -279,7 +279,7 @@ unsigned or badly signed request is `401`, and nothing is read from it.
 ### Jira
 
 Each Jira integration has its own webhook URL, so no organization id is sent and there is no
-platform-wide secret. In the console open **Settings > Integrations > Ticketing**, choose the Jira
+platform-wide secret. In the console open **Organization settings > Integrations > Ticketing**, choose the Jira
 integration and **Inbound webhook**: the dialog shows the URL and lets you generate a secret
 (shown once) or enter the one you set in Jira. The secret is stored encrypted and never returned.
 In Jira, create a webhook with that URL and secret for issue updates.

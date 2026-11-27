@@ -7,8 +7,8 @@ nav_order: 2
 # Team and access
 
 How to bring people into your organization and control what they can do and
-what they can see. These pages are in the settings area (**Settings** in the
-sidebar footer), under **Access** and **Security**. Most actions need an
+what they can see. These pages are in the settings area (**Organization settings** in the
+sidebar footer), under **People and access** and **Sign-in and oversight**. Most actions need an
 **Admin** or **Owner** role; some are owner-only.
 
 Access control has three layers that work together:
@@ -25,11 +25,13 @@ explained in [Who can see and do what](../identity/access/index.md).
 
 ## Members
 
-**Settings › Access & security › Members** (`/settings/members`) lists the people in the
-organization, their roles and pending invitations.
+**Organization settings › People and access › Members** (`/settings/members`) has three tabs, each with its count:
+**Current members**, **Pending invitations** and **Requests to join** (shown
+when the organization lets people ask to join). **Invite user** is the page's
+main action; **Add user** sits beside it.
 
-![The Members settings page with five members, their roles, two-factor status and a pending invitation]({{ site.baseurl }}/assets/images/identity/members.png)
-*Figure: Settings, Members.*
+![The Members settings page with its Current members, Pending invitations and Requests to join tabs, and Invite user and Add user]({{ site.baseurl }}/assets/images/identity/members.png)
+*Figure: Organization settings, Members.*
 
 ### Add people
 
@@ -58,20 +60,18 @@ There are two ways:
 A member can hold several roles (up to ten). At least one role is required. Only
 the organization **owner** can make someone an administrator.
 
-Pending invitations are listed under **Pending invitations**, with **Resend
+Pending invitations are listed on the **Pending invitations** tab, with **Resend
 email**, **Cancel invitation** and a copy-link action.
 
 When the organization lets people with a verified address on its domain ask to
-join (**Settings › Access & security › Domains**), **Requests to join** appears above
-the list: choose a role (viewer or member, never administrator) and **Approve**
+join (**Organization settings › Sign-in and oversight › Sign-in › Joining › Verified domains**), the **Requests to join** tab lists
+them: choose a role (viewer or member, never administrator) and **Approve**
 or **Reject**. Requests expire after 30 days. See
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain).
 
 ### Manage members
 
-The metric strip at the top (**Members**, **Active**, **Disabled**,
-**Offboarded**, **Pending invitations**) doubles as a quick filter; the filters
-next to the search box narrow by status (**Current members**, **Active**,
+On **Current members**, the filters next to the search box narrow by status (**Current members**, **Active**,
 **Disabled**, **Offboarded**, **Everyone**), by **Internal** or **External**
 people and by role. An applied filter reads whole, for example **Status:
 Current members**. Each member's menu offers:
@@ -125,8 +125,8 @@ organization. A service account cannot own an organization.
 
 ### Leave the organization
 
-Any member, whatever their role, can leave from **Settings › My account ›
-Profile**, **Leave organization** under **Organization membership**: access
+Any member, whatever their role, can leave from **Organization settings › Your membership ›
+Membership**, **Leave organization**: access
 ends at once and the member's API keys for this organization are revoked. The
 only owner cannot leave: the button is disabled and says to transfer ownership
 first.
@@ -136,10 +136,10 @@ first.
 OpenCTEM uses **allow-only, role-based access control**: a member's abilities are
 the union of the permissions their roles grant. There are no deny rules.
 
-![The Roles settings page with the four system roles]({{ site.baseurl }}/assets/images/identity/roles.png)
-*Figure: Settings, Roles: the built-in roles and their permission counts.*
+![The Roles settings page with Create role, search and the roles list]({{ site.baseurl }}/assets/images/identity/roles.png)
+*Figure: Organization settings, Roles: the built-in roles and their permission counts.*
 
-**Settings › Access & security › Roles** (`/settings/roles`) lists the roles. The cards
+**Organization settings › People and access › Roles** (`/settings/roles`) lists the roles. The cards
 **Roles**, **System roles** and **Custom roles** also act as filters. Columns:
 **Role**, **Risk** (a label from **Low risk** to **Full control** with a line
 such as "Changes assets, findings and 2 more"), **Data access**, **Level** and
@@ -183,7 +183,7 @@ never what they can do.
 
 ## Teams and assignment rules
 
-**Settings › Access & security › Teams** (`/settings/teams`) organizes members into teams
+**Organization settings › People and access › Teams** (`/settings/teams`) organizes members into teams
 that control which assets they can see.
 
 > Members who are in no team see no assets or findings until you add them to a
@@ -242,7 +242,7 @@ owner and administrator are never granted through a team.
 
 When a preset's template changes, the team shows **Update available**; review it
 and choose **Apply update**. Nothing changes until you do. The role behind a
-preset is managed by the team: it does not appear in **Settings › Access & security ›
+preset is managed by the team: it does not appear in **Organization settings › People and access ›
 Roles** and cannot be edited or assigned by hand. Under the presets, the **Access** tab
 lists the **Custom roles** you bound to the team by hand, each with its **Give
 the role to a person** action.
@@ -278,7 +278,7 @@ Rules can be **Active** or **Inactive**, edited and deleted.
 
 ## Sign-in policy
 
-**Settings › Access & security › Authentication** (`/settings/authentication`) holds the
+**Organization settings › Sign-in and oversight › Sign-in** (`/settings/sign-in`) holds the
 organization's sign-in rules. Administrators can read them; only the owner can
 change them, after signing in again (step-up). The page saves with the bar at
 the bottom, shows who changed it last, and lists any change that weakens
@@ -287,10 +287,15 @@ allowlist) for confirmation before saving. Every owner and administrator gets an
 in-app notice naming who changed what, and the audit log records such a change
 with **High** severity.
 
-![The Authentication settings page]({{ site.baseurl }}/assets/images/identity/authentication.png)
-*Figure: Settings, Authentication.*
+![The Sign-in tab of the Sign-in settings: two-factor authentication, re-verification, new accounts and network restriction]({{ site.baseurl }}/assets/images/identity/authentication.png)
+*Figure: Organization settings, Sign-in.*
 
-**Two-factor authentication** and **New members**:
+The **Sign-in** tab has **Two-factor authentication**, **Re-verification**,
+**New accounts** and **Network restriction**. The **Joining** tab has **Who may
+join**, **Personal accounts**, **Verified domains**, **Trusted organizations**
+and **SSO changes**.
+
+On the **Sign-in** tab:
 
 - **Require for everyone**: members who sign in with a password
   must set up an authenticator app at their next sign-in. Members who sign in
@@ -309,10 +314,11 @@ with **High** severity.
   invited into this organization; under public sign-up the platform verifies
   every address regardless.
 
-Further cards:
+Further sections:
 
-- **Access restrictions**: **Allowed email domains** and an **IP allowlist**
-  (one IP address or CIDR range per line; empty means no IP restriction). The
+- **Network restriction** (**Sign-in** tab): an **IP allowlist** (one IP
+  address or CIDR range per line; empty means no IP restriction). **Allowed
+  email domains** is on the **Joining** tab. The
   page shows your current IP so you do not lock yourself out, and refuses a list
   that would lock you out.
 - **Who can be invited**: **Anyone**,
@@ -329,27 +335,27 @@ Further cards:
 
 What scan jobs may do on your sensors (private targets, out-of-band callbacks,
 custom templates, the tool User-Agent and TLS, sensor identity and key binding,
-shared sensors) is on **Settings › Scanning ›
+shared sensors) is on **Organization settings › Scanning ›
 [Sensor job safety](10-settings-and-integrations.md#sensor-job-safety)**.
 
 **Single sign-on** (SAML or OIDC) and verified domains are configured per
 organization by the **platform administrator**, not on this page; the page says
 so and tells you whom to contact. When the platform administrator proposes an SSO
-change, an owner approves or rejects it under **Settings › Access & security › SSO
-approvals** (`/settings/sso-approvals`); nothing takes effect until an owner
+change, an owner approves or rejects it under **Organization settings › Sign-in and oversight › Sign-in**,
+**Joining** tab, **SSO changes**; nothing takes effect until an owner
 approves it. Once a domain is verified for SSO, an owner decides under
-**Settings › Access & security › Domains** who may join with it (see
+**Organization settings › Sign-in and oversight › Sign-in › Joining › Verified domains** who may join with it (see
 [Sign-up and invitations](../identity/sign-up-and-invitations.md#joining-by-domain)).
 See [Identity and access](../identity/index.md).
 
 ## Directory sync (SCIM)
 
-**Settings › Access & security › Directory sync (SCIM)** (`/settings/scim`) lets your
+**Organization settings › People and access › Directory sync (SCIM)** (`/settings/scim`) lets your
 identity provider create and remove accounts automatically.
 
 1. Click **Generate SCIM token**, give it a **Name** (for example the identity
    provider's name) and copy the token. It is shown once.
-2. Configure your identity provider with the **SCIM endpoint** shown on the page
+2. Configure your identity provider with the **Directory sync address** shown on the page
    and the token.
 3. Revoke a token from its row when you no longer need it.
 
@@ -358,11 +364,11 @@ The cards show **Total tokens**, **Active tokens** and **Revoked tokens**. See
 
 ## API keys
 
-**Settings › Access & security › API keys** (`/settings/api-keys`) creates keys for scripts
+**Organization settings › People and access › API keys** (`/settings/api-keys`) creates keys for scripts
 and tools that call the API.
 
-![The API keys page listing two keys with their scopes and expiry, key prefixes blurred]({{ site.baseurl }}/assets/images/api/api-keys.png)
-*Figure: Settings, API keys.*
+![The API keys page: Generate API key, the keys list and the maximum key lifetime]({{ site.baseurl }}/assets/images/api/api-keys.png)
+*Figure: Organization settings, API keys.*
 
 1. Click **Generate API key**.
 2. Enter a **Name** and an optional description.
@@ -392,7 +398,7 @@ before a key expires, the person who made it gets one in-app notice.
 
 ## AI assistants (MCP)
 
-**Settings › Access & security › AI assistants (MCP)** (`/settings/mcp`) connects an AI
+**Organization settings › People and access › AI assistants (MCP)** (`/settings/mcp`) connects an AI
 assistant (any Model Context Protocol client) to your organization's data, as
 the person who connects it and never beyond what that person can see. A strip
 under the title shows the state: **On** or **Off**, **Read-only** or **Read and
@@ -422,21 +428,21 @@ highest TLP. Reading the policy, the connected applications and the members' acc
   **API keys on the MCP server** and **Require proof of possession (DPoP)**.
   Changes apply to existing connections at once.
 
-Your own connections are under **Settings › My account › Connected
+Your own connections are under **Organization settings › Your membership › Connected
 applications**. See [Connect an AI assistant](12-connect-an-ai-assistant.md) and
 [MCP server](../api/mcp.md).
 
 ## Audit log
 
-**Settings › Access & security › Audit log** (`/settings/audit-log`) records who did
+**Organization settings › Sign-in and oversight › Audit log** (`/settings/audit-log`) records who did
 what, when and with what result. Reading it needs the audit permission (owners
 and administrators) and **full data access**, because the log names assets and
 findings: without the permission the page shows **Access denied**, and with a
 restricted data scope it shows **Full data access required**; ask an
 administrator to widen your data access.
 
-![The Audit log page listing recent actions with actor, resource, result and severity]({{ site.baseurl }}/assets/images/security/audit-log.png)
-*Figure: Settings, Audit log.*
+![The Audit log page listing recent actions with their actor, resource and result]({{ site.baseurl }}/assets/images/security/audit-log.png)
+*Figure: Organization settings, Audit log.*
 
 - Cards for the last seven days: **Events (7 days)**, **Successful**, **Failed**
   and **Denied**.

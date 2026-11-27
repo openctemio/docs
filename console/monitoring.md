@@ -24,7 +24,7 @@ backup, restore and upgrade run from the deployment kit on the host
 one page. It replaces the separate Health and System pages of v0.10 (their
 addresses `/operations` and `/system` no longer exist).
 
-![The Health page: Services, Storage, Backup, and Certificates, schema and version cards, then Work queues and Sensor fleet]({{ site.baseurl }}/assets/images/console/health.png)
+![The Health page: the Summary, Queues and sensors and Background jobs tabs, with the Services, Storage, Backup and Certificates, schema and version sections]({{ site.baseurl }}/assets/images/console/health.png)
 *Figure: Monitoring, Health.*
 
 | Tab | Card | Shows |

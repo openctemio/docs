@@ -48,7 +48,7 @@ Related: [TLS and the gateway](../install/tls-and-gateway.md),
 | Whether platform sensors need a verified domain | Platform console, **Scanning > Platform scanning** | off |
 | Whether scans need approval | Platform console, **Scanning > Scan approval** (each organization decides by default) | off |
 | Ranges and names no organization may scan | `SCOPE_DENY_EXTRA` | none (built-in deny list only) |
-| System email | Platform console, **Settings > E-mail** (`BOOTSTRAP_SMTP_*` for headless installs) | off |
+| System email | Platform console, **Settings > Email** (`BOOTSTRAP_SMTP_*` for headless installs) | off |
 | Sensor mTLS listener (protocol v3) | `SENSOR_MTLS_LISTEN_ADDR`; the gateway routes it on port 443 | `:9443` |
 | Free-space, backup and certificate checks on the console Health page (Monitoring > Health) | `SYSTEM_STORAGE_PATHS`, `SYSTEM_BACKUP_STATUS_FILE`, `SYSTEM_TLS_CERT_FILES` | local attachments and sensor CA only |
 | Platform console address and who may reach it | `OPENCTEM_ADMIN_SITE` (`port`, `host`, `off`), `OPENCTEM_ADMIN_HOST` or `OPENCTEM_ADMIN_PORT`, `OPENCTEM_ADMIN_BIND`, `OPENCTEM_ADMIN_ALLOWED_CIDRS` | `port` on `8443`, private networks only (Compose) |

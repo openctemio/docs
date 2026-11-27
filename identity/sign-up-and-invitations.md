@@ -49,8 +49,8 @@ password.
 - Every self-registered account (sign-up mode `domain` or `open`) must verify its email address before it can
   sign in. A verified address belongs to the **account**, not to one organization, so no organization
   can skip verification for the others.
-- An organization's **email verification** setting (`auto` or `always`; under **Settings > Access & security >
-  Authentication**) decides who may **enter that organization**: with `always`, a member must have a
+- An organization's **email verification** setting (`auto` or `always`; under **Organization settings > Sign-in and oversight >
+  Sign-in**) decides who may **enter that organization**: with `always`, a member must have a
   verified address, and entering is refused until it is verified (the account's other organizations
   are not affected); with `auto` (the default), verification is required when the installation can
   send email. The former `never` value is retired: saving it is refused and a stored `never` reads as
@@ -83,7 +83,7 @@ e-mail does not work:
 
 - the forgot-password page says "This server cannot send email. Ask your administrator for a reset
   link." instead of promising an email;
-- **Settings > Access & security > Members** shows **This server cannot send email**, and each invitation offers
+- **Organization settings > People and access > Members** shows **This server cannot send email**, and each invitation offers
   **Copy new link** (a new token, the old link stops working, nothing is mailed;
   `POST /api/v1/tenants/{tenant}/invitations/{id}/link`) and, for an expired invitation, **Renew**
   (`.../renew`);
@@ -103,7 +103,7 @@ No API or console session can open sign-up beyond it:
 | `domain` | Public sign-up only for addresses on an organization's verified domain; those people join that organization and never create one. |
 | `open` | Anyone may sign up and create an organization (a managed service). |
 
-`domain` and `open` need the platform e-mail (**Settings › E-mail** in the platform console, or
+`domain` and `open` need the platform e-mail (**Settings › Email** in the platform console, or
 `BOOTSTRAP_SMTP_*` for `bootstrap-admin`) and local accounts, or the server refuses to start, and
 public sign-up closes while the platform e-mail does not work. Open sign-up also stays closed until a
 CAPTCHA is set up: the Cloudflare Turnstile keys in the console (**Settings › CAPTCHA**) or on the
@@ -126,8 +126,8 @@ shows the server setting and what is in force.
 | **Create a personal organization on sign-up** | Off by default; needs "Anyone who signs up". See [Personal organization on sign-up](#personal-organization-on-sign-up). |
 | **Let people request access** | When only administrators create organizations, people who cannot sign in may ask for one. |
 
-![The Sign-up page of the admin console with the server setting and the two choices]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
-*Figure: Platform console, Settings, Sign-up.*
+![The Sign-up page of the platform console with the server setting and the account and organization choices]({{ site.baseurl }}/assets/images/identity/admin-system-signup.png)
+*Figure: Platform console, Sign-up.*
 
 A choice the ceiling does not allow is shown as locked (**Locked by the server configuration**) and
 saving it answers 409 `SIGNUP_LOCKED_BY_DEPLOYMENT`. Changing the policy never affects existing
@@ -150,7 +150,7 @@ address, and not an account created by an administrator. An invited person goes 
 organization that invited them, with no extra empty organization.
 
 The organization is named "*Display name*'s organization" (the same
-wording in the person's console language) and gets a random address; rename it under **Settings › Organization**. It starts
+wording in the person's console language) and gets a random address; rename it under **Organization settings › Organization**. It starts
 with the [limits](../console/settings.md#limits) of a self-service organization. It is made at most
 once per account, and at most 5 an hour from one network and 50 an hour per e-mail domain; when a
 bound is reached the person keeps the normal "create your organization" step. Each one appears in
@@ -176,7 +176,7 @@ after 90 days.
 ### Joining by domain
 
 An organization owner decides, per domain the organization has verified for SSO, who may join with
-it (**Settings > Access & security > Domains**; owners change, admins read; saving asks for step-up):
+it (**Organization settings > Sign-in and oversight > Sign-in > Joining > Verified domains**; owners change, admins read; saving asks for step-up):
 
 | Setting | Meaning |
 |---|---|
@@ -186,11 +186,11 @@ it (**Settings > Access & security > Domains**; owners change, admins read; savi
 | **Block new organizations for accounts on the domain** | People on the domain cannot create their own organizations |
 | **Include subdomains** | The settings also cover subdomains |
 
-![The Domains settings page with the join, discoverability and single sign-on options of a verified domain]({{ site.baseurl }}/assets/images/identity/settings-domains.png)
-*Figure: Settings, Security, Domains.*
+![The Joining tab of the Sign-in settings at Verified domains: who can join with an example.com address, the domain options, and the trusted organizations]({{ site.baseurl }}/assets/images/identity/settings-domains.png)
+*Figure: Organization settings, Sign-in, Joining tab, Verified domains.*
 
 Everything is off until an owner turns it on, and stops at once when the domain claim lapses. Join
-requests wait under **Requests to join** on **Settings > Access & security > Members**: an administrator approves them as
+requests wait under **Requests to join** on **Organization settings > People and access > Members**: an administrator approves them as
 viewer or member, or rejects them. One request per person and organization is pending, a person may
 ask 5 times a day, and requests expire after 30 days. Nobody becomes an administrator by request.
 
@@ -202,7 +202,7 @@ owner receives a one-time link to set a password (emailed when the installation 
 once otherwise). For an owner email that already has an account, nobody becomes the owner of an
 organization they did not ask for: the organization is created with no owner and that person gets an
 [ownership invitation](../console/organizations-and-users.md#ownership-invitations), which they accept
-or decline in the app (**My account**, or the page the e-mail links to). Accepting needs a recent
+or decline in the app (**Account settings > Organizations**, or the page the e-mail links to). Accepting needs a recent
 re-authentication and a verified e-mail address. The invitation lasts 7 days and can be sent again at
 most 5 times, 10 minutes apart. Nobody becomes an owner without accepting. From then on the owner and their admins invite or create users; the platform administrator cannot
 add further users to an organization that has an owner. The installation command
@@ -215,7 +215,7 @@ and the action is audited at critical severity in the organization.
 
 ## Inviting people
 
-Owners and admins invite from **Settings > Access & security > Members** (`POST /api/v1/tenants/{tenant}/invitations`):
+Owners and admins invite from **Organization settings > People and access > Members** (`POST /api/v1/tenants/{tenant}/invitations`):
 
 - An invitation names one or more roles. **Owner** is never offered; only an owner can invite an
   **admin**.
@@ -239,7 +239,7 @@ Owners and admins invite from **Settings > Access & security > Members** (`POST 
 ### People outside the organization
 
 Anyone may be invited, to any role except owner, unless the organization restricts invitations
-(**Settings > Access & security > Authentication**, **Who can be invited**: **Anyone** (default), **Verified domains
+(**Organization settings > Sign-in and oversight > Sign-in**, **Who can be invited**: **Anyone** (default), **Verified domains
 only**, or **Verified and allowed domains**; an organization with allowed email domains reads as the
 last). A person whose email domain the organization does not hold is **outside** the organization:
 
@@ -276,7 +276,7 @@ The organization's **personal accounts** policy (owner; security settings API
 
 ## Organization access policies
 
-Owners set these under **Settings > Access & security > Authentication**
+Owners set these under **Organization settings > Sign-in and oversight > Sign-in**
 (`PATCH /api/v1/tenants/{tenant}/settings/security`, step-up required):
 
 - **Allowed email domains.** When set, only these exact domains (`example.com` does not admit

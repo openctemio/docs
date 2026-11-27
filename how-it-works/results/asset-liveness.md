@@ -39,7 +39,7 @@ takeover risk is its own finding.
 
 ## Findings of a gone asset
 
-With **Settings > Asset lifecycle > Close findings of assets that are gone**
+With **Organization settings > Findings and assets > Asset lifecycle > Close findings of assets that are gone**
 on, the open findings of a gone asset (version-match findings included)
 close as resolved with the reason **Asset gone (not fixed)**. They never
 count as fixed. When the name resolves or the asset answers again, they
@@ -56,7 +56,7 @@ hand or snoozing its lifecycle.
 
 ## Settings
 
-Under **Settings > Asset lifecycle**:
+Under **Organization settings > Findings and assets > Asset lifecycle**:
 
 | Setting | Default | Lowest allowed |
 |---|---|---|

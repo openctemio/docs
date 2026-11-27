@@ -38,25 +38,28 @@ workbench for every finding in the organization, whatever its source (static
 analysis, dependency scanning, dynamic scanning, secrets, infrastructure as
 code, containers, attack-surface scanning, pentest, imports, manual).
 
-![The findings list with severity, priority, source, location and status, KEV and EPSS badges]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
+![The findings list: the quick views in the sidebar, the Basic and Query switch, Practice and State, and one finding with its priority, location, signals and status]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
 *Figure: The findings list.*
 
 ### Header and quick views
 
-- **Triage** is the page's main button, with the number of findings still to
-  decide (status New). **T** does the same. It opens [triage mode](#triage-mode)
-  on the **Needs triage** queue. With nothing to triage it stays as **Triage
-  view**.
-- **Add** opens a menu: **Add finding** records a finding by hand (title,
-  description, severity, source, asset and location) and **Import results** loads
-  a scanner report (see [Import results](#import-results)).
-- **Approvals** opens the [approval requests](#approval-requests); it is also an
-  entry under **Findings** in the sidebar, with the number of requests waiting
-  for you when you are an approver.
-- The first row of the list names the view you are looking at and how many
-  findings it holds. When fixes wait for a verifier and you may verify, an
-  **Awaiting verification** button there opens the
-  [verify view](#verify-fixes).
+- **Triage** is the page's main button. **T** does the same. It opens
+  [triage mode](#triage-mode) on the **Needs triage** queue. With nothing to
+  triage it stays, as a plain button.
+- **+ Finding** (**Add finding**) records a finding by hand (title, description,
+  severity, source, asset and location).
+- The **More actions** menu (**⋯**) has **Import results**, which loads a scanner
+  report (see [Import results](#import-results)), **Approvals**, which opens the
+  [approval requests](#approval-requests), and, under **This view**, **Copy
+  link**. **Approvals** is also an entry in the sidebar, with the number of
+  requests waiting for you when you are an approver.
+- The title row of the list names the view you are looking at (a quick view,
+  your saved view, or **All findings**) and how many findings it holds, counted
+  in your data scope, followed by **Refresh**, **Export** and **Task from
+  filters**. When the list differs from that view (a filter or a search on
+  top), a **Modified** mark appears with **Save view** and **Reset**. When fixes
+  wait for a verifier and you may verify, an **Awaiting verification** button
+  there opens the [verify view](#verify-fixes).
 
 **Quick views.** While the findings list is open, the sidebar lists seven
 built-in views under **Findings**, each with a live count:
@@ -69,9 +72,10 @@ built-in views under **Findings**, each with a live count:
 | **SLA breached** | open findings past their remediation deadline (the count is red when above zero) |
 | **Pending approval** | findings with a false-positive or acceptance request waiting |
 | **Accepted, expiring soon** | accepted risks that lapse within 30 days |
-| **Closed** | fixed and dispositioned findings together |
+| **Closed** | fixed and dismissed findings together |
 
-A view is a link to the list with its own filter, so its count is exactly the
+A view is a link to the list with its own filter (**Pending approval** opens the
+[approval requests](#approval-requests) instead), so its count is exactly the
 number of rows the list then shows, in your own data scope: a teammate with
 access to fewer assets sees smaller numbers. A view with no findings shows no
 number. The counts replace the metric cards and the state tabs the list used to
@@ -90,19 +94,24 @@ has no pin button.
 - Search matches the title, the file path and the rule ID (contains), any of the
   finding's CVE IDs (exact) and the asset name. It does not search the
   description: the API has the opt-in parameter `description_contains` for that.
-- The state of the list comes from the quick view you opened: **Active** shows
-  open findings, **Closed** shows fixed and dispositioned findings (false
-  positive, accepted risk or duplicate; a disposition is never counted as
-  fixed). A link can also ask for **Fixed**, **Dispositioned** or **All**
-  findings with `state=fixed`, `state=dispositioned` or `state=all`.
-- The filter panel: **Assigned to me** (yours, on assets you own, or your
+- After the search box come two fixed choices that are never removed:
+  **Practice** (**Vulnerabilities**, the default, is every practice except
+  compliance; **Compliance**, each other practice that holds findings, and
+  **All**) and **State** (**Open**, the default; **Fixed**, **Dismissed**,
+  **Closed** and **All**). **Dismissed** findings are false positives, accepted
+  risks and duplicates; a dismissed finding is never counted as fixed. A quick
+  view sets the state for you. On a phone both are at the top of the **Filters**
+  sheet.
+- The filter panel (**Add filter › Show the filter panel**, or **Filters** on a
+  narrow screen): **Assigned to me** (yours, on assets you own, or your
   team's), **Severity**, **Hide informational**, **Priority** (P0 to P3),
   **In CISA KEV**, **Reachable**, **Status**, **SLA**, **Branch** (only on a
   feature branch) and **Source**. Draft and In Review pentest findings are hidden
   until you filter on a status.
 - **Filter chips.** Every active filter is a chip under the toolbar, the panel's
-  filters included ("Severity is Critical, High", "EPSS score ≥ 0.5"). The x on a
-  chip removes only that filter. Filters that come from the saved view you
+  filters included ("Severity: Critical, High", "EPSS score ≥ 0.5"). Click a
+  chip's text to change that filter in place; the x on a chip removes only that
+  filter. Filters that come from the saved view you
   opened show a lock and cannot be removed here: switch or edit the view.
 - **Add filter** (or press **F**) opens a searchable list of every field the
   server offers you, grouped as **Exploitation**, **Finding**, **Asset** and
@@ -153,34 +162,39 @@ has no pin button.
   resolved). Groups count only the findings that match the list's search and
   every filter, and the search box stays available in the grouped view.
 - **Views**: save the current filters, sort, grouping, columns and density as a
-  view, for yourself or shared with your groups. Organization-wide views need the
+  view (**Save view** in the title row, or the **Views** menu), for yourself or
+  shared with your groups. Organization-wide views need the
   **Share Findings Views with the Organization** permission (`findings:views:share`). A view shares the filters, never the
   findings: everyone sees the rows they are allowed to see. When the list differs
   from the view you opened (a filter on top, other columns, another density), the
-  view button shows a dot and the menu says what changed, with **Save changes**
-  (only for your own views), **Save as new view…** and **Discard changes**.
-- **Export** as CSV or JSON. With the export permission the server exports every
-  matching finding in the list's sort order (up to 10,000 rows; narrow the filter
-  for more; audit-logged); otherwise the current page is exported. An export
+  title row shows **Modified**: **Save view** offers **Save changes** (only for
+  your own views) and **Save as new view**, and **Reset** goes back to the view
+  as it was.
+- **Export** as CSV or JSON (with the export permission; without it there is no
+  **Export**). The server exports every matching finding in the list's sort
+  order (up to 10,000 rows; narrow the filter for more; audit-logged). An export
   carries 40 listed columns only: no evidence, scanner output, descriptions, fix
   code or secret details. One export per person runs at a time.
 
 ### When the list is empty, or fails
 
-The list tells three empty states apart, each with the next step:
+The list tells its empty states apart, each with the next step:
 
-- **No findings in this organization yet** (nothing narrows the list and the
-  organization has none): **Import results**, **Set up a scan** and a link to
-  **Integrations**.
+- **No findings yet** (nothing narrows the list and the organization has none):
+  **Run a scan**, **Import results** and **Connect a tool**, as your permissions
+  allow. The page then shows this message alone, without the toolbar.
 - **No findings match** (filters, the search or the state hide findings): it
   says how many findings of the viewed state are hidden and by what ("1,204 open
   findings are hidden by 2 filters and your search"), with **Clear filters** (or
-  **Clear search**) and **Search all statuses**.
-- **You do not have access to these findings**: your role cannot read findings
-  here; the message names the missing permission when the server does.
+  **Clear search**) and **Search all states**.
+- **You cannot read findings here**: your role cannot read findings here; the
+  message names the missing permission when the server does, and offers **Go to
+  the dashboard**.
 
-If the list fails to load, the error appears in the table area with **Retry** and
-**Copy request ID** (quote it to support). The page header, search and filters
+If the list fails to load, the error ("Couldn't load findings") appears in the
+table area with **Retry** and **Copy request ID** (quote it to support). When the
+rows are older than five minutes, the footer says when they were updated, with a
+refresh button. The page header, search and filters
 stay, and there is no second pop-up message. While the list reloads, the rows
 stay on screen with a thin progress bar above the table.
 
@@ -189,22 +203,21 @@ are translated into English and Vietnamese.
 
 ### Columns and badges
 
-Columns: **Title** and **Priority** (P0 to P3) are always shown, even before any
-finding has a priority. **Severity**, **Status** and **Due / SLA** follow the
-view: in **Active**, **Severity** is hidden (the priority already includes it)
-and it is shown in every other view, such as **Needs triage**. **Location**,
-**Source** and **Created** start hidden. Turn the others on or off in **Display**,
-where columns are listed by name; the choice, and the row density, stay in the
-page link and are saved with a view.
+Columns: **Priority**, the title, **Location** (the asset), **Severity**,
+**Signals and EPSS**, **Status** and **Due / SLA** show by default; **Source** and
+**Created** are under **Display**, where columns are listed by name. The choice,
+and the row density, stay in the page link and are saved with a view. On a
+narrower screen the table drops **Severity**, then **Signals and EPSS**, then
+**Due / SLA**, so the title keeps its room; turning one on under **Display**
+brings it back.
 
-Under every title the list prints the finding's target (the host and port, or
-the URL) as a second line, so two findings of one issue on two assets never read
-as duplicates. The same line appears on phone cards, **My Work**, triage mode, an
-asset's findings, remediation tasks, the duplicate picker, the verify list and
-the suppression preview. That is why the **Location** column starts hidden;
-turning it on shows the asset on one line and the place on it below (URL path,
-file and line, or port). A long path is cut in the middle, so its end stays
-visible; the tooltip has the full value.
+Every row is one line. The title cell shows the title and then the finding's id
+(its CVE, linked to the vulnerability page, or its rule id); the whole title is
+in its tooltip. **Location** is the asset name; the path or URL on the asset is
+in its tooltip. **Due / SLA** is the time left ("In 5 d") while on track, and a
+coloured pill when at risk or late ("3 d overdue"). Click a row to open the
+drawer, which shows everything a cell cuts. On a phone, each card shows the
+title, the asset and the place on it, the id and the time left.
 
 Wherever a finding is named outside the console (the export, Jira summaries and
 GitHub issue titles, approval notices and e-mails, MCP results), it reads
@@ -227,12 +240,14 @@ active member of your organization shows no profile).
 
 ### Row and bulk actions
 
-Click anywhere on a row to open the finding. A row's menu: **View details**,
-**Open to assign…**, **Open to change status…**, **Open to mark as false
-positive…** (these three open the finding, where the assignee picker and the
-approval flow live), **Create Jira Ticket** (when ticketing is set up), **Add to
-remediation**, **Copy ID**, **Copy link** and **Delete** (permanent, asks for
-confirmation).
+Click anywhere on a row to open the finding's drawer. A row's menu, the same on
+a desktop and a phone: **View details**, **Open to assign…**, **Open to change
+status…**, **Create ticket** (when ticketing is set up), **Add to remediation**,
+**Copy ID**, **Copy link**, **Open to mark as false positive…** and **Delete**
+(permanent, asks for confirmation). The three "Open to" items open the finding,
+where the assignee picker and the approval flow live. An item that does not
+apply to the finding stays in its place, disabled, with the reason (for
+example, a finding that already has a ticket).
 
 Select rows to **Assign to…**, create a **Remediation task**, or change the
 **Status** to Confirmed, In Progress or Resolved (Resolved needs the verify
@@ -245,10 +260,14 @@ they need approval.
 - A bulk assignment asks you to confirm your identity again when your
   organization requires it for the change, and shows the server's message when
   it is refused.
-- On a phone, every finding card has the same checkbox and the same menu as a
-  table row. Tapping the card opens the finding; the checkbox selects it.
-- While a finding is open in the side panel, **J** and **K** open the next and
-  previous finding of the list (see **Help**, **Keyboard shortcuts**).
+- On a phone, every finding card has the same menu as a table row. Tapping the
+  card opens the finding. To select cards, choose **Select** in the toolbar's
+  **More** menu; a checkbox then shows on every card and the bulk bar opens at
+  the bottom. **Select all on this page** and **Select all N that match** are in
+  the bar's count menu; **X** or <kbd>Esc</kbd> ends selection.
+- While a finding is open in the drawer, its header shows its place in the list
+  ("3 of 418") with previous and next buttons, and **J** and **K** do the same
+  (see **Help**, **Keyboard shortcuts**).
 
 In the grouped view:
 
@@ -465,7 +484,7 @@ issue**), then who found it ("Found by Vulnerability scan (nessus)"), the CVE
   (search a finding on the same asset; comments, retests, evidence and tickets
   move to the original).
 
-![The full page of a critical finding in CISA KEV: SLA warning, why it matters, fix and details]({{ site.baseurl }}/assets/images/user-guide/finding-detail-kev.png)
+![The page of a critical finding: its header with Re-verify and Mark fix applied, the tabs, the SLA notice, why it matters, the fix and its details]({{ site.baseurl }}/assets/images/user-guide/finding-detail-kev.png)
 *Figure: A finding on its own page.*
 
 ![The Evidence tab of a finding with the reproduction request and response captured by the scanner]({{ site.baseurl }}/assets/images/user-guide/finding-evidence.png)
@@ -608,7 +627,7 @@ added, was assigned, and so on), the owners of the asset as context, and a
 - You start watching when you comment, change the status of one finding or claim
   its fix, are assigned it, or request an approval on it. A bulk status change
   subscribes nobody. Stopping on one finding always wins over starting again.
-  **Settings › My account › Notifications › Watch what I take part in** (on by
+  **Organization settings › Your membership › Notifications › Watch what I take part in** (on by
   default) turns the automatic start off; the bell still works.
 - **Add** (for people who may assign findings) adds up to 10 watchers at once, all
   or none; the picker lists only members who can read the finding. A finding has
@@ -712,7 +731,7 @@ scored** for the transparent priority score (see
   scanner output and targets.
 - **Evidence**: tool evidence, affected code and context, stack traces,
   attachments and uploaded evidence, validation evidence, compliance mapping, and
-  **Notes** with **Add Evidence** (description, type, URL). Masked secrets in
+  **Notes** with **Add evidence** (description, type, URL). Masked secrets in
   tool evidence can be revealed for 60 seconds by people with the reveal
   permission; every reveal is audited. People with write access to findings give
   each evidence item a role (**Baseline**: normal behaviour, for comparison;
@@ -724,7 +743,7 @@ scored** for the transparent priority score (see
   version, which a pentest write-up uses to say when it is out of date (see
   [Pentest findings](07-validation.md#write-a-finding)).
 - **Remediation**: progress, recommendation, auto-fix code, remediation steps
-  (**Add Step**), references, and the **Definition of Done & Acceptable Fixes**
+  (**Add step**), references, and the **Definition of done & acceptable fixes**
   card (see [Mobilization](08-mobilization.md#the-engineering-ticket-brief)).
 - **Attack path** (when the scanner reported a data flow): the taint trace
   from the source to the sink, with each step's code, file and line, and a
@@ -865,7 +884,7 @@ From any step before Resolved a pentest finding can also be marked
 ### Sub-statuses and your own lifecycle
 
 An organization can add its own labels inside each status and its own rules for
-moving between them, under **Settings › Findings & assets › Finding lifecycle** (needs the
+moving between them, under **Organization settings › Findings and assets › Finding lifecycle** (needs the
 **Manage Finding Lifecycles** permission). A label never changes what a metric,
 an SLA or an export counts: they keep reading the status.
 
@@ -884,9 +903,9 @@ an SLA or an export counts: they keep reading the status.
 ### Approval rules
 
 - **False Positive** and **Risk Accepted** need approval by default. Choosing
-  them opens **Request Status Approval**: pick a reason, enter a justification
+  them opens **Request status approval**: pick a reason, enter a justification
   (up to 2,000 characters) and, for Risk Accepted, the date the acceptance ends,
-  then **Submit for Approval**. When your organization's approval policy lets
+  then **Submit for approval**. When your organization's approval policy lets
   you decide this finding alone (see below), the dialog says so and the change
   applies at once (**Mark as false positive** or **Accept the risk**); the
   decision is still recorded with your name and reason.
@@ -903,19 +922,18 @@ an SLA or an export counts: they keep reading the status.
   timeline, and the CI gate refuses an acceptance that has no end. Accepted
   findings that had none when the platform was upgraded were given one then.
 - Resolving a finding by hand needs the verify permission.
-- Who approves, and how many people, is set under **Settings › Findings & assets ›
-  Finding approvals** (see [Settings](10-settings-and-integrations.md#findings--assets)).
-  The **Approval policy** card has two separate settings, **False positive** and
-  **Risk acceptance**, each **Always** (a second person, the default), **Only
+- Who approves, and how many people, is set under **Organization settings ›
+  Approvals** (see [Settings](10-settings-and-integrations.md#approvals)).
+  The **False positives** and **Accepted risks** rows have two separate settings, each **Always** (a second person, the default), **Only
   for serious findings** (a second person for critical or high findings, known
   exploited vulnerabilities, P0 or P1, a validated exploit, or a crown-jewel or
   internet-exposed asset) or **Never** (anyone with approval permission decides
   alone). Bulk changes, suppression rules, task exceptions, imports and
   automation always need a second person. A decision made by one person is
   audited, listed in the next daily approvals digest of the other approvers and
-  flagged for review when the finding later becomes more serious. Below it,
-  approvals are tiered by the risk of the finding, with a security pool and an
-  expiry for the decision.
+  flagged for review when the finding later becomes more serious. Their editors
+  also tier approvals by the risk of the finding; the **Approvers** and **Deadline
+  and high risk** rows set a security pool and an expiry for the decision.
   A request made by a ticket, a VEX statement or AI triage, with no person behind
   it, needs one more sign-off. When VEX `not_affected` statements in a scan report
   request false positives (`INGEST_VEX=enforce`), the approvers in scope are
@@ -926,7 +944,7 @@ an SLA or an export counts: they keep reading the status.
 **Approval Requests** (`/findings/approvals`, from the **Approvals** button) is
 the queue of requests to move findings to false positive or accepted risk.
 
-![The Approval requests page with a risk acceptance and a false positive waiting for review]({{ site.baseurl }}/assets/images/user-guide/finding-approvals.png)
+![The Approval requests page on its Finding requests tab: requests waiting with the status asked for, the requester and the justification]({{ site.baseurl }}/assets/images/user-guide/finding-approvals.png)
 *Figure: Approval requests.*
 
 - Cards and tabs: **Pending**, **Approved**, **Rejected**, **Canceled** and
@@ -950,7 +968,7 @@ in [Known false positives](known-false-positives.md).
 **Discovery › Exposures** has five tabs: **Overview**, **Vulnerabilities**,
 **Secrets**, **Code weaknesses** and **Misconfigurations**.
 
-![The Exposures overview listing misconfigurations and secrets]({{ site.baseurl }}/assets/images/user-guide/exposures.png)
+![The Exposures page with its Overview, Vulnerabilities, Secrets, Code weaknesses and Misconfigurations tabs]({{ site.baseurl }}/assets/images/user-guide/exposures.png)
 *Figure: Exposures.*
 
 ### Overview: exposure events
@@ -986,7 +1004,7 @@ resolve, accept or dismiss them.
 
 The exposures of your external attack surface also have their own list, with
 display categories, a group-by-asset view and a severity override: see
-[Exposure items](04-discovery.md#exposure-items).
+[Attack surface exposures](04-discovery.md#exposures).
 
 The metrics and the charts count only the exposures you may see, the same set
 as the list. A member limited to some assets sees numbers for those assets,

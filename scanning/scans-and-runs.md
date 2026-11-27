@@ -68,7 +68,7 @@ A scan has:
 - **Status**: `active`, `paused` or `disabled`. Only active scans run on
   their schedule.
 
-![The Scans page listing three scans with their workflow, last run, success rate and schedule]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
+![The Scans page with its Scans, Runs, Workflows and Approvals tabs, Quick scan and New scan, and the list of scan configurations]({{ site.baseurl }}/assets/images/scanning/scans-list.png)
 *Figure: Scans.*
 
 Creating or editing a scan runs the [scope gate](scope.md) on its direct
@@ -183,7 +183,7 @@ sequenceDiagram
   no sensor can pick it up later. A sensor that was offline or faulty while
   occurrences came round gets only the work of the runs still open when it
   comes back, never the same scan twice.
-- **Scan windows.** Policies under **Settings > Scanning > Scan windows**
+- **Scan windows.** Policies under **Organization settings > Scanning > Scan windows**
   say when targets may be scanned (allow windows) or never (blackouts). A
   scheduled run none of whose targets may run now is moved to the next
   opening; a manual run starts and its waiting targets wait for their window.
@@ -205,7 +205,7 @@ system runs are hidden, one line says how many runs continuous coverage
 started, with **Show system runs** and a link to the coverage settings. API:
 `GET /api/v1/scan-runs?origin=user|system`; each row carries `managed_by`.
 
-![The Runs tab listing nine runs: running, completed, partial and failed]({{ site.baseurl }}/assets/images/scanning/scan-runs.png)
+![The Runs tab with the run counts and a running scan]({{ site.baseurl }}/assets/images/scanning/scan-runs.png)
 *Figure: Scan runs.*
 
 | Status | Meaning | Final |
@@ -366,7 +366,7 @@ it saw (expired, name mismatch, not yet valid, self-signed). A reset from a
 host that has already answered only slows the scan; the sensor stops sending
 only after 20 resets in a row with no answer between them (sensor v0.37.0).
 
-![A completed scan run: findings, tasks, duration, stages and the task timeline]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
+![A completed scan run in its side sheet: the tasks with their tool, sensor and duration, and the run map of its steps]({{ site.baseurl }}/assets/images/scanning/scan-run-completed.png)
 *Figure: A completed run: each stage with its tool, inputs and planned targets, and the timeline of its tasks.*
 
 When a sensor claims a task, the platform runs the scope gate again on the
@@ -502,7 +502,7 @@ allows: see [Closing findings](../user-guide/closing-findings.md).
 
 ## Scan profiles
 
-A **scan profile** (**Settings > Scanning > Scan profiles**,
+A **scan profile** (**Organization settings > Scanning > Scan profiles**,
 `/api/v1/scan-profiles`) is a reusable set of tool settings: which tools are
 enabled with which options, an intensity (`low`, `medium`, `high`), a timeout,
 and for template-based tools which templates to use (`default`, `custom` or

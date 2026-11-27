@@ -28,7 +28,7 @@ The design rules are in
 
 Every organization has four system roles. They cannot be edited or deleted.
 
-![The Roles settings page with the four system roles]({{ site.baseurl }}/assets/images/identity/roles.png)
+![The Roles settings page with Create role, search and the roles list]({{ site.baseurl }}/assets/images/identity/roles.png)
 *Figure: The built-in roles.*
 
 | Role | Level (sort order) | Sees all data | Summary |
@@ -45,7 +45,7 @@ display and sort order. Beyond these four, the
 - Owners and admins pass every permission check. Actions reserved for owners are checked
   separately (for example deleting a group, deleting an assignment rule, deleting the organization,
   changing the 2FA requirement).
-- A system role (admin, member or viewer) is changed only on the member (**Settings > Access & security > Members**,
+- A system role (admin, member or viewer) is changed only on the member (**Organization settings > People and access > Members**,
   change the role in the organization; `PATCH /api/v1/tenants/{tenant}/members/{id}`), never through
   the Roles API. Nobody is made owner by a role change: the owner hands the organization over with
   **Transfer ownership** on the Members page (to an active member with two-factor on, who accepts
@@ -74,7 +74,7 @@ should read attack paths needs the new scope, and an MCP application asks for `m
 ## Custom roles
 
 Owners and admins (or anyone with `team:roles:write`) create custom roles under
-**Settings > Access & security > Roles** (`/api/v1/roles`). **New role > Start from a template** begins from one of the
+**Organization settings > People and access > Roles** (`/api/v1/roles`). **New role > Start from a template** begins from one of the
 role templates (CTEM program lead, Security analyst, Vulnerability manager, Remediation owner,
 Remediation lead, AppSec engineer, CI integrator, Scan operator, Sensor operator, Validation engineer,
 Validation lead, Detection engineer, External tester, Researcher, Bug-bounty triager, Threat
@@ -129,7 +129,7 @@ A custom role has a name, a slug, a description, a level below 80, a list of per
   administration is bound to a team, and the team's members changed, by the owner only, with a recent
   sign-in.
 
-Assign custom roles under **Settings > Access & security > Members** (**Change roles**, which also has the role in the
+Assign custom roles under **Organization settings > People and access > Members** (**Change roles**, which also has the role in the
 organization), or with `PUT /api/v1/users/{userId}/roles` (replaces the custom roles, keeps the
 system role, accepts an empty list) and `POST /api/v1/roles/{roleId}/members/bulk`, which need
 `team:roles:assign`. A custom role can also be bound to a team (below).
@@ -159,13 +159,13 @@ Permissions are named `module[:resource]:action`, for example `findings:triage` 
 | AI triage | `ai_triage:read`, `ai_triage:trigger` |
 
 `*` stands for the read, write and delete actions of that resource. AI assistants (MCP) have their own
-access settings (**Settings > Access & security > AI assistants (MCP)**); see [MCP](../api/mcp.md). The authoritative list is
+access settings (**Organization settings > People and access > AI assistants (MCP)**); see [MCP](../api/mcp.md). The authoritative list is
 `server/pkg/domain/permission/permission.go`; `GET /api/v1/permissions` returns it, and
 `GET /api/v1/me/permissions` returns what you hold.
 
 ## Groups and data scope
 
-Groups (shown as **Teams** under **Settings > Access & security > Teams**) decide which assets their members can see. A
+Groups (shown as **Teams** under **Organization settings > People and access > Teams**) decide which assets their members can see. A
 team grants no permissions by itself, unless a custom role is bound to it (see below). A group has a
 type (`security_team`, `team`, `department`, `project`, `external`) and its own member roles (`owner`,
 `lead`, `member`). An inactive team grants nothing; switching a team on re-grants its bound roles, so
@@ -215,7 +215,7 @@ Notes:
 
 ### Teams that carry roles
 
-A custom role can be bound to a team (**Settings > Access & security > Teams**, team roles; `POST
+A custom role can be bound to a team (**Organization settings > People and access > Teams**, team roles; `POST
 /api/v1/groups/{groupId}/roles`): every active member of the team holds it. Binding a role, and
 changing who is in a team that carries roles, are grants: the person acting must be able to grant each
 role and hold the team's assets, and nobody but the owner adds themselves. Only custom roles of the
@@ -238,7 +238,7 @@ team that holds every asset.
 
 ## Modules
 
-Owners and admins can turn optional modules on or off per organization under **Settings > Organization > Modules**
+Owners and admins can turn optional modules on or off per organization under **Organization settings > Organization > Modules**
 (`/api/v1/tenants/{tenant}/settings/modules`). Routes of a disabled module answer
 `403 MODULE_NOT_ENABLED` for everyone, owners included. The core modules (dashboard, assets,
 findings, scans, team, roles, audit, settings) cannot be disabled.

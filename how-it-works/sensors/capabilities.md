@@ -13,7 +13,7 @@ At start, and whenever something changes, the sensor reports what it is: its
 version, the tools it found and their versions, what it can do, its resources
 and a summary of its local policy. The platform keeps only tools and
 capabilities it knows, and offers a sensor only work its report covers. The
-tool list on **Scanning > Tools** and the setup checklist read from the same
+tool list on **Tools and sensors > Tools** and the setup checklist read from the same
 report.
 
 1. TOC

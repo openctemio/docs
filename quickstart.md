@@ -123,14 +123,14 @@ console site instead). With TLS mode `internal`, the browser warns
 until you import `ca/openctem-root-ca.crt`. You land on the dashboard of
 **Example Corp**; lists are empty until the first scan.
 
-![The OpenCTEM dashboard of an organization after its first scans: what would cut exposure most (past SLA, known exploited, blind spots) and the exposure flow from sources to outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
+![The CTEM dashboard: what would cut exposure most, then the exposure flow from the sources to the outcomes]({{ site.baseurl }}/assets/images/overview/dashboard.png)
 
 *Figure: the dashboard, here for an organization that already has scan results. A new organization shows empty lists until its first scan.*
 
 A new organization requires two-factor authentication for its owner and
 administrators, so the first sign-in ends with setting up an authenticator app
 (scan the QR code, enter the code, save the recovery codes). Anyone else can
-enroll under **Settings > My account > Security**
+enroll under **Account settings > Security**
 ([Two-factor authentication](identity/two-factor.md)).
 
 ## 4. Authorize a target: scope and domain proof
@@ -157,7 +157,7 @@ organization covers it.
    intrusive (T2) checks need it, and so do scans on shared sensors when the
    platform administrator requires it.
 
-![The Scope page listing domains, address ranges and repositories in scope]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
+![The Scope page with its Scope, Domain proof, Networks, Programs and Letters tabs and the list of scope entries]({{ site.baseurl }}/assets/images/scanning/scope-entries.png)
 
 *Figure: scope entries. Each entry names what the organization may actively probe.*
 
@@ -208,7 +208,7 @@ The log shows a pairing **code** and a **fingerprint**. In the console:
 4. Open the sensor and choose **Promote to Trusted**. A new sensor receives only
    passive work (subdomain discovery, DNS resolution) until it is trusted.
 
-![The Pair a sensor dialog showing the fingerprint, host facts and grant choices of a pairing request]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
+![The Approve a sensor page: the organization the sensor joins, the three fingerprints to choose from and what the sensor reported about its host]({{ site.baseurl }}/assets/images/sensors/pair-dialog.png)
 
 *Figure: approving a pairing request. Compare the fingerprint with the one the sensor printed.*
 
@@ -230,7 +230,6 @@ The sensor shows as `online` within a few seconds. Details:
    (or **Save without running** and start it later from the scan's page).
 
 ![The first step of the New scan wizard: name and what to run]({{ site.baseurl }}/assets/images/scanning/new-scan.png)
-
 *Figure: the New scan wizard.*
 
 Follow the run under **Discovery > Scans > Runs**: each step, its tasks, the
@@ -250,7 +249,7 @@ when part of the work could not be done. Details:
 - **Discovery > Exposures**: attack-surface changes such as new subdomains,
   open ports or expiring certificates.
 
-![The findings list with severity, priority, source, location and status, KEV and EPSS badges]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
+![The findings list: the quick views in the sidebar, the Basic and Query switch, Practice and State, and one finding with its priority, location, signals and status]({{ site.baseurl }}/assets/images/user-guide/findings-list.png)
 
 *Figure: the findings list after the first scans.*
 

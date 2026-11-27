@@ -1,10 +1,10 @@
 ---
-title: "Settings > AI: AI agents"
+title: "Organization settings > Organization > AI: AI agents"
 parent: User guide
 nav_order: 10.4
 ---
 
-# Settings > AI: AI agents
+# Organization settings > Organization > AI: AI agents
 
 See how it works: [AI agents and approvals](../how-it-works/remediation/ai-agents.md).
 
@@ -14,7 +14,7 @@ changes go through the same approvals, audit log and notifications. People or te
 for it, and it pauses on its own when nobody does. The concept is explained in
 [AI agents](../overview/ai-agents.md); this page is the console page where you manage them.
 
-**Settings > Organization > AI** (`/settings/ai`), tab **Features**, has an **AI agents** section. Everyone who
+**Organization settings > Organization > AI** (`/settings/ai`), tab **Features**, has an **AI agents** section. Everyone who
 can use AI may read the list; creating and changing AI agents needs
 `service_accounts:manage` (owners and administrators by default).
 
@@ -81,7 +81,7 @@ grant and no role of its own, never holds full data access and does not use a se
   with injection markers, or under 0.5 confidence is written as a comment only. A change always
   re-reads the finding first: a concurrent change by someone else is never overwritten.
 
-Everything the AI agent is shown is masked first; see [Settings > AI: data masking](ai-data-masking.md).
+Everything the AI agent is shown is masked first; see [Organization settings > Organization > AI: data masking](ai-data-masking.md).
 The same rules for suggestions apply: [AI suggestions and approval](ai-suggestions-and-approval.md).
 
 The console shows these sections only when the server offers their routes. For the API, see

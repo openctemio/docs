@@ -51,11 +51,11 @@ What the job is told depends on how far the token got:
 - When the provider's signing keys cannot be fetched right now, the answer is
   `503 CI_ISSUER_UNAVAILABLE` with `Retry-After: 30`; retry the same token.
 
-![Recent refused pipelines: a fork pull request, an organization not in the trust, and a branch that is not protected, each with its fix]({{ site.baseurl }}/assets/images/scanning/ci/ci-refusals.png)
+![Recent refused pipelines: a project outside the trust, a pipeline event the trust does not allow and a branch it does not accept, each with its fix]({{ site.baseurl }}/assets/images/scanning/ci/ci-refusals.png)
 
 | Code | Console says | Fix |
 |---|---|---|
-| `no_matching_configuration` | No trust configuration exists for this CI provider or issuer. | Create a trust configuration for this provider (Connect a pipeline). |
+| `no_matching_configuration` | No trust configuration exists for this CI provider or issuer. | Create a trust configuration for this provider (**Connect a CI provider**). |
 | `missing_claims` | The token lacks the repository, commit, ref or id. | Run the scan in a pipeline job of the repository, not a manual or detached job. |
 | `owner_not_allowed` | The repository's organization is not in the trust configuration. | Add the organization to Owners, or check the spelling. |
 | `repository_not_allowed` | The repository is not in the trust configuration's repositories. | Add the repository, or a pattern that covers it. |
@@ -64,7 +64,7 @@ What the job is told depends on how far the token got:
 | `environment_not_allowed` | The job's deployment environment is not allowed. | Add the environment, or run the scan in an allowed one. |
 | `event_not_allowed` | The pipeline event (push, pull request, schedule) is not allowed. | Add the event to Events, or leave Events empty. |
 | `fork_pull_request` | The run comes from a pull request from a fork. | Fork runs are refused by design; they scan without reporting. Allow forks only if you accept their results. |
-| `workflow_not_allowed` | The pipeline definition is not one of the allowed central workflows. | Use the organization's central workflow, or add its path and ref to Pipeline definitions. |
+| `workflow_not_allowed` | The pipeline definition is not one of the allowed central workflows. | Use the organization's central workflow, or add its path and ref to the pipeline files under **More rules**. |
 | `organization_mismatch` | The token's organization is not the configured one. | Check the organization id or workspace in the trust configuration. |
 | `owner_id_mismatch` | The organization name now belongs to a different organization than the one first trusted. | If the organization was really recreated, re-pin it in the trust configuration. |
 | `repository_binding` | The repository name is bound to a different repository that reported first. | If the repository was recreated, retire its old pipeline first. |
