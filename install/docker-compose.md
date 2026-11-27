@@ -181,7 +181,8 @@ Platform e-mail (SMTP), the legal texts and the CAPTCHA keys are not part of
 `LEGAL_*` variables are gone and the API refuses to start while an `SMTP_*`
 server variable is set. The CAPTCHA keys can be pinned from the environment
 (`CAPTCHA_TURNSTILE_SITE_KEY` with `CAPTCHA_TURNSTILE_SECRET`, in a
-`docker-compose.override.yml`); the console then shows them as locked.
+`docker-compose.override.yml` listed in `COMPOSE_FILE`; see
+[Setting other variables](#setting-other-variables)); the console then shows them as locked.
 
 ## 3. Start the stack
 
@@ -310,9 +311,19 @@ email (SMTP) is not an environment variable: set it in the platform console,
 `CORS_ALLOWED_ORIGINS`, `SMTP_BASE_URL` and `OAUTH_FRONTEND_CALLBACK_URL`
 (`<APP_URL>/auth/callback`, where SSO sign-ins land) from it.
 
+The vulnerability feed settings are passed too (from v0.24.2; empty means the built-in
+default): `VULNFEED_BASE_URL`, `VULNFEED_MIRRORS`, `VULNFEED_BUNDLE_DIR`,
+`VULNFEED_ROOT_KEY_ID`, `OPENCTEM_HTTPSEC_FEED_PROXY`, `OPENCTEM_HTTPSEC_FEED_NO_PROXY` and
+`OPENCTEM_HTTPSEC_ALLOW_PRIVATE_CIDRS`. Set them in `.env` and run `docker compose up -d`
+([Set up the vulnerability feed](../operations/vulnerability-feed-setup.md)). Before v0.24.2 they
+need an extra Compose file, like any other variable below.
+
 Any other [API variable](../configuration/environment-variables.md) goes in a
-`docker-compose.override.yml` next to `docker-compose.yml`, which Compose reads
-automatically. For example, to require email verification at sign-up:
+`docker-compose.override.yml` next to `docker-compose.yml`. Compose reads that file by itself
+only when `COMPOSE_FILE` is not set, and `install.sh` always sets it: add
+`:docker-compose.override.yml` at the end of `COMPOSE_FILE` in `.env` (from v0.24.2, running
+`./install.sh` again adds an existing override file for you). For example, to require email
+verification at sign-up:
 
 ```yaml
 services:
@@ -330,7 +341,7 @@ multi-tenant service for organizations it does not control; leave it unset on a
 self-managed install. It changes defaults only (for example, platform sensors
 need a verified domain before they scan a target) and needs no other setting.
 The stack does not pass the variable by default; add it in
-`docker-compose.override.yml`:
+`docker-compose.override.yml` (listed in `COMPOSE_FILE`, see above):
 
 ```yaml
 services:
@@ -464,7 +475,10 @@ EPSS inside it). Until it arrives every user sees "Vulnerability data has not be
 loaded yet". With the bundled sensor, a new install receives the feed through that
 sensor (relay mode): the sensor host needs HTTPS to `github.com` and its download hosts.
 Without the bundled sensor, the API downloads the feed itself and needs that access.
-Proxies, mirrors and offline sites: [Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
+`install.sh` leaves the bundled sensor out when the host is an IP address, so such an
+install starts in direct mode; `./install.sh --sensor` adds it. From v0.24.2 the
+summary at the end of `install.sh` prints the feed mode and what it needs (the hosts to
+allow, or a relay sensor to designate). Proxies, mirrors and offline sites: [Set up the vulnerability feed](../operations/vulnerability-feed-setup.md).
 
 ## Upgrading to a new release
 

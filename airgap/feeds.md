@@ -112,7 +112,11 @@ vulnerability release. Rules for `www.cisa.gov`, `raw.githubusercontent.com` and
   as out of date and every user sees a banner; a release older than 7 days is
   refused as expired. With `VULNFEED_BUNDLE_DIR`, copy a newer release every few
   hours ([how](../operations/vulnerability-feed-setup.md#offline-no-network-path));
-  with a mirror, check that it keeps updating.
+  with a mirror, check that it keeps updating. From v0.24.2 the default KEV limit
+  moves to 12 hours, and a Platform owner can raise the catalog limit (6 to 168 hours,
+  with a reason; recorded and announced) in **System > Threat intelligence > How old the
+  data may be**, so a daily or twice-weekly copy shows no banner. A higher limit also
+  accepts older KEV and EPSS copies as current.
 - Refresh the Trivy database mirror daily for the CI scan stage and for sensors.
 - A transfer by media (Path A3) should carry the feeds with each release.
 
