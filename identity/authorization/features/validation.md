@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 23
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Validation and simulation: permissions
 

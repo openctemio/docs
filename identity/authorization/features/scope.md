@@ -5,7 +5,7 @@ grand_parent: "Identity and access"
 nav_order: 14
 ---
 
-<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in api/. Do not edit by hand. -->
+<!-- Generated from the OpenCTEM source by `go run ./cmd/gen-authz-docs` in server/. Do not edit by hand. -->
 
 # Scope: permissions
 
@@ -49,8 +49,11 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/scope/letters` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member |
 | GET | `/api/v1/scope/letters/{id}/file` | `attack_surface:scope:read` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, AppSec engineer, Scan operator, Sensor operator, Validation engineer, Validation lead, External tester, Bug-bounty triager, Threat intelligence analyst, Auditor |
 | POST | `/api/v1/scope/letters/{id}/revoke` | `attack_surface:scope:approve` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, CTEM program lead |
+| GET | `/api/v1/scope/provider-addresses` | `attack_surface:scope:read` | scoped: scope entries (tenant configuration) plus person-confirmed addresses read with an SQL data-scope condition (research/531) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, AppSec engineer, Scan operator, Sensor operator, Validation engineer, Validation lead, External tester, Bug-bounty triager, Threat intelligence analyst, Auditor |
+| POST | `/api/v1/scope/provider-addresses/keep` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules | yes | Owner, Administrator, Member |
+| POST | `/api/v1/scope/provider-addresses/move` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member |
 | GET | `/api/v1/scope/settings` | `attack_surface:scope:read` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, AppSec engineer, Scan operator, Sensor operator, Validation engineer, Validation lead, External tester, Bug-bounty triager, Threat intelligence analyst, Auditor |
-| PUT | `/api/v1/scope/settings` | `attack_surface:scope:approve` | config: scope targets, exclusions (two-person, L-07) and schedules | yes | Owner, Administrator, CTEM program lead |
+| PUT | `/api/v1/scope/settings` | `attack_surface:scope:approve` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, CTEM program lead |
 | PUT | `/api/v1/scope/settings/intrusive` | `attack_surface:scope:approve` + team role owner | config: scope targets, exclusions (two-person, L-07) and schedules | yes | Owner |
 | GET | `/api/v1/scope/stats` | `attack_surface:scope:read` | scoped: inventory coverage counted in SQL over the caller's data scope (research/53 S-3) |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, AppSec engineer, Scan operator, Sensor operator, Validation engineer, Validation lead, External tester, Bug-bounty triager, Threat intelligence analyst, Auditor |
 | GET | `/api/v1/scope/targets` | `attack_surface:scope:read` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, AppSec engineer, Scan operator, Sensor operator, Validation engineer, Validation lead, External tester, Bug-bounty triager, Threat intelligence analyst, Auditor |
@@ -67,4 +70,6 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | POST | `/api/v1/scope/targets/{id}/deactivate` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member |
 | POST | `/api/v1/scope/targets/{id}/reject` | `attack_surface:scope:approve` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, CTEM program lead |
 | POST | `/api/v1/scope/targets/{id}/remind` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member |
+| POST | `/api/v1/scope/targets/{id}/replace` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member |
+| POST | `/api/v1/scope/targets/{id}/replace/preview` | `attack_surface:scope:write` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, Member |
 | POST | `/api/v1/scope/targets/{id}/self-approve` | `attack_surface:scope:approve` | config: scope targets, exclusions (two-person, L-07) and schedules |  | Owner, Administrator, CTEM program lead |

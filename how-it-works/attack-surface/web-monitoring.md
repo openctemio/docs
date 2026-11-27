@@ -86,15 +86,28 @@ flowchart LR
 1. A crawl or web scan report stores each web service as an asset and its
    endpoints below it: method, path template and parameter names. No value
    is stored.
-2. Each change of an endpoint is an event: appeared, returned, gone, status
+2. The web service's page has a **Paths** tab: its endpoints as a tree of
+   path segments, like folders. Each path shows how many endpoints and open
+   findings lie under it, with a mark for a critical or high finding and one
+   for paths under a scope exclusion (recorded, never requested, and always
+   listed). Variable parts of a path (`{int}`, `{uuid}`) are their own
+   entries. Filters hide static files (on by default), 4xx answers and gone
+   endpoints, or keep paths with findings, in or out of scope, or one method;
+   the line under the filters says how many endpoints they hide, with
+   **Show all**. Opening an endpoint lists its parameter names and the open
+   findings at its path (matched by path: a finding does not record the HTTP
+   method). On a phone each level is a list with a breadcrumb. A site no
+   crawl has visited says so, with **Crawl this site** for people who may
+   scan it.
+3. Each change of an endpoint is an event: appeared, returned, gone, status
    or authentication changed, parameter added. An endpoint not seen for 30
    days is gone; gone for 365 days, it is deleted.
-3. **Attack surface > Changes** reads the asset history, these events and
+4. **Attack surface > Changes** reads the asset history, these events and
    the exposures, and gives each change a kind: host added or removed, port
    opened or closed, certificate changed or expiring, DNS changed or
    dangling, technology changed, new exposure, and the web kinds (a new
    sensitive path, authentication lost, a sensitive parameter added).
-4. Once a week (Monday 08:00 UTC by default) each organization's owners and
+5. Once a week (Monday 08:00 UTC by default) each organization's owners and
    administrators get a digest of the past week. A quiet week sends nothing.
 
 ## When something fails

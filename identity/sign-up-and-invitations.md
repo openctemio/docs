@@ -66,6 +66,12 @@ password.
   it at the same moment. **Send a new verification link** (`POST /api/v1/auth/resend-verification`)
   sends the link again: the answer is always 202, and an address gets at most one email every two
   minutes. The verification failure page and a sign-in refused with `EMAIL_NOT_VERIFIED` offer it.
+- From v0.24.2, an account that an organization's single sign-on signed in and that has no
+  password cannot get one by email: forgot-password gives the same answer as for any address
+  and sends nothing, and a set-password link that still reaches it says it is invalid or
+  expired. The identity provider stays the only way in. Break-glass: an active owner of that
+  organization, and an active platform administrator, keep forgot-password. Accounts with a
+  password are unaffected.
 - After `AUTH_MAX_LOGIN_ATTEMPTS` (5) wrong passwords or codes, the account is locked for
   `AUTH_LOCKOUT_DURATION` (15 minutes). Each further run of 5 failures doubles the lock, up to
   24 hours. The counter resets only after a complete sign-in.

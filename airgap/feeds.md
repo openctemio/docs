@@ -49,7 +49,7 @@ access can relay the signed vulnerability feed and the release feed: see
 | Scanner templates | Tenant sources | Internal git or S3 source (the private-range allowlist is needed) | not stated | Templates not updated |
 | Sensor scanner content (nuclei, Trivy, opengrep) | A local mirror reachable by the sensor | Sensor-side local mirror or directory | not stated | Sensor health shows stale content |
 | Release feed and version check | `VERSION_CHECK_URL`, `VERSION_CHECK_ENABLED` | Admin import: `POST /api/v1/admin/version-check/import`, or the feed relay | On import | Newer versions are not learned |
-| CISA KEV and EPSS | The vulnerability feed (the platform never calls CISA or FIRST from v0.24.0) | Carried as signed side files of each vulnerability release: they arrive with the bundles from `VULNFEED_BUNDLE_DIR`, a mirror or the relay | With each vulnerability release; out of date after 6 hours (KEV) and 36 hours (EPSS), after v0.24.1 after the catalog's limit (KEV) and that limit plus a day (EPSS) | No KEV flags and no EPSS scores |
+| CISA KEV and EPSS | The vulnerability feed (the platform never calls CISA or FIRST from v0.24.0) | Carried as signed side files of each vulnerability release: they arrive with the bundles from `VULNFEED_BUNDLE_DIR`, a mirror or the relay | With each vulnerability release; out of date after 12 hours (KEV) and 36 hours (EPSS); KEV 6 hours before v0.24.2 | No KEV flags and no EPSS scores |
 | AI triage | Provider URLs are fixed | **None** | | AI triage unavailable |
 | Certificate transparency and RIPEstat (EASM) | Internet | **None**: internet-facing by nature | | Those EASM checks stop |
 | SMTP, Jira, chat, webhooks | Internal targets | Internal targets work (private-range allowlist) | | |
@@ -108,11 +108,11 @@ vulnerability release. Rules for `www.cisa.gov`, `raw.githubusercontent.com` and
 
 ## Keep the data fresh
 
-- Data older than its limit (catalog 12 hours, KEV 6 hours, EPSS 36 hours) shows
+- Data older than its limit (catalog and KEV 12 hours, EPSS 36 hours; KEV 6 hours before v0.24.2) shows
   as out of date and every user sees a banner; a release older than 7 days is
   refused as expired. With `VULNFEED_BUNDLE_DIR`, copy a newer release every few
   hours ([how](../operations/vulnerability-feed-setup.md#offline-no-network-path));
-  with a mirror, check that it keeps updating. After v0.24.1 the default KEV limit
+  with a mirror, check that it keeps updating. From v0.24.2 the default KEV limit
   moves to 12 hours, and a Platform owner can raise the catalog limit (6 to 168 hours,
   with a reason; recorded and announced) in **System > Threat intelligence > How old the
   data may be**, so a daily or twice-weekly copy shows no banner. A higher limit also
