@@ -11,7 +11,7 @@ nav_order: 1
 
 **Built-in roles** cannot be edited. Every new member starts as a viewer.
 
-**Role templates** are starting points for custom roles (Organization settings > People and access > Roles > New role > Start from a template). A template grants nothing until a role is created from it, and nobody can create a role holding permissions they lack.
+**Role templates** are starting points for custom roles (Settings > Roles > New role > Start from a template). A template grants nothing until a role is created from it, and nobody can create a role holding permissions they lack.
 
 A person may hold several roles; their permissions are the union. Roles never decide which assets someone sees, except roles with full data access. Teams decide that.
 

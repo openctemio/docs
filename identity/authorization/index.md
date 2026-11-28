@@ -45,10 +45,10 @@ A refused permission answers 403 with `details.missing_permissions` (or `details
 | [Dashboards and reports](features/dashboards-reports.md) | `reports` | 48 |
 | [Integrations and API keys](features/integrations.md) | `integrations`, `scans` | 70 |
 | [Members, roles and teams](features/access.md) |  | 99 |
-| [Organization settings and audit](features/organization.md) |  | 104 |
+| [Organization settings and audit](features/organization.md) |  | 106 |
 | [MCP and AI clients](features/mcp.md) |  | 32 |
 | [Sign-in and own account](features/account.md) |  | 80 |
-| [Platform admin console](features/admin-console.md) |  | 240 |
+| [Platform admin console](features/admin-console.md) |  | 243 |
 | [System endpoints](features/system.md) |  | 15 |
 
 ## Data scope classes

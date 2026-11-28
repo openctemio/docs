@@ -56,6 +56,8 @@ Built-in roles and role templates whose permissions pass each route. Owner and a
 | PUT | `/api/v1/organization/settings/ai` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/ai/auto-triage` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/ai/auto-triage` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
+| GET | `/api/v1/organization/settings/ai/autonomy` | `settings:read` | config: organization settings |  | Owner, Administrator, Member, Viewer, CTEM program lead, Security analyst, Vulnerability manager, Remediation owner, Remediation lead, AppSec engineer, Scan operator, Validation engineer, Validation lead, Detection engineer, Bug-bounty triager, Threat intelligence analyst, Risk approver, Auditor |
+| PUT | `/api/v1/organization/settings/ai/autonomy` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | GET | `/api/v1/organization/settings/ai/masking` | `settings:read` + team role admin | config: organization settings |  | Owner, Administrator |
 | PUT | `/api/v1/organization/settings/ai/masking` | `settings:write` + team role admin | config: organization settings |  | Owner, Administrator |
 | POST | `/api/v1/organization/settings/ai/masking/preview` | `settings:read` + team role admin | scoped: reads one finding under the caller's data scope and pentest campaign rules (GetFindingWithScope) and returns it masked; owner or administrator only |  | Owner, Administrator |
